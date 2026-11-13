@@ -52,7 +52,8 @@ def verify_v2() -> list[dict[str, object]]:
         fail("CSV 目录编号与 JSON 不一致")
     if len({item["name"] for item in catalog}) != 350:
         fail("新版目录中存在重复名称")
-    if len({item["image"] for item in catalog}) != 350:
+    paths = [path for item in catalog for path in (item["image"], item.get("variant_image")) if path]
+    if len(set(paths)) != len(paths):
         fail("新版目录中存在重复图片路径")
     categories = {item["category_slug"] for item in catalog}
     if len(categories) != 8:
@@ -66,21 +67,32 @@ def verify_v2() -> list[dict[str, object]]:
                 fail(f"{json_item['id']} 的 JSON/CSV 字段不一致：{field}")
 
     for item in catalog:
-        image_path = REPO / str(item["image"])
-        thumb_path = REPO / str(item["thumbnail"])
-        if not image_path.is_file() or not thumb_path.is_file():
-            fail(f"{item['id']} 缺少高清图或缩略图")
-        if not image_path.name.startswith(f"{item['id']}-{item['name']}"):
-            fail(f"{item['id']} 名称与图片文件名不一致")
-        with Image.open(image_path) as image:
-            image.verify()
-        with Image.open(image_path) as image:
-            if list(image.size) != [int(item["width"]), int(item["height"])]:
-                fail(f"{item['id']} 图片尺寸与目录不一致")
-        with Image.open(thumb_path) as thumbnail:
-            thumbnail.verify()
-        if digest(image_path) != item["sha256"]:
-            fail(f"{item['id']} SHA-256 与目录不一致")
+        if not item["image"]:
+            if item["thumbnail"] or item["sha256"] or item.get("variant_image"):
+                fail(f"{item['id']} 标为待补图，却仍带有图片字段")
+            continue
+        renditions = [(item["image"], item["thumbnail"], item["sha256"], f"{item['id']}-{item['name']}.png")]
+        if item.get("variant_image"):
+            renditions.append((item["variant_image"], item["variant_thumbnail"], item["variant_sha256"], f"{item['id']}-{item['name']}-第二版.png"))
+        for image_rel, thumb_rel, sha, filename in renditions:
+            image_path = REPO / str(image_rel)
+            thumb_path = REPO / str(thumb_rel)
+            if not image_path.is_file() or not thumb_path.is_file():
+                fail(f"{item['id']} 缺少高清图或缩略图：{image_rel}")
+            if image_path.name != filename or thumb_path.name != f"{Path(filename).stem}.jpg":
+                fail(f"{item['id']} 名称与图片文件名不一致：{image_rel}")
+            with Image.open(image_path) as image:
+                image.verify()
+            with Image.open(image_path) as image:
+                if list(image.size) != [int(item["width"]), int(item["height"])]:
+                    fail(f"{item['id']} 图片尺寸与目录不一致")
+            with Image.open(thumb_path) as thumbnail:
+                thumbnail.verify()
+            if digest(image_path) != sha:
+                fail(f"{item['id']} SHA-256 与目录不一致：{image_rel}")
+    on_disk = {path.relative_to(REPO).as_posix() for path in (REPO / "v2" / "images").rglob("*.png")}
+    if on_disk != set(paths):
+        fail(f"v2/images 与目录不一致：多出 {sorted(on_disk - set(paths))[:3]}，缺少 {sorted(set(paths) - on_disk)[:3]}")
     return catalog
 
 
@@ -104,17 +116,24 @@ def verify_markdown_links() -> None:
                     fail(f"页面锚点不存在：{page.relative_to(REPO)} -> {link}")
 
 
-def verify_default_gallery() -> None:
+def verify_default_gallery(catalog: list[dict[str, object]]) -> None:
     text = (REPO / "README.md").read_text(encoding="utf-8")
     start_marker = "<!-- default-gallery:start -->"
     end_marker = "<!-- default-gallery:end -->"
     if text.count(start_marker) != 1 or text.count(end_marker) != 1:
         fail("README 默认画廊标记异常")
     gallery = text.split(start_marker, 1)[1].split(end_marker, 1)[0]
-    expected = [f'v2/thumbnails/01-composition-logic/{number:03d}-' for number in range(1, 87)]
-    missing = [prefix for prefix in expected if gallery.count(prefix) != 1]
-    if missing or gallery.count('v2/thumbnails/01-composition-logic/') != 86:
-        fail("README 未默认完整展示构图逻辑 001–086")
+    composition = [item for item in catalog if item["category_slug"] == "01-composition-logic"]
+    expected = {
+        f'v2/thumbnails/01-composition-logic/{item["id"]}-': (1 if item["image"] else 0) + (1 if item.get("variant_image") else 0)
+        for item in composition
+    }
+    wrong = [prefix for prefix, count in expected.items() if gallery.count(prefix) != count]
+    if len(composition) != 86 or wrong:
+        fail(f"README 未默认完整展示构图逻辑 001–086：{wrong[:3]}")
+    for item in composition:
+        if not item["image"] and f"**{item['id']}**<br>{item['name']}<br>待补图" not in gallery:
+            fail(f"README 未标出待补图：{item['id']}")
 
 
 def verify_gallery_cells() -> None:
@@ -131,14 +150,16 @@ def main() -> None:
     verify_classic()
     catalog = verify_v2()
     verify_markdown_links()
-    verify_default_gallery()
+    verify_default_gallery(catalog)
     verify_gallery_cells()
     category_counts: dict[str, int] = {}
     for item in catalog:
         category = str(item["category"])
         category_counts[category] = category_counts.get(category, 0) + 1
     summary = "，".join(f"{name} {count}" for name, count in category_counts.items())
-    print(f"验证通过：README 默认展示构图逻辑 86 张；经典版 100 张；新版 350 张 / 8 个一级分类 / 33 个二级分类（{summary}）；本地链接完整。")
+    missing = sum(1 for item in catalog if not item["image"])
+    variants = sum(1 for item in catalog if item.get("variant_image"))
+    print(f"验证通过：README 默认展示构图逻辑 86 种；经典版 100 张；新版 350 种 / 8 个一级分类 / 33 个二级分类（{summary}），其中待补图 {missing} 种、第二版 {variants} 张；本地链接完整。")
 
 
 if __name__ == "__main__":

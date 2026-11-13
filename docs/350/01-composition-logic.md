@@ -100,9 +100,9 @@ X、T、L、V、Z、C、S 形及曲线节奏。 `031–040`
 | :---: | :---: | :---: | :---: |
 | **057**<br>棋盘构图 | **058**<br>阶梯构图 | **059**<br>层叠构图 | **060**<br>级联构图 |
 
-| <a href="../../v2/images/01-composition-logic/061-聚类构图.png"><img src="../../v2/thumbnails/01-composition-logic/061-聚类构图.jpg" width="180" alt="061 聚类构图"></a> | <a href="../../v2/images/01-composition-logic/062-分散构图.png"><img src="../../v2/thumbnails/01-composition-logic/062-分散构图.jpg" width="180" alt="062 分散构图"></a> | <a href="../../v2/images/01-composition-logic/063-分支构图.png"><img src="../../v2/thumbnails/01-composition-logic/063-分支构图.jpg" width="180" alt="063 分支构图"></a> | <a href="../../v2/images/01-composition-logic/064-网络构图.png"><img src="../../v2/thumbnails/01-composition-logic/064-网络构图.jpg" width="180" alt="064 网络构图"></a> |
+| <a href="../../v2/images/01-composition-logic/061-聚类构图.png"><img src="../../v2/thumbnails/01-composition-logic/061-聚类构图.jpg" width="180" alt="061 聚类构图"></a> | <a href="../../v2/images/01-composition-logic/062-分散构图.png"><img src="../../v2/thumbnails/01-composition-logic/062-分散构图.jpg" width="180" alt="062 分散构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="063 分支构图（待补图）"> | <a href="../../v2/images/01-composition-logic/064-网络构图.png"><img src="../../v2/thumbnails/01-composition-logic/064-网络构图.jpg" width="180" alt="064 网络构图"></a> |
 | :---: | :---: | :---: | :---: |
-| **061**<br>聚类构图 | **062**<br>分散构图 | **063**<br>分支构图 | **064**<br>网络构图 |
+| **061**<br>聚类构图 | **062**<br>分散构图 | **063**<br>分支构图<br>待补图 | **064**<br>网络构图 |
 
 <a id="depth-projection"></a>
 
@@ -110,17 +110,21 @@ X、T、L、V、Z、C、S 形及曲线节奏。 `031–040`
 
 前中后景、尺度递减、线性透视和轴测投影。 `065–076`
 
-| <a href="../../v2/images/01-composition-logic/065-前中后景构图.png"><img src="../../v2/thumbnails/01-composition-logic/065-前中后景构图.jpg" width="180" alt="065 前中后景构图"></a> | <a href="../../v2/images/01-composition-logic/066-前景框架构图.png"><img src="../../v2/thumbnails/01-composition-logic/066-前景框架构图.jpg" width="180" alt="066 前景框架构图"></a> | <a href="../../v2/images/01-composition-logic/067-重叠空间构图.png"><img src="../../v2/thumbnails/01-composition-logic/067-重叠空间构图.jpg" width="180" alt="067 重叠空间构图"></a> | <a href="../../v2/images/01-composition-logic/068-尺度递减构图.png"><img src="../../v2/thumbnails/01-composition-logic/068-尺度递减构图.jpg" width="180" alt="068 尺度递减构图"></a> |
+| <a href="../../v2/images/01-composition-logic/065-前中后景构图.png"><img src="../../v2/thumbnails/01-composition-logic/065-前中后景构图.jpg" width="180" alt="065 前中后景构图"></a> | <a href="../../v2/images/01-composition-logic/066-前景框架构图.png"><img src="../../v2/thumbnails/01-composition-logic/066-前景框架构图.jpg" width="180" alt="066 前景框架构图"></a> | <a href="../../v2/images/01-composition-logic/066-前景框架构图-第二版.png"><img src="../../v2/thumbnails/01-composition-logic/066-前景框架构图-第二版.jpg" width="180" alt="066 前景框架构图 · 第二版"></a> | <a href="../../v2/images/01-composition-logic/067-重叠空间构图.png"><img src="../../v2/thumbnails/01-composition-logic/067-重叠空间构图.jpg" width="180" alt="067 重叠空间构图"></a> |
 | :---: | :---: | :---: | :---: |
-| **065**<br>前中后景构图 | **066**<br>前景框架构图 | **067**<br>重叠空间构图 | **068**<br>尺度递减构图 |
+| **065**<br>前中后景构图 | **066**<br>前景框架构图 | **066**<br>前景框架构图 · 第二版 | **067**<br>重叠空间构图 |
 
-| <a href="../../v2/images/01-composition-logic/069-线性透视.png"><img src="../../v2/thumbnails/01-composition-logic/069-线性透视.jpg" width="180" alt="069 线性透视"></a> | <a href="../../v2/images/01-composition-logic/070-一点透视.png"><img src="../../v2/thumbnails/01-composition-logic/070-一点透视.jpg" width="180" alt="070 一点透视"></a> | <a href="../../v2/images/01-composition-logic/071-两点透视.png"><img src="../../v2/thumbnails/01-composition-logic/071-两点透视.jpg" width="180" alt="071 两点透视"></a> | <a href="../../v2/images/01-composition-logic/072-三点透视.png"><img src="../../v2/thumbnails/01-composition-logic/072-三点透视.jpg" width="180" alt="072 三点透视"></a> |
+| <a href="../../v2/images/01-composition-logic/068-尺度递减构图.png"><img src="../../v2/thumbnails/01-composition-logic/068-尺度递减构图.jpg" width="180" alt="068 尺度递减构图"></a> | <a href="../../v2/images/01-composition-logic/069-线性透视.png"><img src="../../v2/thumbnails/01-composition-logic/069-线性透视.jpg" width="180" alt="069 线性透视"></a> | <a href="../../v2/images/01-composition-logic/070-一点透视.png"><img src="../../v2/thumbnails/01-composition-logic/070-一点透视.jpg" width="180" alt="070 一点透视"></a> | <a href="../../v2/images/01-composition-logic/071-两点透视.png"><img src="../../v2/thumbnails/01-composition-logic/071-两点透视.jpg" width="180" alt="071 两点透视"></a> |
 | :---: | :---: | :---: | :---: |
-| **069**<br>线性透视 | **070**<br>一点透视 | **071**<br>两点透视 | **072**<br>三点透视 |
+| **068**<br>尺度递减构图 | **069**<br>线性透视 | **070**<br>一点透视 | **071**<br>两点透视 |
 
-| <a href="../../v2/images/01-composition-logic/073-平行透视构图.png"><img src="../../v2/thumbnails/01-composition-logic/073-平行透视构图.jpg" width="180" alt="073 平行透视构图"></a> | <a href="../../v2/images/01-composition-logic/074-斜投影构图.png"><img src="../../v2/thumbnails/01-composition-logic/074-斜投影构图.jpg" width="180" alt="074 斜投影构图"></a> | <a href="../../v2/images/01-composition-logic/075-等距构图.png"><img src="../../v2/thumbnails/01-composition-logic/075-等距构图.jpg" width="180" alt="075 等距构图"></a> | <a href="../../v2/images/01-composition-logic/076-轴测构图.png"><img src="../../v2/thumbnails/01-composition-logic/076-轴测构图.jpg" width="180" alt="076 轴测构图"></a> |
+| <a href="../../v2/images/01-composition-logic/072-三点透视.png"><img src="../../v2/thumbnails/01-composition-logic/072-三点透视.jpg" width="180" alt="072 三点透视"></a> | <a href="../../v2/images/01-composition-logic/073-平行透视构图.png"><img src="../../v2/thumbnails/01-composition-logic/073-平行透视构图.jpg" width="180" alt="073 平行透视构图"></a> | <a href="../../v2/images/01-composition-logic/074-斜投影构图.png"><img src="../../v2/thumbnails/01-composition-logic/074-斜投影构图.jpg" width="180" alt="074 斜投影构图"></a> | <a href="../../v2/images/01-composition-logic/075-等距构图.png"><img src="../../v2/thumbnails/01-composition-logic/075-等距构图.jpg" width="180" alt="075 等距构图"></a> |
 | :---: | :---: | :---: | :---: |
-| **073**<br>平行透视构图 | **074**<br>斜投影构图 | **075**<br>等距构图 | **076**<br>轴测构图 |
+| **072**<br>三点透视 | **073**<br>平行透视构图 | **074**<br>斜投影构图 | **075**<br>等距构图 |
+
+| <a href="../../v2/images/01-composition-logic/076-轴测构图.png"><img src="../../v2/thumbnails/01-composition-logic/076-轴测构图.jpg" width="180" alt="076 轴测构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| :---: | :---: | :---: | :---: |
+| **076**<br>轴测构图 | &nbsp; | &nbsp; | &nbsp; |
 
 <a id="viewpoint-focus"></a>
 

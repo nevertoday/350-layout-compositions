@@ -58,17 +58,17 @@
 
 相似、邻近、连续、闭合、图底与共同区域。 `115–126`
 
-| <a href="../../v2/images/02-visual-principles/115-相似性原则.png"><img src="../../v2/thumbnails/02-visual-principles/115-相似性原则.jpg" width="180" alt="115 相似性原则"></a> | <a href="../../v2/images/02-visual-principles/116-邻近性原则.png"><img src="../../v2/thumbnails/02-visual-principles/116-邻近性原则.jpg" width="180" alt="116 邻近性原则"></a> | <a href="../../v2/images/02-visual-principles/117-连续性原则.png"><img src="../../v2/thumbnails/02-visual-principles/117-连续性原则.jpg" width="180" alt="117 连续性原则"></a> | <a href="../../v2/images/02-visual-principles/118-闭合性原则.png"><img src="../../v2/thumbnails/02-visual-principles/118-闭合性原则.jpg" width="180" alt="118 闭合性原则"></a> |
+| <a href="../../v2/images/02-visual-principles/115-相似性原则.png"><img src="../../v2/thumbnails/02-visual-principles/115-相似性原则.jpg" width="180" alt="115 相似性原则"></a> | <a href="../../v2/images/02-visual-principles/116-邻近性原则.png"><img src="../../v2/thumbnails/02-visual-principles/116-邻近性原则.jpg" width="180" alt="116 邻近性原则"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="117 连续性原则（待补图）"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="118 闭合性原则（待补图）"> |
 | :---: | :---: | :---: | :---: |
-| **115**<br>相似性原则 | **116**<br>邻近性原则 | **117**<br>连续性原则 | **118**<br>闭合性原则 |
+| **115**<br>相似性原则 | **116**<br>邻近性原则 | **117**<br>连续性原则<br>待补图 | **118**<br>闭合性原则<br>待补图 |
 
-| <a href="../../v2/images/02-visual-principles/119-图底关系原则.png"><img src="../../v2/thumbnails/02-visual-principles/119-图底关系原则.jpg" width="180" alt="119 图底关系原则"></a> | <a href="../../v2/images/02-visual-principles/120-共同区域原则.png"><img src="../../v2/thumbnails/02-visual-principles/120-共同区域原则.jpg" width="180" alt="120 共同区域原则"></a> | <a href="../../v2/images/02-visual-principles/121-共同命运原则.png"><img src="../../v2/thumbnails/02-visual-principles/121-共同命运原则.jpg" width="180" alt="121 共同命运原则"></a> | <a href="../../v2/images/02-visual-principles/122-简化构图原则.png"><img src="../../v2/thumbnails/02-visual-principles/122-简化构图原则.jpg" width="180" alt="122 简化构图原则"></a> |
+| <img src="../../docs/images/layout-placeholder.svg" width="180" alt="119 图底关系原则（待补图）"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="120 共同区域原则（待补图）"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="121 共同命运原则（待补图）"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="122 简化构图原则（待补图）"> |
 | :---: | :---: | :---: | :---: |
-| **119**<br>图底关系原则 | **120**<br>共同区域原则 | **121**<br>共同命运原则 | **122**<br>简化构图原则 |
+| **119**<br>图底关系原则<br>待补图 | **120**<br>共同区域原则<br>待补图 | **121**<br>共同命运原则<br>待补图 | **122**<br>简化构图原则<br>待补图 |
 
-| <a href="../../v2/images/02-visual-principles/123-裁切构图.png"><img src="../../v2/thumbnails/02-visual-principles/123-裁切构图.jpg" width="180" alt="123 裁切构图"></a> | <a href="../../v2/images/02-visual-principles/124-满幅构图.png"><img src="../../v2/thumbnails/02-visual-principles/124-满幅构图.jpg" width="180" alt="124 满幅构图"></a> | <a href="../../v2/images/02-visual-principles/125-疏密对比原则.png"><img src="../../v2/thumbnails/02-visual-principles/125-疏密对比原则.jpg" width="180" alt="125 疏密对比原则"></a> | <a href="../../v2/images/02-visual-principles/126-群组构图.png"><img src="../../v2/thumbnails/02-visual-principles/126-群组构图.jpg" width="180" alt="126 群组构图"></a> |
+| <img src="../../docs/images/layout-placeholder.svg" width="180" alt="123 裁切构图（待补图）"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="124 满幅构图（待补图）"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="125 疏密对比原则（待补图）"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="126 群组构图（待补图）"> |
 | :---: | :---: | :---: | :---: |
-| **123**<br>裁切构图 | **124**<br>满幅构图 | **125**<br>疏密对比原则 | **126**<br>群组构图 |
+| **123**<br>裁切构图<br>待补图 | **124**<br>满幅构图<br>待补图 | **125**<br>疏密对比原则<br>待补图 | **126**<br>群组构图<br>待补图 |
 
 <a id="reading-patterns"></a>
 
