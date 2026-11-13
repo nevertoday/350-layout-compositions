@@ -4,7 +4,7 @@
 
 > 这是原「100 种排版」项目的新版扩展。旧版 100 张高清图、缩略图和下方画廊均原样保留，原有链接继续可用。
 >
-> **2026-11-12 修正：** 新版首次导入时图片和名称错位，330 张图挂在了别的名字下。现在每张图都按图上印的标题归回原名。其中 11 种重复生成了两张，第二张标为「第二版」放在旁边；另有 11 种当时没有生成出来，暂时标为「待补图」。
+> **2026-11-12 修正：** 新版首次导入时图片和名称错位，330 张图挂在了别的名字下。现在每张图都按图上印的标题归回原名。其中 11 种重复生成了两张，第二张标为「第二版」放在旁边；另有 11 种当时没有生成出来，已按同样的风格补齐，现在 350 种都有图。
 
 ## 浏览新版
 
@@ -127,9 +127,9 @@ X、T、L、V、Z、C、S 形及曲线节奏。 `031–040`
 | :---: | :---: | :---: | :---: |
 | **057**<br>棋盘构图 | **058**<br>阶梯构图 | **059**<br>层叠构图 | **060**<br>级联构图 |
 
-| <a href="v2/images/01-composition-logic/061-聚类构图.png"><img src="v2/thumbnails/01-composition-logic/061-聚类构图.jpg" width="180" alt="061 聚类构图"></a> | <a href="v2/images/01-composition-logic/062-分散构图.png"><img src="v2/thumbnails/01-composition-logic/062-分散构图.jpg" width="180" alt="062 分散构图"></a> | <img src="docs/images/layout-placeholder.svg" width="180" alt="063 分支构图（待补图）"> | <a href="v2/images/01-composition-logic/064-网络构图.png"><img src="v2/thumbnails/01-composition-logic/064-网络构图.jpg" width="180" alt="064 网络构图"></a> |
+| <a href="v2/images/01-composition-logic/061-聚类构图.png"><img src="v2/thumbnails/01-composition-logic/061-聚类构图.jpg" width="180" alt="061 聚类构图"></a> | <a href="v2/images/01-composition-logic/062-分散构图.png"><img src="v2/thumbnails/01-composition-logic/062-分散构图.jpg" width="180" alt="062 分散构图"></a> | <a href="v2/images/01-composition-logic/063-分支构图.png"><img src="v2/thumbnails/01-composition-logic/063-分支构图.jpg" width="180" alt="063 分支构图"></a> | <a href="v2/images/01-composition-logic/064-网络构图.png"><img src="v2/thumbnails/01-composition-logic/064-网络构图.jpg" width="180" alt="064 网络构图"></a> |
 | :---: | :---: | :---: | :---: |
-| **061**<br>聚类构图 | **062**<br>分散构图 | **063**<br>分支构图<br>待补图 | **064**<br>网络构图 |
+| **061**<br>聚类构图 | **062**<br>分散构图 | **063**<br>分支构图 | **064**<br>网络构图 |
 
 <a id="default-depth-projection"></a>
 
