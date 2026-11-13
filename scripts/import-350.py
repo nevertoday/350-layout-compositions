@@ -132,19 +132,32 @@ def layout_name(row: dict[str, str]) -> str:
     return Path(image_name(row)).stem.split("-", 1)[1]
 
 
-def gallery_tables(items: list[dict[str, object]], path_prefix: str = "") -> list[str]:
+def gallery_cells(item: dict[str, object], path_prefix: str) -> list[tuple[str, str]]:
+    """One cell per image of an entry: missing entries get a marked placeholder, a second rendition gets its own cell."""
+    if not item["image"]:
+        return [(
+            f'<img src="{path_prefix}docs/images/layout-placeholder.svg" width="180" alt="{item["id"]} {item["name"]}（待补图）">',
+            f'**{item["id"]}**<br>{item["name"]}<br>待补图',
+        )]
+    renditions = [(item["image"], item["thumbnail"], "")]
+    if item.get("variant_image"):
+        renditions.append((item["variant_image"], item["variant_thumbnail"], " · 第二版"))
+    return [
+        (
+            f'<a href="{path_prefix}{image}"><img src="{path_prefix}{thumb}" width="180" alt="{item["id"]} {item["name"]}{suffix}"></a>',
+            f'**{item["id"]}**<br>{item["name"]}{suffix}',
+        )
+        for image, thumb, suffix in renditions
+    ]
+
+
+def gallery_tables(entries: list[dict[str, object]], path_prefix: str = "") -> list[str]:
     lines: list[str] = []
-    for offset in range(0, len(items), 4):
-        group = items[offset : offset + 4]
-        cells = []
-        labels = []
-        for item in group:
-            full = Path(str(item["image"]))
-            thumb = Path(str(item["thumbnail"]))
-            cells.append(
-                f'<a href="{path_prefix}{full.as_posix()}"><img src="{path_prefix}{thumb.as_posix()}" width="180" alt="{item["id"]} {item["name"]}"></a>'
-            )
-            labels.append(f'**{item["id"]}**<br>{item["name"]}')
+    flat = [cell for item in entries for cell in gallery_cells(item, path_prefix)]
+    for offset in range(0, len(flat), 4):
+        group = flat[offset : offset + 4]
+        cells = [cell for cell, _ in group]
+        labels = [label for _, label in group]
         while len(cells) < 4:
             cells.append(
                 f'<img src="{path_prefix}docs/images/layout-placeholder.svg" width="180" alt="空白占位">'
@@ -295,14 +308,45 @@ def build_index(repo: Path, grouped: dict[str, list[dict[str, object]]]) -> None
     (repo / "docs" / "350" / "README.md").write_text("\n".join(lines), encoding="utf-8")
 
 
+CATALOG_FIELDS = [
+    "id", "name", "category", "category_slug", "subcategory", "subcategory_slug",
+    "image", "thumbnail", "width", "height", "sha256",
+    "variant_image", "variant_thumbnail", "variant_sha256",
+]
+
+
+def write_catalog(repo: Path, catalog: list[dict[str, object]]) -> None:
+    with (repo / "v2" / "catalog.json").open("w", encoding="utf-8") as target:
+        json.dump(catalog, target, ensure_ascii=False, indent=2)
+        target.write("\n")
+    with (repo / "v2" / "catalog.csv").open("w", encoding="utf-8-sig", newline="") as target:
+        writer = csv.DictWriter(target, fieldnames=CATALOG_FIELDS, lineterminator="\n", restval="")
+        writer.writeheader()
+        writer.writerows(catalog)
+
+
+def build_docs(repo: Path, catalog: list[dict[str, object]]) -> None:
+    grouped = {category.source_name: [item for item in catalog if item["category_slug"] == category.slug] for category in CATEGORIES}
+    for category in CATEGORIES:
+        build_gallery_page(repo, category, grouped[category.source_name])
+    build_index(repo, grouped)
+    build_readme_default_gallery(repo, grouped[CATEGORIES[0].source_name])
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("source", type=Path, help="350 张瑞士平面图片目录")
+    parser.add_argument("source", type=Path, nargs="?", help="350 张瑞士平面图片目录")
+    parser.add_argument("--from-catalog", action="store_true", help="不读源目录，按 v2/catalog.json 重建 Markdown")
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--skip-images", action="store_true", help="只重建目录和 Markdown")
     args = parser.parse_args()
 
     repo = args.repo.resolve()
+    if args.from_catalog:
+        catalog = json.loads((repo / "v2" / "catalog.json").read_text(encoding="utf-8"))
+        build_docs(repo, catalog)
+        print(f"已按目录重建 {len(catalog)} 项的 Markdown。")
+        return
     source = args.source.resolve()
     mapping_path = source / "整理结果" / "图片对应关系.tsv"
     source_images = source / "整理结果" / "按主题分组"
@@ -315,7 +359,6 @@ def main() -> None:
     (repo / "docs" / "350").mkdir(parents=True, exist_ok=True)
     (repo / "v2" / "images").mkdir(parents=True, exist_ok=True)
     (repo / "v2" / "thumbnails").mkdir(parents=True, exist_ok=True)
-    grouped: dict[str, list[dict[str, object]]] = {category.source_name: [] for category in CATEGORIES}
     catalog: list[dict[str, object]] = []
 
     for row in rows:
@@ -355,24 +398,9 @@ def main() -> None:
             "sha256": sha256(target_image),
         }
         catalog.append(item)
-        grouped[row["主题"]].append(item)
 
-    with (repo / "v2" / "catalog.json").open("w", encoding="utf-8") as target:
-        json.dump(catalog, target, ensure_ascii=False, indent=2)
-        target.write("\n")
-    with (repo / "v2" / "catalog.csv").open("w", encoding="utf-8-sig", newline="") as target:
-        fields = [
-            "id", "name", "category", "category_slug", "subcategory", "subcategory_slug",
-            "image", "thumbnail", "width", "height", "sha256",
-        ]
-        writer = csv.DictWriter(target, fieldnames=fields, lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(catalog)
-
-    for category in CATEGORIES:
-        build_gallery_page(repo, category, grouped[category.source_name])
-    build_index(repo, grouped)
-    build_readme_default_gallery(repo, grouped[CATEGORIES[0].source_name])
+    write_catalog(repo, catalog)
+    build_docs(repo, catalog)
     print(f"已导入 {len(catalog)} 张图片，生成 {len(CATEGORIES)} 个分类页面。")
 
 
