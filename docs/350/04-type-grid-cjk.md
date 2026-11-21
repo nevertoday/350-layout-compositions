@@ -1,6 +1,6 @@
 # 字体、网格与东亚文字 · 54 种
 
-[总览](README.md) · [01&nbsp;构图逻辑](01-composition-logic.md)&nbsp;86 · [02&nbsp;视觉原则](02-visual-principles.md)&nbsp;45 · [03&nbsp;出版广告](03-editorial-advertising.md)&nbsp;36 · 04&nbsp;字体网格&nbsp;54 · [05&nbsp;网页&nbsp;UI](05-web-ui.md)&nbsp;79 · [06&nbsp;影视画面](06-film-frame.md)&nbsp;14 · [07&nbsp;中国传统](07-chinese-composition.md)&nbsp;20 · [08&nbsp;演示文稿](08-presentation.md)&nbsp;16
+[总⁠览](README.md) · [0⁠1⁠ ⁠构⁠图⁠逻⁠辑](01-composition-logic.md) 86 · [0⁠2⁠ ⁠视⁠觉⁠原⁠则](02-visual-principles.md) 45 · [0⁠3⁠ ⁠出⁠版⁠广⁠告](03-editorial-advertising.md) 36 · 0⁠4⁠ ⁠字⁠体⁠网⁠格 54 · [0⁠5⁠ ⁠网⁠页⁠ ⁠U⁠I](05-web-ui.md) 79 · [0⁠6⁠ ⁠影⁠视⁠画⁠面](06-film-frame.md) 14 · [0⁠7⁠ ⁠中⁠国⁠传⁠统](07-chinese-composition.md) 20 · [0⁠8⁠ ⁠演⁠示⁠文⁠稿](08-presentation.md) 16
 
 聚焦字体编排、网格系统，以及横排、直排和中西文混排。
 

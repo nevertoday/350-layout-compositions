@@ -173,13 +173,21 @@ def gallery_tables(entries: list[dict[str, object]], path_prefix: str = "") -> l
     return lines
 
 
-def category_nav(grouped: dict[str, list[dict[str, object]]], current: str) -> str:
-    links = ["总览" if current == "README" else "[总览](README.md)"]
-    for index, category in enumerate(CATEGORIES, start=1):
-        label = f"{index:02d}&nbsp;" + category.short.replace(" ", "&nbsp;")
-        count = len(grouped[category.source_name])
-        links.append(f"{label}&nbsp;{count}" if current == category.slug else f"[{label}]({category.slug}.md)&nbsp;{count}")
-    return " · ".join(links)
+def nobreak(text: str) -> str:
+    """Han characters are line-break opportunities, so a phone splits 网页 unless U+2060 joins every character."""
+    return "\u2060".join(text.replace(" ", "\u00a0"))
+
+
+def category_nav(grouped: dict[str, list[dict[str, object]]], current: str | None, prefix: str = "") -> str:
+    """The overview and the 8 categories on one line; `current` names this page (README for the overview) and is left unlinked."""
+    pages = [("README", "总览", "")] + [
+        (category.slug, f"{index:02d} {category.short}", f"\u00a0{len(grouped[category.source_name])}")
+        for index, category in enumerate(CATEGORIES, start=1)
+    ]
+    return "\u00a0· ".join(
+        (nobreak(label) if page == current else f"[{nobreak(label)}]({prefix}{page}.md)") + count
+        for page, label, count in pages
+    )
 
 
 def build_gallery_page(
@@ -215,16 +223,19 @@ def build_gallery_page(
     page.write_text("\n".join(lines), encoding="utf-8")
 
 
-def build_readme_default_gallery(repo: Path, items: list[dict[str, object]]) -> None:
-    readme = repo / "README.md"
-    text = readme.read_text(encoding="utf-8")
-    start_marker = "<!-- default-gallery:start -->"
-    end_marker = "<!-- default-gallery:end -->"
+def replace_marked(text: str, name: str, lines: list[str]) -> str:
+    start_marker, end_marker = f"<!-- {name}:start -->", f"<!-- {name}:end -->"
     if start_marker not in text or end_marker not in text:
-        raise ValueError("README 缺少默认画廊标记")
+        raise ValueError(f"README 缺少 {name} 标记")
+    prefix, remainder = text.split(start_marker, 1)
+    _, suffix = remainder.split(end_marker, 1)
+    return prefix + "\n".join([start_marker, *lines, end_marker]) + suffix
 
+
+def build_readme(repo: Path, grouped: dict[str, list[dict[str, object]]]) -> None:
+    readme = repo / "README.md"
+    items = grouped[CATEGORIES[0].source_name]
     lines = [
-        start_marker,
         "## 默认展示 · 构图逻辑 86 种",
         "",
         "进入项目即可浏览全部 86 种构图逻辑；点击缩略图打开 1086 × 1448 高清 PNG。",
@@ -248,11 +259,10 @@ def build_readme_default_gallery(repo: Path, items: list[dict[str, object]]) -> 
             ]
         )
         lines.extend(gallery_tables(subgroup))
-    lines.extend([end_marker, ""])
-
-    prefix, remainder = text.split(start_marker, 1)
-    _, suffix = remainder.split(end_marker, 1)
-    readme.write_text(prefix + "\n".join(lines) + suffix.lstrip("\n"), encoding="utf-8")
+    text = readme.read_text(encoding="utf-8")
+    text = replace_marked(text, "category-nav", ["", category_nav(grouped, None, "docs/350/"), ""])
+    text = replace_marked(text, "default-gallery", lines)
+    readme.write_text(text, encoding="utf-8")
 
 
 def build_index(repo: Path, grouped: dict[str, list[dict[str, object]]]) -> None:
@@ -330,7 +340,7 @@ def build_docs(repo: Path, catalog: list[dict[str, object]]) -> None:
     for category in CATEGORIES:
         build_gallery_page(repo, category, grouped[category.source_name], grouped)
     build_index(repo, grouped)
-    build_readme_default_gallery(repo, grouped[CATEGORIES[0].source_name])
+    build_readme(repo, grouped)
 
 
 def main() -> None:

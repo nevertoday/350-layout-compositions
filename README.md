@@ -14,7 +14,11 @@
 
 ### 一级分类
 
-[01&nbsp;构图逻辑](docs/350/01-composition-logic.md)&nbsp;86 · [02&nbsp;视觉原则](docs/350/02-visual-principles.md)&nbsp;45 · [03&nbsp;出版广告](docs/350/03-editorial-advertising.md)&nbsp;36 · [04&nbsp;字体网格](docs/350/04-type-grid-cjk.md)&nbsp;54 · [05&nbsp;网页&nbsp;UI](docs/350/05-web-ui.md)&nbsp;79 · [06&nbsp;影视画面](docs/350/06-film-frame.md)&nbsp;14 · [07&nbsp;中国传统](docs/350/07-chinese-composition.md)&nbsp;20 · [08&nbsp;演示文稿](docs/350/08-presentation.md)&nbsp;16
+<!-- category-nav:start -->
+
+[总⁠览](docs/350/README.md) · [0⁠1⁠ ⁠构⁠图⁠逻⁠辑](docs/350/01-composition-logic.md) 86 · [0⁠2⁠ ⁠视⁠觉⁠原⁠则](docs/350/02-visual-principles.md) 45 · [0⁠3⁠ ⁠出⁠版⁠广⁠告](docs/350/03-editorial-advertising.md) 36 · [0⁠4⁠ ⁠字⁠体⁠网⁠格](docs/350/04-type-grid-cjk.md) 54 · [0⁠5⁠ ⁠网⁠页⁠ ⁠U⁠I](docs/350/05-web-ui.md) 79 · [0⁠6⁠ ⁠影⁠视⁠画⁠面](docs/350/06-film-frame.md) 14 · [0⁠7⁠ ⁠中⁠国⁠传⁠统](docs/350/07-chinese-composition.md) 20 · [0⁠8⁠ ⁠演⁠示⁠文⁠稿](docs/350/08-presentation.md) 16
+
+<!-- category-nav:end -->
 
 <!-- default-gallery:start -->
 ## 默认展示 · 构图逻辑 86 种
