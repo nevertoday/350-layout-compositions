@@ -1,6 +1,6 @@
 # 演示文稿页面 · 16 种
 
-[总览](README.md) · [01 构图逻辑](01-composition-logic.md) 86 · [02 视觉原则](02-visual-principles.md) 45 · [03 出版广告](03-editorial-advertising.md) 36 · [04 字体网格](04-type-grid-cjk.md) 54 · [05 网页 UI](05-web-ui.md) 79 · [06 影视画面](06-film-frame.md) 14 · [07 中国传统](07-chinese-composition.md) 20 · 08 演示文稿 16
+[总览](README.md) · [01&nbsp;构图逻辑](01-composition-logic.md)&nbsp;86 · [02&nbsp;视觉原则](02-visual-principles.md)&nbsp;45 · [03&nbsp;出版广告](03-editorial-advertising.md)&nbsp;36 · [04&nbsp;字体网格](04-type-grid-cjk.md)&nbsp;54 · [05&nbsp;网页&nbsp;UI](05-web-ui.md)&nbsp;79 · [06&nbsp;影视画面](06-film-frame.md)&nbsp;14 · [07&nbsp;中国传统](07-chinese-composition.md)&nbsp;20 · 08&nbsp;演示文稿&nbsp;16
 
 覆盖封面、目录、内容、比较、数据、流程和全图等幻灯片版式。
 

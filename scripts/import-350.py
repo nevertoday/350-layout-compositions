@@ -176,9 +176,9 @@ def gallery_tables(entries: list[dict[str, object]], path_prefix: str = "") -> l
 def category_nav(grouped: dict[str, list[dict[str, object]]], current: str) -> str:
     links = ["总览" if current == "README" else "[总览](README.md)"]
     for index, category in enumerate(CATEGORIES, start=1):
-        label = f"{index:02d} {category.short}"
+        label = f"{index:02d}&nbsp;" + category.short.replace(" ", "&nbsp;")
         count = len(grouped[category.source_name])
-        links.append(f"{label} {count}" if current == category.slug else f"[{label}]({category.slug}.md) {count}")
+        links.append(f"{label}&nbsp;{count}" if current == category.slug else f"[{label}]({category.slug}.md)&nbsp;{count}")
     return " · ".join(links)
 
 

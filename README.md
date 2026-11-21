@@ -14,7 +14,7 @@
 
 ### 一级分类
 
-[01 构图逻辑](docs/350/01-composition-logic.md) 86 · [02 视觉原则](docs/350/02-visual-principles.md) 45 · [03 出版广告](docs/350/03-editorial-advertising.md) 36 · [04 字体网格](docs/350/04-type-grid-cjk.md) 54 · [05 网页 UI](docs/350/05-web-ui.md) 79 · [06 影视画面](docs/350/06-film-frame.md) 14 · [07 中国传统](docs/350/07-chinese-composition.md) 20 · [08 演示文稿](docs/350/08-presentation.md) 16
+[01&nbsp;构图逻辑](docs/350/01-composition-logic.md)&nbsp;86 · [02&nbsp;视觉原则](docs/350/02-visual-principles.md)&nbsp;45 · [03&nbsp;出版广告](docs/350/03-editorial-advertising.md)&nbsp;36 · [04&nbsp;字体网格](docs/350/04-type-grid-cjk.md)&nbsp;54 · [05&nbsp;网页&nbsp;UI](docs/350/05-web-ui.md)&nbsp;79 · [06&nbsp;影视画面](docs/350/06-film-frame.md)&nbsp;14 · [07&nbsp;中国传统](docs/350/07-chinese-composition.md)&nbsp;20 · [08&nbsp;演示文稿](docs/350/08-presentation.md)&nbsp;16
 
 <!-- default-gallery:start -->
 ## 默认展示 · 构图逻辑 86 种
