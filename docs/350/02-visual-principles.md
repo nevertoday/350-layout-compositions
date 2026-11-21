@@ -1,8 +1,8 @@
 # 视觉原则与阅读模式 · 45 种
 
-用格式塔原则、视觉层级和阅读路径解释信息如何被看见与理解。
+[总⁠览](README.md) · [0⁠1⁠ ⁠构⁠图⁠逻⁠辑](01-composition-logic.md) 86 · 0⁠2⁠ ⁠视⁠觉⁠原⁠则 45 · [0⁠3⁠ ⁠出⁠版⁠广⁠告](03-editorial-advertising.md) 36 · [0⁠4⁠ ⁠字⁠体⁠网⁠格](04-type-grid-cjk.md) 54 · [0⁠5⁠ ⁠网⁠页⁠ ⁠U⁠I](05-web-ui.md) 79 · [0⁠6⁠ ⁠影⁠视⁠画⁠面](06-film-frame.md) 14 · [0⁠7⁠ ⁠中⁠国⁠传⁠统](07-chinese-composition.md) 20 · [0⁠8⁠ ⁠演⁠示⁠文⁠稿](08-presentation.md) 16
 
-[← 返回 350 种排版总目录](README.md)
+用格式塔原则、视觉层级和阅读路径解释信息如何被看见与理解。
 
 **本类主题：** [平衡、动势与焦点](#balance-focus) · [层级、比例与对比](#hierarchy-contrast) · [重复、图案与节奏](#repetition-rhythm) · [格式塔与组群](#gestalt-grouping) · [页面阅读模式](#reading-patterns)
 
@@ -80,6 +80,6 @@ F 型、Z 型、古腾堡、层蛋糕与斑点扫描。 `127–131`
 | :---: | :---: | :---: | :---: |
 | **127**<br>F 型扫描模式 | **128**<br>Z 型扫描模式 | **129**<br>古腾堡图式 | **130**<br>层蛋糕扫描模式 |
 
-| <a href="../../v2/images/02-visual-principles/131-斑点扫描模式.png"><img src="../../v2/thumbnails/02-visual-principles/131-斑点扫描模式.jpg" width="180" alt="131 斑点扫描模式"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="../../v2/images/02-visual-principles/131-斑点扫描模式.png"><img src="../../v2/thumbnails/02-visual-principles/131-斑点扫描模式.jpg" width="180" alt="131 斑点扫描模式"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **131**<br>斑点扫描模式 | &nbsp; | &nbsp; | &nbsp; |

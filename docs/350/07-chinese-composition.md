@@ -1,8 +1,8 @@
 # 中国传统构图 · 20 种
 
-整理中国绘画与传统视觉中的空间经营、散点透视和章法。
+[总⁠览](README.md) · [0⁠1⁠ ⁠构⁠图⁠逻⁠辑](01-composition-logic.md) 86 · [0⁠2⁠ ⁠视⁠觉⁠原⁠则](02-visual-principles.md) 45 · [0⁠3⁠ ⁠出⁠版⁠广⁠告](03-editorial-advertising.md) 36 · [0⁠4⁠ ⁠字⁠体⁠网⁠格](04-type-grid-cjk.md) 54 · [0⁠5⁠ ⁠网⁠页⁠ ⁠U⁠I](05-web-ui.md) 79 · [0⁠6⁠ ⁠影⁠视⁠画⁠面](06-film-frame.md) 14 · 0⁠7⁠ ⁠中⁠国⁠传⁠统 20 · [0⁠8⁠ ⁠演⁠示⁠文⁠稿](08-presentation.md) 16
 
-[← 返回 350 种排版总目录](README.md)
+整理中国绘画与传统视觉中的空间经营、散点透视和章法。
 
 **本类主题：** [三远、透视与游观](#perspective-roaming) · [取景与景式](#scene-framing) · [留白、虚实与章法](#blank-rhythm)
 
@@ -16,7 +16,7 @@
 | :---: | :---: | :---: | :---: |
 | **315**<br>高远法 | **316**<br>深远法 | **317**<br>平远法 | **318**<br>三远综合构图 |
 
-| <a href="../../v2/images/07-chinese-composition/319-散点透视.png"><img src="../../v2/thumbnails/07-chinese-composition/319-散点透视.jpg" width="180" alt="319 散点透视"></a> | <a href="../../v2/images/07-chinese-composition/320-游观式构图.png"><img src="../../v2/thumbnails/07-chinese-composition/320-游观式构图.jpg" width="180" alt="320 游观式构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="../../v2/images/07-chinese-composition/319-散点透视.png"><img src="../../v2/thumbnails/07-chinese-composition/319-散点透视.jpg" width="180" alt="319 散点透视"></a> | <a href="../../v2/images/07-chinese-composition/320-游观式构图.png"><img src="../../v2/thumbnails/07-chinese-composition/320-游观式构图.jpg" width="180" alt="320 游观式构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **319**<br>散点透视 | **320**<br>游观式构图 | &nbsp; | &nbsp; |
 
@@ -30,7 +30,7 @@
 | :---: | :---: | :---: | :---: |
 | **321**<br>全景式构图 | **322**<br>一河两岸式 | **323**<br>边角式构图 | **324**<br>截景式构图 |
 
-| <a href="../../v2/images/07-chinese-composition/325-折枝式构图.png"><img src="../../v2/thumbnails/07-chinese-composition/325-折枝式构图.jpg" width="180" alt="325 折枝式构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="../../v2/images/07-chinese-composition/325-折枝式构图.png"><img src="../../v2/thumbnails/07-chinese-composition/325-折枝式构图.jpg" width="180" alt="325 折枝式构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **325**<br>折枝式构图 | &nbsp; | &nbsp; | &nbsp; |
 
@@ -48,6 +48,6 @@
 | :---: | :---: | :---: | :---: |
 | **330**<br>主宾关系构图 | **331**<br>开合构图 | **332**<br>起承转合构图 | **333**<br>藏露关系构图 |
 
-| <a href="../../v2/images/07-chinese-composition/334-欹正关系构图.png"><img src="../../v2/thumbnails/07-chinese-composition/334-欹正关系构图.jpg" width="180" alt="334 欹正关系构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="../../v2/images/07-chinese-composition/334-欹正关系构图.png"><img src="../../v2/thumbnails/07-chinese-composition/334-欹正关系构图.jpg" width="180" alt="334 欹正关系构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **334**<br>欹正关系构图 | &nbsp; | &nbsp; | &nbsp; |

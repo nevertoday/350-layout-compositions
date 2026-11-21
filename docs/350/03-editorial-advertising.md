@@ -1,8 +1,8 @@
 # 平面、出版与广告 · 36 种
 
-覆盖海报、书刊、包装、广告等常见平面媒介的版式结构。
+[总⁠览](README.md) · [0⁠1⁠ ⁠构⁠图⁠逻⁠辑](01-composition-logic.md) 86 · [0⁠2⁠ ⁠视⁠觉⁠原⁠则](02-visual-principles.md) 45 · 0⁠3⁠ ⁠出⁠版⁠广⁠告 36 · [0⁠4⁠ ⁠字⁠体⁠网⁠格](04-type-grid-cjk.md) 54 · [0⁠5⁠ ⁠网⁠页⁠ ⁠U⁠I](05-web-ui.md) 79 · [0⁠6⁠ ⁠影⁠视⁠画⁠面](06-film-frame.md) 14 · [0⁠7⁠ ⁠中⁠国⁠传⁠统](07-chinese-composition.md) 20 · [0⁠8⁠ ⁠演⁠示⁠文⁠稿](08-presentation.md) 16
 
-[← 返回 350 种排版总目录](README.md)
+覆盖海报、书刊、包装、广告等常见平面媒介的版式结构。
 
 **本类主题：** [分栏、跨页与出血](#columns-spreads) · [图文主导与表现型版式](#expressive-layouts) · [模块、侧栏与图文关系](#modules-annotations) · [出版功能页面](#editorial-pages)
 
@@ -38,7 +38,7 @@
 | :---: | :---: | :---: | :---: |
 | **148**<br>剪影版式 | **149**<br>字母造型版式 | **150**<br>图文谜语版式 | **151**<br>拼贴版式 |
 
-| <a href="../../v2/images/03-editorial-advertising/152-蒙太奇版式.png"><img src="../../v2/thumbnails/03-editorial-advertising/152-蒙太奇版式.jpg" width="180" alt="152 蒙太奇版式"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="../../v2/images/03-editorial-advertising/152-蒙太奇版式.png"><img src="../../v2/thumbnails/03-editorial-advertising/152-蒙太奇版式.jpg" width="180" alt="152 蒙太奇版式"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **152**<br>蒙太奇版式 | &nbsp; | &nbsp; | &nbsp; |
 
@@ -52,7 +52,7 @@
 | :---: | :---: | :---: | :---: |
 | **153**<br>模块化页面 | **154**<br>区块式版式 | **155**<br>插页式版式 | **156**<br>侧栏版式 |
 
-| <a href="../../v2/images/03-editorial-advertising/157-边注版式.png"><img src="../../v2/thumbnails/03-editorial-advertising/157-边注版式.jpg" width="180" alt="157 边注版式"></a> | <a href="../../v2/images/03-editorial-advertising/158-环绕图版式.png"><img src="../../v2/thumbnails/03-editorial-advertising/158-环绕图版式.jpg" width="180" alt="158 环绕图版式"></a> | <a href="../../v2/images/03-editorial-advertising/159-浮动块版式.png"><img src="../../v2/thumbnails/03-editorial-advertising/159-浮动块版式.jpg" width="180" alt="159 浮动块版式"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="../../v2/images/03-editorial-advertising/157-边注版式.png"><img src="../../v2/thumbnails/03-editorial-advertising/157-边注版式.jpg" width="180" alt="157 边注版式"></a> | <a href="../../v2/images/03-editorial-advertising/158-环绕图版式.png"><img src="../../v2/thumbnails/03-editorial-advertising/158-环绕图版式.jpg" width="180" alt="158 环绕图版式"></a> | <a href="../../v2/images/03-editorial-advertising/159-浮动块版式.png"><img src="../../v2/thumbnails/03-editorial-advertising/159-浮动块版式.jpg" width="180" alt="159 浮动块版式"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **157**<br>边注版式 | **158**<br>环绕图版式 | **159**<br>浮动块版式 | &nbsp; |
 
