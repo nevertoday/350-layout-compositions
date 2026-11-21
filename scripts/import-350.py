@@ -19,6 +19,7 @@ class Category:
     source_name: str
     slug: str
     title: str
+    short: str
     description: str
 
 
@@ -32,14 +33,14 @@ class Subcategory:
 
 
 CATEGORIES = (
-    Category("构图逻辑名称", "01-composition-logic", "构图逻辑", "从经典比例、几何形态、空间层次到视点组织，建立画面的基础骨架。"),
-    Category("视觉原则与阅读模式名称", "02-visual-principles", "视觉原则与阅读模式", "用格式塔原则、视觉层级和阅读路径解释信息如何被看见与理解。"),
-    Category("平面出版广告排版名称", "03-editorial-advertising", "平面、出版与广告", "覆盖海报、书刊、包装、广告等常见平面媒介的版式结构。"),
-    Category("字体网格与东亚文字排版名称", "04-type-grid-cjk", "字体、网格与东亚文字", "聚焦字体编排、网格系统，以及横排、直排和中西文混排。"),
-    Category("网页与UI布局名称", "05-web-ui", "网页与 UI", "收录网站和产品界面的导航、内容、表单与响应式布局模式。"),
-    Category("影视画面构图名称", "06-film-frame", "影视画面构图", "以镜头、景别、机位和画幅关系组织动态影像中的单个画面。"),
-    Category("中国传统构图名称", "07-chinese-composition", "中国传统构图", "整理中国绘画与传统视觉中的空间经营、散点透视和章法。"),
-    Category("演示文稿页面布局名称", "08-presentation", "演示文稿页面", "覆盖封面、目录、内容、比较、数据、流程和全图等幻灯片版式。"),
+    Category("构图逻辑名称", "01-composition-logic", "构图逻辑", "构图逻辑", "从经典比例、几何形态、空间层次到视点组织，建立画面的基础骨架。"),
+    Category("视觉原则与阅读模式名称", "02-visual-principles", "视觉原则与阅读模式", "视觉原则", "用格式塔原则、视觉层级和阅读路径解释信息如何被看见与理解。"),
+    Category("平面出版广告排版名称", "03-editorial-advertising", "平面、出版与广告", "出版广告", "覆盖海报、书刊、包装、广告等常见平面媒介的版式结构。"),
+    Category("字体网格与东亚文字排版名称", "04-type-grid-cjk", "字体、网格与东亚文字", "字体网格", "聚焦字体编排、网格系统，以及横排、直排和中西文混排。"),
+    Category("网页与UI布局名称", "05-web-ui", "网页与 UI", "网页 UI", "收录网站和产品界面的导航、内容、表单与响应式布局模式。"),
+    Category("影视画面构图名称", "06-film-frame", "影视画面构图", "影视画面", "以镜头、景别、机位和画幅关系组织动态影像中的单个画面。"),
+    Category("中国传统构图名称", "07-chinese-composition", "中国传统构图", "中国传统", "整理中国绘画与传统视觉中的空间经营、散点透视和章法。"),
+    Category("演示文稿页面布局名称", "08-presentation", "演示文稿页面", "演示文稿", "覆盖封面、目录、内容、比较、数据、流程和全图等幻灯片版式。"),
 )
 
 
@@ -159,9 +160,7 @@ def gallery_tables(entries: list[dict[str, object]], path_prefix: str = "") -> l
         cells = [cell for cell, _ in group]
         labels = [label for _, label in group]
         while len(cells) < 4:
-            cells.append(
-                f'<img src="{path_prefix}docs/images/layout-placeholder.svg" width="180" alt="空白占位">'
-            )
+            cells.append(f'<img src="{path_prefix}docs/images/layout-placeholder.svg" width="180" alt="">')
             labels.append("&nbsp;")
         lines.extend(
             [
@@ -174,14 +173,25 @@ def gallery_tables(entries: list[dict[str, object]], path_prefix: str = "") -> l
     return lines
 
 
-def build_gallery_page(repo: Path, category: Category, items: list[dict[str, object]]) -> None:
+def category_nav(grouped: dict[str, list[dict[str, object]]], current: str) -> str:
+    links = ["总览" if current == "README" else "[总览](README.md)"]
+    for index, category in enumerate(CATEGORIES, start=1):
+        label = f"{index:02d} {category.short}"
+        count = len(grouped[category.source_name])
+        links.append(f"{label} {count}" if current == category.slug else f"[{label}]({category.slug}.md) {count}")
+    return " · ".join(links)
+
+
+def build_gallery_page(
+    repo: Path, category: Category, items: list[dict[str, object]], grouped: dict[str, list[dict[str, object]]]
+) -> None:
     page = repo / "docs" / "350" / f"{category.slug}.md"
     lines = [
         f"# {category.title} · {len(items)} 种",
         "",
-        category.description,
+        category_nav(grouped, category.slug),
         "",
-        "[← 返回 350 种排版总目录](README.md)",
+        category.description,
         "",
         "**本类主题：** " + " · ".join(
             f'[{subcategory.title}](#{subcategory.slug})'
@@ -249,21 +259,11 @@ def build_index(repo: Path, grouped: dict[str, list[dict[str, object]]]) -> None
     lines = [
         "# 350 种排版 · 分类图鉴",
         "",
+        category_nav(grouped, "README"),
+        "",
         "这是一套从构图基础到具体媒介的排版知识图鉴。350 个版式按 8 个一级分类、33 个二级主题组织；展开分类查看主题，点击主题直达对应画廊。",
         "",
         "[← 返回项目首页](../../README.md)",
-        "",
-        "## 一级分类 · 点击切换",
-        "",
-        '<p align="center">',
-        '  <a href="README.md"><kbd>总览</kbd></a>',
-        *[
-            f'  <a href="{category.slug}.md"><kbd>{index:02d} {category.title}</kbd></a>'
-            for index, category in enumerate(CATEGORIES, start=1)
-        ],
-        "</p>",
-        "",
-        "> GitHub Markdown 不支持脚本式 Tab；这里使用分类导航配合可折叠面板，在桌面端和移动端都可以直接浏览。",
         "",
     ]
     for index, category in enumerate(CATEGORIES, start=1):
@@ -328,7 +328,7 @@ def write_catalog(repo: Path, catalog: list[dict[str, object]]) -> None:
 def build_docs(repo: Path, catalog: list[dict[str, object]]) -> None:
     grouped = {category.source_name: [item for item in catalog if item["category_slug"] == category.slug] for category in CATEGORIES}
     for category in CATEGORIES:
-        build_gallery_page(repo, category, grouped[category.source_name])
+        build_gallery_page(repo, category, grouped[category.source_name], grouped)
     build_index(repo, grouped)
     build_readme_default_gallery(repo, grouped[CATEGORIES[0].source_name])
 

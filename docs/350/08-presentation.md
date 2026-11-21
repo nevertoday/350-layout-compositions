@@ -1,8 +1,8 @@
 # 演示文稿页面 · 16 种
 
-覆盖封面、目录、内容、比较、数据、流程和全图等幻灯片版式。
+[总览](README.md) · [01 构图逻辑](01-composition-logic.md) 86 · [02 视觉原则](02-visual-principles.md) 45 · [03 出版广告](03-editorial-advertising.md) 36 · [04 字体网格](04-type-grid-cjk.md) 54 · [05 网页 UI](05-web-ui.md) 79 · [06 影视画面](06-film-frame.md) 14 · [07 中国传统](07-chinese-composition.md) 20 · 08 演示文稿 16
 
-[← 返回 350 种排版总目录](README.md)
+覆盖封面、目录、内容、比较、数据、流程和全图等幻灯片版式。
 
 **本类主题：** [基础幻灯片](#core-slides) · [叙事与数据页面](#story-data-slides)
 
@@ -20,7 +20,7 @@
 | :---: | :---: | :---: | :---: |
 | **339**<br>比较幻灯片版式 | **340**<br>仅标题幻灯片版式 | **341**<br>空白幻灯片版式 | **342**<br>内容与标题说明幻灯片版式 |
 
-| <a href="../../v2/images/08-presentation/343-图片与标题说明幻灯片版式.png"><img src="../../v2/thumbnails/08-presentation/343-图片与标题说明幻灯片版式.jpg" width="180" alt="343 图片与标题说明幻灯片版式"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="../../v2/images/08-presentation/343-图片与标题说明幻灯片版式.png"><img src="../../v2/thumbnails/08-presentation/343-图片与标题说明幻灯片版式.jpg" width="180" alt="343 图片与标题说明幻灯片版式"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **343**<br>图片与标题说明幻灯片版式 | &nbsp; | &nbsp; | &nbsp; |
 
@@ -34,6 +34,6 @@
 | :---: | :---: | :---: | :---: |
 | **344**<br>大数字页幻灯片版式 | **345**<br>引语页幻灯片版式 | **346**<br>时间线页幻灯片版式 | **347**<br>流程页幻灯片版式 |
 
-| <a href="../../v2/images/08-presentation/348-矩阵页幻灯片版式.png"><img src="../../v2/thumbnails/08-presentation/348-矩阵页幻灯片版式.jpg" width="180" alt="348 矩阵页幻灯片版式"></a> | <a href="../../v2/images/08-presentation/349-数据图表页幻灯片版式.png"><img src="../../v2/thumbnails/08-presentation/349-数据图表页幻灯片版式.jpg" width="180" alt="349 数据图表页幻灯片版式"></a> | <a href="../../v2/images/08-presentation/350-全图页幻灯片版式.png"><img src="../../v2/thumbnails/08-presentation/350-全图页幻灯片版式.jpg" width="180" alt="350 全图页幻灯片版式"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="../../v2/images/08-presentation/348-矩阵页幻灯片版式.png"><img src="../../v2/thumbnails/08-presentation/348-矩阵页幻灯片版式.jpg" width="180" alt="348 矩阵页幻灯片版式"></a> | <a href="../../v2/images/08-presentation/349-数据图表页幻灯片版式.png"><img src="../../v2/thumbnails/08-presentation/349-数据图表页幻灯片版式.jpg" width="180" alt="349 数据图表页幻灯片版式"></a> | <a href="../../v2/images/08-presentation/350-全图页幻灯片版式.png"><img src="../../v2/thumbnails/08-presentation/350-全图页幻灯片版式.jpg" width="180" alt="350 全图页幻灯片版式"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **348**<br>矩阵页幻灯片版式 | **349**<br>数据图表页幻灯片版式 | **350**<br>全图页幻灯片版式 | &nbsp; |

@@ -1,3 +1,5 @@
+<img src="docs/icon-site.svg" width="48" height="48" alt="">
+
 # 350 种排版 · 分类图鉴
 
 从经典构图、视觉原则，到出版广告、字体网格、网页 UI、影视、中国传统构图和演示文稿：350 种排版，按 8 个一级分类与 33 个二级主题组织成可浏览、可检索、可下载的知识图鉴。
@@ -10,21 +12,9 @@
 
 **[打开 350 种排版完整分类图鉴 →](docs/350/README.md)**　·　[下载全部图片](https://github.com/nevertoday/350-layout-compositions/releases/latest/download/350-layout-compositions-images.zip)　·　[搜索数据目录](v2/catalog.csv)
 
-### 一级分类 · 像 Tab 一样切换
+### 一级分类
 
-<p align="center">
-  <a href="docs/350/01-composition-logic.md"><kbd>01 构图逻辑 · 86</kbd></a>
-  <a href="docs/350/02-visual-principles.md"><kbd>02 视觉原则 · 45</kbd></a>
-  <a href="docs/350/03-editorial-advertising.md"><kbd>03 出版广告 · 36</kbd></a>
-  <a href="docs/350/04-type-grid-cjk.md"><kbd>04 字体网格 · 54</kbd></a>
-</p>
-
-<p align="center">
-  <a href="docs/350/05-web-ui.md"><kbd>05 网页 UI · 79</kbd></a>
-  <a href="docs/350/06-film-frame.md"><kbd>06 影视画面 · 14</kbd></a>
-  <a href="docs/350/07-chinese-composition.md"><kbd>07 中国传统 · 20</kbd></a>
-  <a href="docs/350/08-presentation.md"><kbd>08 演示文稿 · 16</kbd></a>
-</p>
+[01 构图逻辑](docs/350/01-composition-logic.md) 86 · [02 视觉原则](docs/350/02-visual-principles.md) 45 · [03 出版广告](docs/350/03-editorial-advertising.md) 36 · [04 字体网格](docs/350/04-type-grid-cjk.md) 54 · [05 网页 UI](docs/350/05-web-ui.md) 79 · [06 影视画面](docs/350/06-film-frame.md) 14 · [07 中国传统](docs/350/07-chinese-composition.md) 20 · [08 演示文稿](docs/350/08-presentation.md) 16
 
 <!-- default-gallery:start -->
 ## 默认展示 · 构图逻辑 86 种
@@ -51,7 +41,7 @@
 | :---: | :---: | :---: | :---: |
 | **009**<br>视线空间构图 | **010**<br>运动空间构图 | **011**<br>头部空间构图 | **012**<br>填满画面构图 |
 
-| <a href="v2/images/01-composition-logic/013-负空间构图.png"><img src="v2/thumbnails/01-composition-logic/013-负空间构图.jpg" width="180" alt="013 负空间构图"></a> | <a href="v2/images/01-composition-logic/014-框中框构图.png"><img src="v2/thumbnails/01-composition-logic/014-框中框构图.jpg" width="180" alt="014 框中框构图"></a> | <a href="v2/images/01-composition-logic/015-引导线构图.png"><img src="v2/thumbnails/01-composition-logic/015-引导线构图.jpg" width="180" alt="015 引导线构图"></a> | <img src="docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="v2/images/01-composition-logic/013-负空间构图.png"><img src="v2/thumbnails/01-composition-logic/013-负空间构图.jpg" width="180" alt="013 负空间构图"></a> | <a href="v2/images/01-composition-logic/014-框中框构图.png"><img src="v2/thumbnails/01-composition-logic/014-框中框构图.jpg" width="180" alt="014 框中框构图"></a> | <a href="v2/images/01-composition-logic/015-引导线构图.png"><img src="v2/thumbnails/01-composition-logic/015-引导线构图.jpg" width="180" alt="015 引导线构图"></a> | <img src="docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **013**<br>负空间构图 | **014**<br>框中框构图 | **015**<br>引导线构图 | &nbsp; |
 
@@ -73,7 +63,7 @@
 | :---: | :---: | :---: | :---: |
 | **024**<br>平行线构图 | **025**<br>汇聚线构图 | **026**<br>交叉线构图 | **027**<br>中轴构图 |
 
-| <a href="v2/images/01-composition-logic/028-偏轴构图.png"><img src="v2/thumbnails/01-composition-logic/028-偏轴构图.jpg" width="180" alt="028 偏轴构图"></a> | <a href="v2/images/01-composition-logic/029-双轴构图.png"><img src="v2/thumbnails/01-composition-logic/029-双轴构图.jpg" width="180" alt="029 双轴构图"></a> | <a href="v2/images/01-composition-logic/030-十字构图.png"><img src="v2/thumbnails/01-composition-logic/030-十字构图.jpg" width="180" alt="030 十字构图"></a> | <img src="docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="v2/images/01-composition-logic/028-偏轴构图.png"><img src="v2/thumbnails/01-composition-logic/028-偏轴构图.jpg" width="180" alt="028 偏轴构图"></a> | <a href="v2/images/01-composition-logic/029-双轴构图.png"><img src="v2/thumbnails/01-composition-logic/029-双轴构图.jpg" width="180" alt="029 双轴构图"></a> | <a href="v2/images/01-composition-logic/030-十字构图.png"><img src="v2/thumbnails/01-composition-logic/030-十字构图.jpg" width="180" alt="030 十字构图"></a> | <img src="docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **028**<br>偏轴构图 | **029**<br>双轴构图 | **030**<br>十字构图 | &nbsp; |
 
@@ -91,7 +81,7 @@ X、T、L、V、Z、C、S 形及曲线节奏。 `031–040`
 | :---: | :---: | :---: | :---: |
 | **035**<br>Z 形构图 | **036**<br>C 形构图 | **037**<br>S 形构图 | **038**<br>曲线构图 |
 
-| <a href="v2/images/01-composition-logic/039-波浪形构图.png"><img src="v2/thumbnails/01-composition-logic/039-波浪形构图.jpg" width="180" alt="039 波浪形构图"></a> | <a href="v2/images/01-composition-logic/040-锯齿形构图.png"><img src="v2/thumbnails/01-composition-logic/040-锯齿形构图.jpg" width="180" alt="040 锯齿形构图"></a> | <img src="docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="v2/images/01-composition-logic/039-波浪形构图.png"><img src="v2/thumbnails/01-composition-logic/039-波浪形构图.jpg" width="180" alt="039 波浪形构图"></a> | <a href="v2/images/01-composition-logic/040-锯齿形构图.png"><img src="v2/thumbnails/01-composition-logic/040-锯齿形构图.jpg" width="180" alt="040 锯齿形构图"></a> | <img src="docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **039**<br>波浪形构图 | **040**<br>锯齿形构图 | &nbsp; | &nbsp; |
 
@@ -149,7 +139,7 @@ X、T、L、V、Z、C、S 形及曲线节奏。 `031–040`
 | :---: | :---: | :---: | :---: |
 | **072**<br>三点透视 | **073**<br>平行透视构图 | **074**<br>斜投影构图 | **075**<br>等距构图 |
 
-| <a href="v2/images/01-composition-logic/076-轴测构图.png"><img src="v2/thumbnails/01-composition-logic/076-轴测构图.jpg" width="180" alt="076 轴测构图"></a> | <img src="docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="v2/images/01-composition-logic/076-轴测构图.png"><img src="v2/thumbnails/01-composition-logic/076-轴测构图.jpg" width="180" alt="076 轴测构图"></a> | <img src="docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **076**<br>轴测构图 | &nbsp; | &nbsp; | &nbsp; |
 
@@ -167,7 +157,7 @@ X、T、L、V、Z、C、S 形及曲线节奏。 `031–040`
 | :---: | :---: | :---: | :---: |
 | **081**<br>强制透视构图 | **082**<br>空气透视构图 | **083**<br>浅景深构图 | **084**<br>深焦构图 |
 
-| <a href="v2/images/01-composition-logic/085-平面化构图.png"><img src="v2/thumbnails/01-composition-logic/085-平面化构图.jpg" width="180" alt="085 平面化构图"></a> | <a href="v2/images/01-composition-logic/086-深空间构图.png"><img src="v2/thumbnails/01-composition-logic/086-深空间构图.jpg" width="180" alt="086 深空间构图"></a> | <img src="docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="v2/images/01-composition-logic/085-平面化构图.png"><img src="v2/thumbnails/01-composition-logic/085-平面化构图.jpg" width="180" alt="085 平面化构图"></a> | <a href="v2/images/01-composition-logic/086-深空间构图.png"><img src="v2/thumbnails/01-composition-logic/086-深空间构图.jpg" width="180" alt="086 深空间构图"></a> | <img src="docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **085**<br>平面化构图 | **086**<br>深空间构图 | &nbsp; | &nbsp; |
 
@@ -237,6 +227,7 @@ v2/images/        新版 350 张高清 PNG，按 8 类组织
 v2/thumbnails/    新版 GitHub 预览缩略图
 v2/catalog.*      新版机器可读目录（CSV / JSON）
 docs/350/         新版总目录与 8 个分类画廊
+docs/icon.svg     项目图标（favicon）；docs/icon-site.svg 为无留白的站点版
 images/           经典版 100 张高清 PNG（保留）
 thumbnails/       经典版 100 张缩略图（保留）
 scripts/          新版素材导入与画廊生成工具

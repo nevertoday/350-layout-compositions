@@ -1,24 +1,10 @@
 # 350 种排版 · 分类图鉴
 
+总览 · [01 构图逻辑](01-composition-logic.md) 86 · [02 视觉原则](02-visual-principles.md) 45 · [03 出版广告](03-editorial-advertising.md) 36 · [04 字体网格](04-type-grid-cjk.md) 54 · [05 网页 UI](05-web-ui.md) 79 · [06 影视画面](06-film-frame.md) 14 · [07 中国传统](07-chinese-composition.md) 20 · [08 演示文稿](08-presentation.md) 16
+
 这是一套从构图基础到具体媒介的排版知识图鉴。350 个版式按 8 个一级分类、33 个二级主题组织；展开分类查看主题，点击主题直达对应画廊。
 
 [← 返回项目首页](../../README.md)
-
-## 一级分类 · 点击切换
-
-<p align="center">
-  <a href="README.md"><kbd>总览</kbd></a>
-  <a href="01-composition-logic.md"><kbd>01 构图逻辑</kbd></a>
-  <a href="02-visual-principles.md"><kbd>02 视觉原则与阅读模式</kbd></a>
-  <a href="03-editorial-advertising.md"><kbd>03 平面、出版与广告</kbd></a>
-  <a href="04-type-grid-cjk.md"><kbd>04 字体、网格与东亚文字</kbd></a>
-  <a href="05-web-ui.md"><kbd>05 网页与 UI</kbd></a>
-  <a href="06-film-frame.md"><kbd>06 影视画面构图</kbd></a>
-  <a href="07-chinese-composition.md"><kbd>07 中国传统构图</kbd></a>
-  <a href="08-presentation.md"><kbd>08 演示文稿页面</kbd></a>
-</p>
-
-> GitHub Markdown 不支持脚本式 Tab；这里使用分类导航配合可折叠面板，在桌面端和移动端都可以直接浏览。
 
 <details open>
 <summary><strong>01 · 构图逻辑</strong>　86 种 · 001–086</summary>

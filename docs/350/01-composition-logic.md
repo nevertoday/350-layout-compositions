@@ -1,8 +1,8 @@
 # 构图逻辑 · 86 种
 
-从经典比例、几何形态、空间层次到视点组织，建立画面的基础骨架。
+[总览](README.md) · 01 构图逻辑 86 · [02 视觉原则](02-visual-principles.md) 45 · [03 出版广告](03-editorial-advertising.md) 36 · [04 字体网格](04-type-grid-cjk.md) 54 · [05 网页 UI](05-web-ui.md) 79 · [06 影视画面](06-film-frame.md) 14 · [07 中国传统](07-chinese-composition.md) 20 · [08 演示文稿](08-presentation.md) 16
 
-[← 返回 350 种排版总目录](README.md)
+从经典比例、几何形态、空间层次到视点组织，建立画面的基础骨架。
 
 **本类主题：** [经典法则与空间留白](#classic-rules) · [重心、线条与轴线](#balance-lines-axes) · [字母形与曲线](#letter-curves) · [几何形与放射结构](#geometry-radial) · [阵列、层叠与组群](#pattern-grouping) · [空间层次与投影](#depth-projection) · [视点、景深与空间感](#viewpoint-focus)
 
@@ -24,7 +24,7 @@
 | :---: | :---: | :---: | :---: |
 | **009**<br>视线空间构图 | **010**<br>运动空间构图 | **011**<br>头部空间构图 | **012**<br>填满画面构图 |
 
-| <a href="../../v2/images/01-composition-logic/013-负空间构图.png"><img src="../../v2/thumbnails/01-composition-logic/013-负空间构图.jpg" width="180" alt="013 负空间构图"></a> | <a href="../../v2/images/01-composition-logic/014-框中框构图.png"><img src="../../v2/thumbnails/01-composition-logic/014-框中框构图.jpg" width="180" alt="014 框中框构图"></a> | <a href="../../v2/images/01-composition-logic/015-引导线构图.png"><img src="../../v2/thumbnails/01-composition-logic/015-引导线构图.jpg" width="180" alt="015 引导线构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="../../v2/images/01-composition-logic/013-负空间构图.png"><img src="../../v2/thumbnails/01-composition-logic/013-负空间构图.jpg" width="180" alt="013 负空间构图"></a> | <a href="../../v2/images/01-composition-logic/014-框中框构图.png"><img src="../../v2/thumbnails/01-composition-logic/014-框中框构图.jpg" width="180" alt="014 框中框构图"></a> | <a href="../../v2/images/01-composition-logic/015-引导线构图.png"><img src="../../v2/thumbnails/01-composition-logic/015-引导线构图.jpg" width="180" alt="015 引导线构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **013**<br>负空间构图 | **014**<br>框中框构图 | **015**<br>引导线构图 | &nbsp; |
 
@@ -46,7 +46,7 @@
 | :---: | :---: | :---: | :---: |
 | **024**<br>平行线构图 | **025**<br>汇聚线构图 | **026**<br>交叉线构图 | **027**<br>中轴构图 |
 
-| <a href="../../v2/images/01-composition-logic/028-偏轴构图.png"><img src="../../v2/thumbnails/01-composition-logic/028-偏轴构图.jpg" width="180" alt="028 偏轴构图"></a> | <a href="../../v2/images/01-composition-logic/029-双轴构图.png"><img src="../../v2/thumbnails/01-composition-logic/029-双轴构图.jpg" width="180" alt="029 双轴构图"></a> | <a href="../../v2/images/01-composition-logic/030-十字构图.png"><img src="../../v2/thumbnails/01-composition-logic/030-十字构图.jpg" width="180" alt="030 十字构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="../../v2/images/01-composition-logic/028-偏轴构图.png"><img src="../../v2/thumbnails/01-composition-logic/028-偏轴构图.jpg" width="180" alt="028 偏轴构图"></a> | <a href="../../v2/images/01-composition-logic/029-双轴构图.png"><img src="../../v2/thumbnails/01-composition-logic/029-双轴构图.jpg" width="180" alt="029 双轴构图"></a> | <a href="../../v2/images/01-composition-logic/030-十字构图.png"><img src="../../v2/thumbnails/01-composition-logic/030-十字构图.jpg" width="180" alt="030 十字构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **028**<br>偏轴构图 | **029**<br>双轴构图 | **030**<br>十字构图 | &nbsp; |
 
@@ -64,7 +64,7 @@ X、T、L、V、Z、C、S 形及曲线节奏。 `031–040`
 | :---: | :---: | :---: | :---: |
 | **035**<br>Z 形构图 | **036**<br>C 形构图 | **037**<br>S 形构图 | **038**<br>曲线构图 |
 
-| <a href="../../v2/images/01-composition-logic/039-波浪形构图.png"><img src="../../v2/thumbnails/01-composition-logic/039-波浪形构图.jpg" width="180" alt="039 波浪形构图"></a> | <a href="../../v2/images/01-composition-logic/040-锯齿形构图.png"><img src="../../v2/thumbnails/01-composition-logic/040-锯齿形构图.jpg" width="180" alt="040 锯齿形构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="../../v2/images/01-composition-logic/039-波浪形构图.png"><img src="../../v2/thumbnails/01-composition-logic/039-波浪形构图.jpg" width="180" alt="039 波浪形构图"></a> | <a href="../../v2/images/01-composition-logic/040-锯齿形构图.png"><img src="../../v2/thumbnails/01-composition-logic/040-锯齿形构图.jpg" width="180" alt="040 锯齿形构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **039**<br>波浪形构图 | **040**<br>锯齿形构图 | &nbsp; | &nbsp; |
 
@@ -122,7 +122,7 @@ X、T、L、V、Z、C、S 形及曲线节奏。 `031–040`
 | :---: | :---: | :---: | :---: |
 | **072**<br>三点透视 | **073**<br>平行透视构图 | **074**<br>斜投影构图 | **075**<br>等距构图 |
 
-| <a href="../../v2/images/01-composition-logic/076-轴测构图.png"><img src="../../v2/thumbnails/01-composition-logic/076-轴测构图.jpg" width="180" alt="076 轴测构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="../../v2/images/01-composition-logic/076-轴测构图.png"><img src="../../v2/thumbnails/01-composition-logic/076-轴测构图.jpg" width="180" alt="076 轴测构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **076**<br>轴测构图 | &nbsp; | &nbsp; | &nbsp; |
 
@@ -140,6 +140,6 @@ X、T、L、V、Z、C、S 形及曲线节奏。 `031–040`
 | :---: | :---: | :---: | :---: |
 | **081**<br>强制透视构图 | **082**<br>空气透视构图 | **083**<br>浅景深构图 | **084**<br>深焦构图 |
 
-| <a href="../../v2/images/01-composition-logic/085-平面化构图.png"><img src="../../v2/thumbnails/01-composition-logic/085-平面化构图.jpg" width="180" alt="085 平面化构图"></a> | <a href="../../v2/images/01-composition-logic/086-深空间构图.png"><img src="../../v2/thumbnails/01-composition-logic/086-深空间构图.jpg" width="180" alt="086 深空间构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt="空白占位"> |
+| <a href="../../v2/images/01-composition-logic/085-平面化构图.png"><img src="../../v2/thumbnails/01-composition-logic/085-平面化构图.jpg" width="180" alt="085 平面化构图"></a> | <a href="../../v2/images/01-composition-logic/086-深空间构图.png"><img src="../../v2/thumbnails/01-composition-logic/086-深空间构图.jpg" width="180" alt="086 深空间构图"></a> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> | <img src="../../docs/images/layout-placeholder.svg" width="180" alt=""> |
 | :---: | :---: | :---: | :---: |
 | **085**<br>平面化构图 | **086**<br>深空间构图 | &nbsp; | &nbsp; |
