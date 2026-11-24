@@ -32,6 +32,7 @@ SITE = Path(__file__).resolve().parent.parent
 CACHE = SITE / ".cache" / "i18n"
 SOURCE = CACHE / "source.json"
 CONTENT = SITE / "src" / "i18n" / "content"
+GUIDES = SITE / "src" / "i18n" / "guides"
 UI = SITE / "src" / "i18n" / "ui"
 AGY = os.environ.get("AGY", str(Path.home() / ".local" / "bin" / "agy"))
 MODEL = "gemini-4-neon-high"
@@ -75,6 +76,10 @@ NAMES = """Below are one category of the site, its sub-themes (each with a one-l
 NAMES_EN = """Below are one category of the site and its sub-themes (each with a one-line description){extra}. Keep the terminology consistent with the layout names, which are fixed already (printed on the posters):
 {lines}"""
 POSTERS = """Below are the texts of ten posters. These names are translated already; wherever the same Chinese appears, use exactly these translations:
+{lines}"""
+GUIDES_TAX = """Below are conversational one-line editorial blurbs for the categories and sub-themes of the atlas. Keep the tone plain, vivid and practical (not stiff textbook prose). Match these already-translated category and sub-theme names:
+{lines}"""
+GUIDES_LAYOUTS = """Below are editorial teaching guides for ten layouts (plain-language hook, underlying principle, 3 actionable steps, when to use, pitfalls to avoid, contrast with neighboring layouts, keywords, and an AI composition prompt). Keep the clear, conversational, insightful tone of a senior designer speaking to a peer—never dry jargon. Wherever these already-translated layout or category names appear, use exactly these translations:
 {lines}"""
 UI_TEXT = "Below are the interface strings of the site: navigation, buttons, labels, headings and messages. Keep each as short as interface text in {lang} usually is. Keep HTML tags and their attributes exactly as written; translate only the text between them."
 RETRY = "\n\nYour previous answer was rejected:\n{errors}\nTranslate again and fix these problems."
@@ -121,6 +126,17 @@ def units(src):
         chunk = ids[n:n + PER_UNIT]
         payload = {i: {k: v for k, v in src["layouts"][i].items() if k not in ("name", "nameEn")} for i in chunk}
         out.append(Unit(f"posters-{n // PER_UNIT + 1:02d}", payload, list(dict.fromkeys(f"names-{cat_of[i]}" for i in chunk))))
+    if guides := src.get("guides"):
+        if g_tax := guides.get("taxonomy"):
+            out.append(Unit("guides-taxonomy", g_tax, [f"names-{cat}" for cat in src["tree"]]))
+        g_lay = guides.get("layouts") or {}
+        g_ids = sorted(i for i in g_lay if i in cat_of)
+        for n in range(0, len(g_ids), PER_UNIT):
+            chunk = g_ids[n:n + PER_UNIT]
+            payload = {i: g_lay[i] for i in chunk}
+            ref_ids = list(chunk) + [c["id"] for i in chunk for c in g_lay[i].get("compare", []) if c.get("id") in cat_of]
+            deps = list(dict.fromkeys(f"names-{cat_of[i]}" for i in ref_ids))
+            out.append(Unit(f"guides-{n // PER_UNIT + 1:02d}", payload, deps))
     if src["ui"] is not None:
         out.append(Unit("ui", src["ui"], []))
     return out
@@ -182,6 +198,34 @@ def request(unit, locale, src):
             en = src["layouts"][i]["nameEn"]
             lines.append(f"- {src['layouts'][i]['name']} → {names[i]} (layout {i}{'; English name on the poster: ' + en if en else ''})")
         return unit.payload, POSTERS.format(lines="\n".join(lines)), {}
+    if unit.id == "guides-taxonomy":
+        names = {}
+        for dep in unit.deps:
+            out = read_cache(locale, dep)["output"]
+            names.update({slug: v["name"] for slug, v in out["taxonomy"].items()})
+        lines = [f"- {src['taxonomy'][slug]['name']} → {names[slug]} ({slug})" for slug in unit.payload if slug in names]
+        return unit.payload, GUIDES_TAX.format(lines="\n".join(lines)), {}
+    if unit.id.startswith("guides-"):
+        where, names = places(src), {}
+        for dep in unit.deps:
+            out = read_cache(locale, dep)["output"]
+            names.update({slug: v["name"] for slug, v in out["taxonomy"].items()})
+            names.update({i: v["name"] for i, v in out["layouts"].items()})
+        lines, seen = [], set()
+        todo, fixed = {}, {}
+        for i, g in unit.payload.items():
+            for slug, kind in zip(where[i], ("category", "sub-theme")):
+                if slug not in seen:
+                    seen.add(slug)
+                    lines.append(f"- {src['taxonomy'][slug]['name']} → {names[slug]} ({kind})")
+            for rid in [i, *(c["id"] for c in g.get("compare", []) if c.get("id") in names)]:
+                if rid not in seen:
+                    seen.add(rid)
+                    en = src["layouts"][rid]["nameEn"]
+                    lines.append(f"- {src['layouts'][rid]['name']} → {names[rid]} (layout {rid}{'; English: ' + en if en else ''})")
+            fixed[i] = [c["id"] for c in g.get("compare", [])]
+            todo[i] = {**g, "compare": [{"diff": c["diff"]} for c in g.get("compare", [])]}
+        return todo, GUIDES_LAYOUTS.format(lines="\n".join(lines)), fixed
     return unit.payload, UI_TEXT.format(lang=lang), {}
 
 
@@ -189,6 +233,11 @@ def merge(unit, answer, fixed):
     if unit.id.startswith("names-"):
         layouts = {**fixed, **answer.get("layouts", {})}
         return {"taxonomy": answer["taxonomy"], "layouts": {i: layouts[i] for i in unit.payload["layouts"]}}
+    if unit.id.startswith("guides-") and unit.id != "guides-taxonomy":
+        return {
+            i: {**entry, "compare": [{"id": cid, "diff": c["diff"]} for cid, c in zip(fixed[i], entry.get("compare", []))]}
+            for i, entry in answer.items()
+        }
     return answer
 
 
@@ -430,7 +479,7 @@ def assemble(src=None):
     src = src or load_source()
     every = units(src)
     for code in targets(src):
-        taxonomy, names, texts, ui = {}, {}, {}, {}
+        taxonomy, names, texts, ui, guide_tax, guide_lay = {}, {}, {}, {}, {}, {}
         for unit in every:
             cached = read_cache(code, unit.id)
             if cached is None:
@@ -442,6 +491,10 @@ def assemble(src=None):
                 names.update((i, v["name"]) for i, v in out["layouts"].items() if old["layouts"].get(i) == new["layouts"].get(i))
             elif unit.id.startswith("posters-"):
                 texts.update((i, v) for i, v in out.items() if old.get(i) == new.get(i))
+            elif unit.id == "guides-taxonomy":
+                guide_tax.update((s, v) for s, v in out.items() if old.get(s) == new.get(s))
+            elif unit.id.startswith("guides-"):
+                guide_lay.update((i, v) for i, v in out.items() if old.get(i) == new.get(i))
             else:
                 ui.update((k, v) for k, v in out.items() if old.get(k) == new.get(k))
         ids = sorted(src["layouts"])
@@ -450,12 +503,20 @@ def assemble(src=None):
         line = f"{code}: taxonomy {len(tax)}/{len(src['taxonomy'])}, layouts {len(layouts)}/{len(ids)}"
         if tax or layouts:
             write_json(CONTENT / f"{code}.json", {"taxonomy": tax, "layouts": layouts})
+        if guides_src := src.get("guides"):
+            gt_src = guides_src.get("taxonomy") or {}
+            gl_src = guides_src.get("layouts") or {}
+            gt = {s: guide_tax[s] for s in gt_src if s in guide_tax}
+            gl = {i: guide_lay[i] for i in sorted(gl_src) if i in guide_lay}
+            line += f", guides {len(gl)}/{len(gl_src)}"
+            if gt or gl:
+                write_json(GUIDES / f"{code}.json", {"taxonomy": gt, "layouts": gl})
         if src["ui"] is not None:
             keys = [k for k in src["ui"] if k in ui]
             line += f", ui {len(keys)}/{len(src['ui'])}"
             if keys:
                 write_json(UI / f"{code}.json", {k: ui[k] for k in keys})
-        if not (tax or layouts or ui):
+        if not (tax or layouts or ui or guide_tax or guide_lay):
             print(f"{line}; nothing cached, no file written")
             continue
         print(line)
@@ -475,7 +536,7 @@ def status(_args):
     lock = CACHE / "run.lock"
     if lock.exists() and (pid := int(lock.read_text() or 0)) and alive(pid):
         print(f"a run is going: pid {pid}")
-    kinds = [("names", "names-"), ("posters", "posters-"), ("ui", "ui")]
+    kinds = [("names", "names-"), ("posters", "posters-"), ("guides", "guides-"), ("ui", "ui")]
     print(f"{'locale':8} " + " ".join(f"{k:>8}" for k, _ in kinds) + f" {'total':>8}  stale")
     for code in targets(src):
         cells, done_all, total_all, stale = [], 0, 0, []

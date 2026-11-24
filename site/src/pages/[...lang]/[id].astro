@@ -34,14 +34,73 @@ const orig = [{ text: l.nameZh, lang: SOURCE.lang }, ...(l.nameEn && l.nameEn !=
 // 海报英文小字和这一条的字一样时（英文页的关键词）不重复
 const extra = (en: string, text: string) => (en && en.toLowerCase() !== text.toLowerCase() ? en : "");
 const named = l.nameEn && l.nameEn !== l.name ? t("detail.nameWithEn", { name: l.name, en: l.nameEn }) : l.name;
-const description = l.summary
-  ? t("detail.meta", { name: named, summary: l.summary })
+const abs = (p: string) => new URL(p, Astro.site).href;
+// 深度解说层（guides.json / src/i18n/guides/<code>.json）；尚无该语种解说时平滑回退到海报译文
+const guide = l.guide;
+const compareItems = (guide?.compare || [])
+  .map((c) => ({ ...c, target: A.layoutById.get(c.id) }))
+  .filter((c) => c.target);
+const rawSummary = l.summary || (loc === SOURCE ? l.tagline : "");
+const hasRawPoster = Boolean(rawSummary || l.points.length || l.usage.items.length || l.notes.length);
+const metaBrief = guide?.hook || rawSummary;
+const subLead = sub.guideBlurb || sub.blurb;
+const description = metaBrief
+  ? t("detail.meta", { name: named, summary: metaBrief })
   : t("detail.metaNoText", { name: l.name, brand: t("site.brand"), id: l.id, cat: cat.name, sub: sub.name });
-const link = new URL(`${base}${l.id}/`, Astro.site).href;
+const link = abs(`${base}${l.id}/`);
 const viewer = { name: label, versions: versions.map((v) => ({ src: v.full, thumb: v.thumb, png: v.png, label: v.label, file: v.file })) };
 const kbd = '<kbd class="xxd-kbd">←</kbd> <kbd class="xxd-kbd">→</kbd>';
+
+const jsonLdKeywords = guide?.keywords?.length
+  ? guide.keywords.join(", ")
+  : l.keywords.map((k) => k.term || k.en).filter(Boolean).join(", ") || undefined;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: t("frame.tab.atlas"), item: abs(`${base}#atlas`) },
+        { "@type": "ListItem", position: 2, name: cat.name, item: abs(`${base}?c=${cat.slug}#atlas`) },
+        { "@type": "ListItem", position: 3, name: sub.name, item: abs(`${base}?c=${cat.slug}&s=${sub.slug}#atlas`) },
+        { "@type": "ListItem", position: 4, name: `${l.id} ${label}`, item: link },
+      ],
+    },
+    {
+      "@type": "LearningResource",
+      name: `${l.id} ${label}`,
+      alternateName: l.nameEn || undefined,
+      description,
+      url: link,
+      inLanguage: loc.lang,
+      license: "https://creativecommons.org/licenses/by/4.0/",
+      learningResourceType: "Poster",
+      image: {
+        "@type": "ImageObject",
+        url: abs(l.img.full),
+        width: l.img.w,
+        height: l.img.h,
+        caption: t("js.poster.alt", { name: label }),
+      },
+      keywords: jsonLdKeywords,
+    },
+  ],
+};
 ---
-<Site A={A} path={`${l.id}/`} tab="atlas" title={label === l.id ? label : `${l.id} ${label}`} description={description} image={l.img.full} expect="poster">
+<Site
+  A={A}
+  path={`${l.id}/`}
+  tab="atlas"
+  title={label === l.id ? label : `${l.id} ${label}`}
+  description={description}
+  image={l.img.full}
+  imageWidth={l.img.w}
+  imageHeight={l.img.h}
+  imageAlt={t("js.poster.alt", { name: label })}
+  expect="poster"
+>
+  <script slot="head" is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, "\\u003c")} />
   <article class="detail" data-id={l.id}>
     <div class="detail-main">
       <nav class="detail-crumbs" aria-label={t("detail.crumbs")}>
@@ -81,49 +140,149 @@ const kbd = '<kbd class="xxd-kbd">←</kbd> <kbd class="xxd-kbd">→</kbd>';
         </div>
         <p class="detail-files">WebP · {l.img.w} × {l.img.h} · <a href={l.img.png} id="png">{t("detail.png")}</a></p>
 
-        {l.summary && (
-          <section class="detail-sec">
-            <h2>{t("detail.summary")}</h2>
-            <p class="detail-summary" lang={T}>{l.summary}</p>
-          </section>
+        {guide ? (
+          <>
+            <section class="detail-sec">
+              <h2>{t("detail.guide.hook")}</h2>
+              <p class="detail-summary">{guide.hook}</p>
+            </section>
+            {guide.why && (
+              <section class="detail-sec">
+                <h2>{t("detail.guide.why")}</h2>
+                <p>{guide.why}</p>
+              </section>
+            )}
+            {guide.steps.length > 0 && (
+              <section class="detail-sec">
+                <h2>{t("detail.guide.steps")}</h2>
+                <ol class="detail-points">
+                  {guide.steps.map((s, idx) => (
+                    <li>
+                      <p class="detail-points__title"><span class="detail-step-no">0{idx + 1}</span>{s.title}</p>
+                      {s.body && <p>{s.body}</p>}
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
+            {(guide.use || guide.avoid) && (
+              <div class="detail-sec detail-advice">
+                {guide.use && (
+                  <section class="xxd-surface detail-advice__card">
+                    <h2 class="detail-advice__head"><i data-xxd-icon="Check" data-size="14"></i>{t("detail.guide.use")}</h2>
+                    <p>{guide.use}</p>
+                  </section>
+                )}
+                {guide.avoid && (
+                  <section class="xxd-surface detail-advice__card detail-advice__card--avoid" data-level="sunken">
+                    <h2 class="detail-advice__head"><i data-xxd-icon="TriangleAlert" data-size="14"></i>{t("detail.guide.avoid")}</h2>
+                    <p>{guide.avoid}</p>
+                  </section>
+                )}
+              </div>
+            )}
+            {compareItems.length > 0 && (
+              <section class="detail-sec">
+                <h2>{t("detail.guide.compare")}</h2>
+                <ul class="xxd-list detail-compare" data-interactive>
+                  {compareItems.map((c) => (
+                    <li class="xxd-list__item detail-compare__item">
+                      <a class="xxd-list__main detail-compare__link" href={`${base}${c.target!.id}/`}>
+                        <span class="detail-compare__head">
+                          <span class="detail-compare__no">{c.target!.id}</span>
+                          <span class="detail-compare__name" lang={L(c.target!)}>{c.target!.name}</span>
+                        </span>
+                        <span class="detail-compare__diff">{c.diff}</span>
+                      </a>
+                      <i data-xxd-icon="ChevronRight" data-size="16" class="detail-compare__arrow"></i>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+            {guide.keywords.length > 0 && (
+              <section class="detail-sec">
+                <h2>{t("detail.keywords")}</h2>
+                <ul class="detail-keys" role="list">
+                  {guide.keywords.map((kw) => <li><a class="xxd-chip" href={`${base}?q=${encodeURIComponent(kw)}#atlas`}>{kw}</a></li>)}
+                </ul>
+              </section>
+            )}
+            <section class="detail-sec">
+              <h2>{t("detail.prompt")}</h2>
+              <div class="xxd-surface detail-prompt-box" data-level="sunken">
+                <p class="detail-prompt-box__text">{l.prompt}</p>
+                <button class="xxd-btn detail-prompt-box__copy" data-size="xs" type="button" data-copy={l.prompt} data-copy-done={t("detail.copied")} data-copy-toast={t("detail.copiedPrompt")}><i data-xxd-icon="Copy" data-size="14"></i>{t("detail.copyPrompt")}</button>
+              </div>
+            </section>
+            {hasRawPoster && (
+              <details class="xxd-collapse detail-raw">
+                <summary>{t("detail.guide.posterRaw")}</summary>
+                <div class="detail-raw__body">
+                  <p class="detail-raw__note">{t("detail.guide.posterRawNote")}</p>
+                  {rawSummary && <p lang={T}>{rawSummary}</p>}
+                  {l.points.length > 0 && (
+                    <ul lang={T}>
+                      {l.points.map((p) => <li><strong>{p.title}</strong>{p.body ? `：${p.body}` : ""}</li>)}
+                    </ul>
+                  )}
+                  {l.usage.items.length > 0 && (
+                    <ul lang={T}>
+                      {l.usage.items.map((u) => <li>{u}</li>)}
+                    </ul>
+                  )}
+                  {l.notes.map((n) => <p lang={T}>{n}</p>)}
+                </div>
+              </details>
+            )}
+          </>
+        ) : (
+          <>
+            {rawSummary && (
+              <section class="detail-sec">
+                <h2>{t("detail.summary")}</h2>
+                <p class="detail-summary" lang={T}>{rawSummary}</p>
+              </section>
+            )}
+            {l.points.length > 0 && (
+              <section class="detail-sec">
+                <h2>{t("detail.points")}</h2>
+                <ol class="detail-points" lang={T}>
+                  {l.points.map((p) => (
+                    <li>
+                      <p class="detail-points__title">{p.title}{extra(p.en, p.title) && <span lang="en">{p.en}</span>}</p>
+                      {p.body && <p>{p.body}</p>}
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
+            {l.usage.items.length > 0 && (
+              <section class="detail-sec">
+                {l.usage.title ? <h2 lang={T}>{l.usage.title}</h2> : <h2>{t("detail.usage")}</h2>}
+                <ul class="detail-usage" lang={T}>{l.usage.items.map((u) => <li>{u}</li>)}</ul>
+              </section>
+            )}
+            {l.notes.length > 0 && (
+              <section class="detail-sec">
+                <h2>{t("detail.notes")}</h2>
+                {l.notes.map((n) => <p lang={T}>{n}</p>)}
+              </section>
+            )}
+            {l.keywords.length > 0 && (
+              <section class="detail-sec">
+                <h2>{t("detail.keywords")}</h2>
+                <ul class="detail-keys" role="list" lang={T}>
+                  {l.keywords.map((k) => <li><a class="xxd-chip" href={`${base}?q=${encodeURIComponent(k.term || k.en)}#atlas`}>{k.term}{extra(k.en, k.term) && <span lang="en">{k.en}</span>}</a></li>)}
+                </ul>
+              </section>
+            )}
+            <section class="detail-sec">
+              <h2>{t("detail.prompt")}</h2>
+              <p class="detail-prompt" lang={T}>{l.prompt}</p>
+            </section>
+          </>
         )}
-        {l.points.length > 0 && (
-          <section class="detail-sec">
-            <h2>{t("detail.points")}</h2>
-            <ol class="detail-points" lang={T}>
-              {l.points.map((p) => (
-                <li>
-                  <p class="detail-points__title">{p.title}{extra(p.en, p.title) && <span lang="en">{p.en}</span>}</p>
-                  {p.body && <p>{p.body}</p>}
-                </li>
-              ))}
-            </ol>
-          </section>
-        )}
-        {l.usage.items.length > 0 && (
-          <section class="detail-sec">
-            {l.usage.title ? <h2 lang={T}>{l.usage.title}</h2> : <h2>{t("detail.usage")}</h2>}
-            <ul class="detail-usage" lang={T}>{l.usage.items.map((u) => <li>{u}</li>)}</ul>
-          </section>
-        )}
-        {l.notes.length > 0 && (
-          <section class="detail-sec">
-            <h2>{t("detail.notes")}</h2>
-            {l.notes.map((n) => <p lang={T}>{n}</p>)}
-          </section>
-        )}
-        {l.keywords.length > 0 && (
-          <section class="detail-sec">
-            <h2>{t("detail.keywords")}</h2>
-            <ul class="detail-keys" role="list" lang={T}>
-              {l.keywords.map((k) => <li><a class="xxd-chip" href={`${base}?q=${encodeURIComponent(k.term || k.en)}#atlas`}>{k.term}{extra(k.en, k.term) && <span lang="en">{k.en}</span>}</a></li>)}
-            </ul>
-          </section>
-        )}
-        <section class="detail-sec">
-          <h2>{t("detail.prompt")}</h2>
-          <p class="detail-prompt" lang={T}>{l.prompt}</p>
-        </section>
 
         <nav class="detail-pn" aria-label={t("detail.pn")}>
           {prev ? <a rel="prev" href={`${base}${prev.id}/`}><span class="detail-pn__dir"><i data-xxd-icon="ArrowLeft" data-size="14"></i>{t("detail.prev")} · {prev.id}</span><span class="detail-pn__name" lang={L(prev)}>{prev.name}</span></a> : <span></span>}
@@ -136,7 +295,7 @@ const kbd = '<kbd class="xxd-kbd">←</kbd> <kbd class="xxd-kbd">→</kbd>';
     <section class="detail-related" aria-labelledby="related-title">
       <p class="eyebrow">{t("detail.related")}</p>
       <h2 id="related-title" lang={L(sub)}>{sub.name}</h2>
-      {sub.blurb && <p class="detail-related__lead" lang={L(sub)}>{sub.blurb}</p>}
+      {subLead && <p class="detail-related__lead" lang={L(sub)}>{subLead}</p>}
       <ul class="related-cards" role="list">
         {sub.ids.map((id) => <Card A={A} l={A.layoutById.get(id)!} current={id === l.id} />)}
       </ul>

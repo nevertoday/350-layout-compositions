@@ -8,6 +8,7 @@ import { categories, layouts } from "../src/data/atlas.js";
 
 const SITE = resolve(import.meta.dirname, "..");
 const UI_FILE = join(SITE, "src/i18n/ui/zh.json");
+const GUIDES_FILE = join(SITE, "src/data/guides.json");
 const OUT_DIR = join(SITE, ".cache/i18n");
 const OUT = join(OUT_DIR, "source.json");
 
@@ -36,10 +37,11 @@ for (const l of layouts) {
 }
 
 const ui = existsSync(UI_FILE) ? JSON.parse(readFileSync(UI_FILE, "utf8")) : null;
+const guides = existsSync(GUIDES_FILE) ? JSON.parse(readFileSync(GUIDES_FILE, "utf8")) : null;
 const LOCALES_FILE = join(SITE, "src/i18n/locales.js");
 const locales = existsSync(LOCALES_FILE) ? (await import(LOCALES_FILE)).LOCALES.map((l) => l.code) : null;
 
 mkdirSync(OUT_DIR, { recursive: true });
-writeFileSync(OUT + ".tmp", JSON.stringify({ locales, taxonomy, layouts: shown, tree, ui }, null, 1) + "\n");
+writeFileSync(OUT + ".tmp", JSON.stringify({ locales, taxonomy, layouts: shown, guides, tree, ui }, null, 1) + "\n");
 renameSync(OUT + ".tmp", OUT);
-console.log(`${OUT}: ${Object.keys(taxonomy).length} taxonomy, ${Object.keys(shown).length} layouts, ui ${ui ? Object.keys(ui).length + " keys" : "null (no src/i18n/ui/zh.json yet)"}, locales ${locales ? locales.join(",") : "null"}`);
+console.log(`${OUT}: ${Object.keys(taxonomy).length} taxonomy, ${Object.keys(shown).length} layouts, guides ${guides ? Object.keys(guides.layouts || {}).length : "null"}, ui ${ui ? Object.keys(ui).length + " keys" : "null (no src/i18n/ui/zh.json yet)"}, locales ${locales ? locales.join(",") : "null"}`);

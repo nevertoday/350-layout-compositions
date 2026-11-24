@@ -17,18 +17,37 @@ interface Props {
   title?: string;
   description?: string;
   image?: string; // og:image，站内路径
+  imageWidth?: number;
+  imageHeight?: number;
+  imageAlt?: string;
   expect?: string; // 首帧前要先解析到的元素 id（跨页过渡的目标）
 }
-const { A, path, tab, title, description = A.t("site.description"), image = A.layouts[0].img.full, expect } = Astro.props;
+const {
+  A,
+  path,
+  tab,
+  title,
+  description = A.t("site.description"),
+  image = "/og-cover.png",
+  imageWidth = 1200,
+  imageHeight = 630,
+  imageAlt,
+  expect,
+} = Astro.props;
 const { locale: loc, t } = A;
 const brand = t("site.brand");
 const fullTitle = title ? `${title} · ${brand}` : `${brand} · ${t("site.tagline")}`;
+const resolvedImageAlt = imageAlt ?? fullTitle;
 const all = atlases();
 // 404 页没有自己的地址：不写 canonical、og:url、hreflang；语言菜单指向各语言的首页
 const abs = (p: string) => new URL(p, Astro.site).href;
 const canonical = path === undefined ? undefined : abs(loc.base + path);
 const versions = all.map((a) => ({ loc: a.locale, href: a.locale.base + (path ?? "") }));
 const ogImage = abs(image);
+const ogLocale = (lang: string) => ({
+  "zh-CN": "zh_CN", "zh-Hant": "zh_TW", en: "en_US", ja: "ja_JP", ko: "ko_KR",
+  es: "es_ES", fr: "fr_FR", de: "de_DE", pt: "pt_BR", ru: "ru_RU", ar: "ar_AR",
+}[lang] ?? lang.replace("-", "_"));
 const license = `https://creativecommons.org/licenses/by/4.0/deed.${loc.cc}`;
 // 浏览器里要用的界面文字（键以 js. 开头的那些）和这种语言的首页地址
 const json = (x: unknown) => JSON.stringify(x).replace(/</g, "\\u003c");
@@ -58,6 +77,8 @@ const langItems = (id: string) => versions.map((v) => (
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#fdfcfb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#171612" media="(prefers-color-scheme: dark)" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {canonical && <link rel="canonical" href={canonical} />}
@@ -65,12 +86,21 @@ const langItems = (id: string) => versions.map((v) => (
     {canonical && <link rel="alternate" hreflang="x-default" href={abs(SOURCE.base + path)} />}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={brand} />
+    <meta property="og:locale" content={ogLocale(loc.lang)} />
+    {versions.filter((v) => v.loc !== loc).map((v) => <meta property="og:locale:alternate" content={ogLocale(v.loc.lang)} />)}
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     {canonical && <meta property="og:url" content={canonical} />}
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content={String(imageWidth)} />
+    <meta property="og:image:height" content={String(imageHeight)} />
+    <meta property="og:image:alt" content={resolvedImageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     {expect && <link rel="expect" href={`#${expect}`} blocking="render" />}
     <style is:inline>@layer theme, base, xxd, components, utilities, site;</style>
     <script is:inline src={asset("xxd/boot.js")} data-key="xxd-layout-site" data-default-theme="system"></script>

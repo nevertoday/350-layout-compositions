@@ -10,6 +10,7 @@ import { LOCALES, SOURCE } from "../i18n/locales.js";
 const SITE = process.cwd().endsWith("/site") ? process.cwd() : resolve(process.cwd(), "site");
 const REPO = resolve(SITE, "..");
 const TEXT_FILE = process.env.XXD_POSTER_TEXT ? resolve(process.env.XXD_POSTER_TEXT) : join(SITE, "src/data/poster-text.json");
+const GUIDES_FILE = process.env.XXD_GUIDES ? resolve(process.env.XXD_GUIDES) : join(SITE, "src/data/guides.json");
 // 译文默认在 src/i18n（翻译流水线写）；XXD_I18N_DIR 指到别处的一套（里面同样是 ui/ 和 content/），不动流水线的文件也能试
 const I18N_DIR = process.env.XXD_I18N_DIR ? resolve(process.env.XXD_I18N_DIR) : join(SITE, "src/i18n");
 const RAW = "https://raw.githubusercontent.com/nevertoday/350-layout-compositions/main/";
@@ -77,6 +78,7 @@ function parseText(id, t) {
   return {
     nameEn: titleCase(t.title_en),
     summary: clean(t.summary),
+    tagline: clean(t.tagline),
     points,
     usage: { title: clean(t.usage_title), items },
     keywords,
@@ -84,7 +86,7 @@ function parseText(id, t) {
   };
 }
 
-const NO_TEXT = { nameEn: "", summary: "", points: [], usage: { title: "", items: [] }, keywords: [], notes: [] };
+const NO_TEXT = { nameEn: "", summary: "", tagline: "", points: [], usage: { title: "", items: [] }, keywords: [], notes: [] };
 
 // 构图提示词：贴在作图提示词末尾用，用页面的语言写。名称（+ 海报英文名）+ 定义 + 要点标题。
 // 名称就是英文名时（en）不再括一遍；英文名末尾的 Composition 去掉，「构图：」已经说了
@@ -92,25 +94,61 @@ function promptOf(t, l) {
   const en = l.nameEn.replace(/ Composition$/, "");
   const name = l.name === l.nameEn ? en : en ? t("detail.nameWithEn", { name: l.name, en }) : l.name;
   const parts = [t("prompt.head", { name })];
-  if (l.summary) parts.push(/[.!?…。！？؟]$/.test(l.summary) ? l.summary : l.summary + t("prompt.end"));
+  const brief = l.summary || (l.lang === SOURCE.lang ? l.tagline : "");
+  if (brief) parts.push(/[.!?…。！？؟]$/.test(brief) ? brief : brief + t("prompt.end"));
   if (l.points.length) parts.push(t("prompt.points", { points: l.points.map((p) => p.title || p.body).join(t("prompt.sep")) }));
   // 句号是全角的（中文、日文）句子之间不空格，别的语言空一格
   return parts.join(/^[。！？]/.test(t("prompt.end")) ? "" : " ");
 }
 
 // 搜索用的文字：页面上看得见的字 + 中文原名 + 海报英文名 + 编号
+const guideHaystack = (g) => g ? [
+  g.hook, g.why,
+  ...(g.steps || []).flatMap((s) => [s.title, s.body]),
+  g.use, g.avoid,
+  ...(g.compare || []).map((c) => c.diff),
+  ...(g.keywords || []),
+].filter(Boolean) : [];
+
 const haystackOf = (l, cat, sub) => [...new Set([
-  l.id, l.name, l.nameZh, l.nameEn, cat.name, sub.name, l.summary,
+  l.id, l.name, l.nameZh, l.nameEn, cat.name, sub.name, l.summary, l.lang === SOURCE.lang ? l.tagline : "",
   ...l.points.flatMap((p) => [p.title, p.body, p.en]),
   l.usage.title, ...l.usage.items,
   ...l.keywords.flatMap((k) => [k.term, k.en]),
   ...l.notes,
+  ...guideHaystack(l.guide),
 ].filter(Boolean))].join(" ").toLowerCase();
+
+function parseGuide(id, g) {
+  if (!g || typeof g !== "object") return null;
+  const steps = Array.isArray(g.steps)
+    ? g.steps.map((s) => ({ title: clean(s?.title), body: clean(s?.body) })).filter((s) => s.title || s.body)
+    : [];
+  const compare = Array.isArray(g.compare)
+    ? g.compare.map((c) => ({ id: clean(c?.id), diff: clean(c?.diff) })).filter((c) => /^\d{3}$/.test(c.id) && c.id !== id && c.diff)
+    : [];
+  const keywords = Array.isArray(g.keywords) ? g.keywords.map(clean).filter(Boolean) : [];
+  const hook = clean(g.hook);
+  if (!hook) return null;
+  return {
+    hook,
+    why: clean(g.why),
+    steps,
+    use: clean(g.use),
+    avoid: clean(g.avoid),
+    compare,
+    keywords,
+    prompt: clean(g.prompt),
+  };
+}
 
 // ---------- 读取和校验 ----------
 const catalog = readJson(join(REPO, "v2/catalog.json"));
 const taxonomy = readJson(join(REPO, "v2/taxonomy.json"));
 const texts = existsSync(TEXT_FILE) ? readJson(TEXT_FILE) : {};
+const guidesRaw = existsSync(GUIDES_FILE) ? readJson(GUIDES_FILE) : {};
+const guideTax = guidesRaw?.taxonomy && typeof guidesRaw.taxonomy === "object" ? guidesRaw.taxonomy : {};
+const guideLayouts = guidesRaw?.layouts && typeof guidesRaw.layouts === "object" ? guidesRaw.layouts : {};
 
 if (!Array.isArray(catalog) || !catalog.length) fail("v2/catalog.json 不是非空数组");
 if (!Array.isArray(taxonomy?.categories) || !taxonomy.categories.length) fail("v2/taxonomy.json 没有 categories");
@@ -122,9 +160,19 @@ export const categories = taxonomy.categories.map((c) => {
     no: c.slug.slice(0, 2),
     name: c.title,
     blurb: c.description,
+    guideBlurb: clean(guideTax[c.slug] ?? ""),
     range: "",
     count: 0,
-    subs: c.subcategories.map((s) => ({ slug: s.slug, name: s.title, blurb: s.description, range: "", ids: [], start: s.start, end: s.end })),
+    subs: c.subcategories.map((s) => ({
+      slug: s.slug,
+      name: s.title,
+      blurb: s.description,
+      guideBlurb: clean(guideTax[s.slug] ?? ""),
+      range: "",
+      ids: [],
+      start: s.start,
+      end: s.end,
+    })),
   };
 });
 const catBySlug = new Map(categories.map((c) => [c.slug, c]));
@@ -169,14 +217,16 @@ export const layouts = catalog.map((e) => {
     cat: cat.slug,
     sub: sub.slug,
     summary: t.summary,
+    tagline: t.tagline,
     points: t.points,
     usage: t.usage,
     keywords: t.keywords,
     notes: t.notes,
+    guide: parseGuide(id, guideLayouts[id]),
     img: { w: e.width, h: e.height, thumb: first.thumb, full: first.full, png: first.png },
     ...(second && { second: { thumb: second.thumb, full: second.full, png: second.png } }),
   };
-  layout.prompt = promptOf(zhT, layout);
+  layout.prompt = layout.guide?.prompt || promptOf(zhT, layout);
   layout.search = haystackOf(layout, cat, sub);
   for (const r of [first, second]) if (r) imageSources.push({ key: r.key, src: r.src, sha256: r.sha256 });
   return layout;
@@ -233,6 +283,11 @@ function localize(loc, uiFile, contentFile) {
   const content = readJson(contentFile);
   const tax = content?.taxonomy ?? {};
   const lay = content?.layouts ?? {};
+  // 可选的深度解说译文（src/i18n/guides/<code>.json）：存在时才启用，缺省平滑回退到现有海报译文，绝不泄漏中文
+  const locGuidesFile = join(I18N_DIR, "guides", `${loc.code}.json`);
+  const locGuides = existsSync(locGuidesFile) ? readJson(locGuidesFile) : {};
+  const locGuideTax = locGuides?.taxonomy && typeof locGuides.taxonomy === "object" ? locGuides.taxonomy : {};
+  const locGuideLay = locGuides?.layouts && typeof locGuides.layouts === "object" ? locGuides.layouts : {};
   if (typeof tax !== "object" || typeof lay !== "object") fail(where("content 的 taxonomy、layouts 不是对象"));
   const str = (v, src, at) => {
     if (typeof v !== "string") fail(where(`${at} 不是字符串`));
@@ -250,8 +305,14 @@ function localize(loc, uiFile, contentFile) {
   for (const slug of Object.keys(tax)) if (!known.has(slug)) fail(where(`taxonomy 多了不认识的 ${slug}`));
   const named = (x) => {
     const tr = tax[x.slug];
-    if (!tr) { missing.taxonomy++; return { ...x, lang: SOURCE.lang }; }
-    return { ...x, name: str(tr.name, x.name, `${x.slug}.name`), blurb: str(tr.blurb ?? "", x.blurb ?? "", `${x.slug}.blurb`), lang: loc.lang };
+    if (!tr) { missing.taxonomy++; return { ...x, guideBlurb: "", lang: SOURCE.lang }; }
+    return {
+      ...x,
+      name: str(tr.name, x.name, `${x.slug}.name`),
+      blurb: str(tr.blurb ?? "", x.blurb ?? "", `${x.slug}.blurb`),
+      guideBlurb: typeof locGuideTax[x.slug] === "string" ? clean(locGuideTax[x.slug]) : "",
+      lang: loc.lang,
+    };
   };
   const cats = categories.map((c) => ({ ...named(c), subs: c.subs.map(named) }));
   const catMap = new Map(cats.map((c) => [c.slug, c]));
@@ -263,6 +324,7 @@ function localize(loc, uiFile, contentFile) {
     if (!tr) { missing.layouts++; return src; } // 整种用中文：名称、文字、提示词都是中文的
     const at = (f) => `${src.id}.${f}`;
     if (typeof tr !== "object" || !tr.usage || typeof tr.usage !== "object") fail(where(`${at("usage")} 不是对象`));
+    const locGuide = parseGuide(src.id, locGuideLay[src.id]);
     const l = {
       ...src,
       // en 的名称就是海报上印的英文名（I18N.md）
@@ -279,10 +341,11 @@ function localize(loc, uiFile, contentFile) {
       },
       keywords: arr(tr.keywords, src.keywords, at("keywords")).map((s, i) => ({ ...src.keywords[i], term: str(s, src.keywords[i].zh, at(`keywords[${i}]`)) })),
       notes: arr(tr.notes, src.notes, at("notes")).map((s, i) => str(s, src.notes[i], at(`notes[${i}]`))),
+      guide: locGuide,
       lang: loc.lang,
     };
     const cat = catMap.get(l.cat);
-    l.prompt = promptOf(t, l);
+    l.prompt = l.guide?.prompt || promptOf(t, l);
     l.search = haystackOf(l, cat, cat.subs.find((s) => s.slug === l.sub));
     return l;
   });

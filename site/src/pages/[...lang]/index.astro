@@ -25,9 +25,24 @@ const index = {
 const pool = categories.flatMap((c) => c.subs.map((s) => layoutById.get(s.ids[0])!)).map((l) => ({ id: l.id, name: l.name, lang: L(l) ?? "", src: l.img.full }));
 const hero = layoutById.get(pool[0].id)!;
 const json = (x: unknown) => JSON.stringify(x).replace(/</g, "\\u003c");
+const abs = (p: string) => new URL(p, Astro.site).href;
+const webSiteLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: t("site.brand"),
+  description: t("site.description"),
+  url: abs(base),
+  inLanguage: loc.lang,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${abs(base)}?q={search_term_string}#atlas`,
+    "query-input": "required name=search_term_string",
+  },
+};
 const keys = '<kbd class="xxd-kbd">−</kbd> <kbd class="xxd-kbd">=</kbd>';
 ---
 <Site A={A} path="" tab="atlas">
+  <script slot="head" is:inline type="application/ld+json" set:html={json(webSiteLd)} />
   <section class="home-hero" aria-labelledby="home-title">
     <div class="home-hero__text">
       <p class="eyebrow">{t("home.eyebrow")}</p>

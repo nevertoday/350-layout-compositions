@@ -4,7 +4,7 @@
 // lang：这一种的文字不是页面的语言时（译文缺这一种，用的中文）整张卡写上它的语言
 interface Props {
   A: { locale: { base: string; lang: string }; t: (k: string, v?: Record<string, string>) => string };
-  l: { id: string; name: string; nameEn: string; summary: string; lang: string; img: { thumb: string } };
+  l: { id: string; name: string; nameEn: string; summary: string; guide?: { hook: string } | null; lang: string; img: { thumb: string } };
   cat?: { name: string; lang?: string };
   eager?: boolean;
   current?: boolean;
@@ -13,6 +13,7 @@ const { A, l, cat, eager = false, current = false } = Astro.props;
 const other = (lang?: string) => (lang && lang !== A.locale.lang ? lang : undefined);
 // 分类名的语言和这张卡（l.lang）不同时写上
 const catLang = cat && (cat.lang ?? A.locale.lang) !== l.lang ? (cat.lang ?? A.locale.lang) : undefined;
+const blurb = l.guide?.hook || l.summary;
 ---
 <li class="atlas-card" data-id={l.id} lang={other(l.lang)}>
   <a class="atlas-card__link" href={`${A.locale.base}${l.id}/`} aria-current={current ? "page" : undefined}>
@@ -21,7 +22,7 @@ const catLang = cat && (cat.lang ?? A.locale.lang) !== l.lang ? (cat.lang ?? A.l
     {cat && (
       <span class="atlas-card__more">
         {l.nameEn && l.nameEn !== l.name && <span class="atlas-card__en" lang="en">{l.nameEn}</span>}
-        {l.summary && <span class="atlas-card__sum">{l.summary}</span>}
+        {blurb && <span class="atlas-card__sum">{blurb}</span>}
         <span class="atlas-card__cat" lang={catLang}>{cat.name}</span>
       </span>
     )}
