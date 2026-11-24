@@ -1,0 +1,1164 @@
+/* @xxd/tokens — (c) 2026 小小东. PolyForm Noncommercial; ui.xiaoxiaodong.ai/license */
+/*
+ * @xxd/tokens — 小小东设计语言的唯一来源（seed v0）
+ *
+ * 来源：xPoster src/xxd-theme.css（已与会员站 vip.xiaoxiaodong.ai 统一）+ 会员站 styles.css。
+ * 黑 / 白 / 灰，秩序，内容优先；默认直角；强调靠墨色而不是颜色。
+ * 颜色只留给意义（成功、危险、警告）和可选的「主色」。
+ *
+ * 三个开关，全部挂在 <html> 上，由 boot.js 在首帧前写入：
+ *   data-theme="light|dark"      主题
+ *   data-corners="rounded"       圆角（缺省 = 直角）
+ *   data-accent + --action-custom*  主色（缺省 = 墨色）
+ *   data-density="compact"       紧凑（侧边栏 / popup）
+ *   data-finish="material"       实心按钮的质感（顶部 1px 内高光 + 深一点的边 + 按下下沉）；缺省纯平
+ *
+ * 规则：组件里的任何矩形圆角都只能来自 --r-xs/sm/md/lg/pill；
+ * 语义上的圆（状态点、色块、头像）用 --r-circle，不跟开关走。
+ */
+:root {
+  color-scheme: light;
+
+  /* ── 颜色：纸 / 墨 / 线 ───────────────────────── */
+  --bg: #fdfcfb;
+  --paper: #ffffff;
+  --wash: #f6f4f1;
+  --wash-strong: #eeece9;
+  --selected-bg: #eeece9; /* 和 --wash-strong 同一个值（以前差 1，肉眼分不出；设计师评审 V2-4） */
+  --switch-on: #111111; /* 开关「开」是墨色（设计师评审 D22：以前的深灰在亮纸上像禁用） */
+  --switch-knob-off: #ffffff; /* 开关「关」时的滑块（D152）：亮色是白，暗色是浅灰（纸色会比底还暗，看不出来） */
+  --ink: #111111;
+  --ink-rgb: 17, 17, 17;
+  --on-ink: #ffffff;
+  /* #777 在白底只有 4.48:1，小字需要 4.5；#6d6b67 是 5.3（wash 上 4.85、选中底 / wash-strong 上 4.5）。 */
+  --muted: #6d6b67;
+  --muted-2: #9a968d; /* 只做装饰（图标、分隔点、行号），不当文字色：在白底只有 2.9:1 */
+  --line: #e9e7e4;
+  --line-strong: #ccc9c5;
+  /* 控件的边（输入框、复选、单选、开关、滑块）：要认得出这是个控件，和底色至少 3:1（WCAG 1.4.11）。
+     卡片、分隔线、列表线仍然用安静的 --line / --line-strong。 */
+  --line-control: #898681;
+  /* 色块（主色选择）自己的边：压在任何颜色上都要看得见，所以是半透明的黑，不是一种灰（SHAPE-LINE-PLAN D64） */
+  --swatch-edge: rgba(var(--shadow-rgb), 0.12);
+  /* 抬起来的一层（浮层：对话框、菜单、popover、面板、sheet、toast）：亮色和纸一样（靠阴影托起），
+     暗色亮一档——暗底上阴影看不出来，层次靠这一档（设计师评审 E3）。浮层里的悬停底、分隔线也跟着抬一档。 */
+  --paper-raised: #ffffff;
+  --wash-raised: #f6f4f1;
+  --wash-strong-raised: #eeece9;
+  --line-raised: #e9e7e4;
+  --paper-rgb: 255, 255, 255;
+  --shadow-rgb: 17, 17, 17;
+  /* 禁用（设计师评审 V2-3）：不用半透明，用这三个值；字不要求 4.5:1（WCAG 对禁用控件豁免），但和可用的一眼分得开 */
+  --disabled-ink: #adaaa5;
+  --disabled-bg: #f6f4f1;
+  --disabled-line: #e9e7e4;
+
+  /* 语义色：只表达意义 */
+  --success: #15803d;
+  --success-rgb: 21, 128, 61;
+  --danger: #b42318;
+  --danger-rgb: 180, 35, 24;
+  --warning: #b45309;
+  --warning-rgb: 180, 83, 9;
+  /* 语义色做底（实心按钮、徽标）：上面放白字 ≥ 4.5，放在暗纸上做标记 ≥ 3 */
+  --success-strong: #15803d;
+  --danger-strong: #b42318;
+  --warning-strong: #b45309;
+
+  /* ── 色阶（COLOR-SCALE-PLAN）：五族 × 12 级，每一级用途固定。由 scripts/scales.mjs 生成，不要手改 ──
+   * 数字令牌 --<族>-1 … 12 给生成器、测试和颜色页；组件和设计稿只用用途名：
+   *   2 -bg（浅一层的底）· 3 -tint（淡底：徽标、提示条）· 4 -tint-hover（淡底悬停 / 选中）· 5 -tint-active（按下）
+   *   6 -line（安静的线）· 7 -border（边）· 8 -border-strong（控件的边、边悬停）· 9 -solid（实心底）· 10 -solid-hover
+   *   11 -text（带颜色的字，≥ 4.5）· 12 -text-strong（≥ 7）· -on-solid（实心底上的字）
+   * 灰的用途名就是上面的 --bg、--wash、--line、--muted……（值钉在灰的对应级上，一点不变）。 */
+  /* @scales:light */
+  --gray-1: #fdfcfb;
+  --gray-2: #faf9f7;
+  --gray-3: #f6f4f1;
+  --gray-4: #eeece9;
+  --gray-5: #ebe9e6;
+  --gray-6: #e9e7e4;
+  --gray-7: #ccc9c5;
+  --gray-8: #9a968d;
+  --gray-9: #898681;
+  --gray-10: #7e7b77;
+  --gray-11: #6d6b67;
+  --gray-12: #111111;
+  --accent-1: #fdfcfb;
+  --accent-2: #faf9f7;
+  --accent-3: #f6f4f1;
+  --accent-4: #eeece9;
+  --accent-5: #ebe9e6;
+  --accent-6: #e9e7e4;
+  --accent-7: #ccc9c5;
+  --accent-8: #353433;
+  --accent-9: #111111;
+  --accent-10: #323232;
+  --accent-11: #111111;
+  --accent-12: #111111;
+  --accent-on: #ffffff;
+  --success-1: #fbfdfb;
+  --success-2: #f5fbf6;
+  --success-3: #eaf6ec;
+  --success-4: #e6f8e9;
+  --success-5: #d3ebd7;
+  --success-6: #c7e6cc;
+  --success-7: #abd8b3;
+  --success-8: #5d9f6c;
+  --success-9: #15803d;
+  --success-10: #027333;
+  --success-11: #15803d;
+  --success-12: #1b3e24;
+  --success-on: #ffffff;
+  --danger-1: #fffcfb;
+  --danger-2: #fef7f6;
+  --danger-3: #feeeec;
+  --danger-4: #ffe7e3;
+  --danger-5: #fedad4;
+  --danger-6: #fed0c8;
+  --danger-7: #feb6aa;
+  --danger-8: #dc7162;
+  --danger-9: #b42318;
+  --danger-10: #a60e06;
+  --danger-11: #b42318;
+  --danger-12: #58221b;
+  --danger-on: #ffffff;
+  --warning-1: #fefcfb;
+  --warning-2: #fef8f4;
+  --warning-3: #fff0e9;
+  --warning-4: #fff0e8;
+  --warning-5: #fbddce;
+  --warning-6: #fad3bf;
+  --warning-7: #f3bda1;
+  --warning-8: #ca7e55;
+  --warning-9: #b45309;
+  --warning-10: #a44a02;
+  --warning-11: #b45309;
+  --warning-12: #502a14;
+  --warning-on: #ffffff;
+  --line-control-hover: var(--gray-10);
+  --accent-bg: var(--accent-2);
+  --accent-tint: var(--accent-3);
+  --accent-tint-hover: var(--accent-4);
+  --accent-tint-active: var(--accent-5);
+  --accent-line: var(--accent-6);
+  --accent-border: var(--accent-7);
+  --accent-border-strong: var(--accent-8);
+  --accent-solid: var(--accent-9);
+  --accent-solid-hover: var(--accent-10);
+  --accent-text: var(--accent-11);
+  --accent-text-strong: var(--accent-12);
+  --accent-on-solid: var(--accent-on);
+  --success-bg: var(--success-2);
+  --success-tint: var(--success-3);
+  --success-tint-hover: var(--success-4);
+  --success-tint-active: var(--success-5);
+  --success-line: var(--success-6);
+  --success-border: var(--success-7);
+  --success-border-strong: var(--success-8);
+  --success-solid: var(--success-9);
+  --success-solid-hover: var(--success-10);
+  --success-text: var(--success-11);
+  --success-text-strong: var(--success-12);
+  --success-on-solid: var(--success-on);
+  --danger-bg: var(--danger-2);
+  --danger-tint: var(--danger-3);
+  --danger-tint-hover: var(--danger-4);
+  --danger-tint-active: var(--danger-5);
+  --danger-line: var(--danger-6);
+  --danger-border: var(--danger-7);
+  --danger-border-strong: var(--danger-8);
+  --danger-solid: var(--danger-9);
+  --danger-solid-hover: var(--danger-10);
+  --danger-text: var(--danger-11);
+  --danger-text-strong: var(--danger-12);
+  --danger-on-solid: var(--danger-on);
+  --warning-bg: var(--warning-2);
+  --warning-tint: var(--warning-3);
+  --warning-tint-hover: var(--warning-4);
+  --warning-tint-active: var(--warning-5);
+  --warning-line: var(--warning-6);
+  --warning-border: var(--warning-7);
+  --warning-border-strong: var(--warning-8);
+  --warning-solid: var(--warning-9);
+  --warning-solid-hover: var(--warning-10);
+  --warning-text: var(--warning-11);
+  --warning-text-strong: var(--warning-12);
+  --warning-on-solid: var(--warning-on);
+  /* @scales:end */
+
+  /* 强调色：墨色（缺省）或主色。正文永远用 --ink，只有强调标记用 --action。 */
+  --action: var(--ink);
+  /* 热力格的 4 档（CHART-TYPES-PLAN D44）：越深越多；0 档是 --wash。墨色时取灰阶，有主色时取主色的色阶。
+     3、4 档上写字用 --on-action（两档都和它 ≥ 4.5:1） */
+  --heat-1: var(--gray-7);
+  --heat-2: var(--gray-9);
+  --heat-3: var(--gray-11);
+  --heat-4: var(--action);
+  /* 热力格矩阵里每一级上的数字（COLOR-REVIEW-PLAN D74）：都 ≥ 4.5；--on-mark 是标记色（--action）上的字 */
+  --on-mark: var(--on-action);
+  --heat-1-on: var(--ink);
+  --heat-2-on: var(--ink);
+  --heat-3-on: var(--on-action);
+  --heat-4-on: var(--on-action);
+  --action-rgb: var(--ink-rgb);
+  --on-action: var(--on-ink);
+  --action-text: var(--ink);
+  /* 实心底（上面放字）：墨色时就是 --action；主色时由 accent.js 压暗到白字 4.5:1 */
+  --action-fill: var(--action);
+  --action-fill-hover: color-mix(in srgb, var(--action) 86%, var(--paper));
+  --focus-ring: 0 0 0 2px color-mix(in srgb, var(--action) 24%, transparent);
+  /* 键盘焦点环：不透明，和底色至少 3:1（--action-text 已经按主色压到 4.5:1 以上） */
+  --focus-color: var(--action-text);
+
+  /* ── 圆角：直角（缺省）/ 圆角 ─────────────────── */
+  --r-xs: 0px;   /* 小标记 */
+  --r-sm: 0px;   /* 控件：按钮、输入框 */
+  --r-md: 0px;   /* 面：卡片、菜单、面板 */
+  --r-lg: 0px;   /* 大面：对话框、sheet */
+  --r-pill: 0px; /* 状态标签、开关：直角模式下开关也是方的 */
+  --r-circle: 50%; /* 语义圆：状态点、色块、头像 —— 不跟开关走 */
+  --stroke-cap: butt; /* 图上粗线（量表的轨道和填充）的线头：直角模式平头，圆角模式圆头 */
+  --bars-h: 8px; /* 条形榜、构成条的条粗 */
+
+  /* ── 阴影：只给浮层（tooltip / 菜单 / toast / 对话框 / sheet），卡片、行、按钮没有阴影 ── */
+  --shadow-popover: 0 18px 44px rgba(var(--shadow-rgb), 0.16);
+  --shadow-dialog: 0 28px 76px rgba(var(--shadow-rgb), 0.24);
+  --shadow-sheet: -18px 0 54px rgba(var(--shadow-rgb), 0.14);
+  --backdrop: rgba(5, 5, 5, 0.52);
+
+  /* ── 字体：只用系统里已有的字体，不加载网络字体；字重只用 400 / 500 / 600 ──
+   * 顺序有讲究：先英文字体，再中文字体。浏览器逐字找字体，英文字母落在 Avenir Next / Segoe UI，
+   * 中文落在苹方 / 微软雅黑 / 思源黑体。把中文字体放前面，Windows 上的英文就会用雅黑的西文，难看。
+   *   macOS / iOS：Avenir Next + 苹方    Windows：Segoe UI + 微软雅黑    Android / Linux：思源黑体（Noto Sans CJK）
+   * 中文页标题和正文同一家族，层级只靠字号和字重。繁体页面换成繁体字形，见文件末尾的 :lang(zh-Hant)。
+   * 英文页的整屏标题用系统衬线、小标签用等宽大写（EN-TYPE-PLAN），见文件末尾的 :lang(en)。 */
+  --font-body: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", "PingFang SC", "Microsoft YaHei", monospace;
+  /* 两个用途（EN-TYPE-PLAN D183–D189）：整屏的标题（display / heading1 / heading2、页面标题、阅读里的 h1 h2）和一行的小标签（表头、侧栏分组名）。
+   * 中文页就是正文字体、正文字号、不改字距；英文页在文件末尾换掉。 */
+  --font-title: var(--font-body);
+  --weight-title: var(--weight-strong);
+  --tracking-title: normal;
+  --font-label: var(--font-body);
+  --text-label: var(--text-xs);
+  --case-label: none;
+  --tracking-label: normal;
+  --text-2xs: 11px; /* tooltip、角标 */
+  --text-xs: 12px;  /* 菜单、次要信息 */
+  --text-sm: 13px;  /* 导航、控件（最常用） */
+  --text-base: 14px;
+  --text-md: 15px; /* 已不用（设计师评审 D20：阶梯去掉 15）：保留变量名只为兼容老代码，新代码用 --text-base 或 --text-lg */
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-xxl: 24px; /* 页面大标题（不叫 --text-2xl，避免和 Tailwind 的同名变量冲突） */
+  --text-display: 28px; /* 展示标题 */
+  /* 行高落在 4px 网格上，字号和行高按用途成对用（DESIGN-PRINCIPLES §6 的表，LEADING-REVIEW-PLAN）：
+   *   只一行：11 / 16（角标）、12 / 16（标签）、行高 = 字号（固定高度的单行控件，写 1）；
+   *   会折行：12 / 20（说明）、13 / 20、14 / 20、14 / 24（说明页的段落）、16 / 24（标题）、16 / 28（阅读正文）、20 / 28、24 / 32、28 / 36。
+   *   这些是 px，只改字号会把行高原样继承下来：改字号的那条规则同时写配对的行高。
+   *   门禁：audit「细节」查算出来的字号 / 行高在不在表里、只一行的那几对有没有折行。 */
+  --leading-xs: 16px;
+  --leading-sm: 20px;
+  --leading-md: 24px;
+  --leading-lg: 28px;
+  --leading-xl: 32px;
+  --leading-display: 36px;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-strong: 600;
+  --read-width: 680px; /* 阅读列：正文、预览、列表 */
+
+  /* ── 间距：4px 基准（设计师评审 V2：组件里的 padding / gap / margin 只用这些，或者由它们和图标尺寸算出来） ──
+   * 两个半档只给光学上的小间隔：--space-0-5（2px：托盘内缩、标签和角标）、--space-1-5（6px：图标和字之间）。 */
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* ── 间距的用途（SPACING-REVIEW-PLAN D54–D56）：组件写用途名，刻度只给用途令牌和光学微调用。紧凑密度在下面一起收一档。
+   *   容器内边距只看「这是什么容器」：sm 小卡片、表格格子；md 一块内容（横幅、图表卡、设置行、popover、sheet）；lg 一整个任务面（对话框、右侧面板）。
+   *   -y 是文字开头时的上下内边距，比左右小一档：行高多出来的半行距（3–4px）正好补上，看起来四边一样（原则 §6「垂直略小于水平」）。
+   *   间隔按关系分四档：同一件东西的部件 < 并列的同类 < 一组里的块 < 组和组之间。 */
+  --inset-sm: 12px;
+  --inset-md: 16px;
+  --inset-lg: 20px;
+  --inset-sm-y: 8px;
+  --inset-md-y: 12px;
+  --inset-lg-y: 16px;
+  --gap-tight: 4px; /* 标题和说明、数字和单位 */
+  --gap-items: 8px; /* 按钮之间、chip 之间、图例 */
+  --gap-block: 16px; /* 卡片头和图、字段和字段 */
+  --gap-group: 32px; /* 设置组之间、页面的节之间 */
+
+  /* ── 断点（设计师评审 V2-6）：只有三个，出稿也按这三个宽度出。CSS 的 @media 里不能用变量，组件写字面值，测试只放行这三个。
+   *   480：手机（窄屏的分页、一列）；640：窄屏（对话框和右侧面板变成底部抽屉、设置一列）；1024：桌面（侧栏和目录同时出现）。 ── */
+  --bp-phone: 480px;
+  --bp-narrow: 640px;
+  --bp-desktop: 1024px;
+
+  /* ── 控件尺寸：会员站 40px；侧边栏用 data-density="compact" ── */
+  /* 控件高度只有这一把尺（COMPONENT-JURY-PLAN J1）：按钮、输入框、搜索、下拉、输入组、自定义下拉、标签输入、分段、chip，
+     写同一个 data-size 就一样高。xs 24 · sm 32 · 缺省 40 · lg 48 */
+  --control-h: 40px;
+  --control-h-sm: 32px;
+  --control-h-xs: 24px;
+  --control-h-lg: 48px;
+  --icon-button: var(--control-h); /* 和 --control-h 一样高：同一行的图标按钮、输入框、按钮上下对齐（改控件高时一起变） */
+  --hit-min: 40px;
+  /* 组件级的内边距（标准密度；紧凑密度在下面的 data-density="compact" 里一起收） */
+  --control-pad-x: 16px; /* 按钮左右 */
+  --control-pad-x-sm: 12px;
+  --control-pad-x-lg: 20px;
+  --field-pad-x: 12px; /* 输入框、下拉左右 */
+  --row-pad-y: 12px; /* 设置行：= --inset-md-y / --inset-md（行就是一块内容） */
+  --row-pad-x: 16px;
+  --list-row-pad-y: 8px; /* 列表行 */
+  /* 小控件的尺寸（设计师评审 V5-1：组件页的规格表能标出它们是哪个令牌） */
+  --choice-size: 16px; /* 复选框、单选的圆点 */
+  --switch-w: 36px; /* 开关：36 × 20，滑块 = 高 - 6 */
+  --switch-h: 20px;
+  --field-icon-slot: 34px; /* 输入框、下拉里给图标 / 箭头留的位置：边距 12 + 图标 14 + 间隔 8 */
+  /* 手机底部的条（小程序）：高度不含底部安全区。页面、轻提示、浮动按钮都按它们留位置（MINI-REVIEW-PLAN U4） */
+  --tabbar-h: 52px;
+  --bottombar-h: 60px; /* 一排 44px 的按钮 + 上下各 8px */
+  --text-tab: 11px; /* 手机底部标签栏的字、角标数字：手机上只有它们小于 12px（MINI-REVIEW-PLAN D29） */
+
+  /* ── 图标：24 网格、1.5 线宽、圆头、斜接角（方角） ── */
+  --ui-icon-stroke: 1.5;
+  --icon-sm: 12px; /* 小字旁的 chevron */
+  --icon-md: 14px; /* 与文字同行 */
+  --icon-lg: 16px; /* 按钮、控件内 */
+  --icon-nav: 18px; /* 工具栏 */
+  --icon-rail: 20px; /* 侧栏导航 */
+
+  /* ── 动效：只动 opacity / transform；不弹跳 ── */
+  --motion-quick: 140ms;  /* 状态变化：hover、颜色、淡入淡出、完成勾 */
+  --motion-panel: 180ms;
+  --motion-sheet: 200ms;  /* sheet 升起 */
+  --motion-medium: 220ms; /* 小型进入：行、筛选、进度 */
+  --motion-sheet-out: 120ms;
+  --motion-out: 100ms; /* 浮层收回：菜单、popover、tooltip（MOTION-REVIEW-PLAN D89） */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── 质感：实心按钮（主按钮、危险按钮）缺省纯平；data-finish="material" 时有顶部 1px 内高光、深一点的边、按下下沉 0.5px。
+   * 原生（@xxd/css）和 React（@xxd/react）都读这几个变量；离按钮最近的 data-finish 说了算（变量会继承）。 ── */
+  --btn-edge: 100%; /* 边 = 底色掺多少黑（100% = 不掺） */
+  /* 纯平时写成一层看不见的阴影（不写 none）：React 版把它拼进 Tailwind 的多层 box-shadow，none 会让整条失效 */
+  --btn-highlight: 0 0 #0000;
+  --btn-highlight-pressed: 0 0 #0000;
+  --btn-press-y: 0px;
+
+  /* ── 层级 ── */
+  --z-dock: 20;
+  --z-popover: 50;
+  --z-dialog: 60;
+  --z-toast: 70;
+}
+
+/* 粗指针（手机、平板）：控件 44 高（TOUCH-REVIEW-PLAN D115）——手指点得准，同一行的输入框、按钮还是一样高；
+   紧凑密度写在元素上时以它为准（插件的侧边栏、弹窗不在触屏上用） */
+@media (pointer: coarse) {
+  :root {
+    --hit-min: 44px;
+    --control-h: 44px;
+    /* 小号也 44：输入框在触屏上没法补看不见的点按区、只能自己 44 高，小号按钮跟着一样高，并排时才齐（J1） */
+    --control-h-sm: 44px;
+    --control-h-lg: 52px;
+  }
+}
+
+/* 紧凑密度：整页（<html data-density>，boot.js 写）或者页面里的一块（任何元素上的 data-density="compact"） */
+:root[data-density="compact"],
+[data-density="compact"] {
+  --control-h: 32px;
+  --control-h-sm: 26px;
+  --control-h-xs: 20px;
+  --control-h-lg: 40px;
+  --icon-button: var(--control-h);
+  /* 组件级的内边距一起收（高度跟着 --control-h 自己变：标签页 = 控件高，列表行 +4，设置行 +8） */
+  --control-pad-x: 12px;
+  --control-pad-x-sm: 8px;
+  --control-pad-x-lg: 16px;
+  --field-pad-x: 8px;
+  --field-icon-slot: 30px; /* 边距 8 + 图标 14 + 间隔 8（J22：以前紧凑时还是 34，搜索、下拉的字比输入框往里 4px） */
+  --row-pad-y: 8px;
+  --row-pad-x: 12px;
+  --list-row-pad-y: 4px;
+  /* 容器和块之间也收一档（D56）；并列的同类、部件之间不变 */
+  --inset-sm: 8px;
+  --inset-md: 12px;
+  --inset-lg: 16px;
+  --inset-sm-y: 4px;
+  --inset-md-y: 8px;
+  --inset-lg-y: 12px;
+  --gap-block: 12px;
+  --gap-group: 24px;
+}
+
+[data-finish="material"] {
+  --btn-edge: 86%;
+  --btn-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  --btn-highlight-pressed: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --btn-press-y: 0.5px;
+}
+
+[data-finish="flat"] {
+  --btn-edge: 100%;
+  --btn-highlight: 0 0 #0000;
+  --btn-highlight-pressed: 0 0 #0000;
+  --btn-press-y: 0px;
+}
+
+/* 暗色：整页（<html data-theme>，boot.js 写）或者页面里的一块（任何元素上的 data-theme="dark"） */
+:root[data-theme="dark"],
+[data-theme="dark"] {
+  color-scheme: dark;
+  /* 暖黑，不是蓝黑 */
+  --bg: #171612;
+  --paper: #201f1a;
+  --wash: #2a2822;
+  --wash-strong: #312f28;
+  --selected-bg: #38362e;
+  --switch-on: #cfc9bd;
+  --switch-knob-off: #a7a194;
+  --ink: #f3f0ea;
+  --ink-rgb: 243, 240, 234;
+  --on-ink: #171612;
+  --muted: #a7a194;
+  --muted-2: #837d72;
+  --line: #34322b;
+  --line-strong: #4c483f;
+  --line-control: #807a6e;
+  --paper-raised: #292720;
+  --wash-raised: #33302a;
+  --wash-strong-raised: #3b3830;
+  --line-raised: #3f3c34;
+  --paper-rgb: 32, 31, 26;
+  --shadow-rgb: 0, 0, 0;
+  --disabled-ink: #66635d;
+  --disabled-bg: #2a2822;
+  --disabled-line: #34322b;
+  /* 暗色的语义色和暖黑同一个调子：偏暖、低一档饱和（不用冷的荧光绿 / 红）。字用的版本对暗纸 ≥ 4.5；
+     *-strong 是实心底（白字 ≥ 4.5、对暗纸 ≥ 3） */
+  --success: #7cc48a;
+  --success-rgb: 124, 196, 138;
+  --danger: #ec7a6d;
+  --danger-rgb: 236, 122, 109;
+  --warning: #e8a95a;
+  --warning-rgb: 232, 169, 90;
+  --success-strong: #2f7d47;
+  --warning-strong: #a35f1b;
+  --danger-strong: #d03a2f;
+  /* 色阶（scripts/scales.mjs 生成）：暗色单独生成（C5），在暖黑上重新取明度 */
+  /* @scales:dark */
+  --gray-1: #171612;
+  --gray-2: #201f1a;
+  --gray-3: #2a2822;
+  --gray-4: #312f28;
+  --gray-5: #38362e;
+  --gray-6: #383530;
+  --gray-7: #4c483f;
+  --gray-8: #837d72;
+  --gray-9: #807a6e;
+  --gray-10: #918b82;
+  --gray-11: #a7a194;
+  --gray-12: #f3f0ea;
+  --accent-1: #171612;
+  --accent-2: #201f1a;
+  --accent-3: #2a2822;
+  --accent-4: #312f28;
+  --accent-5: #38362e;
+  --accent-6: #383530;
+  --accent-7: #4c483f;
+  --accent-8: #d1cdc5;
+  --accent-9: #dcd7cd;
+  --accent-10: #c2bdb4;
+  --accent-11: #f3f0ea;
+  --accent-12: #f3f0ea;
+  --accent-on: #171612;
+  --success-1: #121712;
+  --success-2: #161e18;
+  --success-3: #1c2a1f;
+  --success-4: #203324;
+  --success-5: #243b29;
+  --success-6: #28452f;
+  --success-7: #32573b;
+  --success-8: #41774f;
+  --success-9: #2f7d47;
+  --success-10: #21713c;
+  --success-11: #7cc48a;
+  --success-12: #cfe5d3;
+  --success-on: #ffffff;
+  --danger-1: #1d1210;
+  --danger-2: #271715;
+  --danger-3: #3a1c18;
+  --danger-4: #47201b;
+  --danger-5: #54251f;
+  --danger-6: #622922;
+  --danger-7: #7c332b;
+  --danger-8: #af4439;
+  --danger-9: #d03a2f;
+  --danger-10: #c22b22;
+  --danger-11: #ec7a6d;
+  --danger-12: #fed2cb;
+  --danger-on: #ffffff;
+  --warning-1: #191410;
+  --warning-2: #221a14;
+  --warning-3: #312317;
+  --warning-4: #3b291a;
+  --warning-5: #462f1d;
+  --warning-6: #52361f;
+  --warning-7: #674427;
+  --warning-8: #8e5c30;
+  --warning-9: #a35f1b;
+  --warning-10: #965306;
+  --warning-11: #e8a95a;
+  --warning-12: #f0d9c7;
+  --warning-on: #ffffff;
+  --line-control-hover: var(--gray-10);
+  --accent-bg: var(--accent-2);
+  --accent-tint: var(--accent-3);
+  --accent-tint-hover: var(--accent-4);
+  --accent-tint-active: var(--accent-5);
+  --accent-line: var(--accent-6);
+  --accent-border: var(--accent-7);
+  --accent-border-strong: var(--accent-8);
+  --accent-solid: var(--accent-9);
+  --accent-solid-hover: var(--accent-10);
+  --accent-text: var(--accent-11);
+  --accent-text-strong: var(--accent-12);
+  --accent-on-solid: var(--accent-on);
+  --success-bg: var(--success-2);
+  --success-tint: var(--success-3);
+  --success-tint-hover: var(--success-4);
+  --success-tint-active: var(--success-5);
+  --success-line: var(--success-6);
+  --success-border: var(--success-7);
+  --success-border-strong: var(--success-8);
+  --success-solid: var(--success-9);
+  --success-solid-hover: var(--success-10);
+  --success-text: var(--success-11);
+  --success-text-strong: var(--success-12);
+  --success-on-solid: var(--success-on);
+  --danger-bg: var(--danger-2);
+  --danger-tint: var(--danger-3);
+  --danger-tint-hover: var(--danger-4);
+  --danger-tint-active: var(--danger-5);
+  --danger-line: var(--danger-6);
+  --danger-border: var(--danger-7);
+  --danger-border-strong: var(--danger-8);
+  --danger-solid: var(--danger-9);
+  --danger-solid-hover: var(--danger-10);
+  --danger-text: var(--danger-11);
+  --danger-text-strong: var(--danger-12);
+  --danger-on-solid: var(--danger-on);
+  --warning-bg: var(--warning-2);
+  --warning-tint: var(--warning-3);
+  --warning-tint-hover: var(--warning-4);
+  --warning-tint-active: var(--warning-5);
+  --warning-line: var(--warning-6);
+  --warning-border: var(--warning-7);
+  --warning-border-strong: var(--warning-8);
+  --warning-solid: var(--warning-9);
+  --warning-solid-hover: var(--warning-10);
+  --warning-text: var(--warning-11);
+  --warning-text-strong: var(--warning-12);
+  --warning-on-solid: var(--warning-on);
+  /* @scales:end */
+  --shadow-popover: 0 18px 44px rgba(0, 0, 0, 0.42);
+  --shadow-dialog: 0 28px 76px rgba(0, 0, 0, 0.5);
+  /* 根上用 var() 算的两个：局部的一块里要重算，不然沿用根上的阴影色（DARK-REVIEW-PLAN K5） */
+  --shadow-sheet: -18px 0 54px rgba(var(--shadow-rgb), 0.14);
+  --swatch-edge: rgba(var(--shadow-rgb), 0.12);
+  /* 派生的强调令牌：:root 上已经按亮色算好再继承下来，换了 --ink 的这一块要重新声明，主按钮、焦点才跟着变 */
+  --action: var(--ink);
+  /* 热力格的 4 档（CHART-TYPES-PLAN D44）：越深越多；0 档是 --wash。墨色时取灰阶，有主色时取主色的色阶。
+     3、4 档上写字用 --on-action（两档都和它 ≥ 4.5:1） */
+  --heat-1: var(--gray-7);
+  /* 暗色的灰 9 级是中灰（#807a6e），亮字、暗字都够不着 4.5；2 级换成灰 10，上面配暗字（5.36） */
+  --heat-2: var(--gray-10);
+  --heat-3: var(--gray-11);
+  --heat-4: var(--action);
+  --on-mark: var(--on-action);
+  --heat-1-on: var(--ink);
+  --heat-2-on: var(--on-action);
+  --heat-3-on: var(--on-action);
+  --heat-4-on: var(--on-action);
+  --action-rgb: var(--ink-rgb);
+  --on-action: var(--on-ink);
+  --action-text: var(--ink);
+  /* 实心底（主按钮）用墨色族的 9 级：暗色比正文的米白暗一档，整行宽的按钮在暗处不刺眼（MINI-REVIEW-PLAN D30） */
+  --action-fill: var(--accent-9);
+  --action-fill-hover: var(--accent-10);
+  --focus-ring: 0 0 0 2px color-mix(in srgb, var(--action) 24%, transparent);
+  --focus-color: var(--action-text);
+}
+
+/* 亮色的一块：暗色页面里某一块要亮（比如并排对比）。只放颜色，和 :root 的亮色值一样（测试会对一遍）。 */
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #fdfcfb;
+  --paper: #ffffff;
+  --wash: #f6f4f1;
+  --wash-strong: #eeece9;
+  --selected-bg: #eeece9;
+  --switch-on: #111111;
+  --switch-knob-off: #ffffff;
+  --ink: #111111;
+  --ink-rgb: 17, 17, 17;
+  --on-ink: #ffffff;
+  --muted: #6d6b67;
+  --muted-2: #9a968d;
+  --line: #e9e7e4;
+  --line-strong: #ccc9c5;
+  --line-control: #898681;
+  --paper-raised: #ffffff;
+  --wash-raised: #f6f4f1;
+  --wash-strong-raised: #eeece9;
+  --line-raised: #e9e7e4;
+  --paper-rgb: 255, 255, 255;
+  --shadow-rgb: 17, 17, 17;
+  --disabled-ink: #adaaa5;
+  --disabled-bg: #f6f4f1;
+  --disabled-line: #e9e7e4;
+  --success: #15803d;
+  --success-rgb: 21, 128, 61;
+  --danger: #b42318;
+  --danger-rgb: 180, 35, 24;
+  --warning: #b45309;
+  --warning-rgb: 180, 83, 9;
+  --success-strong: #15803d;
+  --danger-strong: #b42318;
+  --warning-strong: #b45309;
+  /* 色阶（scripts/scales.mjs 生成）：和 :root 一样 */
+  /* @scales:light */
+  --gray-1: #fdfcfb;
+  --gray-2: #faf9f7;
+  --gray-3: #f6f4f1;
+  --gray-4: #eeece9;
+  --gray-5: #ebe9e6;
+  --gray-6: #e9e7e4;
+  --gray-7: #ccc9c5;
+  --gray-8: #9a968d;
+  --gray-9: #898681;
+  --gray-10: #7e7b77;
+  --gray-11: #6d6b67;
+  --gray-12: #111111;
+  --accent-1: #fdfcfb;
+  --accent-2: #faf9f7;
+  --accent-3: #f6f4f1;
+  --accent-4: #eeece9;
+  --accent-5: #ebe9e6;
+  --accent-6: #e9e7e4;
+  --accent-7: #ccc9c5;
+  --accent-8: #353433;
+  --accent-9: #111111;
+  --accent-10: #323232;
+  --accent-11: #111111;
+  --accent-12: #111111;
+  --accent-on: #ffffff;
+  --success-1: #fbfdfb;
+  --success-2: #f5fbf6;
+  --success-3: #eaf6ec;
+  --success-4: #e6f8e9;
+  --success-5: #d3ebd7;
+  --success-6: #c7e6cc;
+  --success-7: #abd8b3;
+  --success-8: #5d9f6c;
+  --success-9: #15803d;
+  --success-10: #027333;
+  --success-11: #15803d;
+  --success-12: #1b3e24;
+  --success-on: #ffffff;
+  --danger-1: #fffcfb;
+  --danger-2: #fef7f6;
+  --danger-3: #feeeec;
+  --danger-4: #ffe7e3;
+  --danger-5: #fedad4;
+  --danger-6: #fed0c8;
+  --danger-7: #feb6aa;
+  --danger-8: #dc7162;
+  --danger-9: #b42318;
+  --danger-10: #a60e06;
+  --danger-11: #b42318;
+  --danger-12: #58221b;
+  --danger-on: #ffffff;
+  --warning-1: #fefcfb;
+  --warning-2: #fef8f4;
+  --warning-3: #fff0e9;
+  --warning-4: #fff0e8;
+  --warning-5: #fbddce;
+  --warning-6: #fad3bf;
+  --warning-7: #f3bda1;
+  --warning-8: #ca7e55;
+  --warning-9: #b45309;
+  --warning-10: #a44a02;
+  --warning-11: #b45309;
+  --warning-12: #502a14;
+  --warning-on: #ffffff;
+  --line-control-hover: var(--gray-10);
+  --accent-bg: var(--accent-2);
+  --accent-tint: var(--accent-3);
+  --accent-tint-hover: var(--accent-4);
+  --accent-tint-active: var(--accent-5);
+  --accent-line: var(--accent-6);
+  --accent-border: var(--accent-7);
+  --accent-border-strong: var(--accent-8);
+  --accent-solid: var(--accent-9);
+  --accent-solid-hover: var(--accent-10);
+  --accent-text: var(--accent-11);
+  --accent-text-strong: var(--accent-12);
+  --accent-on-solid: var(--accent-on);
+  --success-bg: var(--success-2);
+  --success-tint: var(--success-3);
+  --success-tint-hover: var(--success-4);
+  --success-tint-active: var(--success-5);
+  --success-line: var(--success-6);
+  --success-border: var(--success-7);
+  --success-border-strong: var(--success-8);
+  --success-solid: var(--success-9);
+  --success-solid-hover: var(--success-10);
+  --success-text: var(--success-11);
+  --success-text-strong: var(--success-12);
+  --success-on-solid: var(--success-on);
+  --danger-bg: var(--danger-2);
+  --danger-tint: var(--danger-3);
+  --danger-tint-hover: var(--danger-4);
+  --danger-tint-active: var(--danger-5);
+  --danger-line: var(--danger-6);
+  --danger-border: var(--danger-7);
+  --danger-border-strong: var(--danger-8);
+  --danger-solid: var(--danger-9);
+  --danger-solid-hover: var(--danger-10);
+  --danger-text: var(--danger-11);
+  --danger-text-strong: var(--danger-12);
+  --danger-on-solid: var(--danger-on);
+  --warning-bg: var(--warning-2);
+  --warning-tint: var(--warning-3);
+  --warning-tint-hover: var(--warning-4);
+  --warning-tint-active: var(--warning-5);
+  --warning-line: var(--warning-6);
+  --warning-border: var(--warning-7);
+  --warning-border-strong: var(--warning-8);
+  --warning-solid: var(--warning-9);
+  --warning-solid-hover: var(--warning-10);
+  --warning-text: var(--warning-11);
+  --warning-text-strong: var(--warning-12);
+  --warning-on-solid: var(--warning-on);
+  /* @scales:end */
+  /* 派生的强调令牌：:root 上已经按亮色算好再继承下来，换了 --ink 的这一块要重新声明，主按钮、焦点才跟着变 */
+  --action: var(--ink);
+  /* 热力格的 4 档（CHART-TYPES-PLAN D44）：越深越多；0 档是 --wash。墨色时取灰阶，有主色时取主色的色阶。
+     3、4 档上写字用 --on-action（两档都和它 ≥ 4.5:1） */
+  --heat-1: var(--gray-7);
+  --heat-2: var(--gray-9);
+  --heat-3: var(--gray-11);
+  --heat-4: var(--action);
+  --on-mark: var(--on-action);
+  --heat-1-on: var(--ink);
+  --heat-2-on: var(--ink);
+  --heat-3-on: var(--on-action);
+  --heat-4-on: var(--on-action);
+  --action-rgb: var(--ink-rgb);
+  --on-action: var(--on-ink);
+  --action-text: var(--ink);
+  --action-fill: var(--action);
+  --action-fill-hover: color-mix(in srgb, var(--action) 86%, var(--paper));
+  --focus-ring: 0 0 0 2px color-mix(in srgb, var(--action) 24%, transparent);
+  --focus-color: var(--action-text);
+  --shadow-popover: 0 18px 44px rgba(var(--shadow-rgb), 0.16);
+  --shadow-dialog: 0 28px 76px rgba(var(--shadow-rgb), 0.24);
+  /* 根上用 var() 算的两个：局部的一块里要重算，不然沿用根上的阴影色（DARK-REVIEW-PLAN K5） */
+  --shadow-sheet: -18px 0 54px rgba(var(--shadow-rgb), 0.14);
+  --swatch-edge: rgba(var(--shadow-rgb), 0.12);
+}
+
+/* 圆角也可以只用在页面里的一块（ACCEPTANCE-REVIEW：以前只认根上的，局部写 data-corners 不生效，展示站只好把值抄成行内样式） */
+:root[data-corners="rounded"],
+[data-corners="rounded"] {
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+  --stroke-cap: round;
+}
+
+/* 圆角页面里的一块直角 */
+:root [data-corners="square"] {
+  --r-xs: 0px;
+  --r-sm: 0px;
+  --r-md: 0px;
+  --r-lg: 0px;
+  --r-pill: 0px;
+  --stroke-cap: butt;
+}
+
+/* 主色：一个颜色定整个界面的调子，而不是灰底上一个彩色按钮。
+   accent.js 按色阶写入 --action-custom*、--accent-<n>-custom*、--gray-<n>-custom*（亮/暗各一套）。
+   - 强调（主按钮、开关、tab 下划线、焦点）用主色的 9 级，强调字用 11 级；
+   - 选中底是主色的 4 级，而不是灰；
+   - 页面底、淡底、线是带一点主色的灰（OKLab 里加一点主色的方向），让灰色和它同调。
+   正文 --ink、纸色、成功/危险/警告保持不变。 */
+:root[data-accent],
+:root[data-accent] [data-theme="light"] {
+  --action: var(--action-custom);
+  --heat-1: var(--accent-5);
+  --heat-2: var(--accent-7);
+  --heat-3: var(--action);
+  --heat-4: var(--accent-11);
+  /* 主色的 5、7 级上配正文色，9 级（标记）上配标记色上的字，11 级上配页面底色：都是色阶门禁保证 ≥ 4.5 的那几对 */
+  --on-mark: var(--on-mark-custom);
+  --heat-1-on: var(--ink);
+  --heat-2-on: var(--ink);
+  --heat-3-on: var(--on-mark);
+  --heat-4-on: var(--bg);
+  --action-rgb: var(--action-rgb-custom);
+  --on-action: var(--on-action-custom);
+  --action-text: var(--action-text-custom);
+  --action-fill: var(--action-fill-custom);
+  --action-fill-hover: var(--action-fill-hover-custom);
+  --switch-on: var(--action);
+  /* 主色族、带一点主色的灰：accent.js 按色阶算好写在根上（scripts/scales.mjs 生成这几行） */
+  /* @scales:accent */
+  --gray-1: var(--gray-1-custom);
+  --gray-2: var(--gray-2-custom);
+  --gray-3: var(--gray-3-custom);
+  --gray-4: var(--gray-4-custom);
+  --gray-5: var(--gray-5-custom);
+  --gray-6: var(--gray-6-custom);
+  --gray-7: var(--gray-7-custom);
+  --gray-8: var(--gray-8-custom);
+  --gray-9: var(--gray-9-custom);
+  --gray-10: var(--gray-10-custom);
+  --gray-11: var(--gray-11-custom);
+  --gray-12: var(--gray-12-custom);
+  --accent-1: var(--accent-1-custom);
+  --accent-2: var(--accent-2-custom);
+  --accent-3: var(--accent-3-custom);
+  --accent-4: var(--accent-4-custom);
+  --accent-5: var(--accent-5-custom);
+  --accent-6: var(--accent-6-custom);
+  --accent-7: var(--accent-7-custom);
+  --accent-8: var(--accent-8-custom);
+  --accent-9: var(--accent-9-custom);
+  --accent-10: var(--accent-10-custom);
+  --accent-11: var(--accent-11-custom);
+  --accent-12: var(--accent-12-custom);
+  --accent-on: var(--accent-on-custom);
+  /* @scales:end */
+  /* 选中底是主色的 4 级；页面底、淡底、线是带色调的灰的对应级 */
+  --selected-bg: var(--accent-4);
+  --bg: var(--gray-1);
+  --wash: var(--gray-3);
+  --wash-strong: var(--gray-4);
+  --line: var(--gray-6);
+  --line-strong: var(--gray-7);
+  --wash-raised: var(--wash);
+  --wash-strong-raised: var(--wash-strong);
+  --line-raised: var(--line);
+  --focus-ring: 0 0 0 2px color-mix(in srgb, var(--action) 45%, transparent);
+}
+
+:root[data-theme="dark"][data-accent],
+:root[data-accent] [data-theme="dark"] {
+  --action: var(--action-custom-dark);
+  --switch-on: var(--action); /* 以前漏了：主色 + 局部暗色块里开关「开」是米色 */
+  --heat-1: var(--accent-5);
+  --heat-2: var(--accent-7);
+  --heat-3: var(--action);
+  --heat-4: var(--accent-11);
+  /* 主色的 5、7 级上配正文色，9 级（标记）上配标记色上的字，11 级上配页面底色：都是色阶门禁保证 ≥ 4.5 的那几对 */
+  --on-mark: var(--on-mark-custom-dark);
+  --heat-1-on: var(--ink);
+  --heat-2-on: var(--ink);
+  --heat-3-on: var(--on-mark);
+  --heat-4-on: var(--bg);
+  --action-rgb: var(--action-rgb-custom-dark);
+  --on-action: var(--on-action-custom-dark);
+  --action-text: var(--action-text-custom-dark);
+  --action-fill: var(--action-fill-custom-dark);
+  --action-fill-hover: var(--action-fill-hover-custom-dark);
+  /* @scales:dark-accent */
+  --gray-1: var(--gray-1-custom-dark);
+  --gray-2: var(--gray-2-custom-dark);
+  --gray-3: var(--gray-3-custom-dark);
+  --gray-4: var(--gray-4-custom-dark);
+  --gray-5: var(--gray-5-custom-dark);
+  --gray-6: var(--gray-6-custom-dark);
+  --gray-7: var(--gray-7-custom-dark);
+  --gray-8: var(--gray-8-custom-dark);
+  --gray-9: var(--gray-9-custom-dark);
+  --gray-10: var(--gray-10-custom-dark);
+  --gray-11: var(--gray-11-custom-dark);
+  --gray-12: var(--gray-12-custom-dark);
+  --accent-1: var(--accent-1-custom-dark);
+  --accent-2: var(--accent-2-custom-dark);
+  --accent-3: var(--accent-3-custom-dark);
+  --accent-4: var(--accent-4-custom-dark);
+  --accent-5: var(--accent-5-custom-dark);
+  --accent-6: var(--accent-6-custom-dark);
+  --accent-7: var(--accent-7-custom-dark);
+  --accent-8: var(--accent-8-custom-dark);
+  --accent-9: var(--accent-9-custom-dark);
+  --accent-10: var(--accent-10-custom-dark);
+  --accent-11: var(--accent-11-custom-dark);
+  --accent-12: var(--accent-12-custom-dark);
+  --accent-on: var(--accent-on-custom-dark);
+  /* @scales:end */
+  --selected-bg: var(--accent-4);
+  --bg: var(--gray-1);
+  --wash: var(--gray-3);
+  --wash-strong: var(--gray-4);
+  --line: var(--gray-6);
+  --line-strong: var(--gray-7);
+  --paper-raised: color-mix(in srgb, #292720 97%, var(--action));
+  --wash-raised: color-mix(in srgb, #33302a 94%, var(--action));
+  --wash-strong-raised: color-mix(in srgb, #3b3830 92%, var(--action));
+  --line-raised: color-mix(in srgb, #3f3c34 90%, var(--action));
+  --focus-ring: 0 0 0 2px color-mix(in srgb, var(--action) 55%, transparent);
+}
+
+/* 系统要求更高对比度（macOS「增强对比度」、prefers-contrast: more）：
+   控件边框到 3:1（WCAG 1.4.11），次要文字到 6:1 以上，线条加深。平时保持安静的发丝线。 */
+@media (prefers-contrast: more) {
+  :root,
+  :root[data-accent],
+  [data-theme="light"],
+  :root[data-accent] [data-theme="light"] {
+    --muted: #5b5955;
+    --muted-2: #6d6b67;
+    --line: #b7b4b0;
+    --line-raised: #b7b4b0;
+    --line-strong: #898681;
+    --line-control: #6e6b67;
+  }
+
+  :root[data-theme="dark"],
+  :root[data-theme="dark"][data-accent],
+  [data-theme="dark"],
+  :root[data-accent] [data-theme="dark"] {
+    --muted: #c9c3b6;
+    --muted-2: #a7a194;
+    --line: #5a564c;
+    --line-raised: #5a564c;
+    --line-strong: #8a8478;
+    --line-control: #a39d90;
+  }
+}
+
+/* 英文页面（<html lang="en">，或页面里写了 lang="en" 的一块）：整屏标题用系统衬线，小标签用等宽大写（EN-TYPE-PLAN）。
+ * 衬线没有半粗，600 会拿到 Bold，所以标题是 500。中文字体排在 serif 前面：英文页里夹的中文落到黑体，不落到宋体。
+ * 标签小一档（等宽比周围小一档，D69）；11px 只给不会出现中文的字（D71），英文页的标签就是。 */
+:root:lang(en),
+[lang]:lang(en) {
+  --font-title: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", serif;
+  --weight-title: var(--weight-medium);
+  --tracking-title: -0.01em;
+  --font-label: var(--font-mono);
+  --text-label: var(--text-2xs);
+  --case-label: uppercase;
+  --tracking-label: 0.08em;
+}
+
+/* 英文页里写了别的语言（lang="zh-CN" 的一块）：换回中文的样子 */
+:root [lang]:not(:lang(en)) {
+  --font-title: var(--font-body);
+  --weight-title: var(--weight-strong);
+  --tracking-title: normal;
+  --font-label: var(--font-body);
+  --text-label: var(--text-xs);
+  --case-label: none;
+  --tracking-label: normal;
+}
+
+/* 繁体中文页面（<html lang="zh-Hant"> 或 zh-TW / zh-HK）：同一套字体的繁体字形。
+ * 只写在根上（Shadow 里是 host）：老项目自己在 :root 上声明的字体照样优先。 */
+:root:lang(zh-Hant),
+:root:lang(zh-TW),
+:root:lang(zh-HK) {
+  --font-body: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", "Source Han Sans TC", system-ui, sans-serif;
+  --font-title: var(--font-body); /* 在这一层重新取一次，局部写 lang 的元素也跟着换 */
+}
+
+/* 没有 JS 时也跟随系统暗色（scripts/build.mjs 从暗色块生成；boot.js 写了 data-theme 以后以它为准） */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --bg: #171612;
+    --paper: #201f1a;
+    --wash: #2a2822;
+    --wash-strong: #312f28;
+    --selected-bg: #38362e;
+    --switch-on: #cfc9bd;
+    --switch-knob-off: #a7a194;
+    --ink: #f3f0ea;
+    --ink-rgb: 243, 240, 234;
+    --on-ink: #171612;
+    --muted: #a7a194;
+    --muted-2: #837d72;
+    --line: #34322b;
+    --line-strong: #4c483f;
+    --line-control: #807a6e;
+    --paper-raised: #292720;
+    --wash-raised: #33302a;
+    --wash-strong-raised: #3b3830;
+    --line-raised: #3f3c34;
+    --paper-rgb: 32, 31, 26;
+    --shadow-rgb: 0, 0, 0;
+    --disabled-ink: #66635d;
+    --disabled-bg: #2a2822;
+    --disabled-line: #34322b;
+    --success: #7cc48a;
+    --success-rgb: 124, 196, 138;
+    --danger: #ec7a6d;
+    --danger-rgb: 236, 122, 109;
+    --warning: #e8a95a;
+    --warning-rgb: 232, 169, 90;
+    --success-strong: #2f7d47;
+    --warning-strong: #a35f1b;
+    --danger-strong: #d03a2f;
+    --gray-1: #171612;
+    --gray-2: #201f1a;
+    --gray-3: #2a2822;
+    --gray-4: #312f28;
+    --gray-5: #38362e;
+    --gray-6: #383530;
+    --gray-7: #4c483f;
+    --gray-8: #837d72;
+    --gray-9: #807a6e;
+    --gray-10: #918b82;
+    --gray-11: #a7a194;
+    --gray-12: #f3f0ea;
+    --accent-1: #171612;
+    --accent-2: #201f1a;
+    --accent-3: #2a2822;
+    --accent-4: #312f28;
+    --accent-5: #38362e;
+    --accent-6: #383530;
+    --accent-7: #4c483f;
+    --accent-8: #d1cdc5;
+    --accent-9: #dcd7cd;
+    --accent-10: #c2bdb4;
+    --accent-11: #f3f0ea;
+    --accent-12: #f3f0ea;
+    --accent-on: #171612;
+    --success-1: #121712;
+    --success-2: #161e18;
+    --success-3: #1c2a1f;
+    --success-4: #203324;
+    --success-5: #243b29;
+    --success-6: #28452f;
+    --success-7: #32573b;
+    --success-8: #41774f;
+    --success-9: #2f7d47;
+    --success-10: #21713c;
+    --success-11: #7cc48a;
+    --success-12: #cfe5d3;
+    --success-on: #ffffff;
+    --danger-1: #1d1210;
+    --danger-2: #271715;
+    --danger-3: #3a1c18;
+    --danger-4: #47201b;
+    --danger-5: #54251f;
+    --danger-6: #622922;
+    --danger-7: #7c332b;
+    --danger-8: #af4439;
+    --danger-9: #d03a2f;
+    --danger-10: #c22b22;
+    --danger-11: #ec7a6d;
+    --danger-12: #fed2cb;
+    --danger-on: #ffffff;
+    --warning-1: #191410;
+    --warning-2: #221a14;
+    --warning-3: #312317;
+    --warning-4: #3b291a;
+    --warning-5: #462f1d;
+    --warning-6: #52361f;
+    --warning-7: #674427;
+    --warning-8: #8e5c30;
+    --warning-9: #a35f1b;
+    --warning-10: #965306;
+    --warning-11: #e8a95a;
+    --warning-12: #f0d9c7;
+    --warning-on: #ffffff;
+    --line-control-hover: var(--gray-10);
+    --accent-bg: var(--accent-2);
+    --accent-tint: var(--accent-3);
+    --accent-tint-hover: var(--accent-4);
+    --accent-tint-active: var(--accent-5);
+    --accent-line: var(--accent-6);
+    --accent-border: var(--accent-7);
+    --accent-border-strong: var(--accent-8);
+    --accent-solid: var(--accent-9);
+    --accent-solid-hover: var(--accent-10);
+    --accent-text: var(--accent-11);
+    --accent-text-strong: var(--accent-12);
+    --accent-on-solid: var(--accent-on);
+    --success-bg: var(--success-2);
+    --success-tint: var(--success-3);
+    --success-tint-hover: var(--success-4);
+    --success-tint-active: var(--success-5);
+    --success-line: var(--success-6);
+    --success-border: var(--success-7);
+    --success-border-strong: var(--success-8);
+    --success-solid: var(--success-9);
+    --success-solid-hover: var(--success-10);
+    --success-text: var(--success-11);
+    --success-text-strong: var(--success-12);
+    --success-on-solid: var(--success-on);
+    --danger-bg: var(--danger-2);
+    --danger-tint: var(--danger-3);
+    --danger-tint-hover: var(--danger-4);
+    --danger-tint-active: var(--danger-5);
+    --danger-line: var(--danger-6);
+    --danger-border: var(--danger-7);
+    --danger-border-strong: var(--danger-8);
+    --danger-solid: var(--danger-9);
+    --danger-solid-hover: var(--danger-10);
+    --danger-text: var(--danger-11);
+    --danger-text-strong: var(--danger-12);
+    --danger-on-solid: var(--danger-on);
+    --warning-bg: var(--warning-2);
+    --warning-tint: var(--warning-3);
+    --warning-tint-hover: var(--warning-4);
+    --warning-tint-active: var(--warning-5);
+    --warning-line: var(--warning-6);
+    --warning-border: var(--warning-7);
+    --warning-border-strong: var(--warning-8);
+    --warning-solid: var(--warning-9);
+    --warning-solid-hover: var(--warning-10);
+    --warning-text: var(--warning-11);
+    --warning-text-strong: var(--warning-12);
+    --warning-on-solid: var(--warning-on);
+    --shadow-popover: 0 18px 44px rgba(0, 0, 0, 0.42);
+    --shadow-dialog: 0 28px 76px rgba(0, 0, 0, 0.5);
+    --shadow-sheet: -18px 0 54px rgba(var(--shadow-rgb), 0.14);
+    --swatch-edge: rgba(var(--shadow-rgb), 0.12);
+    --action: var(--ink);
+    --heat-1: var(--gray-7);
+    --heat-2: var(--gray-10);
+    --heat-3: var(--gray-11);
+    --heat-4: var(--action);
+    --on-mark: var(--on-action);
+    --heat-1-on: var(--ink);
+    --heat-2-on: var(--on-action);
+    --heat-3-on: var(--on-action);
+    --heat-4-on: var(--on-action);
+    --action-rgb: var(--ink-rgb);
+    --on-action: var(--on-ink);
+    --action-text: var(--ink);
+    --action-fill: var(--accent-9);
+    --action-fill-hover: var(--accent-10);
+    --focus-ring: 0 0 0 2px color-mix(in srgb, var(--action) 24%, transparent);
+    --focus-color: var(--action-text);
+  }
+}
