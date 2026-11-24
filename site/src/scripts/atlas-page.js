@@ -172,5 +172,18 @@ const nameFor = (img, vt) => {
 addEventListener("pageswap", (e) => nameFor(thumbOf(e.activation?.entry?.url), e.viewTransition));
 addEventListener("pagereveal", (e) => nameFor(thumbOf(window.navigation?.activation?.from?.url), e.viewTransition));
 
+// 从右往左时标签条的开头在右边：xxd 按从左往右判断哪边还有没露出来的标签，这里按 scrollLeft ≤ 0 重算一遍
+// （放到下一帧：xxd 自己的滚动监听在同一个事件里，要在它之后改）
+if (document.documentElement.dir === "rtl") {
+  const edges = () => requestAnimationFrame(() => {
+    const x = -tabs.scrollLeft;
+    tabs.toggleAttribute("data-overflow-start", x > 2);
+    tabs.toggleAttribute("data-overflow-end", tabs.scrollWidth - tabs.clientWidth - x > 2);
+  });
+  tabs.addEventListener("scroll", edges, { passive: true });
+  addEventListener("resize", edges);
+  edges();
+}
+
 render();
 syncFavs();
