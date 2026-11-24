@@ -14,8 +14,10 @@ export function webgl() {
   }
 }
 
-// 只在 el 出现在屏幕上、标签页可见、没开「减少动态效果」时每帧调 frame(t, dt)；t 是累计秒数，停的时候不走。
-// 减少动态效果时只画一帧静止的完整画面；交互改了状态以后调返回的 draw() 重画一帧。
+// 只在 el 出现在屏幕上、标签页可见、没开「减少动态效果」时每帧调 frame(t, dt, { still })；t 是累计秒数，停的时候不走。
+// 交互改了状态以后调返回的 draw() 重画一帧。
+// 要不要直接画终点（跳过开场动画、缓动一步到位）只看 still：still 为 true 表示后面不会再有帧（开了减少动态效果）。
+// dt 为 0 不是信号：每次开始转的第一帧、平时调 draw() 都是 0，拿它当「跳到终点」会把开场动画吞掉。
 export function loop(el, frame) {
   let onScreen = false;
   let raf = 0;
@@ -26,10 +28,10 @@ export function loop(el, frame) {
     const dt = last ? Math.min((now - last) / 1000, 0.1) : 0;
     last = now;
     t += dt;
-    frame(t, dt);
+    frame(t, dt, { still: false });
     raf = running() ? requestAnimationFrame(tick) : 0;
   };
-  const draw = () => frame(t, 0);
+  const draw = () => frame(t, 0, { still: reducedMotion.matches });
   const update = () => {
     if (running() && !raf) {
       last = 0;

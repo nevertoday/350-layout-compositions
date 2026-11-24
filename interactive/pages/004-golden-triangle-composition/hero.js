@@ -96,9 +96,9 @@ export function hero() {
     shown.sun = lerp(shown.sun, state.sun, k);
   }
 
-  // dt 为 0 是 draw() 补画的一帧：只有减少动态效果时才直接跳到终点
-  const view = loop(frame, (t, dt) => {
-    if (dt || reducedMotion.matches) settle(dt);
+  // dt 为 0 的帧（开始转的第一帧、draw() 补画）不推进；still（减少动态效果）时直接跳到终点
+  const view = loop(frame, (t, dt, { still }) => {
+    if (dt || still) settle(dt);
     paint();
   });
 
