@@ -192,16 +192,14 @@ async function filterFlow(base, term) {
 // ---------- 2. 外框 ----------
 await go(BASE + "/196/");
 const frame = await js(`({
-  rail: [...document.querySelectorAll(".frame-rail a")].map((a) => a.href),
-  railCurrent: document.querySelector('.frame-rail a[aria-current]')?.href,
+  rail: !!document.querySelector(".frame-rail"),
   tab: document.querySelector(".frame-tab[aria-current]")?.getAttribute("href"),
   tabState: document.querySelector(".frame-tab[aria-current]")?.getAttribute("aria-current"),
   logo: !!document.querySelector(".frame-head .xxd-logo, .site-brand"),
   headerSearch: !!document.querySelector(".frame-head input"),
 })`);
 steps.push({ label: "外框", ...frame });
-if (frame.rail.length !== 5 || !frame.rail.every((h) => h.startsWith("https://vip.xiaoxiaodong.ai/"))) failures.push(`图标条应该是会员站的 5 个去处：${frame.rail.join(" ")}`);
-if (frame.railCurrent !== "https://vip.xiaoxiaodong.ai/open-source") failures.push(`图标条的当前项应该是「开源」：${frame.railCurrent}`);
+if (frame.rail) failures.push("不该再有会员站的图标条");
 if (frame.tab !== "/" || frame.tabState !== "true") failures.push(`详情页的当前栏目应该是图鉴（aria-current=true）：${frame.tab} ${frame.tabState}`);
 if (frame.logo || frame.headerSearch) failures.push("顶栏里不该有站名标志和搜索框");
 
@@ -367,7 +365,6 @@ if (await has("/ar/196/")) {
     const card = document.querySelector(".detail-related .atlas-card"), star = r(card.querySelector(".atlas-fav"));
     return {
       dir: document.documentElement.dir,
-      railOnRight: r(document.querySelector(".frame-rail")).left > r(document.querySelector(".site-main")).left,
       direction: getComputedStyle(document.body).direction,
       posterOnRight: poster.left > info.left,
       chevron: getComputedStyle(document.querySelector(".xxd-breadcrumbs > li + li"), "::before").transform,
@@ -382,7 +379,6 @@ if (await has("/ar/196/")) {
   steps.push({ label: "阿拉伯文", ...rtl });
   if (rtl.dir !== "rtl" || rtl.direction !== "rtl") failures.push(`阿拉伯文应该从右往左：dir=${rtl.dir}，direction=${rtl.direction}`);
   if (!rtl.posterOnRight) failures.push("阿拉伯文的大图应该在右边");
-  if (!rtl.railOnRight) failures.push("阿拉伯文的图标条应该在右边");
   if (!/^matrix\(-1,/.test(rtl.chevron)) failures.push(`阿拉伯文面包屑的箭头没有翻过来：${rtl.chevron}`);
   if (!rtl.starOnLeft) failures.push("阿拉伯文卡片的星标应该在左上");
   if (rtl.arrowLeft !== "/ar/197/") failures.push(`阿拉伯文里 ← 应该翻到下一张 /ar/197/：${rtl.arrowLeft}`);
