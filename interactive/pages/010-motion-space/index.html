@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#eb540f">
+<title>运动空间 · MOTION SPACE</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <!-- HERO: 开场标题 + 追焦取景器主角玩具 -->
+  <section class="hero" aria-labelledby="title">
+    <div class="hero-inner">
+      <header class="hero-head">
+        <div class="hero-kicker">
+          <span class="badge-no" lang="en">No. 010</span>
+          <span class="kicker-cat">350 种排版 · 动态构图</span>
+        </div>
+        <div class="title-track" id="title-track" data-dir="1">
+          <h1 id="title" class="hero-title">运动空间</h1>
+          <div class="title-lead-demo" aria-hidden="true">
+            <span class="tld-dash"></span>
+            <span class="tld-arrow"><i class="tld-shaft"></i><i class="tld-tip"></i></span>
+            <span class="tld-label" lang="en">LEAD ROOM</span>
+          </div>
+        </div>
+        <p class="hero-en" lang="en">MOTION SPACE <span class="slash">/</span> LEAVE SPACE AHEAD OF MOVEMENT</p>
+      </header>
+
+      <div class="stage-col">
+        <div class="viewfinder" id="viewfinder">
+          <canvas id="hero-canvas" aria-hidden="true"></canvas>
+          <button
+            type="button"
+            class="hero-handle"
+            id="hero-handle"
+            data-perf-drag
+            aria-label="拖动主体调整前方运动空间，可用左右方向键微调"
+            aria-describedby="ro-text"
+          >
+            <span class="handle-grip" aria-hidden="true"></span>
+          </button>
+          <div class="vf-hud vf-hud-tl" aria-hidden="true">
+            <span class="vf-rec"></span>
+            <span lang="en">PAN TRACKING</span>
+            <span id="hud-sub" lang="en">RUNNER</span>
+          </div>
+          <div class="vf-hud vf-hud-tr" aria-hidden="true">
+            <span id="hud-speed" class="num" lang="en">22 km/h</span>
+          </div>
+        </div>
+        <p class="stage-hint">拖动画框里的<b>主体</b>（或点击画框）改变跟拍取景位置；选中后可用 <b>← →</b> 键微调。拉动速度条，看推荐前方空间如何随速度扩大。</p>
+      </div>
+
+      <div class="ctrl-col">
+        <p class="hero-lead-copy">画面中的主体具有运动趋势时，在其前进方向前方留出空间，让画面更舒适、更有张力、更易理解。</p>
+
+        <div class="ctrl-block">
+          <div class="ctrl-row-head">
+            <span class="ctrl-label">主体 <span lang="en">SUBJECT</span></span>
+            <div class="dir-wrap">
+              <button type="button" class="dir-btn" id="btn-dir" aria-label="切换前进方向">方向：<strong id="dir-val">向右 →</strong></button>
+              <button type="button" class="icon-btn" id="btn-play" aria-pressed="false" aria-label="暂停或继续运动">暂停</button>
+            </div>
+          </div>
+          <div class="seg-group" role="group" aria-label="切换运动主体">
+            <button type="button" class="seg-btn" data-subject="runner" aria-pressed="true">奔跑</button>
+            <button type="button" class="seg-btn" data-subject="cyclist" aria-pressed="false">骑行</button>
+            <button type="button" class="seg-btn" data-subject="car" aria-pressed="false">赛车</button>
+            <button type="button" class="seg-btn" data-subject="bird" aria-pressed="false">飞鸟</button>
+          </div>
+        </div>
+
+        <div class="ctrl-block">
+          <div class="ctrl-row-head">
+            <label for="hero-speed" class="ctrl-label">速度 <span lang="en">SPEED</span></label>
+            <output id="hero-speed-out" class="speed-out num">22 km/h · 中速奔跑</output>
+          </div>
+          <input type="range" id="hero-speed" min="0" max="100" step="1" value="62">
+          <div class="range-marks" aria-hidden="true"><span>静止</span><span>慢速</span><span>中速</span><span>全速冲刺</span></div>
+        </div>
+
+        <div class="ctrl-block">
+          <span class="ctrl-label">快速摆法 <span lang="en">FRAMING</span></span>
+          <div class="preset-group" role="group" aria-label="四种取景摆法">
+            <button type="button" class="preset-btn" data-preset="ideal">匹配速度</button>
+            <button type="button" class="preset-btn" data-preset="center">居中跟拍</button>
+            <button type="button" class="preset-btn" data-preset="wall">顶边撞墙</button>
+            <button type="button" class="preset-btn" data-preset="pan">高速留拖影</button>
+          </div>
+        </div>
+
+        <div class="readout" id="hero-readout" data-tone="good" aria-live="polite">
+          <div class="ro-metrics">
+            <div class="ro-m is-lead">
+              <span class="ro-k">前方空间 <span lang="en">LEAD</span></span>
+              <strong class="ro-v num" id="ro-lead">58%</strong>
+            </div>
+            <div class="ro-m">
+              <span class="ro-k">后方拖影 <span lang="en">TRAIL</span></span>
+              <strong class="ro-v num" id="ro-trail">28%</strong>
+            </div>
+            <div class="ro-m">
+              <span class="ro-k">当前状态</span>
+              <span class="ro-badge" id="ro-tag">速度与空间匹配</span>
+            </div>
+          </div>
+          <p class="ro-text" id="ro-text"></p>
+          <p class="ro-note" id="ro-note"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESSAY SECTIONS 01–08 -->
+  <article class="essay">
+    <!-- 01 -->
+    <section class="sec sec-light" id="sec-01" aria-labelledby="h-01">
+      <div class="sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no num" lang="en">01</p>
+          <h2 id="h-01">大脑会替运动<br>多算半步</h2>
+          <p class="sec-en" lang="en">WHY MOTION NEEDS ROOM AHEAD</p>
+        </header>
+        <div class="sec-body">
+          <blockquote class="poster-quote reveal">
+            「空间，引导运动，表达意图。」
+            <span lang="en">Space guides movement and expresses intent.</span>
+          </blockquote>
+          <p class="reveal">上一页 <a href="https://layout.xiaoxiaodong.ai/009/play/" target="_blank" rel="noopener">009 视线空间</a> 讲的是人物的目光——哪怕人静坐不动，眼神看往哪边，前面就要留空。<b>运动空间</b>（<i lang="en">Motion Space</i> / <i lang="en">Lead Room</i>）讲的是实实在在的<b>位移与动势</b>：跑、骑、开车、飞、球的轨迹。</p>
+          <p class="reveal">为什么一张静止的照片里，奔跑者面前没留空间就让人难受？1984 年，认知心理学家 <b>Jennifer J. Freyd</b> 和 <b>Ronald A. Finke</b> 在《<i>Journal of Experimental Psychology: Learning, Memory, and Cognition</i>》发表了一项经典实验：他们让受试者看一组暗示连续旋转的静止图形，然后回忆最后一张停在哪里。结果人们记下的位置，总是沿着运动方向<b>往前偏出去一小段</b>。</p>
+          <p class="reveal">两位学者把这个现象命名为<b>表征动量</b>（<i lang="en">representational momentum</i>）：就像物理世界里的物体有惯性，人脑在看运动画面时，会自动沿着路径往前「预演」下一瞬间。前面有留白，大脑的预判有地方落脚；前面直接是画框边，预演一头撞死在边框上。</p>
+
+          <div class="lab-card reveal" id="rm-lab">
+            <div class="lab-top">
+              <div>
+                <h3 class="lab-title">体验表征动量：球在哪一刻消失？</h3>
+                <p class="lab-sub">点「发球」，橙球横向飞过并在某处突然消失；凭直觉在轨道上点出你看到的消失位置。</p>
+              </div>
+              <div class="lab-actions">
+                <div class="mini-seg" role="group" aria-label="球速选择">
+                  <button type="button" class="mini-btn" data-rm-speed="slow" aria-pressed="false">慢速</button>
+                  <button type="button" class="mini-btn" data-rm-speed="fast" aria-pressed="true">高速</button>
+                </div>
+                <button type="button" class="action-btn" id="rm-launch">发球</button>
+              </div>
+            </div>
+            <div class="rm-stage-wrap">
+              <canvas id="rm-canvas" class="rm-canvas" width="760" height="170" tabindex="0" aria-label="表征动量测试轨道，发球后点击球消失的位置"></canvas>
+            </div>
+            <div class="rm-readout" id="rm-readout" aria-live="polite">
+              <span class="rm-badge" id="rm-badge">示例状态</span>
+              <p id="rm-msg">图中展示了典型的「向前偏移」：高速球在 54% 处消失时，人眼往往觉得它已经冲到了 60% 左右。点「发球」亲自试一次。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 -->
+    <section class="sec sec-tint" id="sec-02" aria-labelledby="h-02">
+      <div class="sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no num" lang="en">02</p>
+          <h2 id="h-02">速度越快，<br>前方要留得越多</h2>
+          <p class="sec-en" lang="en">FASTER SPEED, LARGER LEAD ROOM</p>
+        </header>
+        <div class="sec-body">
+          <blockquote class="poster-quote reveal">
+            「速度越快，前方空间应越大。」
+            <span lang="en">SPEED — Faster motion demands wider space ahead.</span>
+          </blockquote>
+          <p class="reveal">1985 年，Freyd 和 Finke 在《<i>Bulletin of the Psychonomic Society</i>》进一步发现：表征动量存在明显的<b>速度效应</b>（<i lang="en">velocity effect</i>）——画面暗示的速度越快，人们在脑中往前多算出来的距离就越大。</p>
+          <p class="reveal">放到构图里非常直白：一个悠闲散步的人，两秒后还离画框很远，放在偏左一点（约 40% 处）就足够舒服；但一辆时速 240 公里的赛车，眨眼之间就能横穿整个画面，必须把它退到画面更靠后的位置，把前方三分之二甚至更多的空间打开，观众才觉得「车有路可开」。</p>
+
+          <div class="lab-card reveal" id="speed-lab">
+            <div class="spd-tabs" role="group" aria-label="四种速度场景">
+              <button type="button" class="spd-tab" data-spd="15" aria-pressed="false"><b>散步</b><span lang="en">5 km/h</span></button>
+              <button type="button" class="spd-tab" data-spd="42" aria-pressed="false"><b>慢跑</b><span lang="en">12 km/h</span></button>
+              <button type="button" class="spd-tab" data-spd="72" aria-pressed="true"><b>冲刺</b><span lang="en">32 km/h</span></button>
+              <button type="button" class="spd-tab" data-spd="96" aria-pressed="false"><b>赛车</b><span lang="en">240 km/h</span></button>
+            </div>
+            <div class="spd-diagram" id="spd-diagram" aria-hidden="true"></div>
+            <div class="spd-controls">
+              <div class="spd-slider-row">
+                <label for="spd-slider" class="ctrl-label">连续调节速度 <span lang="en">VELOCITY</span></label>
+                <output id="spd-out" class="num">冲刺 · 推荐前方空间 61%</output>
+              </div>
+              <input type="range" id="spd-slider" min="5" max="100" step="1" value="72">
+              <p class="spd-explain" id="spd-explain" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <p class="correction reveal">
+            <span class="corr-tag">说多了一点</span>
+            海报说「速度越快，前方空间应越大」，容易被误解成把主体越往后挤越好。实际上，主体身后仍然需要一条<b>后缘呼吸边</b>（通常占画宽的 12%–18%）：一旦脚后跟或车尾死死贴住画框，主体像被夹在门缝里，反而会丢掉舒展感。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 -->
+    <section class="sec sec-light" id="sec-03" aria-labelledby="h-03">
+      <div class="sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no num" lang="en">03</p>
+          <h2 id="h-03">前方说去哪，<br>后方说经过</h2>
+          <p class="sec-en" lang="en">DESTINATION AHEAD, WAKE BEHIND</p>
+        </header>
+        <div class="sec-body">
+          <blockquote class="poster-quote reveal">
+            「前方空间与主体大小保持视觉平衡。」
+            <span lang="en">BALANCE — Keep lead room in visual balance with the subject.</span>
+          </blockquote>
+          <p class="reveal">运动构图里，主体前后两块留白承担的不是同一种工作：</p>
+          <ul class="duo-list reveal">
+            <li><strong>前方留白（<span lang="en">Lead Room</span>）</strong>回答<b>「要去哪里」</b>——给出目的地、前路、安全感与预判。</li>
+            <li><strong>后方留白（<span lang="en">Trailing Room</span>）</strong>回答<b>「刚经过哪里、跑得有多快」</b>——盛放扬起的尘土、车轮水花，以及摄影里最经典的速度语言：<b>摇拍拖影（<span lang="en">Panning Blur</span>）</b>。</li>
+          </ul>
+          <p class="reveal">在摇拍（相机跟着奔跑者或赛车同步横移、使用较慢快门）时，背景会被拉成长条丝滑的动态模糊线。此时如果把主体硬塞在最左边、身后毫无余地，那些最能交代速度的拖影就被画框切掉了。试着拉下面两个滑块，观察快门变慢时前后空间怎么重新配平。</p>
+
+          <div class="lab-card reveal" id="pan-lab">
+            <div class="pan-canvas-wrap">
+              <canvas id="pan-canvas" width="760" height="280" aria-label="摇拍快门与前后留白配比演示"></canvas>
+            </div>
+            <div class="pan-controls">
+              <div class="pan-ctrl">
+                <div class="ctrl-row-head">
+                  <label for="pan-shutter" class="ctrl-label">快门速度 <span lang="en">SHUTTER</span></label>
+                  <output id="pan-shutter-out" class="num">1/30s · 明显摇拍拖影</output>
+                </div>
+                <input type="range" id="pan-shutter" min="0" max="100" step="1" value="72">
+                <div class="range-marks" aria-hidden="true"><span>1/1000s 凝固</span><span>1/125s 微拖</span><span>1/15s 极速拉丝</span></div>
+              </div>
+              <div class="pan-ctrl">
+                <div class="ctrl-row-head">
+                  <label for="pan-pos" class="ctrl-label">主体位置 <span lang="en">FRAMING</span></label>
+                  <output id="pan-pos-out" class="num">前方 52% · 后方 30%</output>
+                </div>
+                <input type="range" id="pan-pos" min="15" max="82" step="1" value="39">
+                <div class="range-marks" aria-hidden="true"><span>靠左（大前导）</span><span>居中</span><span>靠右（大拖尾）</span></div>
+              </div>
+            </div>
+            <p class="pan-readout" id="pan-readout" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 -->
+    <section class="sec sec-tint" id="sec-04" aria-labelledby="h-04">
+      <div class="sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no num" lang="en">04</p>
+          <h2 id="h-04">不止横着跑：<br>五种轨迹怎么留</h2>
+          <p class="sec-en" lang="en">FIVE TRAJECTORIES BEYOND LEFT-TO-RIGHT</p>
+        </header>
+        <div class="sec-body">
+          <blockquote class="poster-quote reveal">
+            「主体朝向哪里，空间就留在哪里。提前预留空间，引导观者的视线。」
+            <span lang="en">DIRECTION &amp; ANTICIPATION — Leave room along the path of travel.</span>
+          </blockquote>
+          <p class="reveal">很多人学完运动空间，脑子里只留下「放左边、往右跑」。但现实中的运动远不止水平线：爬坡是斜上的，投篮是抛物线，起跳朝天、跳水朝下，迎面冲来的列车沿着纵深逼近。无论路线怎么弯，记住同一句话：<b>留白永远沿着速度切线的方向铺开</b>。</p>
+
+          <div class="lab-card reveal" id="traj-lab">
+            <div class="traj-tabs" role="tablist" aria-label="五种运动轨迹">
+              <button type="button" class="traj-tab" role="tab" data-traj="horiz" aria-selected="true">水平冲刺</button>
+              <button type="button" class="traj-tab" role="tab" data-traj="diag" aria-selected="false">斜向爬坡</button>
+              <button type="button" class="traj-tab" role="tab" data-traj="arc" aria-selected="false">抛物线球路</button>
+              <button type="button" class="traj-tab" role="tab" data-traj="jump" aria-selected="false">起跳与下落</button>
+              <button type="button" class="traj-tab" role="tab" data-traj="depth" aria-selected="false">迎面而来</button>
+            </div>
+            <div class="traj-grid">
+              <div class="traj-stage" id="traj-stage"></div>
+              <div class="traj-info" aria-live="polite">
+                <p class="traj-en" id="traj-en" lang="en"></p>
+                <h3 class="traj-title" id="traj-title"></h3>
+                <p class="traj-desc" id="traj-desc"></p>
+                <p class="traj-tip" id="traj-tip"></p>
+              </div>
+            </div>
+          </div>
+          <p class="small-note reveal">斜向爬升或冲刺时，运动空间常与斜线动势叠加使用，详见 <a href="https://layout.xiaoxiaodong.ai/005/play/" target="_blank" rel="noopener">005 对角线法</a>。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05: DARK NAVY DRAMA BAND (echoing the poster's dark navy Core Principles band) -->
+    <section class="sec sec-navy" id="sec-05" aria-labelledby="h-05">
+      <div class="sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no num" lang="en">05</p>
+          <h2 id="h-05">故意不留：<br>撞墙与悬念</h2>
+          <p class="sec-en" lang="en">BREAKING LEAD ROOM ON PURPOSE</p>
+        </header>
+        <div class="sec-body">
+          <p class="reveal">规则越牢固，打破规则时的情绪冲击就越强烈。把正在奔跑或疾驰的主体刻意贴近前进方向的画框边缘（影视里常称 <i lang="en">short siding</i>），前方几乎不留一丝空隙，身后反而露出大片空旷——画面立刻从「舒展前进」翻转为<b>紧张、不安与未知</b>。</p>
+
+          <div class="break-grid reveal" role="group" aria-label="三种故意不留的戏剧效果">
+            <button type="button" class="break-card" data-break="wall" aria-pressed="true">
+              <span class="bk-svg" id="bk-wall" aria-hidden="true"></span>
+              <span class="bk-meta">
+                <strong>即将撞墙 · 受阻</strong>
+                <span lang="en">COLLISION &amp; TRAP</span>
+              </span>
+            </button>
+            <button type="button" class="break-card" data-break="blind" aria-pressed="false">
+              <span class="bk-svg" id="bk-blind" aria-hidden="true"></span>
+              <span class="bk-meta">
+                <strong>看不见前方 · 悬念</strong>
+                <span lang="en">BLIND CORNER</span>
+              </span>
+            </button>
+            <button type="button" class="break-card" data-break="pursuit" aria-pressed="false">
+              <span class="bk-svg" id="bk-pursuit" aria-hidden="true"></span>
+              <span class="bk-meta">
+                <strong>身后大片空 · 追迫</strong>
+                <span lang="en">WEIGHT &amp; PURSUIT</span>
+              </span>
+            </button>
+          </div>
+
+          <div class="break-panel reveal" aria-live="polite">
+            <h3 id="bk-title"></h3>
+            <p id="bk-desc"></p>
+            <p class="bk-warn" id="bk-warn"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 -->
+    <section class="sec sec-light" id="sec-06" aria-labelledby="h-06">
+      <div class="sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no num" lang="en">06</p>
+          <h2 id="h-06">从哪来，<br>何时用与别用</h2>
+          <p class="sec-en" lang="en">ORIGINS, USES &amp; LIMITS</p>
+        </header>
+        <div class="sec-body tri-cols">
+          <div class="tri-col reveal">
+            <h3>从哪来</h3>
+            <p>影视取景里的 <b>Lead room</b>（前导空间）由媒体美学家 <b>Herbert Zettl</b> 系统梳理：他在 1973 年初版的《<i>Sight, Sound, Motion: Applied Media Aesthetics</i>》中把画面力量分成图形向量、指示向量与<b>运动向量（<span lang="en">motion vector</span>）</b>，指出横向运动必须靠前方留白来承接能量。</p>
+            <p><b>Roy Thompson</b> 1998 年初版（后与 Christopher J. Bowen 合著修订）的《<i>Grammar of the Shot</i>》同样将 <i>lead room</i> 与 <i>look room</i> 区分开来：前者专管移动轨迹，后者专管静态目光。心理学机制则来自 <b>Freyd &amp; Finke</b>（1984、1985）对<b>表征动量</b>及速度效应的研究。</p>
+            <p class="rel-links">延伸阅读：总法则见 <a href="https://layout.xiaoxiaodong.ai/008/" target="_blank" rel="noopener">008 空间法则</a>；静坐看哪里见 <a href="https://layout.xiaoxiaodong.ai/009/play/" target="_blank" rel="noopener">009 视线空间</a>；头顶留白见 <a href="https://layout.xiaoxiaodong.ai/011/" target="_blank" rel="noopener">011 头部空间</a>；刻意切满画框见 <a href="https://layout.xiaoxiaodong.ai/012/" target="_blank" rel="noopener">012 填满画面</a>。</p>
+          </div>
+          <div class="tri-col reveal">
+            <h3>什么时候用</h3>
+            <ul class="rule-list">
+              <li><b>体育与纪实抓拍</b>：冲刺跑者、公路骑行、赛车过弯、球类扣杀与传球。</li>
+              <li><b>视频横摇跟拍</b>：摄影机跟着车、船、人物移动，把人压在画面后三分之一。</li>
+              <li><b>海报与广告排版</b>：把带前进动势的主体放一侧，前方运动空间顺手承接主标题和口号。</li>
+              <li><b>动效与界面引导</b>：卡片入场、进度滑块与轮播提示，前方留出落点让视线自然过渡。</li>
+            </ul>
+          </div>
+          <div class="tri-col reveal">
+            <h3>什么时候别用</h3>
+            <ul class="rule-list">
+              <li><b>制造惊悚、悬念或受困感</b>：反着贴近前边，切断观众对前方的预判（见第 05 节）。</li>
+              <li><b>表现「离去」或尾声镜头</b>：让主体走到前缘即将出画，身后大片空旷强调背影与告别。</li>
+              <li><b>正冲镜头而来</b>：左右没有侧向运动向量时，居中对称往往比偏置更有冲击力。</li>
+              <li><b>极紧局部特写</b>：只拍蹬地的跑鞋或滚烫的刹车盘，重点在质感而非路径。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07: QUIZ -->
+    <section class="sec sec-tint" id="sec-07" aria-labelledby="h-07">
+      <div class="sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no num" lang="en">07</p>
+          <h2 id="h-07">小练习</h2>
+          <p class="sec-en" lang="en">PICK THE BEST FRAME</p>
+        </header>
+        <div class="sec-body">
+          <p class="reveal">一张体育杂志跨页图：一位公路自行车手正高速向右冲刺，你想拍出<b>「速度快、前路开阔、画面舒展」</b>的感觉。下面四张取景，哪一张最合适？</p>
+          <div class="quiz-grid reveal" role="group" aria-label="四个构图选项">
+            <button type="button" class="quiz-opt" data-opt="A" aria-pressed="false">
+              <span class="quiz-svg" id="q-A" aria-hidden="true"></span>
+              <span class="quiz-cap"><strong lang="en">A</strong><span>靠右贴边</span></span>
+            </button>
+            <button type="button" class="quiz-opt" data-opt="B" aria-pressed="false">
+              <span class="quiz-svg" id="q-B" aria-hidden="true"></span>
+              <span class="quiz-cap"><strong lang="en">B</strong><span>正中跟拍</span></span>
+            </button>
+            <button type="button" class="quiz-opt" data-opt="C" aria-pressed="false">
+              <span class="quiz-svg" id="q-C" aria-hidden="true"></span>
+              <span class="quiz-cap"><strong lang="en">C</strong><span>偏左留前路</span></span>
+            </button>
+            <button type="button" class="quiz-opt" data-opt="D" aria-pressed="false">
+              <span class="quiz-svg" id="q-D" aria-hidden="true"></span>
+              <span class="quiz-cap"><strong lang="en">D</strong><span>紧压左框</span></span>
+            </button>
+          </div>
+          <div class="verdict" id="quiz-verdict" aria-live="polite" hidden>
+            <p class="verdict-title" id="verdict-title"></p>
+            <p id="verdict-text"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08: ORIGINAL POSTER + PRINCIPLES + KEYWORDS -->
+    <section class="sec sec-poster" id="sec-08" aria-labelledby="h-08">
+      <div class="sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no num" lang="en">08</p>
+          <h2 id="h-08">原海报与要点</h2>
+          <p class="sec-en" lang="en">THE ORIGINAL POSTER</p>
+        </header>
+        <div class="sec-body poster-layout">
+          <figure class="poster-frame reveal">
+            <button type="button" class="poster-open" id="poster-open" aria-label="点击放大查看原海报">
+              <img
+                id="poster"
+                src="poster.webp"
+                draggable="false"
+                width="1086"
+                height="1448"
+                alt="运动空间原海报：橙白斜切构图，深海蓝奔跑者剪影向右上方冲刺，身后带有橙白速度拖影，前方留出大片浅米色空间并标有虚线与橙色箭头「前方空间 LEAD ROOM」；底部深蓝区列有方向、速度、预判、平衡四个核心原则及四个关键词。"
+              >
+              <span class="poster-zoom-chip" aria-hidden="true">点按放大 · 可拖动</span>
+            </button>
+            <figcaption>点击海报放大查看细节；放大后可切换倍率、鼠标拖动平移，按 <kbd>Esc</kbd> 关闭。</figcaption>
+          </figure>
+
+          <div class="poster-meta">
+            <div class="principles-box reveal">
+              <h3 class="meta-heading">核心原则 <span lang="en">CORE PRINCIPLES</span></h3>
+              <ul class="principles-grid">
+                <li>
+                  <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15"/><polygon points="27,13 17,17 13,27 23,23" class="fill-white"/><circle cx="20" cy="20" r="2.2" class="fill-orange"/></svg>
+                  <b>方向</b><span class="p-en" lang="en">DIRECTION</span>
+                  <p>主体朝向哪里，空间就留在哪里。</p>
+                </li>
+                <li>
+                  <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 27 A14 14 0 1 1 34 27"/><line x1="20" y1="26" x2="27" y2="15" class="stroke-orange"/><circle cx="20" cy="26" r="2.5" class="fill-orange"/></svg>
+                  <b>速度</b><span class="p-en" lang="en">SPEED</span>
+                  <p>速度越快，前方空间应越大。</p>
+                </li>
+                <li>
+                  <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 22 Q20 9 35 22 Q20 35 5 22 Z"/><circle cx="20" cy="22" r="5" class="stroke-orange"/><line x1="20" y1="5" x2="20" y2="10"/><line x1="11" y1="8" x2="14" y2="12"/><line x1="29" y1="8" x2="26" y2="12"/></svg>
+                  <b>预判</b><span class="p-en" lang="en">ANTICIPATION</span>
+                  <p>提前预留空间，引导观者的视线。</p>
+                </li>
+                <li>
+                  <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 15 V9 H14 M26 9 H32 V15 M8 25 V31 H14 M26 31 H32 V25"/><circle cx="20" cy="20" r="4.5" class="fill-orange"/></svg>
+                  <b>平衡</b><span class="p-en" lang="en">BALANCE</span>
+                  <p>前方空间与主体大小保持视觉平衡。</p>
+                </li>
+              </ul>
+            </div>
+
+            <div class="keywords-box reveal">
+              <h3 class="meta-heading dark">关键要素 <span lang="en">KEYWORDS</span></h3>
+              <ul class="kw-list">
+                <li>
+                  <svg viewBox="0 0 36 36" aria-hidden="true"><line x1="5" y1="18" x2="29" y2="18"/><polyline points="21,10 29,18 21,26"/></svg>
+                  <div><b>留白前方</b><span lang="en">LEAD ROOM</span></div>
+                </li>
+                <li>
+                  <svg viewBox="0 0 36 36" aria-hidden="true"><line x1="4" y1="14" x2="14" y2="14"/><line x1="6" y1="22" x2="13" y2="22"/><circle cx="24" cy="10" r="3" class="fill-navy"/><path d="M16 18 L22 15 L28 19 M22 15 L18 25 L12 29 M18 25 L25 27"/></svg>
+                  <div><b>动势延续</b><span lang="en">MOTION FLOW</span></div>
+                </li>
+                <li>
+                  <svg viewBox="0 0 36 36" aria-hidden="true"><path d="M4 18 Q18 7 32 18 Q18 29 4 18 Z"/><circle cx="18" cy="18" r="4"/></svg>
+                  <div><b>视觉引导</b><span lang="en">VISUAL GUIDE</span></div>
+                </li>
+                <li>
+                  <svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="18,7 30,13 18,19 6,13"/><polyline points="6,19 18,25 30,19"/><polyline points="6,25 18,31 30,25"/></svg>
+                  <div><b>信息清晰</b><span lang="en">CLARITY</span></div>
+                </li>
+              </ul>
+              <p class="poster-tagline">海报标语：<b>空间，引导运动，表达意图。</b></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<dialog class="viewer" id="viewer" aria-label="原海报大图查看器">
+  <div class="viewer-bar">
+    <span class="viewer-title">No. 010 运动空间 · 原海报</span>
+    <div class="viewer-tools">
+      <button type="button" class="v-btn" id="zoom-out" aria-label="缩小">−</button>
+      <span class="v-val num" id="zoom-val">100%</span>
+      <button type="button" class="v-btn" id="zoom-in" aria-label="放大">+</button>
+      <button type="button" class="v-btn v-close" id="viewer-close" aria-label="关闭">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="viewer-scroll" id="viewer-scroll" tabindex="0">
+    <img id="viewer-img" draggable="false" alt="运动空间原海报放大图">
+  </div>
+</dialog>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <p class="foot-brand"><span class="num" lang="en">No. 010</span> 运动空间 · 350 种排版</p>
+    <p class="foot-sub">为运动保留空间，让方向更明确，信息更清晰。</p>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/010/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
