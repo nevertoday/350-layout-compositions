@@ -27,7 +27,7 @@ const rows = [];
 const files = readdirSync(dir).filter((f) => /^(?!000-)\d{3}-.*\.html$/.test(f) && (!process.env.ONLY || process.env.ONLY.split(",").includes(f.slice(0, 3)))).sort();
 let gpu = "";
 for (const rate of rates) for (const f of files) {
-  const b = await launch(process.env.FLAGS ? process.env.FLAGS.split(" ") : []);
+  const b = await launch("perf", process.env.FLAGS ? process.env.FLAGS.split(" ") : []);
   await b.send("Page.addScriptToEvaluateOnNewDocument", { source: PROBE });
   await b.open(pathToFileURL(join(dir, f)).href, { w: 390, h: 844, dpr: 3, mobile: true });
   if (!gpu) gpu = await b.js(`(() => { const c = document.createElement("canvas").getContext("webgl"); const e = c && c.getExtension("WEBGL_debug_renderer_info"); return e ? c.getParameter(e.UNMASKED_RENDERER_WEBGL) + " | " + c.getParameter(e.UNMASKED_VENDOR_WEBGL) : "no debug info"; })()`);

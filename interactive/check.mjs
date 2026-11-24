@@ -6,16 +6,14 @@
 //   2. 减少动态效果（1440×900、390×844）：同上，画布也要画出静止的一帧
 //   3. 关掉 WebGL 再开一个 Chrome（1440×900、390×844）：没有报错、不溢出、正文还看得见
 // 截图在 .build/shots/：<id>-<宽>x<高>.png、<id>-full.png（滚完以后的整页）、<id>-reduced-*.png、<id>-nowebgl-*.png
-import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { launch as launchChrome, sleep } from "./tools/cdp.mjs";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const DIST = join(ROOT, "dist");
 const SHOTS = join(ROOT, ".build/shots");
-const CHROME = process.env.CHROME_EXE || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const SIZE_TARGET = 2.5 * 1024 * 1024;
 const VIEWPORTS = [
   { width: 1440, height: 900, dpr: 1, mobile: false },
@@ -26,7 +24,6 @@ const VIEWPORTS = [
   { width: 2560, height: 1440, dpr: 1, mobile: false },
 ];
 const SHORT = [VIEWPORTS[0], VIEWPORTS[3]];
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const args = process.argv.slice(2);
 const onlyAt = args.indexOf("--only");
@@ -51,48 +48,9 @@ const PROBE = `(() => {
 })();`;
 
 // ---------- Chrome ----------
-const browsers = [];
-process.on("exit", () => browsers.forEach((b) => b.kill()));
-for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => process.exit(130));
-
+// 起、关 Chrome 都在 tools/cdp.mjs：配置目录 xxd-check-<PID>-、打印 Chrome PID、怎么退出都连进程组杀掉
 async function launch(extra = []) {
-  const profile = mkdtempSync(join(tmpdir(), "xxd-interactive-chrome-"));
-  const proc = spawn(CHROME, ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "--no-first-run", "--no-default-browser-check", "--hide-scrollbars", "--mute-audio", ...extra, "about:blank"], { stdio: "ignore", detached: true });
-  const kill = () => {
-    try { process.kill(-proc.pid, "SIGKILL"); } catch {}
-    rmSync(profile, { recursive: true, force: true });
-  };
-  browsers.push({ kill });
-  let port;
-  for (let i = 0; i < 100 && !port; i++) {
-    try { port = readFileSync(join(profile, "DevToolsActivePort"), "utf8").split("\n")[0]; } catch { await sleep(100); }
-  }
-  if (!port) throw new Error("Chrome 没起来");
-  const target = await (await fetch(`http://127.0.0.1:${port}/json/new?about:blank`, { method: "PUT" })).json();
-  const ws = new WebSocket(target.webSocketDebuggerUrl);
-  await new Promise((r, j) => { ws.addEventListener("open", r, { once: true }); ws.addEventListener("error", j, { once: true }); });
-  let seq = 0;
-  const pending = new Map();
-  const listeners = new Map();
-  ws.addEventListener("message", (m) => {
-    const msg = JSON.parse(m.data);
-    if (msg.id && pending.has(msg.id)) {
-      const { resolve, reject } = pending.get(msg.id);
-      pending.delete(msg.id);
-      msg.error ? reject(new Error(msg.error.message)) : resolve(msg.result);
-    } else if (msg.method) for (const fn of listeners.get(msg.method) || []) fn(msg.params);
-  });
-  const send = (method, params = {}) => new Promise((resolve, reject) => { const id = ++seq; pending.set(id, { resolve, reject }); ws.send(JSON.stringify({ id, method, params })); });
-  const on = (method, fn) => listeners.set(method, [...(listeners.get(method) || []), fn]);
-  const once = (method) => new Promise((resolve) => {
-    const fn = (params) => { listeners.set(method, listeners.get(method).filter((f) => f !== fn)); resolve(params); };
-    on(method, fn);
-  });
-  const js = async (expression) => {
-    const r = await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
-    if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description || r.exceptionDetails.text);
-    return r.result.value;
-  };
+  const { send, on, once, js, kill } = await launchChrome("check", extra);
 
   // 每页的问题记在 page.problems 里，打开下一页前清空
   const page = { url: "", problems: [] };
