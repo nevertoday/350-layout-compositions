@@ -176,6 +176,12 @@ def within(short, long):
     return all(ch in it for ch in short)
 
 
+def unique(lines):
+    """A poster may print a line twice (demo text at two widths); the site lists it once."""
+    seen = set()
+    return [t for t in lines if not (norm(t) in seen or seen.add(norm(t)))]
+
+
 def put(d, path, value):
     target = d
     for k in path[:-1]:
@@ -277,9 +283,9 @@ def verify(args):
                 report.append(f"- {pid} {'.'.join(map(str, x['path']))}: removed {x['text']}")
     for d in final.values():
         d["points"] = [p for p in d["points"] if any(norm(p.get(k, "")) for k in ("title", "body"))]
-        d["usage"] = [u for u in d["usage"] if norm(u)]
+        d["usage"] = unique([u for u in d["usage"] if norm(u)])
         d["keywords"] = [k for k in d["keywords"] if norm(k.get("zh", "")) or norm(k.get("en", ""))]
-        d["other_text"] = [t for t in d["other_text"] if norm(t)]
+        d["other_text"] = unique([t for t in d["other_text"] if norm(t)])
     if unjudged:
         print("not judged, rerun verify: " + ", ".join(unjudged))
         return 1
