@@ -1,0 +1,95 @@
+---
+// 外壳：顶栏（标志 + 站名、搜索、关于与下载、外观、GitHub）、正文、页脚。界面全部用 xxd-ui-kit（public/xxd/）。
+// 顶栏的搜索是一个 GET 表单：在图鉴页边打边筛（atlas-page.js 接管），在别的页面回车跳到 /?q=。
+import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { join } from "node:path";
+import { REPO_URL, layouts } from "../data/atlas.js";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string; // og:image，站内路径
+  expect?: string; // 首帧前要先解析到的元素 id（跨页过渡的目标）
+}
+const BRAND = "350 种排版";
+const { title, description = "350 种排版和构图教学海报：按分类和主题找到一种版式，看清大图，下载高清图、复制构图提示词、收藏。", image = layouts[0].img.full, expect } = Astro.props;
+const fullTitle = title ? `${title} · ${BRAND}` : `${BRAND} · 拿来就用的版式工具箱`;
+// 404 页没有自己的地址，不写 canonical / og:url
+const canonical = /^\/404\/?$/.test(Astro.url.pathname) ? undefined : new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL(image, Astro.site).href;
+// 静态文件带内容指纹（?v=）：改了就换地址
+const ver = (f: string) => createHash("sha256").update(readFileSync(join(process.cwd(), "public", f))).digest("hex").slice(0, 10);
+const asset = (f: string) => `/${f}?v=${ver(f)}`;
+const GITHUB_MARK = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={BRAND} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {expect && <link rel="expect" href={`#${expect}`} blocking="render" />}
+    <style is:inline>@layer theme, base, xxd, components, utilities, site;</style>
+    <script is:inline src={asset("xxd/boot.js")} data-key="xxd-layout-site" data-default-theme="system"></script>
+    <script is:inline>try { document.documentElement.dataset.grid = localStorage.getItem("xxd-layout-grid") || "m"; } catch { document.documentElement.dataset.grid = "m"; }</script>
+    <link rel="stylesheet" href={asset("xxd/xxd.css")} />
+    <link rel="stylesheet" href={asset("site.css")} />
+    <script is:inline src={asset("xxd/icons.js")}></script>
+    <script is:inline src={asset("xxd/xxd.js")}></script>
+    <slot name="head" />
+  </head>
+  <body class="xxd-page">
+    <a class="xxd-sr-only-focusable" href="#main">跳到正文</a>
+    <header class="xxd-topbar site-top">
+      <a class="xxd-logo site-brand" href="/" aria-label={`${BRAND}：回到图鉴`}><span class="xxd-logo__mark" aria-hidden="true"></span><span class="site-brand__name">{BRAND}</span></a>
+      <form class="site-search" action="/" method="get" role="search" id="site-search">
+        <div class="xxd-input-wrap">
+          <i data-xxd-icon="Search" data-size="16"></i>
+          <input class="xxd-input" type="search" name="q" id="site-q" placeholder="搜索版式或编号" aria-label="搜索版式" autocomplete="off" enterkeyhint="search" />
+          <button class="xxd-input-clear" type="button" aria-label="清空"><i data-xxd-icon="X" data-size="14"></i></button>
+        </div>
+      </form>
+      <div class="site-tools">
+        <a class="xxd-btn site-about" data-size="sm" data-variant="ghost" href="/about/" aria-current={Astro.url.pathname === "/about/" ? "page" : undefined}><span>关于<span class="site-about__more">与下载</span></span></a>
+        <button class="xxd-btn xxd-appearance-btn" data-size="sm" data-variant="ghost" data-icon-only type="button" data-xxd-popover="site-look" aria-label="外观" data-tooltip="外观" data-tooltip-placement="bottom">
+          <i class="xxd-appearance-btn__sun" data-xxd-icon="Sun" data-size="16"></i>
+          <i class="xxd-appearance-btn__moon" data-xxd-icon="Moon" data-size="16"></i>
+        </button>
+        <div class="xxd-popover xxd-appearance-pop" id="site-look" popover data-placement="bottom-end"></div>
+        <a class="xxd-btn site-gh" data-size="sm" data-variant="ghost" data-icon-only href={REPO_URL} aria-label="GitHub 仓库" data-tooltip="GitHub 仓库" data-tooltip-placement="bottom-end" set:html={GITHUB_MARK} />
+      </div>
+    </header>
+
+    <main id="main" class="site-main">
+      <slot />
+    </main>
+    <footer class="site-foot">
+      <p>图片和数据按 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans">CC BY 4.0</a> 授权，转载请署名。源码和问题反馈在 <a href={REPO_URL}>GitHub</a>。做图找<a href="https://vip.xiaoxiaodong.ai/">小小东</a>。</p>
+    </footer>
+
+    <script is:inline>
+      (() => {
+        const X = window.Xxd;
+        if (!X) return;
+        X.mountAppearance(document.getElementById("site-look"), { lockCorners: true });
+        // 不在图鉴页时，搜索框回车就是普通的 GET /?q=；空着回车不跳
+        const form = document.getElementById("site-search");
+        const input = document.getElementById("site-q");
+        form.addEventListener("submit", (e) => { if (!input.value.trim()) e.preventDefault(); });
+        if (location.pathname !== "/") X.bindSearch(input, { hotkey: false });
+      })();
+    </script>
+  </body>
+</html>

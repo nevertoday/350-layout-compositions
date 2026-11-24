@@ -1,0 +1,129 @@
+---
+// 详情页：左边大图（点开看原尺寸，有第二版的可以切换），右边编号、中英文名、定义、要点、用法、关键词和操作；
+// ← → 翻上一张 / 下一张；下面列同主题。没有释文的只是少几段字，页面照常。
+import Site from "../layouts/Site.astro";
+import Card from "../components/Card.astro";
+import { categoryBySlug, layoutById, layouts } from "../data/atlas.js";
+
+export function getStaticPaths() {
+  return layouts.map((l) => ({ params: { id: l.id } }));
+}
+const l = layoutById.get(Astro.params.id)!;
+const cat = categoryBySlug.get(l.cat)!;
+const sub = cat.subs.find((s) => s.slug === l.sub)!;
+const prev = l.prev ? layoutById.get(l.prev) : undefined;
+const next = l.next ? layoutById.get(l.next) : undefined;
+const versions = [l.img, ...(l.second ? [l.second] : [])].map((v, i) => ({
+  ...v,
+  label: i ? "第二版" : "第一版",
+  file: `${l.id}-${l.name}${i ? "-第二版" : ""}.webp`,
+}));
+const description = l.summary
+  ? `${l.name}${l.nameEn ? `（${l.nameEn}）` : ""}：${l.summary}`
+  : `${l.name}：350 种排版第 ${l.id} 种，属于「${cat.name} · ${sub.name}」。看大图、下载高清图、复制构图提示词。`;
+const link = new URL(`/${l.id}/`, Astro.site).href;
+const viewer = { name: l.name, versions: versions.map((v) => ({ src: v.full, thumb: v.thumb, png: v.png, label: v.label, file: v.file })) };
+---
+<Site title={`${l.id} ${l.name}`} description={description} image={l.img.full} expect="poster">
+  <article class="detail" data-id={l.id}>
+    <div class="detail-main">
+      <nav class="detail-crumbs" aria-label="位置">
+        <ol class="xxd-breadcrumbs">
+          <li><a href="/">图鉴</a></li>
+          <li><a href={`/?c=${cat.slug}`}>{cat.name}</a></li>
+          <li><a href={`/?c=${cat.slug}&s=${sub.slug}`}>{sub.name}</a></li>
+        </ol>
+      </nav>
+      <figure class="detail-poster">
+        <button class="detail-poster__open" type="button" id="poster-open" aria-label={`看原尺寸：${l.name}`}>
+          <img id="poster" src={l.img.full} width={l.img.w} height={l.img.h} alt={`${l.name}的海报`} fetchpriority="high" decoding="async" style={`--thumb: url("${l.img.thumb}")`} />
+          <span class="detail-poster__hint" aria-hidden="true"><i data-xxd-icon="ZoomIn" data-size="16"></i>原尺寸</span>
+        </button>
+        {l.second && (
+          <figcaption class="detail-poster__versions">
+            <div class="xxd-segmented" data-xxd-segmented aria-label="版本" id="poster-version">
+              {versions.map((v, i) => <button role="radio" data-value={String(i)} aria-checked={String(i === 0)}>{v.label}</button>)}
+            </div>
+            <span>这一种生成过两次，两张都留着。</span>
+          </figcaption>
+        )}
+      </figure>
+
+      <div class="detail-info">
+        <p class="detail-no">No. {l.id}</p>
+        <h1>{l.name}</h1>
+        {l.nameEn && <p class="detail-en" lang="en">{l.nameEn}</p>}
+
+        <div class="detail-actions">
+          <a class="xxd-btn" data-variant="primary" href={l.img.full} download={versions[0].file} id="dl"><i data-xxd-icon="Download" data-size="16"></i>下载高清图</a>
+          <button class="xxd-btn" type="button" data-copy={l.prompt} data-copy-done="已复制" data-copy-toast="已复制构图提示词：贴在作图提示词的末尾"><i data-xxd-icon="Copy" data-size="16"></i>复制构图提示词</button>
+          <button class="xxd-btn detail-fav" type="button" data-fav={l.id} aria-pressed="false"><i data-xxd-icon="Star" data-size="16"></i><span data-fav-label>收藏</span></button>
+          <button class="xxd-btn" type="button" data-icon-only data-copy={link} data-copy-done="已复制链接" aria-label="复制链接" data-tooltip="复制链接"><i data-xxd-icon="Link" data-size="16"></i></button>
+        </div>
+        <p class="detail-files">WebP · {l.img.w} × {l.img.h} · <a href={l.img.png} id="png">原始 PNG</a>（GitHub）</p>
+
+        {l.summary && (
+          <section class="detail-sec">
+            <h2>定义</h2>
+            <p class="detail-summary">{l.summary}</p>
+          </section>
+        )}
+        {l.points.length > 0 && (
+          <section class="detail-sec">
+            <h2>要点</h2>
+            <ol class="detail-points">
+              {l.points.map((p) => (
+                <li>
+                  <p class="detail-points__title">{p.title}{p.en && <span lang="en">{p.en}</span>}</p>
+                  {p.body && <p>{p.body}</p>}
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+        {l.usage.items.length > 0 && (
+          <section class="detail-sec">
+            <h2>{l.usage.title || "怎么用"}</h2>
+            <ul class="detail-usage">{l.usage.items.map((u) => <li>{u}</li>)}</ul>
+          </section>
+        )}
+        {l.notes.length > 0 && (
+          <section class="detail-sec">
+            <h2>海报上的其他说明</h2>
+            {l.notes.map((n) => <p>{n}</p>)}
+          </section>
+        )}
+        {l.keywords.length > 0 && (
+          <section class="detail-sec">
+            <h2>关键词</h2>
+            <ul class="detail-keys" role="list">
+              {l.keywords.map((k) => <li><a class="xxd-chip" href={`/?q=${encodeURIComponent(k.zh || k.en)}`}>{k.zh}{k.en && <span lang="en">{k.en}</span>}</a></li>)}
+            </ul>
+          </section>
+        )}
+        <section class="detail-sec">
+          <h2>构图提示词</h2>
+          <p class="detail-prompt">{l.prompt}</p>
+        </section>
+
+        <nav class="detail-pn" aria-label="上一张、下一张">
+          {prev ? <a rel="prev" href={`/${prev.id}/`}><span class="detail-pn__dir"><i data-xxd-icon="ArrowLeft" data-size="14"></i>上一张 · {prev.id}</span><span class="detail-pn__name">{prev.name}</span></a> : <span></span>}
+          {next ? <a rel="next" href={`/${next.id}/`}><span class="detail-pn__dir">{next.id} · 下一张<i data-xxd-icon="ArrowRight" data-size="14"></i></span><span class="detail-pn__name">{next.name}</span></a> : <span></span>}
+        </nav>
+        <p class="detail-keyhint">键盘 <kbd class="xxd-kbd">←</kbd> <kbd class="xxd-kbd">→</kbd> 翻页</p>
+      </div>
+    </div>
+
+    <section class="detail-related" aria-labelledby="related-title">
+      <header class="atlas-sub__head">
+        <h2 id="related-title">同主题 · {sub.name}</h2>
+        <p>{sub.blurb}<span class="atlas-range">{sub.range} · {sub.ids.length} 种</span></p>
+      </header>
+      <ul class="atlas-cards" role="list" data-size="s">
+        {sub.ids.map((id) => <Card l={layoutById.get(id)!} current={id === l.id} />)}
+      </ul>
+    </section>
+  </article>
+  <script type="application/json" id="detail-data" set:html={JSON.stringify(viewer)} />
+  <script src="../scripts/detail-page.js"></script>
+</Site>

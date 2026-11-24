@@ -174,5 +174,4 @@ export const stats = {
   categories: categories.length,
   subs: subBySlug.size,
   seconds: layouts.filter((l) => l.second).length,
-  withText: layouts.filter((l) => l.summary || l.points.length).length,
 };
