@@ -243,6 +243,7 @@ function buildZip(dirs) {
   const shipped = dirs.filter((d) => !d.startsWith("000-"));
   const live = new Set(dirs.map((d) => `${d}.html`));
   for (const f of readdirSync(DIST)) if (f.endsWith(".html") && !live.has(f)) rmSync(join(DIST, f));
+  for (const f of readdirSync(PAGE_CACHE)) if (!dirs.some((d) => f === `${d.slice(0, 3)}.json`)) rmSync(join(PAGE_CACHE, f));
   const rows = shipped.map((d) => JSON.parse(readFileSync(join(PAGE_CACHE, `${d.slice(0, 3)}.json`), "utf8")).report);
   const credits = [...new Set(rows.flatMap((r) => r.credits))];
   const readme = [
