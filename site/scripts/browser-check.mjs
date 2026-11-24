@@ -1,12 +1,14 @@
 // 在真浏览器里看网站：无头 Chrome（临时配置目录，跑完删掉、Chrome 关掉），通过 DevTools 协议驱动。
 //   node scripts/browser-check.mjs [网站地址] [截图目录]
 // 先 npx astro preview --port 4420 --host 127.0.0.1（不加 --host 只听 IPv6），跑完自己关。做这几件事：
-//   1. 截图：/、/001/、/196/、/about/、选了分类和主题的图鉴、往下滚过的图鉴，1440 和 390 宽，亮色和暗色；
-//      别的语言（构建里有的）：/en/、/en/001/、/ja/001/、/de/、/ar/、/ar/001/，1440 和 390 宽，亮色
-//   2. 筛选（简体中文和英文各一遍）：打字搜索、切分类、点主题、收藏一张、切到「收藏」、刷新、后退，每一步记下网址和看得见的卡片数，不对就退出码 1
-//   3. 详情页切第二版、打开查看器、→ 翻页；从图鉴点进详情时缩略图放大成大图，减少动效时不放大
-//   4. 语言：在详情页用语言菜单换到英文，落在同一个编号；在图鉴换语言带上分类；浏览器是英文时简体中文首页出横幅，关掉就不再出；
-//      阿拉伯文从右往左（大图在右、面包屑的箭头翻过来、← 是下一张）
+//   1. 截图：/、/001/、/196/、/about/、/ar/、选了分类和主题的图鉴、往下滚过的图鉴，和图鉴的三种视图（网格、海报墙、列表），1440 和 390 宽，亮色和暗色；
+//      别的语言（构建里有的）：/en/、/en/001/、/ja/001/、/de/、/ar/001/，1440 和 390 宽，亮色
+//   2. 外框：会员站的图标条（当前是「开源」）、栏目标签（当前的有 aria-current）、顶栏里没有站名标志和搜索框
+//   3. 筛选（简体中文和英文各一遍）：在分类右边的搜索框打字、切分类、点主题、收藏一张、切到「收藏」、刷新、后退，每一步记下网址和看得见的卡片数，不对就退出码 1
+//   4. 「显示」：换海报墙、按 = 加一列、刷新后还在（localStorage）；换列表时每行张数不能调、看得到一句定义；恢复默认
+//   5. 详情页切第二版、打开查看器、→ 翻页；从图鉴点进详情时缩略图放大成大图，减少动效时不放大
+//   6. 「更多」菜单：外观切到暗色；语言子菜单在详情页换到英文，落在同一个编号；在图鉴换语言带上分类；
+//      浏览器是英文时简体中文首页出横幅，关掉就不再出；阿拉伯文从右往左（图标条在右、大图在右、面包屑的箭头翻过来、← 是下一张）
 import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -94,15 +96,22 @@ async function shot(name) {
 }
 
 // ---------- 1. 截图 ----------
-const pages = [["home", "/"], ["001", "/001/"], ["196", "/196/"], ["about", "/about/"], ["category", "/?c=01-composition-logic&s=classic-rules"], ["scrolled", "/?c=05-web-ui", 1600]];
+// [名字, 地址, 往下滚多少, 「显示」设置（不写就是缺省）]
+const pages = [
+  ["home", "/"], ["001", "/001/"], ["196", "/196/"], ["about", "/about/"], ["ar", "/ar/"],
+  ["category", "/?c=01-composition-logic&s=classic-rules"], ["scrolled", "/?c=05-web-ui", 2400],
+  ["view-grid", "/#atlas", 0, { view: "grid" }], ["view-wall", "/#atlas", 0, { view: "wall", group: "none" }], ["view-list", "/#atlas", 0, { view: "list", group: "theme" }],
+];
 const has = async (path) => (await fetch(BASE + path)).ok;
 const localePages = [];
-for (const path of ["/en/", "/en/001/", "/ja/001/", "/de/", "/ar/", "/ar/001/"]) if (await has(path)) localePages.push([path.replace(/^\/|\/$/g, "").replace("/", "-"), path]);
+for (const path of ["/en/", "/en/001/", "/ja/001/", "/de/", "/ar/001/"]) if (await has(path)) localePages.push([path.replace(/^\/|\/$/g, "").replace("/", "-"), path]);
 const files = [];
 for (const width of [1440, 390]) {
   for (const scheme of ["light", "dark"]) {
     await setView(width, scheme);
-    for (const [name, path, y] of [...pages, ...(scheme === "light" ? localePages : [])]) {
+    for (const [name, path, y, view] of [...pages, ...(scheme === "light" ? localePages : [])]) {
+      await go(BASE + "/404.html");
+      await js(view ? `localStorage.setItem("xxd-layout-view", ${JSON.stringify(JSON.stringify(view))})` : `localStorage.removeItem("xxd-layout-view")`);
       await go(BASE + path);
       if (y) { await js(`scrollTo(0, ${y})`); await settle(); }
       files.push(await shot(`${name}-${width}-${scheme}`));
@@ -140,7 +149,7 @@ async function filterFlow(base, term) {
   await js(`localStorage.clear()`);
   await go(BASE + base);
   await step(at("打开图鉴"), (r) => (r.cards === 350 && r.url === base ? "" : `应该是 ${base} 和 350 张`));
-  await click("#site-q");
+  await click("#atlas-q");
   await send("Input.insertText", { text: term });
   await sleep(200);
   await step(at(`搜索「${term}」`), (r) => (r.url === `${base}?q=${term}` && r.cards > 0 && r.cards < 350 ? "" : "网址应带 q，卡片变少"));
@@ -162,22 +171,86 @@ async function filterFlow(base, term) {
   await reloaded;
   await settle();
   await step(at("刷新"), (r) => (r.url === `${base}?fav=1&q=${term}` && r.cards === 1 ? "" : "刷新后应该还是收藏的 1 张"));
-  const restored = await js(`({ tab: document.querySelector('#atlas-tabs [aria-selected="true"]').dataset.value, q: document.getElementById("site-q").value, count: document.getElementById("atlas-count").textContent })`);
+  const restored = await js(`({ tab: document.querySelector('#atlas-tabs [aria-selected="true"]').dataset.value, q: document.getElementById("atlas-q").value, count: document.getElementById("atlas-count").textContent })`);
   steps.at(-1).restored = restored;
   if (restored.tab !== "fav" || restored.q !== term) failures.push(at(`刷新后界面没恢复：${JSON.stringify(restored)}`));
   await js(`history.back()`);
   await sleep(300);
   await step(at("后退"), (r) => (r.url === `${base}?c=04-type-grid-cjk&s=grid-systems&q=${term}` ? "" : "后退应回到主题"));
-  await click("#site-q");
-  await js(`document.getElementById("site-q").select()`);
+  await click("#atlas-q");
+  await js(`document.getElementById("atlas-q").select()`);
   await send("Input.insertText", { text: "zzzz" });
   await sleep(200);
   const empty = await js(`!document.getElementById("atlas-empty").hidden && document.getElementById("atlas-empty-title").textContent`);
   await step(at("搜不到"), (r) => (r.cards === 0 && empty ? "" : "应该显示空状态"));
   steps.at(-1).empty = empty;
 }
+// ---------- 2. 外框 ----------
+await go(BASE + "/196/");
+const frame = await js(`({
+  rail: [...document.querySelectorAll(".frame-rail a")].map((a) => a.href),
+  railCurrent: document.querySelector('.frame-rail a[aria-current]')?.href,
+  tab: document.querySelector(".frame-tab[aria-current]")?.getAttribute("href"),
+  tabState: document.querySelector(".frame-tab[aria-current]")?.getAttribute("aria-current"),
+  logo: !!document.querySelector(".frame-head .xxd-logo, .site-brand"),
+  headerSearch: !!document.querySelector(".frame-head input"),
+})`);
+steps.push({ label: "外框", ...frame });
+if (frame.rail.length !== 5 || !frame.rail.every((h) => h.startsWith("https://vip.xiaoxiaodong.ai/"))) failures.push(`图标条应该是会员站的 5 个去处：${frame.rail.join(" ")}`);
+if (frame.railCurrent !== "https://vip.xiaoxiaodong.ai/open-source") failures.push(`图标条的当前项应该是「开源」：${frame.railCurrent}`);
+if (frame.tab !== "/" || frame.tabState !== "true") failures.push(`详情页的当前栏目应该是图鉴（aria-current=true）：${frame.tab} ${frame.tabState}`);
+if (frame.logo || frame.headerSearch) failures.push("顶栏里不该有站名标志和搜索框");
+
+// ---------- 3. 筛选 ----------
 await filterFlow("/", "网格");
 if (await has("/en/")) await filterFlow("/en/", "grid");
+
+// ---------- 4. 「显示」 ----------
+const gridState = () => js(`(() => { const g = document.getElementById("atlas-grid"); const first = g.querySelector(".atlas-card:not([hidden])"); return {
+  view: g.dataset.view, group: g.dataset.group, cols: g.style.getPropertyValue("--cols"),
+  columns: getComputedStyle(g).gridTemplateColumns.split(" ").length,
+  stored: localStorage.getItem("xxd-layout-view"),
+  colsDisabled: document.getElementById("view-cols").disabled,
+  summaryShown: first.querySelector(".atlas-card__sum")?.getBoundingClientRect().height > 0,
+  captionShown: getComputedStyle(first.querySelector(".atlas-card__cap")).opacity,
+}; })()`);
+async function press(key, code) {
+  await send("Input.dispatchKeyEvent", { type: "keyDown", key, code, text: key });
+  await send("Input.dispatchKeyEvent", { type: "keyUp", key, code });
+  await sleep(150);
+}
+await go(BASE + "/");
+await js(`localStorage.clear()`);
+await go(BASE + "/");
+const shown = await gridState();
+await click("#atlas-view-btn");
+await sleep(200);
+const popOpen = await js(`document.getElementById("atlas-view").matches(":popover-open")`);
+await click('#view-view [data-value="wall"]');
+await send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+await js(`document.activeElement.blur()`);
+await press("=", "Equal");
+const wall = await gridState();
+const reloaded = once("Page.loadEventFired");
+await send("Page.reload");
+await reloaded;
+await settle();
+const wallAfter = await gridState();
+await click("#atlas-view-btn");
+await click('#view-view [data-value="list"]');
+const list = await gridState();
+await click("#view-reset");
+const reset = await gridState();
+steps.push({ label: "显示", popOpen, shown, wall, wallAfter, list, reset });
+if (shown.view !== "grid" || shown.cols !== "4" || shown.columns !== 4 || shown.group !== "category") failures.push(`缺省应该是网格、每行 4 张、按分类：${JSON.stringify(shown)}`);
+if (!popOpen) failures.push("点「显示」没打开弹出层");
+if (wall.view !== "wall" || wall.cols !== "5" || wall.columns !== 5) failures.push(`换海报墙、按 = 以后应该是海报墙每行 5 张：${JSON.stringify(wall)}`);
+if (wall.captionShown !== "0") failures.push(`海报墙平时不显示名称：${wall.captionShown}`);
+if (wallAfter.view !== "wall" || wallAfter.cols !== "5" || JSON.parse(wallAfter.stored || "{}").view !== "wall") failures.push(`刷新后「显示」设置没留住：${JSON.stringify(wallAfter)}`);
+if (list.view !== "list" || list.columns !== 1 || !list.colsDisabled || !list.summaryShown) failures.push(`列表应该一列、看得到一句定义、每行张数不能调：${JSON.stringify(list)}`);
+if (reset.view !== "grid" || reset.cols !== "4" || reset.group !== "category") failures.push(`恢复默认没回到网格、4 张、按分类：${JSON.stringify(reset)}`);
+await js(`localStorage.clear()`);
 
 // 详情页：切第二版、打开查看器、→ 翻页
 await go(BASE + "/196/");
@@ -215,13 +288,29 @@ steps.push({ label: "跨页过渡", normal: vt, reducedMotion: vtReduced });
 if (!vt || !vt.includes("::view-transition-old(poster)") || !vt.includes("::view-transition-new(poster)")) failures.push(`缩略图没有放大成大图：${JSON.stringify(vt)}`);
 if (vtReduced) failures.push(`减少动效时还有过渡：${JSON.stringify(vtReduced)}`);
 
-// ---------- 4. 语言 ----------
+// ---------- 6. 「更多」菜单：外观、语言 ----------
+await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
+await go(BASE + "/001/");
+await js(`localStorage.clear()`);
+await go(BASE + "/001/");
+await click("#frame-more-btn");
+await click('#frame-theme [data-value="dark"]');
+await sleep(200);
+const dark = await js(`({ theme: window.XxdTheme.read().theme, applied: document.documentElement.dataset.theme, checked: document.querySelector('#frame-theme [aria-checked="true"]')?.dataset.value })`);
+await go(BASE + "/001/");
+dark.afterReload = await js(`document.documentElement.dataset.theme`);
+steps.push({ label: "外观切到暗色", ...dark });
+if (dark.theme !== "dark" || dark.applied !== "dark" || dark.checked !== "dark" || dark.afterReload !== "dark") failures.push(`「更多」里切到暗色没生效或没存下：${JSON.stringify(dark)}`);
+await js(`localStorage.clear()`);
+
 async function pickLanguage(code) {
-  await click(".site-lang");
+  await click("#frame-more-btn");
   await sleep(200);
-  const open = await js(`document.getElementById("site-langs").matches(":popover-open")`);
+  await click('#frame-more [data-submenu="frame-langs"]');
+  await sleep(200);
+  const open = await js(`document.getElementById("frame-langs").matches(":popover-open")`);
   const nav = once("Page.loadEventFired");
-  await click(`#site-langs [data-lang="${code}"]`);
+  await click(`#frame-langs [data-lang="${code}"]`);
   await Promise.race([nav, sleep(3000)]);
   await settle();
   return open;
@@ -274,6 +363,7 @@ if (await has("/ar/196/")) {
     const card = document.querySelector(".detail-related .atlas-card"), star = r(card.querySelector(".atlas-fav"));
     return {
       dir: document.documentElement.dir,
+      railOnRight: r(document.querySelector(".frame-rail")).left > r(document.querySelector(".site-main")).left,
       direction: getComputedStyle(document.body).direction,
       posterOnRight: poster.left > info.left,
       chevron: getComputedStyle(document.querySelector(".xxd-breadcrumbs > li + li"), "::before").transform,
@@ -288,6 +378,7 @@ if (await has("/ar/196/")) {
   steps.push({ label: "阿拉伯文", ...rtl });
   if (rtl.dir !== "rtl" || rtl.direction !== "rtl") failures.push(`阿拉伯文应该从右往左：dir=${rtl.dir}，direction=${rtl.direction}`);
   if (!rtl.posterOnRight) failures.push("阿拉伯文的大图应该在右边");
+  if (!rtl.railOnRight) failures.push("阿拉伯文的图标条应该在右边");
   if (!/^matrix\(-1,/.test(rtl.chevron)) failures.push(`阿拉伯文面包屑的箭头没有翻过来：${rtl.chevron}`);
   if (!rtl.starOnLeft) failures.push("阿拉伯文卡片的星标应该在左上");
   if (rtl.arrowLeft !== "/ar/197/") failures.push(`阿拉伯文里 ← 应该翻到下一张 /ar/197/：${rtl.arrowLeft}`);
