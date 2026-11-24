@@ -74,6 +74,15 @@ function readPage(dirName) {
   if (!existsSync(join(dir, "index.html"))) fail("同目录要有 index.html");
   return { ...page, dir, dirName, poster: page.poster === true };
 }
+// 一页的字体搭配：只看用了哪几种字体，不管字重和正斜
+export const fontSet = (dirName) => [...new Set(JSON.parse(readFileSync(join(PAGES, dirName, "page.json"), "utf8")).fonts.map((f) => f.name))].sort();
+// 编号前后相邻的页面（id ± 1）字体搭配和这页一模一样，就返回那一页的目录名
+export function fontTwin(dirName, dirs = listPages()) {
+  const mine = fontSet(dirName).join(" ");
+  const id = +dirName.slice(0, 3);
+  return dirs.find((d) => Math.abs(+d.slice(0, 3) - id) === 1 && d.slice(0, 3) !== "000" && fontSet(d).join(" ") === mine);
+}
+
 const covers = (range, w) => (Array.isArray(range) ? w >= range[0] && w <= range[1] : range === w);
 
 // ---------- 字体 ----------
@@ -285,7 +294,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const dirs = listPages(only);
   if (!dirs.length) throw new Error("pages/ 下还没有页面");
   mkdirSync(DIST, { recursive: true });
-  for (const d of dirs) console.log(describe(await buildPage(d, { force })));
+  const all = listPages();
+  for (const d of dirs) {
+    console.log(describe(await buildPage(d, { force })));
+    const twin = d.startsWith("000-") ? null : fontTwin(d, all);
+    if (twin) console.warn(`  ⚠ 字体搭配和相邻的 ${twin} 一样（${fontSet(d).join(" + ")}）：换一套，npm run fonts 看各页用了什么`);
+  }
   if (!only) {
     const z = buildZip(dirs);
     console.log(`${relative(ROOT, z.file)}  ${z.pages} 页  ${kb(z.bytes)}`);
