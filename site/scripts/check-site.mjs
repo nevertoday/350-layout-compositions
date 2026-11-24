@@ -6,9 +6,11 @@
 //     （看得见的字 = 正文和 <title> 的文字、placeholder / aria-label / title / alt / 提示和复制后的提示，加上给浏览器的界面文字 #site-ui）
 //   · 每个页面里指向本站文件的 src / href / og:image / url(...)，在 dist 里都找得到
 //   · 每个页面正好一个 h1
+//   · 互动版（atlas.js 的 playPages，来自 interactive/dist）：每个都在 /<编号>/play/，和 interactive/dist 里那份一字不差，没有多出来的；
+//     有互动版的那几种，每种语言的详情页都链到它，没有的不链（互动版是原样拷来的单文件网页，上面那几条不查它）
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { atlases } from "../src/data/atlas.js";
+import { atlases, playPages } from "../src/data/atlas.js";
 import { LOCALES } from "../src/i18n/locales.js";
 
 const DIST = join(process.cwd(), "dist");
@@ -31,6 +33,17 @@ const walk = (dir) => {
 };
 walk(DIST);
 const pageSet = new Set(pages);
+
+// ---------- 互动版 ----------
+const PLAY = /^\/(\d{3})\/play\/index\.html$/;
+for (const p of playPages) {
+  const page = `${p.path}index.html`;
+  if (!pageSet.has(page)) { bad(`缺互动版 ${p.path}`); continue; }
+  if (!readFileSync(join(DIST, page)).equals(readFileSync(p.file))) bad(`${p.path} 和 ${p.file} 不一样（dist 是旧的？）`);
+}
+const playIds = new Set(playPages.map((p) => p.id));
+for (const page of pages) { const id = page.match(PLAY)?.[1]; if (id && !playIds.has(id)) bad(`多出来的互动版 ${page}（interactive/dist 里没有 ${id}）`); }
+const sitePages = pages.filter((p) => !PLAY.test(p));
 
 // ---------- 每种语言的页面都在 ----------
 const built = atlases();
@@ -106,9 +119,17 @@ let links = 0;
 let alternates = 0;
 let leakPages = 0;
 const checked = new Map();
-for (const page of pages) {
+let playLinks = 0;
+for (const page of sitePages) {
   const html = readFileSync(join(DIST, page), "utf8");
   const loc = localeOf(page);
+  const detailId = page.slice(loc.base.length).match(/^(\d{3})\/index\.html$/)?.[1];
+  if (detailId) {
+    const want = playIds.has(detailId) ? `/${detailId}/play/` : null;
+    const got = html.match(/<a\b[^>]*\bid="play"[^>]*>/)?.[0].match(/href="([^"]*)"/)?.[1] ?? null;
+    if (got !== want) bad(`${page} 的互动版入口是 ${got ?? "（没有）"}，应该是 ${want ?? "（没有）"}`);
+    if (got) playLinks++;
+  }
   const h1 = (html.match(/<h1[\s>]/g) || []).length;
   if (h1 !== 1) bad(`${page} 有 ${h1} 个 h1`);
 
@@ -152,11 +173,12 @@ if (leakPages > 12) bad(`… 有没译中文的页面一共 ${leakPages} 个`);
 
 const size = (dir) => readdirSync(dir).reduce((n, f) => n + statSync(join(dir, f)).size, 0);
 const mb = (n) => `${(n / 1024 / 1024).toFixed(1)} MB`;
-console.log(`语言 ${built.length} 种（${built.map((A) => A.locale.code).join(" ")}），页面 ${pages.length} 个（详情 ${detailCount}），站内链接 ${links} 处（不同地址 ${checked.size} 个），` +
+console.log(`语言 ${built.length} 种（${built.map((A) => A.locale.code).join(" ")}），页面 ${sitePages.length} 个（详情 ${detailCount}），` +
+  `互动版 ${playPages.length} 个（${playPages.map((p) => p.id).join(" ") || "无"}，详情页入口 ${playLinks} 处），站内链接 ${links} 处（不同地址 ${checked.size} 个），` +
   `hreflang ${alternates} 处，图片 t ${mb(size(join(DIST, "t")))} · p ${mb(size(join(DIST, "p")))}`);
 if (problems.length) {
   for (const p of problems.slice(0, 40)) console.error(`✗ ${p}`);
   if (problems.length > 40) console.error(`… 一共 ${problems.length} 处`);
   process.exit(1);
 }
-console.log("✓ 检查通过：每种语言的每一页都在，lang 和 hreflang 对得上，拉丁、谚文、西里尔、阿拉伯文的页面没有漏译的中文，站内链接都在，每页一个 h1");
+console.log("✓ 检查通过：每种语言的每一页都在，lang 和 hreflang 对得上，拉丁、谚文、西里尔、阿拉伯文的页面没有漏译的中文，站内链接都在，每页一个 h1，互动版都在、和 interactive/dist 一致、详情页的入口都对");

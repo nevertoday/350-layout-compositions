@@ -1,4 +1,4 @@
-// 详情页：切换第一版 / 第二版、点大图看原尺寸（xxd 的图片查看器，多一个「原尺寸 / 适应屏幕」）、← → 翻页、收藏。
+// 详情页：切换第一版 / 第二版、点大图看原尺寸（xxd 的图片查看器，多一个「原尺寸 / 适应屏幕」）、← → 翻页、收藏、去互动版不做跨页过渡。
 import "./favs.js";
 import { t } from "./ui.js";
 
@@ -56,3 +56,7 @@ addEventListener("keydown", (e) => {
   const a = document.querySelector(back ? 'a[rel="prev"]' : 'a[rel="next"]');
   if (a) location.href = a.href;
 });
+
+// 互动版是原样拷来的单文件网页，没开跨页过渡：去那里时不做过渡，不然浏览器在这一页报「Transition was aborted」
+const PLAY = document.getElementById("play")?.href;
+addEventListener("pageswap", (e) => { if (PLAY && e.activation?.entry?.url === PLAY) e.viewTransition?.skipTransition(); });

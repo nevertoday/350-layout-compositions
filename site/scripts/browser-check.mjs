@@ -9,6 +9,8 @@
 //   5. 详情页切第二版、打开查看器、→ 翻页；从图鉴点进详情时缩略图放大成大图，减少动效时不放大
 //   6. 「更多」菜单：外观切到暗色；语言子菜单在详情页换到英文，落在同一个编号；在图鉴换语言带上分类；
 //      浏览器是英文时简体中文首页出横幅，关掉就不再出；阿拉伯文从右往左（图标条在右、大图在右、面包屑的箭头翻过来、← 是下一张）
+//   7. 互动版：/001/ 点「互动版」落到 /001/play/，页面画出来了（有画布）、没有报错和 console.error；图鉴里 001 的卡片有标记；
+//      /en/001/ 的入口是英文的、注明是中文页面（hreflang=zh-CN），点进去是同一页
 import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -49,6 +51,7 @@ let seq = 0;
 const pending = new Map();
 const waiters = [];
 const errors = []; // 页面里抛出的 JS 异常
+const consoleErrors = []; // console.error，只在互动版那一段查（{ url, text }）
 ws.addEventListener("message", (m) => {
   const msg = JSON.parse(m.data);
   if (msg.id && pending.has(msg.id)) {
@@ -57,6 +60,7 @@ ws.addEventListener("message", (m) => {
     msg.error ? reject(new Error(`${msg.error.message}`)) : resolve(msg.result);
   } else if (msg.method) {
     if (msg.method === "Runtime.exceptionThrown") errors.push(msg.params.exceptionDetails?.exception?.description || msg.params.exceptionDetails?.text);
+    if (msg.method === "Runtime.consoleAPICalled" && msg.params.type === "error") consoleErrors.push(msg.params.args.map((a) => a.value ?? a.description).join(" "));
     for (const w of [...waiters]) if (w.method === msg.method) { waiters.splice(waiters.indexOf(w), 1); w.resolve(msg.params); }
   }
 });
@@ -383,6 +387,61 @@ if (await has("/ar/196/")) {
   if (!rtl.starOnLeft) failures.push("阿拉伯文卡片的星标应该在左上");
   if (rtl.arrowLeft !== "/ar/197/") failures.push(`阿拉伯文里 ← 应该翻到下一张 /ar/197/：${rtl.arrowLeft}`);
 }
+
+// ---------- 7. 互动版 ----------
+await setView(1440, "light");
+await go(BASE + "/");
+const cardMark = await js(`document.querySelector('#atlas-grid .atlas-card[data-id="001"] .atlas-card__play')?.getAttribute("aria-label") ?? null`);
+const unmarked = await js(`document.querySelector('#atlas-grid .atlas-card[data-id="004"] .atlas-card__play') === null`);
+steps.push({ label: "图鉴卡片的互动版标记", cardMark, unmarked });
+if (!cardMark) failures.push("图鉴里 001 的卡片没有互动版标记");
+if (!unmarked) failures.push("没有互动版的 004 卡片却有标记");
+// 点入口，落到互动版：有画布、没有报错
+async function playFrom(path) {
+  await go(BASE + path);
+  const entry = await js(`(() => { const a = document.getElementById("play"); return a && { href: a.getAttribute("href"), hreflang: a.getAttribute("hreflang"), text: a.textContent.replace(/\\s+/g, " ").trim() }; })()`);
+  if (!entry) return { entry };
+  const before = { errors: errors.length, console: consoleErrors.length };
+  const loaded = once("Page.loadEventFired");
+  await click("#play");
+  await Promise.race([loaded, sleep(5000)]);
+  let canvas = 0;
+  for (let i = 0; i < 30 && !canvas; i++) { canvas = await js(`[...document.querySelectorAll("canvas")].filter((c) => c.width > 0 && c.height > 0).length`); if (!canvas) await sleep(100); }
+  await sleep(500);
+  return { entry, landed: await js(`location.pathname`), title: await js(`document.title`), canvas, errors: errors.slice(before.errors), console: consoleErrors.slice(before.console) };
+}
+const zhPlay = await playFrom("/001/");
+files.push(await shot("001-play-1440-light"));
+steps.push({ label: "互动版（简体中文）", ...zhPlay });
+if (!zhPlay.entry) failures.push("/001/ 没有互动版入口");
+else {
+  if (zhPlay.entry.href !== "/001/play/" || zhPlay.entry.hreflang !== null || !zhPlay.entry.text.startsWith("互动版")) failures.push(`/001/ 的互动版入口不对：${JSON.stringify(zhPlay.entry)}`);
+  if (zhPlay.landed !== "/001/play/") failures.push(`点「互动版」应该落到 /001/play/：${zhPlay.landed}`);
+  if (!zhPlay.canvas) failures.push("/001/play/ 没有画出画布");
+  if (zhPlay.console.length) failures.push(`/001/play/ 有 console.error：${zhPlay.console.join(" | ")}`);
+}
+await go(BASE + "/196/");
+const noEntry = await js(`document.getElementById("play") === null`);
+if (!noEntry) failures.push("没有互动版的 /196/ 却有入口");
+if (await has("/en/001/")) {
+  const enPlay = await playFrom("/en/001/");
+  steps.push({ label: "互动版（英文）", ...enPlay });
+  if (!enPlay.entry) failures.push("/en/001/ 没有互动版入口");
+  else {
+    if (enPlay.entry.href !== "/001/play/" || enPlay.entry.hreflang !== "zh-CN") failures.push(`/en/001/ 的入口应该指 /001/play/、hreflang=zh-CN：${JSON.stringify(enPlay.entry)}`);
+    if (/\p{Script=Han}/u.test(enPlay.entry.text) || !/chinese/i.test(enPlay.entry.text)) failures.push(`/en/001/ 的入口应该是英文、注明中文：${enPlay.entry.text}`);
+    if (enPlay.landed !== "/001/play/" || !enPlay.canvas) failures.push(`/en/001/ 点进去应该是画出来的 /001/play/：${enPlay.landed}，画布 ${enPlay.canvas}`);
+  }
+  await go(BASE + "/en/001/");
+  await js(`document.getElementById("play").scrollIntoView({ block: "center" })`);
+  files.push(await shot("en-001-play-entry-1440-light"));
+}
+// 手机上入口的样子
+await setView(390, "light");
+await go(BASE + "/001/");
+await js(`document.getElementById("play").scrollIntoView({ block: "center" })`);
+await settle();
+files.push(await shot("001-play-entry-390-light"));
 
 for (const s of steps) console.log(JSON.stringify(s));
 for (const e of errors) failures.push(`页面报错：${String(e).split("\n")[0]}`);

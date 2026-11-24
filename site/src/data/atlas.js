@@ -2,9 +2,10 @@
 // 和 src/data/poster-text.json（海报上抄下来的文字，可能还没有）。在这里校验、清洗，导出普通对象；别的文件不读这三个文件。
 // 多语言（I18N.md）：界面文字 src/i18n/ui/<code>.json、内容译文 src/i18n/content/<code>.json 也只在这里读，
 // atlasFor(code) 给出那种语言下同样形状的数据。顶层导出的 categories、layouts 等是源语言（简体中文）的。
+// 互动版：interactive/ 打好的单文件网页 interactive/dist/<id>-<slug>.html（npm run build 先打一遍），有的那几种 play 是 /<id>/play/，别的是 null。
 // 页面（Astro）、生成图片（scripts/build-images.mjs）、检查（scripts/check-site.mjs）、翻译的输入（scripts/i18n-source.mjs）都 import 这一个模块。
-import { existsSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { basename, join, resolve } from "node:path";
 import { LOCALES, SOURCE } from "../i18n/locales.js";
 
 const SITE = process.cwd().endsWith("/site") ? process.cwd() : resolve(process.cwd(), "site");
@@ -150,6 +151,17 @@ const guidesRaw = existsSync(GUIDES_FILE) ? readJson(GUIDES_FILE) : {};
 const guideTax = guidesRaw?.taxonomy && typeof guidesRaw.taxonomy === "object" ? guidesRaw.taxonomy : {};
 const guideLayouts = guidesRaw?.layouts && typeof guidesRaw.layouts === "object" ? guidesRaw.layouts : {};
 
+// 互动版只认 interactive/dist 里的文件，不另记清单。000 是那边的样例页，不上站；没打过（没有 dist）就是一种都没有
+const PLAY_DIR = join(REPO, "interactive/dist");
+const playFiles = new Map();
+for (const f of existsSync(PLAY_DIR) ? readdirSync(PLAY_DIR).filter((f) => f.endsWith(".html")).sort() : []) {
+  const id = f.match(/^(\d{3})-[a-z0-9-]+\.html$/)?.[1];
+  if (!id) fail(`interactive/dist/${f} 的文件名应该是 <编号>-<slug>.html`);
+  if (id === "000") continue;
+  if (playFiles.has(id)) fail(`interactive/dist 里 ${id} 有两个文件：${basename(playFiles.get(id))}、${f}`);
+  playFiles.set(id, join(PLAY_DIR, f));
+}
+
 if (!Array.isArray(catalog) || !catalog.length) fail("v2/catalog.json 不是非空数组");
 if (!Array.isArray(taxonomy?.categories) || !taxonomy.categories.length) fail("v2/taxonomy.json 没有 categories");
 
@@ -223,6 +235,7 @@ export const layouts = catalog.map((e) => {
     keywords: t.keywords,
     notes: t.notes,
     guide: parseGuide(id, guideLayouts[id]),
+    play: playFiles.has(id) ? `/${id}/play/` : null, // 互动版只有中文，各语言都指这一页
     img: { w: e.width, h: e.height, thumb: first.thumb, full: first.full, png: first.png },
     ...(second && { second: { thumb: second.thumb, full: second.full, png: second.png } }),
   };
@@ -237,6 +250,9 @@ layouts.forEach((l, i) => {
 });
 
 for (const id of Object.keys(texts)) if (!seen.has(id)) fail(`poster-text.json 里有目录里没有的编号：${id}`);
+for (const id of playFiles.keys()) if (!seen.has(id)) fail(`interactive/dist 里有目录里没有的编号：${id}`);
+// 互动版的单文件网页：{ id, path（站内地址）, file（磁盘上的文件）}，src/pages/[id]/play/ 照这个输出，检查也照这个
+export const playPages = [...playFiles].map(([id, file]) => ({ id, path: `/${id}/play/`, file }));
 
 for (const c of categories) {
   for (const s of c.subs) {

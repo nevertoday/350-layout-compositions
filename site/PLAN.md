@@ -24,6 +24,7 @@
 | --- | --- | --- |
 | `/` | 图鉴 | 像会员站的一个栏目页：开头左边标题、一段话、「开始浏览」和 GitHub，右边一张大海报（每个主题的第一张里随机一张）；三句事实（有什么、每张能做什么、许可）。然后是图鉴：工具条是分类标签（含「全部」「收藏」），右端一个小搜索框和「显示」；选了分类才出二级主题。下面是按分类排的海报，每组只有一行标题 |
 | `/001/` … `/350/` | 详情 | 左边大图（能放大看全图），右边编号、中英文名、定义、要点、用法、关键词。操作：**下载高清图**（主）、复制构图提示词、收藏、复制链接。←/→ 翻上一张 / 下一张，下面列同主题 |
+| `/001/play/` … | 互动版 | 有互动页面的那几种（`interactive/`，只有中文）：打好的单文件网页原样放在这里，不套外框。详情页下载那排按钮下面一行「互动版」，别的语言写明是中文页面；图鉴卡片的编号前有个小手势图标 |
 | `/about/` | 关于与下载 | 这是什么、怎么用、全部图片 zip、数据目录（CSV / JSON）、CC BY 4.0 署名写法、GitHub、小小东会员站与联系方式 |
 | `/404` | 找不到 | 回图鉴 |
 
@@ -50,4 +51,5 @@
 
 - Astro 静态站，和小小东 VPS 教程站同一套：`site/` 目录，xxd-ui-kit 拷进 `public/xxd`。
 - 数据只从一个地方读：`src/data/atlas.js` 读 `v2/catalog.json`、`v2/taxonomy.json`（分类说明，由 `scripts/import-350.py` 导出）和 `src/data/poster-text.json`（释文），还有译文 `src/i18n/ui/*.json`、`src/i18n/content/*.json`；`atlasFor(语言)` 给出那种语言的同样形状的数据。用别处的一套译文试：`XXD_I18N_DIR=<目录> npm run build`，检查时也设上。
+- 互动版只认 `interactive/dist/<id>-<slug>.html`（`000` 是样例，不上站）：`npm run build` 先跑 `npm run play`（就是 `interactive` 的 `npm run build`，按输入做了缓存，没改过就是秒过），保证 dist 是新的；`atlas.js` 读这个目录给每种版式 `play`（`/<id>/play/` 或 null），`src/pages/[id]/play/index.html.js` 原样输出。
 - 部署：Cloudflare Workers 静态资源，域名 `layout.xiaoxiaodong.ai`，`npm run release`。上线前要你点头。
