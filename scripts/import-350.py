@@ -325,6 +325,26 @@ def write_catalog(repo: Path, catalog: list[dict[str, object]]) -> None:
         writer.writerows(catalog)
 
 
+def write_taxonomy(repo: Path) -> None:
+    taxonomy = {
+        "categories": [
+            {
+                "slug": category.slug,
+                "title": category.title,
+                "description": category.description,
+                "subcategories": [
+                    {"slug": sub.slug, "title": sub.title, "description": sub.description, "start": sub.start, "end": sub.end}
+                    for sub in SUBCATEGORIES[category.slug]
+                ],
+            }
+            for category in CATEGORIES
+        ]
+    }
+    with (repo / "v2" / "taxonomy.json").open("w", encoding="utf-8") as target:
+        json.dump(taxonomy, target, ensure_ascii=False, indent=2)
+        target.write("\n")
+
+
 def build_docs(repo: Path, catalog: list[dict[str, object]]) -> None:
     grouped = {category.source_name: [item for item in catalog if item["category_slug"] == category.slug] for category in CATEGORIES}
     for category in CATEGORIES:
@@ -339,9 +359,14 @@ def main() -> None:
     parser.add_argument("--from-catalog", action="store_true", help="不读源目录，按 v2/catalog.json 重建 Markdown")
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--skip-images", action="store_true", help="只重建目录和 Markdown")
+    parser.add_argument("--emit-taxonomy", action="store_true", help="只写 v2/taxonomy.json：分类和二级主题的名称、说明、编号区间（网站读它）")
     args = parser.parse_args()
 
     repo = args.repo.resolve()
+    if args.emit_taxonomy:
+        write_taxonomy(repo)
+        print(f"已写 v2/taxonomy.json：{len(CATEGORIES)} 个分类，{sum(len(subs) for subs in SUBCATEGORIES.values())} 个二级主题。")
+        return
     if args.from_catalog:
         catalog = json.loads((repo / "v2" / "catalog.json").read_text(encoding="utf-8"))
         build_docs(repo, catalog)
