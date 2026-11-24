@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6d3cf">
+<title>矩形折入法 · Rectangle Inset Method</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <section class="hero" aria-labelledby="title">
+    <div class="hero-text">
+      <p class="kicker"><span lang="en" class="num">No. 006</span><span>350 种排版 · 构图</span></p>
+      <h1 id="title" class="inset-title" aria-label="矩形折入法">
+        <span class="it-1" aria-hidden="true"><span class="it-2"><span class="it-3"><span class="it-word">矩形折入法</span></span></span></span>
+      </h1>
+      <p class="title-en" lang="en">Rectangle Inset Method</p>
+    </div>
+    <p class="summary">用矩形框层层折入，构建视觉通道，强化主体，引导视线向内聚焦。<span lang="en">Use inset rectangles to build a visual pathway, enhance the subject, and guide the eye inward to the focal point.</span></p>
+
+    <div class="stage-wrap">
+      <div class="stage" id="stage">
+        <button class="handle" id="handle" type="button" aria-describedby="ro-text"><span class="sr">主体窗口：拖动或用方向键移动，Home 回到正中</span></button>
+        <p class="hud hud-tl" aria-hidden="true"><span id="hud-layers">3 层</span><span id="hud-rhythm">等宽</span></p>
+        <p class="hud hud-br" aria-hidden="true" id="hud-fly"></p>
+        <div class="stage-tools">
+          <button type="button" id="btn-fly" class="tool">推进去 <span lang="en">Dolly in</span></button>
+          <button type="button" id="btn-view" class="tool" aria-pressed="false">正面看 <span lang="en">Front</span></button>
+        </div>
+      </div>
+      <p class="stage-hint">拖动中间的<b>准星</b>移动主体，靠近正中或黄金点会吸住；在空白处左右拖，换个角度看这几层是怎么折进去的。</p>
+    </div>
+
+    <div class="panel">
+      <div class="ctrl">
+        <label for="layers">层数 <span lang="en">Layers</span> <output id="layers-out" class="num">3</output></label>
+        <input type="range" id="layers" min="1" max="5" step="1" value="3">
+      </div>
+      <div class="ctrl">
+        <label for="gap">每层宽 <span lang="en">Spacing</span> <output id="gap-out" class="num">8%</output></label>
+        <input type="range" id="gap" min="0.03" max="0.13" step="0.005" value="0.08">
+      </div>
+      <fieldset class="seg" id="rhythm">
+        <legend>节奏 <span lang="en">Rhythm</span></legend>
+        <label><input type="radio" name="rhythm" value="even" checked><span>等宽</span></label>
+        <label><input type="radio" name="rhythm" value="deepen"><span>渐窄</span></label>
+        <label><input type="radio" name="rhythm" value="open"><span>渐宽</span></label>
+      </fieldset>
+      <fieldset class="seg" id="place">
+        <legend>主体 <span lang="en">Subject</span></legend>
+        <label><input type="radio" name="place" value="center" checked><span>正中</span></label>
+        <label><input type="radio" name="place" value="golden"><span>黄金区域</span></label>
+        <label><input type="radio" name="place" value="free" disabled><span>自由</span></label>
+      </fieldset>
+      <div class="readout" aria-live="polite">
+        <dl class="stats">
+          <div><dt>主体占画面</dt><dd class="num" id="ro-area">27%</dd></div>
+          <div><dt>位置</dt><dd id="ro-where">正中</dd></div>
+          <div><dt>最窄一层</dt><dd class="num" id="ro-band">8%</dd></div>
+        </dl>
+        <p class="ro-text" id="ro-text"></p>
+        <p class="ro-warn" id="ro-warn" hidden></p>
+      </div>
+    </div>
+  </section>
+
+  <article class="essay">
+    <section class="sec" aria-labelledby="s1">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">01</p>
+        <h2 id="s1">一层一层，<br>往里收</h2>
+        <p class="sec-en" lang="en">Layer by layer, focus inward</p>
+      </header>
+      <div class="sec-body">
+        <blockquote class="quote reveal">「从外到内逐层折入，形成视觉通道。」<span lang="en">Inset from outside to inside to create a visual path.</span></blockquote>
+        <p class="reveal">海报把一张图分成四层：最外面一圈定边界，中间一圈过渡，里面一圈收拢，最后才是主体。每一层都比外面那层小一圈，眼睛从外往里一层层跨过去，最后没有别处可去，只能停在主体上。点下面四个名字，看看它们各管什么。</p>
+        <div class="anatomy reveal">
+          <div class="anatomy-fig" id="anatomy-fig"></div>
+          <div class="anatomy-list" role="group" aria-label="四层结构">
+            <button type="button" class="layer-btn" data-layer="0" aria-pressed="false"><b>外层框架</b><span lang="en">Outer frame</span></button>
+            <button type="button" class="layer-btn" data-layer="1" aria-pressed="false"><b>过渡层</b><span lang="en">Transition layer</span></button>
+            <button type="button" class="layer-btn" data-layer="2" aria-pressed="false"><b>内层框架</b><span lang="en">Inner frame</span></button>
+            <button type="button" class="layer-btn" data-layer="3" aria-pressed="false"><b>主体聚焦</b><span lang="en">Subject emphasis</span></button>
+          </div>
+          <div class="anatomy-note" id="anatomy-note" aria-live="polite">
+            <p class="an-quote">海报原话：<span id="an-quote">点一个名字。</span></p>
+            <p id="an-text">四层从外到内：边界、缓冲、收拢、主角。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="s2">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">02</p>
+        <h2 id="s2">留白的节奏，<br>决定平还是深</h2>
+        <p class="sec-en" lang="en">Spacing sets the depth</p>
+      </header>
+      <div class="sec-body">
+        <blockquote class="quote reveal">「层与层之间控制留白，保持呼吸感。」<span lang="en">Control spacing between layers for balance.</span></blockquote>
+        <p class="reveal">每一层多宽，不只是「留多少白」，还在告诉眼睛这几层是平铺的还是往里退的。我们看东西习惯近大远小：一条走廊，越远的门框越窄。所以层越往里越窄，画面就像陷进去；一样宽，像一张平放的卡纸；越往里越宽，反而像台阶往外凸。</p>
+        <div class="rhythm-lab reveal">
+          <div class="rl-fig" id="rl-fig"></div>
+          <div class="rl-side">
+            <label for="rl-r" class="rl-label">里层 ÷ 外层 <span lang="en">inner / outer</span> <output id="rl-out" class="num">1.00</output></label>
+            <input type="range" id="rl-r" min="0.5" max="1.6" step="0.01" value="1">
+            <div class="rl-scale" aria-hidden="true"><span>往里陷</span><span>平</span><span>往外凸</span></div>
+            <p class="rl-text" id="rl-text" aria-live="polite"></p>
+            <p class="rl-note">呼吸感说的是另一件事：每层都要宽到能读成「一块面」，而不是一根线。最窄的一层细过短边的 2% 左右，看上去就只是描边了。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="s3">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">03</p>
+        <h2 id="s3">层越多，<br>主体越小</h2>
+        <p class="sec-en" lang="en">Every layer has a cost</p>
+      </header>
+      <div class="sec-body">
+        <p class="reveal"><span class="tag">说多了一点</span>海报的标语是「层层包裹」，好像包得越多越好。其实每多一层，四条边各往里吃一截，主体就小一圈：层数多了，框比花还占地方，眼睛反而停在框上。海报自己也只用了三层左右。</p>
+        <div class="cost-lab reveal">
+          <div class="cost-fig" id="cost-fig"></div>
+          <div class="cost-side">
+            <label for="cost-n">层数 <span lang="en">Layers</span> <output id="cost-out" class="num">3</output></label>
+            <input type="range" id="cost-n" min="1" max="8" step="1" value="3">
+            <div class="bar" aria-hidden="true"><i id="cost-bar"></i></div>
+            <p class="cost-read" id="cost-read" aria-live="polite"></p>
+            <p class="cost-screen" id="cost-screen"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="s4">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">04</p>
+        <h2 id="s4">放正中，<br>还是放偏一点</h2>
+        <p class="sec-en" lang="en">Center or golden area</p>
+      </header>
+      <div class="sec-body">
+        <blockquote class="quote reveal">「主体置于中心或黄金区域，强化焦点。」<span lang="en">Place the subject at the center or golden area.</span></blockquote>
+        <p class="reveal">放正中，四周的层一样厚，所有方向都把眼睛往同一个点推，是这个方法最典型的用法。放到黄金区域（离边 38.2% 的位置），主体那一侧的层被挤薄、对面放宽，整组框像从斜角看进去的走廊，有了方向。要注意的是：主体偏了，框也要跟着偏；框还是同心的、只把主体挪走，眼睛会在空着的中心和主体之间来回找。</p>
+        <div class="place-lab reveal" role="group" aria-label="比较三种摆法">
+          <figure><div class="pl-fig" data-place="center"></div><figcaption><b>正中</b>四边一样厚，最稳。</figcaption></figure>
+          <figure><div class="pl-fig" data-place="golden"></div><figcaption><b>黄金区域，框跟着偏</b>一侧薄一侧厚，有方向。</figcaption></figure>
+          <figure><div class="pl-fig" data-place="stray"></div><figcaption><b>框不动，只挪主体</b>中心空着，焦点被拉扯。</figcaption></figure>
+        </div>
+        <p class="reveal small">黄金比例本身的来龙去脉见 <a href="https://layout.xiaoxiaodong.ai/002/play/" target="_blank" rel="noopener">002 黄金比例构图</a>。</p>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="s5">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">05</p>
+        <h2 id="s5">把短边<br>折到长边上</h2>
+        <p class="sec-en" lang="en">Rabatment of the rectangle</p>
+      </header>
+      <div class="sec-body">
+        <p class="reveal">这是「折入」这个名字的另一层意思。「折入」还容易让人想到构图书里另一种作图，叫 rabatment（法语 rabattement，「折下来」）：拿画面的短边当边长，从一端折进长边，得到一个内接正方形，正方形的另一条边就是一条「折入线」。法国的 Charles Bouleau 在《Charpentes》（1963，英译本叫 <i lang="en">The Painter's Secret Geometry</i>）里讲过这种把短边折下来的分割。它和海报讲的层层套框是两回事，但都在矩形里「折」出一个更小的区域来放主体。</p>
+        <div class="fold-lab reveal">
+          <div class="fold-stage" id="fold-stage">
+            <div class="fold-rect" id="fold-rect">
+              <div class="fold-flap" id="fold-flap"></div>
+              <div class="fold-flap right" id="fold-flap-r"></div>
+              <i class="fold-line" id="fold-line"></i>
+              <i class="fold-line right" id="fold-line-r"></i>
+            </div>
+          </div>
+          <div class="fold-side">
+            <fieldset class="seg seg-wrap" id="ratio">
+              <legend>画幅 <span lang="en">Format</span></legend>
+              <label><input type="radio" name="ratio" value="1.3333"><span class="num">4:3</span></label>
+              <label><input type="radio" name="ratio" value="1.5" checked><span class="num">3:2</span></label>
+              <label><input type="radio" name="ratio" value="1.618"><span>黄金</span></label>
+              <label><input type="radio" name="ratio" value="1.7778"><span class="num">16:9</span></label>
+              <label><input type="radio" name="ratio" value="2"><span class="num">2:1</span></label>
+              <label><input type="radio" name="ratio" value="1"><span class="num">1:1</span></label>
+            </fieldset>
+            <button type="button" class="btn" id="fold-btn">再折一次 <span lang="en">Fold</span></button>
+            <p class="fold-read" id="fold-read" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="s6">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">06</p>
+        <h2 id="s6">从哪来，<br>什么时候用</h2>
+        <p class="sec-en" lang="en">Origins, uses, limits</p>
+      </header>
+      <div class="sec-body cols">
+        <div class="col reveal">
+          <h3>早就在用</h3>
+          <p>给画加框、加卡纸，中国书画装裱时在画心外面一圈圈镶上隔水、天头、地头，都是同一个做法：用几层边把作品从墙上隔出来。装裱时天头比地头长；装框时卡纸常把下边留得略宽一点，因为四边等宽时，画看上去会有点往下坠。</p>
+          <div class="mat-lab">
+            <div class="mat" id="mat"><i></i></div>
+            <button type="button" class="btn" id="mat-btn" aria-pressed="false">下边留宽 <span lang="en">Weighted bottom</span></button>
+          </div>
+          <p class="small">摄影里借门窗、树枝、拱洞当框，叫「框中框」，见 <a href="https://layout.xiaoxiaodong.ai/014/" target="_blank" rel="noopener">014 框中框构图</a>：那是借现场的东西围住主体，这一页讲的是自己画上去的层。</p>
+        </div>
+        <div class="col reveal">
+          <h3>什么时候用</h3>
+          <p class="quote-s">「适用于产品展示、人物肖像、摄影作品、海报版式等，营造秩序感与高级感。」</p>
+          <ul class="list">
+            <li><b>只有一个主角</b>：一件商品、一张脸、一朵花，框把别的东西都挡在外面。</li>
+            <li><b>主体本身很安静</b>：留白多、背景干净的照片，加几层框更显郑重。</li>
+            <li><b>界面里的层级</b>：页面里放卡片、卡片里放图，本身就是一层层折入，层数和宽度同样要控制。</li>
+          </ul>
+        </div>
+        <div class="col reveal">
+          <h3>什么时候别用</h3>
+          <ul class="list">
+            <li><b>内容很多的版面</b>：每层都在吃面积，正文和数据会被挤小。</li>
+            <li><b>几个主体并列</b>：框只有一个中心，两个主角会抢同一个位置。</li>
+            <li><b>想表现开阔</b>：辽阔的风景、往外延伸的道路，框会把空间关起来。</li>
+            <li><b>小屏幕</b>：手机上每一层都要占掉实打实的像素，见上面第 03 节的计算。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="s7">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">07</p>
+        <h2 id="s7">小练习</h2>
+        <p class="sec-en" lang="en">Pick the best one</p>
+      </header>
+      <div class="sec-body">
+        <p class="reveal">同一朵牡丹、同一张 4:5 的画面，四种加框方法。哪一张最能把视线带到花上？</p>
+        <div class="quiz reveal" role="group" aria-label="四个选项">
+          <button type="button" class="opt" data-k="A" aria-pressed="false"><span class="opt-fig"></span><b>A</b></button>
+          <button type="button" class="opt" data-k="B" aria-pressed="false"><span class="opt-fig"></span><b>B</b></button>
+          <button type="button" class="opt" data-k="C" aria-pressed="false"><span class="opt-fig"></span><b>C</b></button>
+          <button type="button" class="opt" data-k="D" aria-pressed="false"><span class="opt-fig"></span><b>D</b></button>
+        </div>
+        <div class="verdict" id="verdict" aria-live="polite" hidden>
+          <p class="v-title" id="v-title"></p>
+          <p id="v-text"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec sec-poster" aria-labelledby="s8">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">08</p>
+        <h2 id="s8">原海报</h2>
+        <p class="sec-en" lang="en">The original poster</p>
+      </header>
+      <div class="sec-body poster-grid">
+        <figure class="poster reveal" id="poster-fig">
+          <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="放大海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="矩形折入法海报：粉色底，几层玫红、奶白、粉色的矩形框一层套一层，最里面是一朵深红牡丹；四周标着外层框架、过渡层、内层框架、主体聚焦；下方是三条操作要点、四个关键词和应用建议。">
+          </button>
+          <figcaption>点按放大，可以拖动查看；再点一次或按 Esc 收起。</figcaption>
+        </figure>
+        <div class="keywords">
+          <h3 class="kw-title reveal">关键词 <span lang="en">Keywords</span></h3>
+          <ul>
+            <li class="reveal"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="6" width="36" height="36"/><rect x="15" y="15" width="18" height="18"/></svg><b>边框</b><span lang="en">Frame</span></li>
+            <li class="reveal"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 14H34V40H8Z"/><path d="M14 8H40V34"/><path d="M8 14L14 8M34 14L40 8M34 40L40 34"/></svg><b>折入</b><span lang="en">Inset</span></li>
+            <li class="reveal"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="13"/><circle cx="24" cy="24" r="4"/><path d="M24 4V12M24 36V44M4 24H12M36 24H44"/></svg><b>强调</b><span lang="en">Emphasis</span></li>
+            <li class="reveal"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6L42 15L24 24L6 15Z"/><path d="M6 23L24 32L42 23"/><path d="M6 31L24 40L42 31"/></svg><b>层次</b><span lang="en">Layer</span></li>
+          </ul>
+          <p class="kw-line reveal">海报上的标语：<b>层层包裹，聚焦主体</b>。<span lang="en">Layer by layer, focus inward.</span></p>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer class="foot">
+  <p><span lang="en" class="num">No. 006</span> 矩形折入法 · 350 种排版</p>
+  <p>框是为主体服务的：哪一层比主体还显眼，就去掉哪一层。</p>
+  <p class="foot-meta"><a href="https://layout.xiaoxiaodong.ai/006/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a><span class="sep">·</span>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a> · 源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></p>
+</footer>
+<script type="module" src="main.js"></script>
+</body>
+</html>
