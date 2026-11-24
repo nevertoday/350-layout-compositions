@@ -3,6 +3,7 @@
 // 先 npm run preview（4420 端口），跑完自己关。做两件事：
 //   1. 截图：/、/001/、/196/、/about/、选了分类和主题的图鉴、往下滚过的图鉴，1440 和 390 宽，亮色和暗色
 //   2. 筛选：打字搜索、切分类、点主题、收藏一张、切到「收藏」、刷新、后退，每一步记下网址和看得见的卡片数，不对就退出码 1
+//   3. 详情页切第二版、打开查看器、→ 翻页；从图鉴点进详情时缩略图放大成大图，减少动效时不放大
 import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -181,6 +182,22 @@ steps.push({ label: "详情 196", second: v2, viewer, arrowRight: after });
 if (!/196-2\.webp/.test(v2 || "")) failures.push(`第二版没切过去：${v2}`);
 if (!/196-2\.webp/.test(viewer || "")) failures.push(`查看器没打开第二版：${viewer}`);
 if (after !== "/197/") failures.push(`→ 没翻到 197：${after}`);
+
+// 跨页过渡：从图鉴点进 001，新页面上要有 poster 这一组的旧图和新图（缩略图放大成大图）；减少动效时没有过渡
+await send("Page.addScriptToEvaluateOnNewDocument", { source: `addEventListener("pagereveal", (e) => { window.__vt = e.viewTransition ? e.viewTransition.ready.then(() => document.getAnimations().map((a) => a.effect && a.effect.pseudoElement).filter(Boolean), () => []) : null; });` });
+async function morph(reduce) {
+  await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }, { name: "prefers-reduced-motion", value: reduce ? "reduce" : "no-preference" }] });
+  await go(BASE + "/");
+  const loaded = once("Page.loadEventFired");
+  await click('#atlas-grid .atlas-card[data-id="001"] .atlas-card__link');
+  await loaded;
+  return js(`Promise.resolve(window.__vt).then((x) => x && [...new Set(x)].filter((p) => p.includes("poster")))`);
+}
+const vt = await morph(false);
+const vtReduced = await morph(true);
+steps.push({ label: "跨页过渡", normal: vt, reducedMotion: vtReduced });
+if (!vt || !vt.includes("::view-transition-old(poster)") || !vt.includes("::view-transition-new(poster)")) failures.push(`缩略图没有放大成大图：${JSON.stringify(vt)}`);
+if (vtReduced) failures.push(`减少动效时还有过渡：${JSON.stringify(vtReduced)}`);
 
 for (const s of steps) console.log(JSON.stringify(s));
 for (const e of errors) failures.push(`页面报错：${String(e).split("\n")[0]}`);
