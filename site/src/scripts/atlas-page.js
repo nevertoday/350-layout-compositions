@@ -1,18 +1,19 @@
-// 图鉴页：筛选状态只有一个对象 state，网址（<这种语言的首页>?c=&s=&q=&fav=1）和网格大小（localStorage）都从它来，
-// 改了就调一次 render()。卡片本身都在 HTML 里，这里只藏、只显示。
+// 图鉴页。两份状态，各有一个来源：
+//   state  筛选（scope、sub、q），和网址一一对应（<这种语言的首页>?c=&s=&q=&fav=1），改了就 render()
+//   view   「显示」（view、cols、group），存在 localStorage；读、校验、写到网格上都在 view-prefs.js（window.XxdLayoutView）
+// 卡片本身都在 HTML 里，这里只藏、只显示。
 import { favs, onFavChange, setFav, sync as syncFavs } from "./favs.js";
 import { base, t } from "./ui.js";
 
 const X = window.Xxd;
+const V = window.XxdLayoutView;
 const data = JSON.parse(document.getElementById("atlas-data").textContent);
 const SUBS = new Map(Object.entries(data.cats)); // 分类 → 它的二级主题
-const SIZES = ["s", "m", "l"];
-const SIZE_KEY = "xxd-layout-grid";
 
 const $ = (id) => document.getElementById(id);
 const grid = $("atlas-grid");
 const tabs = $("atlas-tabs");
-const input = $("site-q");
+const input = $("atlas-q");
 const cards = [...grid.querySelectorAll(".atlas-card")].map((el) => {
   const sub = el.closest(".atlas-sub");
   const cat = el.closest(".atlas-cat");
@@ -21,7 +22,7 @@ const cards = [...grid.querySelectorAll(".atlas-card")].map((el) => {
 const subEls = [...grid.querySelectorAll(".atlas-sub")];
 const catEls = [...grid.querySelectorAll(".atlas-cat")];
 
-// ---------- 状态 ⇄ 网址 ----------
+// ---------- 筛选 ⇄ 网址 ----------
 // scope：all（全部）、fav（收藏）或一个分类的 slug；sub 只在选了分类时有意义
 function fromUrl(search) {
   const p = new URLSearchParams(search);
@@ -42,11 +43,9 @@ function toUrl(s) {
   const qs = p.toString();
   return qs ? `${base}?${qs}` : base;
 }
-function readSize() {
-  try { const v = localStorage.getItem(SIZE_KEY); return SIZES.includes(v) ? v : "m"; } catch { return "m"; }
-}
 
-let state = { ...fromUrl(location.search), size: readSize() };
+let state = fromUrl(location.search);
+let view = V.read();
 
 // 筛不出东西时说什么、给哪个下一步（下一步就是另一个 state）
 function emptyState(s, favCount) {
@@ -94,12 +93,6 @@ function render() {
   favCount.hidden = !fav.size;
   favCount.textContent = String(fav.size);
   $("atlas-count").textContent = t(s.q ? "found" : "count", { n: shown });
-  for (const b of $("atlas-size").querySelectorAll('[role="radio"]')) {
-    const on = b.dataset.value === s.size;
-    b.setAttribute("aria-checked", String(on));
-    b.tabIndex = on ? 0 : -1;
-  }
-  document.documentElement.dataset.grid = s.size;
 
   const empty = shown ? null : emptyState(s, fav.size);
   $("atlas-empty").hidden = !empty;
@@ -111,12 +104,11 @@ function render() {
   if (input.value.trim() !== s.q) input.value = s.q;
 }
 
-// 改状态：网址跟着变。打字用 replace（不刷一串历史），切分类、主题用 push（后退能回去）
+// 改筛选：网址跟着变。打字用 replace（不刷一串历史），切分类、主题用 push（后退能回去）
 function set(patch, { history = "push" } = {}) {
   const prev = state;
   state = { ...state, ...patch };
   if (patch.scope && patch.scope !== prev.scope && !("sub" in patch)) state.sub = "";
-  if (patch.size !== undefined) { try { localStorage.setItem(SIZE_KEY, state.size); } catch {} }
   const url = toUrl(state);
   if (url !== location.pathname + location.search) {
     if (history === "push") window.history.pushState(null, "", url);
@@ -126,11 +118,40 @@ function set(patch, { history = "push" } = {}) {
   if (patch.scope !== undefined || patch.sub !== undefined) keepToolbarInView();
 }
 
-// 切了分类、主题后，如果已经往下滚过，回到网格开头（工具条贴在顶上，正好在它下面）
+// 切了分类、主题后，如果已经往下滚过，回到网格开头（工具条贴在顶栏下面，正好在它上面）
+function toolbarTop() {
+  return grid.getBoundingClientRect().top + scrollY - $("atlas-bar").offsetHeight - document.querySelector(".frame-head").offsetHeight;
+}
 function keepToolbarInView() {
-  const bar = $("atlas-bar");
-  const top = grid.getBoundingClientRect().top + scrollY - bar.offsetHeight - document.querySelector(".site-top").offsetHeight;
+  const top = toolbarTop();
   if (scrollY > top) scrollTo({ top, behavior: "instant" });
+}
+
+// ---------- 「显示」：view → 网格和弹出层里的控件 ----------
+function renderView() {
+  V.apply(grid, view);
+  const r = V.range();
+  const cols = $("view-cols");
+  const list = view.view === "list";
+  cols.min = String(r.min);
+  cols.max = String(r.max);
+  cols.value = String(view.cols);
+  cols.disabled = list;
+  cols.setAttribute("aria-valuetext", t("view.cols", { n: view.cols }));
+  $("view-cols-value").textContent = list ? "" : t("view.cols", { n: view.cols });
+  $("view-cols-note").hidden = !list;
+  for (const [id, value] of [["view-view", view.view], ["view-group", view.group]]) {
+    for (const b of $(id).querySelectorAll('[role="radio"]')) {
+      const on = b.dataset.value === value;
+      b.setAttribute("aria-checked", String(on));
+      b.tabIndex = on ? 0 : -1;
+    }
+  }
+}
+function setView(patch) {
+  view = V.parse({ ...view, ...patch });
+  V.save(view);
+  renderView();
 }
 
 // ---------- 事件 ----------
@@ -139,11 +160,25 @@ $("atlas-subs").addEventListener("click", (e) => {
   const b = e.target.closest("[data-sub]");
   if (b) set({ sub: b.dataset.sub });
 });
-$("atlas-size").addEventListener("xxd:change", (e) => set({ size: e.detail.value }, { history: "replace" }));
 $("atlas-empty-action").addEventListener("click", () => set(emptyState(state, favs().size).action.next));
-$("site-search").addEventListener("submit", (e) => e.preventDefault());
+$("atlas-search").addEventListener("submit", (e) => e.preventDefault());
 X?.bindSearch(input, { onQuery: (q) => { if (q !== state.q) set({ q }, { history: "replace" }); } });
-addEventListener("popstate", () => { state = { ...fromUrl(location.search), size: state.size }; render(); });
+addEventListener("popstate", () => { state = fromUrl(location.search); render(); });
+
+$("view-view").addEventListener("xxd:change", (e) => setView({ view: e.detail.value }));
+$("view-group").addEventListener("xxd:change", (e) => setView({ group: e.detail.value }));
+$("view-cols").addEventListener("input", (e) => setView({ cols: Number(e.target.value) }));
+$("view-reset").addEventListener("click", () => setView(V.defaults()));
+// 宽屏和窄屏的每行张数范围不同：跨过断点时按存的设置重新夹一次（不改存的值）
+V.narrow.addEventListener("change", () => { view = V.read(); renderView(); });
+// − 和 =（或 +）改每行张数：焦点在输入框、滑块、对话框里不管；带修饰键不管；列表视图不管
+addEventListener("keydown", (e) => {
+  if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || view.view === "list") return;
+  const step = { "-": -1, "_": -1, "=": 1, "+": 1 }[e.key];
+  if (!step || e.target.closest?.('input, textarea, select, [contenteditable], dialog')) return;
+  e.preventDefault();
+  setView({ cols: view.cols + step });
+});
 
 $("atlas-fav-copy").addEventListener("click", async (e) => {
   const ids = [...favs()].sort();
@@ -186,4 +221,7 @@ if (document.documentElement.dir === "rtl") {
 }
 
 render();
+renderView();
 syncFavs();
+// 带着筛选打开（分享的链接、详情页的面包屑）而且没有指定位置：直接到图鉴，不停在开头的介绍上
+if (location.search && !location.hash && scrollY === 0) scrollTo({ top: toolbarTop(), behavior: "instant" });

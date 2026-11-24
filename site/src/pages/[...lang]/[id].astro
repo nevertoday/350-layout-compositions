@@ -41,14 +41,14 @@ const link = new URL(`${base}${l.id}/`, Astro.site).href;
 const viewer = { name: label, versions: versions.map((v) => ({ src: v.full, thumb: v.thumb, png: v.png, label: v.label, file: v.file })) };
 const kbd = '<kbd class="xxd-kbd">←</kbd> <kbd class="xxd-kbd">→</kbd>';
 ---
-<Site A={A} path={`${l.id}/`} title={label === l.id ? label : `${l.id} ${label}`} description={description} image={l.img.full} expect="poster">
+<Site A={A} path={`${l.id}/`} tab="atlas" title={label === l.id ? label : `${l.id} ${label}`} description={description} image={l.img.full} expect="poster">
   <article class="detail" data-id={l.id}>
     <div class="detail-main">
       <nav class="detail-crumbs" aria-label={t("detail.crumbs")}>
         <ol class="xxd-breadcrumbs">
-          <li><a href={base}>{t("detail.atlas")}</a></li>
-          <li lang={L(cat)}><a href={`${base}?c=${cat.slug}`}>{cat.name}</a></li>
-          <li lang={L(sub)}><a href={`${base}?c=${cat.slug}&s=${sub.slug}`}>{sub.name}</a></li>
+          <li><a href={`${base}#atlas`}>{t("frame.tab.atlas")}</a></li>
+          <li lang={L(cat)}><a href={`${base}?c=${cat.slug}#atlas`}>{cat.name}</a></li>
+          <li lang={L(sub)}><a href={`${base}?c=${cat.slug}&s=${sub.slug}#atlas`}>{sub.name}</a></li>
         </ol>
       </nav>
       <figure class="detail-poster">
@@ -116,7 +116,7 @@ const kbd = '<kbd class="xxd-kbd">←</kbd> <kbd class="xxd-kbd">→</kbd>';
           <section class="detail-sec">
             <h2>{t("detail.keywords")}</h2>
             <ul class="detail-keys" role="list" lang={T}>
-              {l.keywords.map((k) => <li><a class="xxd-chip" href={`${base}?q=${encodeURIComponent(k.term || k.en)}`}>{k.term}{extra(k.en, k.term) && <span lang="en">{k.en}</span>}</a></li>)}
+              {l.keywords.map((k) => <li><a class="xxd-chip" href={`${base}?q=${encodeURIComponent(k.term || k.en)}#atlas`}>{k.term}{extra(k.en, k.term) && <span lang="en">{k.en}</span>}</a></li>)}
             </ul>
           </section>
         )}
@@ -134,11 +134,10 @@ const kbd = '<kbd class="xxd-kbd">←</kbd> <kbd class="xxd-kbd">→</kbd>';
     </div>
 
     <section class="detail-related" aria-labelledby="related-title">
-      <header class="atlas-sub__head">
-        <h2 id="related-title">{t("detail.related")} · <span lang={L(sub)}>{sub.name}</span></h2>
-        <p><span lang={L(sub)}>{sub.blurb}</span><span class="atlas-range">{sub.range} · {t("js.count", { n: sub.ids.length })}</span></p>
-      </header>
-      <ul class="atlas-cards" role="list" data-size="s">
+      <p class="eyebrow">{t("detail.related")}</p>
+      <h2 id="related-title" lang={L(sub)}>{sub.name}</h2>
+      {sub.blurb && <p class="detail-related__lead" lang={L(sub)}>{sub.blurb}</p>}
+      <ul class="related-cards" role="list">
         {sub.ids.map((id) => <Card A={A} l={A.layoutById.get(id)!} current={id === l.id} />)}
       </ul>
     </section>

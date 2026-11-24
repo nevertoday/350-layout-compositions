@@ -1,22 +1,25 @@
 ---
-// 外壳：顶栏（标志 + 站名、搜索、关于与下载、语言、外观、GitHub）、正文、页脚。界面全部用 xxd-ui-kit（public/xxd/）。
-// 每种语言一套页面：A 是那种语言的数据和界面文字（atlas.js 的 atlasFor），path 是去掉语言前缀的地址（"" 首页、"001/"、"about/"；404 没有）。
-// 顶栏的搜索是一个 GET 表单：在图鉴页边打边筛（atlas-page.js 接管），在别的页面回车跳到这种语言的首页 ?q=。
+// 外壳：和小小东会员站同一套外框（src/data/frame.js）——左边图标导航、顶上栏目标签和右边工具（GitHub、「更多」菜单、下载全部）、
+// 正文、页脚。没有站名标志：在哪个栏目看当前的标签。界面全部用 xxd-ui-kit（public/xxd/）。
+// 每种语言一套页面：A 是那种语言的数据和界面文字（atlas.js 的 atlasFor），path 是去掉语言前缀的地址（"" 首页、"001/"、"about/"；404 没有），
+// tab 是这一页属于哪个栏目（frame.js 的 TABS，404 没有）。
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { REPO_URL, UI_KEYS, atlases } from "../data/atlas.js";
+import { RAIL, TABS, THEMES, VIP, ZIP_URL } from "../data/frame.js";
 import { SOURCE } from "../i18n/locales.js";
 
 interface Props {
   A: ReturnType<typeof atlases>[number];
   path?: string; // 不带语言前缀、不带开头斜杠的地址；404 不传
+  tab?: "atlas" | "about";
   title?: string;
   description?: string;
   image?: string; // og:image，站内路径
   expect?: string; // 首帧前要先解析到的元素 id（跨页过渡的目标）
 }
-const { A, path, title, description = A.t("site.description"), image = A.layouts[0].img.full, expect } = Astro.props;
+const { A, path, tab, title, description = A.t("site.description"), image = A.layouts[0].img.full, expect } = Astro.props;
 const { locale: loc, t } = A;
 const brand = t("site.brand");
 const fullTitle = title ? `${title} · ${brand}` : `${brand} · ${t("site.tagline")}`;
@@ -37,10 +40,17 @@ const offers = loc === SOURCE && path === ""
       text: a.t("site.lang.suggest", { language: a.locale.name }), action: a.t("site.lang.switch", { language: a.locale.name }), close: a.t("site.close"),
     }]))
   : undefined;
+// 当前栏目：正是那一页时 aria-current="page"，栏目下面的页（详情）是 "true"
+const tabState = (x: (typeof TABS)[number]) => (x.key !== tab ? undefined : path === x.path ? "page" : "true");
 // 静态文件带内容指纹（?v=）：改了就换地址
 const ver = (f: string) => createHash("sha256").update(readFileSync(join(process.cwd(), "public", f))).digest("hex").slice(0, 10);
 const asset = (f: string) => `/${f}?v=${ver(f)}`;
-const GITHUB_MARK = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>';
+const svg = (body: string, size = 20) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="miter" aria-hidden="true" focusable="false">${body}</svg>`;
+// 会员站顶栏的 GitHub 标志（描边版）
+const GITHUB_MARK = svg('<path d="M15 22v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 19 4.77 5.07 5.07 0 0 0 18.91 1S17.73.65 15 2.48a13.38 13.38 0 0 0-7 0C5.27.65 4.09 1 4.09 1A5.07 5.07 0 0 0 4 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 8 18.13V22"/><path d="M8 19c-3 .9-5.5 0-7-2"/>', 18);
+const langItems = (id: string) => versions.map((v) => (
+  { id, href: v.href, code: v.loc.code, lang: v.loc.lang, dir: v.loc.dir, name: v.loc.name, on: v.loc === loc }
+));
 ---
 
 <!doctype html>
@@ -64,7 +74,6 @@ const GITHUB_MARK = '<svg width="16" height="16" viewBox="0 0 16 16" fill="curre
     {expect && <link rel="expect" href={`#${expect}`} blocking="render" />}
     <style is:inline>@layer theme, base, xxd, components, utilities, site;</style>
     <script is:inline src={asset("xxd/boot.js")} data-key="xxd-layout-site" data-default-theme="system"></script>
-    <script is:inline>try { document.documentElement.dataset.grid = localStorage.getItem("xxd-layout-grid") || "m"; } catch { document.documentElement.dataset.grid = "m"; }</script>
     <link rel="stylesheet" href={asset("xxd/xxd.css")} />
     <link rel="stylesheet" href={asset("site.css")} />
     <script is:inline src={asset("xxd/icons.js")}></script>
@@ -73,33 +82,43 @@ const GITHUB_MARK = '<svg width="16" height="16" viewBox="0 0 16 16" fill="curre
   </head>
   <body class="xxd-page">
     <a class="xxd-sr-only-focusable" href="#main">{t("site.skip")}</a>
-    <header class="xxd-topbar site-top">
-      <a class="xxd-logo site-brand" href={loc.base} aria-label={t("site.home", { brand })}><span class="xxd-logo__mark" aria-hidden="true"></span><span class="site-brand__name">{brand}</span></a>
-      <form class="site-search" action={loc.base} method="get" role="search" id="site-search">
-        <div class="xxd-input-wrap">
-          <i data-xxd-icon="Search" data-size="16"></i>
-          <input class="xxd-input" type="search" name="q" id="site-q" placeholder={t("site.search.placeholder")} aria-label={t("site.search.label")} autocomplete="off" enterkeyhint="search" />
-          <button class="xxd-input-clear" type="button" aria-label={t("site.search.clear")}><i data-xxd-icon="X" data-size="14"></i></button>
-        </div>
-      </form>
-      <div class="site-tools">
-        <a class="xxd-btn site-about" data-size="sm" data-variant="ghost" href={`${loc.base}about/`} aria-current={path === "about/" ? "page" : undefined}><span class="site-about__short">{t("site.about")}</span><span class="site-about__full">{t("site.aboutFull")}</span></a>
-        {versions.length > 1 && (
-          <button class="xxd-btn site-lang" data-size="sm" data-variant="ghost" type="button" data-xxd-menu="site-langs" aria-label={`${t("site.lang")} · ${loc.name}`}>
-            <i data-xxd-icon="Languages" data-size="16"></i><span class="site-lang__name">{loc.name}</span>
-          </button>
-          <div class="xxd-menu site-langs" id="site-langs" role="menu" popover data-placement="bottom-end" data-carry={path === "" ? "" : undefined}>
-            {versions.map((v) => (
-              <a class="xxd-menu__item" role="menuitemradio" aria-checked={String(v.loc === loc)} href={v.href} hreflang={v.loc.lang} data-lang={v.loc.code}><span lang={v.loc.lang} dir={v.loc.dir}>{v.loc.name}</span></a>
-            ))}
+    <nav class="frame-rail" aria-label={t("frame.rail")}>
+      {RAIL.map((r) => (
+        <a href={r.href} aria-current={r.current ? "true" : undefined} aria-label={t(r.label)} data-tooltip={t(r.label)} data-tooltip-placement="right">
+          <span class="frame-rail__mark" set:html={svg(r.icon)} /><em>{t(r.label)}</em>
+        </a>
+      ))}
+    </nav>
+
+    <header class="frame-head">
+      <nav class="frame-tabs" aria-label={t("frame.tabs")}>
+        {TABS.map((x) => x.href
+          ? <a class="frame-tab" href={x.href} target="_blank" rel="noopener">{t(x.label)}<i data-xxd-icon="ArrowUpRight" data-size="12"></i></a>
+          : <a class="frame-tab" href={loc.base + x.path} aria-current={tabState(x)}><i class="frame-tab__mark" data-xxd-icon="Navigation" data-size="14"></i>{t(x.label)}</a>)}
+      </nav>
+      <div class="frame-tools">
+        <a class="frame-icon-btn frame-wide" href={REPO_URL} target="_blank" rel="noopener" aria-label={t("frame.github")} data-tooltip={t("frame.github")} data-tooltip-placement="bottom" set:html={GITHUB_MARK} />
+        <button class="frame-icon-btn" type="button" id="frame-more-btn" data-xxd-menu="frame-more" aria-label={t("frame.more")} data-tooltip={t("frame.more")} data-tooltip-placement="bottom"><i data-xxd-icon="Ellipsis" data-size="18"></i></button>
+        <div class="xxd-menu frame-menu" id="frame-more" role="menu" popover data-placement="bottom-end">
+          <div class="xxd-menu__label" id="frame-theme-label">{t("frame.theme")}</div>
+          <div role="group" aria-labelledby="frame-theme-label" id="frame-theme">
+            {THEMES.map((x) => <button class="xxd-menu__item" type="button" role="menuitemradio" aria-checked="false" data-value={x.value}>{t(x.label)}</button>)}
           </div>
-        )}
-        <button class="xxd-btn xxd-appearance-btn" data-size="sm" data-variant="ghost" data-icon-only type="button" data-xxd-popover="site-look" aria-label={t("site.appearance")} data-tooltip={t("site.appearance")} data-tooltip-placement="bottom">
-          <i class="xxd-appearance-btn__sun" data-xxd-icon="Sun" data-size="16"></i>
-          <i class="xxd-appearance-btn__moon" data-xxd-icon="Moon" data-size="16"></i>
-        </button>
-        <div class="xxd-popover xxd-appearance-pop" id="site-look" popover data-placement="bottom-end"></div>
-        <a class="xxd-btn site-gh" data-size="sm" data-variant="ghost" data-icon-only href={REPO_URL} aria-label={t("site.github")} data-tooltip={t("site.github")} data-tooltip-placement="bottom-end" set:html={GITHUB_MARK} />
+          {versions.length > 1 && (
+            <>
+              <div class="xxd-menu__sep" role="separator"></div>
+              <button class="xxd-menu__item" type="button" role="menuitem" data-submenu="frame-langs" aria-haspopup="menu"><i data-xxd-icon="Languages" data-size="14"></i>{t("site.lang")}<span class="xxd-menu__kbd">{loc.name}</span></button>
+              <div class="xxd-menu frame-langs" id="frame-langs" role="menu" popover="manual">
+                {langItems("frame-langs").map((v) => <a class="xxd-menu__item" role="menuitemradio" aria-checked={String(v.on)} href={v.href} hreflang={v.lang} data-lang={v.code}><span lang={v.lang} dir={v.dir}>{v.name}</span></a>)}
+              </div>
+            </>
+          )}
+          <div class="frame-narrow">
+            <div class="xxd-menu__sep" role="separator"></div>
+            <a class="xxd-menu__item" role="menuitem" href={ZIP_URL}><i data-xxd-icon="Download" data-size="14"></i>{t("frame.download")}</a>
+          </div>
+        </div>
+        <a class="xxd-btn frame-wide" data-variant="primary" href={ZIP_URL} data-tooltip={t("frame.downloadTip")} data-tooltip-placement="bottom-end">{t("frame.download")}</a>
       </div>
     </header>
 
@@ -140,34 +159,48 @@ const GITHUB_MARK = '<svg width="16" height="16" viewBox="0 0 16 16" fill="curre
       )}
       <slot />
     </main>
-    <footer class="site-foot">
-      <p set:html={t("site.footer", { license, repo: REPO_URL, vip: "https://vip.xiaoxiaodong.ai/" })} />
+
+    <footer class="frame-foot">
+      <p class="frame-foot__meta"><span>© 2026 xiaoxiaodong.ai</span><span aria-hidden="true">·</span><a href={license}>{t("frame.footer.license")}</a></p>
+      <nav class="frame-foot__nav" aria-label={brand}>
+        <a href={`${loc.base}about/`}>{t("frame.tab.about")}</a>
+        <a href={`${REPO_URL}/issues`}>{t("frame.footer.issues")}</a>
+        <a href={`${VIP}/`}>{t("frame.footer.vip")}</a>
+        {versions.length > 1 && (
+          <>
+            <button type="button" data-xxd-menu="foot-langs" aria-label={`${t("site.lang")} · ${loc.name}`}>{loc.name}<i data-xxd-icon="ChevronDown" data-size="12"></i></button>
+            <div class="xxd-menu frame-langs" id="foot-langs" role="menu" popover data-placement="top-end">
+              {langItems("foot-langs").map((v) => <a class="xxd-menu__item" role="menuitemradio" aria-checked={String(v.on)} href={v.href} hreflang={v.lang} data-lang={v.code}><span lang={v.lang} dir={v.dir}>{v.name}</span></a>)}
+            </div>
+          </>
+        )}
+      </nav>
     </footer>
 
     <script is:inline type="application/json" id="site-ui" set:html={json(client)} />
-    <script is:inline>
+    <script is:inline data-carry={path === "" ? "" : undefined} id="frame-script">
       (() => {
-        const X = window.Xxd;
-        if (!X) return;
-        const ui = JSON.parse(document.getElementById("site-ui").textContent);
-        const labels = Object.fromEntries(Object.entries(ui.t).filter(([k]) => k.startsWith("appearance.")).map(([k, v]) => [k.slice(11), v]));
-        X.mountAppearance(document.getElementById("site-look"), { lockCorners: true, labels });
-        // 不在图鉴页时，搜索框回车就是普通的 GET <首页>?q=；空着回车不跳
-        const form = document.getElementById("site-search");
-        const input = document.getElementById("site-q");
-        form.addEventListener("submit", (e) => { if (!input.value.trim()) e.preventDefault(); });
-        if (location.pathname !== ui.base) X.bindSearch(input, { hotkey: false });
+        // 外观：「更多」菜单里的亮 / 暗 / 跟随系统，存在 xxd 的外观设置里（boot.js 在首帧前按它上色）
+        const theme = document.getElementById("frame-theme");
+        const look = window.XxdTheme;
+        const mark = () => {
+          const now = look?.read?.()?.theme || "system";
+          for (const b of theme.querySelectorAll("[data-value]")) b.setAttribute("aria-checked", String(b.dataset.value === now));
+        };
+        theme.addEventListener("xxd:change", (e) => { look?.set({ theme: e.detail.value }); mark(); });
+        addEventListener("xxd:settings", mark);
+        mark();
         // 选了语言就记下来（简体中文首页的横幅按它提示）；在图鉴页切语言时带上分类、主题、收藏（搜索词是这种语言的字，不带）
-        const langs = document.getElementById("site-langs");
-        langs?.addEventListener("click", (e) => {
-          const a = e.target.closest("[data-lang]");
+        const carry = document.getElementById("frame-script").hasAttribute("data-carry");
+        document.addEventListener("click", (e) => {
+          const a = e.target.closest?.("a[data-lang]");
           if (!a) return;
           try { localStorage.setItem("xxd-layout-lang", a.dataset.lang); } catch {}
-          if (!langs.hasAttribute("data-carry")) return;
+          if (!carry) return;
           const p = new URLSearchParams(location.search);
           p.delete("q");
           a.search = p.toString();
-        });
+        }, true);
       })();
     </script>
   </body>

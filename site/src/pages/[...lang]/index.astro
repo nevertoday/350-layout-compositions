@@ -1,31 +1,75 @@
 ---
-// 图鉴：一行说明 + 统计，工具条（分类标签、二级主题、网格大小），按二级主题分组的 350 张卡。每种语言一页（简体中文在 /）。
-// 卡全部在 HTML 里（没有 JS 也能看、能点）；atlas-page.js 只负责筛选、收藏、网格大小。
+// 图鉴首页，像会员站里的一个栏目页：开头一段介绍（左边标题和按钮，右边一张大海报）、三句事实，然后是图鉴本身：
+// 工具条（分类标签、搜索、「显示」）、按分类排的 350 张海报。每种语言一页（简体中文在 /）。
+// 卡全部在 HTML 里（没有 JS 也能看、能点）；atlas-page.js 只负责筛选、收藏和「显示」。
 import Site from "../../layouts/Site.astro";
 import Card from "../../components/Card.astro";
-import { atlases } from "../../data/atlas.js";
+import { REPO_URL, atlases } from "../../data/atlas.js";
+import viewPrefs from "../../scripts/view-prefs.js?raw";
 
 export function getStaticPaths() {
   return atlases().map((A) => ({ params: { lang: A.locale.path || undefined }, props: { A } }));
 }
 const { A } = Astro.props;
-const { t, categories, layoutById, stats } = A;
+const { t, categories, layoutById, stats, locale: loc } = A;
+const base = loc.base;
 // 文字不是页面语言的（译文缺的，用的中文）写上它的语言
-const L = (x: { lang: string }) => (x.lang === A.locale.lang ? undefined : x.lang);
+const L = (x: { lang?: string }) => (x.lang && x.lang !== loc.lang ? x.lang : undefined);
 
 // 给前端的最小数据：每个分类有哪些二级主题，每张卡的名字和搜索用的文字
 const index = {
   cats: Object.fromEntries(categories.map((c) => [c.slug, c.subs.map((s) => s.slug)])),
   items: Object.fromEntries([...layoutById.values()].map((l) => [l.id, [l.name, l.search]])),
 };
-let n = 0;
+// 开头的大海报：每个主题的第一张里随机挑一张（首帧前换，没有 JS 就是 001）
+const pool = categories.flatMap((c) => c.subs.map((s) => layoutById.get(s.ids[0])!)).map((l) => ({ id: l.id, name: l.name, lang: L(l) ?? "", src: l.img.full }));
+const hero = layoutById.get(pool[0].id)!;
+const json = (x: unknown) => JSON.stringify(x).replace(/</g, "\\u003c");
+const keys = '<kbd class="xxd-kbd">−</kbd> <kbd class="xxd-kbd">=</kbd>';
 ---
-<Site A={A} path="">
-  <div class="atlas">
-    <header class="atlas-head">
-      <h1>{t("atlas.title", { n: stats.layouts })}</h1>
-      <p class="atlas-head__lead">{t("atlas.lead")}</p>
-      <p class="atlas-head__stats"><span>{t("atlas.stats.layouts", { n: stats.layouts })}</span><span>{t("atlas.stats.categories", { n: stats.categories })}</span><span>{t("atlas.stats.subs", { n: stats.subs })}</span><span>{t("atlas.stats.seconds", { n: stats.seconds })}</span></p>
+<Site A={A} path="" tab="atlas">
+  <section class="home-hero" aria-labelledby="home-title">
+    <div class="home-hero__text">
+      <p class="eyebrow">{t("home.eyebrow")}</p>
+      <h1 id="home-title">{t("home.title")}</h1>
+      <p class="home-hero__lead">{t("home.lead")}</p>
+      <div class="home-hero__actions">
+        <a class="xxd-btn" data-variant="primary" href="#atlas">{t("home.browse")}<i data-xxd-icon="ArrowDown" data-size="16"></i></a>
+        <a class="xxd-btn" href={REPO_URL} target="_blank" rel="noopener">{t("home.repo")}<i data-xxd-icon="ArrowUpRight" data-size="16"></i></a>
+      </div>
+    </div>
+    <a class="home-poster" id="home-poster" href={`${base}${hero.id}/`} lang={L(hero)}>
+      <span class="home-poster__frame"><picture><source media="(max-width: 639px)" srcset="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" /><img id="home-poster-img" src={hero.img.full} width={hero.img.w} height={hero.img.h} alt="" fetchpriority="high" decoding="async" /></picture></span>
+      <span class="home-poster__cap"><span class="home-poster__no" id="home-poster-no">{hero.id}</span><span id="home-poster-name">{hero.name}</span></span>
+    </a>
+    <script is:inline type="application/json" id="home-pool" set:html={json(pool)} />
+    <script is:inline>
+      (() => {
+        const pool = JSON.parse(document.getElementById("home-pool").textContent);
+        const p = pool[Math.floor(Math.random() * pool.length)];
+        const a = document.getElementById("home-poster");
+        a.href = a.getAttribute("href").replace(/\d{3}\/$/, `${p.id}/`);
+        if (p.lang) a.lang = p.lang; else a.removeAttribute("lang");
+        document.getElementById("home-poster-img").src = p.src;
+        document.getElementById("home-poster-no").textContent = p.id;
+        document.getElementById("home-poster-name").textContent = p.name;
+      })();
+    </script>
+  </section>
+
+  <dl class="home-facts">
+    <div><dt>{t("home.fact.what")}</dt><dd>{t("home.fact.whatText", { n: stats.layouts, cats: stats.categories, subs: stats.subs })}</dd></div>
+    <div><dt>{t("home.fact.use")}</dt><dd>{t("home.fact.useText")}</dd></div>
+    <div><dt>{t("home.fact.license")}</dt><dd>{t("home.fact.licenseText")}</dd></div>
+  </dl>
+
+  <section class="atlas" id="atlas" aria-labelledby="atlas-title">
+    <header class="atlas-intro">
+      <div>
+        <p class="eyebrow">{t("atlas.eyebrow")}</p>
+        <h2 id="atlas-title">{t("atlas.heading", { cats: stats.categories, subs: stats.subs })}</h2>
+      </div>
+      <p class="atlas-intro__lead">{t("atlas.lead")}</p>
     </header>
 
     <div class="atlas-bar" id="atlas-bar">
@@ -37,10 +81,40 @@ let n = 0;
         </div>
         <div class="atlas-bar__tools">
           <p class="atlas-count" id="atlas-count" aria-live="polite">{t("js.count", { n: stats.layouts })}</p>
-          <div class="xxd-segmented atlas-size" data-xxd-segmented aria-label={t("atlas.size")} id="atlas-size">
-            <button role="radio" data-value="s" aria-checked="false">{t("atlas.size.s")}</button>
-            <button role="radio" data-value="m" aria-checked="true">{t("atlas.size.m")}</button>
-            <button role="radio" data-value="l" aria-checked="false">{t("atlas.size.l")}</button>
+          <form class="atlas-search" action={base} method="get" role="search" id="atlas-search">
+            <div class="xxd-input-wrap">
+              <i data-xxd-icon="Search" data-size="16"></i>
+              <input class="xxd-input" type="search" name="q" id="atlas-q" placeholder={t("atlas.search.placeholder")} aria-label={t("atlas.search.label")} autocomplete="off" enterkeyhint="search" />
+              <button class="xxd-input-clear" type="button" aria-label={t("atlas.search.clear")}><i data-xxd-icon="X" data-size="14"></i></button>
+            </div>
+          </form>
+          <button class="xxd-btn atlas-view-btn" type="button" data-xxd-popover="atlas-view" id="atlas-view-btn"><i data-xxd-icon="LayoutGrid" data-size="16"></i>{t("view.button")}</button>
+          <div class="xxd-popover atlas-view" id="atlas-view" popover data-placement="bottom-end" aria-label={t("view.button")}>
+            <div class="atlas-view__row">
+              <span class="xxd-label" id="view-view-label">{t("view.view")}</span>
+              <div class="xxd-segmented" data-size="sm" role="radiogroup" data-xxd-segmented aria-labelledby="view-view-label" id="view-view">
+                <button role="radio" data-value="grid" aria-checked="true">{t("view.grid")}</button>
+                <button role="radio" data-value="wall" aria-checked="false">{t("view.wall")}</button>
+                <button role="radio" data-value="list" aria-checked="false">{t("view.list")}</button>
+              </div>
+            </div>
+            <div class="atlas-view__row">
+              <label class="xxd-label" for="view-cols">{t("view.cols")} <span class="atlas-view__value" id="view-cols-value"></span></label>
+              <input type="range" class="xxd-range" data-fill id="view-cols" min="2" max="6" step="1" value="4" aria-describedby="view-cols-note" />
+              <p class="xxd-help" id="view-cols-note" hidden>{t("view.colsInList")}</p>
+            </div>
+            <div class="atlas-view__row">
+              <span class="xxd-label" id="view-group-label">{t("view.group")}</span>
+              <div class="xxd-segmented" data-size="sm" role="radiogroup" data-xxd-segmented aria-labelledby="view-group-label" id="view-group">
+                <button role="radio" data-value="category" aria-checked="true">{t("view.group.category")}</button>
+                <button role="radio" data-value="theme" aria-checked="false">{t("view.group.theme")}</button>
+                <button role="radio" data-value="none" aria-checked="false">{t("view.group.none")}</button>
+              </div>
+            </div>
+            <div class="atlas-view__foot">
+              <button class="xxd-link" type="button" id="view-reset">{t("view.reset")}</button>
+              <span class="atlas-view__keys" set:html={t("view.keys", { keys })} />
+            </div>
           </div>
         </div>
       </div>
@@ -59,20 +133,15 @@ let n = 0;
     </div>
 
     <div class="atlas-grid" id="atlas-grid">
+      <script is:inline set:html={viewPrefs} />
       {categories.map((c) => (
         <section class="atlas-cat" data-cat={c.slug} aria-labelledby={`cat-${c.slug}`}>
-          <header class="atlas-cat__head" lang={L(c)}>
-            <h2 id={`cat-${c.slug}`}><span class="atlas-cat__no">{c.no}</span>{c.name}</h2>
-            <p>{c.blurb}<span class="atlas-range" lang={L(c) && A.locale.lang}>{c.range} · {t("js.count", { n: c.count })}</span></p>
-          </header>
+          <h3 class="atlas-head atlas-cat__head" id={`cat-${c.slug}`} lang={L(c)}><span class="atlas-head__no">{c.no}</span>{c.name}</h3>
           {c.subs.map((s) => (
             <section class="atlas-sub" data-sub={s.slug} aria-labelledby={`sub-${s.slug}`}>
-              <header class="atlas-sub__head" lang={L(s)}>
-                <h3 id={`sub-${s.slug}`}>{s.name}</h3>
-                <p>{s.blurb}<span class="atlas-range" lang={L(s) && A.locale.lang}>{s.range} · {t("js.count", { n: s.ids.length })}</span></p>
-              </header>
+              <h4 class="atlas-head atlas-sub__head" id={`sub-${s.slug}`} lang={L(s)}>{s.name}</h4>
               <ul class="atlas-cards" role="list">
-                {s.ids.map((id) => <Card A={A} l={layoutById.get(id)!} eager={n++ < 8} />)}
+                {s.ids.map((id) => <Card A={A} l={layoutById.get(id)!} cat={c} />)}
               </ul>
             </section>
           ))}
@@ -85,7 +154,7 @@ let n = 0;
         <button class="xxd-btn" data-size="sm" type="button" id="atlas-empty-action"></button>
       </div>
     </div>
-  </div>
-  <script type="application/json" id="atlas-data" set:html={JSON.stringify(index).replace(/</g, "\\u003c")} />
+  </section>
+  <script type="application/json" id="atlas-data" set:html={json(index)} />
   <script src="../../scripts/atlas-page.js"></script>
 </Site>
