@@ -12,7 +12,7 @@
 //   7. 互动版：/001/ 点「互动版」落到 /001/play/，页面画出来了（有画布）、没有报错和 console.error；图鉴里 001 的卡片有标记；
 //      /en/001/ 的入口是英文的、注明是中文页面（hreflang=zh-CN），点进去是同一页
 import { spawn } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -388,10 +388,12 @@ if (await has("/ar/196/")) {
 await setView(1440, "light");
 await go(BASE + "/");
 const cardMark = await js(`document.querySelector('#atlas-grid .atlas-card[data-id="001"] .atlas-card__play')?.getAttribute("aria-label") ?? null`);
-const unmarked = await js(`document.querySelector('#atlas-grid .atlas-card[data-id="004"] .atlas-card__play') === null`);
-steps.push({ label: "图鉴卡片的互动版标记", cardMark, unmarked });
+// 有标记的卡片正好是 interactive/dist 里有的那些
+const playIds = readdirSync(new URL("../../interactive/dist/", import.meta.url)).map((f) => f.match(/^(\d{3})-.*\.html$/)?.[1]).filter((id) => id && id !== "000");
+const wrongMarks = await js(`(() => { const want = new Set(${JSON.stringify(playIds)}); return [...document.querySelectorAll("#atlas-grid .atlas-card[data-id]")].filter((c) => want.has(c.dataset.id) !== !!c.querySelector(".atlas-card__play")).map((c) => c.dataset.id); })()`);
+steps.push({ label: "图鉴卡片的互动版标记", cardMark, wrongMarks });
 if (!cardMark) failures.push("图鉴里 001 的卡片没有互动版标记");
-if (!unmarked) failures.push("没有互动版的 004 卡片却有标记");
+if (wrongMarks.length) failures.push(`这些卡片的互动版标记不对（有互动版却没标，或没有却标了）：${wrongMarks.join(" ")}`);
 // 点入口，落到互动版：有画布、没有报错
 async function playFrom(path) {
   await go(BASE + path);
