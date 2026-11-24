@@ -12,10 +12,14 @@ npm run new -- 001                                 # 起骨架 pages/001-rule-of
 npm run build -- --only 001 && npm run check -- --only 001
 npm run build                                      # 全部页面 + dist/350-layout-interactive.zip
 npm run dev                                        # 可选：http://127.0.0.1:4430/，改了自动刷新
+npm run fonts                                      # 各页的字体搭配（挑字体前看一眼）
+npm run glyphs -- 001                              # 这页的字体缺页面上的哪些字（先 build）
+ONLY=001 npm run perf                              # 慢手机帧率：开场、拖动开场玩具、其余画布
 ```
 
 - `build`：有缓存，输入没变就跳过（第一次用某个字体要下载，CJK 字体每个 17–28 MB，存在 `.cache/fonts/`）。`--force` 不用缓存。`--only` 不打 zip。
-- `check`：无头 Chrome 打开 `dist/*.html`（file://），查完关掉。截图在 `.build/shots/<id>-*.png`。一页大约 20 秒。
+- `check`：无头 Chrome 打开 `dist/*.html`（file://），查完关掉。截图在 `.build/shots/<id>-*.png`，整页是 `<id>-tour-1440-NN.png`、`<id>-tour-390-NN.png` 一屏一张。一页大约 45 秒。
+- `check`、`perf` 起的 Chrome 都走 `tools/cdp.mjs`：配置目录叫 `xxd-<工具>-<PID>-…`，起来就打印 Chrome 的 PID，脚本怎么结束（跑完、Ctrl-C、报错）都连进程组一起关。
 - `dev`：打开某页时现打这一页，和 `build` 是同一份产物。端口上已有 dev 在跑就直接用它，不会起第二个。**谁起的谁关**：`kill <它打印的 PID>`，再 `lsof -i :4430` 确认端口空了。
 
 ## 目录
