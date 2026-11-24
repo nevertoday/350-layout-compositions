@@ -1,6 +1,7 @@
-// 图鉴页：筛选状态只有一个对象 state，网址（?c=&s=&q=&fav=1）和网格大小（localStorage）都从它来，
+// 图鉴页：筛选状态只有一个对象 state，网址（<这种语言的首页>?c=&s=&q=&fav=1）和网格大小（localStorage）都从它来，
 // 改了就调一次 render()。卡片本身都在 HTML 里，这里只藏、只显示。
 import { favs, onFavChange, setFav, sync as syncFavs } from "./favs.js";
+import { base, t } from "./ui.js";
 
 const X = window.Xxd;
 const data = JSON.parse(document.getElementById("atlas-data").textContent);
@@ -39,7 +40,7 @@ function toUrl(s) {
   }
   if (s.q) p.set("q", s.q);
   const qs = p.toString();
-  return qs ? `/?${qs}` : "/";
+  return qs ? `${base}?${qs}` : base;
 }
 function readSize() {
   try { const v = localStorage.getItem(SIZE_KEY); return SIZES.includes(v) ? v : "m"; } catch { return "m"; }
@@ -49,12 +50,13 @@ let state = { ...fromUrl(location.search), size: readSize() };
 
 // 筛不出东西时说什么、给哪个下一步（下一步就是另一个 state）
 function emptyState(s, favCount) {
+  const q = { q: s.q };
   if (s.scope === "fav" && !favCount) {
-    return { title: "还没有收藏", text: "点海报右上角的星标，或者详情页的「收藏」，攒一组候选，再回这里一键复制清单。", action: { label: "看全部", next: { scope: "all", sub: "", q: "" } } };
+    return { title: t("empty.noFavs.title"), text: t("empty.noFavs.text"), action: { label: t("empty.noFavs.action"), next: { scope: "all", sub: "", q: "" } } };
   }
-  if (s.scope === "fav") return { title: `收藏里没有「${s.q}」`, text: "换个词，或者清空搜索看全部收藏。", action: { label: "清空搜索", next: { q: "" } } };
-  if (s.scope !== "all") return { title: `这个分类里没有「${s.q}」`, text: "可能在别的分类里。", action: { label: "在全部分类里搜", next: { scope: "all", sub: "" } } };
-  return { title: `没有找到「${s.q}」`, text: "换个词，或者搜编号（如 042）、英文名、要点里的词。", action: { label: "清空搜索", next: { q: "" } } };
+  if (s.scope === "fav") return { title: t("empty.inFavs.title", q), text: t("empty.inFavs.text"), action: { label: t("empty.clear"), next: { q: "" } } };
+  if (s.scope !== "all") return { title: t("empty.inCat.title", q), text: t("empty.inCat.text"), action: { label: t("empty.inCat.action"), next: { scope: "all", sub: "" } } };
+  return { title: t("empty.all.title", q), text: t("empty.all.text"), action: { label: t("empty.clear"), next: { q: "" } } };
 }
 
 // ---------- 渲染：state → 页面 ----------
@@ -91,7 +93,7 @@ function render() {
   const favCount = $("atlas-fav-count");
   favCount.hidden = !fav.size;
   favCount.textContent = String(fav.size);
-  $("atlas-count").textContent = s.q ? `找到 ${shown} 种` : `${shown} 种`;
+  $("atlas-count").textContent = t(s.q ? "found" : "count", { n: shown });
   for (const b of $("atlas-size").querySelectorAll('[role="radio"]')) {
     const on = b.dataset.value === s.size;
     b.setAttribute("aria-checked", String(on));
@@ -147,18 +149,19 @@ $("atlas-fav-copy").addEventListener("click", async (e) => {
   const ids = [...favs()].sort();
   const text = ids.map((id) => `${id} ${data.items[id][0]}`).join("\n");
   const ok = await X.copyText(text);
-  X.toast(ok ? `已复制 ${ids.length} 种收藏（编号 + 名称）` : "复制失败", { tone: ok ? "success" : "danger" });
+  X.toast(ok ? t("favs.copied", { n: ids.length }) : t("copyFailed"), { tone: ok ? "success" : "danger" });
   e.currentTarget?.blur?.();
 });
 onFavChange((id, on) => {
   render();
   // 在「收藏」里取消一张，它会马上消失：给一个撤销
-  if (state.scope === "fav" && !on && id) X?.toast(`已取消收藏 ${data.items[id][0]}`, { action: { label: "撤销", onClick: () => setFav(id, true) } });
+  if (state.scope === "fav" && !on && id) X?.toast(t("favs.removed", { name: data.items[id][0] }), { action: { label: t("undo"), onClick: () => setFav(id, true) } });
 });
 
 // ---------- 跨页过渡：点进详情时，这张缩略图放大成详情页的大图；从详情页回来时缩回去 ----------
+const DETAIL = new RegExp(`^${base}(\\d{3})/$`);
 const thumbOf = (url) => {
-  const m = url && new URL(url, location.href).pathname.match(/^\/(\d{3})\/$/);
+  const m = url && new URL(url, location.href).pathname.match(DETAIL);
   return m ? grid.querySelector(`.atlas-card[data-id="${m[1]}"]:not([hidden]) img`) : null;
 };
 const nameFor = (img, vt) => {

@@ -1,9 +1,17 @@
 ---
-// 图鉴：一行说明 + 统计，工具条（分类标签、二级主题、网格大小），按二级主题分组的 350 张卡。
+// 图鉴：一行说明 + 统计，工具条（分类标签、二级主题、网格大小），按二级主题分组的 350 张卡。每种语言一页（简体中文在 /）。
 // 卡全部在 HTML 里（没有 JS 也能看、能点）；atlas-page.js 只负责筛选、收藏、网格大小。
-import Site from "../layouts/Site.astro";
-import Card from "../components/Card.astro";
-import { categories, layoutById, stats } from "../data/atlas.js";
+import Site from "../../layouts/Site.astro";
+import Card from "../../components/Card.astro";
+import { atlases } from "../../data/atlas.js";
+
+export function getStaticPaths() {
+  return atlases().map((A) => ({ params: { lang: A.locale.path || undefined }, props: { A } }));
+}
+const { A } = Astro.props;
+const { t, categories, layoutById, stats } = A;
+// 文字不是页面语言的（译文缺的，用的中文）写上它的语言
+const L = (x: { lang: string }) => (x.lang === A.locale.lang ? undefined : x.lang);
 
 // 给前端的最小数据：每个分类有哪些二级主题，每张卡的名字和搜索用的文字
 const index = {
@@ -12,40 +20,40 @@ const index = {
 };
 let n = 0;
 ---
-<Site>
+<Site A={A} path="">
   <div class="atlas">
     <header class="atlas-head">
-      <h1>350 种排版图鉴</h1>
-      <p class="atlas-head__lead">构图、视觉原则、出版广告、字体网格、网页 UI、影视、中国传统和演示文稿。每张都能看大图、下载高清图、复制构图提示词。</p>
-      <p class="atlas-head__stats"><span>{stats.layouts} 种</span><span>{stats.categories} 个分类</span><span>{stats.subs} 个主题</span><span>{stats.seconds} 种有第二版</span></p>
+      <h1>{t("atlas.title", { n: stats.layouts })}</h1>
+      <p class="atlas-head__lead">{t("atlas.lead")}</p>
+      <p class="atlas-head__stats"><span>{t("atlas.stats.layouts", { n: stats.layouts })}</span><span>{t("atlas.stats.categories", { n: stats.categories })}</span><span>{t("atlas.stats.subs", { n: stats.subs })}</span><span>{t("atlas.stats.seconds", { n: stats.seconds })}</span></p>
     </header>
 
     <div class="atlas-bar" id="atlas-bar">
       <div class="atlas-bar__top">
-        <div class="xxd-tabs atlas-tabs" data-xxd-tabs aria-label="分类" id="atlas-tabs">
-          <button role="tab" data-value="all" aria-selected="true">全部</button>
-          {categories.map((c) => <button role="tab" data-value={c.slug} aria-selected="false">{c.name}</button>)}
-          <button role="tab" data-value="fav" aria-selected="false"><i data-xxd-icon="Star" data-size="14"></i>收藏<span class="xxd-count" id="atlas-fav-count" hidden></span></button>
+        <div class="xxd-tabs atlas-tabs" data-xxd-tabs aria-label={t("atlas.tabs")} id="atlas-tabs">
+          <button role="tab" data-value="all" aria-selected="true">{t("atlas.all")}</button>
+          {categories.map((c) => <button role="tab" data-value={c.slug} aria-selected="false" lang={L(c)}>{c.name}</button>)}
+          <button role="tab" data-value="fav" aria-selected="false"><i data-xxd-icon="Star" data-size="14"></i>{t("atlas.favs")}<span class="xxd-count" id="atlas-fav-count" hidden></span></button>
         </div>
         <div class="atlas-bar__tools">
-          <p class="atlas-count" id="atlas-count" aria-live="polite">{stats.layouts} 种</p>
-          <div class="xxd-segmented atlas-size" data-xxd-segmented aria-label="网格大小" id="atlas-size">
-            <button role="radio" data-value="s" aria-checked="false">小</button>
-            <button role="radio" data-value="m" aria-checked="true">中</button>
-            <button role="radio" data-value="l" aria-checked="false">大</button>
+          <p class="atlas-count" id="atlas-count" aria-live="polite">{t("js.count", { n: stats.layouts })}</p>
+          <div class="xxd-segmented atlas-size" data-xxd-segmented aria-label={t("atlas.size")} id="atlas-size">
+            <button role="radio" data-value="s" aria-checked="false">{t("atlas.size.s")}</button>
+            <button role="radio" data-value="m" aria-checked="true">{t("atlas.size.m")}</button>
+            <button role="radio" data-value="l" aria-checked="false">{t("atlas.size.l")}</button>
           </div>
         </div>
       </div>
       <div class="atlas-subs" id="atlas-subs" hidden>
         {categories.map((c) => (
-          <div class="atlas-subs__group" data-cat={c.slug} role="group" aria-label={`${c.name}的主题`} hidden>
-            <button class="xxd-chip" type="button" data-sub="" aria-pressed="true">全部主题</button>
-            {c.subs.map((s) => <button class="xxd-chip" type="button" data-sub={s.slug} aria-pressed="false">{s.name}</button>)}
+          <div class="atlas-subs__group" data-cat={c.slug} role="group" aria-labelledby={`cat-${c.slug}`} hidden>
+            <button class="xxd-chip" type="button" data-sub="" aria-pressed="true">{t("atlas.allSubs")}</button>
+            {c.subs.map((s) => <button class="xxd-chip" type="button" data-sub={s.slug} aria-pressed="false" lang={L(s)}>{s.name}</button>)}
           </div>
         ))}
         <div class="atlas-favbar" id="atlas-favbar" hidden>
-          <span>收藏只存在这个浏览器里。</span>
-          <button class="xxd-btn" data-size="sm" type="button" id="atlas-fav-copy"><i data-xxd-icon="Copy" data-size="16"></i>复制收藏清单</button>
+          <span>{t("atlas.favNote")}</span>
+          <button class="xxd-btn" data-size="sm" type="button" id="atlas-fav-copy"><i data-xxd-icon="Copy" data-size="16"></i>{t("atlas.favCopy")}</button>
         </div>
       </div>
     </div>
@@ -53,18 +61,18 @@ let n = 0;
     <div class="atlas-grid" id="atlas-grid">
       {categories.map((c) => (
         <section class="atlas-cat" data-cat={c.slug} aria-labelledby={`cat-${c.slug}`}>
-          <header class="atlas-cat__head">
+          <header class="atlas-cat__head" lang={L(c)}>
             <h2 id={`cat-${c.slug}`}><span class="atlas-cat__no">{c.no}</span>{c.name}</h2>
-            <p>{c.blurb}<span class="atlas-range">{c.range} · {c.count} 种</span></p>
+            <p>{c.blurb}<span class="atlas-range" lang={L(c) && A.locale.lang}>{c.range} · {t("js.count", { n: c.count })}</span></p>
           </header>
           {c.subs.map((s) => (
             <section class="atlas-sub" data-sub={s.slug} aria-labelledby={`sub-${s.slug}`}>
-              <header class="atlas-sub__head">
+              <header class="atlas-sub__head" lang={L(s)}>
                 <h3 id={`sub-${s.slug}`}>{s.name}</h3>
-                <p>{s.blurb}<span class="atlas-range">{s.range} · {s.ids.length} 种</span></p>
+                <p>{s.blurb}<span class="atlas-range" lang={L(s) && A.locale.lang}>{s.range} · {t("js.count", { n: s.ids.length })}</span></p>
               </header>
               <ul class="atlas-cards" role="list">
-                {s.ids.map((id) => <Card l={layoutById.get(id)!} eager={n++ < 8} />)}
+                {s.ids.map((id) => <Card A={A} l={layoutById.get(id)!} eager={n++ < 8} />)}
               </ul>
             </section>
           ))}
@@ -72,12 +80,12 @@ let n = 0;
       ))}
       <div class="xxd-empty atlas-empty" id="atlas-empty" hidden>
         <i data-xxd-icon="SearchX"></i>
-        <p class="xxd-empty__title" id="atlas-empty-title">没有找到</p>
-        <p class="xxd-empty__text" id="atlas-empty-text">换个词试试。</p>
-        <button class="xxd-btn" data-size="sm" type="button" id="atlas-empty-action">在全部分类里搜</button>
+        <p class="xxd-empty__title" id="atlas-empty-title"></p>
+        <p class="xxd-empty__text" id="atlas-empty-text"></p>
+        <button class="xxd-btn" data-size="sm" type="button" id="atlas-empty-action"></button>
       </div>
     </div>
   </div>
-  <script type="application/json" id="atlas-data" set:html={JSON.stringify(index)} />
-  <script src="../scripts/atlas-page.js"></script>
+  <script type="application/json" id="atlas-data" set:html={JSON.stringify(index).replace(/</g, "\\u003c")} />
+  <script src="../../scripts/atlas-page.js"></script>
 </Site>

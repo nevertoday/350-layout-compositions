@@ -10,6 +10,30 @@
 ::view-transition-old(root),
 ::view-transition-new(root) { animation-duration: var(--motion-quick); }
 
+/* 字体（DESIGN-PRINCIPLES §6）：只用系统字体；组件只写 --font-body、--font-title 这些用途令牌，换语言只换值。
+   简体、繁体、英文的值在 xxd 的 tokens.css 里。日文、韩文、阿拉伯文在这里补：先英文字体，再这种文字的系统字体，
+   不然日文落到苹方简体的字形，韩文、阿拉伯文落到浏览器随手挑的字体。俄文不用改：Avenir Next、Segoe UI 本身有西里尔字母。
+   写在 @layer 外面：令牌在 xxd.css 里不分层，分层的规则盖不过它们。 */
+:root {
+  --font-zh-cn: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", system-ui, sans-serif;
+}
+:root:lang(ja) {
+  --font-body: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", Meiryo, "Noto Sans JP", "Noto Sans CJK JP", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Hiragino Sans", "Yu Gothic UI", Meiryo, monospace;
+  --font-title: var(--font-body);
+}
+:root:lang(ko) {
+  --font-body: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Apple SD Gothic Neo", "Malgun Gothic", monospace;
+  --font-title: var(--font-body);
+}
+:root:lang(ar) {
+  --font-body: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, "Geeza Pro", "Noto Sans Arabic", Tahoma, system-ui, sans-serif;
+  --font-title: var(--font-body);
+}
+/* 别的语言页里写着 lang="zh-CN" 的字（海报上的中文原名、译文缺的地方）用简体中文的字形 */
+:root:not(:lang(zh-CN)) [lang="zh-CN"] { font-family: var(--font-zh-cn); }
+
 @layer site {
   :root { --site-max: 1280px; --site-pad: var(--space-6); --top-h: 56px; }
   html { scroll-padding-top: calc(var(--top-h) + var(--space-4)); }
@@ -25,6 +49,10 @@
   .site-search .xxd-input-wrap { width: 100%; }
   .site-tools { display: flex; flex: none; align-items: center; gap: var(--space-1); }
   .site-about[aria-current="page"] { color: var(--ink); background: var(--wash); }
+  .site-about__short { display: none; }
+  .site-langs .xxd-menu__item { min-width: 160px; }
+  .site-lang-banner { margin-bottom: var(--space-4); }
+  .site-lang-banner[hidden] { display: none; }
 
   .site-main { flex: 1; width: 100%; max-width: var(--site-max); margin-inline: auto; padding: var(--space-6) var(--site-pad) var(--space-8); }
   .site-foot { width: 100%; max-width: var(--site-max); margin-inline: auto; padding: var(--space-4) var(--site-pad) var(--space-8); border-top: 1px solid var(--line); color: var(--muted); font-size: var(--text-xs); line-height: var(--leading-sm); }
@@ -84,7 +112,7 @@
   .atlas-cards[data-size="s"] .xxd-card__title { font-size: var(--text-xs); line-height: var(--leading-xs); }
 
   /* 收藏：图片右上角的小方钮，悬停时出现；收藏了一直在、星是实心 */
-  .atlas-fav { top: var(--space-2); right: var(--space-2); bottom: auto; justify-content: center; width: 30px; padding: 0; }
+  .atlas-fav { top: var(--space-2); inset-inline: auto var(--space-2); bottom: auto; justify-content: center; width: 30px; padding: 0; }
   .atlas-fav[aria-pressed="true"] { opacity: 1; }
   [data-fav][aria-pressed="true"] svg { fill: currentColor; }
 
@@ -105,7 +133,7 @@
   .detail-poster__open:hover { border-color: var(--line-strong); }
   .detail-poster img { display: block; width: 100%; height: auto; aspect-ratio: 1086 / 1448; background: var(--thumb, none) center / cover no-repeat; view-transition-name: poster; }
   .detail-poster__hint {
-    position: absolute; right: var(--space-3); bottom: var(--space-3); display: inline-flex; align-items: center; gap: var(--space-1-5);
+    position: absolute; inset-inline-end: var(--space-3); bottom: var(--space-3); display: inline-flex; align-items: center; gap: var(--space-1-5);
     height: 30px; padding: 0 var(--space-3); background: var(--ink); color: var(--on-ink);
     font: var(--weight-medium) var(--text-xs) / 1 var(--font-body); opacity: 0; transition: opacity var(--motion-quick) ease;
   }
@@ -116,7 +144,10 @@
   .detail-info { min-width: 0; max-width: var(--read-width); }
   .detail-no { margin: 0; color: var(--muted); font: var(--weight-medium) var(--text-xs) / var(--leading-xs) var(--font-mono); font-variant-numeric: tabular-nums; }
   .detail-info h1 { margin: var(--space-1) 0 0; font: var(--weight-strong) var(--text-display) / var(--leading-display) var(--font-title); text-wrap: balance; }
-  .detail-en { margin: var(--space-1) 0 0; color: var(--muted); font-size: var(--text-base); line-height: var(--leading-sm); }
+  .detail-en { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--space-2); margin: var(--space-1) 0 0; color: var(--muted); font-size: var(--text-base); line-height: var(--leading-sm); }
+  .detail-en > span { unicode-bidi: isolate; }
+  .detail-en__label { color: var(--muted-2); font-size: var(--text-xs); }
+  .detail-en > [lang] + [lang]::before { content: "·"; margin-inline-end: var(--space-2); color: var(--muted-2); }
   .detail-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-5); }
   .detail-fav { min-width: 92px; }
   .detail-files { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--text-xs); line-height: var(--leading-sm); }
@@ -166,6 +197,13 @@
   .notfound { padding-block: var(--space-8); }
   .notfound h1 { margin: 0; }
 
+  /* ---------- 从右往左（阿拉伯文）：布局用逻辑属性自己翻过来；有方向的图标在这里翻 ---------- */
+  [dir="rtl"] .xxd-breadcrumbs > li + li::before { margin-inline: 0 var(--space-1-5); transform: scaleX(-1); }
+  [dir="rtl"] .detail-pn .ui-icon { transform: scaleX(-1); }
+  [dir="rtl"] .xxd-viewer__nav[data-dir="prev"] { right: var(--space-2); left: auto; }
+  [dir="rtl"] .xxd-viewer__nav[data-dir="next"] { left: var(--space-2); right: auto; }
+  [dir="rtl"] .xxd-viewer__nav .ui-icon { transform: scaleX(-1); }
+
   /* ---------- 窄屏 ---------- */
   @media (max-width: 1023px) {
     .detail-main { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-template-areas: "crumbs" "poster" "info"; }
@@ -178,7 +216,8 @@
     :root[data-grid="l"] { --card-min: 260px; }
     .atlas-cards[data-size="s"] { --card-min: 100px; }
     .site-top { gap: var(--space-2); }
-    .site-brand__name, .site-about__more, .site-gh { display: none; }
+    .site-brand__name, .site-about__full, .site-lang__name, .site-gh { display: none; }
+    .site-about__short { display: inline; }
     .site-search { margin-inline-start: 0; }
     .site-main { padding-top: var(--space-4); }
     .atlas-bar { position: static; }

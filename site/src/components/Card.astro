@@ -1,12 +1,13 @@
 ---
-// 一张海报卡：缩略图（3:4，懒加载，尺寸写死不跳）+ 编号和名称，整张可点；右上角的星标是收藏（favs.js 接管）。
-interface Props { l: { id: string; name: string; img: { thumb: string } }; eager?: boolean; current?: boolean }
-const { l, eager = false, current = false } = Astro.props;
+// 一张海报卡：缩略图（3:4，懒加载，尺寸写死不跳）+ 编号和名称，整张可点；右上角（从右往左的语言是左上角）的星标是收藏（favs.js 接管）。
+// lang：这一种的文字不是页面的语言时（译文缺这一种，用的中文）整张卡写上它的语言
+interface Props { A: { locale: { base: string; lang: string }; t: (k: string, v?: Record<string, string>) => string }; l: { id: string; name: string; lang: string; img: { thumb: string } }; eager?: boolean; current?: boolean }
+const { A, l, eager = false, current = false } = Astro.props;
 ---
-<li class="xxd-card atlas-card" data-interactive data-id={l.id}>
-  <a class="atlas-card__link" href={`/${l.id}/`} aria-current={current ? "page" : undefined}>
+<li class="xxd-card atlas-card" data-interactive data-id={l.id} lang={l.lang === A.locale.lang ? undefined : l.lang}>
+  <a class="atlas-card__link" href={`${A.locale.base}${l.id}/`} aria-current={current ? "page" : undefined}>
     <span class="xxd-card__media"><img src={l.img.thumb} width="480" height="640" alt="" loading={eager ? undefined : "lazy"} decoding="async" /></span>
     <span class="xxd-card__body"><span class="xxd-card__title"><span class="atlas-card__no">{l.id}</span>{l.name}</span></span>
   </a>
-  <button class="xxd-card__action atlas-fav" type="button" data-fav={l.id} data-name={l.name} aria-pressed="false" aria-label={`收藏 ${l.name}`}><i data-xxd-icon="Star" data-size="16"></i></button>
+  <button class="xxd-card__action atlas-fav" type="button" data-fav={l.id} data-name={l.name} aria-pressed="false" aria-label={A.t("js.fav.add", { name: l.name })}><i data-xxd-icon="Star" data-size="16"></i></button>
 </li>

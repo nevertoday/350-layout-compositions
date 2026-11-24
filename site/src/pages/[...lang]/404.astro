@@ -1,11 +1,20 @@
 ---
-import Site from "../layouts/Site.astro";
+// 找不到：每种语言一页。简体中文的是 /404.html；别的语言 Astro 先生成 /<语言>/404/index.html，
+// 构建完挪成 /<语言>/404.html（astro.config.mjs），Workers 静态资源按最近的 404.html 回。
+import Site from "../../layouts/Site.astro";
+import { atlases } from "../../data/atlas.js";
+
+export function getStaticPaths() {
+  return atlases().map((A) => ({ params: { lang: A.locale.path || undefined }, props: { A } }));
+}
+const { A } = Astro.props;
+const { t, locale: loc } = A;
 ---
-<Site title="找不到这一页">
+<Site A={A} title={t("notfound.title")}>
   <div class="xxd-empty notfound">
     <i data-xxd-icon="SearchX"></i>
-    <h1 class="xxd-empty__title">找不到这一页</h1>
-    <p class="xxd-empty__text">链接可能写错了，或者这一页换了地址。版式的地址是三位编号，比如 /042/。</p>
-    <a class="xxd-btn" data-variant="primary" href="/">回到图鉴</a>
+    <h1 class="xxd-empty__title">{t("notfound.title")}</h1>
+    <p class="xxd-empty__text">{t("notfound.text", { example: `${loc.base}042/` })}</p>
+    <a class="xxd-btn" data-variant="primary" href={loc.base}>{t("notfound.back")}</a>
   </div>
 </Site>

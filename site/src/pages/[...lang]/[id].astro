@@ -1,77 +1,93 @@
 ---
-// 详情页：左边大图（点开看原尺寸，有第二版的可以切换），右边编号、中英文名、定义、要点、用法、关键词和操作；
-// ← → 翻上一张 / 下一张；下面列同主题。没有释文的只是少几段字，页面照常。
-import Site from "../layouts/Site.astro";
-import Card from "../components/Card.astro";
-import { categoryBySlug, layoutById, layouts } from "../data/atlas.js";
+// 详情页：左边大图（点开看原尺寸，有第二版的可以切换），右边编号、名称（下面是海报上的中文原名和英文名）、定义、要点、用法、关键词和操作；
+// ← → 翻上一张 / 下一张（从右往左的语言反过来）；下面列同主题。没有释文的只是少几段字，页面照常。每种语言一页（简体中文在 /<编号>/）。
+import Site from "../../layouts/Site.astro";
+import Card from "../../components/Card.astro";
+import { atlases } from "../../data/atlas.js";
+import { SOURCE } from "../../i18n/locales.js";
 
 export function getStaticPaths() {
-  return layouts.map((l) => ({ params: { id: l.id } }));
+  return atlases().flatMap((A) => A.layouts.map((l) => ({ params: { lang: A.locale.path || undefined, id: l.id }, props: { A } })));
 }
-const l = layoutById.get(Astro.params.id)!;
-const cat = categoryBySlug.get(l.cat)!;
+const { A } = Astro.props;
+const { t, locale: loc } = A;
+const base = loc.base;
+const l = A.layoutById.get(Astro.params.id!)!;
+const cat = A.categoryBySlug.get(l.cat)!;
 const sub = cat.subs.find((s) => s.slug === l.sub)!;
-const prev = l.prev ? layoutById.get(l.prev) : undefined;
-const next = l.next ? layoutById.get(l.next) : undefined;
+const prev = l.prev ? A.layoutById.get(l.prev) : undefined;
+const next = l.next ? A.layoutById.get(l.next) : undefined;
+// 文字不是页面语言的（译文缺的，用的中文）写上它的语言
+const L = (x: { lang: string }) => (x.lang === loc.lang ? undefined : x.lang);
+const T = L(l);
+// 标签页标题、读屏名字、图片说明里的名称：这一种还没有译文时用海报英文名，没有英文名就只用编号（这些地方标不了语言）
+const label = T ? l.nameEn || l.id : l.name;
+const safe = (s: string) => s.replace(/[\\/:*?"<>|]+/g, " ").trim();
 const versions = [l.img, ...(l.second ? [l.second] : [])].map((v, i) => ({
   ...v,
-  label: i ? "第二版" : "第一版",
-  file: `${l.id}-${l.name}${i ? "-第二版" : ""}.webp`,
+  label: t(i ? "detail.v2" : "detail.v1"),
+  file: `${l.id}-${safe(label)}${i ? `-${safe(t("detail.v2"))}` : ""}.webp`,
 }));
+// 名称下面一行：简体中文页写海报英文名；别的语言写海报上的中文原名和英文名（英文页的名称就是英文名，只写中文）
+const orig = loc === SOURCE ? [] : [{ text: l.nameZh, lang: SOURCE.lang }, ...(l.nameEn && l.nameEn !== l.name ? [{ text: l.nameEn, lang: "en" }] : [])];
+const named = l.nameEn && l.nameEn !== l.name ? t("detail.nameWithEn", { name: l.name, en: l.nameEn }) : l.name;
 const description = l.summary
-  ? `${l.name}${l.nameEn ? `（${l.nameEn}）` : ""}：${l.summary}`
-  : `${l.name}：350 种排版第 ${l.id} 种，属于「${cat.name} · ${sub.name}」。看大图、下载高清图、复制构图提示词。`;
-const link = new URL(`/${l.id}/`, Astro.site).href;
-const viewer = { name: l.name, versions: versions.map((v) => ({ src: v.full, thumb: v.thumb, png: v.png, label: v.label, file: v.file })) };
+  ? t("detail.meta", { name: named, summary: l.summary })
+  : t("detail.metaNoText", { name: l.name, brand: t("site.brand"), id: l.id, cat: cat.name, sub: sub.name });
+const link = new URL(`${base}${l.id}/`, Astro.site).href;
+const viewer = { name: label, versions: versions.map((v) => ({ src: v.full, thumb: v.thumb, png: v.png, label: v.label, file: v.file })) };
+const kbd = '<kbd class="xxd-kbd">←</kbd> <kbd class="xxd-kbd">→</kbd>';
 ---
-<Site title={`${l.id} ${l.name}`} description={description} image={l.img.full} expect="poster">
+<Site A={A} path={`${l.id}/`} title={label === l.id ? label : `${l.id} ${label}`} description={description} image={l.img.full} expect="poster">
   <article class="detail" data-id={l.id}>
     <div class="detail-main">
-      <nav class="detail-crumbs" aria-label="位置">
+      <nav class="detail-crumbs" aria-label={t("detail.crumbs")}>
         <ol class="xxd-breadcrumbs">
-          <li><a href="/">图鉴</a></li>
-          <li><a href={`/?c=${cat.slug}`}>{cat.name}</a></li>
-          <li><a href={`/?c=${cat.slug}&s=${sub.slug}`}>{sub.name}</a></li>
+          <li><a href={base}>{t("detail.atlas")}</a></li>
+          <li lang={L(cat)}><a href={`${base}?c=${cat.slug}`}>{cat.name}</a></li>
+          <li lang={L(sub)}><a href={`${base}?c=${cat.slug}&s=${sub.slug}`}>{sub.name}</a></li>
         </ol>
       </nav>
       <figure class="detail-poster">
-        <button class="detail-poster__open" type="button" id="poster-open" aria-label={`看原尺寸：${l.name}`}>
-          <img id="poster" src={l.img.full} width={l.img.w} height={l.img.h} alt={`${l.name}的海报`} fetchpriority="high" decoding="async" style={`--thumb: url("${l.img.thumb}")`} />
-          <span class="detail-poster__hint" aria-hidden="true"><i data-xxd-icon="ZoomIn" data-size="16"></i>原尺寸</span>
+        <button class="detail-poster__open" type="button" id="poster-open" aria-label={t("detail.open", { name: label })}>
+          <img id="poster" src={l.img.full} width={l.img.w} height={l.img.h} alt={t("js.poster.alt", { name: label })} fetchpriority="high" decoding="async" style={`--thumb: url("${l.img.thumb}")`} />
+          <span class="detail-poster__hint" aria-hidden="true"><i data-xxd-icon="ZoomIn" data-size="16"></i>{t("js.viewer.actual")}</span>
         </button>
         {l.second && (
           <figcaption class="detail-poster__versions">
-            <div class="xxd-segmented" data-xxd-segmented aria-label="版本" id="poster-version">
+            <div class="xxd-segmented" data-xxd-segmented aria-label={t("detail.versions")} id="poster-version">
               {versions.map((v, i) => <button role="radio" data-value={String(i)} aria-checked={String(i === 0)}>{v.label}</button>)}
             </div>
-            <span>这一种生成过两次，两张都留着。</span>
+            <span>{t("detail.twoNote")}</span>
           </figcaption>
         )}
       </figure>
 
       <div class="detail-info">
-        <p class="detail-no">No. {l.id}</p>
-        <h1>{l.name}</h1>
-        {l.nameEn && <p class="detail-en" lang="en">{l.nameEn}</p>}
+        <p class="detail-no">{t("detail.no", { id: l.id })}</p>
+        <h1 lang={T}>{l.name}</h1>
+        {loc === SOURCE
+          ? l.nameEn && <p class="detail-en" lang="en">{l.nameEn}</p>
+          : <p class="detail-en"><span class="detail-en__label">{t("detail.onPoster")}</span>{orig.map((o) => <span lang={o.lang}>{o.text}</span>)}</p>}
 
         <div class="detail-actions">
-          <a class="xxd-btn" data-variant="primary" href={l.img.full} download={versions[0].file} id="dl"><i data-xxd-icon="Download" data-size="16"></i>下载高清图</a>
-          <button class="xxd-btn" type="button" data-copy={l.prompt} data-copy-done="已复制" data-copy-toast="已复制构图提示词：贴在作图提示词的末尾"><i data-xxd-icon="Copy" data-size="16"></i>复制构图提示词</button>
-          <button class="xxd-btn detail-fav" type="button" data-fav={l.id} aria-pressed="false"><i data-xxd-icon="Star" data-size="16"></i><span data-fav-label>收藏</span></button>
-          <button class="xxd-btn" type="button" data-icon-only data-copy={link} data-copy-done="已复制链接" aria-label="复制链接" data-tooltip="复制链接"><i data-xxd-icon="Link" data-size="16"></i></button>
+          <a class="xxd-btn" data-variant="primary" href={l.img.full} download={versions[0].file} id="dl"><i data-xxd-icon="Download" data-size="16"></i>{t("detail.download")}</a>
+          <button class="xxd-btn" type="button" data-copy={l.prompt} data-copy-done={t("detail.copied")} data-copy-toast={t("detail.copiedPrompt")}><i data-xxd-icon="Copy" data-size="16"></i>{t("detail.copyPrompt")}</button>
+          <button class="xxd-btn detail-fav" type="button" data-fav={l.id} aria-pressed="false"><i data-xxd-icon="Star" data-size="16"></i><span data-fav-label>{t("js.fav")}</span></button>
+          <button class="xxd-btn" type="button" data-icon-only data-copy={link} data-copy-done={t("detail.copiedLink")} aria-label={t("detail.copyLink")} data-tooltip={t("detail.copyLink")}><i data-xxd-icon="Link" data-size="16"></i></button>
         </div>
-        <p class="detail-files">WebP · {l.img.w} × {l.img.h} · <a href={l.img.png} id="png">原始 PNG</a>（GitHub）</p>
+        <p class="detail-files">WebP · {l.img.w} × {l.img.h} · <a href={l.img.png} id="png">{t("detail.png")}</a></p>
 
         {l.summary && (
           <section class="detail-sec">
-            <h2>定义</h2>
-            <p class="detail-summary">{l.summary}</p>
+            <h2>{t("detail.summary")}</h2>
+            <p class="detail-summary" lang={T}>{l.summary}</p>
           </section>
         )}
         {l.points.length > 0 && (
           <section class="detail-sec">
-            <h2>要点</h2>
-            <ol class="detail-points">
+            <h2>{t("detail.points")}</h2>
+            <ol class="detail-points" lang={T}>
               {l.points.map((p) => (
                 <li>
                   <p class="detail-points__title">{p.title}{p.en && <span lang="en">{p.en}</span>}</p>
@@ -83,47 +99,47 @@ const viewer = { name: l.name, versions: versions.map((v) => ({ src: v.full, thu
         )}
         {l.usage.items.length > 0 && (
           <section class="detail-sec">
-            <h2>{l.usage.title || "怎么用"}</h2>
-            <ul class="detail-usage">{l.usage.items.map((u) => <li>{u}</li>)}</ul>
+            {l.usage.title ? <h2 lang={T}>{l.usage.title}</h2> : <h2>{t("detail.usage")}</h2>}
+            <ul class="detail-usage" lang={T}>{l.usage.items.map((u) => <li>{u}</li>)}</ul>
           </section>
         )}
         {l.notes.length > 0 && (
           <section class="detail-sec">
-            <h2>海报上的其他说明</h2>
-            {l.notes.map((n) => <p>{n}</p>)}
+            <h2>{t("detail.notes")}</h2>
+            {l.notes.map((n) => <p lang={T}>{n}</p>)}
           </section>
         )}
         {l.keywords.length > 0 && (
           <section class="detail-sec">
-            <h2>关键词</h2>
-            <ul class="detail-keys" role="list">
-              {l.keywords.map((k) => <li><a class="xxd-chip" href={`/?q=${encodeURIComponent(k.zh || k.en)}`}>{k.zh}{k.en && <span lang="en">{k.en}</span>}</a></li>)}
+            <h2>{t("detail.keywords")}</h2>
+            <ul class="detail-keys" role="list" lang={T}>
+              {l.keywords.map((k) => <li><a class="xxd-chip" href={`${base}?q=${encodeURIComponent(k.term || k.en)}`}>{k.term}{k.en && <span lang="en">{k.en}</span>}</a></li>)}
             </ul>
           </section>
         )}
         <section class="detail-sec">
-          <h2>构图提示词</h2>
-          <p class="detail-prompt">{l.prompt}</p>
+          <h2>{t("detail.prompt")}</h2>
+          <p class="detail-prompt" lang={T}>{l.prompt}</p>
         </section>
 
-        <nav class="detail-pn" aria-label="上一张、下一张">
-          {prev ? <a rel="prev" href={`/${prev.id}/`}><span class="detail-pn__dir"><i data-xxd-icon="ArrowLeft" data-size="14"></i>上一张 · {prev.id}</span><span class="detail-pn__name">{prev.name}</span></a> : <span></span>}
-          {next ? <a rel="next" href={`/${next.id}/`}><span class="detail-pn__dir">{next.id} · 下一张<i data-xxd-icon="ArrowRight" data-size="14"></i></span><span class="detail-pn__name">{next.name}</span></a> : <span></span>}
+        <nav class="detail-pn" aria-label={t("detail.pn")}>
+          {prev ? <a rel="prev" href={`${base}${prev.id}/`}><span class="detail-pn__dir"><i data-xxd-icon="ArrowLeft" data-size="14"></i>{t("detail.prev")} · {prev.id}</span><span class="detail-pn__name" lang={L(prev)}>{prev.name}</span></a> : <span></span>}
+          {next ? <a rel="next" href={`${base}${next.id}/`}><span class="detail-pn__dir">{next.id} · {t("detail.next")}<i data-xxd-icon="ArrowRight" data-size="14"></i></span><span class="detail-pn__name" lang={L(next)}>{next.name}</span></a> : <span></span>}
         </nav>
-        <p class="detail-keyhint">键盘 <kbd class="xxd-kbd">←</kbd> <kbd class="xxd-kbd">→</kbd> 翻页</p>
+        <p class="detail-keyhint" set:html={t("detail.keys", { keys: kbd })} />
       </div>
     </div>
 
     <section class="detail-related" aria-labelledby="related-title">
       <header class="atlas-sub__head">
-        <h2 id="related-title">同主题 · {sub.name}</h2>
-        <p>{sub.blurb}<span class="atlas-range">{sub.range} · {sub.ids.length} 种</span></p>
+        <h2 id="related-title">{t("detail.related")} · <span lang={L(sub)}>{sub.name}</span></h2>
+        <p><span lang={L(sub)}>{sub.blurb}</span><span class="atlas-range">{sub.range} · {t("js.count", { n: sub.ids.length })}</span></p>
       </header>
       <ul class="atlas-cards" role="list" data-size="s">
-        {sub.ids.map((id) => <Card l={layoutById.get(id)!} current={id === l.id} />)}
+        {sub.ids.map((id) => <Card A={A} l={A.layoutById.get(id)!} current={id === l.id} />)}
       </ul>
     </section>
   </article>
-  <script type="application/json" id="detail-data" set:html={JSON.stringify(viewer)} />
-  <script src="../scripts/detail-page.js"></script>
+  <script type="application/json" id="detail-data" set:html={JSON.stringify(viewer).replace(/</g, "\\u003c")} />
+  <script src="../../scripts/detail-page.js"></script>
 </Site>

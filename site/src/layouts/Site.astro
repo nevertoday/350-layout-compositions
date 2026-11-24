@@ -1,23 +1,42 @@
 ---
-// 外壳：顶栏（标志 + 站名、搜索、关于与下载、外观、GitHub）、正文、页脚。界面全部用 xxd-ui-kit（public/xxd/）。
-// 顶栏的搜索是一个 GET 表单：在图鉴页边打边筛（atlas-page.js 接管），在别的页面回车跳到 /?q=。
+// 外壳：顶栏（标志 + 站名、搜索、关于与下载、语言、外观、GitHub）、正文、页脚。界面全部用 xxd-ui-kit（public/xxd/）。
+// 每种语言一套页面：A 是那种语言的数据和界面文字（atlas.js 的 atlasFor），path 是去掉语言前缀的地址（"" 首页、"001/"、"about/"；404 没有）。
+// 顶栏的搜索是一个 GET 表单：在图鉴页边打边筛（atlas-page.js 接管），在别的页面回车跳到这种语言的首页 ?q=。
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
-import { REPO_URL, layouts } from "../data/atlas.js";
+import { REPO_URL, UI_KEYS, atlases } from "../data/atlas.js";
+import { SOURCE } from "../i18n/locales.js";
 
 interface Props {
+  A: ReturnType<typeof atlases>[number];
+  path?: string; // 不带语言前缀、不带开头斜杠的地址；404 不传
   title?: string;
   description?: string;
   image?: string; // og:image，站内路径
   expect?: string; // 首帧前要先解析到的元素 id（跨页过渡的目标）
 }
-const BRAND = "350 种排版";
-const { title, description = "350 种排版和构图教学海报：按分类和主题找到一种版式，看清大图，下载高清图、复制构图提示词、收藏。", image = layouts[0].img.full, expect } = Astro.props;
-const fullTitle = title ? `${title} · ${BRAND}` : `${BRAND} · 拿来就用的版式工具箱`;
-// 404 页没有自己的地址，不写 canonical / og:url
-const canonical = /^\/404\/?$/.test(Astro.url.pathname) ? undefined : new URL(Astro.url.pathname, Astro.site).href;
-const ogImage = new URL(image, Astro.site).href;
+const { A, path, title, description = A.t("site.description"), image = A.layouts[0].img.full, expect } = Astro.props;
+const { locale: loc, t } = A;
+const brand = t("site.brand");
+const fullTitle = title ? `${title} · ${brand}` : `${brand} · ${t("site.tagline")}`;
+const all = atlases();
+// 404 页没有自己的地址：不写 canonical、og:url、hreflang；语言菜单指向各语言的首页
+const abs = (p: string) => new URL(p, Astro.site).href;
+const canonical = path === undefined ? undefined : abs(loc.base + path);
+const versions = all.map((a) => ({ loc: a.locale, href: a.locale.base + (path ?? "") }));
+const ogImage = abs(image);
+const license = `https://creativecommons.org/licenses/by/4.0/deed.${loc.cc}`;
+// 浏览器里要用的界面文字（键以 js. 开头的那些）和这种语言的首页地址
+const json = (x: unknown) => JSON.stringify(x).replace(/</g, "\\u003c");
+const client = { base: loc.base, t: Object.fromEntries(UI_KEYS.filter((k) => k.startsWith("js.")).map((k) => [k.slice(3), t(k)])) };
+// 简体中文首页：访客的浏览器语言（或者选过的语言）是另一种我们有的语言时，用那种语言提示一句，不自动跳
+const offers = loc === SOURCE && path === ""
+  ? Object.fromEntries(all.filter((a) => a.locale !== SOURCE).map((a) => [a.locale.code, {
+      href: a.locale.base, lang: a.locale.lang, dir: a.locale.dir,
+      text: a.t("site.lang.suggest", { language: a.locale.name }), action: a.t("site.lang.switch", { language: a.locale.name }), close: a.t("site.close"),
+    }]))
+  : undefined;
 // 静态文件带内容指纹（?v=）：改了就换地址
 const ver = (f: string) => createHash("sha256").update(readFileSync(join(process.cwd(), "public", f))).digest("hex").slice(0, 10);
 const asset = (f: string) => `/${f}?v=${ver(f)}`;
@@ -25,15 +44,17 @@ const GITHUB_MARK = '<svg width="16" height="16" viewBox="0 0 16 16" fill="curre
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang={loc.lang} dir={loc.dir}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {canonical && <link rel="canonical" href={canonical} />}
+    {canonical && versions.map((v) => <link rel="alternate" hreflang={v.loc.lang} href={abs(v.href)} />)}
+    {canonical && <link rel="alternate" hreflang="x-default" href={abs(SOURCE.base + path)} />}
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content={BRAND} />
+    <meta property="og:site_name" content={brand} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     {canonical && <meta property="og:url" content={canonical} />}
@@ -51,44 +72,100 @@ const GITHUB_MARK = '<svg width="16" height="16" viewBox="0 0 16 16" fill="curre
     <slot name="head" />
   </head>
   <body class="xxd-page">
-    <a class="xxd-sr-only-focusable" href="#main">跳到正文</a>
+    <a class="xxd-sr-only-focusable" href="#main">{t("site.skip")}</a>
     <header class="xxd-topbar site-top">
-      <a class="xxd-logo site-brand" href="/" aria-label={`${BRAND}：回到图鉴`}><span class="xxd-logo__mark" aria-hidden="true"></span><span class="site-brand__name">{BRAND}</span></a>
-      <form class="site-search" action="/" method="get" role="search" id="site-search">
+      <a class="xxd-logo site-brand" href={loc.base} aria-label={t("site.home", { brand })}><span class="xxd-logo__mark" aria-hidden="true"></span><span class="site-brand__name">{brand}</span></a>
+      <form class="site-search" action={loc.base} method="get" role="search" id="site-search">
         <div class="xxd-input-wrap">
           <i data-xxd-icon="Search" data-size="16"></i>
-          <input class="xxd-input" type="search" name="q" id="site-q" placeholder="搜索版式或编号" aria-label="搜索版式" autocomplete="off" enterkeyhint="search" />
-          <button class="xxd-input-clear" type="button" aria-label="清空"><i data-xxd-icon="X" data-size="14"></i></button>
+          <input class="xxd-input" type="search" name="q" id="site-q" placeholder={t("site.search.placeholder")} aria-label={t("site.search.label")} autocomplete="off" enterkeyhint="search" />
+          <button class="xxd-input-clear" type="button" aria-label={t("site.search.clear")}><i data-xxd-icon="X" data-size="14"></i></button>
         </div>
       </form>
       <div class="site-tools">
-        <a class="xxd-btn site-about" data-size="sm" data-variant="ghost" href="/about/" aria-current={Astro.url.pathname === "/about/" ? "page" : undefined}><span>关于<span class="site-about__more">与下载</span></span></a>
-        <button class="xxd-btn xxd-appearance-btn" data-size="sm" data-variant="ghost" data-icon-only type="button" data-xxd-popover="site-look" aria-label="外观" data-tooltip="外观" data-tooltip-placement="bottom">
+        <a class="xxd-btn site-about" data-size="sm" data-variant="ghost" href={`${loc.base}about/`} aria-current={path === "about/" ? "page" : undefined}><span class="site-about__short">{t("site.about")}</span><span class="site-about__full">{t("site.aboutFull")}</span></a>
+        <button class="xxd-btn site-lang" data-size="sm" data-variant="ghost" type="button" data-xxd-menu="site-langs" aria-label={`${t("site.lang")} · ${loc.name}`}>
+          <i data-xxd-icon="Languages" data-size="16"></i><span class="site-lang__name">{loc.name}</span>
+        </button>
+        <div class="xxd-menu site-langs" id="site-langs" role="menu" popover data-placement="bottom-end" data-carry={path === "" ? "" : undefined}>
+          {versions.map((v) => (
+            <a class="xxd-menu__item" role="menuitemradio" aria-checked={String(v.loc === loc)} href={v.href} hreflang={v.loc.lang} lang={v.loc.lang} dir={v.loc.dir} data-lang={v.loc.code}>{v.loc.name}</a>
+          ))}
+        </div>
+        <button class="xxd-btn xxd-appearance-btn" data-size="sm" data-variant="ghost" data-icon-only type="button" data-xxd-popover="site-look" aria-label={t("site.appearance")} data-tooltip={t("site.appearance")} data-tooltip-placement="bottom">
           <i class="xxd-appearance-btn__sun" data-xxd-icon="Sun" data-size="16"></i>
           <i class="xxd-appearance-btn__moon" data-xxd-icon="Moon" data-size="16"></i>
         </button>
         <div class="xxd-popover xxd-appearance-pop" id="site-look" popover data-placement="bottom-end"></div>
-        <a class="xxd-btn site-gh" data-size="sm" data-variant="ghost" data-icon-only href={REPO_URL} aria-label="GitHub 仓库" data-tooltip="GitHub 仓库" data-tooltip-placement="bottom-end" set:html={GITHUB_MARK} />
+        <a class="xxd-btn site-gh" data-size="sm" data-variant="ghost" data-icon-only href={REPO_URL} aria-label={t("site.github")} data-tooltip={t("site.github")} data-tooltip-placement="bottom-end" set:html={GITHUB_MARK} />
       </div>
     </header>
 
     <main id="main" class="site-main">
+      {offers && (
+        <div class="xxd-banner site-lang-banner" role="status" id="lang-banner" hidden>
+          <i data-xxd-icon="Languages"></i>
+          <p class="xxd-banner__title" id="lang-banner-text"></p>
+          <div class="xxd-banner__actions"><a class="xxd-btn" data-size="sm" id="lang-banner-go" href="/"></a></div>
+          <button class="xxd-btn xxd-banner__close" data-variant="ghost" data-icon-only data-size="xs" type="button" data-banner-close id="lang-banner-close"><i data-xxd-icon="X" data-size="14"></i></button>
+        </div>
+        <script is:inline type="application/json" id="lang-offers" set:html={json(offers)} />
+        <script is:inline>
+          // 在首帧之前决定要不要出横幅（不跳动）。选过语言（xxd-layout-lang）就按选的；没选过看浏览器的语言里第一个我们有的，是中文就不提示。关掉过的那种语言不再提示
+          (() => {
+            const offers = JSON.parse(document.getElementById("lang-offers").textContent);
+            const get = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+            const set = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+            const codeOf = (tag) => { const t = String(tag).toLowerCase(); return /^zh-(hant|tw|hk|mo)\b/.test(t) ? "zh-Hant" : t.split("-")[0]; };
+            let want = get("xxd-layout-lang");
+            if (!want) for (const tag of navigator.languages || [navigator.language]) { const c = codeOf(tag); if (c === "zh" || offers[c]) { want = c; break; } }
+            const o = offers[want];
+            if (!o || get("xxd-layout-lang-banner") === want) return;
+            const banner = document.getElementById("lang-banner");
+            const go = document.getElementById("lang-banner-go");
+            banner.lang = o.lang;
+            banner.dir = o.dir;
+            document.getElementById("lang-banner-text").textContent = o.text;
+            go.textContent = o.action;
+            go.href = o.href;
+            go.addEventListener("click", () => set("xxd-layout-lang", want));
+            const close = document.getElementById("lang-banner-close");
+            close.setAttribute("aria-label", o.close);
+            close.addEventListener("click", () => set("xxd-layout-lang-banner", want));
+            banner.hidden = false;
+          })();
+        </script>
+      )}
       <slot />
     </main>
     <footer class="site-foot">
-      <p>图片和数据按 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans">CC BY 4.0</a> 授权，转载请署名。源码和问题反馈在 <a href={REPO_URL}>GitHub</a>。做图找<a href="https://vip.xiaoxiaodong.ai/">小小东</a>。</p>
+      <p set:html={t("site.footer", { license, repo: REPO_URL, vip: "https://vip.xiaoxiaodong.ai/" })} />
     </footer>
 
+    <script is:inline type="application/json" id="site-ui" set:html={json(client)} />
     <script is:inline>
       (() => {
         const X = window.Xxd;
         if (!X) return;
-        X.mountAppearance(document.getElementById("site-look"), { lockCorners: true });
-        // 不在图鉴页时，搜索框回车就是普通的 GET /?q=；空着回车不跳
+        const ui = JSON.parse(document.getElementById("site-ui").textContent);
+        const labels = Object.fromEntries(Object.entries(ui.t).filter(([k]) => k.startsWith("appearance.")).map(([k, v]) => [k.slice(11), v]));
+        X.mountAppearance(document.getElementById("site-look"), { lockCorners: true, labels });
+        // 不在图鉴页时，搜索框回车就是普通的 GET <首页>?q=；空着回车不跳
         const form = document.getElementById("site-search");
         const input = document.getElementById("site-q");
         form.addEventListener("submit", (e) => { if (!input.value.trim()) e.preventDefault(); });
-        if (location.pathname !== "/") X.bindSearch(input, { hotkey: false });
+        if (location.pathname !== ui.base) X.bindSearch(input, { hotkey: false });
+        // 选了语言就记下来（简体中文首页的横幅按它提示）；在图鉴页切语言时带上分类、主题、收藏（搜索词是这种语言的字，不带）
+        const langs = document.getElementById("site-langs");
+        langs.addEventListener("click", (e) => {
+          const a = e.target.closest("[data-lang]");
+          if (!a) return;
+          try { localStorage.setItem("xxd-layout-lang", a.dataset.lang); } catch {}
+          if (!langs.hasAttribute("data-carry")) return;
+          const p = new URLSearchParams(location.search);
+          p.delete("q");
+          a.search = p.toString();
+        });
       })();
     </script>
   </body>
