@@ -10,6 +10,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const BASE = (process.argv[2] || "http://127.0.0.1:4420").replace(/\/$/, "");
+await fetch(BASE + "/").then((r) => { if (!r.ok) throw new Error(`${BASE} 返回 ${r.status}`); }).catch((e) => {
+  console.error(`连不上 ${BASE}：先 npm run preview（${e.message}）`);
+  process.exit(1);
+});
 const SHOTS = process.argv[3] || join(process.cwd(), ".build/shots");
 const CHROME = process.env.CHROME_EXE || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const PORT = 9333;

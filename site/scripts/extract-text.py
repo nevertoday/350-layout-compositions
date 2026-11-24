@@ -13,6 +13,11 @@ string the site shows must also appear in the independent check reading; a
 field the primary left empty is taken from the check reading when its text is
 nowhere in the primary. Strings only one reading has go to a third model with
 the poster, which returns the exact printed text or "" when it is not there.
+A correction is applied only when the judge's text matches the check
+reading's (two of three agree); otherwise the primary text stays.
+A "" is ignored when the other reading saw a similar line, and an answer that
+only adds surrounding text to the line, or only cuts 4+ characters from it,
+keeps the line.
 Rulings are cached in .cache/text/judge/<id>.json, the report is
 .cache/text/verify.md.
 
@@ -165,6 +170,12 @@ def everything(d):
     return norm(" ".join(t for _, t in strings(d)) + d.get("series", "") + d.get("tagline", ""))
 
 
+def within(short, long):
+    """Every character of short appears in long, in order."""
+    it = iter(long)
+    return all(ch in it for ch in short)
+
+
 def put(d, path, value):
     target = d
     for k in path[:-1]:
@@ -247,7 +258,14 @@ def verify(args):
                 unjudged.append(f"{pid}#{i}")
                 continue
             new = answer[i].strip()
-            if norm(new) == norm(x["text"]):
+            # The judge sometimes says "" for a line the other reading also saw, or quotes the
+            # surrounding block around a line it confirms; both mean the line is printed as is.
+            gone_but_seen = not norm(new) and x["alt"]
+            quoted_more = within(norm(x["text"]), norm(new)) and len(norm(new)) - len(norm(x["text"])) >= 4
+            cut_short = norm(new) and within(norm(new), norm(x["text"])) and len(norm(x["text"])) - len(norm(new)) >= 4
+            # A change needs two of three readings: the judge must land on what the check reading saw.
+            no_majority = norm(new) and norm(new) != norm(x["alt"])
+            if norm(new) == norm(x["text"]) or gone_but_seen or quoted_more or cut_short or no_majority:
                 kept += 1
                 continue
             put(final[pid], x["path"], new)
