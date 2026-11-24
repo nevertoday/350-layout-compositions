@@ -1,9 +1,12 @@
 // 在真浏览器里看网站：无头 Chrome（临时配置目录，跑完删掉、Chrome 关掉），通过 DevTools 协议驱动。
 //   node scripts/browser-check.mjs [网站地址] [截图目录]
-// 先 npm run preview（4420 端口），跑完自己关。做两件事：
-//   1. 截图：/、/001/、/196/、/about/、选了分类和主题的图鉴、往下滚过的图鉴，1440 和 390 宽，亮色和暗色
-//   2. 筛选：打字搜索、切分类、点主题、收藏一张、切到「收藏」、刷新、后退，每一步记下网址和看得见的卡片数，不对就退出码 1
+// 先 npx astro preview --port 4420 --host 127.0.0.1（不加 --host 只听 IPv6），跑完自己关。做这几件事：
+//   1. 截图：/、/001/、/196/、/about/、选了分类和主题的图鉴、往下滚过的图鉴，1440 和 390 宽，亮色和暗色；
+//      别的语言（构建里有的）：/en/、/en/001/、/ja/001/、/de/、/ar/、/ar/001/，1440 和 390 宽，亮色
+//   2. 筛选（简体中文和英文各一遍）：打字搜索、切分类、点主题、收藏一张、切到「收藏」、刷新、后退，每一步记下网址和看得见的卡片数，不对就退出码 1
 //   3. 详情页切第二版、打开查看器、→ 翻页；从图鉴点进详情时缩略图放大成大图，减少动效时不放大
+//   4. 语言：在详情页用语言菜单换到英文，落在同一个编号；在图鉴换语言带上分类；浏览器是英文时简体中文首页出横幅，关掉就不再出；
+//      阿拉伯文从右往左（大图在右、面包屑的箭头翻过来、← 是下一张）
 import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -92,11 +95,14 @@ async function shot(name) {
 
 // ---------- 1. 截图 ----------
 const pages = [["home", "/"], ["001", "/001/"], ["196", "/196/"], ["about", "/about/"], ["category", "/?c=01-composition-logic&s=classic-rules"], ["scrolled", "/?c=05-web-ui", 1600]];
+const has = async (path) => (await fetch(BASE + path)).ok;
+const localePages = [];
+for (const path of ["/en/", "/en/001/", "/ja/001/", "/de/", "/ar/", "/ar/001/"]) if (await has(path)) localePages.push([path.replace(/^\/|\/$/g, "").replace("/", "-"), path]);
 const files = [];
 for (const width of [1440, 390]) {
   for (const scheme of ["light", "dark"]) {
     await setView(width, scheme);
-    for (const [name, path, y] of pages) {
+    for (const [name, path, y] of [...pages, ...(scheme === "light" ? localePages : [])]) {
       await go(BASE + path);
       if (y) { await js(`scrollTo(0, ${y})`); await settle(); }
       files.push(await shot(`${name}-${width}-${scheme}`));
@@ -127,45 +133,51 @@ async function step(label, expect) {
   if (problem) failures.push(`${label}：${problem}（网址 ${row.url}，卡片 ${row.cards}）`);
 }
 
-await go(BASE + "/");
-await js(`localStorage.clear()`);
-await go(BASE + "/");
-await step("打开图鉴", (r) => (r.cards === 350 && r.url === "/" ? "" : "应该是 / 和 350 张"));
-await click("#site-q");
-await send("Input.insertText", { text: "网格" });
-await sleep(200);
-await step("搜索「网格」", (r) => (r.url === "/?q=网格" && r.cards > 0 && r.cards < 350 ? "" : "网址应带 q，卡片变少"));
-const searched = steps.at(-1).cards;
-await click('#atlas-tabs [data-value="04-type-grid-cjk"]');
-await step("切到「字体、网格与东亚文字」", (r) => (r.url === "/?c=04-type-grid-cjk&q=网格" && r.cards > 0 && r.cards <= searched ? "" : "网址应带 c 和 q"));
-await click('.atlas-subs__group[data-cat="04-type-grid-cjk"] [data-sub="grid-systems"]');
-await step("点主题「网格系统」", (r) => (r.url === "/?c=04-type-grid-cjk&s=grid-systems&q=网格" && r.cards > 0 ? "" : "网址应带 s"));
-const first = await js(`document.querySelector("#atlas-grid .atlas-card:not([hidden])").dataset.id`);
-await click(`#atlas-grid .atlas-card[data-id="${first}"] .atlas-fav`);
-const stored = await js(`localStorage.getItem("xxd-layout-fav")`);
-const pressed = await js(`document.querySelector('#atlas-grid .atlas-card[data-id="${first}"] .atlas-fav').getAttribute("aria-pressed")`);
-steps.push({ label: `收藏 ${first}`, url: await url(), cards: await visible(), stored, pressed });
-if (stored !== JSON.stringify([first]) || pressed !== "true") failures.push(`收藏没存上：localStorage=${stored}，aria-pressed=${pressed}`);
-await click('#atlas-tabs [data-value="fav"]');
-await step("切到「收藏」", (r) => (r.url === "/?fav=1&q=网格" && r.cards === 1 ? "" : "应该只剩收藏的 1 张"));
-const reloaded = once("Page.loadEventFired");
-await send("Page.reload");
-await reloaded;
-await settle();
-await step("刷新", (r) => (r.url === "/?fav=1&q=网格" && r.cards === 1 ? "" : "刷新后应该还是收藏的 1 张"));
-const restored = await js(`({ tab: document.querySelector('#atlas-tabs [aria-selected="true"]').dataset.value, q: document.getElementById("site-q").value, count: document.getElementById("atlas-count").textContent })`);
-steps.at(-1).restored = restored;
-if (restored.tab !== "fav" || restored.q !== "网格") failures.push(`刷新后界面没恢复：${JSON.stringify(restored)}`);
-await js(`history.back()`);
-await sleep(300);
-await step("后退", (r) => (r.url === "/?c=04-type-grid-cjk&s=grid-systems&q=网格" ? "" : "后退应回到主题"));
-await click("#site-q");
-await js(`document.getElementById("site-q").select()`);
-await send("Input.insertText", { text: "zzzz" });
-await sleep(200);
-const empty = await js(`!document.getElementById("atlas-empty").hidden && document.getElementById("atlas-empty-title").textContent`);
-await step("搜不到", (r) => (r.cards === 0 && empty ? "" : "应该显示空状态"));
-steps.at(-1).empty = empty;
+// 一种语言的图鉴（base 是它的首页）里走一遍筛选；term 是这种语言里能搜到「网格系统」那几张的词
+async function filterFlow(base, term) {
+  const at = (s) => `[${base}] ${s}`;
+  await go(BASE + base);
+  await js(`localStorage.clear()`);
+  await go(BASE + base);
+  await step(at("打开图鉴"), (r) => (r.cards === 350 && r.url === base ? "" : `应该是 ${base} 和 350 张`));
+  await click("#site-q");
+  await send("Input.insertText", { text: term });
+  await sleep(200);
+  await step(at(`搜索「${term}」`), (r) => (r.url === `${base}?q=${term}` && r.cards > 0 && r.cards < 350 ? "" : "网址应带 q，卡片变少"));
+  const searched = steps.at(-1).cards;
+  await click('#atlas-tabs [data-value="04-type-grid-cjk"]');
+  await step(at("切到分类 04"), (r) => (r.url === `${base}?c=04-type-grid-cjk&q=${term}` && r.cards > 0 && r.cards <= searched ? "" : "网址应带 c 和 q"));
+  await click('.atlas-subs__group[data-cat="04-type-grid-cjk"] [data-sub="grid-systems"]');
+  await step(at("点主题 grid-systems"), (r) => (r.url === `${base}?c=04-type-grid-cjk&s=grid-systems&q=${term}` && r.cards > 0 ? "" : "网址应带 s"));
+  const first = await js(`document.querySelector("#atlas-grid .atlas-card:not([hidden])").dataset.id`);
+  await click(`#atlas-grid .atlas-card[data-id="${first}"] .atlas-fav`);
+  const stored = await js(`localStorage.getItem("xxd-layout-fav")`);
+  const pressed = await js(`document.querySelector('#atlas-grid .atlas-card[data-id="${first}"] .atlas-fav').getAttribute("aria-pressed")`);
+  steps.push({ label: at(`收藏 ${first}`), url: await url(), cards: await visible(), stored, pressed });
+  if (stored !== JSON.stringify([first]) || pressed !== "true") failures.push(at(`收藏没存上：localStorage=${stored}，aria-pressed=${pressed}`));
+  await click('#atlas-tabs [data-value="fav"]');
+  await step(at("切到「收藏」"), (r) => (r.url === `${base}?fav=1&q=${term}` && r.cards === 1 ? "" : "应该只剩收藏的 1 张"));
+  const reloaded = once("Page.loadEventFired");
+  await send("Page.reload");
+  await reloaded;
+  await settle();
+  await step(at("刷新"), (r) => (r.url === `${base}?fav=1&q=${term}` && r.cards === 1 ? "" : "刷新后应该还是收藏的 1 张"));
+  const restored = await js(`({ tab: document.querySelector('#atlas-tabs [aria-selected="true"]').dataset.value, q: document.getElementById("site-q").value, count: document.getElementById("atlas-count").textContent })`);
+  steps.at(-1).restored = restored;
+  if (restored.tab !== "fav" || restored.q !== term) failures.push(at(`刷新后界面没恢复：${JSON.stringify(restored)}`));
+  await js(`history.back()`);
+  await sleep(300);
+  await step(at("后退"), (r) => (r.url === `${base}?c=04-type-grid-cjk&s=grid-systems&q=${term}` ? "" : "后退应回到主题"));
+  await click("#site-q");
+  await js(`document.getElementById("site-q").select()`);
+  await send("Input.insertText", { text: "zzzz" });
+  await sleep(200);
+  const empty = await js(`!document.getElementById("atlas-empty").hidden && document.getElementById("atlas-empty-title").textContent`);
+  await step(at("搜不到"), (r) => (r.cards === 0 && empty ? "" : "应该显示空状态"));
+  steps.at(-1).empty = empty;
+}
+await filterFlow("/", "网格");
+if (await has("/en/")) await filterFlow("/en/", "grid");
 
 // 详情页：切第二版、打开查看器、→ 翻页
 await go(BASE + "/196/");
@@ -202,6 +214,84 @@ const vtReduced = await morph(true);
 steps.push({ label: "跨页过渡", normal: vt, reducedMotion: vtReduced });
 if (!vt || !vt.includes("::view-transition-old(poster)") || !vt.includes("::view-transition-new(poster)")) failures.push(`缩略图没有放大成大图：${JSON.stringify(vt)}`);
 if (vtReduced) failures.push(`减少动效时还有过渡：${JSON.stringify(vtReduced)}`);
+
+// ---------- 4. 语言 ----------
+async function pickLanguage(code) {
+  await click(".site-lang");
+  await sleep(200);
+  const open = await js(`document.getElementById("site-langs").matches(":popover-open")`);
+  const nav = once("Page.loadEventFired");
+  await click(`#site-langs [data-lang="${code}"]`);
+  await Promise.race([nav, sleep(3000)]);
+  await settle();
+  return open;
+}
+if (await has("/en/")) {
+  await setView(1440, "light");
+  // 详情页换语言：落在同一个编号，记下选的语言
+  await go(BASE + "/196/");
+  await js(`localStorage.clear()`);
+  const menuOpen = await pickLanguage("en");
+  const landed = await js(`({ path: location.pathname, lang: document.documentElement.lang, chosen: localStorage.getItem("xxd-layout-lang") })`);
+  steps.push({ label: "详情页换到英文", menuOpen, ...landed });
+  if (!menuOpen) failures.push("点语言按钮没打开菜单");
+  if (landed.path !== "/en/196/" || landed.lang !== "en") failures.push(`详情页换到英文应该落在 /en/196/（lang=en）：${landed.path}（lang=${landed.lang}）`);
+  if (landed.chosen !== "en") failures.push(`换语言没记下来：${landed.chosen}`);
+  // 图鉴换语言：带上分类和主题，不带搜索词（那是另一种语言的字）
+  await go(BASE + "/?c=05-web-ui&q=网格");
+  await pickLanguage("en");
+  const carried = await js(`location.pathname + location.search`);
+  steps.push({ label: "图鉴换到英文", carried });
+  if (carried !== "/en/?c=05-web-ui") failures.push(`图鉴换语言应该带上分类、不带搜索词：${carried}`);
+
+  // 浏览器首选英文：简体中文首页出英文横幅，指向 /en/；关掉以后刷新不再出。浏览器首选中文：不出
+  const ua = await js(`navigator.userAgent`);
+  const banner = () => js(`(() => { const b = document.getElementById("lang-banner"); return b && !b.hidden ? { lang: b.lang, text: document.getElementById("lang-banner-text").textContent, href: document.getElementById("lang-banner-go").getAttribute("href") } : null; })()`);
+  await send("Emulation.setUserAgentOverride", { userAgent: ua, acceptLanguage: "en-US,en,zh-CN" });
+  await go(BASE + "/");
+  await js(`localStorage.clear()`);
+  await go(BASE + "/");
+  const shown = await banner();
+  if (shown) { await click("#lang-banner-close"); await sleep(400); }
+  await go(BASE + "/");
+  const afterClose = await banner();
+  await send("Emulation.setUserAgentOverride", { userAgent: ua, acceptLanguage: "zh-CN,zh,en" });
+  await js(`localStorage.clear()`);
+  await go(BASE + "/");
+  const zhBrowser = await banner();
+  steps.push({ label: "语言横幅", shown, afterClose, zhBrowser });
+  if (!shown || shown.lang !== "en" || shown.href !== "/en/") failures.push(`浏览器是英文时首页应该出英文横幅：${JSON.stringify(shown)}`);
+  if (afterClose) failures.push("关掉横幅后刷新又出来了");
+  if (zhBrowser) failures.push(`浏览器是中文时不该出横幅：${JSON.stringify(zhBrowser)}`);
+}
+if (await has("/ar/196/")) {
+  // 阿拉伯文从右往左：大图在右、面包屑的箭头翻过来、卡片的星标在左上；← 是下一张
+  await setView(1440, "light");
+  await go(BASE + "/ar/196/");
+  const rtl = await js(`(() => {
+    const r = (el) => el.getBoundingClientRect();
+    const poster = r(document.getElementById("poster")), info = r(document.querySelector(".detail-info"));
+    const card = document.querySelector(".detail-related .atlas-card"), star = r(card.querySelector(".atlas-fav"));
+    return {
+      dir: document.documentElement.dir,
+      direction: getComputedStyle(document.body).direction,
+      posterOnRight: poster.left > info.left,
+      chevron: getComputedStyle(document.querySelector(".xxd-breadcrumbs > li + li"), "::before").transform,
+      starOnLeft: star.left - r(card).left < r(card).right - star.right,
+    };
+  })()`);
+  const nav = once("Page.loadEventFired");
+  await send("Input.dispatchKeyEvent", { type: "keyDown", key: "ArrowLeft", code: "ArrowLeft", windowsVirtualKeyCode: 37 });
+  await send("Input.dispatchKeyEvent", { type: "keyUp", key: "ArrowLeft", code: "ArrowLeft", windowsVirtualKeyCode: 37 });
+  await Promise.race([nav, sleep(3000)]);
+  rtl.arrowLeft = await js(`location.pathname`);
+  steps.push({ label: "阿拉伯文", ...rtl });
+  if (rtl.dir !== "rtl" || rtl.direction !== "rtl") failures.push(`阿拉伯文应该从右往左：dir=${rtl.dir}，direction=${rtl.direction}`);
+  if (!rtl.posterOnRight) failures.push("阿拉伯文的大图应该在右边");
+  if (!/^matrix\(-1,/.test(rtl.chevron)) failures.push(`阿拉伯文面包屑的箭头没有翻过来：${rtl.chevron}`);
+  if (!rtl.starOnLeft) failures.push("阿拉伯文卡片的星标应该在左上");
+  if (rtl.arrowLeft !== "/ar/197/") failures.push(`阿拉伯文里 ← 应该翻到下一张 /ar/197/：${rtl.arrowLeft}`);
+}
 
 for (const s of steps) console.log(JSON.stringify(s));
 for (const e of errors) failures.push(`页面报错：${String(e).split("\n")[0]}`);
