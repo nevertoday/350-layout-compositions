@@ -5,7 +5,9 @@
 //   1. 六种屏幕：不横向溢出、有 viewport meta、没有报错、没有任何网络请求、内联字体都解得开；有 WebGL 画布的话滚完整页后每块都不是空白
 //   2. 减少动态效果（1440×900、390×844）：同上，画布也要画出静止的一帧
 //   3. 关掉 WebGL 再开一个 Chrome（1440×900、390×844）：没有报错、不溢出、正文还看得见
-// 截图在 .build/shots/：<id>-<宽>x<高>.png、<id>-full.png（滚完以后的整页）、<id>-reduced-*.png、<id>-nowebgl-*.png
+// 截图在 .build/shots/：<id>-<宽>x<高>.png（打开 0.9 秒时的第一屏）、<id>-reduced-*.png、<id>-nowebgl-*.png，
+//   和 <id>-tour-1440-NN.png、<id>-tour-390-NN.png：屏幕不变，一次往下滚一屏，等动画停了截一张（每种最多 20 张，页面更长就把间隔拉大）。
+//   不截整页长图：整页截图会把视口拉成整页那么高，100svh 的开场跟着变成几千像素高，看到的不是真样子。
 import { existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -24,6 +26,8 @@ const VIEWPORTS = [
   { width: 2560, height: 1440, dpr: 1, mobile: false },
 ];
 const SHORT = [VIEWPORTS[0], VIEWPORTS[3]];
+const TOUR = [VIEWPORTS[0], VIEWPORTS[3]];
+const TOUR_MAX = 20;
 
 const args = process.argv.slice(2);
 const onlyAt = args.indexOf("--only");
@@ -79,8 +83,8 @@ async function launch(extra = []) {
     await js(`document.fonts.ready.then(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))))`);
     await sleep(900);
   }
-  async function shot(name, full = false) {
-    const { data } = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: full });
+  async function shot(name) {
+    const { data } = await send("Page.captureScreenshot", { format: "png" });
     writeFileSync(join(SHOTS, `${name}.png`), Buffer.from(data, "base64"));
   }
   return { send, js, open, shot, page, kill };
@@ -107,14 +111,30 @@ const glCanvases = (b) =>
   })`);
 const readable = (b) => b.js(`document.body.innerText.replace(/\\s+/g, "").length`);
 
-async function visit(b, file, view, { reduced = false, name, full = false, webgl = true }) {
+// 一屏一屏往下滚，每屏等 CSS 动画、过渡走完（最多 1.5 秒）再截；最后停在页底，和 scrollThrough 一样
+async function tour(b, name) {
+  const { max, ih } = await b.js(`({ max: document.scrollingElement.scrollHeight - innerHeight, ih: innerHeight })`);
+  const step = Math.max(ih, max / (TOUR_MAX - 1));
+  for (let i = 0, y = 0; i < TOUR_MAX; i++, y = Math.min(max, y + step)) {
+    await b.js(`(async () => {
+      scrollTo(0, ${Math.round(y)});
+      const t0 = performance.now(), wait = (ms) => new Promise((r) => setTimeout(r, ms));
+      await wait(200);
+      while (performance.now() - t0 < 1500 && document.getAnimations().some((a) => a.playState === "running" && isFinite(a.effect?.getComputedTiming().endTime))) await wait(100);
+    })()`);
+    await b.shot(`${name}-${String(i + 1).padStart(2, "0")}`);
+    if (y >= max) break;
+  }
+}
+
+async function visit(b, file, view, { reduced = false, name, tourName, webgl = true }) {
   const issues = [];
   await b.open(file, view, reduced);
   if (!(await b.js(`!!document.querySelector('meta[name="viewport"]')`))) issues.push("没有 viewport meta");
   const before = await overflow(b);
   if (before) issues.push(`横向溢出 ${before}`);
   await b.shot(name);
-  await scrollThrough(b);
+  await (tourName ? tour(b, tourName) : scrollThrough(b));
   const after = await overflow(b);
   if (after && !before) issues.push(`滚到底后横向溢出 ${after}`);
   const gl = await glCanvases(b);
@@ -126,11 +146,6 @@ async function visit(b, file, view, { reduced = false, name, full = false, webgl
   if (broken.length) issues.push(`字体解不开：${broken.join("、")}`);
   const chars = await readable(b);
   if (chars < 20) issues.push(`看得见的字只有 ${chars} 个`);
-  if (full) {
-    await b.js(`scrollTo(0, 0)`);
-    await sleep(300);
-    await b.shot(name.replace(/-\d+x\d+$/, "-full"), true);
-  }
   issues.push(...b.page.problems);
   return { issues, gl: gl.length };
 }
@@ -149,7 +164,7 @@ const normal = await launch();
 if (!(await normal.js(`!!document.createElement("canvas").getContext("webgl2")`))) throw new Error("无头 Chrome 开不了 WebGL，查不了画布");
 for (const r of rows) {
   const file = join(DIST, r.file);
-  for (const v of VIEWPORTS) record(r, tag(v), await visit(normal, file, v, { name: `${r.id}-${tag(v)}`, full: v === VIEWPORTS[0] }));
+  for (const v of VIEWPORTS) record(r, tag(v), await visit(normal, file, v, { name: `${r.id}-${tag(v)}`, tourName: TOUR.includes(v) && `${r.id}-tour-${v.width}` }));
   for (const v of SHORT) record(r, `reduced ${tag(v)}`, await visit(normal, file, v, { reduced: true, name: `${r.id}-reduced-${tag(v)}` }));
 }
 normal.kill();
