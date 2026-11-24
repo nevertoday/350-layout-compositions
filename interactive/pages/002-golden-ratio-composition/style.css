@@ -90,6 +90,7 @@ button {
   color: var(--cream);
   background: transparent;
   border: 1px solid var(--line-strong);
+  min-height: 40px;
   padding: 0.75em 1.2em;
   cursor: pointer;
   transition: background-color 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease);
@@ -103,7 +104,7 @@ button:active { background: var(--gold); color: var(--ink); }
 .range output { font: 400 1.15em var(--num); color: var(--gold-hi); font-variant-numeric: tabular-nums; }
 input[type="range"] {
   -webkit-appearance: none; appearance: none;
-  width: 100%; height: 28px; margin: 0; background: transparent; cursor: pointer;
+  width: 100%; height: 40px; margin: 0; background: transparent; cursor: pointer;
 }
 input[type="range"]::-webkit-slider-runnable-track { height: 1px; background: var(--line-strong); }
 input[type="range"]::-moz-range-track { height: 1px; background: var(--line-strong); }
@@ -123,21 +124,21 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { background: var(--gold
 .seg legend, .steps legend { font-size: var(--f-1); color: var(--cream-2); letter-spacing: 0.06em; margin-bottom: var(--s-1); padding: 0; }
 .seg label { position: relative; flex: 1 1 auto; }
 .seg input, .steps input, .switch input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
-.seg span {
+.seg label > span {
   display: flex; align-items: baseline; justify-content: center; gap: 0.3em;
-  min-height: 2.6rem; padding: 0.55em 0.9em; margin: 0 -1px -1px 0;
+  min-height: 2.75rem; padding: 0.55em 0.9em; margin: 0 -1px -1px 0;
   border: 1px solid var(--line-strong);
   font: 400 1.05rem / 1.2 var(--num); font-variant-numeric: tabular-nums;
   color: var(--cream-2); cursor: pointer; white-space: nowrap;
   transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
 }
 .seg small { font: 400 0.68rem var(--sans); letter-spacing: 0.08em; opacity: 0.8; }
-.seg span:hover { color: var(--cream); background: var(--gold-dim); }
+.seg label > span:hover { color: var(--cream); background: var(--gold-dim); }
 .seg input:checked + span { background: var(--gold); color: var(--ink); }
 .seg input:focus-visible + span { outline: 2px solid var(--gold-hi); outline-offset: 2px; position: relative; z-index: 1; }
-.seg.small span { font-size: 0.92rem; min-height: 2.3rem; padding: 0.45em 0.7em; }
+.seg.small label > span { font-size: 0.92rem; min-height: 2.6rem; padding: 0.45em 0.7em; }
 
-.switch { position: relative; display: flex; align-items: center; gap: var(--s-1); cursor: pointer; font-size: var(--f-1); color: var(--cream-2); }
+.switch { position: relative; display: flex; align-items: center; min-height: 40px; gap: var(--s-1); cursor: pointer; font-size: var(--f-1); color: var(--cream-2); }
 .switch span { display: flex; align-items: center; gap: var(--s-1); }
 .switch span::before {
   content: ""; flex: none; width: 2.1rem; height: 1.15rem; border: 1px solid var(--line-strong); border-radius: 1rem;
@@ -221,6 +222,18 @@ h1 { font-size: min(15.4cqi, 6.854rem); letter-spacing: 0.02em; line-height: 1.0
   .hint { display: none; }
 }
 
+/* 上下排（竖屏、窄屏）：标题后面紧跟立体模型，1.618 : 1 和导语挪到模型下面，第一屏就能看到、摸到模型 */
+@media (max-width: 899.98px) and (orientation: portrait), (max-width: 639.98px) {
+  .hero { container-type: inline-size; gap: 0; }
+  .hero-text { display: contents; }
+  .kicker { margin-bottom: var(--s0); }
+  .hero-figure { order: 1; margin-top: var(--s1); }
+  .lockup { order: 2; margin: var(--s2) 0 var(--s1); }
+  .lede { order: 3; }
+  .toc { order: 4; margin-top: var(--s2); }
+}
+@media (max-width: 560px) { .stage { aspect-ratio: 1 / 1.1; } }
+
 /* ---------- 每一节 ---------- */
 main { display: block; }
 .sec { max-width: 1440px; margin: 0 auto; padding: var(--s4) var(--pad) 0; }
@@ -255,6 +268,15 @@ main { display: block; }
 .frac > span:first-child { border-bottom: 1px solid currentColor; padding: 0 0.25em 0.12em; }
 .frac > span:last-child { padding-top: 0.12em; }
 .eq { color: var(--gold); }
+/* φ、√ 的字形（glyphs.js 画的），盖在 Fraunces 里缺的字上 */
+.glyphs .gx {
+  display: inline-block; width: 0.62em; height: 1.243em; vertical-align: -0.26em; overflow: hidden;
+  line-height: 1.243em; text-align: center; -webkit-text-fill-color: transparent;
+  background: currentColor; -webkit-mask: var(--g) 0 0 / 100% 100% no-repeat; mask: var(--g) 0 0 / 100% 100% no-repeat;
+}
+.glyphs .gx-phi { --g: var(--glyph-phi); }
+.glyphs .gx-sqrt { --g: var(--glyph-sqrt); }
+.glyphs .rad { display: inline-block; line-height: 0.837em; border-top: 0.04em solid; padding-right: 0.06em; }
 
 /* 01 切一刀 */
 .cut .seg-a { stroke: var(--cream); stroke-width: 12; }
@@ -312,6 +334,7 @@ main { display: block; }
 .fib .tick-x.last { text-anchor: end; }
 .fib .phi { stroke: var(--gold); stroke-width: 2; stroke-dasharray: 8 7; }
 .fib .phi-label { font: italic 400 22px var(--num); fill: var(--gold-hi); text-anchor: end; }
+.fib .phi-glyph { fill: var(--gold-hi); }
 .fib .zig { fill: none; stroke: var(--cream-2); stroke-width: 1.5; stroke-linejoin: round; }
 .fib .dot { fill: var(--cream); transition: opacity 0.2s linear; }
 .fib .dot.off { opacity: 0; }
@@ -461,6 +484,10 @@ main { display: block; }
 
 .foot { max-width: 1440px; margin: var(--s4) auto 0; padding: var(--s1) var(--pad) var(--s2); border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s-1) var(--s1); font-size: var(--f-1); color: var(--muted); }
 .foot [lang="en"] { letter-spacing: 0.16em; text-transform: uppercase; font-size: 0.7rem; }
+.foot-meta { flex-basis: 100%; }
+.foot-meta a, .foot a { color: var(--cream-2); text-decoration-color: rgba(210, 174, 95, 0.4); padding-block: 12px; }
+.foot a:hover { color: var(--gold-hi); }
+.foot-meta .sep { margin-inline: 0.6em; }
 
 /* 放大看海报 */
 .zoom { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgba(6, 22, 17, 0.97); color: var(--cream); }

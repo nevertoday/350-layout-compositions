@@ -1,3 +1,4 @@
+import { initGlyphs } from "./glyphs.js";
 import { initHero } from "./hero.js";
 import { initCut } from "./cut.js";
 import { initLab } from "./lab.js";
@@ -6,6 +7,7 @@ import { initCompose } from "./compose.js";
 import { initDesign } from "./design.js";
 import { initPoster } from "./poster.js";
 
+initGlyphs();
 initHero();
 initCut();
 initLab();

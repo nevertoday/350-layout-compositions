@@ -34,7 +34,7 @@ i, em { font-family: var(--latin); }
 
 /* ---------- 按钮、滑块 ---------- */
 .btn {
-  display: inline-flex; align-items: center; gap: 0.55em; min-height: 44px; padding: 0.55em 1.15em;
+  display: inline-flex; flex: none; align-items: center; gap: 0.55em; min-height: 44px; padding: 0.55em 1.15em; white-space: nowrap;
   border: 0; border-radius: 999px; cursor: pointer; font-weight: 500; font-size: 0.95rem; line-height: 1;
   color: #1a1206; background: linear-gradient(180deg, #ffe7b3, #d9a956);
   box-shadow: 0 0 0 1px rgba(255, 231, 179, 0.4) inset, 0 8px 28px -10px rgba(242, 194, 107, 0.6);
@@ -45,7 +45,7 @@ i, em { font-family: var(--latin); }
 .btn.ghost { color: var(--gold-hi); background: rgba(10, 9, 12, 0.55); box-shadow: 0 0 0 1px var(--line-2) inset; }
 .btn:disabled { opacity: 0.35; cursor: default; transform: none; }
 
-input[type="range"] { -webkit-appearance: none; appearance: none; background: transparent; height: 32px; cursor: pointer; min-width: 0; }
+input[type="range"] { -webkit-appearance: none; appearance: none; background: transparent; height: 40px; cursor: pointer; min-width: 0; }
 input[type="range"]::-webkit-slider-runnable-track { height: 2px; background: linear-gradient(90deg, var(--gold), rgba(232, 189, 111, 0.25)); }
 input[type="range"]::-moz-range-track { height: 2px; background: rgba(232, 189, 111, 0.4); }
 input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -8px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #fff6dc, #e8bd6f 60%, #a77c3b); box-shadow: 0 0 14px rgba(242, 194, 107, 0.7); }
@@ -86,7 +86,8 @@ h1 {
 .hero-ctrl { grid-area: ctrl; position: relative; z-index: 1; }
 .ctrl-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
 .depth { display: flex; align-items: center; gap: 10px; flex: 1 1 110px; min-width: 0; max-width: 340px; font-size: 0.85rem; color: var(--mute); }
-.depth input { flex: 1; }
+.depth > span { white-space: nowrap; }
+.depth input { flex: 1; min-width: 72px; }
 .depth output { min-width: 4.6em; }
 .hint { margin: 0.9rem 0 0; max-width: 34em; font-size: 0.84rem; color: var(--mute); line-height: 1.8; }
 .hint i { color: var(--gold-hi); }
@@ -96,7 +97,7 @@ h1 {
 
 @media (min-aspect-ratio: 21/20) {
   .hero {
-    min-height: 100svh; grid-template-areas: "copy ." "ctrl ."; grid-template-columns: minmax(0, min(46%, 620px)) 1fr;
+    min-height: 100svh; grid-template-areas: "copy ." "ctrl ."; grid-template-columns: minmax(0, min(46%, 880px)) 1fr;
     grid-template-rows: 1fr auto; align-content: stretch; padding-top: max(40px, 7svh); padding-bottom: max(28px, 6svh);
   }
   .hero::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(90deg, rgba(7, 6, 9, 0.82) 0%, rgba(7, 6, 9, 0.45) 34%, transparent 58%); }
@@ -109,13 +110,16 @@ h1 {
   .hero { padding-top: 18px; padding-bottom: 14px; }
   .kicker { margin-bottom: 0.4rem; }
   .rule, .hint, .scroll { display: none; }
-  .lede { font-size: 0.82rem; line-height: 1.7; margin-top: 0.6rem; }
+  .lede { font-size: 0.82rem; line-height: 1.7; margin-top: 0.6rem; max-width: 26em; text-wrap: balance; }
+  .depth > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .depth output { min-width: 3.8em; }
   .hero .en { margin-top: 0.3rem; }
   .hero-ctrl { margin-top: 0.8rem; }
   .btn { min-height: 40px; padding: 0.45em 0.95em; font-size: 0.85rem; }
 }
 @media (max-aspect-ratio: 21/20) {
   .scroll { display: none; }
+  .depth { order: 1; flex-basis: 100%; max-width: none; } /* 竖屏一行放不下三样：滑块单独一行，不然被挤成一个点 */
   .hero-ctrl { margin-top: 4px; }
   .hero-stage { -webkit-mask-image: linear-gradient(transparent, #000 16%, #000 84%, transparent); mask-image: linear-gradient(transparent, #000 16%, #000 84%, transparent); }
 }
@@ -303,6 +307,10 @@ dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
 
 .foot { max-width: 1240px; margin: clamp(80px, 10vw, 140px) auto 0; padding: 26px var(--pad) max(36px, env(safe-area-inset-bottom)); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; border-top: 1px solid var(--line); font-size: 0.82rem; color: var(--mute); }
 .foot p { margin: 0; }
+.foot-meta { flex-basis: 100%; }
+.foot-meta a { color: var(--ink-2); text-decoration-color: var(--line-2); text-underline-offset: 0.2em; padding-block: 12px; }
+.foot-meta a:hover { color: var(--gold-hi); }
+.foot-meta .sep { margin-inline: 0.6em; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

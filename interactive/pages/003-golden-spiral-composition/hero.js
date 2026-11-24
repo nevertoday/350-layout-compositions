@@ -18,7 +18,8 @@ const GOLD = new Color("#f2c26b");
 export function hero({ stage, play, depth, depthOut, reset }) {
   const small = Math.min(innerWidth, innerHeight) < 560;
   const renderer = new WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-  renderer.setPixelRatio(pixelRatio());
+  const maxPr = small ? 1.5 : 2; // 手机上泛光是大头（每帧好几遍全屏模糊），像素比压到 1.5，发光的线照样细
+  renderer.setPixelRatio(pixelRatio(maxPr));
   renderer.setClearColor("#060509");
   stage.append(renderer.domElement);
 
@@ -164,11 +165,12 @@ export function hero({ stage, play, depth, depthOut, reset }) {
   const resize = () => {
     const { width: w, height: h } = stage.getBoundingClientRect();
     if (!w || !h) return;
-    const pr = pixelRatio();
+    const pr = pixelRatio(maxPr);
     renderer.setPixelRatio(pr);
     renderer.setSize(w, h, false);
     composer.setPixelRatio(pr);
     composer.setSize(w, h);
+    if (small) bloom.setSize(w * pr / 2, h * pr / 2); // 泛光本来就是糊的，手机上再降一半分辨率看不出来
     camera.aspect = w / h;
     portrait = w / h < 1.05;
     frame.rotation.z = portrait ? -QUARTER : 0;
@@ -176,10 +178,11 @@ export function hero({ stage, play, depth, depthOut, reset }) {
     const cx = X0 + PHI / 2, cy = Y0 + 0.5;
     const [mx, my] = portrait ? [cy, -cx] : [cx, cy];
     const rw = portrait ? 1 : PHI, rh = portrait ? PHI : 1;
-    const fill = portrait ? 0.84 : 0.7;
+    // 往里钻的时候画面每圈放大 φ 倍。竖屏窄，R0 先只占 56% 高，放大到头也才 91%：整条主螺旋一直在画面里
+    const fill = portrait ? 0.56 : 0.7;
     const vh = Math.max(rh / fill, rw / (camera.aspect > 1.3 ? 0.56 : fill) / camera.aspect);
     const dist = vh / 2 / Math.tan((camera.fov * Math.PI) / 360);
-    const shiftX = camera.aspect > 1.3 ? -vh * camera.aspect * 0.19 : 0; // 宽屏把螺旋推到右边，左边留给标题
+    const shiftX = camera.aspect > 1.3 ? -vh * camera.aspect * (camera.aspect > 1.9 ? 0.27 : 0.19) : portrait ? -vh * camera.aspect * 0.07 : 0; // 宽屏把螺旋推到右边，左边留给标题；横过来的手机更扁，推得更远，别压住导语；竖屏外圈往左出画，整体往右挪一点
     const shiftY = 0;
     camera.position.set(mx + shiftX, my + shiftY, dist);
     camera.lookAt(mx + shiftX, my + shiftY, 0);

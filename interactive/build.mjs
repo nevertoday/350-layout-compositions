@@ -145,6 +145,7 @@ async function bundle(entry, kind) {
     minify: true,
     treeShaking: true,
     legalComments: "eof",
+    charset: "utf8", // 汉字原样输出（默认会转成 \uXXXX，裁字体时就漏掉）
     loader: assetLoaders,
     logLevel: "silent",
     ...(kind === "js" ? { format: "iife", target: "es2022", platform: "browser" } : { target: "chrome100" }),

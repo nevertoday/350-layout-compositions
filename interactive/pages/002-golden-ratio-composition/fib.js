@@ -1,4 +1,5 @@
 import { PHI, setRange, svg, tween } from "./util.js";
+import { BOX, PHI_D } from "./glyphs.js";
 
 // 相邻斐波那契数之比 F(n+1)/F(n)，在 φ 上下来回跳着靠近
 export function initFib() {
@@ -21,7 +22,18 @@ export function initFib() {
   }
   for (const n of [1, 5, 10, 15, 20]) svg("text", { x: X(n), y: B + 30, class: `tick-x${n === 20 ? " last" : ""}` }, root).textContent = `n=${n}`;
   svg("line", { x1: L, x2: R, y1: Y(PHI), y2: Y(PHI), class: "phi" }, root);
-  svg("text", { x: R, y: Y(PHI) - 12, class: "phi-label" }, root).textContent = "φ = 1.6180…";
+  // 「φ = 1.6180…」：φ 用画出来的字形（Fraunces 没有 φ），斜体跟着字一起斜；字号随屏宽变，量完字再摆
+  const label = svg("text", { x: R, y: Y(PHI) - 12, class: "phi-label" }, root);
+  label.textContent = "= 1.6180…";
+  const glyph = svg("path", { d: PHI_D, class: "phi-glyph", "aria-hidden": "true" }, root);
+  const placeGlyph = () => {
+    const size = parseFloat(getComputedStyle(label).fontSize), k = size / 1000;
+    const x = R - label.getComputedTextLength() - 0.25 * size - BOX.w * k;
+    glyph.setAttribute("transform", `translate(${x} ${Y(PHI) - 12}) skewX(-10) scale(${k}) translate(0 ${-BOX.base})`);
+  };
+  placeGlyph();
+  document.fonts.ready.then(placeGlyph);
+  matchMedia("(max-width: 600px)").addEventListener("change", placeGlyph);
   const path = svg("polyline", { class: "zig" }, root);
   const dots = Array.from({ length: N }, (_, i) => svg("circle", { cx: X(i + 1), cy: Y(F[i + 1] / F[i]), r: 6, class: "dot" }, root));
   const ring = svg("circle", { r: 14, class: "ring" }, root);

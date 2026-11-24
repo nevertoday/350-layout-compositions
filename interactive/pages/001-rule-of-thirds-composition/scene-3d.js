@@ -45,10 +45,31 @@ function mountainGeometry(seed) {
   return g;
 }
 
-function wing(dir) {
+// 海鸥的剪影：一只翅膀分两节（上臂、手），中间折一下，再配一小块身子。
+// 只有一节的平板翅膀扇到某个角度会和视线平行、缩成一道横线；两节折着扇，任何时刻都是 V、M 或 ⌒。
+const tri = (...xy) => {
   const g = new BufferGeometry();
-  g.setAttribute("position", new Float32BufferAttribute([0, 0, 0, dir * 0.62, 0.2, 0, dir * 0.2, -0.07, 0], 3));
+  g.setAttribute("position", new Float32BufferAttribute(xy.flatMap(([x, y]) => [x, y, 0]), 3));
   return g;
+};
+const ARM = 0.3;
+const armGeo = (d) => tri([0, 0.035], [0, -0.06], [d * ARM, 0.015], [d * ARM, 0.015], [0, -0.06], [d * ARM, -0.02]);
+const handGeo = (d) => tri([0, 0.015], [0, -0.02], [d * 0.34, -0.035]);
+const bodyGeo = tri([0, 0.035], [0.03, -0.01], [0, -0.065], [0, -0.065], [-0.03, -0.01], [0, 0.035]);
+
+function bird(mat) {
+  const b = new Group();
+  b.add(new Mesh(bodyGeo, mat));
+  const wings = [-1, 1].map((d) => {
+    const shoulder = new Group();
+    const elbow = new Group();
+    elbow.position.x = d * ARM;
+    elbow.add(new Mesh(handGeo(d), mat));
+    shoulder.add(new Mesh(armGeo(d), mat), elbow);
+    b.add(shoulder);
+    return { d, shoulder, elbow };
+  });
+  return { b, wings };
 }
 
 export function createScene3D(host) {
@@ -98,14 +119,10 @@ export function createScene3D(host) {
   const birds = new Group();
   const birdMat = new MeshBasicMaterial({ color: PALETTE.ink, side: DoubleSide });
   const flock = [[0, 0], [1.05, -0.42], [0.38, -0.95]].map(([x, y], i) => {
-    const b = new Group();
-    const l = new Mesh(wing(-1), birdMat);
-    const r = new Mesh(wing(1), birdMat);
-    b.add(l, r);
+    const { b, wings } = bird(birdMat);
     b.position.set(x - 0.5, y + 0.45, 0);
-    b.userData = { l, r, phase: i * 1.7 };
     birds.add(b);
-    return b;
+    return { wings, phase: i * 1.7 };
   });
   scene.add(birds);
 
@@ -154,10 +171,15 @@ export function createScene3D(host) {
       atDistance(s.birds.u, s.birds.v, birdD, birds.position);
       birds.quaternion.copy(camera.quaternion);
       birds.scale.setScalar(birdD * TAN * 2 * 0.06);
-      for (const b of flock) {
-        const a = Math.sin(t * 7 + b.userData.phase) * 0.45;
-        b.userData.l.rotation.z = -a;
-        b.userData.r.rotation.z = a;
+      // 上臂在 0°–34° 之间扇；臂越平，手往下垂得越多（最多 40°）：任何时刻至少有一节折着 18° 以上
+      for (const { wings, phase } of flock) {
+        const k = Math.sin(t * 7 + phase);
+        const arm = 0.3 + 0.3 * k;
+        const hand = -0.35 + 0.35 * k;
+        for (const w of wings) {
+          w.shoulder.rotation.z = w.d * arm;
+          w.elbow.rotation.z = w.d * hand;
+        }
       }
       birds.position.addScaledVector(camera.up, Math.sin(t * 1.3) * 0.08);
 
