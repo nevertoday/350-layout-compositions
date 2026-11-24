@@ -84,14 +84,16 @@ const GITHUB_MARK = '<svg width="16" height="16" viewBox="0 0 16 16" fill="curre
       </form>
       <div class="site-tools">
         <a class="xxd-btn site-about" data-size="sm" data-variant="ghost" href={`${loc.base}about/`} aria-current={path === "about/" ? "page" : undefined}><span class="site-about__short">{t("site.about")}</span><span class="site-about__full">{t("site.aboutFull")}</span></a>
-        <button class="xxd-btn site-lang" data-size="sm" data-variant="ghost" type="button" data-xxd-menu="site-langs" aria-label={`${t("site.lang")} · ${loc.name}`}>
-          <i data-xxd-icon="Languages" data-size="16"></i><span class="site-lang__name">{loc.name}</span>
-        </button>
-        <div class="xxd-menu site-langs" id="site-langs" role="menu" popover data-placement="bottom-end" data-carry={path === "" ? "" : undefined}>
-          {versions.map((v) => (
-            <a class="xxd-menu__item" role="menuitemradio" aria-checked={String(v.loc === loc)} href={v.href} hreflang={v.loc.lang} lang={v.loc.lang} dir={v.loc.dir} data-lang={v.loc.code}>{v.loc.name}</a>
-          ))}
-        </div>
+        {versions.length > 1 && (
+          <button class="xxd-btn site-lang" data-size="sm" data-variant="ghost" type="button" data-xxd-menu="site-langs" aria-label={`${t("site.lang")} · ${loc.name}`}>
+            <i data-xxd-icon="Languages" data-size="16"></i><span class="site-lang__name">{loc.name}</span>
+          </button>
+          <div class="xxd-menu site-langs" id="site-langs" role="menu" popover data-placement="bottom-end" data-carry={path === "" ? "" : undefined}>
+            {versions.map((v) => (
+              <a class="xxd-menu__item" role="menuitemradio" aria-checked={String(v.loc === loc)} href={v.href} hreflang={v.loc.lang} lang={v.loc.lang} dir={v.loc.dir} data-lang={v.loc.code}>{v.loc.name}</a>
+            ))}
+          </div>
+        )}
         <button class="xxd-btn xxd-appearance-btn" data-size="sm" data-variant="ghost" data-icon-only type="button" data-xxd-popover="site-look" aria-label={t("site.appearance")} data-tooltip={t("site.appearance")} data-tooltip-placement="bottom">
           <i class="xxd-appearance-btn__sun" data-xxd-icon="Sun" data-size="16"></i>
           <i class="xxd-appearance-btn__moon" data-xxd-icon="Moon" data-size="16"></i>
@@ -157,7 +159,7 @@ const GITHUB_MARK = '<svg width="16" height="16" viewBox="0 0 16 16" fill="curre
         if (location.pathname !== ui.base) X.bindSearch(input, { hotkey: false });
         // 选了语言就记下来（简体中文首页的横幅按它提示）；在图鉴页切语言时带上分类、主题、收藏（搜索词是这种语言的字，不带）
         const langs = document.getElementById("site-langs");
-        langs.addEventListener("click", (e) => {
+        langs?.addEventListener("click", (e) => {
           const a = e.target.closest("[data-lang]");
           if (!a) return;
           try { localStorage.setItem("xxd-layout-lang", a.dataset.lang); } catch {}

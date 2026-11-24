@@ -28,8 +28,11 @@ const versions = [l.img, ...(l.second ? [l.second] : [])].map((v, i) => ({
   label: t(i ? "detail.v2" : "detail.v1"),
   file: `${l.id}-${safe(label)}${i ? `-${safe(t("detail.v2"))}` : ""}.webp`,
 }));
-// 名称下面一行：简体中文页写海报英文名；别的语言写海报上的中文原名和英文名（英文页的名称就是英文名，只写中文）
-const orig = loc === SOURCE ? [] : [{ text: l.nameZh, lang: SOURCE.lang }, ...(l.nameEn && l.nameEn !== l.name ? [{ text: l.nameEn, lang: "en" }] : [])];
+// 名称下面一行：名称是中文的（简体中文页、还没有译文的）写海报英文名；别的写海报上的中文原名和英文名（英文页的名称就是英文名，只写中文）
+const zhName = l.lang === SOURCE.lang;
+const orig = [{ text: l.nameZh, lang: SOURCE.lang }, ...(l.nameEn && l.nameEn !== l.name ? [{ text: l.nameEn, lang: "en" }] : [])];
+// 海报英文小字和这一条的字一样时（英文页的关键词）不重复
+const extra = (en: string, text: string) => (en && en.toLowerCase() !== text.toLowerCase() ? en : "");
 const named = l.nameEn && l.nameEn !== l.name ? t("detail.nameWithEn", { name: l.name, en: l.nameEn }) : l.name;
 const description = l.summary
   ? t("detail.meta", { name: named, summary: l.summary })
@@ -66,7 +69,7 @@ const kbd = '<kbd class="xxd-kbd">←</kbd> <kbd class="xxd-kbd">→</kbd>';
       <div class="detail-info">
         <p class="detail-no">{t("detail.no", { id: l.id })}</p>
         <h1 lang={T}>{l.name}</h1>
-        {loc === SOURCE
+        {zhName
           ? l.nameEn && <p class="detail-en" lang="en">{l.nameEn}</p>
           : <p class="detail-en"><span class="detail-en__label">{t("detail.onPoster")}</span>{orig.map((o) => <span lang={o.lang}>{o.text}</span>)}</p>}
 
@@ -90,7 +93,7 @@ const kbd = '<kbd class="xxd-kbd">←</kbd> <kbd class="xxd-kbd">→</kbd>';
             <ol class="detail-points" lang={T}>
               {l.points.map((p) => (
                 <li>
-                  <p class="detail-points__title">{p.title}{p.en && <span lang="en">{p.en}</span>}</p>
+                  <p class="detail-points__title">{p.title}{extra(p.en, p.title) && <span lang="en">{p.en}</span>}</p>
                   {p.body && <p>{p.body}</p>}
                 </li>
               ))}
@@ -113,7 +116,7 @@ const kbd = '<kbd class="xxd-kbd">←</kbd> <kbd class="xxd-kbd">→</kbd>';
           <section class="detail-sec">
             <h2>{t("detail.keywords")}</h2>
             <ul class="detail-keys" role="list" lang={T}>
-              {l.keywords.map((k) => <li><a class="xxd-chip" href={`${base}?q=${encodeURIComponent(k.term || k.en)}`}>{k.term}{k.en && <span lang="en">{k.en}</span>}</a></li>)}
+              {l.keywords.map((k) => <li><a class="xxd-chip" href={`${base}?q=${encodeURIComponent(k.term || k.en)}`}>{k.term}{extra(k.en, k.term) && <span lang="en">{k.en}</span>}</a></li>)}
             </ul>
           </section>
         )}
