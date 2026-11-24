@@ -29,7 +29,9 @@
 
 所有页面顶栏一样：小小东标志 + 站名、搜索、外观（亮 / 暗）、GitHub。
 
-**不做（第一版）**：测验、复习队列、研习路径、多语言、并排对比。它们服务的是「学」，我们先把「找、看、用」做好；以后真有人要再加。
+**不做（第一版）**：测验、复习队列、研习路径、并排对比。它们服务的是「学」，我们先把「找、看、用」做好；以后真有人要再加。
+
+**多语言**：11 种语言，简体中文在根上、地址不变，别的在 `/<语言>/` 下；海报图片不翻译，海报外面的字（界面、分类、名称、释文、构图提示词）都是页面的语言。约定见 `I18N.md`。
 
 ## 细节
 
@@ -45,5 +47,5 @@
 ## 技术
 
 - Astro 静态站，和小小东 VPS 教程站同一套：`site/` 目录，xxd-ui-kit 拷进 `public/xxd`。
-- 数据只从一个地方读：`src/data/atlas.js` 读 `v2/catalog.json`、`v2/taxonomy.json`（分类说明，由 `scripts/import-350.py` 导出）和 `src/data/poster-text.json`（释文）。
+- 数据只从一个地方读：`src/data/atlas.js` 读 `v2/catalog.json`、`v2/taxonomy.json`（分类说明，由 `scripts/import-350.py` 导出）和 `src/data/poster-text.json`（释文），还有译文 `src/i18n/ui/*.json`、`src/i18n/content/*.json`；`atlasFor(语言)` 给出那种语言的同样形状的数据。用别处的一套译文试：`XXD_I18N_DIR=<目录> npm run build`，检查时也设上。
 - 部署：Cloudflare Workers 静态资源，域名 `layout.xiaoxiaodong.ai`，`npm run release`。上线前要你点头。
