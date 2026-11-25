@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>231 浮动布局 · FLOAT LAYOUT — 350 种排版互动版</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top-bar">
+    <div class="top-bar__inner">
+      <span class="top-bar__cat"><span class="top-bar__dot" aria-hidden="true"></span>网页与 UI / CSS 流、定位与响应</span>
+      <span class="top-bar__code">NO. 231 · FLOAT LAYOUT</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== 首屏：忠实 231 原海报冰蓝骨架与活体浮块排字台 ==================== -->
+    <section class="hero" id="hero">
+      <div class="hero__inner">
+        <div class="hero-masthead">
+          <div class="hero-brand">
+            <div class="hero-title-row">
+              <h1 class="hero-title"><span class="hero-title__float-char">浮</span>动布局</h1>
+              <span class="hero-title-en">FLOAT LAYOUT</span>
+            </div>
+            <div class="poster-divider" aria-hidden="true">
+              <span class="poster-divider__bar"></span>
+              <span class="poster-divider__dots"></span>
+            </div>
+            <p class="hero-lead">浮动使元素脱离文档流，向左或向右移动，周围的内容会自动环绕摆放，形成包裹效果——直接拖动下方朱红浮块，亲手把这份 0/5 塌陷错版调回舒适的图文包裹。</p>
+          </div>
+
+          <div class="hero-emblem">
+            <svg class="iso-badge" id="hero-iso-svg" viewBox="0 0 180 100" aria-hidden="true">
+              <!-- 原海报标志性冰蓝斜影 + 亮朱红等轴测巨块 FLOAT + 绕行蓝虚线 -->
+              <g id="iso-lines" stroke="#6a99e9" stroke-width="2" stroke-dasharray="4 3" stroke-linecap="round">
+                <line x1="10" y1="22" x2="72" y2="22"/>
+                <line x1="10" y1="36" x2="72" y2="36"/>
+                <line x1="10" y1="50" x2="72" y2="50"/>
+                <line x1="10" y1="64" x2="72" y2="64"/>
+                <line x1="10" y1="78" x2="150" y2="78"/>
+              </g>
+              <g id="iso-cube-group">
+                <polygon points="88,72 132,92 170,74 126,56" fill="#b2dcff"/>
+                <polygon points="92,16 130,6 164,20 126,32" fill="#fd4319" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"/>
+                <polygon points="92,16 126,32 126,82 92,66" fill="#fd491f" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"/>
+                <polygon points="126,32 164,20 164,68 126,82" fill="#e42a0a" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"/>
+                <text x="109" y="55" fill="#ffffff" font-family="Bebas Neue, Outfit, sans-serif" font-size="18" letter-spacing="1" text-anchor="middle" transform="skewY(22) translate(0,-42)">FLOAT</text>
+              </g>
+            </svg>
+            <div class="hero-score-pill">
+              <span class="score-tag" id="hero-score-tag">0 / 5 错态</span>
+              <span class="score-sub" id="hero-score-sub">父框塌陷 · 窄道碎行</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-workspace">
+          <!-- 左列：原海报 5 枚深海军蓝圆徽实检清单 -->
+          <aside class="poster-checklist" id="hero-checklist" aria-label="原海报五项实时核验">
+            <!-- JS 依据 model.js 单一真源同步渲染 5 项 -->
+          </aside>
+
+          <!-- 右区：纯白活体 CSS 排字纸面 + 2D Canvas 实测标尺 + 控件 + 白话诊单与实时 CSS -->
+          <div class="stage-card">
+            <div class="stage-toolbar">
+              <div class="stage-caption">
+                <strong>活体排字池</strong>
+                <span>左右拖动朱红 FLOAT 块改占宽（或按 ← → 键），右侧标尺实时测量父框塌陷与行宽</span>
+              </div>
+              <div class="stage-quick-actions">
+                <button type="button" class="btn" id="btn-guides" aria-pressed="true">标尺透视：开</button>
+                <button type="button" class="btn" id="btn-preset-mismatch">试看右浮误清左</button>
+                <button type="button" class="btn btn--ghost" id="btn-preset-broken">复原错版</button>
+              </div>
+            </div>
+
+            <div class="tank-frame" id="tank-frame">
+              <canvas class="tank-canvas" id="tank-canvas" aria-hidden="true"></canvas>
+
+              <div class="float-parent" id="float-parent">
+                <span class="parent-tag" id="parent-tag">.article-box · 未清除</span>
+
+                <div
+                  class="float-cube"
+                  id="float-cube"
+                  data-perf-drag
+                  role="slider"
+                  tabindex="0"
+                  aria-label="左右拖动调整朱红浮动块占容器宽度百分比"
+                  aria-valuemin="16"
+                  aria-valuemax="80"
+                  aria-valuenow="74"
+                >
+                  <div class="float-cube__top">
+                    <span class="float-cube__chip" id="cube-dir-chip">float: left</span>
+                    <span class="float-cube__grip" id="cube-width-chip">↔ 74%</span>
+                  </div>
+                  <div class="float-cube__word">FLOAT</div>
+                  <div class="float-cube__foot">
+                    <span>按住左右拖宽</span>
+                    <span id="cube-px-chip">0px</span>
+                  </div>
+                </div>
+
+                <p class="wrap-prose" id="wrap-prose">浮动使元素脱离文档流，向左或向右移动，周围文字会自动环绕形成包裹效果。</p>
+
+                <div class="next-chapter" id="next-chapter">
+                  <span class="next-chapter__code" id="next-clear-chip">clear: none</span>
+                  <span id="next-chapter-text">下一节小标题：本应落在浮块正下方另起新章</span>
+                </div>
+              </div>
+
+              <div class="outside-footer" id="outside-footer">
+                <strong>父容器外部的后续版块</strong>
+                <span id="outside-footer-note">父框一旦塌陷，浮块底截就会探出虚线框压到这里</span>
+              </div>
+            </div>
+
+            <!-- 单体精炼四组原生控件 -->
+            <div class="controls-grid" aria-label="浮动布局参数控制">
+              <div class="ctrl-group">
+                <div class="ctrl-label">
+                  <span>浮动方向</span>
+                  <span class="ctrl-val" id="val-dir">left</span>
+                </div>
+                <div class="seg-row" role="group" aria-label="切换 float 方向">
+                  <button type="button" class="btn" data-dir="left" aria-pressed="true">左浮</button>
+                  <button type="button" class="btn" data-dir="right" aria-pressed="false">右浮</button>
+                  <button type="button" class="btn" data-dir="none" aria-pressed="false">不浮</button>
+                </div>
+              </div>
+
+              <div class="ctrl-group">
+                <div class="ctrl-label">
+                  <span>包裹留白 margin</span>
+                  <span class="ctrl-val" id="val-margin">0px</span>
+                </div>
+                <div class="seg-row" role="group" aria-label="切换外边距">
+                  <button type="button" class="btn" data-margin="0" aria-pressed="true">0px</button>
+                  <button type="button" class="btn" data-margin="16" aria-pressed="false">16px</button>
+                  <button type="button" class="btn" data-margin="24" aria-pressed="false">24px</button>
+                  <button type="button" class="btn" data-margin="44" aria-pressed="false">44px</button>
+                </div>
+              </div>
+
+              <div class="ctrl-group">
+                <div class="ctrl-label">
+                  <span>父框清除防塌陷</span>
+                  <span class="ctrl-val" id="val-contain">未清除</span>
+                </div>
+                <div class="seg-row" role="group" aria-label="切换父框清除浮动方案">
+                  <button type="button" class="btn" data-contain="none" aria-pressed="true">未清除</button>
+                  <button type="button" class="btn" data-contain="clearfix" aria-pressed="false">clearfix</button>
+                  <button type="button" class="btn" data-contain="flow-root" aria-pressed="false">flow-root</button>
+                </div>
+              </div>
+
+              <div class="ctrl-group">
+                <div class="ctrl-label">
+                  <span>下节避让 clear</span>
+                  <span class="ctrl-val" id="val-clear">none</span>
+                </div>
+                <div class="seg-row" role="group" aria-label="切换后续章节 clear 属性">
+                  <button type="button" class="btn" data-clear="none" aria-pressed="true">none</button>
+                  <button type="button" class="btn" data-clear="left" aria-pressed="false">left</button>
+                  <button type="button" class="btn" data-clear="right" aria-pressed="false">right</button>
+                  <button type="button" class="btn" data-clear="both" aria-pressed="false">both</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 白话诊单 + 实时 CSS 代码盒 -->
+            <div class="diag-strip">
+              <div class="diag-box is-error" id="hero-diag-box" aria-live="polite">
+                <div class="diag-top">
+                  <span class="diag-badge" id="diag-badge">错态 · 父框塌陷</span>
+                  <span class="diag-metrics" id="diag-metrics">父框 0px · 塌陷 0px · 最短行 0 字</span>
+                </div>
+                <h2 class="diag-title" id="diag-title">正在实测当前浮动盒模型……</h2>
+                <p class="diag-body" id="diag-body"></p>
+                <p class="diag-hint" id="diag-hint"></p>
+              </div>
+              <div class="css-live">
+                <div class="css-live__head">
+                  <span>LIVE CSS DECLARATION</span>
+                  <span id="css-pass-count">0 / 5</span>
+                </div>
+                <pre id="css-live-pre"></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 底沿：原海报同款深蓝折角「要点速记」+ 朱红竖杠 5 关键词 + 9×3 淡蓝点阵 -->
+        <div class="poster-ribbon">
+          <div class="ribbon-left">
+            <span class="ribbon-tag">要点速记</span>
+            <ul class="ribbon-keywords">
+              <li>脱离文档流</li>
+              <li>左右浮动</li>
+              <li>文字环绕</li>
+              <li>清除浮动</li>
+              <li>恢复布局</li>
+            </ul>
+          </div>
+          <div class="poster-dot-matrix" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 01 节：脱离块流，只让行盒绕道 ==================== -->
+    <section class="section section--white" id="sec-01">
+      <div class="section__inner">
+        <div class="sec-header">
+          <div class="sec-title-wrap">
+            <span class="sec-num">01</span>
+            <h2 class="sec-title">脱离块流，只让行盒绕道</h2>
+          </div>
+          <span class="sec-en">HALF OUT OF FLOW · CSS 2.1 §9.5</span>
+        </div>
+
+        <p class="sec-intro">
+          原海报开篇写道「浮动使元素脱离文档流」，但真正读懂浮动，必须把这句话再拆细一层：和完全悬浮在独立图层上的<a href="https://layout.xiaoxiaodong.ai/233/play/">233 绝对定位布局</a>不同，浮动是「半脱离」——它对<a href="https://layout.xiaoxiaodong.ai/223/play/">223 块级布局</a>的盒子边框与背景隐身，却对<a href="https://layout.xiaoxiaodong.ai/224/play/">224 行内布局</a>里的文字行盒（Line Box）完全显形。所以后一段的背景色会直直钻到浮块底下，只有里面的字会自动缩短绕开。
+        </p>
+
+        <div class="xray-grid">
+          <div class="xray-stage-wrap">
+            <canvas class="xray-canvas" id="xray-canvas" width="760" height="400" aria-label="浮动元素三层结构 2.5D 解剖示意图"></canvas>
+          </div>
+          <div class="xray-panel">
+            <div class="seg-row" role="group" aria-label="切换平面与 2.5D 拆层透视">
+              <button type="button" class="btn" id="xray-mode-iso" aria-pressed="true">2.5D 等轴测拆层</button>
+              <button type="button" class="btn" id="xray-mode-flat" aria-pressed="false">压平看浏览器实景</button>
+            </div>
+
+            <div class="layer-toggles">
+              <button type="button" class="layer-btn" id="toggle-layer-block" aria-pressed="true">
+                <span class="layer-btn__left">
+                  <span class="layer-swatch" style="background:#c3e1fb;border:1.5px solid #01245a"></span>
+                  <span>第 1 层 · 普通块盒（背景与边框）</span>
+                </span>
+                <span class="layer-state">显示</span>
+              </button>
+
+              <button type="button" class="layer-btn" id="toggle-layer-float" aria-pressed="true">
+                <span class="layer-btn__left">
+                  <span class="layer-swatch" style="background:#fd491f"></span>
+                  <span>第 2 层 · 朱红浮块与 margin 排斥区</span>
+                </span>
+                <span class="layer-state">显示</span>
+              </button>
+
+              <button type="button" class="layer-btn" id="toggle-layer-lines" aria-pressed="true">
+                <span class="layer-btn__left">
+                  <span class="layer-swatch" style="background:#01245a"></span>
+                  <span>第 3 层 · 缩短后的文字行盒（Line Box）</span>
+                </span>
+                <span class="layer-state">显示</span>
+              </button>
+            </div>
+
+            <p class="xray-readout" id="xray-readout">
+              三层叠在一起时可以清楚看到：最底层淡蓝块盒稳稳占满 100% 容器宽度、无视浮块存在；而顶层文字行盒遇到中层朱红浮块的 margin 边界立刻缩短，直到跨过浮块底边才重新拉回整行宽度。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 02 节：三式图解与多浮块卡钩 ==================== -->
+    <section class="section section--sky" id="sec-02">
+      <div class="section__inner">
+        <div class="sec-header">
+          <div class="sec-title-wrap">
+            <span class="sec-num">02</span>
+            <h2 class="sec-title">三式图解与多浮块卡钩</h2>
+          </div>
+          <span class="sec-en">LEFT, RIGHT &amp; FLOAT SNAG</span>
+        </div>
+
+        <p class="sec-intro">
+          原海报中部用三张白卡展示了左浮动、右浮动与多个浮动元素，并在总述中提到「常用于图文混排、卡片布局、媒体对象等场景」<span class="quote-pill">说多了一点</span>。在早期没有现代网格的年代，前端确实只能用多浮块横排卡片；但只要其中一张卡片多出哪怕一行文字，下一排浮块往左贴边时就会被高出的卡片底边勾住，引发著名的 <strong>Float Snag（浮动卡钩）</strong>——今天排多列卡片，请直接交给<a href="https://layout.xiaoxiaodong.ai/227/play/">227 网格布局</a>或<a href="https://layout.xiaoxiaodong.ai/226/play/">226 弹性盒布局</a>。
+        </p>
+
+        <div class="poster-trio">
+          <article class="trio-card">
+            <div class="trio-card__head">
+              <h3 class="trio-card__title">左浮动</h3>
+              <span class="trio-card__code">float: left</span>
+            </div>
+            <div class="trio-diagram" aria-hidden="true">
+              <div class="trio-sq trio-sq--left"></div>
+              <div class="trio-bars">
+                <span class="trio-bar"></span>
+                <span class="trio-bar"></span>
+                <span class="trio-bar"></span>
+                <span class="trio-bar" style="width:94%"></span>
+                <span class="trio-bar" style="width:76%"></span>
+              </div>
+            </div>
+            <p>「元素向左浮动，文字环绕右侧。」适合图左文右的常规中文阅读流，注意给浮块留右侧和底部 margin。</p>
+          </article>
+
+          <article class="trio-card">
+            <div class="trio-card__head">
+              <h3 class="trio-card__title">右浮动</h3>
+              <span class="trio-card__code">float: right</span>
+            </div>
+            <div class="trio-diagram" aria-hidden="true">
+              <div class="trio-sq trio-sq--right"></div>
+              <div class="trio-bars">
+                <span class="trio-bar"></span>
+                <span class="trio-bar"></span>
+                <span class="trio-bar"></span>
+                <span class="trio-bar" style="width:94%"></span>
+                <span class="trio-bar" style="width:76%"></span>
+              </div>
+            </div>
+            <p>「元素向右浮动，文字环绕左侧。」正文起点保持整齐垂直左对齐，视觉扫读往往比左浮动更稳定。</p>
+          </article>
+
+          <article class="trio-card">
+            <div class="trio-card__head">
+              <h3 class="trio-card__title">多个浮动元素</h3>
+              <span class="trio-card__code">float × N</span>
+            </div>
+            <div class="trio-diagram" aria-hidden="true">
+              <div class="trio-multi-row">
+                <div class="trio-sq"></div>
+                <div class="trio-sq"></div>
+                <div class="trio-sq"></div>
+              </div>
+              <div class="trio-bars">
+                <span class="trio-bar"></span>
+                <span class="trio-bar" style="width:82%"></span>
+              </div>
+            </div>
+            <p>多个浮块会依次肩并肩贴靠，排不下时折行向下——但一旦行内某个浮块变高，就会触发下方的卡钩错位。</p>
+          </article>
+        </div>
+
+        <div class="snag-lab">
+          <div class="snag-bar">
+            <div class="seg-row" role="group" aria-label="切换浮动排卡片与 Grid 排卡片">
+              <button type="button" class="btn" id="snag-mode-float" aria-pressed="true">用 float: left 排卡片</button>
+              <button type="button" class="btn" id="snag-mode-grid" aria-pressed="false">换 CSS Grid 排卡片</button>
+              <button type="button" class="btn btn--ghost" id="snag-reset">恢复默认不等高</button>
+            </div>
+            <span class="snag-status" id="snag-status">实测卡钩：第 04 张被第 02 张底边钩住，左侧空缺</span>
+          </div>
+
+          <div class="snag-board mode-float" id="snag-board">
+            <!-- JS 动态渲染 6 张可点按增删文字行的活体卡片 -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 03 节：深夜海军蓝暗版 · 父框塌陷与四种清浮术 ==================== -->
+    <section class="section section--dark" id="sec-03">
+      <div class="section__inner">
+        <div class="sec-header">
+          <div class="sec-title-wrap">
+            <span class="sec-num">03</span>
+            <h2 class="sec-title">父框塌陷与四种清浮术</h2>
+          </div>
+          <span class="sec-en">HEIGHT COLLAPSE, CLEARFIX &amp; FLOW-ROOT</span>
+        </div>
+
+        <p class="sec-intro">
+          原海报底部对比了「未清除浮动：父容器高度塌陷，边框无法包裹内容」与「清除浮动：父容器恢复高度，完整包裹浮动元素」。但同样能防塌陷的 CSS 写法，副作用天差地别——请留意右上角探出虚线框 12px 的 <strong>NEW 角标</strong>，逐一点击四种写法实测父框高度与裁剪后果（完整原理可延伸看<a href="https://layout.xiaoxiaodong.ai/225/play/" style="color:#8cc4ff">225 流根布局</a>）。
+        </p>
+
+        <div class="clear-lab">
+          <div class="clear-stage-box">
+            <div class="clear-tabs" role="group" aria-label="切换四种父容器清浮方案">
+              <button type="button" class="btn" data-clear-tech="none" aria-pressed="true">1. 未清除（塌陷）</button>
+              <button type="button" class="btn" data-clear-tech="overflow" aria-pressed="false">2. overflow: hidden</button>
+              <button type="button" class="btn" data-clear-tech="clearfix" aria-pressed="false">3. ::after clearfix</button>
+              <button type="button" class="btn" data-clear-tech="flow-root" aria-pressed="false">4. display: flow-root</button>
+            </div>
+
+            <div class="clear-viewport">
+              <div class="clear-parent-wrap">
+                <div class="clear-parent is-collapsed" id="clear-demo-parent">
+                  <span class="clear-badge-probe" id="clear-badge-probe">NEW +12px</span>
+                  <div class="clear-floats-row">
+                    <div class="clear-sq">01</div>
+                    <div class="clear-sq">02</div>
+                    <div class="clear-sq">03</div>
+                  </div>
+                  <p class="clear-note-line">三枚朱红块全部 float: left，这段说明仅占一行。</p>
+                </div>
+                <div class="clear-sibling-below" id="clear-sibling-below">
+                  后续兄弟容器：观察父框高度变化后，它有没有被上方浮块压住。
+                </div>
+              </div>
+
+              <div class="clear-ruler is-collapsed" id="clear-ruler">
+                <span class="clear-ruler__tag" id="clear-ruler-tag">高度塌陷</span>
+                <span class="clear-ruler__num"><span class="clear-ruler__val" id="clear-ruler-num">0</span><span class="clear-ruler__unit">px</span></span>
+                <span class="clear-ruler__sub" id="clear-ruler-sub">浮块底边超出父框</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="clear-explain">
+            <h3 id="clear-exp-title">未清除浮动：父框无视浮块高度</h3>
+            <p id="clear-exp-body"></p>
+            <div class="clear-verdict-row">
+              <div class="verdict-chip is-bad" id="verdict-height">
+                <span class="verdict-chip__k">父容器实测高度</span>
+                <span class="verdict-chip__v" id="verdict-height-v">塌陷中</span>
+              </div>
+              <div class="verdict-chip" id="verdict-badge">
+                <span class="verdict-chip__k">右上探出 NEW 角标</span>
+                <span class="verdict-chip__v" id="verdict-badge-v">完好可见</span>
+              </div>
+            </div>
+            <pre class="dark-code" id="clear-exp-code"></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 04 节：不止矩形：沿轮廓包裹 ==================== -->
+    <section class="section section--white" id="sec-04">
+      <div class="section__inner">
+        <div class="sec-header">
+          <div class="sec-title-wrap">
+            <span class="sec-num">04</span>
+            <h2 class="sec-title">不止矩形：沿轮廓包裹</h2>
+          </div>
+          <span class="sec-en">SHAPE-OUTSIDE &amp; EDITORIAL RUNAROUND</span>
+        </div>
+
+        <p class="sec-intro">
+          既然卡片网格交给 Grid、组件对齐交给 Flexbox，今天为什么浮动还不可替代？因为唯有配合 <code>float</code> 与 W3C CSS Shapes Module Level 1 的 <code>shape-outside</code>，正文才能贴着圆形、斜切多边形或大号首字的轮廓自然流动，呈现杂志级的有机版面节奏。
+        </p>
+
+        <div class="shape-lab">
+          <article class="shape-paper">
+            <div class="shape-floater shape-circle" id="shape-floater">FLOAT</div>
+            <p class="shape-prose">
+              在活字印刷与现代杂志版面里，文字不必永远拘泥于生硬的九十度直角矩形。当你为浮动元素声明 <code>shape-outside</code> 时，浏览器不再只看它的矩形边界盒，而是按你指定的圆弧、椭圆或斜切多边形轮廓逐行计算行盒起点。每一行汉字都会像沿着河岸流淌的溪水一样，自动贴合图形的起伏顺势折行；一旦流过图形底端，正文立即自然恢复完整栏宽，不需要任何手工断行或把正文切成两半。配合 <code>shape-margin</code>，你还能精准控制轮廓外沿到文字笔画之间的呼吸气口。
+            </p>
+          </article>
+
+          <div class="shape-controls">
+            <div class="ctrl-label">
+              <span>切换真实 CSS 环绕轮廓</span>
+              <span class="ctrl-val" id="shape-name-val">circle(50%)</span>
+            </div>
+            <div class="seg-row" role="group" aria-label="切换 shape-outside 几何轮廓">
+              <button type="button" class="btn" data-shape="box" aria-pressed="false">矩形方盒</button>
+              <button type="button" class="btn" data-shape="circle" aria-pressed="true">正圆 circle()</button>
+              <button type="button" class="btn" data-shape="polygon" aria-pressed="false">斜切多边形</button>
+              <button type="button" class="btn" data-shape="dropcap" aria-pressed="false">首字下沉</button>
+            </div>
+
+            <div class="range-row">
+              <div class="ctrl-label">
+                <span>轮廓外呼吸距 shape-margin</span>
+                <span class="ctrl-val" id="shape-margin-val">16px</span>
+              </div>
+              <input type="range" id="shape-margin-range" min="0" max="36" step="2" value="16" aria-label="调整 shape-margin 呼吸距">
+            </div>
+
+            <p class="xray-readout" id="shape-note">
+              当前为 <code>shape-outside: circle(50%)</code>：文字随朱红圆弧先缩进、在中腰处最窄、下半弧再逐渐放宽，彻底消除矩形插图的僵硬白三角。
+            </p>
+            <pre class="dark-code" id="shape-code"></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 05 节：从铅字绕图到 CSS 三十年 ==================== -->
+    <section class="section section--cloud" id="sec-05">
+      <div class="section__inner">
+        <div class="sec-header">
+          <div class="sec-title-wrap">
+            <span class="sec-num">05</span>
+            <h2 class="sec-title">从铅字绕图到 CSS 三十年</h2>
+          </div>
+          <span class="sec-en">ORIGIN &amp; EVOLUTION · 1995–TODAY</span>
+        </div>
+
+        <p class="sec-intro">
+          浮动并非凭空发明的网页黑科技——它脱胎于报刊书籍百年沿用的「绕图排字（Runaround）」，在 1996 年成为 CSS1 元老属性，又阴差阳错地扛起了整个 Web 2.0 时代的多栏骨架重担，直到现代布局标准成熟才得以功成身退。点选下方四个年代节点，对照当时的真实代码与历史处境。
+        </p>
+
+        <div class="timeline-nav" id="timeline-nav" role="group" aria-label="切换浮动布局历史年代">
+          <!-- JS 动态渲染四个年代按钮 -->
+        </div>
+
+        <div class="timeline-detail" id="timeline-detail">
+          <div>
+            <h3 id="tl-title"></h3>
+            <p class="timeline-who" id="tl-who"></p>
+            <p class="timeline-desc" id="tl-desc"></p>
+            <p class="timeline-pain" id="tl-pain"></p>
+          </div>
+          <pre class="dark-code" id="tl-code"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 06 节：何时该浮，何时换方案 ==================== -->
+    <section class="section section--white" id="sec-06">
+      <div class="section__inner">
+        <div class="sec-header">
+          <div class="sec-title-wrap">
+            <span class="sec-num">06</span>
+            <h2 class="sec-title">何时该浮，何时换方案</h2>
+          </div>
+          <span class="sec-en">WHEN TO USE &amp; WHEN TO AVOID</span>
+        </div>
+
+        <p class="sec-intro">
+          用对地方，浮动两行代码就能写出流畅杂志感；用错地方，你会在卡钩错位、高度塌陷和垂直居中里耗掉整个下午。点击六类真实界面需求，立刻查看该不该用浮动以及现代首选替代方案。
+        </p>
+
+        <div class="triage-grid">
+          <div class="triage-list" id="triage-list" role="group" aria-label="选择真实排版场景查看建议">
+            <!-- JS 渲染 6 个真实需求 -->
+          </div>
+          <div class="triage-result" id="triage-result" aria-live="polite">
+            <span class="triage-pill" id="triage-pill">适合用浮动</span>
+            <h3 id="triage-title"></h3>
+            <p id="triage-reason"></p>
+            <pre class="dark-code" id="triage-css"></pre>
+            <div class="triage-link-row" id="triage-link-row"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 07 节：四选一实战小练习 ==================== -->
+    <section class="section section--sky" id="sec-07">
+      <div class="section__inner">
+        <div class="sec-header">
+          <div class="sec-title-wrap">
+            <span class="sec-num">07</span>
+            <h2 class="sec-title">四选一实战小练习</h2>
+          </div>
+          <span class="sec-en">LAYOUT DIAGNOSTIC QUIZ</span>
+        </div>
+
+        <div class="quiz-prompt">
+          <strong>实战考题：</strong>下面四张文章卡片的 HTML 与子元素样式完全相同——左边浮动一张朱红缩略图，右边排两行简短摘要，右上角挂着一枚<strong>探出虚线框外 10px 的「精选」角标</strong>。四张卡片<strong>只差父容器上的一条 CSS 属性</strong>。仔细观察虚线父框底边与右上角标，哪一个方案（A / B / C / D）既防父框塌陷，又没有误裁角标？
+        </div>
+
+        <div class="quiz-grid" id="quiz-grid">
+          <!-- JS 渲染四个中性选项（只差父容器一条 CSS，真 DOM 渲染缩微实景） -->
+        </div>
+
+        <div class="quiz-feedback" id="quiz-feedback" aria-live="polite">
+          <h3 id="quiz-fb-title"></h3>
+          <p id="quiz-fb-body"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 08 节：原海报与要点速记 ==================== -->
+    <section class="section section--white" id="sec-08">
+      <div class="section__inner">
+        <div class="sec-header">
+          <div class="sec-title-wrap">
+            <span class="sec-num">08</span>
+            <h2 class="sec-title">原海报与要点速记</h2>
+          </div>
+          <span class="sec-en">ORIGINAL POSTER #231 &amp; KEYWORDS</span>
+        </div>
+
+        <div class="poster-showcase">
+          <div>
+            <button type="button" class="poster-thumb-btn" id="open-poster-btn" aria-label="点击放大查看 231 浮动布局原海报">
+              <img id="poster" src="poster.webp" alt="231 浮动布局 FLOAT LAYOUT 教学原海报" draggable="false">
+              <span class="poster-zoom-tip">点击放大原海报 · 支持缩放与拖动 · Esc 关闭</span>
+            </button>
+          </div>
+
+          <div class="poster-notes">
+            <ul class="poster-points-list">
+              <li>
+                <strong>左浮动</strong>
+                <span>元素向左浮动，文字环绕右侧。</span>
+              </li>
+              <li>
+                <strong>右浮动</strong>
+                <span>元素向右浮动，文字环绕左侧。</span>
+              </li>
+              <li>
+                <strong>文字环绕</strong>
+                <span>内容自动环绕浮动元素排列。</span>
+              </li>
+              <li>
+                <strong>清除浮动</strong>
+                <span>防止父容器塌陷，恢复正常布局。</span>
+              </li>
+              <li>
+                <strong>包裹（环绕盒）</strong>
+                <span>让内容自然包裹浮动元素。</span>
+              </li>
+              <li>
+                <strong>原海报补充对照</strong>
+                <span>未清除浮动父容器高度塌陷；清除浮动后父容器恢复高度、完整包裹浮动元素。</span>
+              </li>
+            </ul>
+
+            <div class="poster-kw-wrap">
+              <div class="ribbon-left">
+                <span class="ribbon-tag">要点速记</span>
+                <ul class="ribbon-keywords">
+                  <li>脱离文档流</li>
+                  <li>左右浮动</li>
+                  <li>文字环绕</li>
+                  <li>清除浮动</li>
+                  <li>恢复布局</li>
+                </ul>
+              </div>
+            </div>
+
+            <p class="related-links">
+              <strong>同小类延伸阅读：</strong>
+              回到默认排布看<a href="https://layout.xiaoxiaodong.ai/222/play/">222 普通流布局</a>；
+              深入理解建立独立 BFC 的现代清浮看<a href="https://layout.xiaoxiaodong.ai/225/play/">225 流根布局</a>；
+              搭建多列卡片与页面骨架看<a href="https://layout.xiaoxiaodong.ai/226/play/">226 弹性盒布局</a>与<a href="https://layout.xiaoxiaodong.ai/227/play/">227 网格布局</a>；
+              报刊连续分栏看<a href="https://layout.xiaoxiaodong.ai/229/play/">229 多栏布局</a>；
+              彻底脱离文档流且不挤压文字看<a href="https://layout.xiaoxiaodong.ai/233/play/">233 绝对定位布局</a>。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <span>在线版：<a href="https://layout.xiaoxiaodong.ai/231/play/">layout.xiaoxiaodong.ai/231/play/</a> · 全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/">layout.xiaoxiaodong.ai</a></span>
+      <span>海报 CC BY 4.0 · 源文件 <a href="https://github.com/xiaoxiaodongai/350-layout">GitHub</a></span>
+    </div>
+  </footer>
+
+  <!-- 原海报全屏放大拖移灯箱 -->
+  <div class="lightbox" id="poster-lightbox" role="dialog" aria-modal="true" aria-label="原海报大图预览">
+    <div class="lightbox__bar">
+      <span>NO. 231 浮动布局 · 鼠标滚轮或按钮缩放，按住图片拖动查看细节，按 Esc 退出</span>
+      <div class="lightbox__actions">
+        <button type="button" class="btn" id="lb-zoom-in">放大 +</button>
+        <button type="button" class="btn" id="lb-zoom-out">缩小 -</button>
+        <button type="button" class="btn" id="lb-reset">100%</button>
+        <button type="button" class="btn btn--accent" id="lb-close">关闭 Esc</button>
+      </div>
+    </div>
+    <div class="lightbox__stage" id="lb-stage">
+      <img class="lightbox__img" id="lb-img" alt="231 浮动布局原海报大图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
