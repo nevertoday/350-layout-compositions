@@ -39,12 +39,15 @@ revise 时 points 最多 6 条，按重要性排，每条写清：在哪（第�
 }
 
 export function verdict(out) {
-  const m = [...out.matchAll(/\{[^{}]*"verdict"\s*:\s*"(pass|revise)"[^{}]*\}/g)].at(-1);
-  if (!m) return { pass: true, points: [], unparsed: true };
-  try {
-    const j = JSON.parse(m[0]);
-    return { pass: j.verdict === "pass", points: Array.isArray(j.points) ? j.points.map(String) : [] };
-  } catch {
-    return { pass: m[1] === "pass", points: [], unparsed: true };
+  // 意见里常有 CSS 的 { }，不能用正则配括号：从最后一个 {"verdict" 起，往后逐个 } 试着 JSON.parse
+  const at = out.lastIndexOf('{"verdict"');
+  if (at >= 0) {
+    for (let end = out.indexOf("}", at); end >= 0; end = out.indexOf("}", end + 1)) {
+      try {
+        const j = JSON.parse(out.slice(at, end + 1));
+        if (j.verdict === "pass" || j.verdict === "revise") return { pass: j.verdict === "pass", points: Array.isArray(j.points) ? j.points.map(String) : [] };
+      } catch {}
+    }
   }
+  return { pass: true, points: [], unparsed: true };
 }
