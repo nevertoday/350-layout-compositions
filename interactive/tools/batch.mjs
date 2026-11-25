@@ -150,7 +150,16 @@ async function makePage(id) {
   if (revisit && hasConcept(id)) return;
   let retry = null, reviews = 0, flaky = 0, skipAuthor = revisit, lastPoints = [];
   // 上一轮批量被打断时做到一半的页：接着做，不从零开始
-  if (!revisit && pageDir(id)) retry = { reason: "上一轮批量被打断了", tail: "（没有检查输出）" };
+  if (!revisit && pageDir(id)) {
+    retry = { reason: "上一轮批量被打断了", tail: "（没有检查输出）" };
+    // 被打断前主编已经给过意见的，把最近一轮意见一起交过去
+    const last = readdirSync(OUT).filter((f) => new RegExp(`^${id}-review-\\d+\\.log$`).test(f)).sort().at(-1);
+    if (last) {
+      const { verdict } = await import(`./review.mjs?${Date.now()}`);
+      const v = verdict(readFileSync(join(OUT, last), "utf8"));
+      if (!v.pass && v.points.length) retry = { review: true, reason: "上一轮批量被打断了，主编之前的意见还没改完", tail: v.points.map((p, i) => `${i + 1}. ${p}`).join("\n") };
+    }
+  }
   const notes = [];
   if (revisit) log(`${id} 回头查（新规矩之前提交的）`);
   // 新页先出方案、过主编这一关再动手：构思上的问题（玩法撞车、答案先给、练习太易）在这里改最便宜
