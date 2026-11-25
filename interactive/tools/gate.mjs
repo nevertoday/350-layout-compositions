@@ -2,7 +2,7 @@
 //   context(id)       给作者看的「最近做完的页」：开场截图路径、concept、字体 —— 让它避开
 //   gate(id, report)  build + check 过了之后再查一遍有没有偷懒、有没有抄；返回问题列表，空的才提交
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -15,10 +15,24 @@ const pageJson = (dir) => JSON.parse(readFileSync(join(PAGES, dir, "page.json"),
 const fontNames = (dir) => [...new Set(pageJson(dir).fonts.map((f) => f.name))];
 
 // 按提交时间从新到旧的页（不含 000 模板）
-function recent(exceptId) {
-  const out = execFileSync("git", ["log", "--diff-filter=A", "--format=", "--name-only", "--", "pages/*/page.json"], { cwd: ROOT }).toString();
-  const dirs = [...new Set(out.split("\n").filter(Boolean).map((p) => p.split("/").at(-2)))];
+// before：只算这个时间（毫秒）之前提交的页。字体规则按这一页开工时看到的为准，
+// 不然 6 个作者同时做，开工时没人用的字体，交稿时可能刚被别人用掉，白白打回。
+function recent(exceptId, before = Infinity) {
+  const out = execFileSync("git", ["log", "--diff-filter=A", "--format=@%ct", "--name-only", "--", "pages/*/page.json"], { cwd: ROOT }).toString();
+  const dirs = [];
+  let t = 0;
+  for (const line of out.split("\n").filter(Boolean)) {
+    if (line.startsWith("@")) { t = Number(line.slice(1)) * 1000; continue; }
+    const d = line.split("/").at(-2);
+    if (t < before && !dirs.includes(d)) dirs.push(d);
+  }
   return dirs.filter((d) => !d.startsWith("000-") && !d.startsWith(`${exceptId}-`) && existsSync(join(PAGES, d, "page.json"))).slice(0, RECENT);
+}
+// 这一页开工的时间：批量给它写的第一份日志
+function startedAt(id) {
+  const dir = join(ROOT, ".build/batch");
+  const times = existsSync(dir) ? readdirSync(dir).filter((f) => f.startsWith(`${id}-`) && f.endsWith(".log")).map((f) => statSync(join(dir, f)).birthtimeMs) : [];
+  return times.length ? Math.min(...times) : Infinity;
 }
 
 export function context(id) {
@@ -66,7 +80,7 @@ export function gate(id, report) {
   const urls = new Set((report.match(/https?:\/\/[^\s)）」>`'"、，]+/g) || []).filter((u) => !/xiaoxiaodong\.ai|localhost|127\.0\.0\.1/.test(u)));
   if (urls.size < 3) problems.push(`报告里核实用的网址只有 ${urls.size} 个，至少 3 个`);
 
-  const others = recent(id);
+  const others = recent(id, startedAt(id));
   const usedRecently = new Set(others.flatMap(fontNames));
   if (others.length && fontNames(dir).every((n) => usedRecently.has(n))) problems.push(`字体 ${fontNames(dir).join("+")} 全是最近 ${others.length} 页用过的，至少换一款没用过的`);
 
