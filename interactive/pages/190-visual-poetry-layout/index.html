@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F2B72C">
+<title>190 图形诗排版 · VISUAL POETRY LAYOUT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#sec-01">跳到正文</a>
+
+<header class="hero-band" id="top">
+  <div class="masthead wrap">
+    <p class="cat"><i class="cat-dot" aria-hidden="true"></i><span>字体、网格与东亚文字 / 对齐、缩进与文字造型</span></p>
+    <p class="issue"><span lang="en">NO. 190 · VISUAL POETRY LAYOUT</span></p>
+  </div>
+
+  <section class="hero wrap" aria-labelledby="page-title">
+    <!-- 左列：示范大标 + 原海报总述 + 精调轨 -->
+    <div class="hero-left">
+      <div class="title-block">
+        <h1 id="page-title" class="demo-title" aria-label="图形诗排版">
+          <span class="dt-ch dt-1" aria-hidden="true">图</span><span class="dt-ch dt-2" aria-hidden="true">形</span><span class="dt-ch dt-3" aria-hidden="true">诗</span><span class="dt-ch dt-4" aria-hidden="true">排</span><span class="dt-ch dt-5" aria-hidden="true">版</span><i class="dt-sun" aria-hidden="true"></i>
+        </h1>
+        <p class="title-en" lang="en">VISUAL POETRY LAYOUT</p>
+        <span class="poster-rule" aria-hidden="true"></span>
+        <p class="hero-summary">文字的位置、长短与留白共同构成意象，文字本身成为画面。</p>
+      </div>
+
+      <div class="hero-controls" aria-label="诗形雕版控件">
+        <div class="mode-group" role="group" aria-label="诗形匹配方式">
+          <button type="button" class="pill is-active" data-mode="mountain" aria-pressed="true">山水原形</button>
+          <button type="button" class="pill" data-mode="prose" aria-pressed="false">平排段落</button>
+          <button type="button" class="pill" data-mode="rain" aria-pressed="false">斜雨错配</button>
+        </div>
+
+        <div class="slider-stack">
+          <label class="ctrl-range">
+            <span class="ctrl-head"><b>山势坡角</b><output id="out-slope" class="mono">0°</output></span>
+            <input type="range" id="in-slope" min="0" max="64" step="1" value="0" aria-describedby="diag-detail">
+            <span class="ctrl-scale mono"><span>0° 平排</span><span>18°–38° 经验带</span><span>64° 过陡</span></span>
+          </label>
+
+          <label class="ctrl-range">
+            <span class="ctrl-head"><b>水句曲度</b><output id="out-river" class="mono">0%</output></span>
+            <input type="range" id="in-river" min="0" max="100" step="1" value="0" aria-describedby="diag-detail">
+            <span class="ctrl-scale mono"><span>0% 僵直</span><span>42%–82% 经验带</span><span>100% 急结</span></span>
+          </label>
+
+          <label class="ctrl-range">
+            <span class="ctrl-head"><b>字距与留白</b><output id="out-breath" class="mono">-0.01em</output></span>
+            <input type="range" id="in-breath" min="0" max="100" step="1" value="14" aria-describedby="diag-detail">
+            <span class="ctrl-scale mono"><span>挤闷</span><span>66%–84% 留白</span><span>散架</span></span>
+          </label>
+        </div>
+
+        <div class="action-row">
+          <button type="button" class="btn-outline" id="btn-guides" aria-pressed="false">透视骨架</button>
+          <button type="button" class="btn-outline" id="btn-reset">复原错态</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中列：无框满幅姜黄山水图形诗活体画布 -->
+    <div class="hero-stage-wrap">
+      <div class="stage-frame">
+        <canvas id="poem-canvas" class="poem-canvas" data-perf-drag tabindex="0" role="img" aria-label="山水图形诗活体排版画布：左右拖动可拉开或收拢山势坡角，拖动下部可弯曲水句河道，拖动朱陶圆日可调整留白重心；也可用方向键微调。"></canvas>
+      </div>
+      <p class="stage-cue" id="stage-cue">在画布上左右拖开山势 · 拖下部弯出曲流 · 拖朱陶落日挪进空域（选中后方向键可微调）</p>
+    </div>
+
+    <!-- 右列：复刻原海报「黑点 + 竖细线」设计笔记与四项实时体检 -->
+    <aside class="hero-notes" aria-live="polite">
+      <div class="plumb-head">
+        <span class="plumb-title">设计笔记 · 实时体检</span>
+        <span class="score-pill mono" id="diag-score">0 / 4</span>
+      </div>
+
+      <div class="plumb-body">
+        <p class="diag-badge-row"><span class="diag-badge is-err" id="diag-badge">意象塌陷</span></p>
+        <h2 class="diag-headline" id="diag-headline">文字平躺成普通段落，山与水完全隐身</h2>
+        <p class="diag-detail" id="diag-detail">当前山势坡角为 0°、水句拉直成横条，眼睛只会把它当成普通说明文字扫过。先把「山势坡角」拉开到 18°–38°，再弯出「水句曲度」与留白，别忘了把落日挪进右上空域。</p>
+
+        <dl class="check-grid" aria-label="四项实时实测指标">
+          <div class="chk" id="chk-sem"><dt>形意同构</dt><dd class="mono" id="val-sem">山水诗</dd></div>
+          <div class="chk" id="chk-slope"><dt>山势顺读</dt><dd class="mono" id="val-slope">0° · 偏平</dd></div>
+          <div class="chk" id="chk-river"><dt>曲流无叠</dt><dd class="mono" id="val-river">0% · 僵直</dd></div>
+          <div class="chk" id="chk-space"><dt>留白重心</dt><dd class="mono" id="val-space">压字 · 经验值</dd></div>
+        </dl>
+      </div>
+
+      <p class="poster-kw-mini"><span>关键词</span> · 意象 / 留白 / 节奏 / 文字即图 / 诗性</p>
+    </aside>
+  </section>
+</header>
+
+<main>
+  <!-- 01 节：暖宣纸白 -->
+  <section class="sec sec-paper" id="sec-01" aria-labelledby="h-01">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no mono">01</span>
+        <div>
+          <h2 id="h-01">字即画面，空即呼吸</h2>
+          <p class="sec-en" lang="en">Words as form, silence as ground</p>
+        </div>
+      </header>
+
+      <div class="two-col">
+        <div class="prose">
+          <blockquote class="poster-quote">
+            <p>通过文字的方向、密度与节奏，构建画面层次，引导视线，传递情绪。</p>
+            <cite>原海报「设计笔记」</cite>
+          </blockquote>
+          <p>普通排版把文字当「水」，装进方方正正的栏框里就完事。图形诗排版反过来：<strong>撤掉所有外框与插图，只靠字本身的位置、行长、倾角和周围大片素底，让意象自己长出来。</strong></p>
+          <ul class="tri-levers">
+            <li><b>方向（走势）</b><span>字行往哪倾斜、拐弯或垂落，眼睛就跟着那股势头走——山向上收敛，水向低处蜿蜒，雨自高处斜落。</span></li>
+            <li><b>密度（轻重）</b><span>字紧处显得沉实、急促，像岩石或重拍；字疏处显得轻盈、迟疑，像薄雾或微风。</span></li>
+            <li><b>节奏（长短与留白）</b><span>一行一字到一行七字的渐宽阶梯，决定画面轮廓，也决定读者默念时的快慢顿挫。</span></li>
+          </ul>
+          <aside class="honest-note">
+            <p class="tag-line"><span class="note-tag">补一句实在话</span><b>文字毕竟还要被读懂</b></p>
+            <p>原海报总述说「文字本身成为画面」，这是对的，但前提不能省：图形诗不是把字当灰黑颜料涂满一张剪影。画得再像山、像鸟，如果读者得歪着脖子逐字破译，诗味就散了。真正好的图形诗，是在「一眼认出意象」和「一口气读顺诗句」之间走钢丝。</p>
+          </aside>
+        </div>
+
+        <!-- 交互 1：三诗活字变形台 -->
+        <figure class="lab-card" aria-label="普通正文与图形诗对照排演">
+          <div class="lab-bar">
+            <div class="seg-row" role="group" aria-label="选择诗例">
+              <button type="button" class="seg-btn is-active" data-morph-poem="pagoda" aria-pressed="true">宝塔 · 茶</button>
+              <button type="button" class="seg-btn" data-morph-poem="rain" aria-pressed="false">斜雨 · 听窗</button>
+              <button type="button" class="seg-btn" data-morph-poem="wings" aria-pressed="false">双翼 · 升降</button>
+            </div>
+            <button type="button" class="toggle-btn" id="btn-morph-mode" aria-pressed="true">当前：图形诗</button>
+          </div>
+          <div class="morph-stage" id="morph-stage" data-shaped="true"></div>
+          <figcaption class="lab-cap" id="morph-cap" aria-live="polite">唐代元稹《一字至七字诗·茶》：不添一笔线条，仅凭每行字数由一递增至七，中轴居中自然撑出宝塔轮廓。</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 节：浅赭米纸 · 从哪来 -->
+  <section class="sec sec-ocher" id="sec-02" aria-labelledby="h-02">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no mono">02</span>
+        <div>
+          <h2 id="h-02">两千年的跨海脉络</h2>
+          <p class="sec-en" lang="en">Two millennia of shaped verse</p>
+        </div>
+      </header>
+
+      <div class="history-layout">
+        <div class="history-list" role="tablist" aria-label="图形诗历史节点">
+          <button type="button" class="hist-item is-active" role="tab" aria-selected="true" data-hist="simias">
+            <span class="hist-yr mono">约前 300</span>
+            <b>罗德岛的西米亚斯 ·《翼》</b>
+            <small>古希腊《希腊诗选》中的象形诗源头</small>
+          </button>
+          <button type="button" class="hist-item" role="tab" aria-selected="false" data-hist="suhui">
+            <span class="hist-yr mono">4 世纪</span>
+            <b>前秦苏蕙 ·《璇玑图》</b>
+            <small>五色织锦回文方阵，多路径读诗</small>
+          </button>
+          <button type="button" class="hist-item" role="tab" aria-selected="false" data-hist="yuanzhen">
+            <span class="hist-yr mono">824</span>
+            <b>唐代元稹 ·《一字至七字诗·茶》</b>
+            <small>洛阳雅集唱和，字数阶梯立起宝塔</small>
+          </button>
+          <button type="button" class="hist-item" role="tab" aria-selected="false" data-hist="herbert">
+            <span class="hist-yr mono">1633</span>
+            <b>乔治·赫伯特 ·《复活节之翼》</b>
+            <small>《圣殿》首版横印跨页，收缩再展翼</small>
+          </button>
+          <button type="button" class="hist-item" role="tab" aria-selected="false" data-hist="carroll">
+            <span class="hist-yr mono">1865</span>
+            <b>刘易斯·卡罗尔 ·《老鼠的尾巴》</b>
+            <small>《爱丽丝梦游仙境》中渐小蜿蜒的鼠尾</small>
+          </button>
+          <button type="button" class="hist-item" role="tab" aria-selected="false" data-hist="mallarme">
+            <span class="hist-yr mono">1897</span>
+            <b>斯特凡·马拉美 ·《骰子一掷》</b>
+            <small>《大都会》初刊，把跨页留白当音乐总谱</small>
+          </button>
+          <button type="button" class="hist-item" role="tab" aria-selected="false" data-hist="apollinaire">
+            <span class="hist-yr mono">1918</span>
+            <b>阿波利奈尔 ·《图画诗》</b>
+            <small>法兰西水星社初版，代表作《下雨了》</small>
+          </button>
+          <button type="button" class="hist-item" role="tab" aria-selected="false" data-hist="concrete">
+            <span class="hist-yr mono">1954–1958</span>
+            <b>贡林格与诺伊甘德雷斯 · 具象诗</b>
+            <small>从「描实物」走向「空即意义」的现代空间</small>
+          </button>
+        </div>
+
+        <!-- 交互 2：历史书页标本切片台 -->
+        <div class="hist-viewer" id="hist-viewer" aria-live="polite">
+          <div class="hist-spread" id="hist-spread"></div>
+          <div class="hist-meta">
+            <p class="hist-tag mono" id="hist-tag">约前 300 年 · 古希腊</p>
+            <h3 id="hist-title">罗德岛的西米亚斯《翼》等象形诗</h3>
+            <p id="hist-desc">目前存世最早的一批西洋象形诗（希腊文称 technopaegnia），收录于《希腊诗选》。西米亚斯控制每一行的音步长短，让诗句在纸莎草上自然排成双翼、斧头与鸟卵的轮廓，证明诗行长度本身就是一种造型工具。</p>
+            <p class="hist-source" id="hist-source">文献线索：希腊诗选（Greek Anthology）· 亦称拉丁传统中的 carmina figurata</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 节：深墨研石底 · 留白即节拍 -->
+  <section class="sec sec-ink" id="sec-03" aria-labelledby="h-03">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no mono">03</span>
+        <div>
+          <h2 id="h-03">留白不是空，是节拍器</h2>
+          <p class="sec-en" lang="en">Whitespace as a musical rest</p>
+        </div>
+      </header>
+
+      <div class="rhythm-intro">
+        <p>1897 年马拉美在《骰子一掷》序言里提出一个改变现代排版的看法：<strong>纸面上的空白就是乐谱里的休止符。</strong>字距紧凑时，大脑连读加速；字间忽然断开一片空白，视线跨过去的那半秒，声音也在心里停了一拍。</p>
+        <p>点击下方诗句里任意两个字之间的「点位」，亲手插进或收回空拍，再点「按版面默读一遍」，看金光游标如何随留白宽窄真实变速。</p>
+      </div>
+
+      <!-- 交互 3：可点插空拍的诵读节拍仪 -->
+      <div class="cadence-lab" id="cadence-lab">
+        <div class="cadence-bar">
+          <div class="seg-row dark" role="group" aria-label="预设节拍排法">
+            <button type="button" class="seg-btn" data-cadence="even" aria-pressed="false">等距平读</button>
+            <button type="button" class="seg-btn is-active" data-cadence="breath" aria-pressed="true">断句留停</button>
+            <button type="button" class="seg-btn" data-cadence="cascade" aria-pressed="false">阶梯渐慢</button>
+          </div>
+          <button type="button" class="btn-gold" id="btn-cadence-play">按版面默读一遍</button>
+        </div>
+
+        <div class="cadence-sheet" id="cadence-sheet" aria-label="可点击字间空隙插入休止符的诗页"></div>
+
+        <div class="cadence-foot">
+          <div class="cadence-meter">
+            <span>空间休止拍（示意）</span>
+            <b class="mono" id="cadence-rests">4 处空拍 · 总默读约 5.8 秒</b>
+          </div>
+          <p class="cadence-note" id="cadence-note" aria-live="polite">字间空隙拉开后，关键意象（「停」「不语」「退潮」）前自然长出呼吸停顿，情绪比等距平排沉静得多。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 节：暖宣纸白 · 同类邻居分界 -->
+  <section class="sec sec-paper" id="sec-04" aria-labelledby="h-04">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no mono">04</span>
+        <div>
+          <h2 id="h-04">形意同构与三位邻居</h2>
+          <p class="sec-en" lang="en">Form, meaning &amp; sibling layouts</p>
+        </div>
+      </header>
+
+      <p class="sec-lead">在同一小类里，有几种排法看起来都让文字脱离了方正栏框，但底层逻辑完全不同。点一下「抽掉辅助图形与路径线」，就能一眼看穿谁靠外力、谁靠文字本身立形。</p>
+
+      <!-- 交互 4：脱壳剥离对照镜 -->
+      <div class="compare-lab">
+        <div class="compare-bar">
+          <label class="switch-inline">
+            <input type="checkbox" id="chk-strip-shell">
+            <span>抽掉辅助容器壳与路径引导线</span>
+          </label>
+          <span class="compare-hint" id="compare-hint" aria-live="polite">当前显示辅助图形与参考线——勾选试试看剥离后谁还成立。</span>
+        </div>
+
+        <div class="compare-grid" id="compare-grid" data-stripped="false">
+          <article class="cmp-card">
+            <div class="cmp-head">
+              <span class="mono cmp-id">NO. 189</span>
+              <h3>形状文字</h3>
+            </div>
+            <svg class="cmp-svg" viewBox="0 0 260 190" role="img" aria-label="形状文字示意：文字灌满一个预设水滴轮廓">
+              <path class="cmp-shell" d="M130 18 C166 64 196 98 196 130 C196 164 166 180 130 180 C94 180 64 164 64 130 C64 98 94 64 130 18 Z"/>
+              <g class="cmp-text" text-anchor="middle">
+                <text x="130" y="64" font-size="13">设计</text>
+                <text x="130" y="84" font-size="13">把正文灌入</text>
+                <text x="130" y="104" font-size="13">预设好的几何壳</text>
+                <text x="130" y="124" font-size="13">换一段文案照样填</text>
+                <text x="130" y="144" font-size="13">轮廓由容器决定</text>
+                <text x="130" y="164" font-size="13">而非诗意</text>
+              </g>
+            </svg>
+            <p>先定闭合容器再灌字，内容可替换。<a href="https://layout.xiaoxiaodong.ai/189/play/" target="_blank" rel="noopener">看 189 形状文字 →</a></p>
+          </article>
+
+          <article class="cmp-card">
+            <div class="cmp-head">
+              <span class="mono cmp-id">NO. 191</span>
+              <h3>路径文字</h3>
+            </div>
+            <svg class="cmp-svg" viewBox="0 0 260 190" role="img" aria-label="路径文字示意：单句标题沿一条弧形曲线排列">
+              <defs>
+                <path id="cmp-arc-path" d="M32 132 Q130 34 228 132"/>
+              </defs>
+              <path class="cmp-guide" d="M32 132 Q130 34 228 132"/>
+              <text class="cmp-text" font-size="15" letter-spacing="3">
+                <textPath href="#cmp-arc-path" startOffset="50%" text-anchor="middle">单句沿着一条曲线走</textPath>
+              </text>
+            </svg>
+            <p>把一句标题贴在弧线或波浪上做造型。<a href="https://layout.xiaoxiaodong.ai/191/play/" target="_blank" rel="noopener">看 191 路径文字 →</a></p>
+          </article>
+
+          <article class="cmp-card is-focus">
+            <div class="cmp-head">
+              <span class="mono cmp-id">NO. 190</span>
+              <h3>图形诗排版</h3>
+            </div>
+            <svg class="cmp-svg" viewBox="0 0 260 190" role="img" aria-label="图形诗示意：没有容器，文字靠自身倾斜、长短与留白形成山水">
+              <path class="cmp-guide" d="M130 22 L62 114 M130 22 L198 114 M48 144 Q130 124 210 156"/>
+              <circle class="cmp-sun" cx="196" cy="46" r="14"/>
+              <g class="cmp-text" font-size="11.5">
+                <text x="130" y="34" text-anchor="middle">山</text>
+                <text x="130" y="50" text-anchor="middle">是沉默</text>
+                <text x="98" y="72" text-anchor="middle" transform="rotate(24 98 72)">风从远方来</text>
+                <text x="162" y="72" text-anchor="middle" transform="rotate(-24 162 72)">风从远方来</text>
+                <text x="82" y="96" text-anchor="middle" transform="rotate(24 82 96)">只留下光在石上</text>
+                <text x="178" y="96" text-anchor="middle" transform="rotate(-24 178 96)">只留下光在石上</text>
+                <text x="130" y="150" text-anchor="middle" letter-spacing="2">水向低处流动  流向更远</text>
+              </g>
+            </svg>
+            <p>没有预设壳体，行长、走势与大片留白全从词意长出，抽掉参考线依然完整。</p>
+          </article>
+        </div>
+      </div>
+
+      <p class="sibling-links">同一小类里，单向竖排的行序规矩见 <a href="https://layout.xiaoxiaodong.ai/192/play/" target="_blank" rel="noopener">192 垂直文字排版</a>，偏心平衡与体量张力见 <a href="https://layout.xiaoxiaodong.ai/181/play/" target="_blank" rel="noopener">181 非对称字体排版</a>，图文绕排见 <a href="https://layout.xiaoxiaodong.ai/182/play/" target="_blank" rel="noopener">182 轮廓绕排</a>。</p>
+    </div>
+  </section>
+
+  <!-- 05 节：柔姜黄 · 什么时候用 / 什么时候别用 -->
+  <section class="sec sec-gold-soft" id="sec-05" aria-labelledby="h-05">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no mono">05</span>
+        <div>
+          <h2 id="h-05">何时惊艳，何时翻车</h2>
+          <p class="sec-en" lang="en">When to use it, when to walk away</p>
+        </div>
+      </header>
+
+      <!-- 交互 5：四场景翻车试纸 -->
+      <div class="stress-lab">
+        <div class="stress-tabs" role="group" aria-label="选择测试场景">
+          <button type="button" class="pill is-active" data-scene="exhibition" aria-pressed="true">诗歌展海报</button>
+          <button type="button" class="pill" data-scene="book" aria-pressed="false">文学书封</button>
+          <button type="button" class="pill" data-scene="boarding" aria-pressed="false">航班登机牌</button>
+          <button type="button" class="pill" data-scene="medicine" aria-pressed="false">药品用量说明</button>
+        </div>
+
+        <div class="stress-stage" id="stress-stage">
+          <div class="stress-preview" id="stress-preview"></div>
+          <div class="stress-verdict" aria-live="polite">
+            <p class="stress-badge-row"><span class="stress-badge" id="stress-badge">适用</span><span class="mono stress-scan" id="stress-scan">预期阅读心境：愿意驻足细看</span></p>
+            <h3 id="stress-title">字少、情绪浓、留白充裕，图形诗直击第一眼</h3>
+            <p id="stress-desc">展览主视觉本来就需要观众停步 3 秒。把「风 / 山 / 声」几句短诗做成画面主角，时间地点老老实实归到底角正排——诗意归诗意，功能信息归功能信息。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="avoid-grid">
+        <article class="avoid-card">
+          <h3>超过 60 字的长文别用</h3>
+          <p>按经验值，连续正文一旦超过四五十个字，参差行首与斜行会让眼球回行扫视频繁迷路，读三行就累。</p>
+        </article>
+        <article class="avoid-card">
+          <h3>工具界面与公告别用</h3>
+          <p>导航栏、登机牌、药品说明、促销活动海报追求半秒内扫出答案，任何「让字演戏」都是在替用户设障。</p>
+        </article>
+        <article class="avoid-card">
+          <h3>没有 60%+ 留白别硬排</h3>
+          <p>字阵本身已经扛起图形任务；如果满纸塞满二维码、印章、大段细则，轮廓立刻糊成一锅粥。</p>
+        </article>
+        <article class="avoid-card">
+          <h3>词意抽象时别强行拟物</h3>
+          <p>文案在讲理性条款，却硬把字凑成爱心或杯子，只会显得刻意廉价。拿不准时，回归 <a href="https://layout.xiaoxiaodong.ai/176/play/" target="_blank" rel="noopener">176 左对齐右参差</a> 更稳。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 节：暖宣纸白 · 小练习 -->
+  <section class="sec sec-paper" id="sec-06" aria-labelledby="h-06">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no mono">06</span>
+        <div>
+          <h2 id="h-06">练一练：哪版排对了落雪</h2>
+          <p class="sec-en" lang="en">Practice · pick the strongest setting</p>
+        </div>
+      </header>
+
+      <p class="sec-lead">同一首三行短诗：<strong>「雪落无声 / 盖住旧石阶 / 只剩一阵微白」</strong>，想传达轻落、安静、由飘到停的质感。下面 A、B、C、D 四版每次只变了一个关键变量——凭直觉挑出最成立的一版。</p>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四种落雪图形诗排法">
+        <button type="button" class="quiz-card" data-choice="A" aria-pressed="false">
+          <svg viewBox="0 0 280 220" aria-hidden="true">
+            <rect class="q-paper" width="280" height="220"/>
+            <g class="q-diag">
+              <rect x="20" y="142" width="128" height="62" class="q-box-err"/>
+              <text x="160" y="178" class="q-note-err">压死底角 · 字距紧</text>
+            </g>
+            <g class="q-poem" font-size="15">
+              <text x="28" y="164" letter-spacing="-0.5" transform="rotate(8 28 164)">雪落无声</text>
+              <text x="28" y="182" letter-spacing="-0.5" transform="rotate(6 28 182)">盖住旧石阶</text>
+              <text x="28" y="200" letter-spacing="-0.5">只剩一阵微白</text>
+            </g>
+          </svg>
+          <span class="quiz-label mono">A</span>
+        </button>
+
+        <button type="button" class="quiz-card" data-choice="B" aria-pressed="false">
+          <svg viewBox="0 0 280 220" aria-hidden="true">
+            <rect class="q-paper" width="280" height="220"/>
+            <g class="q-diag">
+              <path d="M196 42 Q144 96 76 164" class="q-flow-ok"/>
+              <text x="34" y="42" class="q-note-ok">留白约 78% · 12° 轻落</text>
+            </g>
+            <g class="q-poem" font-size="14.5">
+              <text x="150" y="58" letter-spacing="5" transform="rotate(12 150 58)">雪落无声</text>
+              <text x="100" y="114" letter-spacing="2.5" transform="rotate(8 100 114)">盖住旧石阶</text>
+              <text x="58" y="168" letter-spacing="1.2">只剩一阵微白</text>
+            </g>
+          </svg>
+          <span class="quiz-label mono">B</span>
+        </button>
+
+        <button type="button" class="quiz-card" data-choice="C" aria-pressed="false">
+          <svg viewBox="0 0 280 220" aria-hidden="true">
+            <rect class="q-paper" width="280" height="220"/>
+            <g class="q-diag">
+              <path d="M188 26 L232 104" class="q-flow-err"/>
+              <text x="16" y="34" class="q-note-err">倾角 58° · 歪头断读</text>
+            </g>
+            <g class="q-poem" font-size="13.5">
+              <text x="172" y="34" letter-spacing="2.5" transform="rotate(58 172 34)">雪落无声</text>
+              <text x="128" y="54" letter-spacing="1.8" transform="rotate(58 128 54)">盖住旧石阶</text>
+              <text x="84" y="74" letter-spacing="1.2" transform="rotate(58 84 74)">只剩一阵微白</text>
+            </g>
+          </svg>
+          <span class="quiz-label mono">C</span>
+        </button>
+
+        <button type="button" class="quiz-card" data-choice="D" aria-pressed="false">
+          <svg viewBox="0 0 280 220" aria-hidden="true">
+            <rect class="q-paper" width="280" height="220"/>
+            <g class="q-diag">
+              <path d="M26 42 H254 M26 112 H254 M26 184 H254" class="q-flow-err"/>
+              <text x="26" y="24" class="q-note-err">字距 1.4em · 词句散架</text>
+            </g>
+            <g class="q-poem" font-size="14.5">
+              <text x="24" y="54" letter-spacing="44">雪落无声</text>
+              <text x="22" y="118" letter-spacing="34">盖住旧石阶</text>
+              <text x="18" y="182" letter-spacing="26">只剩一阵微白</text>
+            </g>
+          </svg>
+          <span class="quiz-label mono">D</span>
+        </button>
+      </div>
+
+      <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+        <p class="qv-title" id="qv-title">点选上方 A、B、C、D 任意一版作答。</p>
+        <p class="qv-text" id="qv-text">选完之后，四张版面上会同时显出倾角、落势路径与字距诊断。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 节：浅赭米纸 · 原海报与关键词 -->
+  <section class="sec sec-ocher sec-poster" id="sec-07" aria-labelledby="h-07">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no mono">07</span>
+        <div>
+          <h2 id="h-07">原海报与关键词</h2>
+          <p class="sec-en" lang="en">The original poster &amp; keywords</p>
+        </div>
+      </header>
+
+      <div class="poster-layout">
+        <figure class="poster-fig">
+          <button type="button" class="poster-trigger" id="poster-open" aria-label="放大查看 190 图形诗排版原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="190 图形诗排版原海报：满幅姜黄纸面上，左上为黑字大标题与总述，中央由《山是沉默的句号》《风从远方来》《只留下光在石上呼吸》构成对称山峰，下方由《水向低处流动》《流向更远的地方》蜿蜒成溪流并垂落，右上悬一枚朱陶圆日，左下为五枚关键词，右下为黑点竖线标注的设计笔记。">
+          </button>
+          <figcaption>点击海报放大查看，放大后可拖动平移，按 Esc 键收起。</figcaption>
+        </figure>
+
+        <div class="poster-side">
+          <div class="poster-note-box">
+            <p class="pn-head">设计笔记</p>
+            <p class="pn-quote">通过文字的方向、密度与节奏，构建画面层次，引导视线，传递情绪。</p>
+          </div>
+
+          <h3 class="kw-heading">海报关键词 <span lang="en">Keywords</span></h3>
+          <ul class="kw-list">
+            <li>
+              <svg viewBox="0 0 36 36" aria-hidden="true"><path d="M4 28 L16 8 L28 28"/><circle cx="28" cy="11" r="4" class="kw-sun"/></svg>
+              <div><b>意象</b><p>让字群轮廓与词句唤起的画面合二为一。</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 36 36" aria-hidden="true"><rect x="4" y="4" width="28" height="28" stroke-dasharray="3 3"/><line x1="12" y1="22" x2="24" y2="22"/></svg>
+              <div><b>留白</b><p>六成以上的素底不是省料，是文字站出来的舞台。</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 36 36" aria-hidden="true"><line x1="6" y1="10" x2="14" y2="10"/><line x1="6" y1="18" x2="22" y2="18"/><line x1="6" y1="26" x2="30" y2="26"/></svg>
+              <div><b>节奏</b><p>长短行与字距疏密共同控制默读时的快慢与停顿。</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 36 36" aria-hidden="true"><path d="M7 26 C12 18 22 18 27 10"/><circle cx="7" cy="26" r="2.2" class="kw-fill"/><circle cx="27" cy="10" r="2.2" class="kw-fill"/></svg>
+              <div><b>文字即图</b><p>不借外框、不配插画，字阵走势本身就是主视觉。</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="9" r="3" class="kw-fill"/><line x1="18" y1="12" x2="18" y2="30"/></svg>
+              <div><b>诗性</b><p>克制、含蓄、留有余味，让读者自己补完画外之意。</p></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap foot-inner">
+    <p class="foot-id"><span class="mono">No. 190</span> 图形诗排版 · 字体、网格与东亚文字</p>
+    <p class="foot-nav">上一张 <a href="https://layout.xiaoxiaodong.ai/189/play/" target="_blank" rel="noopener">189 形状文字</a> · 下一张 <a href="https://layout.xiaoxiaodong.ai/191/play/" target="_blank" rel="noopener">191 路径文字</a></p>
+    <p class="foot-meta"><a href="https://layout.xiaoxiaodong.ai/190/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a> · 海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a> · 源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></p>
+  </div>
+</footer>
+
+<dialog id="poster-dialog" class="poster-dialog" aria-label="放大查看原海报">
+  <div class="dlg-bar">
+    <span class="dlg-title">190 图形诗排版 · 原海报</span>
+    <div class="dlg-tools">
+      <button type="button" id="dlg-out" aria-label="缩小">−</button>
+      <output id="dlg-pct" class="mono">100%</output>
+      <button type="button" id="dlg-in" aria-label="放大">+</button>
+      <button type="button" id="dlg-reset">复原</button>
+      <button type="button" id="dlg-close">关闭</button>
+    </div>
+  </div>
+  <div class="dlg-viewport" id="dlg-viewport">
+    <img id="dlg-img" draggable="false" alt="190 图形诗排版原海报（放大视图）">
+  </div>
+</dialog>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
