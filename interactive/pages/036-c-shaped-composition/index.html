@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>036 C形构图 · C-SHAPED COMPOSITION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <div class="hero-bar">
+      <div class="hero-crumb">
+        <span class="crumb-dot crumb-dot--orange" aria-hidden="true"></span>
+        <span class="crumb-dot crumb-dot--blue" aria-hidden="true"></span>
+        <span class="crumb-text">构图逻辑 / 字母形与曲线</span>
+      </div>
+      <div class="hero-meta">
+        <span class="meta-code" lang="en">NO. 036 · C-SHAPED</span>
+        <span class="meta-pill meta-pill--error" id="heroScorePill" aria-live="polite">0 / 4 待理顺</span>
+      </div>
+    </div>
+
+    <div class="hero-masthead">
+      <div class="masthead-left">
+        <h1 class="hero-title">
+          <span class="live-c-glyph" id="liveCGlyph" aria-hidden="true">
+            <svg viewBox="0 0 88 88" width="68" height="68" focusable="false">
+              <circle cx="44" cy="44" r="31" fill="none" stroke="rgba(11,22,34,0.12)" stroke-width="11"/>
+              <path id="liveCArcPath" d="" fill="none" stroke="#0B1622" stroke-width="13" stroke-linecap="butt"/>
+              <circle id="liveCFocusDot" cx="44" cy="44" r="7" fill="#EA6B37"/>
+            </svg>
+          </span>
+          <span class="sr-only">C</span><span class="hero-title-zh">形构图</span>
+        </h1>
+        <p class="hero-en" lang="en">C-SHAPED COMPOSITION</p>
+        <div class="orange-dash" aria-hidden="true"></div>
+        <p class="hero-summary">利用弧线形成包裹结构，开口方向引导视线延伸，增强主体存在感与故事感。</p>
+      </div>
+
+      <div class="masthead-right">
+        <div class="principle-mark">
+          <span class="principle-zh">构图原理</span>
+          <span class="principle-en" lang="en">COMPOSITION PRINCIPLES</span>
+          <span class="principle-dash" aria-hidden="true"></span>
+        </div>
+        <div class="theme-switcher" role="group" aria-label="切换画布题材">
+          <button type="button" class="theme-btn is-active" data-theme="poster" aria-pressed="true">原海报图谱</button>
+          <button type="button" class="theme-btn" data-theme="lighthouse" aria-pressed="false">海岸灯塔</button>
+          <button type="button" class="theme-btn" data-theme="exhibition" aria-pressed="false">展讯海报</button>
+        </div>
+        <div class="preset-row" role="group" aria-label="观察多组合法解或复原错态">
+          <button type="button" class="preset-btn" data-preset="posterRight">原海报右开解</button>
+          <button type="button" class="preset-btn" data-preset="reverseLeft">倒 C 左开解</button>
+          <button type="button" class="preset-btn" data-preset="cradleUp">仰碗上开解</button>
+          <button type="button" class="preset-btn preset-btn--reset" data-preset="broken">复原 0/4 错态</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-workbench">
+      <div class="workbench-stage">
+        <div class="stage-frame">
+          <canvas id="heroCanvas" class="hero-canvas" data-perf-drag aria-label="C形构图活体交互画布：横向拖动改变弧线包裹角度，拖动橙色焦点改变主体位置，拖动蓝色开口箭头旋转开口方向，点击红色虚线块清理挡口障碍"></canvas>
+          <div class="stage-hud" id="stageHud" aria-live="polite">
+            <span class="hud-chip" id="hudWrap">包裹 332°</span>
+            <span class="hud-chip" id="hudOpen">开口 8° · 余白 14%</span>
+            <span class="hud-chip hud-chip--score" id="hudScore">0/4</span>
+          </div>
+          <p class="stage-gesture-note">画布直操：空白区左右横拖调包裹角 · 拖橙圆移焦点 · 拖蓝箭旋开口 · 拖白环移弧心 · 点红块清挡口 · 方向键微调</p>
+        </div>
+
+        <div class="hero-controls" aria-label="C弧参数微调">
+          <label class="ctrl-slider">
+            <span class="ctrl-label">包裹角 <strong id="valWrap" class="mono">332°</strong></span>
+            <input type="range" id="rangeWrap" min="65" max="350" step="1" value="332">
+          </label>
+          <label class="ctrl-slider">
+            <span class="ctrl-label">开口朝向 <strong id="valOpen" class="mono">8° →</strong></span>
+            <input type="range" id="rangeOpen" min="0" max="359" step="1" value="8">
+          </label>
+          <div class="ctrl-actions">
+            <button type="button" class="mini-btn" id="btnToggleBlocker" aria-pressed="true">挡口块：开</button>
+            <button type="button" class="mini-btn is-on" id="btnToggleRays" aria-pressed="true">放射视线：开</button>
+            <button type="button" class="mini-btn" id="btnCenterFocus">焦点归怀</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="workbench-side" aria-label="实时诊断与原海报四要点">
+        <div class="diag-card diag-card--error" id="diagCard" aria-live="polite">
+          <div class="diag-top">
+            <span class="diag-badge" id="diagBadge">错态 · 闭口成 O (0/4)</span>
+            <span class="diag-source">实绘几何单真源</span>
+          </div>
+          <h2 class="diag-headline" id="diagHeadline">弧度合拢到 332°，C 形退化成闷死的封闭圆圈</h2>
+          <p class="diag-body" id="diagBody">此刻开口只剩 28° 窄缝，外脊几乎咬合成一只闭口 O 环。视线被关在圆圈里反复打转、出不去，既失去「开口导向」的延伸空间，也让主体像被关进笼子一样局促。</p>
+          <p class="diag-hint" id="diagHint">在画布空白处向左横拖（或按 ← 键），把包裹角收回到 175°–265° 经验参考带，替画面打开呼吸口。</p>
+
+          <dl class="diag-metrics">
+            <div class="metric-cell">
+              <dt>包裹角（经验 175°–265°）</dt>
+              <dd id="metWrap" class="mono">332°</dd>
+            </div>
+            <div class="metric-cell">
+              <dt>开口前方余白（≥24%）</dt>
+              <dd id="metMargin" class="mono">14%</dd>
+            </div>
+            <div class="metric-cell">
+              <dt>焦点偏心比（≤36%）</dt>
+              <dd id="metFocus" class="mono">118%</dd>
+            </div>
+            <div class="metric-cell">
+              <dt>停留与延展评估</dt>
+              <dd id="metFlow">闷闭打转（示意）</dd>
+            </div>
+          </dl>
+        </div>
+
+        <ul class="spine-points" aria-label="原海报左脊四要点实况">
+          <li class="spine-item is-fail" data-check="enclose">
+            <button type="button" class="spine-btn" data-highlight="enclose">
+              <span class="spine-head">
+                <span class="spine-zh">包裹主体</span>
+                <span class="spine-en" lang="en">ENCLOSE</span>
+                <span class="spine-state" id="stEnclose">332° 闭口成 O</span>
+              </span>
+              <span class="spine-desc">弧线围合主体，增强聚焦与安全感。</span>
+            </button>
+          </li>
+          <li class="spine-item is-fail" data-check="hold">
+            <button type="button" class="spine-btn" data-highlight="hold">
+              <span class="spine-head">
+                <span class="spine-zh">视觉停留</span>
+                <span class="spine-en" lang="en">VISUAL HOLD</span>
+                <span class="spine-state" id="stHold">脱抱出弧</span>
+              </span>
+              <span class="spine-desc">弧线延缓视线移动，延长观看时间。</span>
+            </button>
+          </li>
+          <li class="spine-item is-fail" data-check="soft">
+            <button type="button" class="spine-btn" data-highlight="open">
+              <span class="spine-head">
+                <span class="spine-zh">柔性框架</span>
+                <span class="spine-en" lang="en">SOFT FRAME</span>
+                <span class="spine-state" id="stSoft">开口锁死</span>
+              </span>
+              <span class="spine-desc">弧线柔和包裹，兼具灵活与舒适。</span>
+            </button>
+          </li>
+          <li class="spine-item is-fail" data-check="flow">
+            <button type="button" class="spine-btn" data-highlight="flow">
+              <span class="spine-head">
+                <span class="spine-zh">节奏引导</span>
+                <span class="spine-en" lang="en">FLOW GUIDE</span>
+                <span class="spine-state" id="stFlow">挡口截停</span>
+              </span>
+              <span class="spine-desc">沿弧线自然移动，在开口处延伸视线。</span>
+            </button>
+          </li>
+        </ul>
+      </aside>
+    </div>
+
+    <div class="hero-pill-bar" role="region" aria-label="原海报核心要点胶囊条">
+      <div class="pill-brand">
+        <span class="pill-icon-circle" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="#FFFFFF"><path d="M12 20.4l-1.45-1.32C5.4 14.36 2 11.28 2 7.5 2 4.42 4.42 2 7.5 2c1.74 0 3.41.81 4.5 2.09C13.09 2.81 14.76 2 16.5 2 19.58 2 22 4.42 22 7.5c0 3.78-3.4 6.86-8.55 11.54L12 20.4z"/></svg>
+        </span>
+        <span class="pill-divider" aria-hidden="true"></span>
+        <div class="pill-label">
+          <strong>核心要点</strong>
+          <span lang="en">KEY POINTS</span>
+        </div>
+      </div>
+      <div class="pill-keywords" role="group" aria-label="点选高亮对应结构">
+        <button type="button" class="pill-kw" data-kw="enclose"><span class="kw-dot" aria-hidden="true"></span>包裹主体</button>
+        <button type="button" class="pill-kw" data-kw="open"><span class="kw-dot" aria-hidden="true"></span>开口导向</button>
+        <button type="button" class="pill-kw" data-kw="hold"><span class="kw-dot" aria-hidden="true"></span>视觉停留</button>
+        <button type="button" class="pill-kw" data-kw="flow"><span class="kw-dot" aria-hidden="true"></span>柔性框架</button>
+      </div>
+      <a class="pill-go" href="#sec-01" aria-label="跳转到第 01 节">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 01 为什么弧线能抱住眼睛 -->
+  <section class="band band--cloud" id="sec-01">
+    <div class="container">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div>
+          <h2 class="sec-title">为什么弧线能抱住眼睛</h2>
+          <p class="sec-en" lang="en">WHY THE SOFT C-ARC HOLDS THE EYE</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">
+        海报把 C 形构图拆成了四个相连的动作：<strong>包裹主体</strong>、<strong>视觉停留</strong>、<strong>柔性框架</strong>、<strong>节奏引导</strong>。它们并不是四个孤立形容词，而是同一条半开放弧线引发的连锁心理反应——相比生硬的直角相框，连续弧线既让大脑感到安全亲和，又把目光从直线冲刺放缓成环绕驻足。
+      </p>
+
+      <div class="anatomy-grid">
+        <div class="anatomy-cards" role="tablist" aria-label="展开四项原海报要点">
+          <button type="button" class="ana-card is-active" role="tab" aria-selected="true" data-ana="enclose">
+            <span class="ana-meta"><strong class="ana-zh">包裹主体</strong><span class="ana-en" lang="en">ENCLOSE</span></span>
+            <span class="ana-quote">原海报：「弧线围合主体，增强聚焦与安全感。」</span>
+            <span class="ana-text">人在空间里天然倾向背靠遮蔽、面朝开阔。超过半圆的弧脊从三面环抱焦点，像一只托稳主体的手掌，替主角隔离掉周围散乱背景。</span>
+          </button>
+          <button type="button" class="ana-card" role="tab" aria-selected="false" data-ana="hold">
+            <span class="ana-meta"><strong class="ana-zh">视觉停留</strong><span class="ana-en" lang="en">VISUAL HOLD</span></span>
+            <span class="ana-quote">原海报：「弧线延缓视线移动，延长观看时间。」</span>
+            <span class="ana-text">笔直斜线会把目光迅速甩向画框边角；连续弯曲的弧道则迫使视线减速拐弯，绕着圆心兜一圈，把宝贵的停留时间留给怀里的核心主体。</span>
+          </button>
+          <button type="button" class="ana-card" role="tab" aria-selected="false" data-ana="soft">
+            <span class="ana-meta"><strong class="ana-zh">柔性框架</strong><span class="ana-en" lang="en">SOFT FRAME</span></span>
+            <span class="ana-quote">原海报：「弧线柔和包裹，兼具灵活与舒适。」</span>
+            <span class="ana-text">认知心理实验（Bar &amp; Neta, 2006）表明，尖锐折角容易触发潜意识警戒，而柔和曲线天然唤起亲和与舒适。用弯路、花枝、衣袖或拱廊作框，比硬直边框更温柔。</span>
+          </button>
+          <button type="button" class="ana-card" role="tab" aria-selected="false" data-ana="flow">
+            <span class="ana-meta"><strong class="ana-zh">节奏引导</strong><span class="ana-en" lang="en">FLOW GUIDE</span></span>
+            <span class="ana-quote">原海报：「沿弧线自然移动，在开口处延伸视线。」</span>
+            <span class="ana-text">真正的分水岭在「开口」。C 弧先沿曲线收束视线，再把积蓄好的动势从豁口轻柔吐向大片留白，于是静止画面里便生出了「接下来会发生什么」的故事感。</span>
+          </button>
+        </div>
+
+        <div class="anatomy-visual" aria-live="polite">
+          <div class="anatomy-visual-head">
+            <span class="visual-tag" id="anaVisualTag">对照解剖 · 包裹主体</span>
+            <span class="visual-caption" id="anaVisualCap">直角硬框 vs C 形柔弧</span>
+          </div>
+          <svg id="anaSvg" class="ana-svg" viewBox="0 0 520 320" role="img" aria-label="直角硬框与C形柔弧的视觉包裹对照示意"></svg>
+          <p class="anatomy-note" id="anaNote">左侧硬直边框把主体框成孤立标本，四角生硬截断视线；右侧 225° C 弧从三面温柔聚拢，既守住主角，又留出右侧通透呼吸口。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 从浅弓到闭口 O 圈 -->
+  <section class="band band--mist" id="sec-02">
+    <div class="container">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div>
+          <h2 class="sec-title">从浅弓到闭口 O 圈</h2>
+          <p class="sec-en" lang="en">THE OPEN-ARC SPECTRUM</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">
+        并不是画上一条弯线就叫 C 形构图。弧度拉得太短，只是一弯留不住目光的浅弓；弧度收得太满，就会合拢成把视线关死在里面的 O 形牢笼。推动下方标尺，观察模拟眼动轨迹在 85° 到 350° 之间如何翻脸。
+      </p>
+
+      <div class="spectrum-panel">
+        <div class="spectrum-canvas-wrap">
+          <canvas id="spectrumCanvas" class="spectrum-canvas" aria-label="弧度连续变化与眼动路径模拟画布"></canvas>
+        </div>
+
+        <div class="spectrum-side">
+          <div class="spec-badge" id="specTag">C 形舒适带 · 175°–265°</div>
+          <h3 class="spec-title" id="specTitle">三面柔抱 + 一面敞口，停得住也走得远</h3>
+          <p class="spec-desc" id="specDesc">弧线超过半圆却故意不合拢：大脑一边用「闭合倾向」认出它是个完整怀抱，让目光在主体停留；一边顺着留出的豁口把情绪送向画内余白。</p>
+
+          <dl class="spec-readouts">
+            <div>
+              <dt>当前包裹角</dt>
+              <dd id="specDeg" class="mono">225°</dd>
+            </div>
+            <div>
+              <dt>开口扇角</dt>
+              <dd id="specGap" class="mono">135°</dd>
+            </div>
+            <div>
+              <dt>视线表现</dt>
+              <dd id="specDwell">均衡滞留并顺延（示意）</dd>
+            </div>
+          </dl>
+
+          <label class="spec-slider-wrap">
+            <span class="spec-slider-labels">
+              <span>85° 浅弓</span>
+              <span>225° 柔 C 经验带</span>
+              <span>350° 死 O 圈</span>
+            </span>
+            <input type="range" id="spectrumRange" min="85" max="350" step="1" value="225">
+          </label>
+
+          <div class="spec-stops" role="group" aria-label="快速跳转弧度档位">
+            <button type="button" class="stop-btn" data-deg="110">110° 浅弓</button>
+            <button type="button" class="stop-btn is-active" data-deg="225">225° 标准 C</button>
+            <button type="button" class="stop-btn" data-deg="282">282° 临界收口</button>
+            <button type="button" class="stop-btn" data-deg="342">342° 闭口 O</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 开口朝哪，故事往哪长（深海普鲁士蓝暗室） -->
+  <section class="band band--abyss" id="sec-03">
+    <div class="container">
+      <div class="sec-head sec-head--dark">
+        <span class="sec-num" lang="en">03</span>
+        <div>
+          <h2 class="sec-title">开口朝哪，故事往哪长</h2>
+          <p class="sec-en" lang="en">OPEN DIRECTION SHAPES THE STORY</p>
+        </div>
+      </div>
+
+      <p class="sec-lead sec-lead--dark">
+        原海报单独把「开口导向 OPEN DIRECTION」提在右侧作为核心概念——因为决定 C 形构图情绪基调的，从来不是弧脊在哪，而是<strong>那扇没合上的门朝向哪里</strong>。切按四枚方位罗盘，看同一套包裹结构如何切换成四种叙事气氛。
+      </p>
+
+      <div class="theater-layout">
+        <div class="compass-grid" role="group" aria-label="选择开口方向">
+          <button type="button" class="compass-card is-active" data-dir="right" aria-pressed="true">
+            <span class="compass-arrow mono" aria-hidden="true">→</span>
+            <span class="compass-meta">
+              <strong>向右开口 · 正 C</strong>
+              <span class="compass-sub">顺读叙事 / 启程感</span>
+            </span>
+          </button>
+          <button type="button" class="compass-card" data-dir="left" aria-pressed="false">
+            <span class="compass-arrow mono" aria-hidden="true">←</span>
+            <span class="compass-meta">
+              <strong>向左开口 · 倒 C</strong>
+              <span class="compass-sub">回望悬念 / 稳重收束</span>
+            </span>
+          </button>
+          <button type="button" class="compass-card" data-dir="up" aria-pressed="false">
+            <span class="compass-arrow mono" aria-hidden="true">↑</span>
+            <span class="compass-meta">
+              <strong>向上开口 · 仰碗</strong>
+              <span class="compass-sub">承托升腾 / 轻盈开阔</span>
+            </span>
+          </button>
+          <button type="button" class="compass-card" data-dir="down" aria-pressed="false">
+            <span class="compass-arrow mono" aria-hidden="true">↓</span>
+            <span class="compass-meta">
+              <strong>向下开口 · 穹顶</strong>
+              <span class="compass-sub">庇护笼罩 / 引向前景</span>
+            </span>
+          </button>
+        </div>
+
+        <div class="theater-stage-card">
+          <canvas id="directionCanvas" class="direction-canvas" aria-label="四向开口叙事剧场画布"></canvas>
+          <div class="theater-caption" aria-live="polite">
+            <div class="theater-cap-top">
+              <span class="theater-en" id="dirEn" lang="en">OPEN RIGHT · FORWARD FLOW</span>
+              <span class="theater-scene" id="dirScene">海湾码头与望向远方的观海人（侧影）</span>
+            </div>
+            <p class="theater-why" id="dirWhy">中文与英文横排都习惯从左往右阅读。把弧脊放在左侧挡风托底，开口朝右敞向开阔留白，眼睛进画毫不费力，先抱住人物与灯塔，再顺势望向未完的远方。</p>
+            <p class="theater-fit"><strong>典型适用：</strong><span id="dirFit">横向海报主视觉、网站 Hero 头图、公路/海岸风景、人物面朝右的肖像。</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 它从哪来：巨浪与格式塔 -->
+  <section class="band band--porcelain" id="sec-04">
+    <div class="container">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div>
+          <h2 class="sec-title">它从哪来：巨浪与格式塔</h2>
+          <p class="sec-en" lang="en">ORIGINS IN ART &amp; PERCEPTION</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">
+        「C 形构图」这个简称来自现代摄影与平面教材的字母速记法，但背后的视觉法则早在浮世绘版画、古典绘画构图学与二十世纪格式塔心理学里就已被反复拆透。
+      </p>
+
+      <div class="origin-grid">
+        <div class="wave-lab">
+          <div class="wave-lab-head">
+            <div>
+              <h3 class="wave-title">《神奈川冲浪里》里的双层 C 弧</h3>
+              <p class="wave-sub">葛饰北斋 · 约 1830–1832 年 · 构图结构矢量拆解</p>
+            </div>
+            <span class="wave-tag" id="waveModeTag">双弧叠抱富士</span>
+          </div>
+          <svg id="waveSvg" class="wave-svg" viewBox="0 0 560 360" role="img" aria-label="葛饰北斋神奈川冲浪里双层C弧结构示意图"></svg>
+          <div class="wave-toggles" role="group" aria-label="切换拆解图层">
+            <label class="toggle-chip"><input type="checkbox" id="chkOuterC" checked><span>巨浪外 C 弧</span></label>
+            <label class="toggle-chip"><input type="checkbox" id="chkBoatC" checked><span>船身内 C 弧</span></label>
+            <label class="toggle-chip"><input type="checkbox" id="chkOpenFan" checked><span>开口延伸扇</span></label>
+            <label class="toggle-chip toggle-chip--warn"><input type="checkbox" id="chkFlatten"><span>试错：抹平浪弧</span></label>
+          </div>
+          <p class="wave-note" id="waveNote">左侧巨浪卷成一道巨大的顺时针 C 弧，把远方矮小的富士山稳稳包在怀中；下方的押送船也弯成一条更柔的内弧。试着勾选「抹平浪弧」，富士山立刻失去压迫与聚焦。</p>
+        </div>
+
+        <ol class="timeline">
+          <li class="tl-item">
+            <span class="tl-year mono">ca. 1830–32</span>
+            <div class="tl-body">
+              <h3>葛饰北斋《神奈川冲浪里》</h3>
+              <p>出自《富岳三十六景》（大都会艺术博物馆藏 JP10）。左侧高耸浪峰弯成钩状巨弧，将远景小巧的富士山圈进弧怀，同时把波涛势能敞向右侧海天。</p>
+            </div>
+          </li>
+          <li class="tl-item">
+            <span class="tl-year mono">1903</span>
+            <div class="tl-body">
+              <h3>Poore 提出「圆形观察」</h3>
+              <p>美国画家兼理论家 Henry Rankin Poore 在《绘画构图与画作评判》（<em>Pictorial Composition and the Critical Judgment of Pictures</em>）中系统论述：直线容易把眼睛带出画外，而圆弧与椭圆路径能以连续旋涡把松散元素收束成整体。</p>
+            </div>
+          </li>
+          <li class="tl-item">
+            <span class="tl-year mono">1923</span>
+            <div class="tl-body">
+              <h3>Wertheimer 格式塔连续与闭合</h3>
+              <p>Max Wertheimer 在《格式塔理论研究 II》（<em>Psychologische Forschung</em>, Vol. 4）中确立良好连续性与闭合性原则：即便只画大半圈弧线，大脑仍会自动延续弧势并将其感知为包裹场。</p>
+            </div>
+          </li>
+          <li class="tl-item">
+            <span class="tl-year mono">1954 / 1974</span>
+            <div class="tl-body">
+              <h3>Arnheim 剖析圆弧的向心与外张</h3>
+              <p>Rudolf Arnheim 在《艺术与视知觉》（<em>Art and Visual Perception</em>）中指出，画面里的每一条曲线都携带结构张力——半包围结构既在弧心聚拢向心力，又在缺口处释放出指向画内余白的矢量。</p>
+            </div>
+          </li>
+          <li class="tl-item">
+            <span class="tl-year mono">2006</span>
+            <div class="tl-body">
+              <h3>Bar &amp; Neta 证实曲线情绪亲和</h3>
+              <p>Moshe Bar 与 Maital Neta 在《Psychological Science》发表实验，证明相较尖锐折角触发的潜意识防御，人类对流畅弯曲轮廓具有显著的快速亲和偏好——这正是 C 弧「柔性框架」舒适感的心理根基。</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 什么时候用，什么时候别用 -->
+  <section class="band band--sky" id="sec-05">
+    <div class="container">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div>
+          <h2 class="sec-title">什么时候用，什么时候别用</h2>
+          <p class="sec-en" lang="en">WHEN TO USE &amp; WHEN TO AVOID</p>
+        </div>
+      </div>
+
+      <div class="use-block">
+        <div class="subhead-row">
+          <h3 class="sub-h3">原海报列出的四个拿手场景</h3>
+          <span class="sub-note-pill">实景核查</span>
+        </div>
+
+        <div class="app-grid">
+          <article class="app-card">
+            <div class="app-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="#FFFFFF"><path d="M9 4l-1.8 2H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2h-3.2L15 4H9zm3 13a4 4 0 110-8 4 4 0 010 8z"/></svg>
+            </div>
+            <h4>摄影构图</h4>
+            <p class="app-quote">「主体环绕布置，营造空间层次。」</p>
+            <p class="app-exp">用湾岸、弯道、拱门、垂枝或被摄者抬起的手臂构成前景柔弧，把主体托在弧怀里，并让被摄者面朝开口侧留足目光空间。</p>
+          </article>
+
+          <article class="app-card">
+            <div class="app-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="#FFFFFF"><path d="M3 19l6-8 4 5 3-4 5 7H3zm13.5-10a2 2 0 110-4 2 2 0 010 4z"/></svg>
+            </div>
+            <h4>海报设计</h4>
+            <p class="app-quote">「突出主题，引导信息阅读。」</p>
+            <p class="app-exp">用粗大弧形色带、弯曲标题或半圆光环托出主视觉，把日期、地点、副标题顺理成章排在开口吐出的留白区里，不跟主体打架。</p>
+          </article>
+
+          <article class="app-card">
+            <div class="app-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="#FFFFFF"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <h4>视频画面</h4>
+            <p class="app-quote">「环形动线引导，聚焦核心内容。」</p>
+            <p class="app-exp">半环绕运镜（Arc Shot）或前景弧形遮挡切入主角，镜头停在开口一侧为下一个入画角色或转场方向预留视觉走廊。</p>
+          </article>
+
+          <article class="app-card">
+            <div class="app-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="#FFFFFF"><path d="M12 12a4 4 0 100-8 4 4 0 000 8zm-7 8a7 7 0 0114 0H5z"/></svg>
+            </div>
+            <h4>产品展示</h4>
+            <p class="app-quote">「环绕式展示，增强包裹与质感。」</p>
+            <p class="app-exp">用泼溅液体、飘带、光晕或配饰围出半圈怀抱，把瓶身或硬件安在弧心，开口侧干净放型号与卖点文案，画面立刻柔和且高级。</p>
+          </article>
+        </div>
+
+        <aside class="gentle-fix" aria-label="对原海报说法的温和补充">
+          <span class="gentle-tag">说多了一点</span>
+          <p>
+            海报总述提到 C 弧「增强主体存在感与故事感」——但前提是<strong>弧线得是场景或版面里顺理成章的视觉元素</strong>，并且开口前面真的留了空间。如果把主体硬塞进一条生硬画上去的粗色环，或者开口死贴画框边缘，非但生不出故事感，反而会像贴了一枚廉价装饰贴纸。
+          </p>
+        </aside>
+      </div>
+
+      <div class="avoid-block">
+        <div class="subhead-row">
+          <h3 class="sub-h3">这四种情况，别硬用 C 形构图</h3>
+          <span class="sub-note-pill sub-note-pill--warn">反例避坑</span>
+        </div>
+
+        <div class="avoid-grid">
+          <article class="avoid-card">
+            <svg class="avoid-mini" viewBox="0 0 160 88" aria-hidden="true">
+              <rect x="10" y="10" width="140" height="68" fill="#F7FBFE" stroke="#8FB7E3" stroke-width="1.5"/>
+              <rect x="24" y="20" width="44" height="48" fill="#1D549B" opacity="0.22"/>
+              <rect x="76" y="20" width="60" height="20" fill="#1D549B" opacity="0.22"/>
+              <rect x="76" y="48" width="60" height="20" fill="#1D549B" opacity="0.22"/>
+              <path d="M98 16 A30 30 0 1 0 98 72" fill="none" stroke="#B91C1C" stroke-width="4" stroke-dasharray="5 4"/>
+            </svg>
+            <h4>需要冷峻纪律与网格秩序</h4>
+            <p>建筑立面、金融报表、精密仪表界面需要横平竖直的客观感。强加柔和弧线会削弱权威感，此时更适合稳固直角或网格骨架。</p>
+          </article>
+
+          <article class="avoid-card">
+            <svg class="avoid-mini" viewBox="0 0 160 88" aria-hidden="true">
+              <rect x="10" y="10" width="140" height="68" fill="#F7FBFE" stroke="#8FB7E3" stroke-width="1.5"/>
+              <circle cx="48" cy="44" r="14" fill="#EA6B37"/>
+              <circle cx="112" cy="44" r="14" fill="#3576C4"/>
+              <path d="M62 18 A28 28 0 1 0 62 70" fill="none" stroke="#B91C1C" stroke-width="3.5" stroke-dasharray="4 3"/>
+            </svg>
+            <h4>双主角平等对峙的画面</h4>
+            <p>C 弧天然偏心于唯一被包裹的中心。如果画面要表现两方势均力敌的冲突或并列比较，单 C 弧会让另一方被冷落成配角，不如改用对称或 <a href="https://layout.xiaoxiaodong.ai/031/play/" target="_blank" rel="noopener">031 X 形构图</a>。</p>
+          </article>
+
+          <article class="avoid-card">
+            <svg class="avoid-mini" viewBox="0 0 160 88" aria-hidden="true">
+              <rect x="10" y="10" width="140" height="68" fill="#F7FBFE" stroke="#8FB7E3" stroke-width="1.5"/>
+              <rect x="20" y="20" width="34" height="20" rx="2" fill="#3576C4" opacity="0.35"/>
+              <rect x="62" y="20" width="34" height="20" rx="2" fill="#3576C4" opacity="0.35"/>
+              <rect x="104" y="20" width="34" height="20" rx="2" fill="#3576C4" opacity="0.35"/>
+              <rect x="20" y="48" width="34" height="20" rx="2" fill="#3576C4" opacity="0.35"/>
+              <rect x="62" y="48" width="34" height="20" rx="2" fill="#3576C4" opacity="0.35"/>
+              <rect x="104" y="48" width="34" height="20" rx="2" fill="#3576C4" opacity="0.35"/>
+            </svg>
+            <h4>多入口并列的信息墙与导航</h4>
+            <p>需要用户快速按顺序扫视四到八个并列卖点时，弧形围合会拖慢阅读效率。多站信息递进交给 <a href="https://layout.xiaoxiaodong.ai/035/play/" target="_blank" rel="noopener">035 Z 形构图</a> 更顺手。</p>
+          </article>
+
+          <article class="avoid-card">
+            <svg class="avoid-mini" viewBox="0 0 160 88" aria-hidden="true">
+              <rect x="52" y="8" width="56" height="72" fill="#F7FBFE" stroke="#8FB7E3" stroke-width="1.5"/>
+              <circle cx="80" cy="44" r="10" fill="#EA6B37"/>
+              <path d="M94 20 A26 26 0 1 0 94 68" fill="none" stroke="#B91C1C" stroke-width="4"/>
+            </svg>
+            <h4>极窄细长条幅被强行塞进横弧</h4>
+            <p>细长画幅里横向空间太短，如果还硬排左抱右开的 C 弧，不是弧背被裁断，就是开口立刻撞壁；要么把开口转朝长边（上开/下开），要么改走纵向动线。</p>
+          </article>
+        </div>
+
+        <p class="sibling-links">
+          <strong>同小类分界一眼看清：</strong>
+          要稳稳托住直角边缘但不追求柔弧感，看 <a href="https://layout.xiaoxiaodong.ai/033/play/" target="_blank" rel="noopener">033 L 形构图</a>；
+          如果曲线需要正反双向折返拉出深远纵深，看 <a href="https://layout.xiaoxiaodong.ai/037/play/" target="_blank" rel="noopener">037 S 形构图</a>；
+          如果全画由多条不固定形态的流畅曲线编织，看 <a href="https://layout.xiaoxiaodong.ai/038/play/" target="_blank" rel="noopener">038 曲线构图</a> 或重复律动的 <a href="https://layout.xiaoxiaodong.ai/039/play/" target="_blank" rel="noopener">039 波浪形构图</a>；
+          需要尖锐折返冲劲则看 <a href="https://layout.xiaoxiaodong.ai/040/play/" target="_blank" rel="noopener">040 锯齿形构图</a>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 小练习：挑出成立的 C 弧 -->
+  <section class="band band--cloud" id="sec-06">
+    <div class="container">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <div>
+          <h2 class="sec-title">小练习：挑出成立的 C 弧</h2>
+          <p class="sec-en" lang="en">VISUAL CHECK · ONE VARIABLE ONLY</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">
+        你正在为一张海岸孤岛灯塔横幅海报审稿。四张草图画风、主体大小完全相同，<strong>只差堤岸弧度与开口余白这一个变量</strong>。哪一张最符合 C 形构图「柔抱主体 + 开口延展」的要求？
+      </p>
+
+      <div class="quiz-grid" id="quizGrid" role="group" aria-label="四选一构图练习">
+        <!-- 由 sections.js 按 model.js 的 QUIZ_OPTIONS 单真源渲染带矢量画面的按钮卡片 -->
+      </div>
+
+      <div class="quiz-feedback" id="quizFeedback" hidden aria-live="polite">
+        <div class="quiz-fb-head">
+          <span class="quiz-fb-badge" id="quizFbBadge"></span>
+          <button type="button" class="quiz-retry-btn" id="quizRetry">重选一次</button>
+        </div>
+        <p class="quiz-fb-text" id="quizFbText"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 原海报与核心要点 -->
+  <section class="band band--poster" id="sec-07">
+    <div class="container">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div>
+          <h2 class="sec-title">原海报与核心要点</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; KEY TAKEAWAYS</p>
+        </div>
+      </div>
+
+      <div class="poster-grid">
+        <figure class="poster-figure">
+          <button type="button" class="poster-trigger" id="posterOpenBtn" aria-label="放大查看 036 原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="036 C形构图原海报：浅天蓝底、暖橙大C弧与焦点圆、晴空蓝放射箭头及核心要点" draggable="false">
+            <span class="poster-zoom-hint">点击放大 · 支持滚轮缩放与拖动</span>
+          </button>
+        </figure>
+
+        <div class="poster-notes">
+          <p class="poster-lead">
+            回头看 036 号原海报本身，就是一堂无声的 C 形示范课：整张画把暖橙大圆与厚实 C 弧推在偏右腹地，用左侧四枚骑脊圆徽锚住说明文字，右侧留出透气的浅天蓝空间供六条蓝虚线放射箭展开，最后在底沿用纯白圆角胶囊条温柔兜住全页。
+          </p>
+
+          <h3 class="poster-sub">海报核心要点对照</h3>
+          <dl class="poster-kv">
+            <div>
+              <dt>包裹主体 <span lang="en">ENCLOSE</span></dt>
+              <dd>弧度落在约 175°–265° 经验区间，从三面护住主角，不滑向浅弓，也不合拢成死 O 圈。</dd>
+            </div>
+            <div>
+              <dt>开口导向 <span lang="en">OPEN DIRECTION</span></dt>
+              <dd>开口必须对着画内留足余白的开阔侧（建议 ≥ 24% 净延伸空间），不要死怼近侧画框。</dd>
+            </div>
+            <div>
+              <dt>视觉停留 <span lang="en">VISUAL HOLD</span></dt>
+              <dd>主体安稳居于弧怀内腹，让视线顺曲线减速停顿，延长停留在核心内容上的时间。</dd>
+            </div>
+            <div>
+              <dt>柔性框架 <span lang="en">SOFT FRAME</span></dt>
+              <dd>优先借用场景里的自然弯曲元素（海岸、枝叶、拱廊、衣袖、光晕）成弧，柔和而不造作。</dd>
+            </div>
+          </dl>
+
+          <div class="poster-tags" aria-label="原海报关键词">
+            <span class="ptag">包裹主体 · ENCLOSE</span>
+            <span class="ptag">开口导向 · OPEN DIRECTION</span>
+            <span class="ptag">视觉停留 · VISUAL HOLD</span>
+            <span class="ptag">柔性框架 · SOFT FRAME</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <p>
+      <a href="https://layout.xiaoxiaodong.ai/036/play/" target="_blank" rel="noopener">在线版</a>
+      <span aria-hidden="true"> / </span>
+      <span>全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai</a></span>
+      <span class="footer-sep" aria-hidden="true">·</span>
+      <span>海报 CC BY 4.0</span>
+      <span class="footer-sep" aria-hidden="true">·</span>
+      <a href="https://github.com/xxd-design/350-layout" target="_blank" rel="noopener">源文件 GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱 -->
+<div class="lightbox" id="posterLightbox" hidden role="dialog" aria-modal="true" aria-label="原海报放大查看">
+  <div class="lb-toolbar">
+    <span class="lb-title">036 C形构图 · 原海报</span>
+    <div class="lb-btns">
+      <button type="button" class="lb-btn" id="lbZoomOut" aria-label="缩小">−</button>
+      <span class="lb-zoom mono" id="lbZoomLabel">100%</span>
+      <button type="button" class="lb-btn" id="lbZoomIn" aria-label="放大">+</button>
+      <button type="button" class="lb-btn" id="lbReset">还原</button>
+      <button type="button" class="lb-btn lb-btn--close" id="lbClose" aria-label="关闭灯箱">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lbViewport">
+    <img id="lbImg" alt="036 C形构图原海报放大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
