@@ -1,14 +1,14 @@
 // 正文全部互动实验：
 //   01 眯眼/去色骨架检验（Squint & Grayscale Lab）
 //   02 同时对比错觉实验（Chevreul & Albers Bridge Lab）
-//   03 十一阶区域标尺与画面调性（11-Zone & Tonal Key Lab）
+//   03 浓淡值阶压缩缩略图（Notan 2 / 3 / 5-Value Study）
 //   04 焦点磁铁：局部反差 vs 全员喧哗（Focal Contrast Duel）
 //   05 WCAG 2.1 实时可读性检验台（Live Luminance Bench）
 //   07 实战四选一练习（Practice Quiz）
 //   08 原海报大图放大与拖动（Lightbox） + 进场显形（Reveal）
 
 import { reducedMotion } from "../../lib/stage.js";
-import { PALETTE, clamp, contrastRatio, lerp, neutralRgb, rgbCss, rgbHex, toneRgb } from "./palette.js";
+import { PALETTE, clamp, contrastRatio, lerp, levelRgb, neutralRgb, relativeLuminance, rgbCss, rgbHex, toneRgb } from "./palette.js";
 
 const $ = (id) => document.getElementById(id);
 const NS = "http://www.w3.org/2000/svg";
@@ -37,24 +37,24 @@ function initSquintLab() {
   let caseKey = "clash";
   let lens = "color";
 
-  // 两组配色：clash 四种色相完全不同，但相对亮度几乎都挤在 ~0.28–0.36！
+  // 两组配色：clash 采用高饱和红、绿、蓝、黄四种纯色，但相对亮度全部压在 L≈0.20–0.23（两两对比度均 ≤ 1.13:1）；
   // clear 则在色相和明度上同时拉开梯队（暖纸底 + 深炭标题 + 中灰副文 + 朱红焦点）
   const CASES = {
     clash: {
-      bg: [126, 138, 128], // 灰绿 L≈0.24
-      panel: [148, 122, 114], // 暖棕红 L≈0.22
-      title: [84, 138, 162], // 蓝青 L≈0.23（与底色明度几乎打平！）
-      accent: [184, 114, 72], // 橙红 L≈0.24
-      sub: [118, 132, 146], // 浅石板蓝 L≈0.23
+      bg: [0, 146, 46], // 高饱和翠绿 L≈0.208
+      panel: [20, 118, 255], // 高饱和亮钴蓝 L≈0.203
+      title: [252, 16, 26], // 高饱和正红 L≈0.211（与绿底明度几乎打平，对比度仅 1.01:1）
+      accent: [180, 122, 0], // 高饱和金黄 L≈0.235
+      sub: [172, 116, 0], // 高饱和明黄 L≈0.212
       note: {
-        color: "彩色状态下看起来红蓝绿黄挺热闹，似乎分得清区域——切到「去色灰度」或「眯眼模糊」看看真相。",
-        gray: "一旦抽掉色相，标题、色块与背景全塌成同一片灰（对比度约 1.1:1）。这就是「明度撞车」：色相很花，骨架为零。",
-        notan: "压成二值黑白后，画面直接成了一整块死灰或黑板，标题与焦点彻底消失，说明明暗结构根本没立起来。",
-        squint: "模拟眯起眼睛远看：所有边界糊在一起，观者在 3 米外或手机缩略图里根本读不出任何主次。",
+        color: "彩色状态下红、绿、蓝、黄都很浓烈，一眼看似区域分明——切到「去色灰度」或「眯眼模糊」看看底层明度真相。",
+        gray: "一旦抽掉色相，红蓝绿黄瞬间塌成几乎同一片中灰。这就是「明度撞车」：色相很花，骨架为零。",
+        notan: "压成二值黑白后，画面直接塌成一整块死黑，标题、对半圆与焦点彻底消失，说明明暗结构根本没立起来。",
+        squint: "模拟眯起眼睛远看：彩度减弱、边缘模糊后整块糊成一团，在 3 米外或手机缩略图里完全读不出主次。",
       },
     },
     clear: {
-      bg: PALETTE.paper, // 暖纸 L≈0.80
+      bg: PALETTE.paper, // 暖纸 L≈0.81
       panel: PALETTE.ink, // 炭墨 L≈0.005
       title: PALETTE.ink,
       accent: PALETTE.red, // 朱红焦点
@@ -68,16 +68,18 @@ function initSquintLab() {
     },
   };
 
-  function toGray([r, g, b]) {
-    const y = Math.round(0.2126 * r + 0.7152 * g + 0.0722 * b);
+  // 按 W3C sRGB 线性相对亮度还原真实感知灰度（避免直接加权 gamma 值导致红绿明度失真）
+  function toGray(rgb) {
+    const l = relativeLuminance(rgb);
+    const s = l <= 0.0031308 ? 12.92 * l : 1.055 * l ** (1 / 2.4) - 0.055;
+    const y = Math.round(clamp(s, 0, 1) * 255);
     return [y, y, y];
   }
 
   function mapCol(rgb) {
     if (lens === "color") return rgbCss(rgb);
-    const g = toGray(rgb);
-    if (lens === "notan") return g[0] > 128 ? PALETTE.paperHex : PALETTE.inkHex;
-    return rgbCss(g);
+    if (lens === "notan") return relativeLuminance(rgb) >= 0.3 ? PALETTE.paperHex : PALETTE.inkHex;
+    return rgbCss(toGray(rgb));
   }
 
   function render() {
@@ -86,6 +88,7 @@ function initSquintLab() {
     const defs = el("defs", {}, svg);
     if (lens === "squint") {
       const f = el("filter", { id: "sq-blur" }, defs);
+      el("feColorMatrix", { type: "saturate", values: "0.38" }, f);
       el("feGaussianBlur", { stdDeviation: "4.6" }, f);
     }
 
@@ -103,7 +106,7 @@ function initSquintLab() {
     // 左侧排版：编号 + 大标题 + 正文条
     const t1 = el("text", { x: 24, y: 58, fill: mapCol(c.title), "font-size": 34, "font-weight": 900, "font-family": '"Noto Sans SC", sans-serif' }, g);
     t1.textContent = "建筑光影展";
-    const t2 = el("text", { x: 26, y: 84, fill: mapCol(c.sub), "font-size": 12, "font-weight": 600, "letter-spacing": "0.12em", "font-family": '"Inter", sans-serif' }, g);
+    const t2 = el("text", { x: 26, y: 84, fill: mapCol(c.sub), "font-size": 11.5, "font-weight": 500, "letter-spacing": "0.1em", "font-family": '"DM Mono", monospace' }, g);
     t2.textContent = "LIGHT & SHADOW · 2026";
 
     // 正文模拟行
@@ -176,7 +179,7 @@ function initSimLab() {
     // 连通验证桥：把左右两块连成一整条同色横杠，错觉瞬间破功
     if (bridged) {
       el("rect", { x: 158, y: 92, width: 164, height: 36, fill: patchHex }, svg);
-      const tag = el("text", { x: 240, y: 115, "text-anchor": "middle", fill: vPct > 52 ? "#10110e" : "#efe7dc", "font-size": 12, "font-weight": 600, "font-family": '"Inter", sans-serif' }, svg);
+      const tag = el("text", { x: 240, y: 115, "text-anchor": "middle", fill: vPct > 52 ? "#10110e" : "#efe7dc", "font-size": 11.5, "font-weight": 500, "font-family": '"DM Mono", monospace' }, svg);
       tag.textContent = `SAME ${patchHex.toUpperCase()}`;
     } else {
       // 细中轴线标注
@@ -184,9 +187,9 @@ function initSimLab() {
     }
 
     // 底部角落真实色号标注
-    const lb1 = el("text", { x: 16, y: 204, fill: rgbCss(rightBg), "font-size": 11, "font-family": '"Inter", sans-serif' }, svg);
+    const lb1 = el("text", { x: 16, y: 204, fill: rgbCss(rightBg), "font-size": 10.5, "font-family": '"DM Mono", monospace' }, svg);
     lb1.textContent = `PATCH ${patchHex.toUpperCase()}`;
-    const lb2 = el("text", { x: 464, y: 204, "text-anchor": "end", fill: rgbCss(leftBg), "font-size": 11, "font-family": '"Inter", sans-serif' }, svg);
+    const lb2 = el("text", { x: 464, y: 204, "text-anchor": "end", fill: rgbCss(leftBg), "font-size": 10.5, "font-family": '"DM Mono", monospace' }, svg);
     lb2.textContent = `PATCH ${patchHex.toUpperCase()}`;
 
     const rLeft = contrastRatio(patchRgb, leftBg).toFixed(1);
@@ -213,113 +216,198 @@ function initSimLab() {
 }
 
 // =========================================================================
-// 03 · 十一阶明度标尺（Zone 0–X）与画面调性实验
+// 03 · 浓淡值阶压缩缩略图（2 值 / 3 值 / 5 值 / 原图灰阶 Notan 对比实验）
 // =========================================================================
-function initZoneLab() {
-  const svg = $("key-svg");
-  const strip = $("zone-strip");
-  const darkInput = $("key-dark");
-  const darkOut = $("key-dark-out");
-  const read = $("key-read");
-  if (!svg || !strip || !darkInput) return;
+function initNotanLab() {
+  const svg = $("nt-svg");
+  const pivotInput = $("nt-pivot");
+  const pivotOut = $("nt-pivot-out");
+  const massStat = $("nt-mass-stat");
+  const massBar = $("nt-mass-bar");
+  const read = $("nt-read");
+  const thumbs = [...document.querySelectorAll(".nt-thumb")];
+  if (!svg || !pivotInput || !thumbs.length) return;
 
-  const ROMAN = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
-  let mode = "full";
+  let sceneKey = "courtyard";
+  let levels = 3;
 
-  const MODES = {
-    full: {
-      name: "全音域 Full-Range",
-      zones: [0, 2, 5, 8, 10],
-      desc: "同时保有深暗锚点、清晰中灰阶梯与干净亮面——既有海报级的力量，也有空间过渡，最全面也最讲究配比。",
+  // 两幅带丰富中间灰的非人像构图（静物拱门 & 远山孤亭，绝不画五官）；
+  // 每个形状带真实固有明度 v ∈ [0..1] 与视觉面积权重 w，供 2/3/5 阶量化和面积构成条实时统计。
+  const SCENES = {
+    courtyard: {
+      label: "拱门静物",
+      shapes: [
+        { tag: "rect", attrs: { x: 0, y: 0, width: 480, height: 260 }, v: 0.36, w: 30 },
+        { tag: "rect", attrs: { x: 0, y: 0, width: 92, height: 196 }, v: 0.18, w: 11 },
+        { tag: "rect", attrs: { x: 376, y: 42, width: 72, height: 154 }, v: 0.56, w: 8 },
+        // 拱门外圈石框（中间偏亮灰，5 阶与原图显石拱厚度，2/3 阶下边缘平滑无缺口）
+        { tag: "path", attrs: { d: "M116 196 L116 112 A98 98 0 0 1 312 112 L312 196 Z" }, v: 0.6, w: 4 },
+        // 中央明亮拱门洞口（主光源入口，同心完美半圆）
+        { tag: "path", attrs: { d: "M130 196 L130 112 A84 84 0 0 1 298 112 L298 196 Z" }, v: 0.96, w: 18 },
+        // 拱门外远景矮墙与阴影柱
+        { tag: "path", attrs: { d: "M186 196 L186 144 L234 144 L234 128 L300 128 L300 196 Z" }, v: 0.78, w: 6 },
+        { tag: "rect", attrs: { x: 252, y: 128, width: 20, height: 68 }, v: 0.46, w: 2 },
+        // 石质桌面与斜射入室的亮光带
+        { tag: "rect", attrs: { x: 0, y: 196, width: 480, height: 64 }, v: 0.42, w: 10 },
+        { tag: "polygon", attrs: { points: "128,196 300,196 392,260 192,260" }, v: 0.88, w: 9 },
+        { tag: "rect", attrs: { x: 0, y: 248, width: 480, height: 12 }, v: 0.14, w: 3 },
+        // 器物投下的锐利斜影
+        { tag: "polygon", attrs: { points: "212,208 262,208 294,232 232,232" }, v: 0.08, w: 2 },
+        { tag: "polygon", attrs: { points: "312,204 352,204 420,248 344,248" }, v: 0.07, w: 3 },
+        // 左侧低矮陶碗（亮边 + 中灰腹 + 暗底）
+        { tag: "path", attrs: { d: "M142 182 L222 182 C218 206 198 214 182 214 C166 214 146 206 142 182 Z" }, v: 0.28, w: 2 },
+        { tag: "ellipse", attrs: { cx: 182, cy: 182, rx: 40, ry: 6 }, v: 0.72, w: 1 },
+        // 右侧高身瓷瓶（背光暗身 + 面向拱门的受光面）
+        { tag: "path", attrs: { d: "M304 106 L332 106 L334 128 C346 142 350 176 340 206 L296 206 C286 176 290 142 302 128 Z" }, v: 0.13, w: 3 },
+        { tag: "path", attrs: { d: "M304 106 L317 106 L318 128 C311 144 309 174 313 206 L296 206 C286 176 290 142 302 128 Z" }, v: 0.68, w: 1.5 },
+      ],
     },
-    high: {
-      name: "高调 High-Key",
-      zones: [6, 7, 8, 9, 10],
-      desc: "画面大部分落在 Zone VI–X 的明亮区间，轻盈、克制、有呼吸感；用极小一块深色就能稳稳压住整页重心。",
-    },
-    low: {
-      name: "低调 Low-Key",
-      zones: [0, 1, 2, 3, 7],
-      desc: "大面积停留在 Zone 0–III 的深暗影调里，沉静而具戏剧张力；仅留少量亮部像聚光灯一样切出视觉焦点。",
-    },
-    mid: {
-      name: "中调压缩 Mid-Key",
-      zones: [3, 4, 5, 6, 7],
-      desc: "所有色阶都挤在 Zone III–VII 之间，柔和复古、几乎不刺眼，但容易显得平淡——必须靠面积或局部提亮打破沉闷。",
+    pavilion: {
+      label: "远山孤亭",
+      shapes: [
+        // 晨空与高挂亮日
+        { tag: "rect", attrs: { x: 0, y: 0, width: 480, height: 174 }, v: 0.92, w: 28 },
+        { tag: "rect", attrs: { x: 0, y: 84, width: 480, height: 34 }, v: 0.83, w: 7 },
+        { tag: "circle", attrs: { cx: 348, cy: 56, r: 22 }, v: 0.99, w: 2 },
+        // 远山淡岚
+        { tag: "polygon", attrs: { points: "0,174 0,136 86,108 176,126 274,94 374,124 480,104 480,174" }, v: 0.71, w: 13 },
+        // 中景山脊
+        { tag: "polygon", attrs: { points: "110,174 206,136 298,154 398,124 480,144 480,174" }, v: 0.51, w: 9 },
+        // 湖面与水面高光带
+        { tag: "rect", attrs: { x: 0, y: 174, width: 480, height: 86 }, v: 0.63, w: 15 },
+        { tag: "polygon", attrs: { points: "326,174 372,174 406,260 288,260" }, v: 0.89, w: 6 },
+        { tag: "polygon", attrs: { points: "148,174 310,174 286,216 176,208" }, v: 0.42, w: 5 },
+        // 近景山崖
+        { tag: "polygon", attrs: { points: "0,174 0,142 64,132 146,144 198,174 178,202 0,202" }, v: 0.25, w: 7 },
+        // 崖顶建筑孤亭剪影（纯屋檐立柱几何，无人像）
+        { tag: "polygon", attrs: { points: "64,114 114,98 164,114 150,118 78,118" }, v: 0.11, w: 1.5 },
+        { tag: "polygon", attrs: { points: "78,104 114,91 150,104" }, v: 0.14, w: 1 },
+        { tag: "rect", attrs: { x: 88, y: 118, width: 7, height: 24 }, v: 0.1, w: 0.6 },
+        { tag: "rect", attrs: { x: 133, y: 118, width: 7, height: 24 }, v: 0.1, w: 0.6 },
+        { tag: "rect", attrs: { x: 80, y: 137, width: 68, height: 6 }, v: 0.16, w: 0.8 },
+        // 最前景深墨磐石压角
+        { tag: "polygon", attrs: { points: "0,260 0,192 92,202 162,238 206,260" }, v: 0.07, w: 8 },
+        { tag: "polygon", attrs: { points: "392,260 442,226 480,214 480,260" }, v: 0.09, w: 3 },
+      ],
     },
   };
 
-  // 建立 11 格区域条（Zone 0..X）
-  const chips = ROMAN.map((r, idx) => {
-    const item = document.createElement("div");
-    item.className = "zone-chip";
-    item.style.background = rgbCss(toneRgb(idx / 10));
-    item.style.color = idx < 5 ? PALETTE.paperHex : PALETTE.inkHex;
-    item.innerHTML = `<b lang="en">${r}</b>`;
-    strip.append(item);
-    return item;
-  });
-
-  function render() {
-    const darkPct = +darkInput.value;
-    darkOut.textContent = `${darkPct}%`;
-
-    const cfg = MODES[mode];
-    const [zA, zB, zC, zD, zE] = cfg.zones;
-    const activeSet = new Set(cfg.zones);
-    chips.forEach((ch, idx) => ch.classList.toggle("active", activeSet.has(idx)));
-
-    const cDark = rgbCss(toneRgb(zA / 10));
-    const cDeep = rgbCss(toneRgb(zB / 10));
-    const cMid = rgbCss(toneRgb(zC / 10));
-    const cLight = rgbCss(toneRgb(zD / 10));
-    const cBright = rgbCss(toneRgb(zE / 10));
-
-    // 根据暗部占比移动斜影与暗墙位置
-    const splitX = Math.round(480 * (1 - darkPct / 100));
-
-    svg.innerHTML = "";
-    // 亮侧背景与暗侧背景
-    el("rect", { x: 0, y: 0, width: 480, height: 240, fill: cBright }, svg);
-    el("rect", { x: splitX, y: 0, width: 480 - splitX, height: 240, fill: cDark }, svg);
-
-    // 远景建筑轮廓（中灰与浅灰阶梯）
-    el("polygon", { points: `0,240 0,152 ${splitX},126 ${splitX},240`, fill: cLight }, svg);
-    el("polygon", { points: `0,240 ${Math.max(0, splitX - 110)},168 ${splitX},240`, fill: cMid }, svg);
-
-    // 暗区里的透视亮阶梯（呼应原海报）
-    const steps = 6;
-    for (let i = 0; i < steps; i++) {
-      const f = i / (steps - 1);
-      const y = 132 + f * 84;
-      const w = Math.min(480 - splitX - 12, 20 + f * 120);
-      if (w > 4) {
-        el("rect", { x: splitX, y: y.toFixed(1), width: w.toFixed(1), height: (3 + f * 6).toFixed(1), fill: i % 2 === 0 ? cBright : cLight }, svg);
-      }
+  function quantize(v, n, pivot) {
+    if (n === 2) {
+      return v < pivot ? { bucket: 0, tone: 0.05 } : { bucket: 1, tone: 0.96 };
     }
-
-    // 跨界圆体（左暗右明）
-    const cx = clamp(splitX, 86, 394);
-    el("circle", { cx, cy: 96, r: 44, fill: cDeep }, svg);
-    el("path", { d: `M${cx} 52 A44 44 0 0 1 ${cx} 140 Z`, fill: cBright }, svg);
-    // 焦点朱红点
-    el("circle", { cx: cx + 18, cy: 84, r: 8, fill: PALETTE.redHex }, svg);
-
-    const balanceHint =
-      darkPct >= 65
-        ? `当前暗部占 ${darkPct}%（偏重不对称压场），亮面少而精，视线立刻聚到亮半圆与阶梯上。`
-        : darkPct <= 35
-          ? `当前亮部占 ${100 - darkPct}%（轻盈不对称），暗部缩成紧凑的视觉锚点，画面通透舒展。`
-          : `当前暗部占 ${darkPct}%（接近 50/50 均势），需要中央跨界圆把左右两半扣紧，避免画面裂成两截。`;
-
-    read.textContent = `${cfg.name}：${cfg.desc}${balanceHint}`;
+    if (n === 3) {
+      const c1 = clamp(pivot - 0.17, 0.14, 0.56);
+      const c2 = clamp(pivot + 0.17, 0.44, 0.86);
+      if (v < c1) return { bucket: 0, tone: 0.05 };
+      if (v < c2) return { bucket: 1, tone: 0.48 };
+      return { bucket: 2, tone: 0.96 };
+    }
+    if (n === 5) {
+      const cuts = [pivot - 0.3, pivot - 0.1, pivot + 0.1, pivot + 0.3];
+      const tones = [0.05, 0.28, 0.5, 0.74, 0.96];
+      let b = 0;
+      while (b < 4 && v >= cuts[b]) b++;
+      return { bucket: b, tone: tones[b] };
+    }
+    // 原图连续灰阶：pivot 轻微平移整体曝光偏置，保留全部细阶
+    const shifted = clamp(v + (0.5 - pivot) * 0.42, 0.04, 0.99);
+    const bucket = shifted < 0.34 ? 0 : shifted < 0.68 ? 1 : 2;
+    return { bucket, tone: shifted };
   }
 
-  onRadio("key-mode", (v) => {
-    mode = v;
+  function paintScene(targetSvg, shapes, n, pivot) {
+    targetSvg.innerHTML = "";
+    for (const s of shapes) {
+      const q = quantize(s.v, n, pivot);
+      el(s.tag, { ...s.attrs, fill: rgbCss(toneRgb(q.tone)) }, targetSvg);
+    }
+  }
+
+  function render() {
+    const pivotPct = +pivotInput.value;
+    const pivot = pivotPct / 100;
+    pivotOut.textContent = `${pivotPct}%`;
+
+    const scene = SCENES[sceneKey];
+    paintScene(svg, scene.shapes, levels, pivot);
+
+    // 同步更新四张迷你缩略图（2 值 / 3 值 / 5 值 / 原图）
+    thumbs.forEach((btn) => {
+      const lv = +btn.dataset.levels;
+      btn.setAttribute("aria-pressed", String(lv === levels));
+      const mini = btn.querySelector("svg");
+      if (mini) paintScene(mini, scene.shapes, lv, pivot);
+    });
+
+    // 统计各值阶面积占比，并更新横向色块构成条
+    const bucketCount = levels === 2 ? 2 : levels === 5 ? 5 : 3;
+    const bucketTones = levels === 2 ? [0.05, 0.96] : levels === 5 ? [0.05, 0.28, 0.5, 0.74, 0.96] : [0.05, 0.48, 0.96];
+    const totals = new Array(bucketCount).fill(0);
+    let sumW = 0;
+    for (const s of scene.shapes) {
+      const q = quantize(s.v, levels, pivot);
+      totals[q.bucket] += s.w;
+      sumW += s.w;
+    }
+    const pcts = totals.map((x) => Math.round((x / Math.max(sumW, 1)) * 100));
+    const drift = 100 - pcts.reduce((a, b) => a + b, 0);
+    const maxIdx = pcts.indexOf(Math.max(...pcts));
+    pcts[maxIdx] += drift;
+
+    massBar.innerHTML = "";
+    pcts.forEach((p, idx) => {
+      if (p <= 0) return;
+      const seg = document.createElement("span");
+      seg.className = "nt-seg";
+      seg.style.flexGrow = String(p);
+      seg.style.background = rgbCss(toneRgb(bucketTones[idx]));
+      massBar.append(seg);
+    });
+
+    if (levels === 2) {
+      massStat.textContent = `暗面 ${pcts[0]}% · 亮面 ${pcts[1]}%`;
+    } else if (levels === 5) {
+      massStat.textContent = `五阶 ${pcts.join(" / ")}%`;
+    } else {
+      massStat.textContent = `暗 ${pcts[0]}% · 灰 ${pcts[1]}% · 亮 ${pcts[2]}%`;
+    }
+
+    const pivotNote =
+      pivotPct >= 60
+        ? "当前归组线偏亮，大批中间灰被并进暗面，画面迅速转向低调聚光。"
+        : pivotPct <= 40
+          ? "当前归组线偏暗，中间灰大举倒向亮面，只留最深的剪影当锚点。"
+          : "当前归组线居中，亮部与暗部按固有明度自然分阵。";
+
+    if (levels === 2) {
+      read.textContent = `2 值 Notan（纯黑白）：把一切中间灰清空，最严苛地拷问大图形能不能一秒成立。你看缩略图里的「${scene.label}」，光柱与暗墙融成两块锐利剪影，但远近层次也一并压平。${pivotNote}`;
+    } else if (levels === 3) {
+      read.textContent = `3 值缩略图（黑 / 中灰 / 白）：通常是骨架最清楚的甜点档。深暗前景、中灰主体与高光入口三分天下，哪怕缩成下方巴掌大小，前后空间和大图形依然一次看透。${pivotNote}`;
+    } else if (levels === 5) {
+      read.textContent = `5 值阶梯：多出两档柔和过渡后，墙面折角、器物受光面或远山薄雾开始透气；但对比 2 值和 3 值缩略图，大块边界已经明显变软，若草图阶段就画 5 阶很容易丢掉大骨架。${pivotNote}`;
+    } else {
+      read.textContent = `原图连续灰阶（十余种细阶）：细节与空气感最完整，但如果不先压成 2–3 值检查，很容易被琐碎灰调骗过去——先在缩略图里立住大骨架，再放开细阶最稳。${pivotNote}`;
+    }
+  }
+
+  onRadio("nt-scene", (v) => {
+    sceneKey = v;
     render();
   });
-  darkInput.addEventListener("input", render);
+  onRadio("nt-levels", (v) => {
+    levels = +v;
+    render();
+  });
+  thumbs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      levels = +btn.dataset.levels;
+      const radio = document.querySelector(`input[name="nt-levels"][value="${levels}"]`);
+      if (radio) radio.checked = true;
+      render();
+    });
+  });
+  pivotInput.addEventListener("input", render);
   render();
 }
 
@@ -452,26 +540,11 @@ function initWcagLab() {
     node.textContent = `${label} · ${pass ? "通过" : "未过"}`;
   }
 
-  // 将 0..100% 映射为全范围暖中性灰度（6% 精确命中原海报炭墨 #10110e，93% 精确命中暖纸 #efe7dc，0/100 为纯黑白 #000/#fff）
-  function benchRgb(v) {
-    if (v <= 0) return [0, 0, 0];
-    if (v >= 100) return [255, 255, 255];
-    if (v <= 6) {
-      const t = v / 6;
-      return PALETTE.ink.map((c) => Math.round(c * t));
-    }
-    if (v >= 93) {
-      const t = (v - 93) / 7;
-      return PALETTE.paper.map((c) => Math.round(lerp(c, 255, t)));
-    }
-    return toneRgb((v - 6) / 87);
-  }
-
   function render() {
     const fgV = +fgInput.value;
     const bgV = +bgInput.value;
-    const fgRgb = benchRgb(fgV);
-    const bgRgb = benchRgb(bgV);
+    const fgRgb = levelRgb(fgV / 100);
+    const bgRgb = levelRgb(bgV / 100);
     const ratio = contrastRatio(fgRgb, bgRgb);
 
     fgOut.textContent = `${fgV}% (${rgbHex(fgRgb).toUpperCase()})`;
@@ -490,7 +563,7 @@ function initWcagLab() {
     setBadge(bAaa, passAaa, "增强 AAA ≥ 7:1");
 
     if (ratio >= 19.5) {
-      read.textContent = "接近 21:1 纯黑白极限：极短标题和强光户外最锐利，但发光屏幕上连续读长文容易眩光疲劳，通常适度收到 12:1–16:1 更耐看。";
+      read.textContent = "接近 21:1 纯黑白极限：极短标题和强光户外最锐利，但发光屏幕上连续读长文容易泛起眩光；经验上把两极比纯黑纯白略收一档（如暖纸配深炭灰）会更耐看。";
     } else if (passAaa) {
       read.textContent = "远超 AAA 增强可读标准（≥ 7:1），原海报的暖纸配炭墨就落在这个甜区：力量十足，同时保住了温润质感。";
     } else if (passAa) {
@@ -517,7 +590,7 @@ function initWcagLab() {
 }
 
 // =========================================================================
-// 07 · 小练习：四版展览海报，哪张明暗最成立？
+// 07 · 小练习：四版展览海报，哪张明暗预算最成立？
 // =========================================================================
 function initQuiz() {
   const buttons = [...document.querySelectorAll(".quiz-opt")];
@@ -529,23 +602,23 @@ function initQuiz() {
   const FEEDBACK = {
     A: {
       ok: false,
-      title: "A · 全灰塌陷（对比仅 ~1.7 : 1）",
-      text: "底面、大圆和主标题全挤在中灰区（Zone IV–VI），一眼像蒙了一层灰膜。没有深锚也没有亮面，视线找不到入口。",
+      title: "A · 反差够强，但五五平分把骨架劈成两截",
+      text: "A 的左右两半都达到 15.5:1、字也清楚，问题出在明暗面积机械五五开且中轴没有任何跨界图形粘合——左边标题与暗块、右边亮卡与白字展期势均力敌，视线在两半之间反复拉扯。和 C 的差距在于：C 用约七成深炭墨统一成一整间暗室，让亮光柱和标题同属一个空间。",
     },
     B: {
       ok: false,
-      title: "B · 处处极反差喧哗（没有主次）",
-      text: "黑白反差拉到满格，却把背景斑马条纹、粗边框、杂乱装饰块全做成最高反差。每个像素都在大喊，主标题反倒被噪音吞掉。",
+      title: "B · 和 C 最接近，但最高对比度花在了日期牌上",
+      text: "B 乍看和 C 几乎是双胞胎——同样约七成暗底、版面也很利落。差就差在明暗预算发错了对象：B 把最刺眼的 15.5:1 暖纸实心底和朱红印章全砸在了底部「10.12—11.30」次要日期条上，反而把真正的主标题压成约 3.2:1 的暗灰、把天窗光柱压成中灰。对照 C：C 只是把最高 15.5:1 预算收回给标题与光柱，让日期退回清晰却不抢戏的 ~6.4:1，主次立刻翻盘。",
     },
     C: {
       ok: true,
-      title: "选对了 · C 的明暗秩序最有力",
-      text: "大面积沉静墨底稳稳托住暖纸亮面与过渡灰阶，主标题和单颗朱红焦点独享最高局部对比（约 16:1），次要日期说明乖乖退到柔和灰阶，一秒分出先后。",
+      title: "选对了 · C 把 15.5:1 明暗预算精准留给了主角",
+      text: "约七成沉静炭墨统一住整间混凝土展厅（不像 A 五五开裂成两截），最高 15.5:1 对比度和单枚朱红只交给「混凝土与光」主标题与天窗光柱（不像 B 被底部日期条抢走预算），墙面折角与地面光晕用中灰交代纵深，底部日期与展厅落在 ~6.4:1 / 4.7:1 温和可读区——一秒分出先后。",
     },
     D: {
       ok: false,
-      title: "D · 重点倒挂（装饰抢了主角的对比预算）",
-      text: "右下角一块无关的黑白方块占走了最强的对比度，真正需要读者先看的主标题反倒被压成浅灰（约 2.1:1），视线直接被拖偏。",
+      title: "D · 网格利落，但粗框与底标把对比预算摊平了",
+      text: "D 的字和图形在暖纸底上都很清楚，但外框、粗分隔线、顶部黑眉条和底部两块实心日期牌全拉到满格 15.5:1。当所有结构线和配角都以最高音量呐喊时，主标题与建筑光影就失去了独享的入眼优先级。对照 C：C 把辅助线与次要信息主动降噪到中灰，才让主角一秒跳出来。",
     },
   };
 
@@ -561,7 +634,7 @@ function initQuiz() {
       });
       verdict.classList.toggle("is-right", fb.ok);
       vTitle.textContent = fb.title;
-      vText.textContent = fb.ok ? fb.text : `${fb.text}对照 C：${FEEDBACK.C.text}`;
+      vText.textContent = fb.text;
     });
   });
 }
@@ -686,7 +759,7 @@ function initReveal() {
 export function initLabs() {
   initSquintLab();
   initSimLab();
-  initZoneLab();
+  initNotanLab();
   initFocalLab();
   initWcagLab();
   initQuiz();

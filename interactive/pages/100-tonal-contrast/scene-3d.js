@@ -1,8 +1,9 @@
-// Three.js 轻量化明暗对比 3D 舞台：
-//   - split（海报母题）：完全呼应 100.webp 的对半空间、跨轴双色立体球、斜角投影、9 级透视阶梯与朱红焦点球；
-//   - chiaroscuro（明暗雕塑）：单灯侧光雕刻石膏球与建筑基座，横拖改变光比，纵拖改变调性；
-//   - editorial（版面样本）：实体三维展示牌上的动态排版，直观看清反差如何决定标题/正文可读性。
-// 设计目标：< 12 draw calls、无阴影贴图、无 bloom、手机 DPR 限 1.5，软件渲染下同样 ≥ 45 fps。
+// Three.js 轻量化全幅对半明暗 3D 舞台：
+//   - split（海报母题）：与上方「明暗｜对比」同轴竖切，拖动调性重心可实时滑移左右纸墨面积，
+//     拖动黑场/白场实时改变暖纸与炭墨的明度反差、球体反色光影与 9 级透视阶梯；
+//   - chiaroscuro（明暗雕塑）：单灯侧光雕刻立体石膏球，调性重心同步旋转侧光灯位与影调底色；
+//   - editorial（版面样本）：动态展示明度反差与亮暗面积如何改写排版层级与可读性。
+// 性能预算：< 10 draw calls、无阴影贴图、无 bloom、手机 DPR 限 1.5，软件渲染下稳健 ≥ 45 fps。
 
 import {
   BoxGeometry,
@@ -25,21 +26,19 @@ import {
   WebGLRenderer,
 } from "three";
 import { pixelRatio } from "../../lib/stage.js";
-import { PALETTE, clamp, lerp, rgbCss, toneRgb } from "./palette.js";
+import { PALETTE, clamp, lerp, levelRgb, rgbCss } from "./palette.js";
 import { GRADATIONS, tonalMetrics } from "./model.js";
 
-// Three.js r187 内部工作在线性色空间，显式按 sRGB 读入才能精确还原海报的暖纸与炭墨
 const toColor = ([r, g, b]) => new Color().setRGB(r / 255, g / 255, b / 255, SRGBColorSpace);
 
-// 自定义极简明暗着色器：支持二值 Notan / 五阶层次 / 连续过渡，以及海报母题对半反色模式
 function makeSphereShader() {
   return new ShaderMaterial({
     uniforms: {
       uDark: { value: toColor(PALETTE.ink) },
       uLight: { value: toColor(PALETTE.paper) },
       uLightDir: { value: new Vector3(0.75, 0.32, 0.58).normalize() },
-      uSteps: { value: 2.0 }, // 2 = 二值, 5 = 五阶, 0 = 连续
-      uSplitMode: { value: 1.0 }, // 1 = 海报对半反色, 0 = 纯立体侧光
+      uSteps: { value: 2.0 },
+      uSplitMode: { value: 1.0 },
       uContrast: { value: 1.0 },
       uSplitX: { value: 0.0 },
     },
@@ -78,7 +77,7 @@ function makeSphereShader() {
             tone = mix(0.03 + ndl * 0.26, 0.68 + ndl * 0.32, side);
           }
         } else {
-          float sculpted = clamp((ndl - 0.5) * (0.45 + uContrast * 1.15) + 0.5, 0.0, 1.0);
+          float sculpted = clamp((ndl - 0.5) * (0.45 + uContrast * 1.2) + 0.5, 0.0, 1.0);
           if (uSteps > 1.5 && uSteps < 2.5) {
             tone = step(0.48, sculpted);
           } else if (uSteps > 3.5) {
@@ -95,11 +94,11 @@ function makeSphereShader() {
   });
 }
 
-// 版面样本动态纹理（按状态变化重画一次，极低开销）
+// 版面样本动态纹理（按状态变化重画一次，使用 DM Mono + Noto Sans SC）
 function makeEditorialCanvas() {
   const c = document.createElement("canvas");
-  c.width = 640;
-  c.height = 480;
+  c.width = 720;
+  c.height = 450;
   const ctx = c.getContext("2d");
   const tex = new CanvasTexture(c);
   tex.colorSpace = SRGBColorSpace;
@@ -107,68 +106,73 @@ function makeEditorialCanvas() {
 
   let lastKey = "";
   function update(m, gradKey, dotOn) {
-    const key = `${m.lo.toFixed(3)}|${m.hi.toFixed(3)}|${m.harsh.toFixed(3)}|${gradKey}|${dotOn}`;
+    const key = `${m.lo.toFixed(3)}|${m.hi.toFixed(3)}|${m.key.toFixed(3)}|${gradKey}|${dotOn}`;
     if (key === lastKey) return;
     lastKey = key;
 
     const W = c.width;
     const H = c.height;
-    const bgDark = m.vBias > 0.56;
+    const bgDark = m.key < 0.44;
     const bgTone = bgDark ? m.lo : m.hi;
     const fgTone = bgDark ? m.hi : m.lo;
     const midTone = lerp(bgTone, fgTone, 0.56);
-    const subTone = lerp(bgTone, fgTone, 0.22);
+    const subTone = lerp(bgTone, fgTone, 0.16);
+    const splitPx = Math.round(W * clamp(lerp(0.42, 0.68, m.key), 0.38, 0.72));
 
     ctx.fillStyle = rgbCss(bgDark ? m.darkRgb : m.lightRgb);
     ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = rgbCss(toneRgb(subTone));
-    ctx.fillRect(W * 0.58, 0, W * 0.42, H);
+    ctx.fillStyle = rgbCss(levelRgb(subTone));
+    ctx.fillRect(splitPx, 0, W - splitPx, H);
 
     const steps = gradKey === "notan" ? 2 : 5;
-    for (let i = 0; i < steps; i++) {
-      const t = steps === 2 ? (i === 0 ? bgTone : fgTone) : lerp(m.lo, m.hi, i / (steps - 1));
-      ctx.fillStyle = rgbCss(toneRgb(t));
-      const bw = (W * 0.34) / steps;
-      ctx.fillRect(W * 0.62 + i * bw, H * 0.56, bw - 3, H * 0.3);
+    const stripW = W - splitPx - 56;
+    if (stripW > 40) {
+      for (let i = 0; i < steps; i++) {
+        const t = steps === 2 ? (i === 0 ? bgTone : fgTone) : lerp(m.lo, m.hi, i / (steps - 1));
+        ctx.fillStyle = rgbCss(levelRgb(t));
+        const bw = stripW / steps;
+        ctx.fillRect(splitPx + 28 + i * bw, H * 0.62, bw - 3, H * 0.24);
+      }
     }
 
+    const cx = splitPx + (W - splitPx) * 0.5;
     ctx.beginPath();
-    ctx.arc(W * 0.78, H * 0.31, 66, 0, Math.PI * 2);
+    ctx.arc(cx, H * 0.34, 58, 0, Math.PI * 2);
     ctx.fillStyle = rgbCss(bgDark ? m.lightRgb : m.darkRgb);
     ctx.fill();
     if (dotOn) {
       ctx.beginPath();
-      ctx.arc(W * 0.78 + 20, H * 0.31 - 14, 15, 0, Math.PI * 2);
+      ctx.arc(cx + 18, H * 0.34 - 13, 13, 0, Math.PI * 2);
       ctx.fillStyle = PALETTE.redHex;
       ctx.fill();
     }
 
-    ctx.fillStyle = rgbCss(toneRgb(midTone));
-    ctx.font = '600 15px "Inter", sans-serif';
-    ctx.fillText("ISSUE 100 · TONAL HIERARCHY", 40, 74);
+    ctx.fillStyle = rgbCss(levelRgb(midTone));
+    ctx.font = '500 14px "DM Mono", monospace';
+    ctx.fillText(`ISSUE 100 · ${m.ratio.toFixed(1)} : 1`, 36, 68);
 
     ctx.fillStyle = rgbCss(bgDark ? m.lightRgb : m.darkRgb);
-    ctx.font = '900 62px "Noto Sans SC", sans-serif';
-    ctx.fillText("明暗有度", 38, 166);
-    ctx.fillText("画面有力", 38, 238);
+    ctx.font = '900 56px "Noto Sans SC", sans-serif';
+    ctx.fillText("明暗有度", 34, 154);
+    ctx.fillText("画面有力", 34, 220);
 
-    ctx.fillStyle = rgbCss(toneRgb(midTone));
-    ctx.font = '400 20px "Noto Sans SC", sans-serif';
-    ctx.fillText("当明度差拉开，标题、正文与", 40, 294);
-    ctx.fillText("配图自然排出阅读先后顺序。", 40, 326);
+    ctx.fillStyle = rgbCss(levelRgb(midTone));
+    ctx.font = '400 18px "Noto Sans SC", sans-serif';
+    ctx.fillText("拉开黑场与白场的落差，标题、正文", 36, 276);
+    ctx.fillText("与配图自然排出清晰的阅读先后。", 36, 306);
 
     ctx.fillStyle = rgbCss(bgDark ? m.lightRgb : m.darkRgb);
-    ctx.fillRect(40, 368, 168, 48);
+    ctx.fillRect(36, 344, 162, 46);
     ctx.fillStyle = rgbCss(bgDark ? m.darkRgb : m.lightRgb);
-    ctx.font = '700 18px "Noto Sans SC", sans-serif';
-    ctx.fillText("立即查看层级", 64, 399);
+    ctx.font = '700 17px "Noto Sans SC", sans-serif';
+    ctx.fillText("检视明暗骨架", 62, 373);
 
-    ctx.strokeStyle = rgbCss(toneRgb(midTone));
+    ctx.strokeStyle = rgbCss(levelRgb(midTone));
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(40, 442);
-    ctx.lineTo(W - 40, 442);
+    ctx.moveTo(36, 416);
+    ctx.lineTo(splitPx - 28, 416);
     ctx.stroke();
 
     tex.needsUpdate = true;
@@ -188,24 +192,24 @@ export function createScene3D(host) {
   const camera = new OrthographicCamera(-1.5, 1.5, 1, -1, 0.1, 30);
   camera.position.set(0, 0, 8);
 
-  // ---------- 1. 对半底面（左纸右墨） ----------
+  // ---------- 1. 通栏对半底面（够宽以覆盖 2560px 超宽屏） ----------
   const leftBgMat = new MeshBasicMaterial({ color: toColor(PALETTE.paper) });
   const rightBgMat = new MeshBasicMaterial({ color: toColor(PALETTE.ink) });
-  const leftBg = new Mesh(new PlaneGeometry(6, 4), leftBgMat);
-  const rightBg = new Mesh(new PlaneGeometry(6, 4), rightBgMat);
-  leftBg.position.set(-3, 0, -4);
-  rightBg.position.set(3, 0, -4);
+  const leftBg = new Mesh(new PlaneGeometry(24, 6), leftBgMat);
+  const rightBg = new Mesh(new PlaneGeometry(24, 6), rightBgMat);
+  leftBg.position.set(-12, 0, -4);
+  rightBg.position.set(12, 0, -4);
   scene.add(leftBg, rightBg);
 
-  // ---------- 2. 左侧斜向暗影楔（原海报左下大斜影，显式双面三角形避免背面剔除） ----------
+  // ---------- 2. 左侧斜向暗影楔（原海报左下大斜影，与右侧阶梯呈镜像透视角） ----------
   const shadowGeo = new BufferGeometry();
-  shadowGeo.setAttribute("position", new Float32BufferAttribute([0, 0, 0, -2.5, -1.65, 0, 0, -1.65, 0], 3));
+  shadowGeo.setAttribute("position", new Float32BufferAttribute([0, 0, 0, -1.04, -0.75, 0, 0, -0.75, 0], 3));
   const shadowMat = new MeshBasicMaterial({ color: toColor(PALETTE.ink), side: DoubleSide });
   const shadowWedge = new Mesh(shadowGeo, shadowMat);
-  shadowWedge.position.set(0, -0.34, -2.2);
+  shadowWedge.position.set(0, -0.27, -2.2);
   scene.add(shadowWedge);
 
-  // ---------- 3. 右下透视阶梯（9 条由细变粗的纸白横阶，1 次 InstancedMesh 绘制） ----------
+  // ---------- 3. 右下透视阶梯（9 条由细变粗的纸白横阶，1 次 InstancedMesh） ----------
   const STEP_N = 9;
   const stepMat = new MeshBasicMaterial({ color: 0xffffff });
   const stepsMesh = new InstancedMesh(new BoxGeometry(1, 1, 0.08), stepMat, STEP_N);
@@ -215,58 +219,65 @@ export function createScene3D(host) {
 
   // ---------- 4. 雕塑底座（明暗雕塑模式下的建筑地台） ----------
   const plinthMat = new MeshBasicMaterial({ color: toColor(PALETTE.ink) });
-  const plinth = new Mesh(new PlaneGeometry(6, 2), plinthMat);
-  plinth.position.set(0, -1.2, -2.4);
+  const plinth = new Mesh(new PlaneGeometry(24, 2.2), plinthMat);
+  plinth.position.set(0, -1.34, -2.4);
   scene.add(plinth);
 
   const castShadowMat = new MeshBasicMaterial({ color: toColor(PALETTE.ink), transparent: true, opacity: 0.72 });
-  const castShadow = new Mesh(new PlaneGeometry(1.4, 0.24), castShadowMat);
-  castShadow.position.set(-0.35, -0.56, -1.6);
+  const castShadow = new Mesh(new PlaneGeometry(1.5, 0.24), castShadowMat);
+  castShadow.position.set(-0.35, -0.45, -1.6);
   scene.add(castShadow);
 
-  // ---------- 5. 中央立体球 + 朱红焦点球 ----------
+  // ---------- 5. 中央立体球 + 朱红焦点球（与下方阶梯合计约占舞台高度 83%，完整落在舞台内且不碰角标） ----------
   const sphereMat = makeSphereShader();
-  const sphere = new Mesh(new SphereGeometry(0.52, 36, 24), sphereMat);
-  sphere.position.set(0, 0.16, 0);
+  const sphere = new Mesh(new SphereGeometry(0.56, 36, 24), sphereMat);
+  sphere.position.set(0, 0.3, 0);
   scene.add(sphere);
 
   const dotMat = new MeshBasicMaterial({ color: toColor(PALETTE.red) });
-  const dotMesh = new Mesh(new SphereGeometry(0.098, 24, 16), dotMat);
-  dotMesh.position.set(0.22, 0.28, 0.65);
+  const dotMesh = new Mesh(new SphereGeometry(0.102, 24, 16), dotMat);
+  dotMesh.position.set(0.23, 0.45, 0.72);
   scene.add(dotMesh);
 
   // ---------- 6. 版面样本展示板 ----------
   const editorial = makeEditorialCanvas();
   const edMat = new MeshBasicMaterial({ map: editorial.tex });
-  const edPlane = new Mesh(new PlaneGeometry(2.3, 1.725), edMat);
-  edPlane.position.set(0, 0.04, 1.2);
+  const edPlane = new Mesh(new PlaneGeometry(2.6, 1.625), edMat);
+  edPlane.position.set(0, 0.0, 1.2);
   scene.add(edPlane);
 
-  let aspect = 1.35;
+  let aspect = 1.6;
+  const halfH = 1.0;
 
   function layoutStairs(splitX, m, gradKey, openK) {
-    const startY = -0.35;
-    const totalH = 0.68;
+    // 9 级透视阶梯按几何级数拉开厚度与槽距，底边稳落在 y = -0.802（在 360×740 下也高于右下角标且完整不裁切）
+    const startY = -0.265;
+    const totalSpan = 0.54;
+    const r = 1.185;
+    let yCursor = startY;
     for (let i = 0; i < STEP_N; i++) {
       const f = i / (STEP_N - 1);
-      const ease = f * f;
-      const w = lerp(0.11, 0.76, Math.pow(f, 1.28)) * openK;
-      const h = lerp(0.015, 0.064, Math.pow(f, 1.35));
-      const y = startY - ease * totalH - h * 0.5;
+      const powR = Math.pow(r, i);
+      const h = 0.0148 * powR;
+      const g = 0.0154 * powR;
+      const y = yCursor - h * 0.5;
+      const t = clamp((startY - y) / totalSpan, 0, 1);
+      const w = lerp(0.11, 0.84, t) * openK;
       const x = splitX + w * 0.5;
       tmpM.makeScale(Math.max(0.001, w), h, 1);
       tmpM.setPosition(x, y, -1.5);
       stepsMesh.setMatrixAt(i, tmpM);
+      yCursor -= h + g;
 
       if (gradKey === "notan") {
         tmpC.setRGB(m.lightRgb[0] / 255, m.lightRgb[1] / 255, m.lightRgb[2] / 255, SRGBColorSpace);
       } else {
         const stepTone =
           gradKey === "five"
-            ? lerp(m.lo + (m.hi - m.lo) * 0.35, m.hi, Math.floor(f * 4.999) / 4)
-            : lerp(m.lo + (m.hi - m.lo) * 0.28, m.hi, f);
-        const [r, g, b] = toneRgb(stepTone);
-        tmpC.setRGB(r / 255, g / 255, b / 255, SRGBColorSpace);
+            ? lerp(m.lo + m.span * 0.35, m.hi, Math.floor(f * 4.999) / 4)
+            : lerp(m.lo + m.span * 0.26, m.hi, f);
+        const [rC, gC, bC] = levelRgb(stepTone);
+        tmpC.setRGB(rC / 255, gC / 255, bC / 255, SRGBColorSpace);
       }
       stepsMesh.setColorAt(i, tmpC);
     }
@@ -277,21 +288,22 @@ export function createScene3D(host) {
   return {
     el: renderer.domElement,
     resize(w, h) {
-      aspect = Math.max(0.6, w / Math.max(h, 1));
-      const halfH = 1.05;
+      const rw = Math.max(1, Math.round(w));
+      const rh = Math.max(1, Math.round(h));
+      aspect = rw / rh;
       camera.left = -halfH * aspect;
       camera.right = halfH * aspect;
       camera.top = halfH;
       camera.bottom = -halfH;
       camera.updateProjectionMatrix();
-      renderer.setSize(w, h, false);
+      renderer.setSize(rw, rh, false);
     },
     render(state, openK = 1) {
-      const m = tonalMetrics(state.u, state.v);
+      const m = tonalMetrics(state);
       const steps = GRADATIONS[state.gradation].steps;
       const darkCol = toColor(m.darkRgb);
       const lightCol = toColor(m.lightRgb);
-      const midCol = toColor(toneRgb(m.mid));
+      const midCol = toColor(m.midRgb);
 
       const isSplit = state.scene === "split";
       const isSculpt = state.scene === "chiaroscuro";
@@ -308,38 +320,40 @@ export function createScene3D(host) {
       edPlane.visible = isEd;
 
       if (isSplit) {
-        const splitX = lerp(0.18, -0.18, state.v);
-        leftBg.position.x = splitX - 3;
-        rightBg.position.x = splitX + 3;
+        // key = 0.50 时精确落在中轴 splitX = 0，与上方「明暗｜对比」同线竖切
+        const maxShift = Math.min(halfH * aspect * 0.52, 1.35);
+        const splitX = lerp(-maxShift, maxShift, (m.key - 0.12) / 0.76);
+        leftBg.position.x = splitX - 12;
+        rightBg.position.x = splitX + 12;
         leftBgMat.color.copy(lightCol);
         rightBgMat.color.copy(darkCol);
 
-        // 左下斜影楔：顶点精确贴在球底中轴，斜边扫向左下画框角
-        const wedgeSpan = Math.max(1.2, 1.05 * aspect + splitX);
+        // 左侧斜影与右侧阶梯右沿呈镜像倾角，稳定落到底沿
+        const wedgeW = Math.min(halfH * aspect * 0.98 + Math.max(0, splitX), 1.08);
         const sp = shadowGeo.attributes.position;
         sp.setXYZ(0, 0, 0, 0);
-        sp.setXYZ(1, -wedgeSpan, -0.78, 0);
-        sp.setXYZ(2, 0, -0.78, 0);
+        sp.setXYZ(1, -wedgeW, -0.75, 0);
+        sp.setXYZ(2, 0, -0.75, 0);
         sp.needsUpdate = true;
-        shadowWedge.position.set(splitX, -0.35, -2.2);
+        shadowWedge.position.set(splitX, -0.27, -2.2);
         shadowMat.color.copy(darkCol);
 
         layoutStairs(splitX, m, state.gradation, openK);
 
-        const sRadius = lerp(0.86, 1.0, openK);
+        const sRadius = lerp(0.88, 1.0, openK);
         sphere.scale.setScalar(sRadius);
-        sphere.position.set(splitX, 0.16, 0);
+        sphere.position.set(splitX, 0.3, 0);
         sphereMat.uniforms.uDark.value.copy(darkCol);
         sphereMat.uniforms.uLight.value.copy(lightCol);
         sphereMat.uniforms.uSteps.value = steps;
         sphereMat.uniforms.uSplitMode.value = 1.0;
         sphereMat.uniforms.uSplitX.value = splitX;
-        sphereMat.uniforms.uContrast.value = state.u;
+        sphereMat.uniforms.uContrast.value = m.span;
         sphereMat.uniforms.uLightDir.value.set(0.82, 0.35, 0.45).normalize();
 
-        dotMesh.position.set(splitX + 0.22 * sRadius, 0.16 + 0.17 * sRadius, 0.72);
-        dotMesh.scale.setScalar(lerp(0.6, 1, openK));
-        const redMix = lerp(0.35, 1, clamp(state.u * 1.15, 0, 1));
+        dotMesh.position.set(splitX + 0.23 * sRadius, 0.3 + 0.15 * sRadius, 0.72);
+        dotMesh.scale.setScalar(lerp(0.65, 1, openK));
+        const redMix = lerp(0.35, 1, clamp(m.span * 1.2, 0, 1));
         dotMat.color.setRGB(
           lerp(m.lightRgb[0], PALETTE.red[0], redMix) / 255,
           lerp(m.lightRgb[1], PALETTE.red[1], redMix) / 255,
@@ -347,34 +361,38 @@ export function createScene3D(host) {
           SRGBColorSpace,
         );
       } else if (isSculpt) {
-        const bgTone = lerp(m.hi * 0.96, m.lo * 1.05, clamp(state.v, 0, 1));
-        const floorTone = clamp(bgTone - 0.12 * state.u, 0, 1);
+        // 调性重心同时控制影棚底色明暗与侧光灯位方位
+        const bgTone = lerp(m.lo * 1.05, m.hi * 0.96, clamp((m.key - 0.12) / 0.76, 0, 1));
+        const floorTone = clamp(bgTone - 0.14 * m.span, 0, 1);
         leftBg.position.x = 0;
-        leftBgMat.color.copy(toColor(toneRgb(bgTone)));
-        plinthMat.color.copy(toColor(toneRgb(floorTone)));
-        plinth.position.set(0, -1.16, -2.4);
+        leftBgMat.color.copy(toColor(levelRgb(bgTone)));
+        plinthMat.color.copy(toColor(levelRgb(floorTone)));
+        plinth.position.set(0, -1.34, -2.4);
 
+        const lampAngle = lerp(-0.92, 0.88, clamp((m.key - 0.12) / 0.76, 0, 1));
         castShadowMat.color.copy(darkCol);
-        castShadowMat.opacity = clamp(0.12 + state.u * 0.72, 0.1, 0.85);
-        castShadow.position.set(-0.34, -0.44, -1.6);
-        castShadow.scale.set(0.95 + state.u * 0.45, 0.9, 1);
+        castShadowMat.opacity = clamp(0.14 + m.span * 0.74, 0.1, 0.86);
+        castShadow.position.set(-lampAngle * 0.42, -0.45, -1.6);
+        castShadow.scale.set(0.95 + m.span * 0.45, 0.9, 1);
 
-        sphere.scale.setScalar(1.06 * lerp(0.9, 1, openK));
-        sphere.position.set(0.06, 0.12, 0);
+        sphere.scale.setScalar(1.04 * lerp(0.9, 1, openK));
+        sphere.position.set(0, 0.14, 0);
         sphereMat.uniforms.uDark.value.copy(darkCol);
         sphereMat.uniforms.uLight.value.copy(lightCol);
         sphereMat.uniforms.uSteps.value = steps;
         sphereMat.uniforms.uSplitMode.value = 0.0;
-        sphereMat.uniforms.uContrast.value = state.u;
-        sphereMat.uniforms.uLightDir.value.set(lerp(0.25, 0.88, state.u), lerp(0.55, 0.34, state.u), lerp(0.8, 0.32, state.u)).normalize();
+        sphereMat.uniforms.uContrast.value = m.span;
+        sphereMat.uniforms.uLightDir.value
+          .set(lerp(0.95, 0.18, clamp((m.key - 0.12) / 0.76, 0, 1)), 0.38, lerp(0.16, 0.92, clamp((m.key - 0.12) / 0.76, 0, 1)))
+          .normalize();
       } else if (isEd) {
         scene.background = midCol;
-        editorial.update({ ...m, vBias: state.v }, state.gradation, state.dot);
-        const fitW = Math.min(2.05 * aspect, 2.55);
-        const fitH = fitW * 0.75;
-        const maxH = 1.68;
+        editorial.update(m, state.gradation, state.dot);
+        const fitW = Math.min(1.92 * aspect, 2.75);
+        const fitH = fitW * (450 / 720);
+        const maxH = 1.66;
         const sc = fitH > maxH ? maxH / fitH : 1;
-        edPlane.scale.set((fitW * sc) / 2.3, (fitH * sc) / 1.725, 1);
+        edPlane.scale.set((fitW * sc) / 2.6, (fitH * sc) / 1.625, 1);
       }
 
       if (!isEd) scene.background = isSplit ? darkCol : leftBgMat.color;

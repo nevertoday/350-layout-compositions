@@ -16,7 +16,7 @@
 </header>
 
 <main>
-  <!-- 开场：对半纸墨标题 + 立体明暗对比控制台 -->
+  <!-- 开场：通栏对半纸墨标题 + 全宽无侧栏 3D 舞台 + 暗房十一阶色阶仪 -->
   <section class="hero" aria-labelledby="title">
     <div class="hero-banner">
       <div class="wrap hero-title-wrap">
@@ -30,59 +30,100 @@
       </div>
     </div>
 
-    <div class="wrap hero-grid">
-      <div class="stage-col">
-        <div class="stage" id="stage">
-          <div class="scene-host" id="scene-host"></div>
-          <i class="axis-line v" id="axis-v" aria-hidden="true"></i>
-          <i class="axis-line h" id="axis-h" aria-hidden="true"></i>
+    <div class="stage-band">
+      <div class="stage" id="stage" aria-label="明暗对比实时舞台，可左右轻扫调节明暗重心">
+        <div class="scene-host" id="scene-host"></div>
 
-          <!-- 四个快捷定标锚点 -->
-          <button type="button" class="preset-pin" data-preset="flat" style="left:16%;top:50%" title="低反差平光"><span class="sr">切到低反差平光</span></button>
-          <button type="button" class="preset-pin" data-preset="highkey" style="left:52%;top:20%" title="高调通透"><span class="sr">切到高调通透</span></button>
-          <button type="button" class="preset-pin" data-preset="lowkey" style="left:74%;top:80%" title="低调剧场"><span class="sr">切到低调剧场</span></button>
-          <button type="button" class="preset-pin hot" data-preset="poster" style="left:78%;top:50%" title="海报极对比"><span class="sr">切到海报极对比</span></button>
-
-          <!-- 主拖动把手（data-perf-drag） -->
-          <button type="button" class="reticle" id="reticle" data-perf-drag aria-describedby="ro-text">
-            <span class="ret-ring" aria-hidden="true"></span>
-            <span class="ret-core" aria-hidden="true"></span>
-            <span class="sr">明暗对比控制点：左右拖动改变反差，上下拖动改变画面调性</span>
-          </button>
-
-          <p class="hud hud-tl" aria-hidden="true"><span class="hud-k">CONTRAST</span><b id="hud-ratio" class="num">15.5 : 1</b></p>
-          <p class="hud hud-tr" aria-hidden="true"><span id="hud-zone" class="num">Zone 0–X</span></p>
-          <p class="hud hud-bl" aria-hidden="true"><span>← 灰雾</span><span>极反差 →</span></p>
-          <p class="hud hud-br" aria-hidden="true"><span id="hud-key">均衡对半</span></p>
-        </div>
-        <p class="stage-hint">左右拖动<b>朱红准星</b>拉大或收窄明暗反差，上下拖动切换高调与低调；也可用方向键微调，按 <kbd lang="en">Home</kbd> 回到原海报状态。</p>
+        <p class="hud hud-tl" aria-hidden="true"><span class="hud-k">CONTRAST</span><b id="hud-ratio" class="num">15.5 : 1</b></p>
+        <p class="hud hud-tr" aria-hidden="true"><span id="hud-zone" class="num">Zone I–IX</span></p>
+        <p class="hud hud-bl" aria-hidden="true"><span class="hud-k">LIGHT / DARK</span><b id="hud-split" class="num">50 / 50</b></p>
+        <p class="hud hud-br" aria-hidden="true"><span id="hud-key">均衡对半</span></p>
       </div>
+    </div>
 
-      <div class="panel-col">
-        <div class="panel">
-          <fieldset class="seg">
-            <legend>演示场景 <span lang="en">Scene</span></legend>
-            <label><input type="radio" name="hero-scene" value="split" checked><span>海报母题</span></label>
-            <label><input type="radio" name="hero-scene" value="chiaroscuro"><span>明暗雕塑</span></label>
-            <label><input type="radio" name="hero-scene" value="editorial"><span>版面样本</span></label>
-          </fieldset>
-
-          <fieldset class="seg">
-            <legend>明度层次 <span lang="en">Gradation</span></legend>
-            <label><input type="radio" name="hero-grad" value="notan" checked><span>二值黑白</span></label>
-            <label><input type="radio" name="hero-grad" value="five"><span>五阶层次</span></label>
-            <label><input type="radio" name="hero-grad" value="smooth"><span>连续明暗</span></label>
-          </fieldset>
-
-          <div class="panel-actions">
-            <button type="button" class="act-btn" id="btn-dot" aria-pressed="true">红点焦点 <span lang="en">Focal Dot</span></button>
-            <button type="button" class="act-btn" id="btn-reset">复位海报 <span lang="en">Reset</span></button>
+    <div class="bench-band">
+      <div class="wrap bench-inner">
+        <div class="levels-deck" id="levels-deck">
+          <div class="levels-meta">
+            <span class="lv-label">暗房十一阶色阶仪 <span lang="en">ZONE 0–X LEVELS</span><span class="lv-legend" aria-hidden="true"><i class="lv-sw lv-sw-ink"></i>明暗分布<i class="lv-sw lv-sw-red"></i>峰值</span></span>
+            <span class="lv-vals num" id="lv-vals">黑场 Zone I (#10110E) · 亮占 50% · 白场 Zone IX (#EFE7DC)</span>
           </div>
 
+          <div class="levels-meter">
+            <div class="lv-hist" id="lv-hist" aria-hidden="true"></div>
+
+            <span class="lv-edge lv-edge-l" aria-hidden="true"><b class="num">0</b><i>极暗</i></span>
+            <div class="levels-track" id="levels-track">
+              <div class="lv-zones" id="lv-zones" aria-hidden="true"></div>
+              <div class="lv-span" id="lv-span" aria-hidden="true"></div>
+
+              <button type="button" class="lv-knob lv-black" id="knob-black" role="slider"
+                aria-label="黑场锚点：向右拖动抬高暗部、收窄反差，左右方向键可微调" aria-valuemin="0" aria-valuemax="90" aria-valuenow="6">
+                <span class="knob-needle" aria-hidden="true"></span>
+                <span class="knob-tri" aria-hidden="true"></span>
+                <span class="knob-cap" aria-hidden="true">黑场</span>
+                <span class="knob-z num" id="kz-black" aria-hidden="true">Zone I</span>
+              </button>
+
+              <button type="button" class="lv-knob lv-mid" id="knob-mid" data-perf-drag role="slider"
+                aria-label="明暗调性重心：向左拖动扩大暗场进入低调，向右拖动扩大亮场进入高调，左右方向键可微调" aria-valuemin="12" aria-valuemax="88" aria-valuenow="50">
+                <span class="knob-needle" aria-hidden="true"></span>
+                <span class="knob-tri" aria-hidden="true"></span>
+                <span class="knob-cap" aria-hidden="true">调性</span>
+                <span class="knob-z num" id="kz-mid" aria-hidden="true">Zone V</span>
+              </button>
+
+              <button type="button" class="lv-knob lv-white" id="knob-white" role="slider"
+                aria-label="白场锚点：向左拖动压低亮部、收窄反差，左右方向键可微调" aria-valuemin="10" aria-valuemax="100" aria-valuenow="93">
+                <span class="knob-needle" aria-hidden="true"></span>
+                <span class="knob-tri" aria-hidden="true"></span>
+                <span class="knob-cap" aria-hidden="true">白场</span>
+                <span class="knob-z num" id="kz-white" aria-hidden="true">Zone IX</span>
+              </button>
+            </div>
+            <span class="lv-edge lv-edge-r" aria-hidden="true"><b class="num">X</b><i>极亮</i></span>
+          </div>
+        </div>
+
+        <div class="console-bar">
           <div class="readout" id="readout" aria-live="polite">
             <p class="ro-head"><b id="ro-title">黑白两极拉开，视觉力量瞬间锁死</b><span class="ro-badge" id="ro-badge" data-status="peak">海报级力量</span></p>
             <p class="ro-text" id="ro-text"></p>
             <p class="ro-note" id="ro-note"></p>
+          </div>
+
+          <div class="console-ctrls">
+            <div class="preset-strip" role="group" aria-label="快捷暗房预设">
+              <button type="button" class="pill-btn" data-preset="poster" aria-pressed="true">海报定标</button>
+              <button type="button" class="pill-btn" data-preset="flat" aria-pressed="false">平光灰雾</button>
+              <button type="button" class="pill-btn" data-preset="highkey" aria-pressed="false">高调通透</button>
+              <button type="button" class="pill-btn" data-preset="lowkey" aria-pressed="false">低调剧场</button>
+              <button type="button" class="pill-btn" data-preset="purebw" aria-pressed="false">纯黑白</button>
+            </div>
+
+            <div class="seg-pair">
+              <fieldset class="seg">
+                <legend>演示场景 <span lang="en">Scene</span></legend>
+                <label><input type="radio" name="hero-scene" value="split" checked><span>海报母题</span></label>
+                <label><input type="radio" name="hero-scene" value="chiaroscuro"><span>明暗雕塑</span></label>
+                <label><input type="radio" name="hero-scene" value="editorial"><span>版面样本</span></label>
+              </fieldset>
+
+              <fieldset class="seg">
+                <legend>明度层次 <span lang="en">Gradation</span></legend>
+                <label><input type="radio" name="hero-grad" value="notan" checked><span>二值黑白</span></label>
+                <label><input type="radio" name="hero-grad" value="five"><span>五阶层次</span></label>
+                <label><input type="radio" name="hero-grad" value="smooth"><span>连续明暗</span></label>
+              </fieldset>
+            </div>
+
+            <div class="console-foot">
+              <p class="bench-hint">拖色阶三钳调反差与明暗面积，也可左右轻扫舞台或用方向键微调。</p>
+              <div class="console-actions">
+                <button type="button" class="act-btn" id="btn-dot" aria-pressed="true">红点焦点</button>
+                <button type="button" class="act-btn" id="btn-reset">复位海报</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -204,7 +245,7 @@
               <span class="yr" lang="en">15–17C</span>
               <div>
                 <strong>明暗对照法与暗色调主义</strong> <em lang="en">Chiaroscuro &amp; Tenebrism</em>
-                <p>列奥纳多·达·芬奇（<span lang="en">Leonardo da Vinci</span>，如 1481 年《三博士来朝》）用细腻明暗过渡塑造立体体积；巴洛克画家卡拉瓦乔（<span lang="en">Caravaggio</span>）把强聚光与大片黑影推向剧场式的暗色调主义；17 世纪的伦勃朗（<span lang="en">Rembrandt van Rijn</span>）进一步用柔和明暗包裹人物神情与空气感。</p>
+                <p>列奥纳多·达·芬奇（<span class="person" lang="en">Leonardo da Vinci</span>，如 1481 年《三博士来朝》）用细腻明暗过渡塑造立体体积；巴洛克画家卡拉瓦乔（<span class="person" lang="en">Caravaggio</span>）把强聚光与大片黑影推向剧场式的暗色调主义；17 世纪的伦勃朗（<span class="person" lang="en">Rembrandt van Rijn</span>）进一步用柔和明暗包裹人物神情与空气感。</p>
               </div>
             </li>
             <li>
@@ -277,54 +318,86 @@
       </div>
     </section>
 
-    <!-- 03 · 十一阶区域与调性 -->
+    <!-- 03 · 浓淡归组：2、3、5 值 Notan 缩略图 -->
     <section class="sec sec-paper" aria-labelledby="s3">
       <div class="wrap sec-grid">
         <header class="sec-head reveal">
           <p class="sec-no" lang="en">03</p>
-          <h2 id="s3">十一阶明度与<br>四种画面调性</h2>
-          <p class="sec-en" lang="en">11-zone scale · Tonal key &amp; distribution</p>
+          <h2 id="s3">明度归组：<br>2、3、5 阶骨架</h2>
+          <p class="sec-en" lang="en">Value grouping · Notan 2 / 3 / 5-value studies</p>
         </header>
 
         <div class="sec-body">
-          <p class="lead reveal">控制明暗不只有「拉满」一种开关。选定画面主要落在哪几个明度区（<strong>调性 Key</strong>），以及亮面积与暗面积各占多少，会直接改写整张作品的情绪温度。</p>
+          <p class="lead reveal">一幅完整画面里常藏着几十种深浅，细节一多，主次就容易松散。动笔定稿前先做一张巴掌大的<strong>浓淡缩略图（Notan）</strong>，把中间灰强行压缩成 <strong>2 值、3 值或 5 值</strong>，哪一档的大块骨架最清楚、哪一档开始发散，一眼就能比出高低。</p>
 
           <div class="lab reveal">
             <div class="lab-head">
-              <h3>实验 · 画面调性与明暗面积比 <span lang="en">Key &amp; Area Distribution</span></h3>
-              <p>切换四种典型调性，再拖动暗部面积占比，观察下方 11 级明度区如何点亮。</p>
+              <h3>实验 · 浓淡值阶压缩缩略图 <span lang="en">Notan Value-Compression Study</span></h3>
+              <p>分别把带中间灰的静物与风景剪影压成 2 值、3 值、5 值或原图连续灰阶，点下方缩略图或拖动中灰归属线，比较骨架清晰度。</p>
             </div>
-            <div class="zone-bar-wrap">
-              <div class="zone-strip" id="zone-strip" aria-label="Zone 0 到 Zone X 十一级明度标尺"></div>
-              <div class="zone-caps" aria-hidden="true"><span>Zone 0 · 极暗</span><span>Zone V · 中灰</span><span>Zone X · 极亮</span></div>
-            </div>
+
             <div class="lab-split">
               <div class="lab-visual">
-                <svg viewBox="0 0 480 240" id="key-svg" class="lab-svg" role="img" aria-label="四种画面调性与明暗面积占比实时演示"></svg>
+                <svg viewBox="0 0 480 260" id="nt-svg" class="lab-svg" role="img" aria-label="浓淡值阶压缩主视图：按所选 2 值、3 值、5 值或原图灰阶显示构图骨架"></svg>
+                <div class="nt-strip" id="nt-strip" role="group" aria-label="四档明度压缩缩略图对照，点选切换主视图">
+                  <button type="button" class="nt-thumb" data-levels="2" aria-pressed="false">
+                    <svg viewBox="0 0 480 260" class="nt-mini" aria-hidden="true"></svg>
+                    <span><b>2 值</b><i lang="en">Notan</i></span>
+                  </button>
+                  <button type="button" class="nt-thumb" data-levels="3" aria-pressed="true">
+                    <svg viewBox="0 0 480 260" class="nt-mini" aria-hidden="true"></svg>
+                    <span><b>3 值</b><i lang="en">3-Value</i></span>
+                  </button>
+                  <button type="button" class="nt-thumb" data-levels="5" aria-pressed="false">
+                    <svg viewBox="0 0 480 260" class="nt-mini" aria-hidden="true"></svg>
+                    <span><b>5 值</b><i lang="en">5-Value</i></span>
+                  </button>
+                  <button type="button" class="nt-thumb" data-levels="0" aria-pressed="false">
+                    <svg viewBox="0 0 480 260" class="nt-mini" aria-hidden="true"></svg>
+                    <span><b>原图</b><i lang="en">Full</i></span>
+                  </button>
+                </div>
               </div>
+
               <div class="lab-ctrl">
                 <fieldset class="seg seg-2col">
-                  <legend>画面调性 <span lang="en">Tonal Key</span></legend>
-                  <label><input type="radio" name="key-mode" value="full" checked><span>全音域</span></label>
-                  <label><input type="radio" name="key-mode" value="high"><span>高调偏亮</span></label>
-                  <label><input type="radio" name="key-mode" value="low"><span>低调偏暗</span></label>
-                  <label><input type="radio" name="key-mode" value="mid"><span>中调压缩</span></label>
+                  <legend>测试题材 <span lang="en">Subject</span></legend>
+                  <label><input type="radio" name="nt-scene" value="courtyard" checked><span>拱门静物</span></label>
+                  <label><input type="radio" name="nt-scene" value="pavilion"><span>远山孤亭</span></label>
                 </fieldset>
+
+                <fieldset class="seg seg-2col">
+                  <legend>值阶档位 <span lang="en">Value Steps</span></legend>
+                  <label><input type="radio" name="nt-levels" value="2"><span>2 值黑白</span></label>
+                  <label><input type="radio" name="nt-levels" value="3" checked><span>3 值缩略</span></label>
+                  <label><input type="radio" name="nt-levels" value="5"><span>5 值阶梯</span></label>
+                  <label><input type="radio" name="nt-levels" value="0"><span>原图灰阶</span></label>
+                </fieldset>
+
                 <div class="ctrl">
                   <div class="ctrl-top">
-                    <label for="key-dark">暗部面积占比 <span lang="en">Dark Mass</span></label>
-                    <output id="key-dark-out" class="num">50%</output>
+                    <label for="nt-pivot">中灰归属分界 <span lang="en">Midtone Pivot</span></label>
+                    <output id="nt-pivot-out" class="num">50%</output>
                   </div>
-                  <input type="range" id="key-dark" min="15" max="85" step="1" value="50">
+                  <input type="range" id="nt-pivot" min="30" max="70" step="1" value="50">
                 </div>
-                <p class="lab-read" id="key-read" aria-live="polite"></p>
+
+                <div class="nt-mass" aria-live="polite">
+                  <div class="nt-mass-head">
+                    <span>明度色块构成 <span lang="en">Mass Split</span></span>
+                    <b class="num" id="nt-mass-stat">暗 28% · 灰 38% · 亮 34%</b>
+                  </div>
+                  <div class="nt-mass-bar" id="nt-mass-bar" aria-hidden="true"></div>
+                </div>
+
+                <p class="lab-read" id="nt-read" aria-live="polite"></p>
               </div>
             </div>
           </div>
 
           <aside class="callout-note reveal">
-            <h3>经验值参考：不对称配比更省力 <span lang="en">Heuristic</span></h3>
-            <p>实务里一个常用<strong>经验值</strong>是让亮或暗有一方明显占优（比如大约 70/30 或 80/20，避免机械五五开导致画面两分；关于面积比例与视觉配平，可分别看 <a href="https://layout.xiaoxiaodong.ai/097/play/" target="_blank" rel="noopener">097 平衡原则</a> 与 <a href="https://layout.xiaoxiaodong.ai/098/play/" target="_blank" rel="noopener">098 比例原则</a>）。原海报故意反其道用了 50/50 竖向平分，但它紧接着在正中压上一颗<strong>跨越中轴的反色大圆</strong>和偏心红点，才把左右牢牢焊成一个整体。</p>
+            <h3>经验值参考：先立 2–3 值大骨架，再配不对称面积 <span lang="en">Heuristic</span></h3>
+            <p>实务里常见的<strong>经验做法</strong>有两条：一是起稿先在 2 值或 3 值里把大块暗面连成一体，确认缩成邮票大小仍能一眼认清主体，再去细化第 4、第 5 阶过渡；二是让亮或暗有一方明显占优（大约 70/30 或 80/20，避免机械五五开把画面撕成两半；面积比例与配平另见 <a href="https://layout.xiaoxiaodong.ai/097/play/" target="_blank" rel="noopener">097 平衡原则</a> 与 <a href="https://layout.xiaoxiaodong.ai/098/play/" target="_blank" rel="noopener">098 比例原则</a>）。原海报故意用了 50/50 竖分，正是靠中央<strong>跨越中轴的反色大圆</strong>把左右焊成一体。</p>
           </aside>
         </div>
       </div>
@@ -500,7 +573,7 @@
             <ul class="duel-list reveal">
               <li>
                 <h3>长时间沉浸式正文阅读</h3>
-                <p>在发光屏幕上，纯黑配纯白（21:1）读久了边缘容易泛起眩光；改用暖纸底配深炭灰（约 11:1–16:1）更耐读。</p>
+                <p>在发光屏幕上，纯黑配纯白（21:1）读久了边缘容易泛起眩光；把黑白两极比纯黑纯白略收一档（例如暖纸底配深炭灰，经验上眩光更少），既保留清晰识别，又更耐长时间阅读。</p>
               </li>
               <li>
                 <h3>需要空气感与柔和氛围的题材</h3>
@@ -520,96 +593,121 @@
       </div>
     </section>
 
-    <!-- 07 · 小练习：四版海报，哪张明暗最成立？ -->
+    <!-- 07 · 小练习：四版展览海报，哪张明暗预算最成立？ -->
     <section class="sec sec-paper" aria-labelledby="s7">
       <div class="wrap">
         <header class="sec-head wide reveal">
           <p class="sec-no" lang="en">07</p>
-          <h2 id="s7">练一练：四版展览海报，哪张明暗最有力量？</h2>
-          <p class="sec-en" lang="en">Practice · Pick the clearest value structure</p>
+          <h2 id="s7">练一练：四版展览海报，哪张明暗预算最成立？</h2>
+          <p class="sec-en" lang="en">Practice · Audit where the contrast budget lands</p>
         </header>
-        <p class="lead reveal practice-lead">同一主题——「光影建筑展」，四张草图都只用原海报同款色系。先凭第一眼挑出明暗秩序最成立的一张，点下去看诊断。</p>
+        <p class="lead reveal practice-lead">同一主题——「混凝土与光」建筑摄影展，四张方案都用同一套暖纸、炭墨与朱红，且各自都有 15.5:1 的高反差。先别急着看像不像谁，重点检查<strong>明暗面积配比</strong>与<strong>最高局部反差花在了谁身上</strong>。</p>
 
         <div class="quiz-grid reveal" role="group" aria-label="四张明暗对比练习海报">
-          <!-- A: 全灰塌陷 -->
+          <!-- A: 反差够强，但暗亮五五平分、左右无跨界桥接，画面裂成两截 -->
           <button type="button" class="quiz-opt" data-opt="A" aria-pressed="false">
             <svg viewBox="0 0 220 290" class="q-svg" aria-hidden="true">
-              <rect width="220" height="290" fill="#a8a298"/>
-              <rect x="110" y="0" width="110" height="290" fill="#8c867c"/>
-              <circle cx="110" cy="164" r="46" fill="#827c72"/>
-              <path d="M110 118 A46 46 0 0 1 110 210 Z" fill="#9e988e"/>
-              <circle cx="128" cy="148" r="9" fill="#9a6b5b"/>
-              <text x="18" y="54" fill="#777168" font-size="24" font-weight="900" font-family='"Noto Sans SC",sans-serif'>光影建筑展</text>
-              <text x="18" y="74" fill="#7b756c" font-size="9" font-family='"Inter",sans-serif'>LIGHT &amp; FORM · 2026</text>
-              <rect x="18" y="236" width="84" height="5" fill="#807a70"/>
-              <rect x="18" y="248" width="64" height="5" fill="#807a70"/>
-              <text x="18" y="274" fill="#767067" font-size="9" font-family='"Inter",sans-serif'>ZONE IV–VI · 1.7:1</text>
+              <rect width="110" height="290" fill="#efe7dc"/>
+              <rect x="110" y="0" width="110" height="290" fill="#10110e"/>
+              <!-- 左半亮底：标题与建筑暗块 -->
+              <text x="16" y="48" fill="#10110e" font-size="24" font-weight="900" font-family='"Noto Sans SC",sans-serif'>混凝土</text>
+              <text x="16" y="76" fill="#10110e" font-size="24" font-weight="900" font-family='"Noto Sans SC",sans-serif'>与光</text>
+              <text x="16" y="96" fill="#545049" font-size="7.2" font-weight="500" font-family='"DM Mono",monospace'>CONCRETE &amp; LIGHT</text>
+              <rect x="16" y="138" width="76" height="128" fill="#10110e"/>
+              <rect x="34" y="156" width="22" height="72" fill="#efe7dc"/>
+              <polygon points="34,228 56,228 76,266 44,266" fill="#9c9589"/>
+              <!-- 右半暗底：等量亮卡与高反差展期，与左半势均力敌 -->
+              <rect x="128" y="24" width="76" height="122" fill="#efe7dc"/>
+              <polygon points="128,146 204,92 204,146" fill="#10110e"/>
+              <rect x="136" y="34" width="8" height="24" fill="#b43d1d"/>
+              <text x="128" y="214" fill="#efe7dc" font-size="10.5" font-weight="500" font-family='"DM Mono",monospace'>10.12—11.30</text>
+              <text x="128" y="238" fill="#efe7dc" font-size="13" font-weight="700" font-family='"Noto Sans SC",sans-serif'>当代美术馆</text>
+              <text x="128" y="258" fill="#cfc7ba" font-size="9.5" font-family='"Noto Sans SC",sans-serif'>东厅 · 免费预约</text>
             </svg>
             <span class="q-foot"><b>A</b><i class="q-badge" aria-hidden="true"></i></span>
           </button>
 
-          <!-- B: 全员极反差喧哗 -->
+          <!-- B: 与 C 极接近的干扰项——同款 72/28 暗厅构图，但最高反差花给了底部日期牌，标题却被压成低反差暗灰 -->
           <button type="button" class="quiz-opt" data-opt="B" aria-pressed="false">
             <svg viewBox="0 0 220 290" class="q-svg" aria-hidden="true">
-              <rect width="220" height="290" fill="#efe7dc"/>
-              <!-- 满屏刺眼黑白条纹 -->
-              <path d="M0 18H220M0 36H220M0 54H220M0 72H220M0 90H220M0 108H220M0 126H220M0 144H220M0 162H220M0 180H220M0 198H220M0 216H220M0 234H220M0 252H220M0 270H220" stroke="#10110e" stroke-width="9"/>
-              <rect x="12" y="12" width="196" height="266" fill="none" stroke="#10110e" stroke-width="6"/>
-              <rect x="20" y="28" width="180" height="44" fill="#efe7dc" stroke="#10110e" stroke-width="4"/>
-              <text x="28" y="58" fill="#10110e" font-size="22" font-weight="900" font-family='"Noto Sans SC",sans-serif'>光影建筑展</text>
-              <circle cx="110" cy="160" r="44" fill="#10110e" stroke="#efe7dc" stroke-width="5"/>
-              <rect x="24" y="220" width="76" height="42" fill="#10110e" stroke="#efe7dc" stroke-width="4"/>
-              <rect x="120" y="220" width="76" height="42" fill="#efe7dc" stroke="#10110e" stroke-width="4"/>
-              <circle cx="158" cy="241" r="11" fill="#b43d1d"/>
+              <rect width="220" height="290" fill="#10110e"/>
+              <rect x="0" y="0" width="52" height="290" fill="#1b1c18"/>
+              <rect x="0" y="204" width="220" height="86" fill="#181915"/>
+              <!-- 主标题压成 3.2:1 暗灰 -->
+              <text x="18" y="46" fill="#68635a" font-size="25" font-weight="900" font-family='"Noto Sans SC",sans-serif'>混凝土与光</text>
+              <text x="18" y="64" fill="#4f4b44" font-size="7.5" font-weight="500" font-family='"DM Mono",monospace'>CONCRETE &amp; LIGHT · 2026</text>
+              <!-- 中央建筑天窗光柱也被收灰 -->
+              <polygon points="114,82 126,74 126,204 114,204" fill="#2c2b27"/>
+              <rect x="126" y="74" width="44" height="130" fill="#827b70"/>
+              <polygon points="126,204 170,204 202,218 144,218" fill="#59544c"/>
+              <!-- 最高 15.5:1 对比与朱红全砸在底部次要日期条上 -->
+              <rect x="16" y="220" width="188" height="52" fill="#efe7dc"/>
+              <rect x="24" y="230" width="7" height="32" fill="#b43d1d"/>
+              <text x="40" y="244" fill="#10110e" font-size="11.5" font-weight="500" font-family='"DM Mono",monospace'>10.12 — 11.30</text>
+              <text x="40" y="262" fill="#10110e" font-size="10.5" font-weight="700" font-family='"Noto Sans SC",sans-serif'>当代美术馆 · 东厅</text>
             </svg>
             <span class="q-foot"><b>B</b><i class="q-badge" aria-hidden="true"></i></span>
           </button>
 
-          <!-- C: 最佳：明暗主次分明 -->
+          <!-- C: 最佳——72/28 不对称沉静暗厅，15.5:1 最高对比精准留给标题与天窗光柱，次要日期安静可读 -->
           <button type="button" class="quiz-opt" data-opt="C" aria-pressed="false">
             <svg viewBox="0 0 220 290" class="q-svg" aria-hidden="true">
               <rect width="220" height="290" fill="#10110e"/>
-              <!-- 左上小幅暖纸亮区承接主标题与阶梯 -->
-              <rect x="0" y="0" width="136" height="96" fill="#efe7dc"/>
-              <text x="16" y="48" fill="#10110e" font-size="23" font-weight="900" font-family='"Noto Sans SC",sans-serif'>光影建筑展</text>
-              <text x="17" y="72" fill="#545049" font-size="9" font-weight="600" font-family='"Inter",sans-serif'>LIGHT &amp; FORM · 2026</text>
-              <!-- 阶梯灰过渡与跨界亮圆 -->
-              <circle cx="136" cy="166" r="44" fill="#242520"/>
-              <path d="M136 122 A44 44 0 0 1 136 210 Z" fill="#efe7dc"/>
-              <circle cx="155" cy="152" r="9" fill="#b43d1d"/>
-              <rect x="136" y="218" width="18" height="4" fill="#777268"/>
-              <rect x="136" y="228" width="32" height="5" fill="#9c9589"/>
-              <rect x="136" y="240" width="48" height="6" fill="#c7bfb2"/>
-              <rect x="136" y="254" width="66" height="8" fill="#efe7dc"/>
-              <!-- 次要信息安静退居暗底柔和灰 -->
-              <text x="16" y="250" fill="#a8a194" font-size="9" font-family='"Inter",sans-serif'>OCT 12 — NOV 30</text>
-              <text x="16" y="266" fill="#8d867a" font-size="9" font-family='"Noto Sans SC",sans-serif'>当代美术馆 · 东厅</text>
+              <rect x="0" y="0" width="52" height="290" fill="#1b1c18"/>
+              <rect x="0" y="204" width="220" height="86" fill="#181915"/>
+              <!-- 主角 1：标题独享 15.5:1 最高明度差 -->
+              <text x="18" y="46" fill="#efe7dc" font-size="25" font-weight="900" font-family='"Noto Sans SC",sans-serif'>混凝土与光</text>
+              <text x="18" y="64" fill="#9c9589" font-size="7.5" font-weight="500" font-family='"DM Mono",monospace'>CONCRETE &amp; LIGHT · 2026</text>
+              <!-- 主角 2：混凝土暗室切出的明亮天窗与地面光影过渡 -->
+              <polygon points="114,82 126,74 126,204 114,204" fill="#44413a"/>
+              <rect x="126" y="74" width="44" height="130" fill="#efe7dc"/>
+              <polygon points="126,204 170,204 212,250 148,250" fill="#cbc3b6"/>
+              <polygon points="148,250 212,250 220,268 164,268" fill="#5e5a51"/>
+              <rect x="170" y="74" width="7" height="24" fill="#b43d1d"/>
+              <!-- 次级展期退至温和可读灰阶（~6.4:1 / 4.7:1），不与标题抢戏 -->
+              <line x1="18" y1="224" x2="112" y2="224" stroke="#48443d" stroke-width="1"/>
+              <text x="18" y="244" fill="#9c9589" font-size="9.5" font-weight="500" font-family='"DM Mono",monospace'>10.12 — 11.30</text>
+              <text x="18" y="262" fill="#847e73" font-size="9.5" font-family='"Noto Sans SC",sans-serif'>当代美术馆 · 东厅</text>
             </svg>
             <span class="q-foot"><b>C</b><i class="q-badge" aria-hidden="true"></i></span>
           </button>
 
-          <!-- D: 重点倒挂（边角抢戏、标题发灰） -->
+          <!-- D: 亮底瑞士网格，反差同样充足，但所有边框、分割线与角标全烧掉 15.5:1 预算，视觉分散 -->
           <button type="button" class="quiz-opt" data-opt="D" aria-pressed="false">
             <svg viewBox="0 0 220 290" class="q-svg" aria-hidden="true">
               <rect width="220" height="290" fill="#efe7dc"/>
-              <!-- 标题被压成极弱浅灰 -->
-              <text x="18" y="54" fill="#c7bfb3" font-size="24" font-weight="900" font-family='"Noto Sans SC",sans-serif'>光影建筑展</text>
-              <text x="18" y="74" fill="#d1c9bd" font-size="9" font-family='"Inter",sans-serif'>LIGHT &amp; FORM · 2026</text>
-              <circle cx="88" cy="146" r="42" fill="#d9d1c5"/>
-              <!-- 右下角无关装饰块却抢走了最高对比度 -->
-              <rect x="136" y="196" width="70" height="80" fill="#10110e"/>
-              <rect x="150" y="212" width="42" height="48" fill="#efe7dc"/>
-              <rect x="162" y="226" width="18" height="20" fill="#10110e"/>
-              <circle cx="171" cy="236" r="6" fill="#b43d1d"/>
-              <text x="18" y="264" fill="#cbc3b7" font-size="9" font-family='"Noto Sans SC",sans-serif'>当代美术馆 · 东厅</text>
+              <rect x="10" y="10" width="200" height="270" fill="none" stroke="#10110e" stroke-width="3"/>
+              <!-- 顶部实心黑眉条 -->
+              <rect x="10" y="10" width="200" height="22" fill="#10110e"/>
+              <text x="18" y="24" fill="#efe7dc" font-size="7.5" font-weight="500" font-family='"DM Mono",monospace'>EXHIBITION · NO. 100 · ARCHIVE</text>
+              <!-- 标题 -->
+              <text x="18" y="64" fill="#10110e" font-size="24" font-weight="900" font-family='"Noto Sans SC",sans-serif'>混凝土与光</text>
+              <!-- 粗黑格线与满格黑块把预算平摊到全页 -->
+              <line x1="10" y1="78" x2="210" y2="78" stroke="#10110e" stroke-width="2.5"/>
+              <line x1="112" y1="78" x2="112" y2="216" stroke="#10110e" stroke-width="2.5"/>
+              <rect x="20" y="90" width="80" height="114" fill="#10110e"/>
+              <rect x="44" y="106" width="26" height="74" fill="#efe7dc"/>
+              <rect x="70" y="106" width="8" height="22" fill="#b43d1d"/>
+              <rect x="122" y="90" width="78" height="24" fill="#10110e"/>
+              <text x="129" y="105" fill="#efe7dc" font-size="8" font-weight="500" font-family='"DM Mono",monospace'>LIGHT &amp; FORM</text>
+              <line x1="122" y1="132" x2="200" y2="132" stroke="#10110e" stroke-width="3"/>
+              <line x1="122" y1="150" x2="200" y2="150" stroke="#10110e" stroke-width="3"/>
+              <line x1="122" y1="168" x2="200" y2="168" stroke="#10110e" stroke-width="3"/>
+              <line x1="122" y1="186" x2="200" y2="186" stroke="#10110e" stroke-width="3"/>
+              <line x1="10" y1="216" x2="210" y2="216" stroke="#10110e" stroke-width="2.5"/>
+              <!-- 底部两个等重实心黑牌 -->
+              <rect x="18" y="226" width="88" height="42" fill="#10110e"/>
+              <text x="26" y="251" fill="#efe7dc" font-size="9.5" font-weight="500" font-family='"DM Mono",monospace'>10.12—11.30</text>
+              <rect x="114" y="226" width="88" height="42" fill="#10110e"/>
+              <text x="122" y="251" fill="#efe7dc" font-size="9.5" font-weight="700" font-family='"Noto Sans SC",sans-serif'>当代美术馆东厅</text>
             </svg>
             <span class="q-foot"><b>D</b><i class="q-badge" aria-hidden="true"></i></span>
           </button>
         </div>
 
         <div class="verdict" id="quiz-verdict" aria-live="polite">
-          <p class="v-title" id="quiz-title">先凭第一眼直觉挑一张。</p>
-          <p class="v-text" id="quiz-text">四张图用的色盘一致，差距全在明暗分配与对比度预算放在了哪里。</p>
+          <p class="v-title" id="quiz-title">先别靠「反差大不大」秒选，比比四张图的明暗预算。</p>
+          <p class="v-text" id="quiz-text">四张草图都达到了 15.5:1 的极值反差，真正的分水岭在于：大块骨架是否完整，以及最高反差究竟交给了主角还是配角。</p>
         </div>
       </div>
     </section>

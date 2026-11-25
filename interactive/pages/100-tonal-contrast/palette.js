@@ -23,6 +23,23 @@ export function toneRgb(t) {
   ];
 }
 
+// 全范围暗房色阶映射 t ∈ [0, 1]：
+//   0.00 = 纯黑 #000000，0.06 = 原海报炭墨 #10110e，0.93 = 原海报暖纸 #efe7dc，1.00 = 纯白 #ffffff
+export function levelRgb(t) {
+  const v = clamp(t, 0, 1);
+  if (v <= 0) return [0, 0, 0];
+  if (v >= 1) return [255, 255, 255];
+  if (v <= 0.06) {
+    const k = v / 0.06;
+    return PALETTE.ink.map((c) => Math.round(c * k));
+  }
+  if (v >= 0.93) {
+    const k = (v - 0.93) / 0.07;
+    return PALETTE.paper.map((c) => Math.round(lerp(c, 255, k)));
+  }
+  return toneRgb((v - 0.06) / 0.87);
+}
+
 export function rgbCss([r, g, b]) {
   return `rgb(${r},${g},${b})`;
 }
