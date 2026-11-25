@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>131 斑点扫描模式 · Spotted Scanning</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ==================== HERO：1:1 极夜黑底无框全景星图展面 ==================== -->
+  <header class="hero" id="top">
+    <div class="wrap hero-inner">
+      <!-- 顶部开放双翼刊头 -->
+      <div class="hero-top">
+        <div class="hero-brand">
+          <div class="hero-kicker">
+            <span class="kicker-cat">视觉原则与阅读模式 / 页面阅读模式</span>
+            <span class="kicker-num">NO. 131</span>
+            <span id="hero-status-pill" class="status-pill" data-tone="warn" aria-live="polite">1/5 · 过载失信</span>
+          </div>
+
+          <div class="hero-title-row">
+            <h1 class="hero-h1">斑点扫描模式</h1>
+            <!-- 自示范标题斑点：1:1 呼应原海报蓝圆/青环/紫方信号微符，随当前信噪比实况明暗 -->
+            <span id="hero-title-spots" class="title-spots" aria-hidden="true" data-state="warn">
+              <i class="sp-dot sp-blue"></i>
+              <i class="sp-dot sp-cyan"></i>
+              <i class="sp-dot sp-violet"></i>
+            </span>
+          </div>
+          <p class="hero-en" lang="en">SPOTTED SCANNING</p>
+          <div class="hero-cyan-bar" aria-hidden="true"></div>
+          <p class="hero-summary">通过分散的信息节点与信号强化，引导注意力在多个热点间自由跳跃。</p>
+        </div>
+
+        <!-- 1:1 复刻原海报右上圆角细黑框图例卡 + 题材切签 -->
+        <aside class="hero-legend-box" aria-label="原海报星图图例与题材切换">
+          <div class="legend-grid" role="group" aria-label="点击图例按类型高亮星图元素">
+            <button type="button" class="legend-item" data-legend="hotspot" aria-pressed="false">
+              <span class="lg-sym lg-blue" aria-hidden="true"></span>
+              <span>热点 <em lang="en">HOTSPOT</em></span>
+            </button>
+            <button type="button" class="legend-item" data-legend="jump" aria-pressed="false">
+              <span class="lg-sym lg-ring" aria-hidden="true"></span>
+              <span>跳跃 <em lang="en">JUMP</em></span>
+            </button>
+            <button type="button" class="legend-item" data-legend="node" aria-pressed="false">
+              <span class="lg-sym lg-sq" aria-hidden="true"></span>
+              <span>节点 <em lang="en">NODE</em></span>
+            </button>
+            <button type="button" class="legend-item" data-legend="signal" aria-pressed="false">
+              <span class="lg-sym lg-plus" aria-hidden="true">+</span>
+              <span>信号 <em lang="en">SIGNAL</em></span>
+            </button>
+            <button type="button" class="legend-item legend-wide" data-legend="path" aria-pressed="false">
+              <span class="lg-sym lg-dash" aria-hidden="true"></span>
+              <span>注意力路径（非线性）</span>
+            </button>
+          </div>
+          <div class="scene-switch" role="group" aria-label="星图内容题材">
+            <button type="button" class="scene-btn" data-scene="poster" aria-pressed="true">原海报星图</button>
+            <button type="button" class="scene-btn" data-scene="magazine" aria-pressed="false">设计周刊</button>
+            <button type="button" class="scene-btn" data-scene="launch" aria-pressed="false">新品亮点墙</button>
+          </div>
+        </aside>
+      </div>
+
+      <!-- 中段：100% 全宽无界极夜星图主舞台 -->
+      <section class="hero-stage-shell" aria-label="斑点星图信噪比与非线跃迁交互台">
+        <div class="stage-canvas-wrap">
+          <canvas
+            id="hero-canvas"
+            class="hero-canvas"
+            data-perf-drag
+            tabindex="0"
+            aria-label="斑点扫描交互星图：横拖空白处调节信号反差，点按节点切换强弱，拖动节点拉开间距，可用方向键与空格操作"
+          ></canvas>
+        </div>
+
+        <!-- 手机竖屏/横屏首屏折线内直见的单真源快速诊断条（桌面大屏由下方青框完整呈现） -->
+        <div class="quick-diag-strip" aria-live="polite">
+          <p id="quick-diag-text" class="quick-diag-text" data-tone="warn"></p>
+          <button type="button" id="quick-diag-btn" class="quick-diag-btn" data-fix="clearDecoys">清除空壳</button>
+        </div>
+
+        <!-- 紧贴画布的悬浮单行操控暗带 -->
+        <div class="hero-dock">
+          <div class="dock-row dock-primary">
+            <label class="slider-group" for="contrast-slider">
+              <span class="dock-label">信号反差</span>
+              <input id="contrast-slider" type="range" min="0" max="100" step="1" value="86">
+              <span id="contrast-value" class="mono-val">86%</span>
+            </label>
+
+            <div class="seg-group" role="group" aria-label="信号编码通道">
+              <button type="button" class="seg-btn" data-signal-mode="none" aria-pressed="false">无信号</button>
+              <button type="button" class="seg-btn" data-signal-mode="color" aria-pressed="false">仅靠颜色</button>
+              <button type="button" class="seg-btn" data-signal-mode="compound" aria-pressed="true">色+形+留白</button>
+            </div>
+
+            <button type="button" id="btn-hollow-toggle" class="toggle-btn" aria-pressed="true">空壳诱饵：开 (2)</button>
+          </div>
+
+          <div class="dock-row dock-node">
+            <div id="selected-node-info" class="sel-info" aria-live="polite"></div>
+            <div class="node-actions">
+              <div class="seg-group seg-compact" role="group" aria-label="切换选中节点信号层级">
+                <button type="button" class="seg-btn" data-node-tier="0" aria-pressed="false">退隐</button>
+                <button type="button" class="seg-btn" data-node-tier="1" aria-pressed="false">热点</button>
+                <button type="button" class="seg-btn" data-node-tier="2" aria-pressed="true">强核</button>
+              </div>
+              <button type="button" id="btn-set-entry" class="entry-btn">设为起跳入口</button>
+            </div>
+          </div>
+
+          <div class="dock-row dock-presets">
+            <span id="scene-task-hint" class="dock-hint">横拖画布调反差 · 点节点切强弱 · 拖节点拉间距</span>
+            <div class="preset-group" role="group" aria-label="多组合法解与试错预设">
+              <button type="button" class="preset-btn is-good" data-preset="posterBalanced">原海报解</button>
+              <button type="button" class="preset-btn is-good" data-preset="minimalThree">极简三锚解</button>
+              <button type="button" class="preset-btn is-good" data-preset="dualCore">双核星图解</button>
+              <button type="button" class="preset-btn is-err" data-preset="errFlat">试错：平灰</button>
+              <button type="button" class="preset-btn is-err" data-preset="errLinear">试错：单列</button>
+              <button type="button" class="preset-btn is-err" data-preset="errCluster">试错：扎堆</button>
+              <button type="button" class="preset-btn is-reset" data-preset="broken">复原错态</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 底沿 1:1 复刻原海报双联底框：左 63% 灰细框「核心原则」× 右 37% 电光青细框「单真源研判 / 何时使用」 -->
+      <div class="hero-bottom-pair">
+        <div class="box-principles">
+          <div class="box-head">
+            <h2 class="box-title-cyan">核心原则</h2>
+            <span class="box-sub-mono" lang="en">5 LIVE CHECKS</span>
+          </div>
+          <div id="principles-grid" class="principles-grid" aria-live="polite"></div>
+        </div>
+
+        <div class="box-diag-usage">
+          <div class="box-head box-head-tabs">
+            <div class="panel-tabs" role="group" aria-label="切换实时研判与原海报适用清单">
+              <button type="button" class="panel-tab" data-panel-tab="diag" aria-pressed="true">单真源研判</button>
+              <button type="button" class="panel-tab" data-panel-tab="usage" aria-pressed="false">何时使用</button>
+            </div>
+            <span id="diag-tag" class="diag-tag" data-tone="warn">空壳陷阱</span>
+          </div>
+
+          <div class="panel-body" data-panel-body="diag">
+            <h3 id="diag-title" class="diag-title"></h3>
+            <p id="diag-why" class="diag-why"></p>
+            <p id="diag-action" class="diag-action"></p>
+            <div class="diag-cta-row">
+              <button type="button" id="diag-fix-btn" class="diag-fix-btn" data-fix="clearDecoys">清除空壳装饰点</button>
+            </div>
+            <div id="diag-metrics" class="diag-metrics"></div>
+          </div>
+
+          <div class="panel-body" data-panel-body="usage" hidden>
+            <ul class="usage-check-list">
+              <li><span class="chk-ic" aria-hidden="true">✓</span>内容模块独立，主题多元</li>
+              <li><span class="chk-ic" aria-hidden="true">✓</span>用户目标不明确，需探索</li>
+              <li><span class="chk-ic" aria-hidden="true">✓</span>重点信息需要突出呈现</li>
+              <li><span class="chk-ic" aria-hidden="true">✓</span>移动端或碎片化阅读场景</li>
+            </ul>
+            <p class="usage-slogan">让注意力<em>自由探索</em>，信息自然抵达。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1:1 复刻原海报底行青色灯泡 TIP + 动态波浪箭头 + 青白同心环 -->
+      <div class="hero-tip-bar">
+        <div class="tip-left">
+          <svg class="tip-bulb" viewBox="0 0 36 36" aria-hidden="true">
+            <circle cx="18" cy="15" r="7" fill="none" stroke="#38DAF5" stroke-width="2"/>
+            <path d="M14 23h8M15 27h6M18 3v3M7 15H4M32 15h-3M9.5 7.5l2.2 2.2M26.5 7.5l-2.2 2.2" stroke="#38DAF5" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span class="tip-badge" lang="en">TIP</span>
+          <p class="tip-copy">每个热点都应具备独立的吸引力与价值，让观者每一次跳跃都有收获。</p>
+        </div>
+        <svg class="tip-wave-svg" viewBox="0 0 360 32" aria-hidden="true">
+          <path id="tip-wave-path" d="M4 16 Q32 7 60 16 T116 16 T172 16 T228 16 T284 16 L310 16" fill="none" stroke="#38DAF5" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M304 10 L314 16 L304 22" fill="none" stroke="#38DAF5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle id="tip-end-ring" cx="340" cy="16" r="11" fill="none" stroke="#38DAF5" stroke-width="3.2"/>
+          <circle cx="340" cy="16" r="5" fill="#F4F7FA"/>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== 01 节：冰瓷亮白纸 · 前注意弹出实验室 ==================== -->
+    <section class="sec sec-ice" id="sec-01">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div>
+            <h2>前注意弹出怎么抓眼</h2>
+            <p class="sec-en" lang="en">PREATTENTIVE POP-OUT</p>
+          </div>
+        </div>
+
+        <div class="split-2">
+          <div class="prose">
+            <p class="lead">斑点扫描之所以能在半秒内起效，不是因为读者眼神好，而是大脑视觉皮层里有一套几乎零思考成本的「快速预检机制」。</p>
+            <p>心理学家 Anne Treisman 与 Garry Gelade 在 1980 年提出特征整合理论：颜色、形状、大小、位置等单一视觉特征，会在<strong>前注意阶段</strong>被全视野并行扫描。只要页面里某个热点与周围拉开单一维度的高反差，它就会像暗夜里的灯塔一样自动「弹」进视线，通常只需 200 至 250 毫秒（经验范围，出自 Colin Ware 对视觉感知的研究）。</p>
+            <p>可一旦你贪心给整页叠满五颜六色和不同形状，眼睛就掉进了<strong>联合搜索</strong>——必须逐个把颜色与形状绑定核对，反应时间随干扰项增多而直线拉长。旁边这套 48 格实时测速板，能让你用指尖亲身测出两者的毫秒差距。</p>
+            <div class="popout-takeaway-card">
+              <div class="pt-row">
+                <span class="pt-badge pt-fast">单一特征 · 并行弹出</span>
+                <p>无论周围有 10 个还是 50 个安静灰点，1 枚高反差亮点都能几乎恒定在极短时间内被一眼捕获。</p>
+              </div>
+              <div class="pt-row">
+                <span class="pt-badge pt-slow">色形混杂 · 串行排查</span>
+                <p>当干扰项各自借走一部分颜色或形状时，大脑只能逐格核对，每多一排元素都要多花几十毫秒。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="lab-card light-card">
+            <div class="lab-bar">
+              <div class="mode-pills" role="group" aria-label="选择视觉编码实验模式">
+                <button type="button" class="pill-btn" data-popout-mode="color" aria-pressed="true">单色弹出</button>
+                <button type="button" class="pill-btn" data-popout-mode="shape" aria-pressed="false">纯形弹出</button>
+                <button type="button" class="pill-btn" data-popout-mode="dual" aria-pressed="false">色+形双强</button>
+                <button type="button" class="pill-btn" data-popout-mode="conjunction" aria-pressed="false">色形混杂</button>
+              </div>
+              <button type="button" id="btn-popout-restart" class="restart-btn">换一局测速</button>
+            </div>
+            <p id="popout-mode-desc" class="lab-desc"></p>
+            <div id="popout-board" class="popout-board" role="group" aria-label="48 格前注意视觉找靶矩阵"></div>
+            <p id="popout-status" class="popout-status" data-tone="idle" aria-live="polite"></p>
+            <div id="popout-log" class="popout-log"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 02 节：浅青雾纸 · 五种热点信号与通道拆层 ==================== -->
+    <section class="sec sec-mist" id="sec-02">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div>
+            <h2>五种热点信号怎么建</h2>
+            <p class="sec-en" lang="en">FIVE SIGNAL ARCHETYPES</p>
+          </div>
+        </div>
+
+        <p class="sec-intro">131 原海报把一条斑点路径里的信息节点拆成了清晰的五类信号。真正好用的斑点页面，从不只靠「把字标红」，而是让<strong>颜色、形状、留白、信息气味</strong>四层信号一起干活。</p>
+
+        <div class="layer-switches" role="group" aria-label="开关四层视觉信号观察效果变化">
+          <label class="chk-pill"><input type="checkbox" data-layer-toggle="color" checked><span>颜色对比层</span></label>
+          <label class="chk-pill"><input type="checkbox" data-layer-toggle="shape" checked><span>几何字形层</span></label>
+          <label class="chk-pill"><input type="checkbox" data-layer-toggle="space" checked><span>隔离留白层</span></label>
+          <label class="chk-pill"><input type="checkbox" data-layer-toggle="scent" checked><span>独立信息气味</span></label>
+        </div>
+        <p id="anatomy-layer-note" class="layer-note" data-tone="ok" aria-live="polite"></p>
+
+        <div id="anatomy-preview" class="anatomy-grid" data-color="true" data-shape="true" data-space="true" data-scent="true">
+          <article class="anat-card">
+            <div class="anat-vis vis-title"><span class="anat-big-t" lang="en">T</span></div>
+            <h3>标题信号 <span class="anat-en" lang="en">TITLE SIGNAL</span></h3>
+            <p class="quote-orig">海报原话：「大号字体、色块、留白快速捕获注意力。」</p>
+            <p class="anat-scent-real">落地做法：用 2–6 个直白词直接亮结论（如「48 小时续航」），四周留足呼吸空位。</p>
+            <p class="anat-scent-hollow">抽空信息气味后：变成「重磅来袭」空标题，抢了第一眼却不给结论。</p>
+          </article>
+
+          <article class="anat-card">
+            <div class="anat-vis vis-strong"><span class="anat-bang">!</span></div>
+            <h3>高对比强信号 <span class="anat-en" lang="en">STRONG SIGNAL</span></h3>
+            <p class="quote-orig">海报原话：「高对比、独特形状触发注意力跳跃。」</p>
+            <p class="anat-scent-real">落地做法：全页克制保留 1–2 枚紫/青高饱和强核，充当迷茫读者的第一抓手。</p>
+            <p class="anat-scent-hollow">抽空信息气味后：变成无意义闪亮贴纸，只会把眼睛骗离真正重点。</p>
+          </article>
+
+          <article class="anat-card">
+            <div class="anat-vis vis-dots">
+              <span class="dot-2x2" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            </div>
+            <h3>图形与图标群 <span class="anat-en" lang="en">HOTSPOT CLUSTER</span></h3>
+            <p class="quote-orig">海报原话：「图形或图标组形成视觉吸引点。」</p>
+            <p class="anat-scent-real">落地做法：把同类特性打包成 2×2 简明徽章或参数小阵，一眼识别功能群组。</p>
+            <p class="anat-scent-hollow">抽空信息气味后：放四枚纯装饰几何点，看起来很忙但说不出代表什么。</p>
+          </article>
+
+          <article class="anat-card">
+            <div class="anat-vis vis-donut">
+              <svg viewBox="0 0 44 44" aria-hidden="true">
+                <circle cx="22" cy="22" r="14" fill="none" stroke="#0D3CFB" stroke-width="7" stroke-dasharray="32 88" stroke-dashoffset="0"/>
+                <circle cx="22" cy="22" r="14" fill="none" stroke="#008EA8" stroke-width="7" stroke-dasharray="36 88" stroke-dashoffset="-32"/>
+                <circle cx="22" cy="22" r="14" fill="none" stroke="#8449EF" stroke-width="7" stroke-dasharray="20 88" stroke-dashoffset="-68"/>
+              </svg>
+            </div>
+            <h3>数据节点 <span class="anat-en" lang="en">DATA NODE</span></h3>
+            <p class="quote-orig">海报原话：「局部信息块，可独立理解。」</p>
+            <p class="anat-scent-real">落地做法：阿拉伯数字、百分比与迷你环形图天生具备强斑点引力，天然打断灰字墙。</p>
+            <p class="anat-scent-hollow">抽空信息气味后：只给冷冰冰的「03」序号，不读前后文完全猜不出含义。</p>
+          </article>
+
+          <article class="anat-card">
+            <div class="anat-vis vis-peak">
+              <svg viewBox="0 0 56 40" aria-hidden="true">
+                <polygon points="6,34 21,12 36,34" fill="#007E96"/>
+                <polygon points="22,34 38,8 52,34" fill="#38DAF5"/>
+              </svg>
+            </div>
+            <h3>视觉与收尾节点 <span class="anat-en" lang="en">VISUAL &amp; EXIT</span></h3>
+            <p class="quote-orig">海报原话：「图片、插图提供快速线索；信息回顾或行动指引自然收束。」</p>
+            <p class="anat-scent-real">落地做法：用高辨识实拍/简图给快速语境，再用 1 枚收尾行动卡承接逛完之后的去向。</p>
+            <p class="anat-scent-hollow">抽空信息气味后：塞入通用氛围图库风景，既无信息线索也没给下一步出口。</p>
+          </article>
+        </div>
+
+        <aside class="gentle-note">
+          <span class="gentle-tag">说多了一点</span>
+          <p>原海报底栏强调「每个热点都应具备独立的吸引力」。这句话提醒别放空壳点是对的，但实操中<strong>切忌把每个热点的视觉强度都拉到满格</strong>——有效斑点靠的是「1–2 枚主强核 + 2–3 枚辅节点 + 大片克制暗底」的层级差；要是五个点同时用最高饱和度尖叫，前注意弹出反而会彼此抵消。</p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================== 03 节：极夜深海暗室 · 斑点与另四种扫读 ==================== -->
+    <section class="sec sec-night" id="sec-03">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">03</span>
+          <div>
+            <h2>斑点与另四种扫读</h2>
+            <p class="sec-en" lang="en">SCANNING SPECTRUM</p>
+          </div>
+        </div>
+
+        <div class="split-2 split-modes">
+          <div class="modes-stage-card">
+            <div class="mode-tabs" role="group" aria-label="切换四种读者心智观察同一页面的眼动模式">
+              <button type="button" class="mode-tab" data-scan-mode="spotted" aria-pressed="true">斑点扫描</button>
+              <button type="button" class="mode-tab" data-scan-mode="layercake" aria-pressed="false">层蛋糕</button>
+              <button type="button" class="mode-tab" data-scan-mode="fpattern" aria-pressed="false">F 型</button>
+              <button type="button" class="mode-tab" data-scan-mode="commitment" aria-pressed="false">承诺细读</button>
+            </div>
+            <canvas id="modes-canvas" class="modes-canvas" aria-label="同一专题页在四种读者心智下的眼动路径对比图"></canvas>
+            <div class="mode-caption" aria-live="polite">
+              <p id="mode-task" class="mode-task"></p>
+              <p id="mode-note" class="mode-note"></p>
+            </div>
+          </div>
+
+          <div class="sibling-list">
+            <p class="sibling-intro">同一份网页在不同版式结构和读者任务下，会演化出截然不同的扫描轨迹。本小类的另外四页各专讲一种，这里只一句话分清边界：</p>
+            <ul class="sibling-cards">
+              <li>
+                <div class="sib-head">
+                  <span class="sib-id">127</span>
+                  <a href="https://layout.xiaoxiaodong.ai/127/play/" target="_blank" rel="noopener">F 型扫描模式 ↗</a>
+                </div>
+                <p>面对缺少层次的文字墙时，眼睛被动省力地横扫前两行再沿左缘下滑，右侧大量内容沦为盲区。</p>
+              </li>
+              <li>
+                <div class="sib-head">
+                  <span class="sib-id">128</span>
+                  <a href="https://layout.xiaoxiaodong.ai/128/play/" target="_blank" rel="noopener">Z 型扫描模式 ↗</a>
+                </div>
+                <p>留白充裕、信息极简时，视线沿单一对角折线依次推进，把读者一路送向右下角行动按钮。</p>
+              </li>
+              <li>
+                <div class="sib-head">
+                  <span class="sib-id">129</span>
+                  <a href="https://layout.xiaoxiaodong.ai/129/play/" target="_blank" rel="noopener">古腾堡图式 ↗</a>
+                </div>
+                <p>在密度均质的报刊或纯文版面里，视觉重力自然把注意力从左上主视觉区拉向右下终点区。</p>
+              </li>
+              <li>
+                <div class="sib-head">
+                  <span class="sib-id">130</span>
+                  <a href="https://layout.xiaoxiaodong.ai/130/play/" target="_blank" rel="noopener">层蛋糕扫描模式 ↗</a>
+                </div>
+                <p>依靠清晰的横排小标题自上而下逐层横扫筛选，遇到关心的一层再下钻正文，仍保留纵向次序。</p>
+              </li>
+              <li class="is-current">
+                <div class="sib-head">
+                  <span class="sib-id">131</span>
+                  <strong>斑点扫描模式（本页）</strong>
+                </div>
+                <p>彻底卸掉线性先后包袱：用孤立高对比热点和充足留白，让读者从任意入口起跳、按兴趣非线采摘。</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 04 节：浅紫霜纸 · 斑点扫描从哪来 ==================== -->
+    <section class="sec sec-lilac" id="sec-04">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div>
+            <h2>斑点扫描从哪来</h2>
+            <p class="sec-en" lang="en">ORIGINS &amp; RESEARCH</p>
+          </div>
+        </div>
+
+        <p class="sec-intro">「斑点扫描」不是平面设计师拍脑袋造出来的风格名词，而是跨越近四十年、从认知心理学实验室走到现代眼动仪实测的观察结晶。点击下方年份查看每一环经查证的原始文献：</p>
+
+        <div class="timeline-bar" role="group" aria-label="按年份浏览斑点扫描理论源流">
+          <button type="button" class="tl-btn" data-origin-idx="0" aria-pressed="false"><span>1980</span><em>前注意弹出</em></button>
+          <button type="button" class="tl-btn" data-origin-idx="1" aria-pressed="false"><span>1997</span><em>网页扫读实测</em></button>
+          <button type="button" class="tl-btn" data-origin-idx="2" aria-pressed="false"><span>1999</span><em>信息觅食气味</em></button>
+          <button type="button" class="tl-btn" data-origin-idx="3" aria-pressed="false"><span>2000–2020</span><em>视觉属性编码</em></button>
+          <button type="button" class="tl-btn" data-origin-idx="4" aria-pressed="true"><span>2009 / 2019</span><em>正式定名斑点</em></button>
+        </div>
+
+        <div id="origin-detail" class="origin-detail" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- ==================== 05 节：冰瓷亮白纸 · 何时用与什么时候别用 ==================== -->
+    <section class="sec sec-ice" id="sec-05">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div>
+            <h2>何时用，什么时候别用</h2>
+            <p class="sec-en" lang="en">WHEN TO USE — AND AVOID</p>
+          </div>
+        </div>
+
+        <div class="when-pair">
+          <div class="when-col when-yes">
+            <h3>什么时候该用（原海报四条）</h3>
+            <ul>
+              <li><strong>「内容模块独立，主题多元」</strong>：例如设计周刊目录、新品特性墙、展览导览，先看哪块都不影响理解另一块。</li>
+              <li><strong>「用户目标不明确，需探索」</strong>：逛着找灵感的读者最怕被拖进一条长廊，多点入口能让他们一秒被某条线索勾住。</li>
+              <li><strong>「重点信息需要突出呈现」</strong>：页面埋着票价、截止日期、核心规格等少数硬信息，需要帮寻找具体答案的人瞬间定位。</li>
+              <li><strong>「移动端或碎片化阅读场景」</strong>：通勤刷屏时注意力只剩几秒，把结论做成独立斑点远比堆段落友好。</li>
+            </ul>
+          </div>
+
+          <div class="when-col when-no">
+            <h3>什么时候千万别用</h3>
+            <ul>
+              <li><strong>严密因果与合同条款</strong>：后一段依赖前一段的前提条件（如保单免责、操作警告），跳读会导致遗漏致命前提。</li>
+              <li><strong>必须按步完成的流程</strong>：结账、实名核验、故障排错教程，自由跳跃会让人跳过必做步骤、反复报错。</li>
+              <li><strong>情绪递进的长篇叙事</strong>：小说、特稿、品牌故事靠起承转合建立共鸣，满屏斑点强信号会打碎沉浸感。</li>
+              <li><strong>高度专业的数据报表对比</strong>：需要逐行横向核对多列数值时，规整表格或 130 层蛋糕结构比散点分布高效得多。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="triage-box">
+          <div class="triage-top">
+            <h3>6 个真实项目快测：该不该用斑点扫描？</h3>
+            <span id="triage-score" class="triage-score" aria-live="polite"></span>
+          </div>
+          <div id="triage-list" class="triage-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 06 节：极夜深暗室 · 单变量实景诊断练习 ==================== -->
+    <section class="sec sec-night-deep" id="sec-06">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div>
+            <h2>动手挑出真有效的斑点</h2>
+            <p class="sec-en" lang="en">DIAGNOSTIC QUIZ</p>
+          </div>
+        </div>
+        <p class="sec-intro-dark">每道题的四个方案只差一个核心变量，选完当场揭晓眼动代价与背后理由。</p>
+        <div id="quiz-host" class="quiz-host"></div>
+      </div>
+    </section>
+
+    <!-- ==================== 07 节：极夜黑底 · 原海报与关键词 ==================== -->
+    <section class="sec sec-poster" id="sec-07">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div>
+            <h2>原海报与关键词</h2>
+            <p class="sec-en" lang="en">ORIGINAL POSTER &amp; KEYWORDS</p>
+          </div>
+        </div>
+
+        <div class="poster-layout">
+          <figure class="poster-figure">
+            <button type="button" id="poster-open-btn" class="poster-btn" aria-label="点击放大查看 131 斑点扫描模式原海报">
+              <img id="poster" src="poster.webp" alt="131 斑点扫描模式原海报" loading="lazy">
+              <span class="poster-zoom-hint">点击放大查看 · 支持滚轮缩放与拖动</span>
+            </button>
+          </figure>
+
+          <div class="poster-meta">
+            <blockquote class="poster-quote">
+              <p>让注意力<em>自由探索</em>，信息自然抵达。</p>
+              <footer>131 斑点扫描模式 · 原海报核心结语</footer>
+            </blockquote>
+
+            <h3 class="kw-heading">原海报关键词 <span lang="en">KEYWORDS</span></h3>
+            <ul class="kw-list">
+              <li>
+                <span class="kw-dot kw-blue" aria-hidden="true"></span>
+                <div>
+                  <strong>热点 <em lang="en">HOTSPOT</em></strong>
+                  <p>承载独立价值的视觉锚点，靠高对比色块、数字或图标群第一时间抓眼。</p>
+                </div>
+              </li>
+              <li>
+                <span class="kw-dot kw-ring" aria-hidden="true"></span>
+                <div>
+                  <strong>跳跃 <em lang="en">JUMP</em></strong>
+                  <p>视线越过低优先级的文字背景，按个人兴趣在热点间非连续跃迁。</p>
+                </div>
+              </li>
+              <li>
+                <span class="kw-dot kw-sq" aria-hidden="true"></span>
+                <div>
+                  <strong>节点 <em lang="en">NODE</em></strong>
+                  <p>拆散后可独立理解的局部信息单元——标题、数据环、视觉图各自成章。</p>
+                </div>
+              </li>
+              <li>
+                <span class="kw-dot kw-plus" aria-hidden="true">+</span>
+                <div>
+                  <strong>信号 <em lang="en">SIGNAL</em></strong>
+                  <p>把颜色、形状、字号与留白叠加成清晰信噪比，而非全页堆噪。</p>
+                </div>
+              </li>
+              <li>
+                <span class="kw-dot kw-dash" aria-hidden="true"></span>
+                <div>
+                  <strong>注意力路径（非线性）</strong>
+                  <p>没有强制 1→2→3 的顺序，入口与停留时长全部交还给观者自己。</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <a href="https://layout.xiaoxiaodong.ai/131/play/" target="_blank" rel="noopener">在线版</a>
+      <span aria-hidden="true">/</span>
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">海报 CC BY 4.0</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">源文件 GitHub</a>
+    </div>
+  </footer>
+
+  <!-- 原海报全屏灯箱（draggable="false" 避开浏览器默认拖图片） -->
+  <div id="poster-lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="原海报放大查看" hidden>
+    <div class="lightbox-bar">
+      <span>滚轮缩放 · 拖动平移 · Esc 关闭</span>
+      <div class="lightbox-actions">
+        <button type="button" id="lightbox-out" aria-label="缩小">－</button>
+        <button type="button" id="lightbox-reset" aria-label="重置缩放">100%</button>
+        <button type="button" id="lightbox-in" aria-label="放大">＋</button>
+        <button type="button" id="lightbox-close" class="lb-close">关闭 Esc</button>
+      </div>
+    </div>
+    <div id="lightbox-viewport" class="lightbox-viewport">
+      <img id="lightbox-img" src="" alt="131 斑点扫描模式原海报放大图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
