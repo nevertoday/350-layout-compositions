@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>232 · 相对定位布局 RELATIVE POSITIONING</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 极细工程顶眉 -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-left">
+        <span class="topbar-mark" aria-hidden="true"></span>
+        <span>网页与 UI / CSS 流、定位与响应</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-num">NO. 232 · RELATIVE POSITIONING</span>
+        <span class="topbar-stamp" id="top-stamp" data-tone="error">0 / 4 待校</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== 开场：原海报双排工程蓝图工坊 ==================== -->
+    <section class="hero" aria-label="相对定位布局交互工坊">
+      <div class="container hero-sheet">
+        <!-- 刊头：朱红大圆压「局」+ 活体示范字「位」+ 红黑双点横线 -->
+        <div class="masthead">
+          <div class="masthead-left">
+            <h1 class="hero-title">
+              <span class="t-char">相</span><span class="t-char">对</span><span class="t-char">定</span><span class="t-ghost-wrap"><span class="t-ghost-slot" aria-hidden="true">位</span><span class="t-live-char" id="title-live-char">位</span></span><span class="t-char">布</span><span class="t-disc-wrap"><span class="t-red-disc" aria-hidden="true"></span><span class="t-disc-char">局</span></span>
+            </h1>
+            <p class="hero-en">RELATIVE POSITIONING</p>
+          </div>
+          <div class="masthead-tools">
+            <div class="seg-group" role="group" aria-label="显示视角">
+              <button type="button" class="seg-btn is-active" id="btn-skin-blueprint" aria-pressed="true">蓝图 A-D</button>
+              <button type="button" class="seg-btn" id="btn-skin-card" aria-pressed="false">卡片 UI</button>
+            </div>
+            <button type="button" class="ghost-btn" id="btn-poster-preset">海报 +60/+40</button>
+            <button type="button" class="ghost-btn" id="btn-hero-reset">复原错态</button>
+          </div>
+        </div>
+
+        <!-- 原海报红黑双点水平细线 -->
+        <div class="poster-rule" aria-hidden="true">
+          <span class="rule-dot-red"></span>
+          <span class="rule-line"></span>
+          <span class="rule-dot-black"></span>
+        </div>
+
+        <p class="hero-summary">元素相对于自身原始位置进行偏移，原位置仍被保留。</p>
+
+        <!-- Band 1：原海报 [1] 原始位置（未偏移）紧凑参照排架 -->
+        <div class="band band-ref">
+          <div class="band-head">
+            <span class="band-tag band-tag-ink">
+              <span class="band-num">1</span>
+              <span class="band-name">原始位置（未偏移）</span>
+            </span>
+            <span class="band-ref-note">普通文档流锁定四格占位，作为下排偏移的参照基线</span>
+          </div>
+          <div class="band-grid">
+            <div class="ref-stage" aria-label="原始未偏移参照排架">
+              <div class="ref-row">
+                <div class="ref-box"><span>A</span></div>
+                <div class="ref-box"><span>B</span></div>
+                <div class="ref-box is-focus-slot"><span>C</span></div>
+                <div class="ref-box"><span>D</span></div>
+              </div>
+              <div class="blue-baseline" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <aside class="legend-col legend-col-ref">
+              <div class="legend-item">
+                <span class="legend-dash legend-dash-blue" aria-hidden="true"></span>
+                <div>
+                  <strong class="legend-title blue-ink">参照原位</strong>
+                  <p class="legend-desc">元素在文档流中的原始位置</p>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+
+        <div class="poster-dashed-sep" aria-hidden="true"></div>
+
+        <!-- Band 2：原海报 [2] 相对定位后（核心活体舞台 + 图例诊单） -->
+        <div class="band band-live">
+          <div class="band-head">
+            <span class="band-tag band-tag-red">
+              <span class="band-num">2</span>
+              <span class="band-name">相对定位后（拖红块 C 微调 · 方向键每次 4px）</span>
+            </span>
+            <span class="band-live-metrics" id="hero-mini-metrics">偏移 +54px, +30px · 占位保留</span>
+          </div>
+
+          <div class="band-grid band-grid-live">
+            <!-- 真实 CSS 四卡排架舞台 + 2D Canvas 工程尺寸测绘层 -->
+            <div class="live-stage" id="hero-stage" data-skin="blueprint">
+              <canvas class="stage-canvas" id="hero-canvas" aria-hidden="true"></canvas>
+
+              <!-- 蓝虚线幽灵原位（同步贴合 C 在文档流中的真实原始槽位） -->
+              <div class="ghost-footprint" id="card-c-ghost" aria-hidden="true">
+                <span class="ghost-label">原位占位</span>
+              </div>
+
+              <!-- 真实 CSS 四卡容器（A B C D 均为直接子项，切 absolute 时 D 真实左冲补位） -->
+              <div class="card-shelf" id="hero-shelf">
+                <div class="shelf-card card-a" id="card-a">
+                  <span class="card-letter">A</span>
+                  <span class="card-ui-meta">基础档 · ¥0</span>
+                </div>
+
+                <!-- 卡片 B：开场 static 导致内部 absolute NEW 角标逃逸到外层 #hero-stage -->
+                <div class="shelf-card card-b" id="card-b">
+                  <span class="card-letter">B</span>
+                  <span class="card-ui-meta">团队档 · ¥99</span>
+                  <span class="status-badge" id="b-badge">NEW</span>
+                </div>
+
+                <!-- 卡片 C：相对定位主角（可直拖 data-perf-drag） -->
+                <button
+                  type="button"
+                  class="shelf-card card-c"
+                  id="card-c"
+                  data-perf-drag
+                  aria-label="可拖动的相对定位红块 C，使用鼠标拖动或按方向键微调偏移"
+                >
+                  <span class="card-letter">C</span>
+                  <span class="card-ui-meta">推荐档 · ¥199</span>
+                  <span class="drag-cue" aria-hidden="true">拖动 / 方向键</span>
+                </button>
+
+                <div class="shelf-card card-d" id="card-d">
+                  <span class="card-letter">D</span>
+                  <span class="card-ui-meta">企业档 · 定制</span>
+                </div>
+              </div>
+
+              <!-- 蓝虚线基线与刻度 -->
+              <div class="blue-baseline live-baseline" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+              </div>
+
+              <div class="stage-floor-hint">
+                <span id="stage-offset-pill">偏移：向右 +36px · 向下 +28px</span>
+                <span class="stage-hint-sub">Shift + 方向键步进 16px</span>
+              </div>
+            </div>
+
+            <!-- 右缘：原海报蓝红图例 + 白话诊单 + 实时 CSS 声明 -->
+            <aside class="diag-panel" aria-live="polite">
+              <div class="legend-pair">
+                <div class="legend-item">
+                  <span class="legend-dash legend-dash-blue" aria-hidden="true"></span>
+                  <div>
+                    <strong class="legend-title blue-ink">保留占位</strong>
+                    <p class="legend-desc" id="legend-ghost-readout">原位置空间仍被保留</p>
+                  </div>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dash legend-dash-red" aria-hidden="true"></span>
+                  <div>
+                    <strong class="legend-title red-ink">相对自身</strong>
+                    <p class="legend-desc" id="legend-offset-readout">相对自身偏移 +54 / +30px</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="diag-card" id="hero-diag" data-tone="error">
+                <div class="diag-head">
+                  <span class="diag-badge" id="diag-badge">错态 · 撞遮 D 卡</span>
+                  <span class="diag-count" id="diag-count">0 / 4</span>
+                </div>
+                <h2 class="diag-title" id="diag-title">红块 C 偏移过猛，压遮了相邻的 D 卡片</h2>
+                <p class="diag-body" id="diag-body"></p>
+                <p class="diag-hint" id="diag-hint"></p>
+              </div>
+
+              <pre class="live-css" id="hero-css" aria-label="实时生效的 CSS 声明"></pre>
+            </aside>
+          </div>
+        </div>
+
+        <!-- 底部原海报圆角细黑微调盘：四组控件 + 四项状态灯 + 原海报点阵与右下红四分之一圆 -->
+        <div class="control-tray">
+          <div class="tray-left">
+            <div class="poster-icon-disc" aria-hidden="true">
+              <svg viewBox="0 0 36 36" width="32" height="32" fill="none">
+                <path d="M18 6v24M6 18h24M14 10l4-4 4 4M14 26l4 4 4-4M10 14l-4 4 4 4M26 14l4 4-4 4" stroke="#FFFDF8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="tray-checks" id="hero-checks" aria-label="四项校准状态">
+              <!-- 由 JS 从 model.js 单真源填充 -->
+            </div>
+          </div>
+
+          <div class="tray-controls">
+            <div class="ctrl-group">
+              <span class="ctrl-label">C 定位</span>
+              <div class="btn-row" role="group" aria-label="C 的 position 属性">
+                <button type="button" class="pill-btn is-active" data-pos="relative" aria-pressed="true">relative</button>
+                <button type="button" class="pill-btn" data-pos="absolute" aria-pressed="false">absolute</button>
+                <button type="button" class="pill-btn" data-pos="static" aria-pressed="false">static</button>
+              </div>
+            </div>
+
+            <div class="ctrl-group">
+              <span class="ctrl-label">CSS 轴向</span>
+              <div class="btn-row" role="group" aria-label="偏移属性轴向">
+                <button type="button" class="pill-btn is-active" data-axis="conflict" aria-pressed="true">四边冲突</button>
+                <button type="button" class="pill-btn" data-axis="tl" aria-pressed="false">top+left</button>
+                <button type="button" class="pill-btn" data-axis="br" aria-pressed="false">bottom+right</button>
+              </div>
+            </div>
+
+            <div class="ctrl-group">
+              <span class="ctrl-label">C 层叠</span>
+              <div class="btn-row" role="group" aria-label="C 的 z-index 层级">
+                <button type="button" class="pill-btn is-active" data-z="-1" aria-pressed="true">-1</button>
+                <button type="button" class="pill-btn" data-z="auto" aria-pressed="false">auto</button>
+                <button type="button" class="pill-btn" data-z="2" aria-pressed="false">2</button>
+                <button type="button" class="pill-btn" data-z="9999" aria-pressed="false">9999</button>
+              </div>
+            </div>
+
+            <div class="ctrl-group">
+              <span class="ctrl-label">B 角标锚点</span>
+              <div class="btn-row" role="group" aria-label="邻卡 B 是否设 relative">
+                <button type="button" class="pill-btn is-active" data-anchor="false" aria-pressed="true">static 未设</button>
+                <button type="button" class="pill-btn" data-anchor="true" aria-pressed="false">设 relative</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 原海报底部点阵与右下朱红四分之一圆印记 -->
+          <div class="tray-seal" aria-hidden="true">
+            <div class="dot-matrix">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="quarter-disc"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 01 · 幽灵原位：流中不动，画布微移 ==================== -->
+    <section class="sec sec-ivory" id="sec-01">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div class="sec-titles">
+            <h2>幽灵原位：流中不动，画布微移</h2>
+            <p class="sec-en">TWO-PASS NORMAL FLOW &amp; GHOST FOOTPRINT</p>
+          </div>
+        </div>
+
+        <div class="sec-split">
+          <div class="sec-prose">
+            <blockquote class="poster-quote">
+              <span class="quote-tag">海报原话</span>
+              「参照原位：元素在文档流中的原始位置。保留占位：原位置的空间仍被保留。相对自身：从自身原始位置进行偏移。」
+            </blockquote>
+            <p>
+              浏览器渲染相对定位走的是干净的两阶段流程：第一步完全按
+              <a class="inline-link" href="https://layout.xiaoxiaodong.ai/222/play/" target="_blank" rel="noopener">222 普通流布局</a>
+              把所有元素的尺寸、折行和位置算定；第二步才单独把 <code>position: relative</code> 的视觉外观搬离原位。
+            </p>
+            <p>
+              正因为后续元素早在第一步就定死了坐标，它既不会向前补位，也不会被你推走——哪怕是正文中间的一个行内标签（<code>&lt;span&gt;</code>），移走后行间照样留出与它等宽的透明缺口。
+            </p>
+            <p class="note-callout">
+              <strong>容易忽略的细节：</strong>海报要点总结写着「不影响其他元素位置」，对普通流里的兄弟确实成立；但如果父容器设了 <code>overflow: auto</code>，相对定位把视觉盒往右或往下推出边界时，仍会把可滚动区域撑大并呼出滚动条。
+            </p>
+          </div>
+
+          <!-- 独立交互 01：真实段落流（行内 + 块级）四步切换实验台 -->
+          <div class="lab-box" id="flow-lab">
+            <div class="lab-head">
+              <span class="lab-title">真实段落流步进对比（行内标签 + 块级卡片）</span>
+              <span class="lab-meter" id="flow-meter">步骤 1 / 4</span>
+            </div>
+            <div class="step-tabs" role="tablist" aria-label="定位步进对比">
+              <button type="button" class="step-tab is-active" data-flow="pass1" role="tab" aria-selected="true">1. 原位排流</button>
+              <button type="button" class="step-tab" data-flow="relative" role="tab" aria-selected="false">2. relative 偏移</button>
+              <button type="button" class="step-tab" data-flow="absolute" role="tab" aria-selected="false">3. 改 absolute</button>
+              <button type="button" class="step-tab" data-flow="margin" role="tab" aria-selected="false">4. 改 margin</button>
+            </div>
+
+            <div class="flow-viewport" id="flow-viewport" data-mode="pass1">
+              <p class="flow-para">
+                普通流排字时，这枚
+                <span class="flow-inline-wrap">
+                  <span class="flow-inline-ghost" aria-hidden="true">行内徽章</span>
+                  <span class="flow-inline-target" id="flow-inline-target">行内徽章</span>
+                </span>
+                紧贴前后汉字排列。切换上方步骤，看右侧文字是稳稳留空还是瞬间缩回。
+              </p>
+
+              <div class="flow-block-stage">
+                <div class="flow-block-ghost" aria-hidden="true">原位块级占位（height: 58px）</div>
+                <div class="flow-block-target" id="flow-block-target">
+                  <strong>块级公告条</strong>
+                  <span id="flow-block-css">position: static;</span>
+                </div>
+              </div>
+
+              <p class="flow-para flow-sibling" id="flow-sibling">
+                紧随其后的下一段正文：观察我在「relative / absolute / margin」三种写法下的纵坐标是否发生变化。
+              </p>
+            </div>
+
+            <div class="lab-readout" id="flow-readout">
+              <strong>Pass 1 普通流定格：</strong>行内徽章与块级公告条都老实坐在自己的原始槽位里，下方段落距顶边位置锁定。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 02 · 四边罗盘：正负方向与过约束陷阱 ==================== -->
+    <section class="sec sec-cream" id="sec-02">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div class="sec-titles">
+            <h2>四边罗盘：正负方向与过约束</h2>
+            <p class="sec-en">INSET COMPASS &amp; OVERCONSTRAINT RESOLUTION</p>
+          </div>
+        </div>
+
+        <div class="sec-split sec-split-reverse">
+          <!-- 独立交互 02：复刻原海报底部十字罗盘的真实 CSS 四边推杆 -->
+          <div class="lab-box compass-lab" id="compass-lab">
+            <div class="lab-head">
+              <span class="lab-title">真实 CSS 四边内缩推杆（直接试正值 bottom / right）</span>
+              <div class="mini-seg" role="group" aria-label="书写方向">
+                <button type="button" class="mini-btn is-active" data-dir="ltr" aria-pressed="true">LTR 从左到右</button>
+                <button type="button" class="mini-btn" data-dir="rtl" aria-pressed="false">RTL 从右到左</button>
+              </div>
+            </div>
+
+            <div class="compass-arena" id="compass-arena" dir="ltr">
+              <div class="compass-axis-label axis-t">top 正值 ↓ 向下推</div>
+              <div class="compass-axis-label axis-b">bottom 正值 ↑ 向上推</div>
+              <div class="compass-axis-label axis-l">left 正值 → 向右推</div>
+              <div class="compass-axis-label axis-r">right 正值 ← 向左推</div>
+
+              <div class="compass-center-slot">
+                <div class="compass-ghost" aria-hidden="true">原位</div>
+                <div class="compass-target" id="compass-target">C</div>
+              </div>
+            </div>
+
+            <div class="compass-sliders">
+              <label class="edge-ctrl">
+                <span class="edge-head">
+                  <input type="checkbox" id="cb-top" checked>
+                  <span><code>top</code></span>
+                  <output id="val-top">0px</output>
+                </span>
+                <input type="range" id="rng-top" min="-44" max="44" step="2" value="0">
+              </label>
+
+              <label class="edge-ctrl">
+                <span class="edge-head">
+                  <input type="checkbox" id="cb-bottom">
+                  <span><code>bottom</code></span>
+                  <output id="val-bottom">auto</output>
+                </span>
+                <input type="range" id="rng-bottom" min="-44" max="44" step="2" value="28" disabled>
+              </label>
+
+              <label class="edge-ctrl">
+                <span class="edge-head">
+                  <input type="checkbox" id="cb-left" checked>
+                  <span><code>left</code></span>
+                  <output id="val-left">0px</output>
+                </span>
+                <input type="range" id="rng-left" min="-56" max="56" step="2" value="0">
+              </label>
+
+              <label class="edge-ctrl">
+                <span class="edge-head">
+                  <input type="checkbox" id="cb-right">
+                  <span><code>right</code></span>
+                  <output id="val-right">auto</output>
+                </span>
+                <input type="range" id="rng-right" min="-56" max="56" step="2" value="32" disabled>
+              </label>
+            </div>
+
+            <div class="compass-quick-row">
+              <button type="button" class="mini-action" id="btn-compass-inward">试设 bottom:+28 / right:+32</button>
+              <button type="button" class="mini-action" id="btn-compass-conflict">试四边同时冲突</button>
+              <button type="button" class="mini-action" id="btn-compass-zero">归零</button>
+            </div>
+
+            <pre class="mini-code" id="compass-css"></pre>
+            <div class="lab-readout" id="compass-readout"></div>
+          </div>
+
+          <div class="sec-prose">
+            <blockquote class="poster-quote poster-quote-fix">
+              <span class="quote-tag quote-tag-warn">方向少说了一半</span>
+              海报底部写着「正值（+）向右 / 向下移动；负值（-）向左 / 向上移动」，并在示意图里把向下箭头标作 <code>bottom(+)</code>、向右箭头标作 <code>right(+)</code>。
+            </blockquote>
+            <p>
+              这其实是 CSS 里最容易看反的一件事：<code>top / right / bottom / left</code> 在规范里叫<strong>内缩属性（inset properties）</strong>，正值代表「从元素原本的那条边<strong>向盒子内侧推</strong>」，并不是直角坐标系里的 X/Y 轴。
+            </p>
+            <ul class="fact-list">
+              <li><strong><code>top: +28px</code> / <code>left: +32px</code></strong>：从原顶边向下推、从原左边向右推——只有这两条符合海报的口诀。</li>
+              <li><strong><code>bottom: +28px</code> / <code>right: +32px</code></strong>：从原底边<strong>向上</strong>推、从原右边<strong>向左</strong>推！你可以立刻在旁边点「试设 bottom:+28 / right:+32」，看真实红块 <code>C</code> 往左上方跑去。</li>
+              <li><strong>同时写对边会触发过约束</strong>：按 CSS 2.1 §9.4.3，同时写 <code>top</code> 和 <code>bottom</code> 时 <code>bottom</code> 被丢弃；同时写 <code>left</code> 和 <code>right</code> 时，LTR 丢弃 <code>right</code>，切到阿拉伯语等 RTL 书写方向后反过来丢弃 <code>left</code>。</li>
+            </ul>
+            <p>
+              在现代多语言项目里，CSS Positioned Layout Level 3 推荐使用跟随书写方向的逻辑属性 <code>inset-block-start</code> 与 <code>inset-inline-start</code>，把物理左右彻底解耦。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 03 · 零偏移真身：锚点与层叠上下文（深炭暗版） ==================== -->
+    <section class="sec sec-dark" id="sec-03">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-num">03</span>
+          <div class="sec-titles">
+            <h2>零偏移真身：锚点与层叠陷阱</h2>
+            <p class="sec-en">CONTAINING BLOCK &amp; STACKING CONTEXT TRAP</p>
+          </div>
+        </div>
+
+        <div class="sec-split">
+          <div class="sec-prose">
+            <p>
+              打开任意大型网站样式表，你会发现绝大多数 <code>position: relative</code> 一行 <code>top / left</code> 都没写。大家请它出场，不是为了挪动自己，而是为了两项不可替代的后台职责：
+            </p>
+            <p>
+              第一，为内部的
+              <a class="inline-link inline-link-dark" href="https://layout.xiaoxiaodong.ai/233/play/" target="_blank" rel="noopener">233 绝对定位布局</a>
+              或
+              <a class="inline-link inline-link-dark" href="https://layout.xiaoxiaodong.ai/237/play/" target="_blank" rel="noopener">237 覆盖布局</a>
+              子件提供局部原点（包含块），让未读红点、角标、浮层菜单老老实实挂在所属卡片身上，而不是飞到整页边缘。
+            </p>
+            <p>
+              第二，打开 <code>z-index</code> 权限——但这里藏着前端最高频的层叠陷阱：<strong>只写 <code>position: relative</code>（保持 <code>z-index: auto</code>）不会隔离后代；一旦你给父卡写上任何整数（哪怕 <code>z-index: 1</code>），它就建起一座独立层叠上下文</strong>。里面子菜单写到 <code>z-index: 9999</code>，也永远压不过外面 <code>z-index: 2</code> 的兄弟卡片。
+            </p>
+          </div>
+
+          <!-- 独立交互 03：双卡层叠陷阱解剖台 + Z 轴分层透视 -->
+          <div class="lab-box lab-box-dark" id="stack-lab">
+            <div class="lab-head">
+              <span class="lab-title">z-index: 9999 为何反被 z-index: 2 盖住？</span>
+              <button type="button" class="dark-toggle" id="btn-stack-explode" aria-pressed="false">展开 Z 轴透视</button>
+            </div>
+
+            <div class="stack-controls">
+              <div class="stack-ctrl-group" role="group" aria-label="切换卡片甲的 z-index">
+                <span class="stack-ctrl-label">卡片甲（内含菜单 z-index: 9999）</span>
+                <div class="btn-row">
+                  <button type="button" class="dark-pill is-active" data-parent-z="1" aria-pressed="true">z-index: 1（锁死陷阱）</button>
+                  <button type="button" class="dark-pill" data-parent-z="auto" aria-pressed="false">z-index: auto（解除隔离）</button>
+                  <button type="button" class="dark-pill" data-parent-z="3" aria-pressed="false">z-index: 3（整体压过乙）</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack-stage" id="stack-stage" data-exploded="false">
+              <!-- 卡片甲 -->
+              <div class="stack-card stack-card-a" id="stack-card-a" style="z-index: 1;">
+                <div class="stack-card-top">
+                  <strong>卡片甲 · 筛选栏</strong>
+                  <code id="stack-a-code">relative; z-index: 1</code>
+                </div>
+                <p class="stack-card-copy">内嵌一个绝对定位下拉菜单，写着 <code>z-index: 9999</code>。</p>
+                <div class="stack-popover" id="stack-popover">
+                  <div class="popover-head">下拉浮层 · <code>z-index: 9999</code></div>
+                  <ul>
+                    <li>按更新时间排序</li>
+                    <li>仅看未读消息</li>
+                    <li>导出全部报表</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- 卡片乙 -->
+              <div class="stack-card stack-card-b" id="stack-card-b">
+                <div class="stack-card-top">
+                  <strong>卡片乙 · 概览面板</strong>
+                  <code>relative; z-index: 2</code>
+                </div>
+                <p class="stack-card-copy">紧挨下方的兄弟模块，层级固定为 <code>z-index: 2</code>。</p>
+                <div class="stack-fake-bars" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="lab-readout lab-readout-dark" id="stack-readout">
+              <strong>当前状态（困在局部上下文）：</strong>卡片甲的 <code>z-index: 1</code> 建起了封闭房间，里面的 <code>9999</code> 只能在房间内称王；在根层级比拼时，房间整体（1）输给了卡片乙（2），下拉菜单被拦腰截断。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 04 · 从哪来：1997 到 Level 3 的演进 ==================== -->
+    <section class="sec sec-cream" id="sec-04">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div class="sec-titles">
+            <h2>从哪来：1997 到 Level 3</h2>
+            <p class="sec-en">ORIGIN &amp; W3C SPECIFICATION TIMELINE</p>
+          </div>
+        </div>
+
+        <p class="sec-lead">
+          相对定位并非近代才有的花哨特性，而是 1997 年浏览器大战时期首批写进 W3C 定位规范的基础原语。点选下方四张工程蓝图，回看它从早期草案到逻辑方向属性的演进脉络。
+        </p>
+
+        <!-- 独立交互 04：四代规范工程蓝图点选板 -->
+        <div class="era-grid" role="tablist" aria-label="W3C 规范演进时间轴" id="era-tabs">
+          <!-- 由 JS 渲染四张可点击年份卡片 -->
+        </div>
+
+        <div class="era-detail" id="era-detail" aria-live="polite">
+          <div class="era-detail-text">
+            <div class="era-meta">
+              <span class="era-date" id="era-date"></span>
+              <span class="era-badge" id="era-badge"></span>
+            </div>
+            <h3 class="era-title" id="era-title"></h3>
+            <p class="era-people" id="era-people"></p>
+            <p class="era-summary" id="era-summary"></p>
+          </div>
+          <pre class="era-code" id="era-code"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 05 · 什么时候用：四个真实界面微调 ==================== -->
+    <section class="sec sec-ivory" id="sec-05">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div class="sec-titles">
+            <h2>什么时候用：四个恰如其分的场景</h2>
+            <p class="sec-en">WHEN TO USE IT · LIVE UI COMPONENTS</p>
+          </div>
+        </div>
+
+        <p class="sec-lead">
+          原海报要点总结说它「适合微调、浮动装饰、状态提示等场景」。在真实前端工程里，下面四个地方最见功力——拨动每张卡片右上角的开关，亲眼看关掉 <code>position: relative</code> 后界面会怎么破相。
+        </p>
+
+        <!-- 独立交互 05：四组真实 UI 部件开关验收箱 -->
+        <div class="use-grid">
+          <!-- 部件 1：图标 1-2px 基线视觉对齐 -->
+          <article class="use-card" data-use="icon" data-on="true">
+            <div class="use-card-head">
+              <h3>1. 图标 1–2px 视觉基线微调</h3>
+              <button type="button" class="switch-btn is-on" data-toggle-use="icon" aria-pressed="true">relative：开</button>
+            </div>
+            <div class="use-demo use-demo-icon">
+              <span class="demo-chip">
+                <svg class="demo-ico" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                  <path d="M8 1.5l1.9 4.2 4.6.5-3.4 3.1.9 4.5L8 11.5 4 13.8l.9-4.5-3.4-3.1 4.6-.5z" fill="currentColor"/>
+                </svg>
+                <span>收藏这份蓝图规范</span>
+              </span>
+            </div>
+            <p class="use-note" data-use-note="icon"><code>top: 2px</code> 把星标微沉两像素对齐汉字光学中线，丝毫不撑高行高。</p>
+          </article>
+
+          <!-- 部件 2：零偏移锚定状态红点 -->
+          <article class="use-card" data-use="badge" data-on="true">
+            <div class="use-card-head">
+              <h3>2. 零偏移锚定未读角标</h3>
+              <button type="button" class="switch-btn is-on" data-toggle-use="badge" aria-pressed="true">relative：开</button>
+            </div>
+            <div class="use-demo use-demo-badge">
+              <div class="demo-bell-host">
+                <span>消息通知</span>
+                <span class="demo-unread">9</span>
+              </div>
+            </div>
+            <p class="use-note" data-use-note="badge">按钮本身设 <code>position: relative</code>（零偏移），红色数字角标牢牢贴在按钮右上角。</p>
+          </article>
+
+          <!-- 部件 3：拼接输入框聚焦边框抬层 -->
+          <article class="use-card" data-use="group" data-on="true">
+            <div class="use-card-head">
+              <h3>3. 拼接控件组聚焦抬层</h3>
+              <button type="button" class="switch-btn is-on" data-toggle-use="group" aria-pressed="true">relative：开</button>
+            </div>
+            <div class="use-demo use-demo-group">
+              <div class="joined-group">
+                <span class="joined-input is-focused">搜索编号 232</span>
+                <span class="joined-addon">查询</span>
+              </div>
+            </div>
+            <p class="use-note" data-use-note="group">相邻边框用 <code>margin-left: -1px</code> 合并后，聚焦项靠 <code>relative; z-index: 1</code> 浮出完整朱红右边框。</p>
+          </article>
+
+          <!-- 部件 4：画册式轻错位底纹装饰 -->
+          <article class="use-card" data-use="decor" data-on="true">
+            <div class="use-card-head">
+              <h3>4. 克制错位与装饰底框</h3>
+              <button type="button" class="switch-btn is-on" data-toggle-use="decor" aria-pressed="true">relative：开</button>
+            </div>
+            <div class="use-demo use-demo-decor">
+              <div class="decor-frame">
+                <div class="decor-plate">
+                  <strong>刊号 232</strong>
+                  <span>微偏 8px 制造纸层落差</span>
+                </div>
+              </div>
+            </div>
+            <p class="use-note" data-use-note="decor">只把上层卡片偏出 <code>-8px</code> 露出底部蓝图框，不扰动周边任何模块间距。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 06 · 什么时候别用：四个越界误用 ==================== -->
+    <section class="sec sec-tint" id="sec-06">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div class="sec-titles">
+            <h2>什么时候别用：别拿微调干排版</h2>
+            <p class="sec-en">WHEN NOT TO USE IT &amp; RENDERING PIPELINE</p>
+          </div>
+        </div>
+
+        <div class="sec-split">
+          <div class="avoid-list">
+            <article class="avoid-item">
+              <span class="avoid-idx">忌 01</span>
+              <div>
+                <h3>别用来拼整页多栏或大距离挪位</h3>
+                <p>大偏移会留出巨型空白幽灵洞并盖死邻居，换块屏幕就错位。多栏骨架交给 <a class="inline-link" href="https://layout.xiaoxiaodong.ai/226/play/" target="_blank" rel="noopener">226 弹性盒布局</a> 或 <a class="inline-link" href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">227 网格布局</a>。</p>
+              </div>
+            </article>
+
+            <article class="avoid-item">
+              <span class="avoid-idx">忌 02</span>
+              <div>
+                <h3>别用 top / left 跑高频位移和悬停动画</h3>
+                <p>每帧改 <code>top / left</code> 容易在浏览器主线程触发重排与重绘；持续位移、悬停弹起应优先写 <code>transform: translate()</code>，直接走合成层（GPU），且同样保留文档流原位。</p>
+              </div>
+            </article>
+
+            <article class="avoid-item">
+              <span class="avoid-idx">忌 03</span>
+              <div>
+                <h3>别指望把块移走后下方内容自动顶上来</h3>
+                <p>相对定位永远死守原坑。真要脱离文档流、悬浮吸顶或文字绕排，请分别选用 <a class="inline-link" href="https://layout.xiaoxiaodong.ai/233/play/" target="_blank" rel="noopener">233 绝对定位</a>、<a class="inline-link" href="https://layout.xiaoxiaodong.ai/234/play/" target="_blank" rel="noopener">234 固定定位</a>、<a class="inline-link" href="https://layout.xiaoxiaodong.ai/235/play/" target="_blank" rel="noopener">235 粘性定位</a> 或 <a class="inline-link" href="https://layout.xiaoxiaodong.ai/231/play/" target="_blank" rel="noopener">231 浮动布局</a>。</p>
+              </div>
+            </article>
+
+            <article class="avoid-item">
+              <span class="avoid-idx">忌 04</span>
+              <div>
+                <h3>别给每个容器顺手补上 z-index: 1</h3>
+                <p>只需要做包含块时，只写 <code>position: relative</code>、把 <code>z-index</code> 留作 <code>auto</code>，避免无意间建起一串层叠牢笼困死内部弹层。</p>
+              </div>
+            </article>
+          </div>
+
+          <!-- 独立交互 06：top/left vs transform: translate() 渲染管线对比器 -->
+          <div class="lab-box pipeline-lab" id="pipeline-lab">
+            <div class="lab-head">
+              <span class="lab-title">渲染管线对比：top/left 与 transform</span>
+              <div class="mini-seg" role="group" aria-label="动画驱动方式">
+                <button type="button" class="mini-btn is-active" data-pipe="offset" aria-pressed="true">top / left</button>
+                <button type="button" class="mini-btn" data-pipe="transform" aria-pressed="false">transform: translate</button>
+              </div>
+            </div>
+
+            <div class="pipe-stages" id="pipe-stages" data-pipe="offset">
+              <div class="pipe-step" data-stage="layout">
+                <strong>Layout</strong>
+                <span>几何重算</span>
+              </div>
+              <span class="pipe-arrow" aria-hidden="true">→</span>
+              <div class="pipe-step" data-stage="paint">
+                <strong>Paint</strong>
+                <span>像素重绘</span>
+              </div>
+              <span class="pipe-arrow" aria-hidden="true">→</span>
+              <div class="pipe-step" data-stage="composite">
+                <strong>Composite</strong>
+                <span>合成层移动</span>
+              </div>
+            </div>
+
+            <div class="pipe-track" id="pipe-track">
+              <div class="pipe-ghost" aria-hidden="true">原位保留</div>
+              <div class="pipe-mover" id="pipe-mover">
+                <span id="pipe-mover-label">left: 0px</span>
+              </div>
+            </div>
+
+            <div class="pipe-footer">
+              <button type="button" class="mini-action" id="btn-pipe-play" aria-pressed="true">暂停演示</button>
+              <span class="pipe-pixel-note" id="pipe-pixel-note">整数像素步进 · 触发 Layout + Paint + Composite</span>
+            </div>
+
+            <div class="lab-readout" id="pipe-readout">
+              <strong>使用 top / left 做持续位移：</strong>每帧改动几何偏移都会惊动浏览器主线程的布局与绘制阶段；静置微调无伤大雅，高频动效请换成 <code>transform: translate()</code>。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 07 · 小练习：修好三栏卡片的抬升与角标 ==================== -->
+    <section class="sec sec-ivory" id="sec-07">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div class="sec-titles">
+            <h2>小练习：选出一次全对的样式</h2>
+            <p class="sec-en">QUICK PRACTICE · SINGLE-VARIABLE CSS CHECK</p>
+          </div>
+        </div>
+
+        <div class="quiz-wrap">
+          <div class="quiz-brief">
+            <p class="quiz-q">
+              下方是一排三栏套餐卡（基础版 / 专业版 / 企业版），外层容器已设 <code>position: relative</code>。现在要同时满足三条要求：<strong>① 保持三栏横向占位不塌陷；② 让中间「专业版」向上微抬 12px；③ 把红色「推荐」角标钉在「专业版」右上角</strong>。下面四段样式只差定位写法，哪一段能一次全对？
+            </p>
+
+            <!-- 实时随选项变化的真实三栏套餐卡预览 -->
+            <div class="quiz-stage" id="quiz-stage" data-choice="none">
+              <span class="quiz-stage-tag">外层容器（position: relative）</span>
+              <div class="quiz-row">
+                <div class="q-card">
+                  <strong>基础版</strong>
+                  <span>¥0 / 月</span>
+                </div>
+                <div class="q-card q-card-pro" id="quiz-pro">
+                  <span class="q-ghost-mark" aria-hidden="true">原位</span>
+                  <strong>专业版</strong>
+                  <span>¥99 / 月</span>
+                  <span class="q-badge" id="quiz-badge">推荐</span>
+                </div>
+                <div class="q-card">
+                  <strong>企业版</strong>
+                  <span>联系定制</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="quiz-options" id="quiz-options" role="group" aria-label="四个 CSS 选项">
+            <!-- 由 JS 从 model.js PRACTICE_OPTIONS 渲染 -->
+          </div>
+
+          <div class="quiz-feedback" id="quiz-feedback" hidden aria-live="polite">
+            <strong id="quiz-verdict"></strong>
+            <p id="quiz-explain"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 08 · 原海报与关键词 ==================== -->
+    <section class="sec sec-cream sec-poster" id="sec-08">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-num">08</span>
+          <div class="sec-titles">
+            <h2>原海报与同类速览</h2>
+            <p class="sec-en">ORIGINAL POSTER &amp; RELATED LAYOUTS</p>
+          </div>
+        </div>
+
+        <div class="poster-layout">
+          <div class="poster-thumb-wrap">
+            <button type="button" class="poster-trigger" id="poster-open" aria-label="点击放大查看 232 号相对定位布局原海报">
+              <img id="poster" src="poster.webp" alt="232 号相对定位布局教学原海报" width="1086" height="1448">
+              <span class="poster-zoom-hint">点击放大 · 可拖动细看</span>
+            </button>
+          </div>
+
+          <div class="poster-meta">
+            <div class="poster-summary-card">
+              <div class="poster-bulb" aria-hidden="true">
+                <svg viewBox="0 0 36 36" width="28" height="28" fill="none">
+                  <path d="M18 7a7 7 0 0 0-4.2 12.6c.8.6 1.2 1.4 1.2 2.4h6c0-1 .4-1.8 1.2-2.4A7 7 0 0 0 18 7zM15.5 25h5M16.5 28h3" stroke="#FFFDF8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h3>海报要点总结</h3>
+                <p>相对定位不脱离文档流，不影响其他元素位置；适合微调、浮动装饰、状态提示等场景。</p>
+              </div>
+            </div>
+
+            <div class="keyword-strip">
+              <span>参照原位</span>
+              <span>保留占位</span>
+              <span>相对自身</span>
+              <span>微调（可正可负）</span>
+              <span>包含块锚点</span>
+              <span>层叠上下文</span>
+            </div>
+
+            <div class="related-box">
+              <h3>同一小类 · CSS 流、定位与响应</h3>
+              <p>以下编号各自单开一页，本页不重复展开：</p>
+              <ul class="related-links">
+                <li><a href="https://layout.xiaoxiaodong.ai/222/play/" target="_blank" rel="noopener"><strong>222 普通流布局</strong>：相对定位的第一阶段基准坐标系。</a></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/231/play/" target="_blank" rel="noopener"><strong>231 浮动布局</strong>：元素脱离普通块流，正文自动绕排。</a></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/233/play/" target="_blank" rel="noopener"><strong>233 绝对定位布局</strong>：脱离文档流、常以相对定位父级为包含块。</a></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/234/play/" target="_blank" rel="noopener"><strong>234 固定定位布局</strong>：相对视口锚定，页面滚动时静止不动。</a></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/235/play/" target="_blank" rel="noopener"><strong>235 粘性定位布局</strong>：在普通流与吸顶固定之间按阈值切换。</a></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/237/play/" target="_blank" rel="noopener"><strong>237 覆盖布局</strong>：多图层叠与信息遮罩的组合编排。</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <a href="https://layout.xiaoxiaodong.ai/232/play/" target="_blank" rel="noopener">在线版</a>
+      <span aria-hidden="true">/</span>
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span aria-hidden="true">·</span>
+      <span>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a></span>
+      <span aria-hidden="true">·</span>
+      <span>源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></span>
+    </div>
+  </footer>
+
+  <!-- 原海报全屏放大拖动灯箱 -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报放大查看器">
+    <div class="lightbox-bar">
+      <span>232 · 相对定位布局原海报（滚轮或按钮缩放 · 拖动浏览 · Esc 关闭）</span>
+      <div class="lightbox-actions">
+        <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+        <button type="button" class="lb-btn" id="lb-zoom-reset">100%</button>
+        <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+        <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭灯箱">关闭 Esc</button>
+      </div>
+    </div>
+    <div class="lightbox-stage" id="lb-stage">
+      <img id="lb-img" alt="232 号相对定位布局原海报放大图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
