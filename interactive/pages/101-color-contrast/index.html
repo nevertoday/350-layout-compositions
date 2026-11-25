@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f0e5">
+<title>色彩对比 · COLOR CONTRAST</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead wrap">
+  <p class="series">
+    <span class="dot dot-b" aria-hidden="true"></span>
+    <span class="dot dot-o" aria-hidden="true"></span>
+    <b><span class="cat-parent">视觉原则与阅读模式 / </span>层级、比例与对比</b>
+  </p>
+  <p class="issue"><span lang="en" class="mono">No. 101</span><span class="issue-tagline">对比让色彩更有力量</span></p>
+</header>
+
+<main>
+  <!-- 开场：标题 + 分色双圆色彩对比仪 -->
+  <section class="hero wrap" aria-labelledby="title">
+    <div class="hero-head">
+      <h1 id="title" class="split-title" aria-label="色彩对比">
+        <span class="t-plain" aria-hidden="true">色彩</span><span class="t-axis" aria-hidden="true"></span><span class="t-chip" id="title-dui" aria-hidden="true">对</span><span class="t-chip" id="title-bi" aria-hidden="true">比</span>
+      </h1>
+      <p class="title-en mono" lang="en">COLOR CONTRAST</p>
+      <p class="poster-tagline">强烈差异 · 视觉突出 · 有效传达 <span lang="en" class="mono">STRONG CONTRAST · VISUAL IMPACT · EFFECTIVE COMMUNICATION</span></p>
+    </div>
+
+    <div class="stage-wrap">
+      <div class="stage" id="stage">
+        <canvas id="hero-canvas" class="stage-canvas" aria-hidden="true"></canvas>
+        <p class="hud hud-tl mono" aria-hidden="true"><span id="hud-angle">ΔH 180°</span></p>
+        <p class="hud hud-tr" aria-hidden="true"><span class="hud-pill" id="hud-badge">互补极值 · 视觉爆点</span></p>
+        <button
+          type="button"
+          class="handle"
+          id="hero-handle"
+          data-perf-drag
+          role="slider"
+          aria-valuemin="0"
+          aria-valuemax="360"
+          aria-valuenow="180"
+          aria-describedby="ro-body"
+        >
+          <span class="handle-glyph mono" aria-hidden="true">↔</span>
+        </button>
+      </div>
+      <p class="stage-hint">左右拖动轨道上的<b>色差手柄</b>（或点按外围虚线环、按左右方向键），看海报里的蓝与橙怎样随色相、饱和与面积彼此拉扯。</p>
+    </div>
+
+    <div class="hero-side">
+      <div class="panel">
+        <div class="presets" role="group" aria-label="快捷配色预设">
+          <button type="button" class="btn-chip on" data-preset="poster" aria-pressed="true">互补 · 原海报</button>
+          <button type="button" class="btn-chip" data-preset="analogous" aria-pressed="false">邻近 · 柔和</button>
+          <button type="button" class="btn-chip" data-preset="warmcool" aria-pressed="false">冷暖 · 70:30</button>
+          <button type="button" class="btn-chip" data-preset="monochrome" aria-pressed="false">同色 · 纯明度</button>
+        </div>
+
+        <div class="sliders">
+          <div class="ctrl">
+            <div class="ctrl-top">
+              <label for="ctrl-delta">色相夹角 <span lang="en" class="mono">ΔH</span></label>
+              <output id="out-delta" class="mono">180°</output>
+            </div>
+            <input type="range" id="ctrl-delta" min="0" max="360" step="1" value="180">
+          </div>
+          <div class="ctrl">
+            <div class="ctrl-top">
+              <label for="ctrl-sat">色彩饱和度 <span lang="en" class="mono">SAT</span></label>
+              <output id="out-sat" class="mono">90%</output>
+            </div>
+            <input type="range" id="ctrl-sat" min="15" max="100" step="1" value="90">
+          </div>
+          <div class="ctrl">
+            <div class="ctrl-top">
+              <label for="ctrl-ratio">左右面积比 <span lang="en" class="mono">AREA</span></label>
+              <output id="out-ratio" class="mono">50:50</output>
+            </div>
+            <input type="range" id="ctrl-ratio" min="15" max="85" step="1" value="50">
+          </div>
+        </div>
+
+        <div class="swatch-strip">
+          <span class="sw"><i id="sw-a"></i><b class="mono" id="sw-a-hex">#0F42D5</b></span>
+          <span class="sw-arrow mono" aria-hidden="true">↔</span>
+          <span class="sw"><i id="sw-b"></i><b class="mono" id="sw-b-hex">#F5590E</b></span>
+          <span class="sw-cr mono" id="sw-cr">CR 1.98:1</span>
+        </div>
+
+        <div class="readout" aria-live="polite">
+          <p class="ro-head"><b id="ro-title">钴蓝撞朱橙：海报原型的最大色相张力</b><span class="ro-badge" id="ro-badge">互补极值 · 视觉爆点</span></p>
+          <p class="ro-body" id="ro-body"></p>
+          <p class="ro-note" id="ro-note"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 海报中段分隔语带 -->
+  <div class="cool-warm-ribbon wrap" aria-hidden="true">
+    <span class="cw-side"><b class="cw-zh">冷色</b> <span lang="en" class="mono">COOL</span><i class="cw-bar cw-b"></i></span>
+    <span class="cw-arrows mono">← — →</span>
+    <span class="cw-side"><i class="cw-bar cw-o"></i><b class="cw-zh">暖色</b> <span lang="en" class="mono">WARM</span></span>
+  </div>
+
+  <article class="essay">
+    <!-- 01 -->
+    <section class="sec wrap" aria-labelledby="s1">
+      <header class="sec-head reveal">
+        <p class="sec-no mono" lang="en">01</p>
+        <h2 id="s1">颜色从不单独存在：<br>谢弗勒尔与阿尔伯斯</h2>
+        <p class="sec-en mono" lang="en">Simultaneous contrast · 1839 &amp; 1963</p>
+      </header>
+      <div class="sec-body">
+        <p class="lead reveal">一块颜色本身有多醒目，从来不是它自己说了算，而是由<strong>挨着它的另一种颜色</strong>决定的。原海报中央故意把一小块橙嵌进大蓝里、一小块蓝嵌进大橙里，展示的正是色彩对比最底层的现象——<strong>同时对比（Simultaneous Contrast）</strong>。</p>
+        <p class="reveal">1824 年，法国化学家<strong>米歇尔·欧仁·谢弗勒尔（<span lang="en">Michel Eugène Chevreul</span>，1786–1889）</strong>出任巴黎戈布兰皇家挂毯厂染坊主管。织工抱怨黑色与深色纱线织上去发灰，谢弗勒尔查明问题不在染料，而在人眼会放大相邻颜色的差异。他在 <strong>1839 年</strong>出版《色彩同时对比定律》（<cite lang="en">De la loi du contraste simultané des couleurs</cite>），系统阐明了并排颜色互相把对方推向补色的光学规律。</p>
+        <p class="reveal">一百多年后，包豪斯与耶鲁大学教师<strong>约瑟夫·阿尔伯斯（<span lang="en">Josef Albers</span>，1888–1976）</strong>在 <strong>1963 年</strong>由耶鲁大学出版社出版《色彩的相互作用》（<cite lang="en">Interaction of Color</cite>），用手工丝网色纸证明「同一块颜色换一个底色，在眼睛里就变成两种颜色」。（元素相邻对照的版式机制详见 <a href="https://layout.xiaoxiaodong.ai/105/play/" target="_blank" rel="noopener">105 并置原则</a>。）</p>
+
+        <div class="lab reveal" id="albers-lab">
+          <div class="lab-top">
+            <fieldset class="seg" id="albers-plate">
+              <legend>切换底色实验板 <span lang="en" class="mono">PLATES</span></legend>
+              <label><input type="radio" name="albers-plate" value="bo" checked><span>蓝 × 橙（冷暖）</span></label>
+              <label><input type="radio" name="albers-plate" value="value"><span>深靛 × 浅米（明度）</span></label>
+              <label><input type="radio" name="albers-plate" value="chroma"><span>纯橙 × 暖灰（纯度）</span></label>
+            </fieldset>
+            <span class="mono lab-code">中心同色 <b id="albers-hex">#7C777E</b></span>
+          </div>
+
+          <div class="albers-stage">
+            <svg viewBox="0 0 440 210" class="albers-svg" role="img" aria-label="阿尔伯斯同色异相实验：左右两个不同底色中各有一块完全相同的中心色块，可向中缝合并验证">
+              <rect id="alb-bg-l" x="0" y="0" width="220" height="210" fill="#0f42d5"/>
+              <rect id="alb-bg-r" x="220" y="0" width="220" height="210" fill="#f5590e"/>
+              <line x1="220" y1="0" x2="220" y2="210" stroke="#10100e" stroke-opacity="0.32" stroke-dasharray="4 4"/>
+              <rect id="alb-sq-l" x="78" y="65" width="60" height="80" fill="#7c777e"/>
+              <rect id="alb-sq-r" x="302" y="65" width="60" height="80" fill="#7c777e"/>
+              <text id="alb-lbl-l" x="110" y="182" text-anchor="middle" font-size="11" font-weight="700" fill="#f7f0e5"></text>
+              <text id="alb-lbl-r" x="330" y="182" text-anchor="middle" font-size="11" font-weight="700" fill="#10100e"></text>
+              <text id="alb-proof-lbl" x="220" y="109" text-anchor="middle" font-size="12" font-weight="700" fill="#f7f0e5" opacity="0"></text>
+            </svg>
+          </div>
+
+          <div class="albers-controls">
+            <div class="ctrl">
+              <div class="ctrl-top">
+                <label for="albers-bridge">向中缝合体检验 <span lang="en" class="mono">VERIFY</span></label>
+                <output id="albers-out" class="mono">0%</output>
+              </div>
+              <input type="range" id="albers-bridge" min="0" max="100" step="1" value="0">
+            </div>
+            <button type="button" class="btn-solid" id="albers-toggle" aria-pressed="false">一键合体证明同色</button>
+          </div>
+          <p class="lab-read" id="albers-read" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 -->
+    <section class="sec sec-tint" aria-labelledby="s2">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no mono" lang="en">02</p>
+          <h2 id="s2">海报上的六个维度，<br>与伊顿的七种对比</h2>
+          <p class="sec-en mono" lang="en">Johannes Itten · 1961 · Six Poster Axes</p>
+        </header>
+        <div class="sec-body">
+          <p class="lead reveal">1961 年，曾在包豪斯任教的瑞士艺术家<strong>约翰内斯·伊顿（<span lang="en">Johannes Itten</span>，1888–1967）</strong>在《色彩艺术》（<cite lang="en">Kunst der Farbe</cite> / <cite lang="en">The Art of Color</cite>）中，把色彩之间的相互拉扯归纳为经典的<strong>七种对比</strong>：色相、明暗、冷暖、互补、同时、纯度（饱和度）与面积。</p>
+          <p class="reveal">对照看看原海报左右两侧的六条标注——它正好把这套理论浓缩成一张设计师随时可查的实战地图。逐个点开下面六项，切「反例」看每一种对比成立与失效的区别。</p>
+
+          <div class="six-lab reveal">
+            <div class="dim-grid" role="tablist" aria-label="原海报六项色彩对比维度">
+              <button type="button" class="dim-tab on" role="tab" aria-selected="true" data-dim="warmcool">
+                <span class="dot dot-b" aria-hidden="true"></span>
+                <b>冷暖</b><span lang="en" class="mono">WARM &amp; COOL</span>
+                <small>冷色后退<br>暖色前进</small>
+                <i class="bar bar-b" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="brightness">
+                <span class="dot dot-o" aria-hidden="true"></span>
+                <b>明度</b><span lang="en" class="mono">BRIGHTNESS</span>
+                <small>明暗对比<br>增强层次</small>
+                <i class="bar bar-o" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="complementary">
+                <span class="dot dot-o" aria-hidden="true"></span>
+                <b>互补</b><span lang="en" class="mono">COMPLEMENTARY</span>
+                <small>色相相对<br>形成强对比</small>
+                <i class="bar bar-o" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="proportion">
+                <span class="dot dot-b" aria-hidden="true"></span>
+                <b>面积</b><span lang="en" class="mono">PROPORTION</span>
+                <small>主次分明<br>对比更有效</small>
+                <i class="bar bar-b" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="saturation">
+                <span class="dot dot-b" aria-hidden="true"></span>
+                <b>饱和</b><span lang="en" class="mono">SATURATION</span>
+                <small>高饱和更醒目<br>低饱和更平衡</small>
+                <i class="bar bar-b" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="mood">
+                <span class="dot dot-o" aria-hidden="true"></span>
+                <b>情绪</b><span lang="en" class="mono">MOOD</span>
+                <small>色彩影响感受<br>传递情绪信息</small>
+                <i class="bar bar-o" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="dim-stage">
+              <div class="dim-preview">
+                <div class="dim-bar-top">
+                  <span class="ro-badge" id="dim-state-tag" data-kind="good">有效对比</span>
+                  <button type="button" class="btn-outline" id="dim-toggle" aria-pressed="false">看反例：压弱 / 失控</button>
+                </div>
+                <svg viewBox="0 0 340 230" id="dim-svg" class="dim-svg" role="img" aria-label="当前色彩对比维度的版式标本对比"></svg>
+              </div>
+              <div class="dim-copy" aria-live="polite">
+                <p class="dim-quote" id="dim-quote"></p>
+                <p class="dim-note" id="dim-note"></p>
+                <p class="dim-extra" id="dim-extra"></p>
+                <p class="dim-xref">延伸：纯黑白灰的亮度层级另见 <a href="https://layout.xiaoxiaodong.ai/100/play/" target="_blank" rel="noopener">100 明暗对比原则</a>；版面大小与主次分配另见 <a href="https://layout.xiaoxiaodong.ai/096/play/" target="_blank" rel="noopener">096 主次关系</a> 与 <a href="https://layout.xiaoxiaodong.ai/098/play/" target="_blank" rel="noopener">098 比例原则</a>。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 -->
+    <section class="sec wrap" aria-labelledby="s3">
+      <header class="sec-head reveal">
+        <p class="sec-no mono" lang="en">03</p>
+        <h2 id="s3">冷色后退，<br>暖色前进？<br>拆开来看</h2>
+        <p class="sec-en mono" lang="en">Warm advances, cool recedes — with caveats</p>
+      </header>
+      <div class="sec-body">
+        <blockquote class="poster-quote reveal">
+          <span class="dot dot-b" aria-hidden="true"></span>
+          <b>冷暖 <span lang="en" class="mono">WARM &amp; COOL</span></b>
+          <p>「冷色后退 暖色前进」</p>
+        </blockquote>
+        <p class="reveal">这句话背后有两股力。一是生活经验与大气透视——远处山脉偏蓝灰、近处火光与阳光偏暖红；二是人眼光学里的<strong>色立体视（<span lang="en">Chromostereopsis</span>）</strong>：不同波长的光经过晶状体折射位置略有偏移，常让高饱和红橙显得微凸、纯蓝显得微凹（歌德在 1810 年《色彩论》里就记录过这一现象）。</p>
+        <div class="caveat reveal">
+          <p class="tag">说多了一点 · 有前提</p>
+          <p>「暖前冷后」只在<strong>明度接近</strong>时最明显。一旦亮冷色遇上暗暖底，<strong>明度反差会瞬间反杀色温</strong>，把浅冷色推到最前面；而且色立体视因人而异（眼镜折射甚至可能反转方向），高饱和纯红叠纯蓝还会引发刺眼的边缘震颤，绝不适合排正文。</p>
+        </div>
+
+        <div class="lab reveal" id="temp-lab">
+          <div class="temp-grid">
+            <div class="temp-canvas-wrap">
+              <svg viewBox="0 0 400 240" id="temp-svg" class="temp-svg" role="img" aria-label="冷暖与明度拉锯实验：观察前景圆是前进还是后退"></svg>
+            </div>
+            <div class="temp-side">
+              <fieldset class="seg seg-col" id="temp-mode">
+                <legend>实验组合 <span lang="en" class="mono">SCENARIO</span></legend>
+                <label><input type="radio" name="temp-mode" value="classic" checked><span>钴蓝冷底 + 朱橙暖圆（顺向）</span></label>
+                <label><input type="radio" name="temp-mode" value="invert"><span>深暖棕底 + 冰蓝冷圆（明度反杀）</span></label>
+                <label><input type="radio" name="temp-mode" value="vibrate"><span>纯蓝底 + 正红圆（等明度震颤）</span></label>
+              </fieldset>
+
+              <div class="ctrl">
+                <div class="ctrl-top">
+                  <label for="temp-lift">前景圆明度 <span lang="en" class="mono">LIGHTNESS</span></label>
+                  <output id="temp-lift-out" class="mono">L 52%</output>
+                </div>
+                <input type="range" id="temp-lift" min="22" max="86" step="1" value="52">
+              </div>
+
+              <div class="temp-out" aria-live="polite">
+                <span class="ro-badge" id="temp-badge" data-kind="good">暖色前推</span>
+                <p id="temp-verdict"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 -->
+    <section class="sec sec-tint" aria-labelledby="s4">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no mono" lang="en">04</p>
+          <h2 id="s4">50:50 打架：<br>面积怎么配<br>才分主次</h2>
+          <p class="sec-en mono" lang="en">Goethe 1810 · Itten's contrast of extension</p>
+        </header>
+        <div class="sec-body">
+          <blockquote class="poster-quote reveal">
+            <span class="dot dot-b" aria-hidden="true"></span>
+            <b>面积 <span lang="en" class="mono">PROPORTION</span></b>
+            <p>「主次分明 对比更有效」</p>
+          </blockquote>
+          <p class="reveal">许多初学者的配色之所以显得吵，并不是颜色挑错了，而是把两种高饱和互补色<strong>平均铺成五五开</strong>。德国作家<strong>歌德（<span lang="en">Goethe</span>）</strong>在 <strong>1810 年</strong>《色彩论》（<cite lang="en">Zur Farbenlehre</cite>）里给六种纯色的固有亮度打了经验分：<strong>黄 9 : 橙 8 : 红 6 : 绿 6 : 蓝 4 : 紫 3</strong>。</p>
+          <p class="reveal">伊顿（1961）把这组光值倒过来，算出想让互补对「势均力敌、谁也不压谁」时的经验面积比：<strong>黄 : 紫 = 1 : 3</strong>、<strong>橙 : 蓝 = 1 : 2</strong>、<strong>红 : 绿 = 1 : 1</strong>。而如果你想要的是<strong>视觉焦点</strong>而非平分秋色，就干脆打破平衡——采用界面与平面设计中常用的 <strong>60-30-10 经验值</strong>（大面积中性底、中面积主色、极小面积高纯度强调色），让那一小块对比色变成视线磁铁。（关于画面整体配重另见 <a href="https://layout.xiaoxiaodong.ai/097/play/" target="_blank" rel="noopener">097 平衡原则</a> 与 <a href="https://layout.xiaoxiaodong.ai/095/play/" target="_blank" rel="noopener">095 视觉层级</a>。）</p>
+
+          <div class="lab reveal" id="area-lab">
+            <div class="lab-top">
+              <fieldset class="seg" id="area-pair">
+                <legend>选择互补对 <span lang="en" class="mono">PAIR</span></legend>
+                <label><input type="radio" name="area-pair" value="bo" checked><span>蓝 × 橙（2:1）</span></label>
+                <label><input type="radio" name="area-pair" value="vy"><span>紫 × 黄（3:1）</span></label>
+                <label><input type="radio" name="area-pair" value="gr"><span>绿 × 红（1:1）</span></label>
+              </fieldset>
+              <div class="mini-btns">
+                <button type="button" class="btn-outline" id="area-fifty">50:50 打架</button>
+                <button type="button" class="btn-outline" id="area-ideal">歌德平衡比</button>
+                <button type="button" class="btn-outline" id="area-spot">88:12 小爆点</button>
+              </div>
+            </div>
+
+            <div class="area-meter-wrap">
+              <div class="area-bar" aria-hidden="true">
+                <div class="area-fill" id="area-bar-a"></div>
+                <div class="area-fill" id="area-bar-b"></div>
+                <span class="ideal-pin" id="area-ideal-pin"><i></i></span>
+              </div>
+              <p class="ideal-lbl mono" id="area-ideal-lbl"></p>
+            </div>
+
+            <div class="ctrl">
+              <div class="ctrl-top">
+                <label for="area-range">拖动调整面积占比 <span lang="en" class="mono">EXTENSION</span></label>
+                <output id="area-out" class="mono">钴蓝 67% : 朱橙 33%</output>
+              </div>
+              <input type="range" id="area-range" min="10" max="90" step="1" value="67">
+            </div>
+
+            <!-- 实战小卡同步变面积 -->
+            <div class="area-card" id="area-card">
+              <div class="ac-split" id="ac-bg">
+                <div class="ac-main">
+                  <p class="ac-kicker mono">EXHIBITION · 2026</p>
+                  <h3>包豪斯色彩构成展</h3>
+                  <p class="ac-sub">当主色撑起秩序，小面积互补色就成了全场唯一焦点。</p>
+                  <span class="ac-btn" id="ac-btn">预约观展 →</span>
+                </div>
+                <div class="ac-accent" id="ac-accent" aria-hidden="true"></div>
+              </div>
+              <p class="ac-status mono" id="ac-tag"></p>
+            </div>
+
+            <p class="lab-read" id="area-read" aria-live="polite"></p>
+            <p class="lab-sub" id="area-goethe"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 -->
+    <section class="sec wrap" aria-labelledby="s5">
+      <header class="sec-head reveal">
+        <p class="sec-no mono" lang="en">05</p>
+        <h2 id="s5">别只靠色相：<br>灰度与色盲<br>依然成立吗？</h2>
+        <p class="sec-en mono" lang="en">Luminance check · WCAG 2.1 · Color vision</p>
+      </header>
+      <div class="sec-body">
+        <p class="lead reveal">海报底部的公式画得很巧妙：<strong>蓝圆 + 橙圆 = 并置强烈、交叠暗沉</strong>，并提醒我们「善用对比，吸引注意，清晰表达」。可在屏幕与印刷实战里，仅靠色相差异藏着两个大坑。</p>
+        <ul class="fact-list reveal">
+          <li><b>明度不够，字就看不清</b>：W3C <strong>WCAG 2.1（1.4.3）</strong>建议正文与背景的亮度对比度至少 <strong>4.5:1</strong>（大号或加粗大字至少 <strong>3:1</strong>）。红与绿虽然色相相对，但纯色亮度常常接近，叠成文字会立刻发糊。</li>
+          <li><b>不能只用颜色传信息</b>：据美国国家眼科研究所（NEI）与 MedlinePlus 资料，最常见的红绿色觉缺陷在北欧血统人群中约占<strong>男性 8%（约 1/12）、女性 0.5%（约 1/200）</strong>。W3C <strong>WCAG 2.1（1.4.1「色彩的使用」）</strong>规定：绝不把颜色当成唯一信号，要同时叠加明度差、文字标签或形状符号（形状区分详见 <a href="https://layout.xiaoxiaodong.ai/102/play/" target="_blank" rel="noopener">102 形状对比原则</a>）。</li>
+        </ul>
+
+        <div class="lab reveal" id="cvd-lab">
+          <div class="cvd-top">
+            <fieldset class="seg" id="cvd-scheme">
+              <legend>配色方案 <span lang="en" class="mono">PALETTE</span></legend>
+              <label><input type="radio" name="cvd-scheme" value="bad" checked><span>反例：等明度红绿</span></label>
+              <label><input type="radio" name="cvd-scheme" value="good"><span>正例：蓝橙 + 形状</span></label>
+            </fieldset>
+            <fieldset class="seg" id="cvd-mode">
+              <legend>视角检验 <span lang="en" class="mono">VISION</span></legend>
+              <label><input type="radio" name="cvd-mode" value="normal" checked><span>正常</span></label>
+              <label><input type="radio" name="cvd-mode" value="gray"><span>纯灰度</span></label>
+              <label><input type="radio" name="cvd-mode" value="deutan"><span>绿色盲</span></label>
+              <label><input type="radio" name="cvd-mode" value="protan"><span>红色盲</span></label>
+            </fieldset>
+          </div>
+
+          <div class="cvd-stage">
+            <svg viewBox="0 0 460 240" id="cvd-svg" class="cvd-svg" role="img" aria-label="不同色觉视角下的界面文字可读性与状态区分检验"></svg>
+          </div>
+
+          <div class="cvd-meter" aria-live="polite">
+            <span class="mono">正文亮度对比度 <b id="cvd-cr">1.18 : 1</b></span>
+            <span class="ro-badge" id="cvd-status" data-kind="warn">未达标</span>
+          </div>
+          <p class="lab-read" id="cvd-read" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 -->
+    <section class="sec sec-tint" aria-labelledby="s6">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no mono" lang="en">06</p>
+          <h2 id="s6">什么时候放开用，<br>什么时候收着点</h2>
+          <p class="sec-en mono" lang="en">When to push · When to hold back</p>
+        </header>
+        <div class="sec-body">
+          <div class="when-grid reveal">
+            <div class="when-col good">
+              <h3><span class="dot dot-b" aria-hidden="true"></span>适合强色彩对比 <span lang="en" class="mono">USE IT</span></h3>
+              <ul>
+                <li><b>唯一行动点与警示</b><span>大面积中性底 + 5%–10% 高饱和暖色按钮、角标或报错提示，视线零犹豫。</span></li>
+                <li><b>远距离吸睛的海报与封面</b><span>音乐节、运动赛事、快消包装需要在半秒内从杂乱环境里跳出来。</span></li>
+                <li><b>多类别数据与导航分组</b><span>用区分度高、对色盲友好的蓝/橙/深紫组合切开不同数据系列，同时配上形状或文字。</span></li>
+                <li><b>快速建立前后空间感</b><span>冷色退作外框或背景，暖色与高亮色浮作主体与标签。</span></li>
+              </ul>
+            </div>
+            <div class="when-col avoid">
+              <h3><span class="dot dot-o" aria-hidden="true"></span>什么时候别硬上 <span lang="en" class="mono">SKIP IT</span></h3>
+              <ul>
+                <li><b>大段阅读正文与工具表单</b><span>正文老老实实靠深浅明度对比，不要拿高饱和互补色当文字底板，几分钟就会眼花。</span></li>
+                <li><b>多种高纯色平分版面</b><span>红黄蓝绿全拉满又面积均等，彼此抵消重点，只剩廉价与喧哗。</span></li>
+                <li><b>沉静、肃穆或高克制题材</b><span>纪念册、法律文档、高端静物与画册通常改用低饱和、同类色与材质肌理。</span></li>
+                <li><b>把颜色当唯一区分依据</b><span>涨跌、对错、状态栏绝不能只换色相，黑白打印或色觉缺陷读者会直接看丢信息。</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <aside class="siblings reveal" aria-label="同一小类的相关排版原则">
+            <h3>对比家族分工 <span lang="en" class="mono">RELATED PRINCIPLES</span></h3>
+            <p>色彩对比专管「色相、冷暖、纯度与彩色面积」。其它视觉拉差各有专门一页：</p>
+            <div class="sib-links">
+              <a href="https://layout.xiaoxiaodong.ai/095/play/" target="_blank" rel="noopener">095 视觉层级</a>
+              <a href="https://layout.xiaoxiaodong.ai/096/play/" target="_blank" rel="noopener">096 主次关系</a>
+              <a href="https://layout.xiaoxiaodong.ai/097/play/" target="_blank" rel="noopener">097 平衡原则</a>
+              <a href="https://layout.xiaoxiaodong.ai/098/play/" target="_blank" rel="noopener">098 比例原则</a>
+              <a href="https://layout.xiaoxiaodong.ai/099/play/" target="_blank" rel="noopener">099 尺度对比</a>
+              <a href="https://layout.xiaoxiaodong.ai/100/play/" target="_blank" rel="noopener">100 明暗对比</a>
+              <a href="https://layout.xiaoxiaodong.ai/102/play/" target="_blank" rel="noopener">102 形状对比</a>
+              <a href="https://layout.xiaoxiaodong.ai/103/play/" target="_blank" rel="noopener">103 质感对比</a>
+              <a href="https://layout.xiaoxiaodong.ai/104/play/" target="_blank" rel="noopener">104 动静对比</a>
+              <a href="https://layout.xiaoxiaodong.ai/105/play/" target="_blank" rel="noopener">105 并置原则</a>
+              <a href="https://layout.xiaoxiaodong.ai/106/play/" target="_blank" rel="noopener">106 隔离原则</a>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 -->
+    <section class="sec wrap" aria-labelledby="s7">
+      <header class="sec-head reveal">
+        <p class="sec-no mono" lang="en">07</p>
+        <h2 id="s7">小练习：四张配色，<br>哪张最有效？</h2>
+        <p class="sec-en mono" lang="en">Practice · Pick the strongest contrast</p>
+      </header>
+      <div class="sec-body">
+        <div class="quiz-head reveal">
+          <p class="lead">同一张「夏日爵士夜」海报版式，换了四种色彩对比做法。先凭第一眼挑出最清晰、最抓人的一张。</p>
+          <button type="button" class="btn-outline" id="quiz-gray" aria-pressed="false">切灰度验明度层级</button>
+        </div>
+
+        <div class="quiz reveal" role="group" aria-label="四种色彩对比方案">
+          <button type="button" class="q-opt" data-opt="A" aria-pressed="false">
+            <svg viewBox="0 0 180 240" class="q-svg" id="q-svg-A" aria-hidden="true"></svg>
+            <span class="q-label"><b class="mono">A</b><i class="q-mark"></i></span>
+          </button>
+          <button type="button" class="q-opt" data-opt="B" aria-pressed="false">
+            <svg viewBox="0 0 180 240" class="q-svg" id="q-svg-B" aria-hidden="true"></svg>
+            <span class="q-label"><b class="mono">B</b><i class="q-mark"></i></span>
+          </button>
+          <button type="button" class="q-opt" data-opt="C" aria-pressed="false">
+            <svg viewBox="0 0 180 240" class="q-svg" id="q-svg-C" aria-hidden="true"></svg>
+            <span class="q-label"><b class="mono">C</b><i class="q-mark"></i></span>
+          </button>
+          <button type="button" class="q-opt" data-opt="D" aria-pressed="false">
+            <svg viewBox="0 0 180 240" class="q-svg" id="q-svg-D" aria-hidden="true"></svg>
+            <span class="q-label"><b class="mono">D</b><i class="q-mark"></i></span>
+          </button>
+        </div>
+
+        <div class="verdict" aria-live="polite">
+          <p class="v-title" id="quiz-title">先凭直觉点选一张。</p>
+          <p class="v-text" id="quiz-text">选完后会拆解每张的对比问题，也可以点上方按钮一键抽成灰度验收。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 -->
+    <section class="sec sec-poster" aria-labelledby="s8">
+      <div class="wrap poster-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no mono" lang="en">08</p>
+          <h2 id="s8">原海报与关键词</h2>
+          <p class="sec-en mono" lang="en">The original poster</p>
+        </header>
+
+        <figure class="poster reveal">
+          <button type="button" class="poster-btn" id="poster-open" aria-expanded="false" aria-label="放大查看原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="101 色彩对比原海报：暖米白底上居中是一个左蓝右橙的分色大圆，内部嵌着左橙右蓝的反色小圆与贯穿横条，四周环绕橙圆、蓝方、蓝三角、橙菱形和虚线轨道；左右标注冷暖、互补、饱和、明度、面积、情绪六条要点；底部线框里画着蓝圆加橙圆重叠变暗的公式与总结语「对比让色彩更有力量」。">
+          </button>
+          <figcaption>点按放大，放大后可缩放与拖动细看；点空白或按 Esc 关闭。</figcaption>
+        </figure>
+
+        <div class="poster-meta reveal">
+          <div class="eq-box">
+            <svg viewBox="0 0 210 64" class="eq-svg" aria-hidden="true">
+              <circle cx="30" cy="32" r="21" fill="#0f42d5"/>
+              <text x="65" y="38" text-anchor="middle" font-size="20" font-family="JetBrains Mono, monospace" fill="#10100e">+</text>
+              <circle cx="100" cy="32" r="21" fill="#f5590e"/>
+              <text x="135" y="38" text-anchor="middle" font-size="20" font-family="JetBrains Mono, monospace" fill="#10100e">=</text>
+              <defs><clipPath id="eq-clip"><circle cx="166" cy="32" r="21"/></clipPath></defs>
+              <circle cx="166" cy="32" r="21" fill="#0f42d5"/>
+              <circle cx="188" cy="32" r="21" fill="#f5590e"/>
+              <circle cx="188" cy="32" r="21" fill="#1c1917" clip-path="url(#eq-clip)"/>
+            </svg>
+            <div class="eq-copy">
+              <h3>对比让色彩更有力量</h3>
+              <p class="mono" lang="en">CONTRAST GIVES COLOR POWER</p>
+              <p class="eq-zh">善用对比，吸引注意，清晰表达</p>
+              <p class="eq-en mono" lang="en">USE CONTRAST WISELY TO ATTRACT ATTENTION AND COMMUNICATE CLEARLY</p>
+            </div>
+          </div>
+
+          <h3 class="kw-title">海报关键词 <span lang="en" class="mono">KEYWORDS</span></h3>
+          <ul class="kw-list">
+            <li>
+              <span class="kw-chip kw-cool"><i aria-hidden="true"></i><b>冷色</b><span lang="en" class="mono">COOL</span></span>
+              <p>蓝、青、青绿一端。沉静、理性、有后退感，适合铺陈背景、稳定秩序、拉出空间纵深。</p>
+            </li>
+            <li>
+              <span class="kw-chip kw-warm"><i aria-hidden="true"></i><b>暖色</b><span lang="en" class="mono">WARM</span></span>
+              <p>橙、红、黄一端。活跃、醒目、有前冲感，缩小面积做点睛或行动按钮时威力最大。</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报大图预览">
+  <div class="lb-bar">
+    <button type="button" class="btn-lb" id="lb-zoom-out" aria-label="缩小">−</button>
+    <output id="lb-zoom-val" class="mono">100%</output>
+    <button type="button" class="btn-lb" id="lb-zoom-in" aria-label="放大">+</button>
+    <button type="button" class="btn-lb lb-close" id="lb-close">关闭 ×</button>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" draggable="false" alt="色彩对比原海报放大预览">
+  </div>
+  <p class="lb-hint">拖动查看细节 · 点空白处或按 Esc 关闭</p>
+</div>
+
+<footer class="foot wrap">
+  <p><span lang="en" class="mono">No. 101</span> 色彩对比 · 350 种排版</p>
+  <p>对比不是越炸越好，而是让每一份色彩能量都落在它该落的位置。</p>
+  <p class="foot-meta"><a href="https://layout.xiaoxiaodong.ai/101/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a><span class="sep">·</span>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a> · 源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></p>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
