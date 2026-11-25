@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>253 悬浮层 · FLOATING LAYER</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main>
+  <!-- ==================== HERO：忠实转译 253 原海报深梅紫双栏展板 ==================== -->
+  <section class="hero" aria-label="悬浮层交互实验台">
+    <div class="hero-frame">
+      <div class="hero-grid">
+
+        <!-- 左栏（原海报左 34%：开放刊头 + 无框三点实时探针 + 左下活体轴测三片栈） -->
+        <div class="hero-left">
+          <div class="hero-kicker-row">
+            <span class="hero-kicker">网页与 UI / 布局原语 · <span lang="en">NO. 253</span></span>
+            <span class="hero-status-pill is-warn" id="hero-status-pill">层级倒挂 · 遮 26%</span>
+          </div>
+
+          <header class="hero-title-block">
+            <h1 class="hero-h1" id="hero-h1" aria-label="悬浮层">
+              <span class="h1-ch h1-ch-1">悬</span><span class="h1-ch h1-ch-2">浮</span><span class="h1-ch h1-ch-3">层</span>
+            </h1>
+            <p class="hero-en" lang="en">FLOATING LAYER</p>
+            <span class="hero-pink-bar" aria-hidden="true"></span>
+          </header>
+
+          <!-- 原海报三点无框纵列（与单真源 model.js 实时联动） -->
+          <ul class="poster-points" aria-label="原海报三要点实时检测">
+            <li class="pp-item" id="probe-overlay">
+              <div class="pp-head">
+                <span class="pp-dot pp-dot-mint" aria-hidden="true"></span>
+                <strong class="pp-title">层级叠加</strong>
+                <span class="pp-badge" id="probe-overlay-badge">倒挂 · 遮 26%</span>
+              </div>
+              <p class="pp-desc">通过上下叠加建立视觉层级</p>
+              <span class="pp-en pp-en-mint" lang="en">OVERLAY</span>
+            </li>
+
+            <li class="pp-item" id="probe-emphasis">
+              <div class="pp-head">
+                <span class="pp-dot pp-dot-pink" aria-hidden="true"></span>
+                <strong class="pp-title">悬浮焦点</strong>
+                <span class="pp-badge" id="probe-emphasis-badge">被压失焦</span>
+              </div>
+              <p class="pp-desc">突出的悬浮元素吸引注意力</p>
+              <span class="pp-en pp-en-pink" lang="en">EMPHASIS</span>
+            </li>
+
+            <li class="pp-item" id="probe-support">
+              <div class="pp-head">
+                <span class="pp-dot pp-dot-lav" aria-hidden="true"></span>
+                <strong class="pp-title">背景承托</strong>
+                <span class="pp-badge" id="probe-support-badge">无退让</span>
+              </div>
+              <p class="pp-desc">背景提供支撑，增强信息清晰度</p>
+              <span class="pp-en pp-en-lav" lang="en">SUPPORT</span>
+            </li>
+          </ul>
+
+          <!-- 左下 1:1 复刻原海报三片轴测菱形堆叠（可点击置顶，间距随海拔实时伸缩） -->
+          <div class="iso-panel" aria-label="Z 轴三层轴测解剖图">
+            <div class="iso-visual" id="iso-svg-wrap">
+              <svg viewBox="0 0 132 124" width="132" height="124" class="iso-svg" role="img" aria-label="三层菱形叠序示意">
+                <g id="iso-planes"></g>
+              </svg>
+            </div>
+            <div class="iso-legend" id="iso-legend">
+              <button type="button" class="iso-btn" data-promote="focus">
+                <span class="iso-dash" aria-hidden="true"></span>
+                <span class="iso-dot iso-dot-pink" aria-hidden="true"></span>
+                <span class="iso-txt"><strong>悬浮层</strong><em lang="en">FLOATING LAYER</em></span>
+              </button>
+              <button type="button" class="iso-btn" data-promote="secondary">
+                <span class="iso-dash" aria-hidden="true"></span>
+                <span class="iso-dot iso-dot-mint" aria-hidden="true"></span>
+                <span class="iso-txt"><strong>次级层</strong><em lang="en">SECONDARY LAYER</em></span>
+              </button>
+              <button type="button" class="iso-btn" data-promote="bg">
+                <span class="iso-dash" aria-hidden="true"></span>
+                <span class="iso-dot iso-dot-lav" aria-hidden="true"></span>
+                <span class="iso-txt"><strong>背景层</strong><em lang="en">BACKGROUND LAYER</em></span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右栏（原海报右 66%：3D 剥离浮层主舞台 + 精控条 + 原海报细框图例单真源诊单） -->
+        <div class="hero-right">
+          <div class="stage-toolbar">
+            <div class="seg-group" role="group" aria-label="切换界面载体">
+              <button type="button" class="seg-btn is-active" data-scene="poster">原海报三层</button>
+              <button type="button" class="seg-btn" data-scene="modal">确认弹窗</button>
+              <button type="button" class="seg-btn" data-scene="popover">商品浮卡</button>
+            </div>
+            <div class="seg-group" role="group" aria-label="快速视角切换">
+              <button type="button" class="seg-btn" id="btn-view-flat">正视 0°</button>
+              <button type="button" class="seg-btn" id="btn-view-peel">剖视 42°</button>
+            </div>
+          </div>
+
+          <div class="stage-shell">
+            <canvas id="hero-canvas" data-perf-drag tabindex="0" aria-label="悬浮层三维剥离实验画布，左右拖动或按方向键调节剖视角度，点按卡片切换叠序"></canvas>
+          </div>
+
+          <!-- 精控轨：所有控件都是原生 button / range，单真源直连 model.js -->
+          <div class="ctrl-deck">
+            <div class="ctrl-sliders">
+              <label class="ctrl-slider">
+                <span class="ctrl-label">焦点海拔 <strong id="val-elev" lang="en">0dp</strong></span>
+                <input type="range" id="inp-elev" min="0" max="36" step="2" value="0">
+              </label>
+              <label class="ctrl-slider">
+                <span class="ctrl-label">背景遮罩 <strong id="val-scrim" lang="en">0%</strong></span>
+                <input type="range" id="inp-scrim" min="0" max="92" step="2" value="0">
+              </label>
+              <label class="ctrl-slider">
+                <span class="ctrl-label">水平错位 <strong id="val-shift" lang="en">0%</strong></span>
+                <input type="range" id="inp-shift" min="-50" max="42" step="2" value="0">
+              </label>
+            </div>
+
+            <div class="ctrl-actions">
+              <button type="button" class="act-btn act-primary" id="btn-order-toggle">焦点置顶</button>
+              <button type="button" class="act-btn" id="btn-sec-compete" aria-pressed="false">次层争焦 20dp</button>
+              <span class="ctrl-sep" aria-hidden="true"></span>
+              <button type="button" class="chip-btn" data-preset="posterTriad">原海报三阶</button>
+              <button type="button" class="chip-btn" data-preset="modalFocus">模态解</button>
+              <button type="button" class="chip-btn" data-preset="lightPopover">轻浮卡解</button>
+              <button type="button" class="chip-btn chip-reset" data-preset="broken">复原错态</button>
+            </div>
+          </div>
+
+          <!-- 原海报右下圆角细框三形图例 × 单真源白话诊单 -->
+          <div class="diag-box" id="diag-box">
+            <div class="diag-main">
+              <div class="diag-top">
+                <span class="diag-tag" id="diag-tag">3 处失衡</span>
+                <h2 class="diag-title" id="diag-title">焦点层被压在下层，关键内容已被遮挡 26%</h2>
+              </div>
+              <p class="diag-why" id="diag-why">当前叠序把次级层摆在最顶层，暖白焦点卡落到中间层，正文被上层直接腰斩。</p>
+              <div class="diag-foot">
+                <span class="diag-hint" id="diag-hint">点击画布里的暖白焦点卡，或按右侧一步校准。</span>
+                <div class="diag-btns">
+                  <button type="button" class="fix-btn" id="btn-fix">把焦点层提至最顶</button>
+                  <button type="button" class="css-toggle-btn" id="btn-css-toggle" aria-expanded="false">实时 CSS</button>
+                </div>
+              </div>
+              <pre class="css-drawer" id="css-drawer" hidden><code id="css-code"></code></pre>
+            </div>
+
+            <!-- 1:1 复刻原海报右下三形徽标栏 -->
+            <div class="poster-triad" aria-label="原海报三核心图例">
+              <div class="triad-cols">
+                <div class="triad-col">
+                  <span class="triad-shape shape-circle" aria-hidden="true"></span>
+                  <span class="triad-zh">层级叠加</span>
+                  <span class="triad-en" lang="en">OVERLAY</span>
+                </div>
+                <div class="triad-col">
+                  <span class="triad-shape shape-tri" aria-hidden="true"></span>
+                  <span class="triad-zh">悬浮焦点</span>
+                  <span class="triad-en" lang="en">EMPHASIS</span>
+                </div>
+                <div class="triad-col">
+                  <span class="triad-shape shape-sq" aria-hidden="true"></span>
+                  <span class="triad-zh">背景承托</span>
+                  <span class="triad-en" lang="en">SUPPORT</span>
+                </div>
+              </div>
+              <p class="triad-motto" lang="en">OVERLAY · DEPTH · EMPHASIS</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01 · 为什么浮得起来（暖瓷白纸） ==================== -->
+  <section class="band band-ivory" id="sec-01">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div>
+          <h2 class="sec-title">为什么浮得起来</h2>
+          <p class="sec-en" lang="en">DEPTH CUES · FOUR PHYSICAL SIGNALS</p>
+        </div>
+      </header>
+
+      <div class="split-2">
+        <div class="prose">
+          <p class="lead">屏幕是一块完全平的玻璃，并没有真正的「高度」。一张卡片之所以让人觉得「浮在上面」，靠的是人眼在现实世界里习得的四个深度线索同时合作。</p>
+          <p>原海报把这套机制凝练成三条——<strong>「层级叠加：通过上下叠加建立视觉层级」</strong>、<strong>「悬浮焦点：突出的悬浮元素吸引注意力」</strong>、<strong>「背景承托：背景提供支撑，增强信息清晰度」</strong>。有趣的是，原海报次级卡片上的小字把「次层」误印成了「突层」<span class="inline-note">海报印刷小勘误：原意是「次要内容置于次层」</span>，但画面结构本身非常准确：暖白焦点卡最亮、最高，浅青次级卡居中，灰紫背景卡最暗、退在最后。</p>
+          <p>在旁边的四通道剥离器里逐个关掉这些线索，你会发现一个反直觉的事实：<strong>单靠「重叠遮挡」只能让人知道谁挡住了谁，却制造不出「悬浮感」</strong>；必须叠加上柔和投影或表面明度差，纸片才会真正离开底面浮起来。</p>
+        </div>
+
+        <div class="cue-lab" aria-label="四通道深度剥离器">
+          <div class="cue-stage" id="cue-stage" data-overlap="1" data-shadow="1" data-lift="1" data-scrim="1">
+            <div class="cue-bg-card">
+              <div class="cue-bg-dots" aria-hidden="true"></div>
+              <span class="cue-cap">背景层 · Z0</span>
+              <div class="cue-bg-bars" aria-hidden="true"><span></span><span></span><span></span></div>
+            </div>
+            <div class="cue-scrim" aria-hidden="true"></div>
+            <div class="cue-sec-card">
+              <span class="cue-tri-mini" aria-hidden="true"></span>
+              <span class="cue-cap-dark">次级层 · Z1</span>
+            </div>
+            <div class="cue-focus-card">
+              <span class="cue-dot-mini" aria-hidden="true"></span>
+              <strong>悬浮焦点卡</strong>
+              <span class="cue-sub">Z2 · 视觉落点</span>
+            </div>
+          </div>
+
+          <div class="cue-toggles" role="group" aria-label="深度线索开关">
+            <button type="button" class="cue-btn is-on" data-cue="overlap" aria-pressed="true">① 重叠跨界</button>
+            <button type="button" class="cue-btn is-on" data-cue="shadow" aria-pressed="true">② 三层投影</button>
+            <button type="button" class="cue-btn is-on" data-cue="lift" aria-pressed="true">③ 提亮与高光边</button>
+            <button type="button" class="cue-btn is-on" data-cue="scrim" aria-pressed="true">④ 背景压暗</button>
+          </div>
+
+          <p class="cue-verdict" id="cue-verdict">四项深度线索齐备：重叠宣告先后，投影拉出悬空距离，暖白提亮锁定焦点，压暗让背景安静退后。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 · 五类悬浮原语（浅青雾纸） ==================== -->
+  <section class="band band-mint" id="sec-02">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div>
+          <h2 class="sec-title">五类悬浮原语</h2>
+          <p class="sec-en" lang="en">OVERLAY TAXONOMY · LIVE MINI SANDBOX</p>
+        </div>
+      </header>
+
+      <p class="sec-intro">同样叫悬浮层，但「是否锁死背景」和「是否锚定触发按钮」决定了截然不同的交互契约。点按下方迷你工作台里的五个真实触发器，亲自试一遍点外关闭、遮罩拦截与按 <kbd>Esc</kbd> 退出的手感差异。</p>
+
+      <div class="sandbox-wrap">
+        <div class="sandbox-controls" role="group" aria-label="触发五类悬浮层">
+          <button type="button" class="sb-trigger is-active" data-overlay="popover">Popover 锚定浮卡</button>
+          <button type="button" class="sb-trigger" data-overlay="tooltip">Tooltip 轻提示</button>
+          <button type="button" class="sb-trigger" data-overlay="dropdown">Dropdown 下拉菜单</button>
+          <button type="button" class="sb-trigger" data-overlay="drawer">Drawer 侧滑抽屉</button>
+          <button type="button" class="sb-trigger" data-overlay="modal">Modal 模态弹窗</button>
+          <button type="button" class="sb-trigger" data-overlay="toast">Toast 轻通知</button>
+        </div>
+
+        <!-- 真能用的迷你应用视窗 -->
+        <div class="mini-app" id="mini-app" data-active="popover">
+          <div class="mini-topbar">
+            <span class="mini-brand">文档草稿 · 季度复盘.md</span>
+            <div class="mini-actions">
+              <button type="button" class="mini-anchor-btn" id="ma-btn-info">字数详情</button>
+              <button type="button" class="mini-anchor-btn" id="ma-btn-more">更多操作 ↓</button>
+              <button type="button" class="mini-anchor-btn is-accent" id="ma-btn-del">删除草稿</button>
+            </div>
+          </div>
+
+          <div class="mini-body" id="mini-body">
+            <div class="mini-doc-line w80"></div>
+            <div class="mini-doc-line w92"></div>
+            <div class="mini-doc-line w64"></div>
+            <p class="mini-bg-hint" id="mini-bg-hint">试试直接点这片底层文档区：非模态浮层会自动收起（轻关闭），而模态弹窗会由遮罩拦住点击。</p>
+            <div class="mini-doc-line w75"></div>
+          </div>
+
+          <!-- 遮罩（仅 Modal / Drawer 启用） -->
+          <div class="mini-scrim" id="mini-scrim" hidden></div>
+
+          <!-- Popover -->
+          <div class="ov-card ov-popover" id="ov-popover" role="region" aria-label="锚定浮卡示例">
+            <div class="ov-head"><strong>文档统计 · Popover</strong><button type="button" class="ov-close" data-close-ov aria-label="关闭">×</button></div>
+            <p>正文 1,840 字 · 预计阅读 4 分钟。紧贴触发按钮出现，不遮挡全文，点空白处即收起。</p>
+          </div>
+
+          <!-- Tooltip -->
+          <div class="ov-card ov-tooltip" id="ov-tooltip" role="tooltip" hidden>
+            快捷键 Ctrl + Shift + C · 仅承载极短说明，绝不放按钮
+          </div>
+
+          <!-- Dropdown -->
+          <div class="ov-card ov-dropdown" id="ov-dropdown" role="menu" hidden>
+            <button type="button" class="dd-item" data-dd="导出 PDF">导出 PDF 文档</button>
+            <button type="button" class="dd-item" data-dd="复制链接">复制协作链接</button>
+            <button type="button" class="dd-item" data-dd="归档草稿">移入归档箱</button>
+          </div>
+
+          <!-- Drawer -->
+          <div class="ov-card ov-drawer" id="ov-drawer" role="region" aria-label="侧滑抽屉示例" hidden>
+            <div class="ov-head"><strong>版本历史 · Drawer</strong><button type="button" class="ov-close" data-close-ov aria-label="关闭">×</button></div>
+            <p>从屏幕侧缘滑出，承载较长辅助列表，同时保留左侧文档上下文。</p>
+            <ul class="drawer-list">
+              <li>v2.4 · 刚刚 · 校准阴影阶梯</li>
+              <li>v2.3 · 昨天 · 补充 Top Layer</li>
+              <li>v2.2 · 上周 · 初稿完成</li>
+            </ul>
+          </div>
+
+          <!-- Modal -->
+          <div class="ov-card ov-modal" id="ov-modal" role="dialog" aria-modal="true" aria-label="模态确认示例" hidden>
+            <div class="ov-head"><strong>永久删除这篇草稿？</strong><button type="button" class="ov-close" data-close-ov aria-label="关闭">×</button></div>
+            <p>删除后无法恢复。模态层锁定底层交互并把键盘焦点留在窗内，迫使用户明确表态。</p>
+            <div class="ov-modal-foot">
+              <button type="button" class="ov-btn-ghost" data-close-ov>取消</button>
+              <button type="button" class="ov-btn-danger" data-close-ov>确认删除</button>
+            </div>
+          </div>
+
+          <!-- Toast -->
+          <div class="ov-card ov-toast" id="ov-toast" role="status" hidden>
+            <span>已保存至云端 · 3 秒后自动退场</span>
+            <button type="button" class="ov-toast-act" data-close-ov>撤销</button>
+          </div>
+        </div>
+
+        <!-- 实时规格卡 -->
+        <div class="spec-strip" id="spec-strip">
+          <div class="spec-cell">
+            <span class="spec-k">当前原语</span>
+            <strong class="spec-v" id="sp-name">Popover 锚定浮卡</strong>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-k">打断级别</span>
+            <strong class="spec-v" id="sp-modal">非模态（不锁背景）</strong>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-k">参考海拔（经验值）</span>
+            <strong class="spec-v" id="sp-dp">8dp · 轻投影无遮罩</strong>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-k">退出契约</span>
+            <strong class="spec-v" id="sp-exit">点外部或按 Esc 轻关闭</strong>
+          </div>
+        </div>
+      </div>
+
+      <p class="sibling-note">同小类界面原语各司其职：常规页面流靠 <a href="https://layout.xiaoxiaodong.ai/243/play/" target="_blank" rel="noopener">243 堆栈</a> 与 <a href="https://layout.xiaoxiaodong.ai/244/play/" target="_blank" rel="noopener">244 盒子</a> 排布，居中落位交给 <a href="https://layout.xiaoxiaodong.ai/245/play/" target="_blank" rel="noopener">245 居中器</a>，常驻分栏则应改用 <a href="https://layout.xiaoxiaodong.ai/247/play/" target="_blank" rel="noopener">247 侧栏原语</a> 而非抽屉浮层。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 03 · 为什么 9999 会输（深梅紫暗室） ==================== -->
+  <section class="band band-plum-dark" id="sec-03">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <div>
+          <h2 class="sec-title">为什么 9999 会输</h2>
+          <p class="sec-en" lang="en">STACKING CONTEXT TRAP &amp; TOP LAYER</p>
+        </div>
+      </header>
+
+      <div class="split-2">
+        <div class="prose">
+          <p class="lead">几乎每个前端开发者都写过 <code>z-index: 9999</code>，却眼睁睁看着下拉菜单依然被旁边一条 <code>z-index: 2</code> 的顶栏切掉一半。</p>
+          <p>原因不在数字不够大，而在 <strong>层叠上下文（Stacking Context）</strong>：<code>z-index</code> 不是全局海拔，而是<strong>局部房间里的楼层号</strong>。只要父容器触发了 <code>opacity &lt; 1</code>、<code>transform</code>、<code>filter</code> 或 <code>isolation: isolate</code>，父容器就会关上一扇独立的门——里面哪怕写 <code>999999</code>，对外依然只能按父容器的 <code>z-index: 1</code> 和兄弟节点 <code>z-index: 2</code> 排队。</p>
+          <p>现代浏览器给出的根治方案是原生 <strong>Top Layer（顶层）</strong>：通过 HTML <code>&lt;dialog&gt;.showModal()</code> 或 <code>popover</code> 属性，元素会彻底跳出 DOM 层叠上下文与 <code>overflow: hidden</code> 的牢笼，直接渲染在所有文档内容之上。</p>
+        </div>
+
+        <div class="trap-lab" aria-label="层叠上下文陷阱实测台">
+          <div class="trap-controls" role="group" aria-label="切换父容器陷阱">
+            <button type="button" class="trap-btn is-active" data-trap="transform">父级加 transform</button>
+            <button type="button" class="trap-btn" data-trap="opacity">父级 opacity: 0.99</button>
+            <button type="button" class="trap-btn" data-trap="overflow">父级 overflow: hidden</button>
+            <button type="button" class="trap-btn trap-free" data-trap="toplayer">移入 Top Layer 破狱</button>
+          </div>
+
+          <!-- 真实 DOM 层叠演示区 -->
+          <div class="trap-arena" id="trap-arena" data-trap="transform">
+            <div class="trap-sibling-bar">
+              <span class="trap-chip-b">兄弟顶栏 B · <code>z-index: 2</code></span>
+              <span class="trap-bar-meta">全局层叠上下文</span>
+            </div>
+
+            <div class="trap-parent-a" id="trap-parent-a">
+              <div class="trap-parent-head">
+                <span>父容器 A · <code>z-index: 1</code></span>
+                <code id="trap-css-badge">transform: translateZ(0)</code>
+              </div>
+              <div class="trap-dropdown-child" id="trap-dropdown-child">
+                <strong>悬浮菜单 · <code>z-index: 9999</code></strong>
+                <span>导出 PNG · 复制链接 · 分享</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="trap-readout" id="trap-readout">
+            <strong>已被锁死：</strong>父容器 A 因 <code>transform</code> 生成独立层叠上下文（权重 <code>z=1</code>），子菜单的 <code>9999</code> 出不了门，被权重 <code>z=2</code> 的兄弟顶栏 B 迎面切掉！
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 · 暗底与亮底的阴影（浅紫雾纸） ==================== -->
+  <section class="band band-lilac" id="sec-04">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div>
+          <h2 class="sec-title">暗底与亮底的阴影</h2>
+          <p class="sec-en" lang="en">LIGHT VS DARK ELEVATION OPTICS</p>
+        </div>
+      </header>
+
+      <p class="sec-intro">253 原海报本身就是暗紫底色，为什么三张卡片依然清清楚楚？因为在深色界面里，纯黑投影会迅速融进底色里。暗底悬浮层必须改用<strong>色调海拔（越近越亮）+ 1px 顶沿高光边</strong>来补足阴影的衰减。</p>
+
+      <div class="optics-deck">
+        <div class="optics-toolbar">
+          <div class="seg-group seg-light" role="group" aria-label="切换纸面底色">
+            <button type="button" class="seg-btn-l" data-theme="light">亮纸底面</button>
+            <button type="button" class="seg-btn-l is-active" data-theme="dark">暗梅紫底（原海报）</button>
+          </div>
+
+          <div class="seg-group seg-light" role="group" aria-label="选择海拔阶梯">
+            <button type="button" class="dp-step" data-dp="0">0dp</button>
+            <button type="button" class="dp-step" data-dp="2">2dp</button>
+            <button type="button" class="dp-step" data-dp="8">8dp</button>
+            <button type="button" class="dp-step is-active" data-dp="16">16dp</button>
+            <button type="button" class="dp-step" data-dp="24">24dp</button>
+          </div>
+
+          <button type="button" class="tonal-toggle is-on" id="btn-tonal" aria-pressed="true">色调海拔 + 1px 高光边：开</button>
+        </div>
+
+        <div class="optics-stage is-dark" id="optics-stage">
+          <div class="optics-card" id="optics-card">
+            <div class="optics-card-top">
+              <span class="optics-dp-tag" id="optics-dp-tag" lang="en">16dp · ELEVATION</span>
+              <span class="optics-cr-tag" id="optics-cr-tag">底面明度对比 2.4:1</span>
+            </div>
+            <strong class="optics-card-title">悬浮层表面样本</strong>
+            <p class="optics-card-desc" id="optics-card-desc">暗底中开启色调海拔后，卡片表面随高度同步提亮并勾出 1px 顶沿高光，即使投影减弱也能一眼辨清边界。</p>
+          </div>
+          <div class="optics-shadow-meter">
+            <div class="meter-row"><span>Umbra 本影</span><span id="m-umbra" lang="en">紧贴底缘 · 负扩展收束</span></div>
+            <div class="meter-row"><span>Penumbra 半影</span><span id="m-penumbra" lang="en">主光源定向柔扩散</span></div>
+            <div class="meter-row"><span>Ambient 环境光</span><span id="m-ambient" lang="en">漫反射微弱光晕</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 · 从哪来（暖瓷白纸） ==================== -->
+  <section class="band band-ivory" id="sec-05">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div>
+          <h2 class="sec-title">从哪来</h2>
+          <p class="sec-en" lang="en">LINEAGE · FROM XEROX ALTO TO TOP LAYER</p>
+        </div>
+      </header>
+
+      <p class="sec-intro">把界面拆成可以彼此覆盖的「纸片」，并非网页时代的发明——它沿着桌面隐喻、样式表、物理光影系统与浏览器原生顶层走了半个世纪。</p>
+
+      <div class="era-tabs" role="tablist" aria-label="悬浮层发展脉络">
+        <button type="button" class="era-tab is-active" role="tab" aria-selected="true" data-era="0">
+          <span class="era-yr" lang="en">1973–1976</span>
+          <strong>Alto 重叠窗口</strong>
+        </button>
+        <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="1">
+          <span class="era-yr" lang="en">1998</span>
+          <strong>CSS 2.0 层叠规范</strong>
+        </button>
+        <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="2">
+          <span class="era-yr" lang="en">2014</span>
+          <strong>Material 海拔体系</strong>
+        </button>
+        <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="3">
+          <span class="era-yr" lang="en">2022–2024</span>
+          <strong>原生 Top Layer</strong>
+        </button>
+      </div>
+
+      <div class="era-panel" id="era-panel">
+        <div class="era-copy">
+          <span class="era-kicker" id="era-kicker">XEROX PARC · SMALLTALK</span>
+          <h3 class="era-heading" id="era-heading">像桌上的纸片一样彼此重叠</h3>
+          <p class="era-text" id="era-text">在 1970 年代施乐帕洛阿尔托研究中心（Xerox PARC），Alan Kay 提出面向个人电脑的桌面隐喻，让多份文档像书桌上的纸页一样叠放；Dan Ingalls 在 Smalltalk-74 与 Smalltalk-76 中实现 BitBlt 位块传输算法，使高分辨率位图屏幕上的重叠窗口与弹出菜单得以流畅重绘。1979 年 12 月苹果团队参观演示后，随后由 Lisa 与 Macintosh 将重叠窗口推向大众。</p>
+          <p class="era-source" id="era-source">核实文献：Alan Kay, <em>The Early History of Smalltalk</em> (ACM HOPL-II, 1993) · <a href="https://computerhistory.org/" target="_blank" rel="noopener">Computer History Museum</a></p>
+        </div>
+        <div class="era-diagram" id="era-diagram" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 · 什么时候别用（淡玫瑰警示纸） ==================== -->
+  <section class="band band-rose" id="sec-06">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <div>
+          <h2 class="sec-title">什么时候别用</h2>
+          <p class="sec-en" lang="en">WHEN TO AVOID · FOUR ANTI-PATTERNS</p>
+        </div>
+      </header>
+
+      <p class="sec-intro">悬浮层越顺手，越容易被当成「塞不下就弹窗」的懒惰逃生舱。点按下方每张卡片的改造按钮，看看把失控悬浮层撤回常规版式后的清爽变化。</p>
+
+      <div class="anti-grid">
+        <article class="anti-card" data-fixed="0">
+          <div class="anti-visual anti-v1" aria-hidden="true">
+            <div class="av-layer av-b1"></div>
+            <div class="av-layer av-b2"></div>
+            <div class="av-layer av-b3"></div>
+          </div>
+          <div class="anti-body">
+            <div class="anti-top">
+              <h3>弹窗里再弹弹窗</h3>
+              <button type="button" class="anti-btn">看稳妥改法</button>
+            </div>
+            <p class="anti-desc">两层遮罩叠加会让屏幕彻底漆黑，用户搞不清点一次「关闭」会退回上一张卡还是直接丢掉全部编辑。</p>
+          </div>
+        </article>
+
+        <article class="anti-card" data-fixed="0">
+          <div class="anti-visual anti-v2" aria-hidden="true">
+            <div class="av-page-lines"><span></span><span></span><span></span></div>
+            <div class="av-popup-block">立即订阅！</div>
+          </div>
+          <div class="anti-body">
+            <div class="anti-top">
+              <h3>无触发首屏拦路</h3>
+              <button type="button" class="anti-btn">看稳妥改法</button>
+            </div>
+            <p class="anti-desc">读者刚进页面还没看到底层内容，就用强模态遮罩拦住视线，没有「背景承托」的悬浮层只会被条件反射秒关。</p>
+          </div>
+        </article>
+
+        <article class="anti-card" data-fixed="0">
+          <div class="anti-visual anti-v3" aria-hidden="true">
+            <div class="av-scroll-modal">
+              <span></span><span></span><span></span><span></span><span></span>
+              <i class="av-scrollbar"></i>
+            </div>
+          </div>
+          <div class="anti-body">
+            <div class="anti-top">
+              <h3>长表单塞进窄浮层</h3>
+              <button type="button" class="anti-btn">看稳妥改法</button>
+            </div>
+            <p class="anti-desc">超过 6 项填写或需要对比资料的任务塞进弹窗，会引发双滚动条，误点遮罩还易丢失输入——应改为独立页面或 <a href="https://layout.xiaoxiaodong.ai/243/play/" target="_blank" rel="noopener">243 堆栈</a>。</p>
+          </div>
+        </article>
+
+        <article class="anti-card" data-fixed="0">
+          <div class="anti-visual anti-v4" aria-hidden="true">
+            <div class="av-phone">
+              <div class="av-fab av-fab-1"></div>
+              <div class="av-fab av-fab-2"></div>
+              <div class="av-fab av-fab-3"></div>
+            </div>
+          </div>
+          <div class="anti-body">
+            <div class="anti-top">
+              <h3>手机窄屏叠满浮件</h3>
+              <button type="button" class="anti-btn">看稳妥改法</button>
+            </div>
+            <p class="anti-desc">390px 宽的手机屏同时漂浮吸底条、客服球与推广横幅，正文被挤成窄缝——多组操作应收束为单一底栏或 <a href="https://layout.xiaoxiaodong.ai/252/play/" target="_blank" rel="noopener">252 横向卷轴</a>。</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 · 小练习（深梅紫暗室） ==================== -->
+  <section class="band band-plum-dark" id="sec-07">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div>
+          <h2 class="sec-title">小练习：一眼辨层</h2>
+          <p class="sec-en" lang="en">QUICK CHECK · SINGLE-VARIABLE DIAGNOSIS</p>
+        </div>
+      </header>
+
+      <p class="quiz-prompt">场景：一款深梅紫暗色协作工具中，用户点击「删除项目」后弹出高危确认悬浮层。下方四套方案的文案、按钮顺序、尺寸与位置<strong>完全一致</strong>，只差「海拔投影、表面明度与背景遮罩」这一组深度变量——哪一套同时守住了<strong>悬浮焦点</strong>与<strong>背景承托</strong>？</p>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四选一深度诊断">
+        <!-- 方案 A（正确：暖白焦点 + 18dp 柔和投影 + 42% 适度遮罩，次层语境清晰可辨） -->
+        <button type="button" class="quiz-card" data-choice="A">
+          <span class="quiz-label">方案 A</span>
+          <div class="qm-scene qm-a" aria-hidden="true">
+            <div class="qm-bg"></div>
+            <div class="qm-sec"></div>
+            <div class="qm-scrim"></div>
+            <div class="qm-modal">
+              <span class="qm-dot"></span>
+              <span class="qm-t1"></span>
+              <span class="qm-t2"></span>
+              <span class="qm-btns"><i></i><b></b></span>
+            </div>
+          </div>
+        </button>
+
+        <!-- 方案 B（错：暗紫低反差 + 36dp 脏雾大影） -->
+        <button type="button" class="quiz-card" data-choice="B">
+          <span class="quiz-label">方案 B</span>
+          <div class="qm-scene qm-b" aria-hidden="true">
+            <div class="qm-bg"></div>
+            <div class="qm-sec"></div>
+            <div class="qm-scrim"></div>
+            <div class="qm-modal">
+              <span class="qm-dot"></span>
+              <span class="qm-t1"></span>
+              <span class="qm-t2"></span>
+              <span class="qm-btns"><i></i><b></b></span>
+            </div>
+          </div>
+        </button>
+
+        <!-- 方案 C（错：遮罩 94% 实黑，切断背景承托） -->
+        <button type="button" class="quiz-card" data-choice="C">
+          <span class="quiz-label">方案 C</span>
+          <div class="qm-scene qm-c" aria-hidden="true">
+            <div class="qm-bg"></div>
+            <div class="qm-sec"></div>
+            <div class="qm-scrim"></div>
+            <div class="qm-modal">
+              <span class="qm-dot"></span>
+              <span class="qm-t1"></span>
+              <span class="qm-t2"></span>
+              <span class="qm-btns"><i></i><b></b></span>
+            </div>
+          </div>
+        </button>
+
+        <!-- 方案 D（错：次级侧栏同样提亮并抬升至 18dp，双浮层争焦） -->
+        <button type="button" class="quiz-card" data-choice="D">
+          <span class="quiz-label">方案 D</span>
+          <div class="qm-scene qm-d" aria-hidden="true">
+            <div class="qm-bg"></div>
+            <div class="qm-sec"></div>
+            <div class="qm-scrim"></div>
+            <div class="qm-modal">
+              <span class="qm-dot"></span>
+              <span class="qm-t1"></span>
+              <span class="qm-t2"></span>
+              <span class="qm-btns"><i></i><b></b></span>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <div class="quiz-feedback" id="quiz-feedback" aria-live="polite">
+        请选择上面四套方案中的一项，提交后会逐条拆解它的视觉深度表现。
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 08 · 原海报与关键词（深梅紫展墙） ==================== -->
+  <section class="band band-gallery" id="sec-08">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-num" lang="en">08</span>
+        <div>
+          <h2 class="sec-title">原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER · NO. 253</p>
+        </div>
+      </header>
+
+      <div class="gallery-grid">
+        <div class="poster-frame">
+          <button type="button" class="poster-open-btn" id="poster-open-btn" aria-label="点击放大查看原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="253 悬浮层原海报" draggable="false">
+            <span class="poster-zoom-tip">点击放大查看 · 支持拖拽与 Esc 退出</span>
+          </button>
+        </div>
+
+        <div class="gallery-meta">
+          <h3>原海报原文与关键词</h3>
+          <div class="kw-pills">
+            <span class="kw-pill kw-mint"><strong>层级叠加</strong> <em lang="en">OVERLAY</em></span>
+            <span class="kw-pill kw-pink"><strong>悬浮焦点</strong> <em lang="en">EMPHASIS</em></span>
+            <span class="kw-pill kw-lav"><strong>背景承托</strong> <em lang="en">SUPPORT</em></span>
+          </div>
+
+          <blockquote class="poster-quotes">
+            <p>「重要信息 · 在悬浮层中突出 · FOCUS CONTENT」</p>
+            <p>「辅助信息 · 次要内容置于突层（勘误：次层）· SECONDARY CONTENT」</p>
+            <p lang="en">OVERLAY · DEPTH · EMPHASIS</p>
+          </blockquote>
+
+          <h3>同小类「布局原语」延伸</h3>
+          <p class="related-list">
+            想把悬浮层装回完整的网页骨架，可继续看同小类其他原语：
+            <a href="https://layout.xiaoxiaodong.ai/243/play/" target="_blank" rel="noopener">243 堆栈</a>（纵向节奏）、
+            <a href="https://layout.xiaoxiaodong.ai/244/play/" target="_blank" rel="noopener">244 盒子</a>（内边距边界）、
+            <a href="https://layout.xiaoxiaodong.ai/245/play/" target="_blank" rel="noopener">245 居中器</a>（主栏收束）、
+            <a href="https://layout.xiaoxiaodong.ai/246/play/" target="_blank" rel="noopener">246 簇群</a>（行内标签流）、
+            <a href="https://layout.xiaoxiaodong.ai/247/play/" target="_blank" rel="noopener">247 侧栏原语</a>（自适应双栏）、
+            <a href="https://layout.xiaoxiaodong.ai/248/play/" target="_blank" rel="noopener">248 切换器</a>（横竖临界折行）、
+            <a href="https://layout.xiaoxiaodong.ai/249/play/" target="_blank" rel="noopener">249 封面原语</a>（首屏垂直定锚）、
+            <a href="https://layout.xiaoxiaodong.ai/250/play/" target="_blank" rel="noopener">250 自适应网格原语</a>（等宽流式网格）、
+            <a href="https://layout.xiaoxiaodong.ai/251/play/" target="_blank" rel="noopener">251 比例框</a>（锁定媒体画幅）、
+            <a href="https://layout.xiaoxiaodong.ai/252/play/" target="_blank" rel="noopener">252 横向卷轴</a>（单轨视窗横滑）与
+            <a href="https://layout.xiaoxiaodong.ai/254/play/" target="_blank" rel="noopener">254 图标文字组合</a>（图文基线对齐）。
+          </p>
+
+          <h3>参考标准与延伸核实</h3>
+          <ul class="ref-links">
+            <li><a href="https://www.w3.org/TR/1998/REC-CSS2-19980512/visuren.html#layers" target="_blank" rel="noopener">W3C CSS 2.0 (1998) — Section 9.9 Layered presentation</a></li>
+            <li><a href="https://m2.material.io/design/environment/elevation.html" target="_blank" rel="noopener">Google Material Design — Elevation &amp; Shadows</a></li>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Popover_API" target="_blank" rel="noopener">MDN Web Docs — Popover API &amp; Top Layer</a></li>
+            <li><a href="https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/" target="_blank" rel="noopener">W3C WAI-ARIA APG — Dialog (Modal) Pattern</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <span><a href="https://layout.xiaoxiaodong.ai/253/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a></span>
+    <span>海报 CC BY 4.0</span>
+    <span><a href="https://github.com/xxd-ai/350-layout-redesign" target="_blank" rel="noopener">源文件 GitHub</a></span>
+  </div>
+</footer>
+
+<!-- 原生 <dialog> Top Layer 原海报放大灯箱（本身就是悬浮层标准示范） -->
+<dialog id="lightbox" class="lightbox" aria-label="原海报放大查看">
+  <div class="lb-bar">
+    <span class="lb-title">253 悬浮层 · 原海报（可拖动平移）</span>
+    <div class="lb-tools">
+      <button type="button" class="lb-btn" id="lb-out" aria-label="缩小">−</button>
+      <button type="button" class="lb-btn" id="lb-reset">100%</button>
+      <button type="button" class="lb-btn" id="lb-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lb-viewport">
+    <img id="lb-img" alt="253 悬浮层原海报放大图" draggable="false">
+  </div>
+</dialog>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
