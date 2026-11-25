@@ -16,7 +16,7 @@ const OUT = join(ROOT, ".build/batch");
 mkdirSync(OUT, { recursive: true });
 
 const MODEL = process.env.MODEL || "gemini-4-neon-xhigh";
-const WORKERS = Number(process.env.WORKERS || 6);
+const WORKERS = Number(process.env.WORKERS || 8);
 const ATTEMPTS = 4;
 const REVIEWS = 2;
 const CLAUDE = "/opt/homebrew/bin/claude";
@@ -55,7 +55,7 @@ async function prompt(id, retry, stage = "build") {
       : retry?.plan
       ? `\n方案已经写在 pages/${pageDir(id)}/PLAN.md。主编看过方案，意见如下；先按意见改好 PLAN.md，再照方案把整页做完：\n${retry.tail}`
       : retry?.review
-      ? `\n这一页已经做出来了，在 pages/${pageDir(id)}/。${retry.reason}，下面是主编的意见。逐条改好（改不了的在报告里说明为什么），不要从零重写；改完照 BRIEF 的「做完的标准」重新 build、check、看截图、跑交互脚本和 perf：\n${retry.tail}`
+      ? `\n这一页已经做出来了，在 pages/${pageDir(id)}/。${retry.reason}，下面是主编的意见。逐条改好（改不了的在报告里说明为什么），不要从零重写。改完 build + check，看和这几条有关的截图；改了交互才重跑交互脚本，改了动画或 3D 才重跑 perf（提交前批量自己还会完整查一遍、测一次帧率）：\n${retry.tail}`
       : retry ? `\n这一页上次没有做完：${retry.reason}。pages/${pageDir(id) ?? `${id}-*`}/ 里是上次留下的东西，先看懂再接着做完，不要从零重写能用的部分。上次检查输出的最后几行：\n${retry.tail}` : "",
     `做完写报告，最后一行写「完成」。`,
   ].filter(Boolean).join("\n");
