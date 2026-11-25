@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>227 网格布局 · GRID LAYOUT</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero" id="top">
+    <div class="hero-meta">
+      <span class="meta-cat"><span class="meta-sq" aria-hidden="true"></span>网页与 UI / CSS 流、定位与响应</span>
+      <span class="meta-id">NO. 227 · GRID LAYOUT</span>
+    </div>
+
+    <div class="bp-frame">
+      <!-- Row 1: Poster-inspired split header (Title on modular grid | Solid Yellow Diagnosis & Live CSS) -->
+      <div class="bp-head">
+        <div class="bp-title-cell">
+          <div class="title-grid-wrap" aria-label="网格布局">
+            <div class="title-ruler" aria-hidden="true">
+              <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+            </div>
+            <h1 class="hero-title">
+              <span class="t-ch">网</span><span class="t-ch">格</span><span class="t-ch">布</span><span class="t-ch">局</span>
+            </h1>
+          </div>
+          <div class="hero-subrow">
+            <span class="hero-en">GRID LAYOUT</span>
+            <p class="hero-summary">用网格建立秩序，让信息更清晰、更高效地传达。</p>
+          </div>
+        </div>
+
+        <aside class="bp-diag-cell" id="hero-diag" aria-live="polite">
+          <div class="diag-top">
+            <span class="diag-badge" id="diag-badge">错态 · 区域重叠</span>
+            <span class="diag-score" id="diag-score">0 / 4 秩序项</span>
+            <div class="dot-matrix" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <h2 class="diag-verdict" id="diag-verdict">主视觉与正文栏重叠 2 格，内容互压</h2>
+          <p class="diag-why" id="diag-why">CSS Grid 允许显式跨区重叠，但未刻意设计时文字与主图会直接撞车。先拖动蓝图里的区域或使用坐标钮消掉红斜纹，再拉直顶部轨道比例。</p>
+          <code class="diag-css" id="diag-css">grid-template-columns: repeat(2, 1.50fr) repeat(4, 0.75fr); gap: 0px;</code>
+        </aside>
+      </div>
+
+      <!-- Row 2: Main 2D Blueprint Grid Composer | Coordinate Console -->
+      <div class="bp-main">
+        <div class="bp-stage-cell">
+          <!-- Top Track Ratio Ruler with draggable yellow Line-3 T-square handle -->
+          <div class="ruler-wrap">
+            <div class="ruler-corner" aria-hidden="true">6×4</div>
+            <div class="ruler-rail" id="track-ruler">
+              <div class="ruler-cols" id="ruler-cols" aria-hidden="true">
+                <span class="rc" data-col="1">1</span>
+                <span class="rc" data-col="2">2</span>
+                <span class="rc" data-col="3">3</span>
+                <span class="rc" data-col="4">4</span>
+                <span class="rc" data-col="5">5</span>
+                <span class="rc" data-col="6">6</span>
+              </div>
+              <button
+                type="button"
+                class="track-handle"
+                id="track-handle"
+                data-perf-drag
+                role="slider"
+                aria-label="左右拖动第 3 轨线调整左翼与右翼列宽比例"
+                aria-valuemin="18"
+                aria-valuemax="56"
+                aria-valuenow="50"
+              >
+                <svg class="th-ico" viewBox="0 0 14 10" aria-hidden="true"><path d="M5 1L1 5l4 4M9 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg>
+                <span class="th-val" id="track-ratio-readout">2.00×</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Left Row Numbers + Live 6x4 CSS Grid + Synchronized 2D Canvas Blueprint Layer -->
+          <div class="board-shell">
+            <div class="row-ruler" id="row-ruler" aria-hidden="true">
+              <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+            </div>
+
+            <div class="board-viewport" id="board-viewport">
+              <canvas class="bp-canvas" id="bp-canvas" aria-hidden="true"></canvas>
+
+              <div class="bp-grid" id="bp-grid">
+                <div class="bp-zone z-nav" data-zone="nav" tabindex="0" role="button" aria-label="01 导览栏，选中后可拖动或用坐标控件调整">
+                  <div class="z-bar">
+                    <span class="z-tag">01 导览栏</span>
+                    <span class="z-coord" data-coord="nav">1/2 · 4/5</span>
+                  </div>
+                  <div class="z-skel" aria-hidden="true">
+                    <span class="sk-line sk-w70"></span>
+                    <span class="sk-line sk-w55"></span>
+                    <span class="sk-line sk-w62"></span>
+                  </div>
+                  <span class="z-resize" data-resize="nav" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2 10L10 2M6 2h4v4M6 10H2V6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></span>
+                </div>
+
+                <div class="bp-zone z-hero is-selected" data-zone="hero" tabindex="0" role="button" aria-label="02 主视觉，选中后可拖动或用坐标控件调整">
+                  <div class="z-bar">
+                    <span class="z-tag">02 主视觉</span>
+                    <span class="z-coord" data-coord="hero">1/5 · 1/3</span>
+                  </div>
+                  <div class="z-skel z-skel-hero" aria-hidden="true">
+                    <span class="sk-title"></span>
+                    <span class="sk-line sk-w65"></span>
+                  </div>
+                  <span class="z-resize" data-resize="hero" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2 10L10 2M6 2h4v4M6 10H2V6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></span>
+                </div>
+
+                <div class="bp-zone z-main" data-zone="main" tabindex="0" role="button" aria-label="03 正文栏，选中后可拖动或用坐标控件调整">
+                  <div class="z-bar">
+                    <span class="z-tag">03 正文栏</span>
+                    <span class="z-coord" data-coord="main">3/7 · 2/4</span>
+                  </div>
+                  <div class="z-skel" aria-hidden="true">
+                    <span class="sk-line sk-w90"></span>
+                    <span class="sk-line sk-w82"></span>
+                    <span class="sk-line sk-w74"></span>
+                  </div>
+                  <span class="z-resize" data-resize="main" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2 10L10 2M6 2h4v4M6 10H2V6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></span>
+                </div>
+
+                <div class="bp-zone z-aside" data-zone="aside" tabindex="0" role="button" aria-label="04 侧注卡，选中后可拖动或用坐标控件调整">
+                  <div class="z-bar">
+                    <span class="z-tag">04 侧注</span>
+                    <span class="z-coord" data-coord="aside">6/7 · 4/5</span>
+                  </div>
+                  <div class="z-skel z-skel-aside" aria-hidden="true">
+                    <span class="sk-line sk-w70"></span>
+                    <span class="sk-line sk-w45"></span>
+                  </div>
+                  <span class="z-resize" data-resize="aside" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2 10L10 2M6 2h4v4M6 10H2V6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="board-foot">
+            <span class="bf-hint">拖顶栏鹅黄块调列轨比例 · 拖区内移位或拖右下角手柄跨列跨行</span>
+            <span class="bf-metrics" id="board-metrics">重叠 2 格 · 覆盖 16/24 格 · 轨比 2.00×</span>
+          </div>
+        </div>
+
+        <!-- Coordinate & Rule Console -->
+        <div class="bp-console-cell">
+          <div class="con-block">
+            <div class="con-head">
+              <span class="con-label">选中区域 · ZONE</span>
+              <span class="con-code" id="sel-css-area">col 1/5 · row 1/3</span>
+            </div>
+            <div class="zone-tabs" role="tablist" aria-label="选择要编辑的网格区域">
+              <button type="button" class="zt-btn" data-sel="nav" role="tab" aria-selected="false">01 导览</button>
+              <button type="button" class="zt-btn is-active" data-sel="hero" role="tab" aria-selected="true">02 主视觉</button>
+              <button type="button" class="zt-btn" data-sel="main" role="tab" aria-selected="false">03 正文</button>
+              <button type="button" class="zt-btn" data-sel="aside" role="tab" aria-selected="false">04 侧注</button>
+            </div>
+          </div>
+
+          <div class="con-block">
+            <div class="con-head">
+              <span class="con-label">二维线号微调 · 位置与跨格</span>
+              <span class="con-val" id="sel-span-val">4 列 × 2 行</span>
+            </div>
+            <div class="coord-grid">
+              <div class="cg-group">
+                <span class="cg-name">移位</span>
+                <div class="cg-btns">
+                  <button type="button" class="c-btn" data-act="left" aria-label="向左移动一列"><svg class="arr-ico" viewBox="0 0 14 14" aria-hidden="true"><path d="M9 3L5 7l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg></button>
+                  <button type="button" class="c-btn" data-act="right" aria-label="向右移动一列"><svg class="arr-ico" viewBox="0 0 14 14" aria-hidden="true"><path d="M5 3l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg></button>
+                  <button type="button" class="c-btn" data-act="up" aria-label="向上移动一行"><svg class="arr-ico" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 9l4-4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg></button>
+                  <button type="button" class="c-btn" data-act="down" aria-label="向下移动一行"><svg class="arr-ico" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg></button>
+                </div>
+              </div>
+              <div class="cg-group">
+                <span class="cg-name">列跨</span>
+                <div class="cg-btns">
+                  <button type="button" class="c-btn" data-act="cw-" aria-label="减少一列跨度">列−</button>
+                  <button type="button" class="c-btn" data-act="cw+" aria-label="增加一列跨度">列+</button>
+                </div>
+              </div>
+              <div class="cg-group">
+                <span class="cg-name">行跨</span>
+                <div class="cg-btns">
+                  <button type="button" class="c-btn" data-act="rh-" aria-label="减少一行跨度">行−</button>
+                  <button type="button" class="c-btn" data-act="rh+" aria-label="增加一行跨度">行+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="con-block">
+            <div class="con-head">
+              <span class="con-label">沟槽间距 · GAP</span>
+              <span class="con-val" id="gap-val">0px（粘连）</span>
+            </div>
+            <div class="gap-pills" role="group" aria-label="选择网格沟槽间距">
+              <button type="button" class="g-btn is-active" data-gap="0">0px</button>
+              <button type="button" class="g-btn" data-gap="8">8px</button>
+              <button type="button" class="g-btn" data-gap="16">16px</button>
+              <button type="button" class="g-btn" data-gap="28">28px</button>
+            </div>
+          </div>
+
+          <div class="con-block con-actions">
+            <button type="button" class="act-btn act-wire" id="btn-wire" aria-pressed="false">隐形秩序：关</button>
+            <button type="button" class="act-btn" id="btn-broken">换个错版 (1/3)</button>
+            <button type="button" class="act-btn" id="btn-reset">复原错态</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Poster 227's Five Core Pillar Strip (live illuminated) -->
+      <div class="bp-pillars" id="bp-pillars" aria-label="原海报五项网格核心指标实时核验">
+        <div class="pillar" data-pillar="tracks">
+          <svg class="p-ico" viewBox="0 0 36 32" aria-hidden="true">
+            <rect x="3" y="3" width="5" height="26"/><rect x="11" y="3" width="5" height="26"/><rect x="19" y="3" width="5" height="26"/><rect x="27" y="3" width="5" height="26"/>
+          </svg>
+          <div class="p-txt">
+            <strong>轨道</strong><span>TRACKS</span>
+          </div>
+          <em class="p-st" data-pst="tracks">偏斜</em>
+        </div>
+        <div class="pillar" data-pillar="zones">
+          <svg class="p-ico" viewBox="0 0 36 32" aria-hidden="true">
+            <rect x="3" y="3" width="30" height="26" fill="none" stroke="currentColor" stroke-width="2.5"/>
+            <line x1="3" y1="14" x2="33" y2="14" stroke="currentColor" stroke-width="2.5"/>
+            <line x1="17" y1="3" x2="17" y2="14" stroke="currentColor" stroke-width="2.5"/>
+          </svg>
+          <div class="p-txt">
+            <strong>区域</strong><span>ZONES</span>
+          </div>
+          <em class="p-st" data-pst="zones">重叠</em>
+        </div>
+        <div class="pillar" data-pillar="modules">
+          <svg class="p-ico" viewBox="0 0 36 32" aria-hidden="true">
+            <rect x="4" y="3" width="8" height="7"/><rect x="14" y="3" width="8" height="7"/><rect x="24" y="3" width="8" height="7"/>
+            <rect x="4" y="12.5" width="8" height="7"/><rect x="14" y="12.5" width="8" height="7"/><rect x="24" y="12.5" width="8" height="7"/>
+            <rect x="4" y="22" width="8" height="7"/><rect x="14" y="22" width="8" height="7"/><rect x="24" y="22" width="8" height="7"/>
+          </svg>
+          <div class="p-txt">
+            <strong>模块</strong><span>MODULES</span>
+          </div>
+          <em class="p-st" data-pst="modules">漏洞</em>
+        </div>
+        <div class="pillar" data-pillar="spacing">
+          <svg class="p-ico" viewBox="0 0 36 32" aria-hidden="true">
+            <rect x="11" y="9" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"/>
+            <line x1="3" y1="9" x2="33" y2="9" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
+            <line x1="3" y1="23" x2="33" y2="23" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
+            <line x1="11" y1="2" x2="11" y2="30" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
+            <line x1="25" y1="2" x2="25" y2="30" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/>
+          </svg>
+          <div class="p-txt">
+            <strong>间距</strong><span>SPACING</span>
+          </div>
+          <em class="p-st" data-pst="spacing">粘连</em>
+        </div>
+        <div class="pillar" data-pillar="order">
+          <svg class="p-ico" viewBox="0 0 36 32" aria-hidden="true">
+            <circle cx="6" cy="7" r="2.6"/><rect x="12" y="5" width="21" height="4"/>
+            <circle cx="6" cy="16" r="2.6"/><rect x="12" y="14" width="21" height="4"/>
+            <circle cx="6" cy="25" r="2.6"/><rect x="12" y="23" width="21" height="4"/>
+          </svg>
+          <div class="p-txt">
+            <strong>秩序</strong><span>ORDER</span>
+          </div>
+          <em class="p-st" data-pst="order">待立</em>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- SECTION 01: Tracks & Grid Lines -->
+    <section class="sec sec-ice" id="sec-01">
+      <div class="sec-in">
+        <div class="sec-head">
+          <span class="sec-no">01</span>
+          <div class="sec-titles">
+            <h2>轨道与线号，二维的骨架</h2>
+            <p class="sec-en">TRACKS &amp; GRID LINES · 2D COORDINATE SYSTEM</p>
+          </div>
+        </div>
+
+        <div class="sec-split">
+          <div class="prose">
+            <blockquote class="poster-quote">
+              <span class="pq-kicker">原海报 · 轨道 TRACKS</span>
+              <p>「建立垂直基准线，对齐内容边缘。」</p>
+              <span class="pq-note">说窄了一点</span>
+            </blockquote>
+            <p>印刷书刊常先立竖向分栏线，所以海报把轨道概括成「垂直基准线」。到了网页的 CSS Grid，核心突破在于<strong>把垂直列轨与水平行轨放进同一张坐标系</strong>：两条相邻网格线之间才叫一条轨道（Track），而内容块不是按「第几格」定位，而是按<strong>起止线号</strong>（<code>1</code> 到 <code>N+1</code>，末尾可用 <code>-1</code> 倒数）卡死边界。</p>
+            <p>也正因如此，网格和 <a href="https://layout.xiaoxiaodong.ai/226/play/" target="_blank" rel="noopener">226 弹性盒布局</a> 分工清晰：弹性盒一次只管一条轴，换行后的第二行管不着第一列的宽窄；网格则让上下两行天生共用同一批列线。其中最关键的单位是 <code>fr</code>（fraction）——它只瓜分扣除固定像素与 <code>gap</code> 之后的<strong>剩余自由空间</strong>。</p>
+          </div>
+
+          <div class="lab-box lab-light" id="s1-lab">
+            <div class="lab-bar">
+              <span class="lab-title">轨道公式实测台 · 真实 DOM 列宽</span>
+              <span class="lab-read" id="s1-width-read">容器宽 640px</span>
+            </div>
+
+            <div class="s1-presets" role="group" aria-label="选择 CSS 列轨模板公式">
+              <button type="button" class="s1-btn is-active" data-s1="equal">1fr 1fr 1fr</button>
+              <button type="button" class="s1-btn" data-s1="fixed">120px 1fr 1fr</button>
+              <button type="button" class="s1-btn" data-s1="minmax">minmax(96px,1fr) 2fr 1fr</button>
+              <button type="button" class="s1-btn" data-s1="autofit">auto-fit, minmax(112px,1fr)</button>
+            </div>
+
+            <div class="s1-slider-row">
+              <label for="s1-range">缩放容器宽度</label>
+              <input type="range" id="s1-range" min="52" max="100" value="100" step="2">
+              <span class="mono-num" id="s1-range-val">100%</span>
+            </div>
+
+            <div class="s1-stage-wrap">
+              <div class="s1-ruler-lines" id="s1-lines" aria-hidden="true"></div>
+              <div class="s1-grid" id="s1-grid">
+                <div class="s1-cell"><strong>列 1</strong><span class="s1-px" data-s1px="0">--px</span></div>
+                <div class="s1-cell s1-cell-accent"><strong>列 2</strong><span class="s1-px" data-s1px="1">--px</span></div>
+                <div class="s1-cell"><strong>列 3</strong><span class="s1-px" data-s1px="2">--px</span></div>
+              </div>
+            </div>
+
+            <p class="lab-note" id="s1-note">三条 <code>1fr</code> 均分扣掉 2 条 12px 沟槽后的剩余宽度；容器缩窄时三列同比例收缩，边界始终压齐。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 02: Three Grid Archetypes -->
+    <section class="sec sec-cobalt" id="sec-02">
+      <div class="sec-in">
+        <div class="sec-head">
+          <span class="sec-no sec-no-y">02</span>
+          <div class="sec-titles">
+            <h2>三种网格，三种叙事节奏</h2>
+            <p class="sec-en">COLUMN · MODULAR · HIERARCHICAL</p>
+          </div>
+        </div>
+
+        <p class="sec-lead">原海报把「区域 ZONES（划分内容区域，明确信息层级）」和「模块 MODULES（组成内容单元，灵活组合变化）」汇成三类常见网格。点选下方原海报同款线框标，看<strong>同一批五块新闻专题内容</strong>如何改变阅读节奏；再切开「蓝图骨架」，一眼看清表象之下的共享轨道。</p>
+
+        <div class="s2-controls">
+          <div class="s2-archetypes" role="tablist" aria-label="切换三种常见网格类型">
+            <button type="button" class="arch-card is-active" data-arch="column" role="tab" aria-selected="true">
+              <svg class="arch-ico" viewBox="0 0 44 36" aria-hidden="true">
+                <rect x="2" y="2" width="40" height="32" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                <rect x="5" y="4" width="6" height="28" fill="currentColor" opacity="0.72"/>
+                <rect x="14" y="4" width="6" height="28" fill="currentColor" opacity="0.72"/>
+                <rect x="23" y="4" width="6" height="28" fill="currentColor" opacity="0.72"/>
+                <rect x="32" y="4" width="7" height="28" fill="currentColor" opacity="0.72"/>
+              </svg>
+              <span class="arch-txt"><strong>列网格</strong><small>COLUMN GRID</small></span>
+            </button>
+
+            <button type="button" class="arch-card" data-arch="modular" role="tab" aria-selected="false">
+              <svg class="arch-ico" viewBox="0 0 44 36" aria-hidden="true">
+                <rect x="2" y="2" width="40" height="32" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                <line x1="15.3" y1="2" x2="15.3" y2="34" stroke="currentColor" stroke-width="1.4"/>
+                <line x1="28.6" y1="2" x2="28.6" y2="34" stroke="currentColor" stroke-width="1.4"/>
+                <line x1="2" y1="12.6" x2="42" y2="12.6" stroke="currentColor" stroke-width="1.4"/>
+                <line x1="2" y1="23.3" x2="42" y2="23.3" stroke="currentColor" stroke-width="1.4"/>
+              </svg>
+              <span class="arch-txt"><strong>模块网格</strong><small>MODULAR GRID</small></span>
+            </button>
+
+            <button type="button" class="arch-card" data-arch="hierarchical" role="tab" aria-selected="false">
+              <svg class="arch-ico" viewBox="0 0 44 36" aria-hidden="true">
+                <rect x="2" y="2" width="40" height="32" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                <line x1="26" y1="2" x2="26" y2="34" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="2" y1="21" x2="42" y2="21" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="26" y1="11" x2="42" y2="11" stroke="currentColor" stroke-width="1.2"/>
+              </svg>
+              <span class="arch-txt"><strong>层级网格</strong><small>HIERARCHICAL GRID</small></span>
+            </button>
+          </div>
+
+          <button type="button" class="wire-toggle" id="s2-xray" aria-pressed="false">蓝图骨架透视：关</button>
+        </div>
+
+        <div class="s2-stage-frame">
+          <div class="s2-demo is-column" id="s2-demo">
+            <article class="s2-item s2-a">
+              <span class="s2-k">01 主专题 · FEATURE</span>
+              <h3>港口旧仓的模块化改造</h3>
+              <p>十二组钢梁柱网先定死跨度，展厅、书店与阶梯剧场才能在三十年间反复重组而不伤结构。</p>
+            </article>
+            <article class="s2-item s2-b">
+              <span class="s2-k">02 评述 · ESSAY</span>
+              <h3>为何秩序先于装饰</h3>
+              <p>当读者两秒内找到主副关系，版面才算替内容省力。</p>
+            </article>
+            <article class="s2-item s2-c">
+              <span class="s2-k">03 索引 · INDEX</span>
+              <h3>六期档案目录</h3>
+              <p>建筑 / 导视 / 报刊 / 字体 / 界面 / 展览</p>
+            </article>
+            <article class="s2-item s2-d">
+              <span class="s2-k">04 简讯 · BRIEF</span>
+              <h3>秋季刊样书抵馆</h3>
+              <p>周五起开放三楼阅览室实地翻阅。</p>
+            </article>
+            <article class="s2-item s2-e">
+              <span class="s2-k">05 编注 · NOTE</span>
+              <h3>本期基准参数</h3>
+              <p>6 列 · 16px 沟槽</p>
+            </article>
+          </div>
+
+          <div class="s2-readout">
+            <div class="s2-r-left">
+              <span class="s2-r-tag" id="s2-tag">列网格 · 垂直基准领跑</span>
+              <p id="s2-explain">重在纵向列线对齐、横向高度顺着文字自然往下长——新闻站、博客正文和产品说明页最常用，长短不一的段落不会互相强拉。</p>
+            </div>
+            <code class="s2-code" id="s2-code">grid-template-columns: repeat(12, 1fr); grid-auto-rows: auto;</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 03: Spacing & Typographic Scale (Homage to Poster 227's giant white "A") -->
+    <section class="sec sec-pale" id="sec-03">
+      <div class="sec-in">
+        <div class="sec-head">
+          <span class="sec-no">03</span>
+          <div class="sec-titles">
+            <h2>沟槽与行距的阅读刻度</h2>
+            <p class="sec-en">SPACING &amp; BASELINE RHYTHM</p>
+          </div>
+        </div>
+
+        <div class="s3-grid">
+          <div class="s3-specimen-panel">
+            <!-- Poster 227 bottom-left giant A with 4 dashed measurement lines -->
+            <div class="poster-a-box" id="s3-a-box">
+              <div class="a-stage">
+                <div class="a-glyph" aria-hidden="true">A</div>
+                <div class="a-ticks" id="s3-ticks">
+                  <div class="a-tick t-top"><span>上边距</span><b id="s3-mt-val">24px</b></div>
+                  <div class="a-tick t-lead"><span>行间距</span><b id="s3-lh-val">24px</b></div>
+                  <div class="a-tick t-para"><span>段间距</span><b id="s3-pg-val">24px</b></div>
+                  <div class="a-tick t-bot"><span>下边距</span><b id="s3-mb-val">24px</b></div>
+                </div>
+              </div>
+              <div class="a-quote-strip">
+                <span>原海报 · 间距 SPACING</span>
+                <p>「控制间距与留白，提升可读性。」</p>
+              </div>
+            </div>
+
+            <div class="s3-controls-card">
+              <div class="s3-ctrl-row">
+                <span class="s3-clabel">正文行高倍频（16px 基准）</span>
+                <div class="s3-step-group" role="group" aria-label="选择正文行高">
+                  <button type="button" class="s3-btn" data-lh="1.25">1.25× (20px)</button>
+                  <button type="button" class="s3-btn is-active" data-lh="1.5">1.50× (24px)</button>
+                  <button type="button" class="s3-btn" data-lh="1.875">1.88× (30px)</button>
+                </div>
+              </div>
+              <div class="s3-ctrl-row">
+                <span class="s3-clabel">两栏列沟槽（column-gap）</span>
+                <div class="s3-step-group" role="group" aria-label="选择列沟槽宽度">
+                  <button type="button" class="s3-btn is-active" data-cg="10">10px（过窄）</button>
+                  <button type="button" class="s3-btn" data-cg="28">28px（稳态）</button>
+                  <button type="button" class="s3-btn" data-cg="52">52px（宽沟）</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="s3-live-panel">
+            <div class="s3-status-bar" id="s3-status-bar">
+              <span class="s3-pill is-warn" id="s3-pill">串行风险 · 沟槽窄过行距</span>
+              <span class="s3-ratio" id="s3-ratio">沟槽 / 行高 = 0.42×（经验值建议 ≥ 1.0×）</span>
+            </div>
+
+            <div class="s3-columns-wrap">
+              <div class="s3-columns" id="s3-columns">
+                <div class="s3-col">
+                  <p>网格里最容易被低估的不是线条，而是夹在两列之间的空白沟槽。只要沟槽比同一行字上下两行之间的距离还窄，眼睛读到行尾时就很容易直接横向跳进右栏。</p>
+                  <p>把行高设为基准步长后，段间距、栏沟槽与上下页边距跟着取它的整数倍或清晰大于行高，两列文字才会各自稳稳抱团。</p>
+                </div>
+                <div class="s3-col">
+                  <p>在 CSS Grid 中，<code>column-gap</code> 与 <code>row-gap</code> 无需再靠负外边距或给最后一列清零来硬凑——沟槽只出现在轨道之间，绝不会往容器外缘多挤出一像素。</p>
+                  <p>换句话说，间距不是事后补缝的装饰，而是把信息分清「同组」还是「相邻」的第一道分界。</p>
+                </div>
+              </div>
+              <div class="s3-gutter-ruler" id="s3-gutter-ruler" aria-hidden="true">
+                <span id="s3-gutter-badge">10px</span>
+              </div>
+            </div>
+
+            <p class="s3-verdict" id="s3-verdict">当前列沟槽只有 10px，比正文行高 24px 窄了一半以上。按格式塔接近律，左栏行尾离右栏行首比离自己下一行还近，阅读极易跨栏串行——把沟槽切到 28px 立刻对比。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 04: Named Template Areas (Deep Blueprint Navy) -->
+    <section class="sec sec-navy" id="sec-04">
+      <div class="sec-in">
+        <div class="sec-head">
+          <span class="sec-no sec-no-y">04</span>
+          <div class="sec-titles">
+            <h2>命名地图与矩形铁律</h2>
+            <p class="sec-en">GRID-TEMPLATE-AREAS · RECTANGULAR RULE</p>
+          </div>
+        </div>
+
+        <p class="sec-lead">CSS Grid 有一项别的布局都没有的独门语法：<code>grid-template-areas</code>。你可以直接用英文名字在代码里画出一张「字符平面图」。但 W3C 规范写死了一条铁律：<strong>每一个同名区域必须是完整实心的矩形</strong>——只要涂成 L 形或拆成两块孤岛，整条属性声明会立刻作废。</p>
+
+        <div class="s4-bench">
+          <div class="s4-painter">
+            <div class="s4-brushes" role="radiogroup" aria-label="选择要涂抹的区域画笔">
+              <button type="button" class="brush-btn is-active" data-brush="head" role="radio" aria-checked="true">head 页眉</button>
+              <button type="button" class="brush-btn" data-brush="nav" role="radio" aria-checked="false">nav 导览</button>
+              <button type="button" class="brush-btn" data-brush="main" role="radio" aria-checked="false">main 正文</button>
+              <button type="button" class="brush-btn" data-brush="side" role="radio" aria-checked="false">side 侧栏</button>
+              <button type="button" class="brush-btn" data-brush="." role="radio" aria-checked="false">. 留白</button>
+            </div>
+
+            <div class="s4-matrix" id="s4-matrix" role="group" aria-label="3×3 命名网格画板，点击单元格涂抹区域名"></div>
+
+            <div class="s4-quick">
+              <button type="button" class="s4-qbtn" id="s4-preset-ok">还原经典圣杯</button>
+              <button type="button" class="s4-qbtn" id="s4-preset-l">试涂非法 L 形</button>
+              <button type="button" class="s4-qbtn" id="s4-preset-hole">试留空洞 .</button>
+            </div>
+          </div>
+
+          <div class="s4-output">
+            <div class="s4-status" id="s4-status">
+              <span class="s4-badge is-ok" id="s4-badge">声明合法 · 4 个矩形区域</span>
+              <span class="s4-msg" id="s4-msg">每个命名区都构成实心矩形，浏览器按地图精准归位。</span>
+            </div>
+
+            <div class="s4-dual">
+              <pre class="s4-code" id="s4-code"></pre>
+              <div class="s4-preview" id="s4-preview">
+                <div class="s4-pcell p-head">head</div>
+                <div class="s4-pcell p-nav">nav</div>
+                <div class="s4-pcell p-main">main</div>
+                <div class="s4-pcell p-side">side</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 05: Origins & Timeline -->
+    <section class="sec sec-ice" id="sec-05">
+      <div class="sec-in">
+        <div class="sec-head">
+          <span class="sec-no">05</span>
+          <div class="sec-titles">
+            <h2>从瑞士图纸到网页标准</h2>
+            <p class="sec-en">WHERE IT CAME FROM · 1964 TO 2017</p>
+          </div>
+        </div>
+
+        <div class="s5-wrap">
+          <div class="s5-tabs" role="tablist" aria-label="浏览网格布局四代演进历程">
+            <button type="button" class="era-btn is-active" data-era="0" role="tab" aria-selected="true"><b>1964–1981</b><span>瑞士印刷网格</span></button>
+            <button type="button" class="era-btn" data-era="1" role="tab" aria-selected="false"><b>1995–2010</b><span>表格与浮动拼凑</span></button>
+            <button type="button" class="era-btn" data-era="2" role="tab" aria-selected="false"><b>2011–2012</b><span>W3C 首稿与 IE10</span></button>
+            <button type="button" class="era-btn" data-era="3" role="tab" aria-selected="false"><b>2017–今</b><span>原生二维标准</span></button>
+          </div>
+
+          <div class="s5-body">
+            <div class="s5-canvas-box">
+              <canvas id="s5-canvas" width="520" height="290" aria-label="各时代网格实现方式结构对比示意图"></canvas>
+            </div>
+            <div class="s5-story" id="s5-story">
+              <span class="s5-kicker" id="s5-kicker">PRINT SYSTEM · 瑞士国际主义风格</span>
+              <h3 id="s5-heading">卡尔·格斯特纳与约瑟夫·米勒-布罗克曼</h3>
+              <p id="s5-p1">1964 年，瑞士设计师 Karl Gerstner 出版《Designing Programmes》（原德文 Programme entwerfen，Arthur Niggli 出版），提出用规则程序生成可变版面；1981 年，Josef Müller-Brockmann 由同一出版社推出德英双语经典《Grid Systems in Graphic Design》（Raster Systeme für die visuelle Gestaltung），系统整理了 8 格到 32 格的平面与三维空间网格法，奠定了现代网格设计的共同语言。</p>
+              <p id="s5-p2">纸张尺寸是固定的，设计师用毫米和活字点就能算清一切；但屏幕宽度千变万化，网页整整晚了三十多年才拥有同等优雅的原生二维网格。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 06: When to use & When NOT to use -->
+    <section class="sec sec-pale" id="sec-06">
+      <div class="sec-in">
+        <div class="sec-head">
+          <span class="sec-no">06</span>
+          <div class="sec-titles">
+            <h2>什么时候用，什么时候别用</h2>
+            <p class="sec-en">STRENGTHS, BOUNDARIES &amp; ACCESSIBILITY</p>
+          </div>
+        </div>
+
+        <div class="s6-top-strip">
+          <div class="s6-usage-card">
+            <span class="s6-uk">原海报 · 网格的作用</span>
+            <ul class="s6-ulist">
+              <li><span class="u-chk" aria-hidden="true">✓</span>提升信息层次与可读性</li>
+              <li><span class="u-chk" aria-hidden="true">✓</span>增强版面稳定性与专业感</li>
+              <li><span class="u-chk" aria-hidden="true">✓</span>提高内容组织与创作效率</li>
+            </ul>
+          </div>
+          <div class="s6-siblings-card">
+            <span class="s6-uk">同族布局分工，不必硬拿 Grid 顶替</span>
+            <p>一维单排交给 <a href="https://layout.xiaoxiaodong.ai/226/play/" target="_blank" rel="noopener">226 弹性盒布局</a>；深层嵌套对齐交给 <a href="https://layout.xiaoxiaodong.ai/228/play/" target="_blank" rel="noopener">228 子网格布局</a>；报纸式顺流长文交给 <a href="https://layout.xiaoxiaodong.ai/229/play/" target="_blank" rel="noopener">229 多栏布局</a>；高差悬殊的图片墙看 <a href="https://layout.xiaoxiaodong.ai/236/play/" target="_blank" rel="noopener">236 瀑布流布局</a>；按屏宽或容器宽变轨配合 <a href="https://layout.xiaoxiaodong.ai/240/play/" target="_blank" rel="noopener">240 响应式布局</a> 与 <a href="https://layout.xiaoxiaodong.ai/242/play/" target="_blank" rel="noopener">242 容器查询布局</a>；同质商品卡详见 <a href="https://layout.xiaoxiaodong.ai/270/play/" target="_blank" rel="noopener">270 卡片网格布局</a>。</p>
+          </div>
+        </div>
+
+        <div class="s6-diag-box">
+          <div class="s6-scene-tabs" role="tablist" aria-label="选择界面场景判断该不该用 CSS Grid">
+            <button type="button" class="sc-btn is-active" data-sc="dash" role="tab" aria-selected="true">双轴仪表盘</button>
+            <button type="button" class="sc-btn" data-sc="nav" role="tab" aria-selected="false">不等宽标签栏</button>
+            <button type="button" class="sc-btn" data-sc="masonry" role="tab" aria-selected="false">高差摄影图墙</button>
+            <button type="button" class="sc-btn" data-sc="order" role="tab" aria-selected="false">视觉倒序重排</button>
+          </div>
+
+          <div class="s6-stage">
+            <div class="s6-visual" id="s6-visual"></div>
+            <div class="s6-verdict-col">
+              <span class="s6-vtag is-use" id="s6-vtag">推荐用 CSS Grid</span>
+              <h3 id="s6-vtitle">跨行跨列的二维工作区，正是 Grid 主场</h3>
+              <p id="s6-vbody">顶栏横跨全宽、侧边导览跨两行、核心图表与右侧指标卡共用上下基准线——用一张二维轨道表就能在极少嵌套里定死全部关系。</p>
+              <div class="s6-extra" id="s6-extra"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 07: Blueprint Quiz -->
+    <section class="sec sec-cobalt" id="sec-07">
+      <div class="sec-in">
+        <div class="sec-head">
+          <span class="sec-no sec-no-y">07</span>
+          <div class="sec-titles">
+            <h2>小练习：挑出立得住的网格</h2>
+            <p class="sec-en">BLUEPRINT CHECK · SPOT THE TRUE 2D ORDER</p>
+          </div>
+        </div>
+
+        <p class="sec-lead">同一份新闻专题页要排 5 个模块（上行 2 块、下行 3 块）。下面四版都用纯色块和直线构成，外观都很干净——请只靠观察<strong>纵缝贯通、沟槽呼吸与主次层级</strong>，选出真正成立的那一版。选完会亮起蓝图基准线揭晓差距。</p>
+
+        <div class="quiz-grid" id="quiz-grid" role="group" aria-label="选择四版二维网格方案中正确的一版">
+          <!-- Option A: Broken vertical line continuity (50/50 over 33/33/33) -->
+          <button type="button" class="q-card" data-opt="A">
+            <div class="q-head"><strong>方案 A</strong><span class="q-res" data-qres="A"></span></div>
+            <svg class="q-svg" viewBox="0 0 240 156" aria-hidden="true">
+              <rect x="0" y="0" width="240" height="156" fill="#04237D"/>
+              <!-- Top row: 2 equal columns (104 + 12 gap + 104) -> split at x=120 -->
+              <rect x="10" y="10" width="104" height="66" fill="#FFD00F"/>
+              <rect x="20" y="24" width="66" height="8" fill="#041B5E"/>
+              <rect x="20" y="38" width="46" height="5" fill="#041B5E" opacity="0.65"/>
+              <rect x="126" y="10" width="104" height="66" fill="#FFFFFF"/>
+              <rect x="136" y="24" width="76" height="5" fill="#063ED1"/>
+              <rect x="136" y="36" width="62" height="5" fill="#063ED1" opacity="0.55"/>
+              <rect x="136" y="48" width="70" height="5" fill="#063ED1" opacity="0.55"/>
+              <!-- Bottom row: 3 equal columns (65 + 12.5 + 65 + 12.5 + 65) -> splits at x=81.25 and x=158.75 (MISALIGNED with x=120!) -->
+              <rect x="10" y="88" width="65" height="58" fill="#FFFFFF"/>
+              <rect x="18" y="102" width="42" height="5" fill="#063ED1"/>
+              <rect x="18" y="114" width="36" height="4" fill="#063ED1" opacity="0.55"/>
+              <rect x="87.5" y="88" width="65" height="58" fill="#FFFFFF"/>
+              <rect x="95.5" y="102" width="42" height="5" fill="#063ED1"/>
+              <rect x="95.5" y="114" width="36" height="4" fill="#063ED1" opacity="0.55"/>
+              <rect x="165" y="88" width="65" height="58" fill="#FFD00F"/>
+              <rect x="173" y="102" width="38" height="5" fill="#041B5E"/>
+              <!-- Reveal overlay -->
+              <g class="q-reveal">
+                <line x1="120" y1="4" x2="120" y2="152" stroke="#FF6B4A" stroke-width="2" stroke-dasharray="4 3"/>
+                <line x1="81.2" y1="78" x2="81.2" y2="152" stroke="#FF6B4A" stroke-width="1.6" stroke-dasharray="3 3"/>
+                <line x1="158.8" y1="78" x2="158.8" y2="152" stroke="#FF6B4A" stroke-width="1.6" stroke-dasharray="3 3"/>
+              </g>
+            </svg>
+          </button>
+
+          <!-- Option B (CORRECT): Shared 6-col tracks (4+2 over 2+2+2), generous 14px gutter, clear hero hierarchy -->
+          <button type="button" class="q-card" data-opt="B">
+            <div class="q-head"><strong>方案 B</strong><span class="q-res" data-qres="B"></span></div>
+            <svg class="q-svg" viewBox="0 0 240 156" aria-hidden="true">
+              <rect x="0" y="0" width="240" height="156" fill="#04237D"/>
+              <!-- 3-unit (6-col) shared seams: x1=10..74 (64), gap 14, x2=88..152 (64), gap 14, x3=166..230 (64) -->
+              <!-- Top row: 4 cols (10..152, w=142) + 2 cols (166..230, w=64) -->
+              <rect x="10" y="10" width="142" height="66" fill="#FFD00F"/>
+              <rect x="20" y="24" width="88" height="8" fill="#041B5E"/>
+              <rect x="20" y="38" width="66" height="5" fill="#041B5E" opacity="0.65"/>
+              <rect x="166" y="10" width="64" height="66" fill="#FFFFFF"/>
+              <rect x="174" y="24" width="44" height="5" fill="#063ED1"/>
+              <rect x="174" y="36" width="38" height="5" fill="#063ED1" opacity="0.55"/>
+              <rect x="174" y="48" width="42" height="5" fill="#063ED1" opacity="0.55"/>
+              <!-- Bottom row: 2 + 2 + 2 cols locking onto exact same x=81 and x=159 seams -->
+              <rect x="10" y="90" width="64" height="56" fill="#FFFFFF"/>
+              <rect x="18" y="104" width="42" height="5" fill="#063ED1"/>
+              <rect x="18" y="116" width="36" height="4" fill="#063ED1" opacity="0.55"/>
+              <rect x="88" y="90" width="64" height="56" fill="#FFFFFF"/>
+              <rect x="96" y="104" width="42" height="5" fill="#063ED1"/>
+              <rect x="96" y="116" width="36" height="4" fill="#063ED1" opacity="0.55"/>
+              <rect x="166" y="90" width="64" height="56" fill="#FFD00F"/>
+              <rect x="174" y="104" width="38" height="5" fill="#041B5E"/>
+              <!-- Reveal overlay -->
+              <g class="q-reveal">
+                <line x1="81" y1="4" x2="81" y2="152" stroke="#53F2A6" stroke-width="1.8" stroke-dasharray="4 3"/>
+                <line x1="159" y1="4" x2="159" y2="152" stroke="#53F2A6" stroke-width="2" stroke-dasharray="4 3"/>
+                <line x1="4" y1="83" x2="236" y2="83" stroke="#53F2A6" stroke-width="1.8" stroke-dasharray="4 3"/>
+              </g>
+            </svg>
+          </button>
+
+          <!-- Option C: Same 6-col tracks & hierarchy, but column-gap crushed to 3px (< line spacing) -->
+          <button type="button" class="q-card" data-opt="C">
+            <div class="q-head"><strong>方案 C</strong><span class="q-res" data-qres="C"></span></div>
+            <svg class="q-svg" viewBox="0 0 240 156" aria-hidden="true">
+              <rect x="0" y="0" width="240" height="156" fill="#04237D"/>
+              <!-- Crushed 3px gap: unit=71.3, 10..155.6, gap 3, 158.6..230 -->
+              <rect x="10" y="10" width="146" height="66" fill="#FFD00F"/>
+              <rect x="20" y="24" width="88" height="8" fill="#041B5E"/>
+              <rect x="20" y="38" width="66" height="5" fill="#041B5E" opacity="0.65"/>
+              <rect x="159" y="10" width="71" height="66" fill="#FFFFFF"/>
+              <rect x="165" y="24" width="54" height="5" fill="#063ED1"/>
+              <rect x="165" y="36" width="48" height="5" fill="#063ED1" opacity="0.55"/>
+              <rect x="165" y="48" width="52" height="5" fill="#063ED1" opacity="0.55"/>
+              <!-- Bottom row with same 3px vertical gap -->
+              <rect x="10" y="80" width="71.5" height="66" fill="#FFFFFF"/>
+              <rect x="16" y="96" width="54" height="5" fill="#063ED1"/>
+              <rect x="16" y="108" width="48" height="4" fill="#063ED1" opacity="0.55"/>
+              <rect x="84.5" y="80" width="71.5" height="66" fill="#FFFFFF"/>
+              <rect x="90.5" y="96" width="54" height="5" fill="#063ED1"/>
+              <rect x="90.5" y="108" width="48" height="4" fill="#063ED1" opacity="0.55"/>
+              <rect x="159" y="80" width="71" height="66" fill="#FFD00F"/>
+              <rect x="166" y="96" width="46" height="5" fill="#041B5E"/>
+              <!-- Reveal overlay -->
+              <g class="q-reveal">
+                <rect x="81.5" y="78" width="3" height="70" fill="#FF6B4A"/>
+                <rect x="156" y="8" width="3" height="140" fill="#FF6B4A"/>
+                <rect x="8" y="76" width="224" height="4" fill="#FF6B4A"/>
+              </g>
+            </svg>
+          </button>
+
+          <!-- Option D: Same 6-col tracks & 14px gap, but inverted hierarchy (hero squeezed tiny while side accent hogs 4 cols) -->
+          <button type="button" class="q-card" data-opt="D">
+            <div class="q-head"><strong>方案 D</strong><span class="q-res" data-qres="D"></span></div>
+            <svg class="q-svg" viewBox="0 0 240 156" aria-hidden="true">
+              <rect x="0" y="0" width="240" height="156" fill="#04237D"/>
+              <!-- Top row: tiny 2-col hero + huge 4-col secondary white text list -->
+              <rect x="10" y="10" width="64" height="44" fill="#FFD00F"/>
+              <rect x="18" y="22" width="42" height="6" fill="#041B5E"/>
+              <rect x="88" y="10" width="64" height="44" fill="#FFFFFF"/>
+              <rect x="96" y="22" width="40" height="5" fill="#063ED1"/>
+              <rect x="166" y="10" width="64" height="44" fill="#FFFFFF"/>
+              <rect x="174" y="22" width="40" height="5" fill="#063ED1"/>
+              <!-- Bottom row: 2-col white + giant 4-col bottom-right yellow aside dwarfing top hero -->
+              <rect x="10" y="68" width="64" height="78" fill="#FFFFFF"/>
+              <rect x="18" y="84" width="44" height="5" fill="#063ED1"/>
+              <rect x="18" y="96" width="38" height="5" fill="#063ED1" opacity="0.55"/>
+              <rect x="88" y="68" width="142" height="78" fill="#FFD00F"/>
+              <rect x="100" y="86" width="84" height="8" fill="#041B5E"/>
+              <rect x="100" y="102" width="62" height="5" fill="#041B5E" opacity="0.65"/>
+              <!-- Reveal overlay -->
+              <g class="q-reveal">
+                <rect x="10" y="10" width="64" height="44" fill="none" stroke="#FF6B4A" stroke-width="2.5" stroke-dasharray="4 2"/>
+                <rect x="88" y="68" width="142" height="78" fill="none" stroke="#FF6B4A" stroke-width="2.5" stroke-dasharray="4 2"/>
+              </g>
+            </svg>
+          </button>
+        </div>
+
+        <div class="quiz-feedback" id="quiz-feedback" aria-live="polite">
+          <strong id="qf-title">点击上方任意一版提交判断</strong>
+          <p id="qf-body">四版都使用了相近的蓝黄配色，但只有一版同时满足「上下行共享列线」「沟槽大于行距」「主专题面积领先」。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 08: Original Poster & Keywords -->
+    <section class="sec sec-ice" id="sec-08">
+      <div class="sec-in">
+        <div class="sec-head">
+          <span class="sec-no">08</span>
+          <div class="sec-titles">
+            <h2>原海报与关键词</h2>
+            <p class="sec-en">ORIGINAL POSTER · NO. 227</p>
+          </div>
+        </div>
+
+        <div class="poster-layout">
+          <figure class="poster-fig">
+            <button type="button" class="poster-trigger" id="poster-trigger" aria-label="点击放大查看 227 号原海报">
+              <img id="poster" src="poster.webp" alt="227 网格布局原教学海报" draggable="false">
+              <span class="poster-zoom-tag">点击放大 · 拖动浏览</span>
+            </button>
+          </figure>
+
+          <div class="poster-meta-col">
+            <div class="kw-box">
+              <span class="kw-label">常见网格类型 · KEYWORDS</span>
+              <div class="kw-list">
+                <div class="kw-item"><strong>列网格</strong><span>COLUMN GRID</span></div>
+                <div class="kw-item"><strong>模块网格</strong><span>MODULAR GRID</span></div>
+                <div class="kw-item"><strong>层级网格</strong><span>HIERARCHICAL GRID</span></div>
+              </div>
+            </div>
+
+            <div class="five-recap">
+              <span class="kw-label">原海报五要素 · FIVE PILLARS</span>
+              <dl class="recap-dl">
+                <div><dt>轨道 TRACKS</dt><dd>建立垂直基准线，对齐内容边缘（网页 CSS Grid 更同时锁定纵横二维轨道）。</dd></div>
+                <div><dt>区域 ZONES</dt><dd>划分内容区域，明确信息层级。</dd></div>
+                <div><dt>模块 MODULES</dt><dd>组成内容单元，灵活组合变化。</dd></div>
+                <div><dt>间距 SPACING</dt><dd>控制间距与留白，提升可读性。</dd></div>
+                <div><dt>秩序 ORDER</dt><dd>遵循一致规则，形成视觉秩序。</dd></div>
+              </dl>
+            </div>
+
+            <div class="poster-quote-block">
+              <div class="pqb-text">
+                <span class="pqb-mark" aria-hidden="true">“</span>
+                <p class="pqb-zh">优秀的设计，源于看不见的秩序。</p>
+                <p class="pqb-en">GOOD DESIGN COMES FROM INVISIBLE ORDER.</p>
+              </div>
+              <div class="dot-matrix dot-matrix-lg" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      <a href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">在线版</a> /
+      全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai</a>
+      · 海报 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
+      · 源文件 <a href="https://github.com/xxd-design/350-layout" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </footer>
+
+  <!-- Lightbox Modal for Original Poster -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="227 号原海报大图浏览">
+    <div class="lb-bar">
+      <span class="lb-title">NO. 227 网格布局原海报（拖动平移 · 滚轮或按钮缩放 · Esc 关闭）</span>
+      <div class="lb-ctrls">
+        <button type="button" class="lb-btn" id="lb-out" aria-label="缩小">−</button>
+        <span class="lb-zoom" id="lb-zoom">100%</span>
+        <button type="button" class="lb-btn" id="lb-in" aria-label="放大">+</button>
+        <button type="button" class="lb-btn" id="lb-reset">重置</button>
+        <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭大图">关闭</button>
+      </div>
+    </div>
+    <div class="lb-stage" id="lb-stage">
+      <img id="lb-img" alt="227 网格布局原海报放大视图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
