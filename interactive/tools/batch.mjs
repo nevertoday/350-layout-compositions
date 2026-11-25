@@ -110,7 +110,7 @@ async function pushForRelease() {
   git("fetch", "-q", "origin");
   try { git("rebase", "-q", "origin/main"); } catch (e) { try { git("rebase", "--abort"); } catch {} throw new Error(`rebase 冲突：${e.message.split("\n")[0]}`); }
   const live = sha1(await (await fetch("https://layout.xiaoxiaodong.ai/site.css", { cache: "no-store" })).text());
-  const known = git("log", "-20", "--format=%H", "origin/main", "--", "site/public/site.css").split("\n").map((h) => sha1(git("show", `${h}:site/public/site.css`)));
+  const known = git("log", "-20", "--format=%H", "origin/main", "--", "site/public/site.css").split("\n").map((h) => sha1(execFileSync("git", ["show", `${h}:site/public/site.css`], { cwd: ROOT }))); // 原样的字节，不能 trim
   if (!known.includes(live)) throw new Error(`线上的 site.css（${live}）不是 main 上的任何一版，可能有人从别处部署过`);
   git("push", "-q", "origin", "HEAD:main");
   return git("rev-parse", "HEAD");
