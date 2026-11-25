@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>276 轮播布局 · CAROUSEL LAYOUT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <p class="topbar-cat"><span class="cat-dot" aria-hidden="true"></span>网页与 UI / 内容与产品模式</p>
+    <div class="topbar-right">
+      <span class="topbar-no" lang="en">NO. 276 · CAROUSEL LAYOUT</span>
+      <span class="score-pill is-err" id="top-score" aria-live="polite">0 / 4 待调校</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== 开场：原海报同构活体轮播视口 ==================== -->
+  <section class="hero" aria-label="轮播布局活体视口实验台">
+    <div class="wrap hero-shell">
+      <div class="hero-top-side">
+        <div class="hero-head">
+          <div class="hero-title-group">
+            <div class="title-row">
+              <h1>轮播布局</h1>
+              <!-- 标题即示范：随实时露边与聚焦同步伸缩的三联微缩徽 -->
+              <span class="title-demo-glyph" id="title-demo-glyph" aria-hidden="true">
+                <span class="tdg-side tdg-left"></span>
+                <span class="tdg-center"></span>
+                <span class="tdg-side tdg-right"></span>
+              </span>
+            </div>
+            <p class="hero-en" lang="en">CAROUSEL LAYOUT</p>
+            <p class="hero-summary">通过水平滑动展示一组内容，当前项居中突出，两侧内容部分可见，暗示更多内容可探索。</p>
+          </div>
+
+          <!-- 原海报右上标志图形：大小双青圆 + 4×4 浅薄荷点阵 -->
+          <div class="hero-poster-motif" aria-hidden="true">
+            <svg viewBox="0 0 180 96" width="180" height="96">
+              <circle cx="84" cy="42" r="34" fill="#CBE7E2"/>
+              <circle cx="44" cy="68" r="18" fill="#119A99"/>
+              <g fill="#A3D6D0">
+                <circle cx="132" cy="20" r="2.4"/><circle cx="145" cy="20" r="2.4"/><circle cx="158" cy="20" r="2.4"/><circle cx="171" cy="20" r="2.4"/>
+                <circle cx="132" cy="33" r="2.4"/><circle cx="145" cy="33" r="2.4"/><circle cx="158" cy="33" r="2.4"/><circle cx="171" cy="33" r="2.4"/>
+                <circle cx="132" cy="46" r="2.4"/><circle cx="145" cy="46" r="2.4"/><circle cx="158" cy="46" r="2.4"/><circle cx="171" cy="46" r="2.4"/>
+                <circle cx="132" cy="59" r="2.4"/><circle cx="145" cy="59" r="2.4"/><circle cx="158" cy="59" r="2.4"/><circle cx="171" cy="59" r="2.4"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 核心活体轮播舞台（data-perf-drag 直接标在可拖拽轮播轨道上） -->
+      <div class="stage-column">
+        <div class="stage-frame">
+          <!-- 顶沿 2D Canvas 实时露边与缩放测绘尺 -->
+          <div class="ruler-strip">
+            <canvas id="hero-ruler" class="ruler-canvas" aria-hidden="true"></canvas>
+            <div class="ruler-meta" aria-live="polite">
+              <span id="ruler-readout" lang="en">PEEK 0px · FOCUS 1.00× · 2 / 5</span>
+              <span id="ruler-hint">左右拖拽卡片 · ← → 键切换</span>
+            </div>
+          </div>
+
+          <div class="carousel-stage" id="hero-stage" data-perf-drag role="region" aria-roledescription="carousel" aria-label="轮播布局活体卡片轨道" tabindex="0">
+            <div class="carousel-track" id="hero-track"></div>
+
+            <!-- 骑在居中主卡左右边缘的纯白圆形切换按钮（随导航模式显隐） -->
+            <button type="button" class="nav-arrow nav-prev" id="hero-prev" aria-label="上一张卡片">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button type="button" class="nav-arrow nav-next" id="hero-next" aria-label="下一张卡片">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+
+          <!-- 舞台底沿独立状态与分页栏（绝不遮挡卡片文字） -->
+          <div class="stage-footer">
+            <div class="auto-banner" id="auto-banner">
+              <span class="auto-badge" id="auto-badge">1.8s 强制自播中（无暂停）</span>
+              <span class="auto-track"><span class="auto-fill" id="auto-fill"></span></span>
+              <button type="button" class="auto-pause-btn" id="auto-pause-btn" hidden>暂停</button>
+            </div>
+            <div class="dots-bar" id="hero-dots-bar">
+              <div class="dots-list" id="hero-dots" role="tablist" aria-label="选择轮播卡片"></div>
+              <span class="dots-count" id="hero-dots-count" lang="en">2 / 5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 精简调校槽：四大核心参数 + 复原错态 -->
+      <div class="controls-column">
+        <div class="control-deck" aria-label="轮播架构参数调校">
+          <div class="ctrl-group ctrl-peek">
+            <div class="ctrl-label-row">
+              <label for="ctl-card-pct">主卡占宽（调两侧露边）</label>
+              <span class="ctrl-val" id="val-card-pct" lang="en">100%</span>
+            </div>
+            <input type="range" id="ctl-card-pct" min="44" max="100" step="1" value="100" aria-label="主卡占视口宽度百分比">
+            <div class="range-marks" aria-hidden="true">
+              <span>44% 碎卡</span>
+              <span class="mark-ok">54%–82% 舒适露边</span>
+              <span>100% 闷死</span>
+            </div>
+          </div>
+
+          <div class="ctrl-group">
+            <span class="ctrl-label">居中聚焦</span>
+            <div class="seg-row" role="group" aria-label="居中聚焦倍率">
+              <button type="button" class="seg-btn is-on" data-focus="flat" aria-pressed="true">1.0×平权</button>
+              <button type="button" class="seg-btn" data-focus="mild" aria-pressed="false">1.1×轻抬</button>
+              <button type="button" class="seg-btn" data-focus="poster" aria-pressed="false">1.18×海报</button>
+              <button type="button" class="seg-btn" data-focus="extreme" aria-pressed="false">1.38×过猛</button>
+            </div>
+          </div>
+
+          <div class="ctrl-group">
+            <span class="ctrl-label">导航控制</span>
+            <div class="seg-row" role="group" aria-label="导航与分页方案">
+              <button type="button" class="seg-btn is-on" data-nav="none" aria-pressed="true">全隐藏</button>
+              <button type="button" class="seg-btn" data-nav="dots" aria-pressed="false">仅圆点</button>
+              <button type="button" class="seg-btn" data-nav="both" aria-pressed="false">箭+5点</button>
+              <button type="button" class="seg-btn" data-nav="overload" aria-pressed="false">12点过载</button>
+            </div>
+          </div>
+
+          <div class="ctrl-group">
+            <span class="ctrl-label">播放节奏</span>
+            <div class="seg-row" role="group" aria-label="轮播播放节奏">
+              <button type="button" class="seg-btn is-on" data-pace="fast" aria-pressed="true">1.8s狂飙</button>
+              <button type="button" class="seg-btn" data-pace="slow" aria-pressed="false">5s悬停停</button>
+              <button type="button" class="seg-btn" data-pace="manual" aria-pressed="false">手动掌控</button>
+              <button type="button" class="seg-btn seg-ghost" id="btn-reset-wrong">复原错态</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 严格承袭原海报底部的标志性浅薄荷圆角横板：左白话诊单 | 竖虚线 | 右 2×2 四原则活体检核 -->
+        <div class="mint-board" aria-live="polite">
+          <div class="mint-logic">
+            <div class="logic-emblem" aria-hidden="true">
+              <svg viewBox="0 0 36 36" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect x="6" y="10" width="16" height="14" rx="2"/>
+                <rect x="14" y="14" width="16" height="14" rx="2" fill="#13A09C"/>
+              </svg>
+            </div>
+            <div class="logic-copy">
+              <div class="diag-head">
+                <span class="diag-tag is-err" id="diag-tag">0 / 4 翻车错态</span>
+                <span class="diag-metrics" id="diag-metrics" lang="en">露边 0px · 面积 1.00×</span>
+              </div>
+              <h2 class="diag-title" id="diag-title">主卡撑满 100%，两侧完全藏死在视口外</h2>
+              <p class="diag-why" id="diag-why"></p>
+              <p class="diag-action" id="diag-action"></p>
+            </div>
+          </div>
+
+          <div class="mint-pillars" aria-label="原海报四项原则实时检核">
+            <div class="pillar-item" id="pillar-focus">
+              <span class="pillar-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.8-6 10-6 10 6 10 6-3.8 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </span>
+              <div class="pillar-text">
+                <div class="pillar-row"><strong>聚焦展示</strong><span class="pillar-state" id="st-focus">1.00× 平权</span></div>
+                <p>当前内容居中放大，强化视觉焦点。</p>
+              </div>
+            </div>
+
+            <div class="pillar-item" id="pillar-flow">
+              <span class="pillar-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+              </span>
+              <div class="pillar-text">
+                <div class="pillar-row"><strong>连续浏览</strong><span class="pillar-state" id="st-flow">1.8s 抢读</span></div>
+                <p>滑动切换内容，形成流畅的阅读体验。</p>
+              </div>
+            </div>
+
+            <div class="pillar-item" id="pillar-preview">
+              <span class="pillar-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><line x1="20" y1="20" x2="15.8" y2="15.8"/></svg>
+              </span>
+              <div class="pillar-text">
+                <div class="pillar-row"><strong>预览提示</strong><span class="pillar-state" id="st-preview">露边 0px</span></div>
+                <p>两侧内容部分可见，提示更多内容存在。</p>
+              </div>
+            </div>
+
+            <div class="pillar-item" id="pillar-nav">
+              <span class="pillar-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11V4a1.5 1.5 0 0 1 3 0v7"/><path d="M15 9.5a1.5 1.5 0 0 1 3 0V14a6 6 0 0 1-12 0v-2.5a1.5 1.5 0 0 1 3 0V13"/><path d="M9 11V7a1.5 1.5 0 0 1 3 0"/></svg>
+              </span>
+              <div class="pillar-text">
+                <div class="pillar-row"><strong>导航控制</strong><span class="pillar-state" id="st-nav">无箭无点</span></div>
+                <p>左右滑动或按钮切换，轻松掌控浏览方向。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 手机竖屏总述（窄屏下挪到轮播与诊单后面，确保首屏 ≥48% 给活体舞台） -->
+      <p class="mobile-summary">通过水平滑动展示一组内容，当前项居中突出，两侧内容部分可见，暗示更多内容可探索。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 01 节：为什么两侧必须露出一角 ==================== -->
+  <section class="band band-paper" id="sec-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-title-col">
+          <span class="sec-num" lang="en">01</span>
+          <p class="sec-eyebrow" lang="en">THE PEEK AFFORDANCE</p>
+          <h2>为什么两侧必须露出一角</h2>
+        </div>
+        <div class="sec-intro-col">
+          <blockquote class="poster-quote">「前一项内容：左侧内容部分露出，提示可向左滑动。后一项内容：右侧内容部分露出，提示可向右滑动。」</blockquote>
+          <p>桌面网页和手机屏幕通常不显示横向滚动条。如果一张卡片正好铺满视口，用户看到的是完整闭合的矩形，大脑会自动判定「这里只有一张图」。当相邻卡片探进屏幕一角、露出半截色块或残缺文字时，格式塔心理学中的<strong>完形倾向</strong>会立刻提醒视线：画幅之外还有连续内容等着拉进来。</p>
+        </div>
+      </div>
+
+      <div class="lab-card peek-lab" id="lab-peek">
+        <div class="lab-toolbar">
+          <div class="seg-row" role="group" aria-label="选择模拟设备宽度">
+            <button type="button" class="seg-btn is-on" data-device="phone" aria-pressed="true">手机 390px</button>
+            <button type="button" class="seg-btn" data-device="tablet" aria-pressed="false">平板 768px</button>
+            <button type="button" class="seg-btn" data-device="desktop" aria-pressed="false">桌面 1280px</button>
+          </div>
+          <div class="peek-slider-wrap">
+            <label for="peek-lab-range">主卡占比 <strong id="peek-lab-pct" lang="en">90%</strong></label>
+            <input type="range" id="peek-lab-range" min="44" max="100" step="1" value="90">
+          </div>
+        </div>
+
+        <div class="peek-stage-shell">
+          <div class="peek-viewport" id="peek-viewport">
+            <div class="peek-strip" id="peek-strip">
+              <div class="pk-card pk-left"><div class="pk-art pk-art-mint"></div><div class="pk-lines"><span></span><span></span></div></div>
+              <div class="pk-card pk-center"><div class="pk-art pk-art-teal"></div><div class="pk-lines"><span></span><span></span></div></div>
+              <div class="pk-card pk-right"><div class="pk-art pk-art-amber"></div><div class="pk-lines"><span></span><span></span></div></div>
+            </div>
+            <div class="peek-mask-label peek-mask-l" id="peek-badge-l" lang="en">0px</div>
+            <div class="peek-mask-label peek-mask-r" id="peek-badge-r" lang="en">0px</div>
+          </div>
+        </div>
+
+        <div class="peek-verdict" id="peek-verdict" aria-live="polite">
+          <strong id="peek-v-head">假边缘陷阱</strong>
+          <p id="peek-v-body"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 节：居中放大，是怎么定主次的 ==================== -->
+  <section class="band band-mint" id="sec-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-title-col">
+          <span class="sec-num" lang="en">02</span>
+          <p class="sec-eyebrow" lang="en">CENTER FOCUS HIERARCHY</p>
+          <h2>居中放大，是怎么定主次的</h2>
+        </div>
+        <div class="sec-intro-col">
+          <blockquote class="poster-quote">「布局逻辑：以卡片为容器，水平排列成序列；通过居中突出当前项，建立清晰的信息层级与浏览节奏。」</blockquote>
+          <p>既然左右两侧必须露出来提示可滑，紧接着就会产生一个矛盾：<strong>露出来的旁卡会不会抢戏？</strong>解决办法不是给中心卡套厚重荧光框，而是把三个温和的视觉旋钮叠加在一起——轻微放大体量、轻抬投影层级、略降旁卡对比度。三者各走一小步，就能让视线稳稳落在正中央。</p>
+        </div>
+      </div>
+
+      <div class="focus-lab" id="lab-focus">
+        <div class="focus-switches" role="group" aria-label="视觉焦点三要素开关">
+          <button type="button" class="toggle-chip" data-fopt="scale" aria-pressed="false">
+            <span class="chip-dot"></span>
+            <span class="chip-copy"><strong>① 体量放大 +16%</strong><span>居中主卡高出旁卡一截</span></span>
+          </button>
+          <button type="button" class="toggle-chip" data-fopt="elev" aria-pressed="false">
+            <span class="chip-dot"></span>
+            <span class="chip-copy"><strong>② 浮影抬升层级</strong><span>拉开主卡与底面的空间距离</span></span>
+          </button>
+          <button type="button" class="toggle-chip" data-fopt="dim" aria-pressed="false">
+            <span class="chip-dot"></span>
+            <span class="chip-copy"><strong>③ 旁卡轻柔退让</strong><span>降低两侧色阶与明暗竞争</span></span>
+          </button>
+        </div>
+
+        <div class="focus-preview-grid">
+          <div class="focus-trio" id="focus-trio">
+            <div class="ft-card ft-side">
+              <div class="ft-art ft-art-left"></div>
+              <p class="ft-name">前一项预览</p>
+              <span class="ft-chip" lang="en">PREVIEW</span>
+            </div>
+            <div class="ft-card ft-main">
+              <div class="ft-art ft-art-mid"></div>
+              <p class="ft-name">核心内容卡片</p>
+              <span class="ft-chip ft-chip-main" lang="en">FOCUS · PRIMARY</span>
+            </div>
+            <div class="ft-card ft-side">
+              <div class="ft-art ft-art-right"></div>
+              <p class="ft-name">后一项预览</p>
+              <span class="ft-chip" lang="en">PREVIEW</span>
+            </div>
+          </div>
+
+          <div class="focus-curve-panel">
+            <div class="curve-head">
+              <span>视线权重分布（示意）</span>
+              <strong id="focus-curve-level">三卡平权 · 焦点分散</strong>
+            </div>
+            <canvas id="focus-curve-canvas" class="curve-canvas" aria-hidden="true"></canvas>
+            <p class="curve-note" id="focus-curve-note"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 节：从幻灯圆盘到九成盲区（深海暗室） ==================== -->
+  <section class="band band-deep" id="sec-03">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-title-col">
+          <span class="sec-num" lang="en">03</span>
+          <p class="sec-eyebrow" lang="en">ORIGINS &amp; ATTENTION DECAY</p>
+          <h2>从幻灯圆盘到九成盲区</h2>
+        </div>
+        <div class="sec-intro-col">
+          <p>「轮播（Carousel）」这个名字不是凭空造的。它从一台物理放映机走来，在消费电子时代变成优雅的翻唱片隐喻，却在网页首页的滥用里暴露出残酷的注意力衰减曲线。</p>
+        </div>
+      </div>
+
+      <div class="timeline-grid">
+        <article class="tl-item">
+          <span class="tl-year" lang="en">1961</span>
+          <h3>Kodak Carousel 幻灯圆盘</h3>
+          <p>独立发明人 Louis Misuraca 提出圆形片匣构想，柯达推出首款 Carousel Model 550（80 片圆盘、重力下落防卡滞），工业设计师 David E. Hansen 于 1965 年获外观专利 USD201106。旋转圆盘从此成为序列轮播的原型，直到 2004 年停产。</p>
+        </article>
+        <article class="tl-item">
+          <span class="tl-year" lang="en">2006</span>
+          <h3>Apple Cover Flow 视觉语法</h3>
+          <p>2004 年底由艺术家 Andrew Coulter Enright 构想、独立开发者 Jonathan del Strother 写成 Mac 应用，2006 年 9 月随 iTunes 7 推出。正中放大唱片封面、两侧斜收露出邻片，奠定了现代「居中焦 + 两侧露」的交互直觉。</p>
+        </article>
+        <article class="tl-item">
+          <span class="tl-year" lang="en">2013</span>
+          <h3>圣母大学实证与 NN/g 警钟</h3>
+          <p>圣母大学技术总监 Erik Runyon 公布首页追踪数据（1 月初版、7 月半年 370 万访问更新）：仅约 1% 访客点击轮播，且约 84% 点击全部集中在第 1 帧，第 2–5 帧每帧仅 2%–4%。同年 1 月，Jakob Nielsen 在 NN/g 指出自动轮播会引发横幅盲视。</p>
+        </article>
+        <article class="tl-item">
+          <span class="tl-year" lang="en">2016–2021</span>
+          <h3>原生 CSS Scroll Snap</h3>
+          <p>W3C 于 2016 年 11 月发布首个 CSS Scroll Snap 候选推荐标准（2021 年更新 CR Snapshot），让浏览器直接原生提供手势惯性与居中磁吸，告别沉重卡顿的脚本轮播。</p>
+        </article>
+      </div>
+
+      <!-- 实证点击衰减排序沙盘 -->
+      <div class="decay-lab" id="lab-decay">
+        <div class="decay-head">
+          <div>
+            <h3>点击衰减沙盘：放第几帧，差多远？</h3>
+            <p>按 Erik Runyon（2013）圣母大学首页实测比例（第 1 帧约占 84% 互动，后四帧合计约 16%），点按上下按钮移动「春季核心新品发布」的排位，观察触达落差：</p>
+          </div>
+          <button type="button" class="deep-btn" id="decay-toggle-hero">改用静态单主视觉对比</button>
+        </div>
+
+        <div class="decay-grid">
+          <ol class="decay-list" id="decay-list"></ol>
+          <div class="decay-summary" id="decay-summary" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 节：自动播放为什么最容易翻车 ==================== -->
+  <section class="band band-paper" id="sec-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-title-col">
+          <span class="sec-num" lang="en">04</span>
+          <p class="sec-eyebrow" lang="en">WHY AUTOPLAY BACKFIRES</p>
+          <h2>自动播放为什么最容易翻车</h2>
+        </div>
+        <div class="sec-intro-col">
+          <div class="gentle-note">
+            <span class="gentle-tag">海报未展开的底线</span>
+            <p>原海报提到「滑动切换内容，形成流畅的阅读体验」，但在真实项目里，很多人会把轮播默认改成每两三秒自动切一次。Jakob Nielsen 在 2013 年的可用性测试中发现，即便字号大到 98 磅，自动翻走的面板照样会让用户漏看关键优惠。</p>
+          </div>
+          <p>W3C 的 <strong>WCAG 2.2.2（暂停、停止、隐藏）</strong> 与 <strong>WAI-ARIA APG 轮播模式</strong> 给出了明确底线：只要内容自动滚动超过 5 秒且与其他信息并存，就必须提供醒目且键盘可达的暂停按钮；鼠标悬停、键盘聚焦或用户操作后必须立刻停止自动推进；且须尊重系统「减少动态效果」偏好。</p>
+        </div>
+      </div>
+
+      <!-- 真实「读完这一句」限时体验器 -->
+      <div class="lab-card read-lab" id="lab-autoplay">
+        <div class="lab-toolbar">
+          <div class="seg-row" role="group" aria-label="选择限时体验模式">
+            <button type="button" class="seg-btn is-on" data-ap="fast" aria-pressed="true">2.2s 强制狂飙（无暂停）</button>
+            <button type="button" class="seg-btn" data-ap="hover" aria-pressed="false">5s 慢速 + 悬停即停</button>
+            <button type="button" class="seg-btn" data-ap="manual" aria-pressed="false">纯手动翻页</button>
+          </div>
+          <span class="read-stat" id="ap-status">正在强行切页：试着读完卡片并点「领取试喝装」</span>
+        </div>
+
+        <div class="ap-stage" id="ap-stage">
+          <div class="ap-progress"><span class="ap-bar" id="ap-bar"></span></div>
+          <div class="ap-card-box" id="ap-card-box">
+            <span class="ap-badge" id="ap-badge"></span>
+            <h3 class="ap-title" id="ap-title"></h3>
+            <p class="ap-body" id="ap-body"></p>
+            <div class="ap-actions">
+              <button type="button" class="ap-cta" id="ap-cta"></button>
+              <div class="ap-manual-nav">
+                <button type="button" class="mini-btn" id="ap-prev" aria-label="上一条信息">← 上一条</button>
+                <button type="button" class="mini-btn" id="ap-next" aria-label="下一条信息">下一条 →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="ap-result" id="ap-result" aria-live="polite">提示：在「2.2s 强制狂飙」模式下，刻意慢读两秒再去点按钮，体会「正要下手突然换成下一张卡」的误触挫败感。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 节：什么时候用，什么时候别用 ==================== -->
+  <section class="band band-cream" id="sec-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-title-col">
+          <span class="sec-num" lang="en">05</span>
+          <p class="sec-eyebrow" lang="en">WHEN TO USE &amp; AVOID</p>
+          <h2>什么时候用，什么时候别用</h2>
+        </div>
+        <div class="sec-intro-col">
+          <div class="gentle-note">
+            <span class="gentle-tag">要看怎么比</span>
+            <p>原海报将「多项对比」列入了轮播的适用场景。如果是逐个浏览风格相近的方案（比如对比几套装修氛围），轮播很顺手；但若需要<strong>同时并排核对价格、规格、参数表</strong>，轮播每次只完整露出 1 张，会强迫用户靠短期记忆来回翻页——这时应该改用 <a href="https://layout.xiaoxiaodong.ai/274/play/" target="_blank" rel="noopener">274 数据表格布局</a> 或 <a href="https://layout.xiaoxiaodong.ai/270/play/" target="_blank" rel="noopener">270 卡片网格布局</a>。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="use-split">
+        <div class="use-box use-yes">
+          <h3>适合用轮播布局</h3>
+          <ul>
+            <li><strong>产品展示</strong>：单个商品的多视角细节实拍，手机单手横划查看，总数控制在 5 帧以内。</li>
+            <li><strong>内容推荐</strong>：书单、歌单、编辑精选等横向轻探索轨道，把最重要的内容稳放第 1 帧。</li>
+            <li><strong>作品集展示</strong>：同一系列、统一画幅的成组视觉作品，靠居中放大强化单幅观感。</li>
+            <li><strong>轻量逐项浏览</strong>：次级信息区需要节省页面竖向高度，且允许部分用户不点开全部项。</li>
+          </ul>
+        </div>
+        <div class="use-box use-no">
+          <h3>什么时候别用（换哪一页）</h3>
+          <ul>
+            <li>首页唯一核心宣发位，怕被当成横幅广告跳过：直接用 <a href="https://layout.xiaoxiaodong.ai/289/play/" target="_blank" rel="noopener">289 Hero 主视觉布局</a>。</li>
+            <li>每一项都同等重要、必须让用户一眼扫全：换 <a href="https://layout.xiaoxiaodong.ai/270/play/" target="_blank" rel="noopener">270 卡片网格布局</a> 或 <a href="https://layout.xiaoxiaodong.ai/272/play/" target="_blank" rel="noopener">272 便当盒布局</a>。</li>
+            <li>图片很多（超过 6 张）且需要缩略总览任意跳选：换 <a href="https://layout.xiaoxiaodong.ai/275/play/" target="_blank" rel="noopener">275 画廊布局</a>。</li>
+            <li>精准并排核对数字与参数：换 <a href="https://layout.xiaoxiaodong.ai/274/play/" target="_blank" rel="noopener">274 数据表格布局</a>；长图文流看 <a href="https://layout.xiaoxiaodong.ai/269/play/" target="_blank" rel="noopener">269 信息流布局</a>，非等高灵感墙看 <a href="https://layout.xiaoxiaodong.ai/271/play/" target="_blank" rel="noopener">271 瀑布流页面</a>。</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 4 类需求分诊矩阵 -->
+      <div class="triage-lab" id="lab-triage">
+        <div class="triage-tabs" role="tablist" aria-label="真实产品需求分诊">
+          <button type="button" class="triage-tab is-on" data-triage="product-angles" role="tab" aria-selected="true">商品多角度实拍</button>
+          <button type="button" class="triage-tab" data-triage="dept-banners" role="tab" aria-selected="false">首页 5 部门公告</button>
+          <button type="button" class="triage-tab" data-triage="pricing-compare" role="tab" aria-selected="false">4 档会员资费对比</button>
+          <button type="button" class="triage-tab" data-triage="playlist-rail" role="tab" aria-selected="false">首页横向精选推荐</button>
+        </div>
+        <div class="triage-panel" id="triage-panel" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 节：原生 CSS 就能写的轻轮播 ==================== -->
+  <section class="band band-mint" id="sec-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-title-col">
+          <span class="sec-num" lang="en">06</span>
+          <p class="sec-eyebrow" lang="en">MODERN CSS SCROLL SNAP</p>
+          <h2>原生 CSS 就能写的轻轮播</h2>
+        </div>
+        <div class="sec-intro-col">
+          <p>过去写一个带回弹吸附的轮播要引入几十 KB 脚本，还常和手机原生的惯性滑动打架。如今仅用几行 <strong>CSS Scroll Snap</strong> 配合容器内边距，浏览器就会原生处理手势惯性、居中磁吸与平滑停靠；脚本只负责点按箭头与高亮圆点即可。</p>
+        </div>
+      </div>
+
+      <div class="snap-lab" id="lab-snap">
+        <div class="snap-controls">
+          <div class="ctrl-inline">
+            <span>吸附强度</span>
+            <div class="seg-row" role="group" aria-label="scroll-snap-type 设置">
+              <button type="button" class="seg-btn" data-snap-type="none" aria-pressed="false" lang="en">none</button>
+              <button type="button" class="seg-btn" data-snap-type="x proximity" aria-pressed="false" lang="en">proximity</button>
+              <button type="button" class="seg-btn is-on" data-snap-type="x mandatory" aria-pressed="true" lang="en">mandatory</button>
+            </div>
+          </div>
+          <div class="ctrl-inline">
+            <span>停靠锚点</span>
+            <div class="seg-row" role="group" aria-label="scroll-snap-align 设置">
+              <button type="button" class="seg-btn" data-snap-align="start" aria-pressed="false" lang="en">start</button>
+              <button type="button" class="seg-btn is-on" data-snap-align="center" aria-pressed="true" lang="en">center</button>
+            </div>
+          </div>
+          <div class="ctrl-inline">
+            <span>单卡占比</span>
+            <div class="seg-row" role="group" aria-label="单卡宽度比例">
+              <button type="button" class="seg-btn" data-snap-width="100%" aria-pressed="false" lang="en">100%</button>
+              <button type="button" class="seg-btn is-on" data-snap-width="72%" aria-pressed="true" lang="en">72%</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="snap-sandbox-wrap">
+          <p class="snap-tip">直接横向滑动或用下方滚轨试手感——切到 <code lang="en">none</code> 与 <code lang="en">mandatory</code> 对比松手后是否自动对齐居中：</p>
+          <div class="snap-rail" id="snap-rail" tabindex="0" aria-label="CSS Scroll Snap 实操滑槽">
+            <article class="snap-card sc-1"><span lang="en">SLIDE 01</span><h4>晨雾薄荷山丘</h4><p>松手后观察卡片是否自动停稳在居中锚点。</p></article>
+            <article class="snap-card sc-2"><span lang="en">SLIDE 02</span><h4>孔雀青深山圆月</h4><p>72% 宽度天然留出左右 14% 露边提示。</p></article>
+            <article class="snap-card sc-3"><span lang="en">SLIDE 03</span><h4>奶油暖金几何丘</h4><p>浏览器原生惯性滚动，不卡顿不抢竖向滚屏。</p></article>
+            <article class="snap-card sc-4"><span lang="en">SLIDE 04</span><h4>海岩双拱与半月</h4><p>补上左右按钮即可完整照顾桌面与键盘用户。</p></article>
+          </div>
+          <div class="snap-nav-row">
+            <button type="button" class="mini-btn" id="snap-prev">← 滑到上一张</button>
+            <span class="snap-pos" id="snap-pos" lang="en">SNAP: x mandatory · align: center</span>
+            <button type="button" class="mini-btn" id="snap-next">滑到下一张 →</button>
+          </div>
+        </div>
+
+        <pre class="code-box" id="snap-code" lang="en"></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 节：小练习 ==================== -->
+  <section class="band band-paper" id="sec-07">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-title-col">
+          <span class="sec-num" lang="en">07</span>
+          <p class="sec-eyebrow" lang="en">QUICK PRACTICE</p>
+          <h2>挑一版最合理的手机轮播</h2>
+        </div>
+        <div class="sec-intro-col">
+          <p>一家咖啡器具商店要在 <strong>390px 宽的手机竖屏</strong> 上展示 4 款手冲壶推荐轮播。以下四个方案都已使用居中放大与手动控制，<strong>唯一差别是「主卡宽度与两侧露边」</strong>——点选你认为最合理的一版：</p>
+        </div>
+      </div>
+
+      <div class="quiz-grid" id="lab-quiz" role="group" aria-label="轮播布局四选一练习">
+        <!-- 方案 A：100% 占宽，左右露边 0% -->
+        <button type="button" class="quiz-card" data-choice="A" aria-pressed="false">
+          <span class="quiz-tag">方案 A</span>
+          <svg class="quiz-svg" viewBox="0 0 210 156" aria-hidden="true">
+            <rect width="210" height="156" rx="12" fill="#EBF3EE"/>
+            <rect x="6" y="14" width="198" height="112" rx="10" fill="#FFFFFF" stroke="#D5E3DE"/>
+            <rect x="14" y="22" width="182" height="58" rx="6" fill="#149C9C"/>
+            <circle cx="72" cy="46" r="14" fill="#FBF9F5"/>
+            <polygon points="88,80 144,34 196,80" fill="#03384F"/>
+            <rect x="16" y="90" width="90" height="9" rx="3" fill="#072130"/>
+            <rect x="16" y="105" width="144" height="6" rx="3" fill="#8BA6B0"/>
+            <g fill="#C8C6C0"><circle cx="84" cy="140" r="3.5" fill="#149C9C"/><circle cx="98" cy="140" r="3.5"/><circle cx="112" cy="140" r="3.5"/><circle cx="126" cy="140" r="3.5"/></g>
+          </svg>
+          <span class="quiz-spec" lang="en">主卡宽 100%</span>
+        </button>
+
+        <!-- 方案 B（正确）：76% 占宽，两侧清晰各露约 10% -->
+        <button type="button" class="quiz-card" data-choice="B" aria-pressed="false">
+          <span class="quiz-tag">方案 B</span>
+          <svg class="quiz-svg" viewBox="0 0 210 156" aria-hidden="true">
+            <defs><clipPath id="qclip-b"><rect width="210" height="156" rx="12"/></clipPath></defs>
+            <g clip-path="url(#qclip-b)">
+              <rect width="210" height="156" rx="12" fill="#EBF3EE"/>
+              <!-- 左侧露出卡 -->
+              <rect x="-112" y="22" width="132" height="96" rx="9" fill="#FFFFFF" opacity="0.82"/>
+              <rect x="-106" y="28" width="120" height="48" rx="5" fill="#92CFC4"/>
+              <!-- 居中主卡 -->
+              <rect x="28" y="14" width="154" height="112" rx="10" fill="#FFFFFF" stroke="#CBE7E2" stroke-width="1.5"/>
+              <rect x="36" y="22" width="138" height="58" rx="6" fill="#149C9C"/>
+              <circle cx="80" cy="46" r="13" fill="#FBF9F5"/>
+              <polygon points="94,80 138,36 174,80" fill="#03384F"/>
+              <rect x="38" y="90" width="76" height="9" rx="3" fill="#072130"/>
+              <rect x="38" y="105" width="122" height="6" rx="3" fill="#8BA6B0"/>
+              <!-- 右侧露出卡 -->
+              <rect x="190" y="22" width="132" height="96" rx="9" fill="#FFFFFF" opacity="0.82"/>
+              <rect x="196" y="28" width="120" height="48" rx="5" fill="#FBD879"/>
+              <g fill="#C8C6C0"><circle cx="84" cy="140" r="3.5"/><circle cx="98" cy="140" r="3.5" fill="#149C9C"/><circle cx="112" cy="140" r="3.5"/><circle cx="126" cy="140" r="3.5"/></g>
+            </g>
+          </svg>
+          <span class="quiz-spec" lang="en">主卡宽 76%</span>
+        </button>
+
+        <!-- 方案 C：48% 占宽，三张窄卡并挤 -->
+        <button type="button" class="quiz-card" data-choice="C" aria-pressed="false">
+          <span class="quiz-tag">方案 C</span>
+          <svg class="quiz-svg" viewBox="0 0 210 156" aria-hidden="true">
+            <defs><clipPath id="qclip-c"><rect width="210" height="156" rx="12"/></clipPath></defs>
+            <g clip-path="url(#qclip-c)">
+              <rect width="210" height="156" rx="12" fill="#EBF3EE"/>
+              <rect x="-36" y="20" width="84" height="100" rx="8" fill="#FFFFFF" opacity="0.88"/>
+              <rect x="-30" y="26" width="72" height="44" rx="4" fill="#92CFC4"/>
+              <rect x="-28" y="78" width="56" height="7" rx="2" fill="#39525E"/>
+              <rect x="56" y="14" width="98" height="112" rx="9" fill="#FFFFFF" stroke="#CBE7E2" stroke-width="1.5"/>
+              <rect x="62" y="20" width="86" height="48" rx="5" fill="#149C9C"/>
+              <circle cx="90" cy="40" r="10" fill="#FBF9F5"/>
+              <polygon points="96,68 126,34 148,68" fill="#03384F"/>
+              <rect x="64" y="76" width="76" height="7" rx="2" fill="#072130"/>
+              <rect x="64" y="88" width="78" height="5" rx="2" fill="#8BA6B0"/>
+              <rect x="64" y="98" width="72" height="5" rx="2" fill="#8BA6B0"/>
+              <rect x="64" y="108" width="52" height="5" rx="2" fill="#8BA6B0"/>
+              <rect x="162" y="20" width="84" height="100" rx="8" fill="#FFFFFF" opacity="0.88"/>
+              <rect x="168" y="26" width="72" height="44" rx="4" fill="#FBD879"/>
+              <rect x="170" y="78" width="56" height="7" rx="2" fill="#39525E"/>
+              <g fill="#C8C6C0"><circle cx="84" cy="140" r="3.5"/><circle cx="98" cy="140" r="3.5" fill="#149C9C"/><circle cx="112" cy="140" r="3.5"/><circle cx="126" cy="140" r="3.5"/></g>
+            </g>
+          </svg>
+          <span class="quiz-spec" lang="en">主卡宽 48%</span>
+        </button>
+
+        <!-- 方案 D：90% 占宽，左右恰好落进空白间隙（假边缘） -->
+        <button type="button" class="quiz-card" data-choice="D" aria-pressed="false">
+          <span class="quiz-tag">方案 D</span>
+          <svg class="quiz-svg" viewBox="0 0 210 156" aria-hidden="true">
+            <rect width="210" height="156" rx="12" fill="#EBF3EE"/>
+            <rect x="12" y="14" width="186" height="112" rx="10" fill="#FFFFFF" stroke="#CBE7E2" stroke-width="1.5"/>
+            <rect x="20" y="22" width="170" height="58" rx="6" fill="#149C9C"/>
+            <circle cx="74" cy="46" r="14" fill="#FBF9F5"/>
+            <polygon points="88,80 140,34 190,80" fill="#03384F"/>
+            <rect x="22" y="90" width="86" height="9" rx="3" fill="#072130"/>
+            <rect x="22" y="105" width="136" height="6" rx="3" fill="#8BA6B0"/>
+            <g fill="#C8C6C0"><circle cx="84" cy="140" r="3.5"/><circle cx="98" cy="140" r="3.5" fill="#149C9C"/><circle cx="112" cy="140" r="3.5"/><circle cx="126" cy="140" r="3.5"/></g>
+          </svg>
+          <span class="quiz-spec" lang="en">主卡宽 90%</span>
+        </button>
+      </div>
+
+      <div class="quiz-feedback" id="quiz-feedback" hidden aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ==================== 08 节：原海报与关键词 ==================== -->
+  <section class="band band-finale" id="sec-08">
+    <div class="wrap finale-grid">
+      <div class="finale-poster-col">
+        <span class="sec-num" lang="en">08</span>
+        <p class="sec-eyebrow" lang="en">ORIGINAL POSTER &amp; KEYWORDS</p>
+        <h2>原海报与关键词</h2>
+        <figure class="poster-figure">
+          <button type="button" class="poster-trigger" id="poster-trigger" aria-label="点击放大并拖动查看 276 号原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="No. 276 轮播布局原海报" draggable="false">
+            <span class="poster-zoom-chip">点击放大 · 可拖动 · Esc 关闭</span>
+          </button>
+          <figcaption>原海报以暖米白画纸承托三联浮起卡片：居中孔雀青深山卡领衔聚焦，左淡薄荷、右奶油杏黄两翼探出预览，底接浅薄荷圆角逻辑板与四项适用场景。</figcaption>
+        </figure>
+      </div>
+
+      <div class="finale-kw-col">
+        <p class="kw-kicker" lang="en">USAGE KEYWORDS · NO. 276</p>
+        <h3>原海报四组适用场景关键词</h3>
+        <ul class="kw-list">
+          <li>
+            <span class="kw-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+            </span>
+            <div>
+              <div class="kw-head"><strong>产品展示</strong><span lang="en">SHOWCASE</span></div>
+              <p>用多角度细节卡片串联单品亮点，在首屏有限高度内清晰呈现外观与卖点。</p>
+            </div>
+          </li>
+          <li>
+            <span class="kw-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2.5"/><polygon points="10,9 16,12 10,15" fill="currentColor" stroke="none"/></svg>
+            </span>
+            <div>
+              <div class="kw-head"><strong>内容推荐</strong><span lang="en">RECOMMEND</span></div>
+              <p>横向精选轨道把首推压阵居中、次推露边引路，减少页面纵向滚屏负担。</p>
+            </div>
+          </li>
+          <li>
+            <span class="kw-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg>
+            </span>
+            <div>
+              <div class="kw-head"><strong>作品集展示</strong><span lang="en">PORTFOLIO</span></div>
+              <p>保持一致画幅与留白，让同系列成组视觉作品沿着顺滑水平节奏逐一展开。</p>
+            </div>
+          </li>
+          <li>
+            <span class="kw-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2.5"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
+            </span>
+            <div>
+              <div class="kw-head"><strong>多项对比</strong><span lang="en">COMPARISON</span></div>
+              <p>适合逐个感受同级方案的整体风格；若需精确核对多项数字，则改用并排表格。</p>
+            </div>
+          </li>
+        </ul>
+
+        <div class="finale-refs">
+          <div class="refs-head">
+            <p class="kw-kicker" lang="en">VERIFIED REFERENCES · 核实出处</p>
+            <!-- 原海报右下 4×3 孔雀青点阵 -->
+            <svg viewBox="0 0 56 38" width="56" height="38" aria-hidden="true">
+              <g fill="#51B6B1">
+                <circle cx="6" cy="6" r="2.6"/><circle cx="20" cy="6" r="2.6"/><circle cx="34" cy="6" r="2.6"/><circle cx="48" cy="6" r="2.6"/>
+                <circle cx="6" cy="19" r="2.6"/><circle cx="20" cy="19" r="2.6"/><circle cx="34" cy="19" r="2.6"/><circle cx="48" cy="19" r="2.6"/>
+                <circle cx="6" cy="32" r="2.6"/><circle cx="20" cy="32" r="2.6"/><circle cx="34" cy="32" r="2.6"/><circle cx="48" cy="32" r="2.6"/>
+              </g>
+            </svg>
+          </div>
+          <ul>
+            <li>Kodak Carousel Model 550 (1961) · David E. Hansen, U.S. Design Patent USD201106 (1965)</li>
+            <li>Apple Cover Flow (iTunes 7, 2006) — Andrew Coulter Enright &amp; Jonathan del Strother</li>
+            <li>Erik Runyon (2013), <em>Carousel Interaction Stats</em>, University of Notre Dame (Jan &amp; Jul 2013)</li>
+            <li>Jakob Nielsen (2013), <em>Auto-Forwarding Carousels and Accordions Annoy Users and Reduce Visibility</em>, NN/g</li>
+            <li>W3C WAI-ARIA APG Carousel Pattern · WCAG 2.1 SC 2.2.2 · CSS Scroll Snap Level 1 (CR 2016 / 2021)</li>
+          </ul>
+        </div>
+
+        <div class="finale-checklist">
+          <p class="kw-kicker" lang="en">LAUNCH CHECKLIST · 上线前四问</p>
+          <ol>
+            <li><strong>露边真看得见吗？</strong>手机与桌面单侧都至少探出邻卡色块（约 8%–22%），避开只露白缝的假边缘。</li>
+            <li><strong>主角够稳吗？</strong>居中卡仅用温和放大与轻浮影压阵，不靠刺眼彩框抢走内容本身。</li>
+            <li><strong>总帧数克制吗？</strong>尽量控制在 5 帧以内，最重要的一项稳坐第 1 帧，补全箭头与键盘方向键。</li>
+            <li><strong>用户掌握节奏吗？</strong>默认手动翻页；若必须自播，配可见暂停钮并做到悬停、聚焦、交互即停。</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 原海报放大拖动灯箱 -->
+<div class="lightbox" id="poster-lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报放大查看器">
+  <div class="plb-bar">
+    <span class="plb-title">No. 276 轮播布局 · 原海报（拖动平移 · 滚轮或按钮缩放）</span>
+    <div class="plb-actions">
+      <span class="plb-zoom" id="plb-zoom" lang="en">100%</span>
+      <button type="button" class="lb-btn" id="plb-out" aria-label="缩小">−</button>
+      <button type="button" class="lb-btn" id="plb-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn" id="plb-reset">还原</button>
+      <button type="button" class="lb-btn lb-close" id="plb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="plb-stage" id="plb-stage">
+    <img id="plb-img" alt="No. 276 轮播布局原海报放大视图" draggable="false">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p class="foot-brand"><span lang="en">No. 276</span> 轮播布局 · 350 种排版</p>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/276/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
