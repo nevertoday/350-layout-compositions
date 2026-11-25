@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>065 前中后景构图 · FOREGROUND–MIDGROUND–BACKGROUND COMPOSITION</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar" aria-label="页面索引">
+    <div class="topbar-inner">
+      <span class="topbar-cat"><span class="dot-pin" aria-hidden="true"></span>构图逻辑 / 空间层次与投影</span>
+      <span class="topbar-right">
+        <span class="topbar-id">NO. 065 · FOREGROUND–MIDGROUND–BACKGROUND</span>
+        <span id="hero-status-pill" class="status-pill is-err" role="status">0 / 4 待分层</span>
+      </span>
+    </div>
+  </header>
+
+  <main>
+    <!-- 开场：忠实承袭 065 原海报的「暖米纸全景天窗 -> 三道通栏实色景片带 -> 浅麻纸诊单与四项线性徽」骨架 -->
+    <section class="hero" aria-label="多平面玻璃景片盒实验台">
+      <div class="hero-wrap">
+        <div class="hero-head">
+          <div class="hero-title-col">
+            <h1 class="demo-title" aria-label="前中后景构图">
+              <span class="t-fg">前</span><span class="t-mid">中</span><span class="t-bg">后</span><span class="t-rest">景构图</span>
+            </h1>
+            <p class="hero-en">FOREGROUND–MIDGROUND–BACKGROUND COMPOSITION</p>
+            <div class="hero-rule" aria-hidden="true"></div>
+            <p class="hero-summary">通过前景、中景、背景的层次安排，营造空间深度与视觉秩序，引导视线，突出主题。</p>
+          </div>
+          <div class="hero-meta-col">
+            <div class="poster-dots" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="hero-tool-rows">
+              <div class="btn-strip" role="group" aria-label="切换场景">
+                <button type="button" class="pill-btn is-active" data-scene="poster" aria-pressed="true">原海报山居</button>
+                <button type="button" class="pill-btn" data-scene="boat" aria-pressed="false">林径孤舟</button>
+                <button type="button" class="pill-btn" data-scene="alley" aria-pressed="false">街巷灯影</button>
+              </div>
+              <div class="btn-strip" role="group" aria-label="视角与视线推演">
+                <button type="button" class="pill-btn" id="btn-yaw-front">0° 正视</button>
+                <button type="button" class="pill-btn" id="btn-yaw-split">28° 3D 拆层</button>
+                <button type="button" class="pill-btn" id="btn-sight" aria-pressed="false">推演视线 1→2→3</button>
+                <button type="button" class="pill-btn is-ghost" id="btn-reset">复原错态</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-workbench">
+          <!-- 全景 3D 多平面舞台（data-perf-drag 标在可横向拖转 3D 拆层的主画布上） -->
+          <div class="stage-shell">
+            <canvas
+              id="hero-canvas"
+              class="hero-canvas"
+              data-perf-drag
+              tabindex="0"
+              role="application"
+              aria-label="三维多平面景片盒：左右拖动或按左右方向键切换正视与侧斜 3D 拆层视角"
+            ></canvas>
+            <div class="stage-overlay-bar" aria-live="polite">
+              <span id="yaw-readout" class="stage-chip">视角 12° · 左右拖动 3D 拆层</span>
+              <span id="engine-tag" class="stage-chip is-soft">3D 多平面景片</span>
+            </div>
+          </div>
+
+          <!-- 原海报标志性三道通栏实色层带：每一带直接操控本层物理参数 -->
+          <div class="strata-stack" aria-label="前中后三层景片调控带">
+            <!-- LAYER 1 前景 · 深松绿 -->
+            <div class="stratum stratum-fg" id="stratum-fg">
+              <div class="stratum-id">
+                <span class="emblem-circle" aria-hidden="true">
+                  <svg viewBox="0 0 48 48" width="42" height="42">
+                    <path d="M24 44 C24 31 24 22 24 10" stroke="#083626" stroke-width="2.6" fill="none"/>
+                    <path d="M23 34 C14 31 11 23 13 15 C19 18 23 25 23 34Z" fill="#083626"/>
+                    <path d="M25 29 C34 25 38 17 36 10 C30 14 26 20 25 29Z" fill="#083626"/>
+                    <path d="M24 21 C20 14 21 8 24 5 C27 8 28 14 24 21Z" fill="#083626"/>
+                  </svg>
+                </span>
+                <div class="stratum-name">
+                  <span class="stratum-zh">前景</span>
+                  <span class="stratum-en">FOREGROUND · LAYER 1</span>
+                </div>
+                <span class="weight-dots" id="dots-fg" aria-hidden="true"><i></i><i></i><i></i></span>
+              </div>
+              <div class="stratum-controls">
+                <div class="ctrl-group">
+                  <span class="ctrl-label">开合排布</span>
+                  <div class="seg-btns" role="group" aria-label="前景开合排布">
+                    <button type="button" class="seg-btn is-active" data-fg-layout="center" aria-pressed="true">居中堵门</button>
+                    <button type="button" class="seg-btn" data-fg-layout="flank" aria-pressed="false">双侧让路</button>
+                    <button type="button" class="seg-btn" data-fg-layout="corner" aria-pressed="false">单侧压角</button>
+                  </div>
+                </div>
+                <label class="ctrl-slider" for="range-fg">
+                  <span class="ctrl-label">占比 <strong id="val-fg">46%</strong><em id="val-block" class="sub-metric"> · 遮主 61%</em></span>
+                  <input id="range-fg" type="range" min="0" max="100" step="1" value="86">
+                </label>
+              </div>
+            </div>
+
+            <!-- LAYER 2 中景 · 钢青蓝 -->
+            <div class="stratum stratum-mid" id="stratum-mid">
+              <div class="stratum-id">
+                <span class="emblem-circle" aria-hidden="true">
+                  <svg viewBox="0 0 48 48" width="42" height="42">
+                    <circle cx="29" cy="19" r="10.5" fill="#335C87"/>
+                    <rect x="27.8" y="26" width="2.4" height="17" fill="#335C87"/>
+                    <circle cx="15" cy="27" r="6.5" fill="#335C87"/>
+                    <rect x="14" y="31" width="2" height="12" fill="#335C87"/>
+                  </svg>
+                </span>
+                <div class="stratum-name">
+                  <span class="stratum-zh">中景</span>
+                  <span class="stratum-en">MIDGROUND · LAYER 2</span>
+                </div>
+                <span class="weight-dots" id="dots-mid" aria-hidden="true"><i></i><i></i></span>
+              </div>
+              <div class="stratum-controls">
+                <label class="ctrl-slider" for="range-depth">
+                  <span class="ctrl-label">景片 Z 距 <strong id="val-depth">0.23 · 贴扁</strong></span>
+                  <input id="range-depth" type="range" min="0" max="150" step="1" value="6">
+                </label>
+                <div class="ctrl-group">
+                  <span class="ctrl-label">视觉焦点</span>
+                  <div class="seg-btns" role="group" aria-label="视觉焦点落位">
+                    <button type="button" class="seg-btn is-active" data-focus="flat" aria-pressed="true">平权</button>
+                    <button type="button" class="seg-btn" data-focus="mid" aria-pressed="false">中景</button>
+                    <button type="button" class="seg-btn" data-focus="fg" aria-pressed="false">前景</button>
+                    <button type="button" class="seg-btn" data-focus="bg" aria-pressed="false">背景</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LAYER 3 背景 · 雾灰蓝（忠实复刻原海报：深松绿字色） -->
+            <div class="stratum stratum-bg" id="stratum-bg">
+              <div class="stratum-id">
+                <span class="emblem-circle" aria-hidden="true">
+                  <svg viewBox="0 0 48 48" width="42" height="42">
+                    <path d="M4 38 L18 18 L28 31 L36 22 L44 38 Z" fill="#99B1C7"/>
+                    <path d="M4 38 Q22 25 44 35 L44 44 L4 44 Z" fill="#4D7BA3"/>
+                  </svg>
+                </span>
+                <div class="stratum-name">
+                  <span class="stratum-zh">背景</span>
+                  <span class="stratum-en">BACKGROUND · LAYER 3</span>
+                </div>
+                <span class="weight-dots" id="dots-bg" aria-hidden="true"><i></i></span>
+              </div>
+              <div class="stratum-controls">
+                <label class="ctrl-slider is-wide" for="range-atmo">
+                  <span class="ctrl-label">远景空气退让 <strong id="val-atmo">12%</strong></span>
+                  <input id="range-atmo" type="range" min="0" max="100" step="1" value="12">
+                </label>
+                <div class="contrast-ladder" aria-label="三层对天空对比度梯子">
+                  <span class="ctrl-label">对比阶梯（前→中→后）</span>
+                  <span id="val-ladder" class="ladder-nums">12.4 → 10.2 → 9.1</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部：原海报浅麻纸诊单 + 四枚线性关键词徽 -->
+          <div class="hero-ledger">
+            <div class="diag-box" aria-live="polite">
+              <div class="diag-head">
+                <span id="diag-badge" class="diag-badge is-err">错态 · 前景堵路 (0/4)</span>
+                <span class="diag-source">单真源实算 · 经验参考带</span>
+              </div>
+              <p id="diag-headline" class="diag-headline"></p>
+              <p id="diag-why" class="diag-why"></p>
+              <p id="diag-tip" class="diag-tip"></p>
+            </div>
+
+            <div class="pillars-grid" aria-label="原海报四项核心检核">
+              <div class="pillar-item" id="pillar-depth">
+                <svg class="pillar-ico" viewBox="0 0 32 32" aria-hidden="true">
+                  <path d="M3 16 Q16 5 29 16 Q16 27 3 16 Z" fill="none" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="16" cy="16" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <div class="pillar-txt">
+                  <span class="pillar-en">DEPTH</span>
+                  <span class="pillar-zh">空间深度</span>
+                </div>
+                <span class="pillar-val" id="pillar-depth-val">贴扁</span>
+              </div>
+              <div class="pillar-item" id="pillar-layer">
+                <svg class="pillar-ico" viewBox="0 0 32 32" aria-hidden="true">
+                  <polygon points="16,5 28,11 16,17 4,11" fill="none" stroke="currentColor" stroke-width="1.9"/>
+                  <polyline points="4,16 16,22 28,16" fill="none" stroke="currentColor" stroke-width="1.9"/>
+                  <polyline points="4,21 16,27 28,21" fill="none" stroke="currentColor" stroke-width="1.9"/>
+                </svg>
+                <div class="pillar-txt">
+                  <span class="pillar-en">LAYER</span>
+                  <span class="pillar-zh">层次关系</span>
+                </div>
+                <span class="pillar-val" id="pillar-layer-val">遮主</span>
+              </div>
+              <div class="pillar-item" id="pillar-distance">
+                <svg class="pillar-ico" viewBox="0 0 32 32" aria-hidden="true">
+                  <circle cx="7" cy="11" r="2.1" fill="currentColor"/><circle cx="13" cy="11" r="2.1" fill="currentColor"/>
+                  <circle cx="19" cy="11" r="2.1" fill="currentColor"/><circle cx="25" cy="11" r="2.1" fill="currentColor"/>
+                  <circle cx="7" cy="21" r="2.1" fill="currentColor"/><circle cx="13" cy="21" r="2.1" fill="currentColor"/>
+                  <circle cx="19" cy="21" r="2.1" fill="currentColor"/><circle cx="25" cy="21" r="2.1" fill="currentColor"/>
+                </svg>
+                <div class="pillar-txt">
+                  <span class="pillar-en">DISTANCE</span>
+                  <span class="pillar-zh">距离感</span>
+                </div>
+                <span class="pillar-val" id="pillar-distance-val">过硬</span>
+              </div>
+              <div class="pillar-item" id="pillar-focus">
+                <svg class="pillar-ico" viewBox="0 0 32 32" aria-hidden="true">
+                  <circle cx="16" cy="16" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="16" cy="16" r="2.4" fill="currentColor"/>
+                  <path d="M16 3 V7 M16 25 V29 M3 16 H7 M25 16 H29" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <div class="pillar-txt">
+                  <span class="pillar-en">FOCUS</span>
+                  <span class="pillar-zh">视觉焦点</span>
+                </div>
+                <span class="pillar-val" id="pillar-focus-val">平权</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 原海报标志性左斜纹右深松绿收脚带 -->
+        <div class="poster-foot-stripe" aria-hidden="true">
+          <span class="stripe-hatch"></span>
+          <span class="stripe-solid"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 01 三层各自干什么 -->
+    <section class="sec sec-linen" id="sec-01">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div>
+            <h2>三层各自干什么</h2>
+            <p class="sec-en">THREE DEPTH PLANES</p>
+          </div>
+        </div>
+
+        <p class="lead">屏幕和画纸本身没有厚度，大脑靠前后遮挡、近大远小和明暗衰减来估算距离。065 原海报把整幅画面拆成三道景片，视线从近到远逐级步入，平面才有了可「走进去」的秩序。</p>
+
+        <div class="poster-quotes-grid">
+          <article class="quote-slab slab-fg">
+            <span class="slab-tag">LAYER 1 · FOREGROUND</span>
+            <h3>前景：进门着陆点</h3>
+            <blockquote>「最靠近观者的元素，体积大、细节清晰、色彩对比强，承担画面“着陆点”。作用：建立空间感，增强沉浸感与真实感。」</blockquote>
+            <p>白话来说，前景给眼睛一把「近处尺子」：有了一角沉实的叶片或栏杆挡在眼前，后面的山丘才显出真正的距离。经验上前景多压在边角占 12%–30%，够立住入口又不堵死中路。</p>
+          </article>
+          <article class="quote-slab slab-mid">
+            <span class="slab-tag">LAYER 2 · MIDGROUND</span>
+            <h3>中景：故事主舞台</h3>
+            <blockquote>「位于前景与背景之间，承上启下，提供情境与过渡，丰富画面内容。作用：连接层次，维持视觉节奏。」</blockquote>
+            <p>绝大多数风光与叙事构图里，真正的主角（小屋、行船、背影旅人）其实立在中景。它既接住了前景让出的通道，又把近处尺度和远方天际缝合成同一段旅程。</p>
+          </article>
+          <article class="quote-slab slab-bg">
+            <span class="slab-tag">LAYER 3 · BACKGROUND</span>
+            <h3>背景：空间托底与空气</h3>
+            <blockquote>「最远处的元素，体积小、对比弱、细节简化，营造环境氛围与空间深度。作用：拉开距离，烘托主题。」</blockquote>
+            <p>背景负责「退后一步」。轮廓简略、对比柔和、色调偏淡冷，它从不抢答，却决定了整个世界有多辽阔——没有它，中景会撞死在空白墙面上。</p>
+          </article>
+        </div>
+
+        <aside class="gentle-note" aria-label="对原海报说法的温和补充">
+          <span class="gentle-tag">说多了一点</span>
+          <p>原海报在「构图要点」里写了「<strong>在前景设置焦点，引导视线</strong>」。这在近景静物海报或电影特写引景里完全成立；但拍风光或叙事画面时，核心主角往往放在<strong>中景</strong>，前景反而要适度压暗或轻柔让路——死板把全部锐度与最亮焦点都堆在前景，反而容易喧宾夺主。</p>
+        </aside>
+
+        <div class="lab-box">
+          <div class="lab-head">
+            <div>
+              <h3>剥洋葱透视台：撤掉任意一层会怎样？</h3>
+              <p class="lab-sub">分别点击关闭前、中、后景，亲眼看缺了哪一片空间秩序会立刻坍塌。</p>
+            </div>
+            <div class="peel-toggles" role="group" aria-label="独立开关三层景片">
+              <button type="button" class="peel-btn is-fg" data-peel-layer="fg" aria-pressed="true">前景 · 开</button>
+              <button type="button" class="peel-btn is-mid" data-peel-layer="mid" aria-pressed="true">中景 · 开</button>
+              <button type="button" class="peel-btn is-bg" data-peel-layer="bg" aria-pressed="true">背景 · 开</button>
+            </div>
+          </div>
+          <canvas id="peel-canvas" class="lab-canvas" width="760" height="380" aria-label="三层景片剥离实验画布"></canvas>
+          <p id="peel-readout" class="lab-readout" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 遮挡、虚实与对比梯子 -->
+    <section class="sec sec-cream" id="sec-02">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div>
+            <h2>遮挡、虚实与对比梯子</h2>
+            <p class="sec-en">CONTRAST &amp; ATMOSPHERE</p>
+          </div>
+        </div>
+
+        <p class="lead">原海报总结了四条构图要点：「近大远小，近实远虚」「对比由强到弱」「在前景设置焦点，引导视线」「保持层次之间的空间关系」。其中最硬的两根支柱，是<strong>遮挡顺序</strong>与<strong>对比衰减</strong>——哪怕没有景深虚化，这两条也能独自撑起立体感。</p>
+
+        <div class="optics-layout">
+          <div class="optics-canvas-wrap">
+            <canvas id="optics-canvas" class="lab-canvas is-clickable" width="720" height="380" aria-label="光学光圈与空气透视移焦画布：点击画中前中后景任意区域可切换合焦层"></canvas>
+            <p class="canvas-hint">可直接点击画中「左下叶丛 / 中景小屋 / 上方远山」实时移焦</p>
+          </div>
+
+          <div class="optics-panel">
+            <div class="opt-block">
+              <span class="opt-kicker">镜头光圈（景深跨度）</span>
+              <div class="seg-btns is-light" role="group" aria-label="选择镜头光圈">
+                <button type="button" class="seg-btn-l" data-optics-aperture="f2" aria-pressed="false">f/2.0 浅景深</button>
+                <button type="button" class="seg-btn-l is-active" data-optics-aperture="f8" aria-pressed="true">f/8 平衡</button>
+                <button type="button" class="seg-btn-l" data-optics-aperture="f22" aria-pressed="false">f/22 全锐深焦</button>
+              </div>
+            </div>
+
+            <div class="opt-block">
+              <span class="opt-kicker">大气散射（空气透视）</span>
+              <div class="seg-btns is-light" role="group" aria-label="选择空气雾气浓度">
+                <button type="button" class="seg-btn-l" data-optics-atmo="clear" aria-pressed="false">晴空低雾</button>
+                <button type="button" class="seg-btn-l is-active" data-optics-atmo="mist" aria-pressed="true">晨雾退让</button>
+                <button type="button" class="seg-btn-l" data-optics-atmo="dusk" aria-pressed="false">逆光浓雾</button>
+              </div>
+            </div>
+
+            <div class="opt-block">
+              <span class="opt-kicker">合焦平面（也可直接点画布）</span>
+              <div class="seg-btns is-light" role="group" aria-label="选择合焦平面">
+                <button type="button" class="seg-btn-l" data-optics-target="fg" aria-pressed="false">合焦前景</button>
+                <button type="button" class="seg-btn-l is-active" data-optics-target="mid" aria-pressed="true">合焦中景</button>
+                <button type="button" class="seg-btn-l" data-optics-target="bg" aria-pressed="false">合焦背景</button>
+              </div>
+            </div>
+
+            <div class="meter-box" aria-label="三层实测相对亮度对比度">
+              <span class="opt-kicker">三层对天空的实测对比度</span>
+              <div class="meter-row">
+                <span class="meter-lbl">前景 L1</span>
+                <span class="meter-track"><span id="meter-fg" class="meter-fill is-fg"></span></span>
+                <span id="meter-fg-val" class="meter-num">11.9:1</span>
+              </div>
+              <div class="meter-row">
+                <span class="meter-lbl">中景 L2</span>
+                <span class="meter-track"><span id="meter-mid" class="meter-fill is-mid"></span></span>
+                <span id="meter-mid-val" class="meter-num">7.4:1</span>
+              </div>
+              <div class="meter-row">
+                <span class="meter-lbl">背景 L3</span>
+                <span class="meter-track"><span id="meter-bg" class="meter-fill is-bg"></span></span>
+                <span id="meter-bg-val" class="meter-num">2.0:1</span>
+              </div>
+            </div>
+
+            <p id="optics-readout" class="opt-readout" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 从三色风景到多平面镜头（深松林暗室节） -->
+    <section class="sec sec-dark" id="sec-03">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">03</span>
+          <div>
+            <h2>从三色风景到多平面镜头</h2>
+            <p class="sec-en">ORIGIN &amp; LINEAGE</p>
+          </div>
+        </div>
+
+        <p class="lead">前中后景不是某位大师拍脑袋发明的规则，而是画师、剧场布景师、动画工程师与电影摄影师跨越五百年共同打磨出来的空间工具。</p>
+
+        <div class="history-tabs" role="group" aria-label="历史四幕空间机制">
+          <button type="button" class="era-btn is-active" data-history-era="patinir" aria-pressed="true">1510s 帕蒂尼尔三色带</button>
+          <button type="button" class="era-btn" data-history-era="claude" aria-pressed="false">1640s 洛兰侧翼推远</button>
+          <button type="button" class="era-btn" data-history-era="disney" aria-pressed="false">1937 迪士尼多平面摄影机</button>
+          <button type="button" class="era-btn" data-history-era="kane" aria-pressed="false">1941 《公民凯恩》深焦</button>
+        </div>
+
+        <div class="history-stage-grid">
+          <canvas id="history-canvas" class="history-canvas" width="760" height="380" aria-label="历史空间机制示意画布"></canvas>
+          <div class="history-card">
+            <h3 id="history-era-title">1510s–1520s · 帕蒂尼尔三色调「世界风景」</h3>
+            <p id="history-era-desc">尼德兰画家约阿希姆·帕蒂尼尔（如约 1520–1524 年《渡过冥河的风景》）把宏大鸟瞰风光拆成「褐前、绿中、蓝后」三道色带，配合达·芬奇总结的空气透视，确立了欧洲独立风景画的三层空间骨架。</p>
+            <ul class="history-facts">
+              <li><strong>空气透视理论</strong>：列奥纳多·达·芬奇在绘画笔记（1651 年整理出版《绘画论》）里指出，远处景物因空气水汽散射而对比变弱、色调偏蓝，现藏伦敦国家美术馆的《岩间圣母》即如此处理远峰。</li>
+              <li><strong>推远法（Repoussoir）</strong>：法语意为「推后」，指在前景边角放深色树丛或建筑把观者目光推向深处，克劳德·洛兰在 1641 年《圣乌苏拉登船海港》与 1658 年《大卫在亚杜兰洞》中运用至臻。</li>
+              <li><strong>实体化分层</strong>：1937 年威廉·加里蒂团队的垂直玻璃架让前中后景成为可分别平移的物理玻璃片；1941 年奥逊·威尔斯与格雷格·托兰德进一步让三层在单个镜头里同时承担戏剧冲突。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 真实场景怎么用 + 同类 11 页辨析 -->
+    <section class="sec sec-sage" id="sec-04">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div>
+            <h2>真实场景怎么用</h2>
+            <p class="sec-en">WHERE IT WORKS</p>
+          </div>
+        </div>
+
+        <p class="lead">只要画面想讲「人在场景中」的故事或制造沉浸感，三层景片都派得上用场。在动态屏幕里，只要让前、中、后景按不同速度随镜头平移，静止插画立刻变成可穿行的立体空间。</p>
+
+        <div class="lab-box is-sage-card">
+          <div class="lab-head">
+            <div>
+              <h3>机位横移视差台：推一推镜头，感受三层速度差</h3>
+              <p class="lab-sub">切一套应用场景，拖动横移滑条；再点「锁死视差对比」感受三层粘成硬纸板的区别。</p>
+            </div>
+            <div class="btn-strip" role="group" aria-label="选择应用模板">
+              <button type="button" class="pill-btn is-active" data-px-scene="travel" aria-pressed="true">旅拍海报</button>
+              <button type="button" class="pill-btn" data-px-scene="game" aria-pressed="false">横版游戏卷轴</button>
+              <button type="button" class="pill-btn" data-px-scene="web" aria-pressed="false">剧场式网页首屏</button>
+              <button type="button" class="pill-btn is-ghost" id="parallax-lock" aria-pressed="false">锁死视差对比</button>
+            </div>
+          </div>
+          <canvas id="parallax-canvas" class="lab-canvas" width="840" height="360" aria-label="三层视差横移演示画布"></canvas>
+          <div class="parallax-bar">
+            <label for="parallax-slider" class="px-label">机位左移 ↔ 右移</label>
+            <input id="parallax-slider" class="px-range" type="range" min="-100" max="100" step="1" value="0">
+          </div>
+          <p id="parallax-readout" class="lab-readout" aria-live="polite"></p>
+        </div>
+
+        <div class="sibling-box">
+          <h3>同一小类的 11 位邻居：各自解决什么问题？</h3>
+          <p class="sibling-intro">「空间层次与投影」小类里另有 11 种构图，它们各有专注点，本页不重讲，需要时直接点过去玩它们的独立互动页：</p>
+          <ul class="sibling-list">
+            <li><a href="https://layout.xiaoxiaodong.ai/066/play/" target="_blank" rel="noopener">066 前景框架构图</a>：要求前景围出一扇完整的「窗洞」兜住主体，而前中后景只需前景占一角或一侧。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/067/play/" target="_blank" rel="noopener">067 重叠空间构图</a>：专攻图形之间互相遮挡的先后关系，是本页三层立得住的底层视觉线索之一。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/068/play/" target="_blank" rel="noopener">068 尺度递减构图</a>：靠同类重复物体由近到远逐级缩小拉开纵深，而本页允许三层放完全不同的景物。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/069/play/" target="_blank" rel="noopener">069 线性透视</a>、<a href="https://layout.xiaoxiaodong.ai/070/play/" target="_blank" rel="noopener">070 一点透视</a>、<a href="https://layout.xiaoxiaodong.ai/071/play/" target="_blank" rel="noopener">071 两点透视</a>、<a href="https://layout.xiaoxiaodong.ai/072/play/" target="_blank" rel="noopener">072 三点透视</a>：靠几何直线与灭点构建精确建筑纵深；即使画面里一根直线也没有，065 仍能靠三层景片成立。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/073/play/" target="_blank" rel="noopener">073 平行透视构图</a>、<a href="https://layout.xiaoxiaodong.ai/074/play/" target="_blank" rel="noopener">074 斜投影构图</a>、<a href="https://layout.xiaoxiaodong.ai/075/play/" target="_blank" rel="noopener">075 等距构图</a>、<a href="https://layout.xiaoxiaodong.ai/076/play/" target="_blank" rel="noopener">076 轴测构图</a>：刻意取消近大远小来保留精确尺寸度量，与前中后景追求的身临其境视角刚好相反。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 什么时候别用 -->
+    <section class="sec sec-linen" id="sec-05">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div>
+            <h2>什么时候别用</h2>
+            <p class="sec-en">WHEN NOT TO USE</p>
+          </div>
+        </div>
+
+        <p class="lead">不是每张画都必须硬凑三层。当你的目标是「零遮挡快速识别」或「精确量尺寸」时，硬塞前景不仅不加分，反而成了挡眼的视觉垃圾。</p>
+
+        <div class="avoid-grid">
+          <div class="avoid-reasons">
+            <div class="avoid-item">
+              <h3>1. 电商白底主图与图鉴标本</h3>
+              <p>商品目录、证件照和科普标本要求孤立清晰、统一比对，硬在角落塞虚化绿叶或杯沿只会显得廉价干扰。</p>
+            </div>
+            <div class="avoid-item">
+              <h3>2. 工程制图与数据看板</h3>
+              <p>仪表盘、建筑平立面和流程拓扑需要无变形对照，请改用平面网格或 <a href="https://layout.xiaoxiaodong.ai/075/play/" target="_blank" rel="noopener">075 等距构图</a> / <a href="https://layout.xiaoxiaodong.ai/076/play/" target="_blank" rel="noopener">076 轴测构图</a>。</p>
+            </div>
+            <div class="avoid-item">
+              <h3>3. 极简徽标与远距快读标识</h3>
+              <p>标志和路牌要在半秒内完成图形识别，叠加三层深浅遮挡只会拖慢辨识速度。</p>
+            </div>
+            <div class="avoid-item">
+              <h3>4. 硬凑出来的「伪前景」</h3>
+              <p>现场没有合适近景物时，拿无关杂草、杂乱桌角硬挡镜头三分之一，只会变成脏污噪点——宁缺毋滥。</p>
+            </div>
+          </div>
+
+          <div class="avoid-clinic">
+            <div class="clinic-head">
+              <div class="btn-strip" role="group" aria-label="选择翻车反例">
+                <button type="button" class="pill-btn is-active" data-avoid-case="ecom" aria-pressed="true">白底图硬塞叶</button>
+                <button type="button" class="pill-btn" data-avoid-case="chart" aria-pressed="false">看板叠景片</button>
+                <button type="button" class="pill-btn" data-avoid-case="weed" aria-pressed="false">杂草伪前景</button>
+              </div>
+              <button type="button" class="action-strip-btn" id="avoid-strip-btn" aria-pressed="false">一键剥离多余前景</button>
+            </div>
+
+            <div id="avoid-stage" class="avoid-stage" data-case="ecom" data-stripped="0" aria-label="反例对照演示区">
+              <!-- 白底商品图模型 -->
+              <div class="mock mock-ecom">
+                <div class="mock-bottle">
+                  <span class="bottle-cap"></span>
+                  <span class="bottle-body">
+                    <span class="bottle-label">TEA 065<br>250ml</span>
+                  </span>
+                </div>
+                <div class="bad-overlay bad-leaves" aria-hidden="true"></div>
+              </div>
+              <!-- 数据看板模型 -->
+              <div class="mock mock-chart">
+                <div class="chart-bars">
+                  <span style="height:42%"></span>
+                  <span style="height:76%"></span>
+                  <span style="height:58%"></span>
+                  <span style="height:92%"></span>
+                  <span style="height:64%"></span>
+                </div>
+                <div class="chart-kpis"><span>Q1 42</span><span>Q2 76</span><span>Q3 58</span><span>Q4 92</span></div>
+                <div class="bad-overlay bad-glass" aria-hidden="true"></div>
+              </div>
+              <!-- 杂草伪前景模型 -->
+              <div class="mock mock-weed">
+                <div class="weed-scene">
+                  <span class="weed-sun"></span>
+                  <span class="weed-figure"></span>
+                </div>
+                <div class="bad-overlay bad-weeds" aria-hidden="true"></div>
+              </div>
+            </div>
+
+            <p id="avoid-note" class="clinic-note" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 小练习：单变量控制 -->
+    <section class="sec sec-cream" id="sec-06">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div>
+            <h2>挑出纵深最立得住的一幅</h2>
+            <p class="sec-en">QUICK CHECK</p>
+          </div>
+        </div>
+
+        <div class="quiz-head-row">
+          <p id="quiz-prompt" class="lead"></p>
+          <button type="button" class="pill-btn" id="quiz-next">换一题（测前景占比变量）</button>
+        </div>
+
+        <div id="quiz-grid" class="quiz-grid" role="group" aria-label="单变量构图练习选项"></div>
+        <p id="quiz-feedback" class="quiz-feedback" aria-live="polite">点击任意方案查看判定与理由。</p>
+      </div>
+    </section>
+
+    <!-- 07 原海报与关键词 -->
+    <section class="sec sec-sage" id="sec-07">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div>
+            <h2>原海报与关键词</h2>
+            <p class="sec-en">ORIGINAL POSTER</p>
+          </div>
+        </div>
+
+        <div class="poster-grid">
+          <div class="poster-figure-col">
+            <button type="button" class="poster-btn" id="poster-trigger" aria-label="点击放大查看 065 前中后景构图原海报">
+              <img id="poster" src="poster.webp" alt="065 前中后景构图原海报" draggable="false">
+              <span class="poster-zoom-tip">点击放大 · 支持拖拽 · Esc 关闭</span>
+            </button>
+          </div>
+          <div class="poster-meta-col">
+            <h3>海报核心关键词矩阵</h3>
+            <p class="poster-meta-desc">本页的暖米纸、深松绿、钢青蓝、雾灰蓝与三道景片层带均直接取自 065 原海报。下面完整保留原海报上的关键词与要点索引：</p>
+            <div class="kw-cards">
+              <div class="kw-card">
+                <span class="kw-en">DEPTH</span>
+                <strong>空间深度</strong>
+                <span>视线从近到远穿行三片景片</span>
+              </div>
+              <div class="kw-card">
+                <span class="kw-en">LAYER</span>
+                <strong>层次关系</strong>
+                <span>前景、中景、背景分工明确</span>
+              </div>
+              <div class="kw-card">
+                <span class="kw-en">DISTANCE</span>
+                <strong>距离感</strong>
+                <span>近大远小、对比由强到弱</span>
+              </div>
+              <div class="kw-card">
+                <span class="kw-en">FOCUS</span>
+                <strong>视觉焦点</strong>
+                <span>入口清晰、核心主体不迷失</span>
+              </div>
+            </div>
+            <div class="kw-strata-tags">
+              <span class="ktag ktag-fg">LAYER 1 · 突出主体 · 细节清晰 · 对比强烈 · FOCUS PRESENCE</span>
+              <span class="ktag ktag-mid">LAYER 2 · 承上启下 · 关系清晰 · 节奏平衡 · CONNECTION BALANCE</span>
+              <span class="ktag ktag-bg">LAYER 3 · 拉开距离 · 对比柔和 · 氛围营造 · DISTANCE ATMOSPHERE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <a href="https://layout.xiaoxiaodong.ai/065/play/" target="_blank" rel="noopener">在线版</a>
+      <span aria-hidden="true">/</span>
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span aria-hidden="true">·</span>
+      <span>海报 CC BY 4.0</span>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/xxd-dev/350-layout-interactive" target="_blank" rel="noopener">源文件 GitHub</a>
+    </div>
+  </footer>
+
+  <!-- 原海报放大灯箱（Esc / 背景点击 / 按钮关闭，图片禁浏览器原生拖拽以支持平移） -->
+  <dialog id="poster-lightbox" class="lightbox" aria-label="原海报放大查看">
+    <div class="lightbox-bar">
+      <span>065 前中后景构图 · 原海报</span>
+      <div class="lightbox-actions">
+        <button type="button" id="lightbox-zoom" class="lb-btn">放大 185%</button>
+        <button type="button" id="lightbox-close" class="lb-btn">关闭 Esc</button>
+      </div>
+    </div>
+    <div class="lightbox-stage">
+      <img id="lightbox-img" alt="065 前中后景构图原海报大图" draggable="false">
+    </div>
+  </dialog>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
