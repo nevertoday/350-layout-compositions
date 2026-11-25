@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#D7EBC7">
+<title>便当盒布局 · BENTO BOX LAYOUT · No. 272</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <p class="crumb"><span class="crumb-dot" aria-hidden="true"></span><span>网页与 UI</span><span class="crumb-sep" aria-hidden="true">/</span><span>内容与产品模式</span></p>
+    <p class="issue"><span class="en-tag" lang="en">NO. 272</span><span class="issue-sep" aria-hidden="true">·</span><span>350 种排版 · 互动版</span></p>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== HERO：272 原海报同源抹茶便当装盒台 ==================== -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="wrap hero-in">
+      <div class="hero-head">
+        <div class="hero-copy">
+          <h1 id="page-title" class="hero-title">便当盒布局</h1>
+          <p class="hero-en" lang="en">BENTO BOX LAYOUT</p>
+          <p class="hero-summary" id="hero-summary-top">将页面划分为多个内容仓位，信息各归其位，层次清晰，阅读轻松。</p>
+        </div>
+
+        <div class="hero-emblem" aria-label="实时同步迷你便当盒状态">
+          <div class="lunchbox-card">
+            <svg id="mini-bento-svg" class="lunchbox-svg" viewBox="0 0 180 144" role="img" aria-label="随拼盘实时同步的便当盒示意"></svg>
+            <div class="lunchbox-meta">
+              <span class="score-pill" id="hero-score-badge" data-state="fail">0/4 喧宾夺主</span>
+              <span class="lunchbox-cap" id="hero-score-sub">拖中间青绿隔板或点仓调格</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主互动区：左 71% 实体 4×3 木框便当内胆盘 × 右 29% 齐底配菜签与诊单 -->
+      <div class="workbench">
+        <div class="tray-shell" id="bento-tray">
+          <div class="tray-head">
+            <span class="tray-label"><span class="en-tag" lang="en">4 × 3 BENTO TRAY</span><span class="tray-label-long"> · 拖隔板扩缩、拖卡片互换、方向键微调</span></span>
+            <button type="button" class="chip-btn chip-xray" id="btn-xray" aria-pressed="true">格栅透视：开</button>
+          </div>
+          <div class="tray-bed">
+            <div class="bento-grid" id="bento-grid" style="--tray-gap: 4px" aria-label="4 列 3 行便当盒装盒盘">
+              <div class="bento-slots" id="bento-slots" aria-hidden="true"></div>
+              <div class="bento-cells" id="bento-cells"></div>
+              <canvas class="bento-xray" id="bento-xray" aria-hidden="true"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <aside class="hero-side" aria-label="选中仓位操控与实时诊断">
+          <!-- 上仓：配菜签操控 -->
+          <div class="side-cell side-controls">
+            <div class="side-head">
+              <div>
+                <p class="micro-label" lang="en">SELECTED COMPARTMENT</p>
+                <p class="sel-title"><span class="sel-swatch" id="sel-swatch" aria-hidden="true"></span><strong id="sel-name">04 补充说明区</strong><span class="sel-span" id="sel-span" lang="en">2×2</span></p>
+              </div>
+              <button type="button" class="btn-ghost" id="btn-reset">复原错态</button>
+            </div>
+
+            <div class="ctrl-row" role="group" aria-label="调整选中仓宽高">
+              <div class="stepper">
+                <span class="stepper-k">跨列宽</span>
+                <div class="stepper-btns">
+                  <button type="button" class="step-btn" id="btn-w-dec" aria-label="减少列宽">−</button>
+                  <span class="stepper-v" id="val-w" lang="en">2</span>
+                  <button type="button" class="step-btn" id="btn-w-inc" aria-label="增加列宽">+</button>
+                </div>
+              </div>
+              <div class="stepper">
+                <span class="stepper-k">跨行高</span>
+                <div class="stepper-btns">
+                  <button type="button" class="step-btn" id="btn-h-dec" aria-label="减少行高">−</button>
+                  <span class="stepper-v" id="val-h" lang="en">2</span>
+                  <button type="button" class="step-btn" id="btn-h-inc" aria-label="增加行高">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ctrl-bar">
+              <span class="ctrl-k">盒缝</span>
+              <div class="gutter-group" role="group" aria-label="切换便当盒内缝宽度">
+                <button type="button" class="pill-btn" data-gutter="4" aria-pressed="true">4px 粘连</button>
+                <button type="button" class="pill-btn" data-gutter="14" aria-pressed="false">14px 舒朗</button>
+                <button type="button" class="pill-btn" data-gutter="28" aria-pressed="false">28px 散架</button>
+              </div>
+            </div>
+
+            <div class="ctrl-swap">
+              <button type="button" class="swap-toggle" id="btn-swap-mode" aria-pressed="false">与他仓互换格位</button>
+              <span class="swap-hint" id="swap-hint" aria-live="polite">点此按钮后再点另一仓即可互换</span>
+            </div>
+          </div>
+
+          <!-- 下仓：实时白话诊单 -->
+          <div class="side-cell side-diag" id="diag-card" data-state="fail" aria-live="polite">
+            <div class="diag-top">
+              <span class="diag-badge" id="diag-badge">0/4 喧宾夺主</span>
+              <span class="diag-metrics">
+                <span id="m-fill">填满 8/12</span>
+                <span aria-hidden="true">·</span>
+                <span id="m-ratio">级差 4.0×</span>
+                <span aria-hidden="true">·</span>
+                <span id="m-gap">缝 4px</span>
+              </span>
+            </div>
+            <h2 class="diag-h" id="diag-title">「补充说明区」占了 4 格，把大标题区压成了 1 格</h2>
+            <p class="diag-p" id="diag-body">人眼在二维网格里会把最大色块当成主角。现在配角占了大标题区 4 倍面积，读者第一眼先读到注释而不是主题。</p>
+            <p class="diag-tip" id="diag-hint">拖中间青绿隔板往左缩，再点樱粉大标题区拉成 2×2 或直接互换格位。</p>
+            <div class="diag-areas-wrap">
+              <span class="areas-k" lang="en">grid-template-areas</span>
+              <pre class="diag-areas" id="diag-areas"></pre>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- 手机竖屏总述（遵循 GUIDE.md：手机上让开场玩具直落首屏，总述放盘后） -->
+      <p class="hero-summary-mobile">将页面划分为多个内容仓位，信息各归其位，层次清晰，阅读轻松。</p>
+
+      <!-- 原海报底部同款「便当盒布局四步法」实时验收带 -->
+      <div class="steps-bar" aria-label="便当盒布局四步法实时验收">
+        <div class="steps-intro">
+          <p class="steps-title">便当盒布局四步法</p>
+          <p class="steps-en" lang="en">THE FOUR STEPS</p>
+          <p class="steps-quote">像准备一份便当一样，把信息装进合适的格子里。</p>
+        </div>
+        <ol class="steps-list" id="steps-list">
+          <li class="step-item" data-step="compartment" data-ok="false">
+            <div class="step-ico" aria-hidden="true">
+              <svg viewBox="0 0 32 32"><rect x="5" y="5" width="9" height="9" rx="2"/><rect x="18" y="5" width="9" height="9" rx="2"/><rect x="5" y="18" width="9" height="9" rx="2"/><rect x="18" y="18" width="9" height="9" rx="2"/></svg>
+            </div>
+            <p class="step-zh">分仓</p>
+            <p class="step-en" lang="en">COMPARTMENT</p>
+            <p class="step-live">缺 4 格空洞</p>
+          </li>
+          <li class="step-arrow" aria-hidden="true">›</li>
+          <li class="step-item" data-step="combine" data-ok="false">
+            <div class="step-ico" aria-hidden="true">
+              <svg viewBox="0 0 32 32"><path d="M12 6h5a2 2 0 0 1 2 2v1.5a2.5 2.5 0 1 1 0 5V16a2 2 0 0 1-2 2h-1.5a2.5 2.5 0 1 0-5 0H8a2 2 0 0 1-2-2v-4.5a2.5 2.5 0 1 1 0-5V8a2 2 0 0 1 2-2h4z"/><path d="M19 18h5a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-5"/></svg>
+            </div>
+            <p class="step-zh">组合</p>
+            <p class="step-en" lang="en">COMBINE</p>
+            <p class="step-live">补充说明偏胖</p>
+          </li>
+          <li class="step-arrow" aria-hidden="true">›</li>
+          <li class="step-item" data-step="emphasis" data-ok="false">
+            <div class="step-ico" aria-hidden="true">
+              <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="10"/><circle cx="16" cy="16" r="5"/><circle cx="16" cy="16" r="2" class="ico-fill"/></svg>
+            </div>
+            <p class="step-zh">强调</p>
+            <p class="step-en" lang="en">EMPHASIS</p>
+            <p class="step-live">配角抢焦</p>
+          </li>
+          <li class="step-arrow" aria-hidden="true">›</li>
+          <li class="step-item" data-step="light" data-ok="false">
+            <div class="step-ico" aria-hidden="true">
+              <svg viewBox="0 0 32 32"><path d="M8 24C8 14 14 7 25 6c-1 11-7 18-17 18z"/><path d="M8 24c4-5 9-9 14-12"/></svg>
+            </div>
+            <p class="step-zh">轻松</p>
+            <p class="step-en" lang="en">LIGHT</p>
+            <p class="step-live">4px 粘连</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01 为什么分仓就轻松（共同区域律 + 四仓解剖） ==================== -->
+  <article class="essay">
+    <section class="sec sec-cream" id="sec-1" aria-labelledby="s1">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">01</p>
+          <div class="sec-title-wrap">
+            <h2 id="s1">为什么分仓就轻松</h2>
+            <p class="sec-en" lang="en">LAW OF COMMON REGION</p>
+          </div>
+          <p class="sec-lead">便当盒真正的秘密，不是把方框磨圆，而是用封闭边界给不同气味的信息立起隔板。</p>
+        </header>
+
+        <div class="split-2">
+          <div class="prose">
+            <p>1992 年，加州大学伯克利分校的视觉心理学家斯蒂芬·帕尔默（Stephen E. Palmer）在《认知心理学》期刊中提出「共同区域律（Common Region）」：只要一组元素被同一个封闭边界或色块包住，大脑就会立刻把它们认作一家人——这种分组力量甚至强过距离远近和外形相似。</p>
+            <p>网页上常常同时出现大字标题、冷冰冰的数据、产品插图和补充小字。若不放隔板，它们靠得越近越容易「串味」：读者分不清哪句说明对应哪张图。便当盒用清晰的盒壁和浅色底把每一组信息关进独立仓位，眼睛不必费力猜归属，扫描负担立刻下降。</p>
+            <p class="note-box"><strong>原海报四仓职责</strong>：272 号海报把便当盘拆成四种典型角色——下方四枚标本卡完整保留了原海报的文字与图形语言。</p>
+          </div>
+
+          <!-- 互动 01：边界显影推窗（拉幕对比无隔板串味 vs 有隔板成组） -->
+          <div class="demo-panel" aria-label="边界显影推窗对比实验">
+            <div class="demo-top">
+              <span class="demo-tag">边界显影推窗 · 拖动中线对比隔板作用</span>
+              <span class="demo-stat" id="cr-readout">显影 52% · 隔板覆盖中（示意）</span>
+            </div>
+            <div class="cr-stage" id="cr-stage" style="--split: 52%">
+              <!-- 底层：无仓界（串味混乱版） -->
+              <div class="cr-layer cr-naked" aria-hidden="true">
+                <div class="cr-grid">
+                  <div class="cr-item cr-i1"><span class="cr-k">HEADLINE</span><b>春季音箱发布</b><p>全向声学腔体与离线语音降噪。</p></div>
+                  <div class="cr-item cr-i2"><span class="cr-k">HIGHLIGHT</span><strong class="cr-big">36h</strong><p>单次满电续航</p></div>
+                  <div class="cr-item cr-i3"><span class="cr-k">CONTENT</span><div class="cr-mini-art"><i></i><i></i><i></i></div><p>双单元低频与声场对比实测</p></div>
+                  <div class="cr-item cr-i4"><span class="cr-k">SUPPORT</span><p>支持蓝牙 5.4 与多房串联，整机重 420g。</p></div>
+                </div>
+                <span class="cr-badge cr-badge-l">无仓界 · 距离相近易串味</span>
+              </div>
+              <!-- 顶层：有便当仓界（按 --split 裁切显示） -->
+              <div class="cr-layer cr-boxed" aria-hidden="true">
+                <div class="cr-grid">
+                  <div class="cr-item cr-i1 is-pink"><span class="cr-k">HEADLINE</span><b>春季音箱发布</b><p>全向声学腔体与离线语音降噪。</p></div>
+                  <div class="cr-item cr-i2 is-cream"><span class="cr-k">HIGHLIGHT</span><strong class="cr-big">36h</strong><p>单次满电续航</p></div>
+                  <div class="cr-item cr-i3 is-peach"><span class="cr-k">CONTENT</span><div class="cr-mini-art"><i></i><i></i><i></i></div><p>双单元低频与声场对比实测</p></div>
+                  <div class="cr-item cr-i4 is-mint"><span class="cr-k">SUPPORT</span><p>支持蓝牙 5.4 与多房串联，整机重 420g。</p></div>
+                </div>
+                <span class="cr-badge cr-badge-r">有仓界 · 共同区域自动成组</span>
+              </div>
+              <div class="cr-divider" id="cr-divider" aria-hidden="true"><span class="cr-knob">⇄</span></div>
+            </div>
+            <label class="range-bar">
+              <span>无隔板（裸排）</span>
+              <input type="range" id="cr-range" min="0" max="100" value="52" aria-label="拖动边界显影推窗比例">
+              <span>完整便当仓界</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 原海报四大仓位原话展示卡 -->
+        <ol class="poster-four">
+          <li class="pf-card pf-pink">
+            <div class="pf-art pf-art-pink" aria-hidden="true"><span class="art-disc"></span><span class="art-moon"></span></div>
+            <p class="pf-en" lang="en">HEADLINE</p>
+            <h3>大标题区</h3>
+            <p class="pf-quote">「占据视觉焦点，快速建立主题认知。」</p>
+            <p class="pf-exp">整盒便当里的主菜：面积通常最大、色彩最抓眼，给视线一个不容迟疑的第一落点。</p>
+          </li>
+          <li class="pf-card pf-cream">
+            <div class="pf-art pf-art-cream" aria-hidden="true">
+              <svg viewBox="0 0 60 60"><path d="M30 4l4 15 14-7-7 14 15 4-15 4 7 14-14-7-4 15-4-15-14 7 7-14-15-4 15-4-7-14 14 7z"/></svg>
+            </div>
+            <p class="pf-en" lang="en">HIGHLIGHT</p>
+            <h3>重点提示区</h3>
+            <p class="pf-quote">「用于强调核心信息，让重点一目了然。」</p>
+            <p class="pf-exp">只装一个数字、一句核心结论或一枚醒目标签，紧贴主仓旁边充当高信噪比锚点。</p>
+          </li>
+          <li class="pf-card pf-peach">
+            <div class="pf-art pf-art-peach" aria-hidden="true">
+              <span class="art-img"></span><span class="art-lines"><i></i><i></i><i></i></span>
+            </div>
+            <p class="pf-en" lang="en">CONTENT</p>
+            <h3>内容主体区</h3>
+            <p class="pf-quote">「容纳主要信息与图文，逻辑分明，信息有序展开。」</p>
+            <p class="pf-exp">留出够宽的横向或 2×2 空间给截图、流程图和结构化说明，让图文舒展而不挤成碎块。</p>
+          </li>
+          <li class="pf-card pf-mint">
+            <div class="pf-art pf-art-mint" aria-hidden="true">
+              <svg viewBox="0 0 60 52"><path d="M30 6C16 6 6 14 6 24c0 5 3 10 8 13l-3 9 10-5c3 1 6 1 9 1 14 0 24-8 24-18S44 6 30 6z"/><circle cx="20" cy="24" r="2.6" fill="#D7E9D1"/><circle cx="30" cy="24" r="2.6" fill="#D7E9D1"/><circle cx="40" cy="24" r="2.6" fill="#D7E9D1"/></svg>
+            </div>
+            <p class="pf-en" lang="en">SUPPORT</p>
+            <h3>补充说明区</h3>
+            <p class="pf-quote">「承载补充信息、注释或案例，辅助理解。」</p>
+            <p class="pf-exp">甘当配菜：用紧凑的 1×1 或 2×1 收纳参数、来源或入口，绝不喧宾夺主。</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ==================== 02 面积就是音量（与 270/271 边界 + 温和修正） ==================== -->
+    <section class="sec sec-matcha" id="sec-2" aria-labelledby="s2">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">02</p>
+          <div class="sec-title-wrap">
+            <h2 id="s2">面积就是音量</h2>
+            <p class="sec-en" lang="en">AREA SETS HIERARCHY</p>
+          </div>
+          <p class="sec-lead">同在「内容与产品模式」家族里，便当盒既不同于一律等大的卡片网格，也不同于底部参差的瀑布流。</p>
+        </header>
+
+        <div class="hier-layout">
+          <!-- 互动 02：三档面积比切牌 + 视线落点连线 + 溢文压测 -->
+          <div class="demo-panel hier-panel" aria-label="面积比例与视线落点实验">
+            <div class="hier-toolbar">
+              <div class="seg-group" role="group" aria-label="切换面积比例标本">
+                <button type="button" class="pill-btn" data-hier="flat" aria-pressed="false">1:1:1:1 均分</button>
+                <button type="button" class="pill-btn" data-hier="balanced" aria-pressed="true">4:2:1:1 主副</button>
+                <button type="button" class="pill-btn" data-hier="monopoly" aria-pressed="false">6:1:1:1 霸盒</button>
+              </div>
+              <button type="button" class="chip-btn" id="hier-overflow-btn" aria-pressed="false">溢文压测：关</button>
+            </div>
+
+            <div class="hier-stage">
+              <div class="hier-grid" id="hier-grid"></div>
+              <svg class="hier-svg" id="hier-svg" aria-hidden="true"></svg>
+            </div>
+
+            <div class="hier-foot" aria-live="polite">
+              <strong class="hier-ratio" id="hier-ratio">4.0× 清晰分层</strong>
+              <p id="hier-verdict">主菜占一半面积（50%）在左上第一时间锁焦，图文主体占 25% 承接细读，两枚 12.5% 轻指标收在右下。</p>
+            </div>
+          </div>
+
+          <div class="prose">
+            <p><a href="https://layout.xiaoxiaodong.ai/270/play/" target="_blank" rel="noopener">卡片网格布局（270）</a>刻意让每张卡同宽同高，传达的是「条目平等、方便横比」；<a href="https://layout.xiaoxiaodong.ai/271/play/" target="_blank" rel="noopener">瀑布流页面（271）</a>放手让高矮不一的内容顺列下坠，追求的是无尽浏览节奏。而便当盒布局把两者反过来拧在一起：<strong>内部刻意制造面积级差，外部却强行收进一个严整的大矩形</strong>。</p>
+            <p>经验上，最大仓与最小仓的面积比拉开到 <strong>2× 到 4×</strong>（经验区间），视线就不需要靠大红大紫的按钮吆喝，自然会从大仓落进中仓，再扫向角落小仓。</p>
+
+            <div class="nuance-card">
+              <p class="nuance-head"><span class="nuance-pill">说多了一点</span><span>关于原海报的「灵活组合」</span></p>
+              <p class="nuance-quote">原海报写着：「灵活组合，适配内容与版面节奏。」</p>
+              <p>这句话对「固定文案的产品展示页」很成立，但对字数随时变动的内容并不灵活。点开旁边的<strong>「溢文压测」</strong>你会看到：便当盒的外矩形和行高是锁死的，一旦某个 1×1 小格里塞进三行长句，要么把整行撑塌变形，要么文字被截断。用便当盒前，必须先替每个仓位定好字数预算。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 03 从漆盒到网格（深松花堂漆盒底 + 四时代骨架） ==================== -->
+    <section class="sec sec-lacquer" id="sec-3" aria-labelledby="s3">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">03</p>
+          <div class="sec-title-wrap">
+            <h2 id="s3">从漆盒到网格</h2>
+            <p class="sec-en" lang="en">FROM LACQUER BOX TO CSS GRID</p>
+          </div>
+          <p class="sec-lead">它不是凭空冒出来的网红名字：从京都一只四格木箱走到浏览器里的二维网格代码，横跨了将近四百年。</p>
+        </header>
+
+        <!-- 互动 03：四时代骨架切页 + 实时二维结构与 grid-template-areas -->
+        <div class="era-tabs" role="tablist" aria-label="便当盒布局演进的四个历史节点">
+          <button type="button" class="era-tab" role="tab" data-era="shokado" aria-selected="true"><span class="era-yr" lang="en">1933</span><b>松花堂弁当</b></button>
+          <button type="button" class="era-tab" role="tab" data-era="metro" aria-selected="false"><span class="era-yr" lang="en">2010</span><b>Metro 磁贴</b></button>
+          <button type="button" class="era-tab" role="tab" data-era="cssgrid" aria-selected="false"><span class="era-yr" lang="en">2017</span><b>CSS Grid 区域码</b></button>
+          <button type="button" class="era-tab" role="tab" data-era="modern" aria-selected="false"><span class="era-yr" lang="en">2020+</span><b>现代产品便当页</b></button>
+        </div>
+
+        <div class="era-stage" aria-live="polite">
+          <div class="era-visual">
+            <div class="era-blueprint" id="era-blueprint"></div>
+            <div class="era-code-box">
+              <p class="era-code-k" lang="en">GRID-TEMPLATE-AREAS EQUIVALENT</p>
+              <pre class="era-code" id="era-code"></pre>
+            </div>
+          </div>
+          <div class="era-copy">
+            <p class="era-sub" id="era-sub">京都 · 湯木貞一与四格十字漆盒</p>
+            <h3 class="era-h" id="era-title">松花堂弁当</h3>
+            <p class="era-body" id="era-body"></p>
+            <p class="era-bridge">不论是木质十字隔板还是浏览器里的区域字符串，解决的都是同一个老问题：<strong>如何在有限的一张方框里同时摆下冷热咸淡各异的东西，却彼此不串味、不抢戏</strong>。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 04 窄屏怎么不散架（响应式视口夹板机） ==================== -->
+    <section class="sec sec-apricot" id="sec-4" aria-labelledby="s4">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">04</p>
+          <div class="sec-title-wrap">
+            <h2 id="s4">窄屏怎么不散架</h2>
+            <p class="sec-en" lang="en">RESPONSIVE REPACKING</p>
+          </div>
+          <p class="sec-lead">桌面端看着精致的 4 列便当盒，一搬上手机最容易翻车：硬缩会挤烂文字，盲目堆成单列又丢光主次。</p>
+        </header>
+
+        <!-- 互动 04：视口夹板拉伸机 -->
+        <div class="resp-panel" aria-label="响应式断点重装实验台">
+          <div class="resp-controls">
+            <div class="resp-modes" role="group" aria-label="选择响应式适配策略">
+              <button type="button" class="pill-btn" data-resp-mode="shrink" aria-pressed="true">错法一：硬保 4 列缩</button>
+              <button type="button" class="pill-btn" data-resp-mode="stack" aria-pressed="false">错法二：全堆成 1 列</button>
+              <button type="button" class="pill-btn" data-resp-mode="repack" aria-pressed="false">正解：分断点重装盒</button>
+            </div>
+            <div class="resp-presets" role="group" aria-label="常用视口快捷宽度">
+              <button type="button" class="chip-btn" data-resp-w="360">360 手机</button>
+              <button type="button" class="chip-btn" data-resp-w="560">560 小平板</button>
+              <button type="button" class="chip-btn" data-resp-w="960">960 桌面</button>
+            </div>
+          </div>
+
+          <label class="range-bar resp-slider">
+            <span>模拟屏幕宽：<strong id="resp-w-val" lang="en">390px</strong></span>
+            <input type="range" id="resp-width" min="320" max="1100" step="10" value="390" aria-label="拖动模拟屏幕宽度">
+            <span class="resp-badge" id="resp-badge" data-ok="false">硬缩挤烂</span>
+          </label>
+
+          <div class="resp-arena">
+            <div class="resp-frame" id="resp-frame">
+              <div class="resp-grid" id="resp-grid"></div>
+            </div>
+          </div>
+
+          <div class="resp-foot" aria-live="polite">
+            <div class="resp-explain">
+              <p class="resp-metric">当前最小单仓实算宽：<strong id="resp-min-w" lang="en">84px</strong></p>
+              <p id="resp-reason"></p>
+            </div>
+            <pre class="resp-code" id="resp-code"></pre>
+          </div>
+        </div>
+
+        <p class="sibling-note">如果是实时刷新且需要多维下钻的数据监控台，应采用专注数据密度的 <a href="https://layout.xiaoxiaodong.ai/273/play/" target="_blank" rel="noopener">仪表盘布局（273）</a>；若首屏只需一个压倒性的单焦点视觉宣言，则更适合 <a href="https://layout.xiaoxiaodong.ai/289/play/" target="_blank" rel="noopener">Hero 主视觉布局（289）</a>。</p>
+      </div>
+    </section>
+
+    <!-- ==================== 05 什么时候别用（四类场景试装翻车机） ==================== -->
+    <section class="sec sec-blush" id="sec-5" aria-labelledby="s5">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">05</p>
+          <div class="sec-title-wrap">
+            <h2 id="s5">什么时候别用</h2>
+            <p class="sec-en" lang="en">WHEN NOT TO USE BENTO</p>
+          </div>
+          <p class="sec-lead">便当盒擅长「打包展示互不依赖的多项亮点」，一旦拿它去装错东西，精致的格栅就会变成阅读路障。</p>
+        </header>
+
+        <!-- 互动 05：四类真实业务试装入盒体检器 -->
+        <div class="scen-panel" aria-label="四类内容试装便当盒体验">
+          <div class="scen-tabs" role="group" aria-label="选择要装进便当盒的内容类型">
+            <button type="button" class="scen-btn" data-scen="article" aria-pressed="true">三千字深度报道</button>
+            <button type="button" class="scen-btn" data-scen="compare" aria-pressed="false">48 款耳机参数比价</button>
+            <button type="button" class="scen-btn" data-scen="approval" aria-pressed="false">三步报销审批流</button>
+            <button type="button" class="scen-btn" data-scen="launch" aria-pressed="false">新品卖点一屏总览</button>
+          </div>
+
+          <div class="scen-body" aria-live="polite">
+            <div class="scen-preview" id="scen-preview"></div>
+            <div class="scen-verdict" id="scen-verdict">
+              <span class="scen-pill" id="scen-pill" data-fit="bad">别硬装进便当盒</span>
+              <h3 id="scen-title">长文被格板切碎，眼睛频繁折返找下一段</h3>
+              <p id="scen-desc"></p>
+              <p class="scen-alt" id="scen-alt"></p>
+            </div>
+          </div>
+        </div>
+
+        <ul class="avoid-grid">
+          <li>
+            <h3>深度长文与连续叙事</h3>
+            <p>论点和故事靠前后句严密咬合，装进大小方格会打断沉浸感；更适合单栏阅读或 <a href="https://layout.xiaoxiaodong.ai/269/play/" target="_blank" rel="noopener">信息流布局（269）</a>。</p>
+          </li>
+          <li>
+            <h3>同质商品与多列比价</h3>
+            <p>如果 30 款商品强行排成大小不一的便当格，大格会制造虚假推荐偏见；应换 <a href="https://layout.xiaoxiaodong.ai/270/play/" target="_blank" rel="noopener">卡片网格（270）</a> 或 <a href="https://layout.xiaoxiaodong.ai/274/play/" target="_blank" rel="noopener">数据表格（274）</a>。</p>
+          </li>
+          <li>
+            <h3>高度失控的海量图集</h3>
+            <p>用户上传的竖长图、方图比例不可预期，固定矩形外框会大量裁切画面；改用 <a href="https://layout.xiaoxiaodong.ai/271/play/" target="_blank" rel="noopener">瀑布流（271）</a> 或 <a href="https://layout.xiaoxiaodong.ai/275/play/" target="_blank" rel="noopener">画廊布局（275）</a>。</p>
+          </li>
+          <li>
+            <h3>强先后序的录入与审批</h3>
+            <p>步骤二依赖步骤一的结果，二维便当格容易让人漏填跳步；改用 <a href="https://layout.xiaoxiaodong.ai/284/play/" target="_blank" rel="noopener">表单布局（284）</a> 或 <a href="https://layout.xiaoxiaodong.ai/285/play/" target="_blank" rel="noopener">分步表单（285）</a>。</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==================== 06 盒缝与同心圆角（2D Canvas 45° 显微放大镜） ==================== -->
+    <section class="sec sec-celadon" id="sec-6" aria-labelledby="s6">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">06</p>
+          <div class="sec-title-wrap">
+            <h2 id="s6">盒缝与同心圆角</h2>
+            <p class="sec-en" lang="en">GUTTERS &amp; CONCENTRIC RADII</p>
+          </div>
+          <p class="sec-lead">细看 272 号海报右上那只木便当盒：外框弯度比内格更大，拐角壁厚从头到尾一寸不偏。</p>
+        </header>
+
+        <div class="split-2">
+          <div class="demo-panel corner-panel" aria-label="同心圆角 45 度壁厚放大镜">
+            <div class="demo-top">
+              <span class="demo-tag">45° 拐角显微放大镜 · 实测壁厚偏差</span>
+              <button type="button" class="chip-btn" id="corner-mode-btn" aria-pressed="false">同心公式：关（照抄同圆角）</button>
+            </div>
+            <div class="corner-canvas-wrap">
+              <canvas id="corner-canvas" width="520" height="300" aria-label="外托盘与内仓拐角圆弧几何对比图"></canvas>
+            </div>
+            <div class="corner-sliders">
+              <label class="range-bar">
+                <span>内仓圆角 R_内：<strong id="val-rin" lang="en">20px</strong></span>
+                <input type="range" id="corner-rin" min="6" max="32" value="20" aria-label="调节内仓圆角半径">
+              </label>
+              <label class="range-bar">
+                <span>托盘内距 P：<strong id="val-pad" lang="en">16px</strong></span>
+                <input type="range" id="corner-pad" min="6" max="28" value="16" aria-label="调节托盘内边距">
+              </label>
+            </div>
+            <p class="corner-readout" id="corner-readout" aria-live="polite"></p>
+          </div>
+
+          <div class="prose">
+            <p>做便当盒最容易露怯的细节，就是给外托盘和里面的卡片写上<strong>一模一样的 <code>border-radius</code></strong>。外框明明宽出一截，拐角却用同样的半径去拐，结果 45° 斜角处的盒壁会突然鼓出一块（多出约 0.41 倍的内边距宽度），整只盒子显得松垮粗糙。</p>
+            <p>解法是一条干净的几何等式：<strong>外圆角 = 内圆角 + 托盘内距（R_外 = R_内 + P）</strong>。两条圆弧共享同一个圆心后，从直边转入圆弧的每一毫米，盒壁厚度都严格等于内边距 P，偏差归零。</p>
+            <p>同理，盒内各仓之间的<strong>盒缝宽度通常控制在卡片内边距（padding）的 0.5× 到 1.0×</strong>（经验区间约 10–20px）：比行距大，仓与仓就不会串味；不比卡片自己还宽，整盘就不会散架。</p>
+            <div class="formula-card" aria-label="同心圆角常用配比速查">
+              <p class="formula-title">常用同心圆角配比速查（R_外 = R_内 + P）</p>
+              <dl class="formula-list">
+                <div><dt>紧凑便当</dt><dd lang="en">R_内 12 + P 10 = R_外 22px</dd></div>
+                <div><dt>标准产品页</dt><dd lang="en">R_内 16 + P 14 = R_外 30px</dd></div>
+                <div><dt>舒展画册盒</dt><dd lang="en">R_内 20 + P 16 = R_外 36px</dd></div>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 07 小练习：挑一盒好便当（单变量中性四选一） ==================== -->
+    <section class="sec sec-cream" id="sec-7" aria-labelledby="s7">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">07</p>
+          <div class="sec-title-wrap">
+            <h2 id="s7">小练习：挑一盒好便当</h2>
+            <p class="sec-en" lang="en">PRACTICE · SPOT THE RIGHT PACKING</p>
+          </div>
+          <p class="sec-lead">同一款「AI 录音笔」的 5 项卖点、完全相同的配色与 14px 盒缝——只在分仓面积与收口结构上有别。先凭直觉选一盒。</p>
+        </header>
+
+        <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四个便当盒方案单选"></div>
+
+        <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+          <p class="qv-title" id="qv-title">点选 A、B、C、D 中的一盒提交判断。</p>
+          <p class="qv-body" id="qv-body">提示：先看哪一项是真正的主角（AI 降噪），再看 12 格有没有收口、图文仓够不够喘气。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 08 原海报与关键词 ==================== -->
+    <section class="sec sec-poster" id="sec-8" aria-labelledby="s8">
+      <div class="wrap poster-layout">
+        <div class="poster-col-head">
+          <header class="sec-head">
+            <p class="sec-no" lang="en">08</p>
+            <div class="sec-title-wrap">
+              <h2 id="s8">原海报与关键词</h2>
+              <p class="sec-en" lang="en">THE ORIGINAL POSTER</p>
+            </div>
+          </header>
+
+          <ul class="kw-list" aria-label="272 号海报四个关键词">
+            <li><span class="kw-zh">清晰有序</span><span class="kw-en" lang="en">CLEAR</span></li>
+            <li class="kw-slash" aria-hidden="true">/</li>
+            <li><span class="kw-zh">信息分层</span><span class="kw-en" lang="en">HIERARCHY</span></li>
+            <li class="kw-slash" aria-hidden="true">/</li>
+            <li><span class="kw-zh">视觉平衡</span><span class="kw-en" lang="en">BALANCE</span></li>
+            <li class="kw-slash" aria-hidden="true">/</li>
+            <li><span class="kw-zh">阅读轻松</span><span class="kw-en" lang="en">EASY READ</span></li>
+          </ul>
+
+          <div class="sibling-box">
+            <p class="sibling-k">同属「内容与产品模式」的其他布局</p>
+            <p class="sibling-links">
+              <a href="https://layout.xiaoxiaodong.ai/269/play/" target="_blank" rel="noopener">269 信息流</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/270/play/" target="_blank" rel="noopener">270 卡片网格</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/271/play/" target="_blank" rel="noopener">271 瀑布流</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/273/play/" target="_blank" rel="noopener">273 仪表盘</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/274/play/" target="_blank" rel="noopener">274 数据表格</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/275/play/" target="_blank" rel="noopener">275 画廊</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/284/play/" target="_blank" rel="noopener">284 表单</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/285/play/" target="_blank" rel="noopener">285 分步表单</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/289/play/" target="_blank" rel="noopener">289 Hero 主视觉</a>
+            </p>
+          </div>
+        </div>
+
+        <figure class="poster-fig">
+          <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="点按放大查看 272 号便当盒布局原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="272 号便当盒布局原海报：浅抹茶青底面，左上粗黑标题与英文副标，右上为木框饭团三文鱼便当盒插画，中部按樱粉大标题区、米白重点提示区、杏桃内容主体区、青绿补充说明区四仓拼盒，下方为米白圆角四步法带与四枚关键词。">
+          </button>
+          <figcaption>点击海报可放大查看，放大后支持拖动平移，按 Esc 或再点关闭。</figcaption>
+        </figure>
+      </div>
+    </section>
+  </article>
+</main>
+
+<!-- 原海报放大查看层 -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报放大预览">
+  <div class="lb-bar">
+    <span>拖动平移 · 点击缩放 · Esc 退出</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-zoom">放大 1.8×</button>
+      <button type="button" class="lb-btn" id="lb-close">关闭</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" draggable="false" alt="272 号便当盒布局原海报大图">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p class="foot-brand"><span class="en-tag" lang="en">No. 272</span> 便当盒布局 · BENTO BOX LAYOUT</p>
+    <p class="foot-meta"><a href="https://layout.xiaoxiaodong.ai/272/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a><span class="sep" aria-hidden="true">·</span>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a><span class="sep" aria-hidden="true">·</span>源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
