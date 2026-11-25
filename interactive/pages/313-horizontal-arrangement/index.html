@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>313 横向调度 · HORIZONTAL ARRANGEMENT</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+
+  <!-- 开场：1:1 化用 313 原海报四横带骨架 -->
+  <header class="hero" aria-label="横向调度交互剧场">
+    <div class="hero-top-meta">
+      <div class="wrap meta-row">
+        <span class="meta-cat"><span class="meta-dot" aria-hidden="true"></span>影视画面构图 / 场面调度与景深</span>
+        <span class="meta-id" lang="en">NO. 313 · HORIZONTAL ARRANGEMENT</span>
+      </div>
+    </div>
+
+    <div class="wrap hero-inner">
+      <!-- 顶带：原海报同款三栏细虚线实时要点灯眉 -->
+      <div class="hero-pillars" role="status" aria-live="polite" aria-label="横向调度三项核心指标">
+        <div class="pillar" id="pillar-exp" data-ok="false">
+          <div class="pillar-head">
+            <span class="pillar-zh">横向展开</span>
+            <span class="pillar-state" id="pillar-exp-state">仅展 32%</span>
+          </div>
+          <p class="pillar-en" lang="en">HORIZONTAL EXPANSION</p>
+          <p class="pillar-desc">元素沿水平轴延展，建立开阔的视觉格局</p>
+          <div class="pillar-motif motif-line" aria-hidden="true">
+            <span class="motif-bar" id="motif-exp-bar"></span>
+            <span class="motif-dot"></span>
+          </div>
+        </div>
+
+        <div class="pillar" id="pillar-flow" data-ok="false">
+          <div class="pillar-head">
+            <span class="pillar-zh">视线引导</span>
+            <span class="pillar-state" id="pillar-flow-state">方向互撞</span>
+          </div>
+          <p class="pillar-en" lang="en">VISUAL FLOW</p>
+          <p class="pillar-desc">通过线性秩序与节奏，引导视线自然移动</p>
+          <div class="pillar-motif motif-dash" aria-hidden="true">
+            <span class="motif-dashed"></span>
+            <span class="motif-arrow">▶</span>
+          </div>
+        </div>
+
+        <div class="pillar" id="pillar-rhy" data-ok="false">
+          <div class="pillar-head">
+            <span class="pillar-zh">宽幅节奏</span>
+            <span class="pillar-state" id="pillar-rhy-state">局部粘连</span>
+          </div>
+          <p class="pillar-en" lang="en">BROAD RHYTHM</p>
+          <p class="pillar-desc">以宽幅与留白营造稳定感，形成舒适节奏</p>
+          <div class="pillar-motif motif-dual" aria-hidden="true">
+            <span class="motif-gold" id="motif-rhy-gold"></span>
+            <span class="motif-steel"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 手机横屏/桌面统合网格：桌面与竖屏全宽通栏，横屏左剧场右控 -->
+      <div class="hero-workspace">
+        <!-- 中带：全宽 2.39:1 宽银幕横向推轨舞台 -->
+        <div class="stage-column">
+          <div class="stage-shell">
+            <canvas
+              id="hero-canvas"
+              class="hero-canvas"
+              tabindex="0"
+              role="application"
+              aria-label="横向调度宽银幕交互舞台：拖动四组主体调整横向间距与地平高度，点击主体翻转朝向，键盘方向键可微调，空格键翻转朝向"
+            ></canvas>
+            <div class="stage-hint-bar">
+              <span>拖画布角色调落点与高度 · 点角色翻转朝向<span class="hint-kbd"> · 键盘 ←→↑↓ / 空格可用</span></span>
+              <span class="stage-score" id="hero-score-chip" data-ok="false">0 / 4 失序</span>
+            </div>
+          </div>
+
+          <!-- 底沿通栏横向机位推轨轨（标 data-perf-drag） -->
+          <div class="dolly-bar">
+            <div class="dolly-label">
+              <span class="dolly-zh">横向机位推轨</span>
+              <span class="dolly-en" lang="en">LATERAL DOLLY TRACK</span>
+            </div>
+            <div
+              id="dolly-track"
+              class="dolly-track"
+              data-perf-drag
+              role="slider"
+              tabindex="0"
+              aria-label="横向机位推轨：左右拖动沿宽银幕长卷水平横移"
+              aria-valuemin="-100"
+              aria-valuemax="100"
+              aria-valuenow="0"
+            >
+              <div class="dolly-ticks" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <div class="dolly-thumb" id="dolly-thumb">
+                <span class="dolly-thumb-grip" aria-hidden="true">◀ · ▶</span>
+              </div>
+            </div>
+            <span class="dolly-val" id="dolly-val" lang="en">0%</span>
+          </div>
+        </div>
+
+        <!-- 下中带：左示范大标与精简操控 × 右原海报同款细线竖框「眼」实况诊单 -->
+        <div class="hero-lower">
+          <div class="hero-brand-controls">
+            <div class="title-block">
+              <div class="title-head-row">
+                <h1 class="hero-title">横向调度</h1>
+                <span class="hero-en-tag" lang="en">HORIZONTAL ARRANGEMENT</span>
+              </div>
+              <!-- 标题即示范：水平延伸线随当前 4 组主体的横向展幅实时伸缩 -->
+              <div class="title-horizon-rule" aria-hidden="true">
+                <span class="title-rule-line" id="title-rule-line"></span>
+                <span class="title-rule-dot"></span>
+              </div>
+              <p class="hero-summary">
+                在版面中以水平延展作为核心组织方式，强化稳定与宽广的视觉感受，同时引导视线进行横向阅读，形成连贯而清晰的信息流。
+              </p>
+            </div>
+
+            <!-- 精简原生操控行 -->
+            <div class="hero-controls" aria-label="宽银幕调度操控">
+              <div class="ctrl-group" role="group" aria-label="画幅比例">
+                <span class="ctrl-tag">画幅</span>
+                <button type="button" class="ctrl-btn" data-aspect="2.39" aria-pressed="true">2.39:1</button>
+                <button type="button" class="ctrl-btn" data-aspect="1.78" aria-pressed="false">16:9</button>
+                <button type="button" class="ctrl-btn" data-aspect="1.33" aria-pressed="false">4:3 窄框</button>
+              </div>
+
+              <div class="ctrl-group" role="group" aria-label="表现壳切换">
+                <span class="ctrl-tag">视图</span>
+                <button type="button" class="ctrl-btn" data-skin="cinema" aria-pressed="true">片场剪影</button>
+                <button type="button" class="ctrl-btn" data-skin="poster" aria-pressed="false">海报色带</button>
+              </div>
+
+              <div class="ctrl-group ctrl-actions" role="group" aria-label="角色微调与试错">
+                <button type="button" class="ctrl-btn" id="btn-flip-selected">翻转选中朝向</button>
+                <button type="button" class="ctrl-btn" id="btn-align-horizon">压回地平轴</button>
+                <button type="button" class="ctrl-btn" id="btn-try-clothesline">试看晾衣绳</button>
+                <button type="button" class="ctrl-btn ctrl-btn-ghost" id="btn-reset-broken">复原错态</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 原海报同款右侧细线竖框：眼睛图标 + 实时白话诊单 -->
+          <aside class="eye-panel" id="eye-panel" data-state="warn" aria-live="polite" aria-label="实时调度诊断">
+            <div class="eye-panel-top">
+              <svg class="eye-emblem" viewBox="0 0 84 42" aria-hidden="true">
+                <path d="M 6 21 Q 42 -4 78 21 Q 42 46 6 21 Z" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <g id="eye-pupil-group">
+                  <circle cx="42" cy="21" r="10.5" fill="#4C6A84" />
+                  <circle cx="42" cy="21" r="4.8" fill="#1B221F" />
+                  <circle cx="45" cy="18" r="1.8" fill="#F6F2E9" />
+                </g>
+              </svg>
+              <div class="eye-meta">
+                <span class="eye-tag" id="diag-tag">待调 · 缩挤偏窄</span>
+                <span class="eye-sub">经验参考判定</span>
+              </div>
+            </div>
+
+            <div class="eye-divider" aria-hidden="true"></div>
+
+            <h2 class="eye-diag-title" id="diag-title">四组主体挤在 32% 里，宽银幕白费了</h2>
+            <p class="eye-diag-body" id="diag-body">
+              当前水平跨度只有 32%（经验舒适带 56%–85%），宽银幕两侧空成死区。把最左和最右两组往两端拉开。
+            </p>
+            <p class="eye-diag-tip" id="diag-tip">
+              在宽银幕里直接左右拖拉外侧主体，把展幅拉开到 56%–85%。
+            </p>
+
+            <dl class="eye-metrics">
+              <div><dt>水平展幅</dt><dd id="m-span">32%</dd></div>
+              <div><dt>地平落差</dt><dd id="m-yspread">31%</dd></div>
+              <div><dt>重心偏移</dt><dd id="m-balance">右 8%</dd></div>
+              <div><dt>水平稳态</dt><dd id="m-stab">高低锯齿</dd></div>
+            </dl>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <!-- 01 节：先拉出一条地平线（浅宣米白） -->
+    <section class="sec sec-paper-light" id="sec-01" aria-labelledby="h-01">
+      <div class="wrap">
+        <header class="sec-head">
+          <div class="sec-kicker">
+            <span class="sec-no" lang="en">01</span>
+            <span class="sec-en" lang="en">ESTABLISH THE HORIZON</span>
+          </div>
+          <h2 id="h-01">先拉出一条地平线</h2>
+        </header>
+
+        <div class="split-2">
+          <div class="prose">
+            <blockquote class="poster-quote">
+              <span class="quote-label">海报原话 · 横向展开</span>
+              「元素沿水平轴延展，建立开阔的视觉格局。」
+            </blockquote>
+            <p>
+              人眼的双目是水平并排长的，天生横着看世界比竖着看宽得多。把人物、建筑窗格或信息块稳稳落在同一条水平基准带上，大脑会立刻读出地平线般的安定感，视线也愿意顺着横轴一路铺开，不再上下反复折腾。
+            </p>
+            <div class="caveat-box">
+              <span class="caveat-tag">有个前提</span>
+              <p>
+                海报总述说横向组织能「强化稳定与宽广的视觉感受」，但宽广不是靠把人硬塞成一横排变出来的。如果画框本身太窄（比如早期 4:3 学院比或竖屏手机），左右余地被门框夹死，四人横排只会挤得像电梯合照。拉动旁边的画幅遮幅幕布，亲自对比从 1.33:1 到 2.55:1 的横向视野变化。
+              </p>
+            </div>
+          </div>
+
+          <div class="lab-card">
+            <div class="lab-head">
+              <span class="lab-title">对称画幅遮幅拉帘</span>
+              <span class="lab-readout" id="lab-aspect-readout" lang="en">2.35:1 · 保留 4/4 位主体</span>
+            </div>
+            <canvas id="lab-aspect-canvas" class="lab-canvas" aria-label="画幅宽高比遮幅对比画布"></canvas>
+            <div class="range-row">
+              <label for="lab-aspect-range" class="range-label">画幅比</label>
+              <input id="lab-aspect-range" type="range" min="1.33" max="2.55" step="0.01" value="1.33">
+              <span class="range-bounds" lang="en">1.33 → 2.55</span>
+            </div>
+            <div class="preset-row" role="group" aria-label="常用电影画幅比">
+              <button type="button" class="pill-btn" data-aspect-preset="1.33" aria-pressed="true">1.33:1 学院比</button>
+              <button type="button" class="pill-btn" data-aspect-preset="1.85" aria-pressed="false">1.85:1 遮幅宽</button>
+              <button type="button" class="pill-btn" data-aspect-preset="2.35" aria-pressed="false">2.35:1 宽银幕</button>
+              <button type="button" class="pill-btn" data-aspect-preset="2.55" aria-pressed="false">2.55:1 初版 Scope</button>
+            </div>
+            <p class="lab-verdict" id="lab-aspect-verdict" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 节：为什么不是「晾衣绳」（深海钢蓝暗版） -->
+    <section class="sec sec-dark-ocean" id="sec-02" aria-labelledby="h-02">
+      <div class="wrap">
+        <header class="sec-head">
+          <div class="sec-kicker">
+            <span class="sec-no" lang="en">02</span>
+            <span class="sec-en" lang="en">BEYOND THE CLOTHESLINE</span>
+          </div>
+          <h2 id="h-02">为什么不是「晾衣绳」</h2>
+        </header>
+
+        <div class="split-2">
+          <div class="prose">
+            <blockquote class="poster-quote">
+              <span class="quote-label">海报原话 · 宽幅节奏</span>
+              「以宽幅与留白营造稳定感，形成舒适的阅读节奏。」
+            </blockquote>
+            <p>
+              横向调度最容易踩中的坑，就是把所有角色或元素排成间距一模一样的一字长蛇。电影学者大卫·波德维尔（David Bordwell）在研究早期宽银幕适应期时，把这种僵硬做法戏称为「晾衣绳调度（clothesline staging）」——演员像被等距夹在晾衣绳上的衬衫，看似工整，其实既分不出主次，也看不出谁和谁站在同一阵营。
+            </p>
+            <p>
+              真正好用的横向调度，靠的是<strong>不等距的疏密分组</strong>：比如两位对话者贴近形成紧凑拍，中间空出一大段留白做缓冲，另一侧立着旁观者形成远距呼应。点击旁边的 12 格水平音序槽，试着把呆板的 3-3-3 均分改成有呼吸的宽幅节拍。
+            </p>
+          </div>
+
+          <div class="lab-card lab-card-dark">
+            <div class="lab-head">
+              <span class="lab-title">12 格水平音序节奏槽</span>
+              <span class="lab-readout" id="rhythm-status" data-tone="warn">晾衣绳均分</span>
+            </div>
+            <svg id="rhythm-wave-svg" class="rhythm-svg" viewBox="0 0 640 112" aria-label="宽幅间距节奏波形图"></svg>
+            <div class="seq-grid" id="rhythm-slots" role="group" aria-label="12 格水平拍点，点击任意格重新分配主体位置"></div>
+            <div class="preset-row" role="group" aria-label="节奏范式对照">
+              <button type="button" class="pill-btn pill-dark" data-rhythm-preset="clothesline" aria-pressed="true">晾衣绳 3-3-3</button>
+              <button type="button" class="pill-btn pill-dark" data-rhythm-preset="group211" aria-pressed="false">2+1+1 对话分组</button>
+              <button type="button" class="pill-btn pill-dark" data-rhythm-preset="isolate13" aria-pressed="false">1+3 孤立对峙</button>
+            </div>
+            <p class="lab-verdict" id="rhythm-detail" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 节：视线如何沿横轴流动（暖亚麻） -->
+    <section class="sec sec-linen" id="sec-03" aria-labelledby="h-03">
+      <div class="wrap">
+        <header class="sec-head">
+          <div class="sec-kicker">
+            <span class="sec-no" lang="en">03</span>
+            <span class="sec-en" lang="en">LATERAL SIGHTLINES &amp; FLOW</span>
+          </div>
+          <h2 id="h-03">视线如何沿横轴流动</h2>
+        </header>
+
+        <div class="split-2">
+          <div class="prose">
+            <blockquote class="poster-quote">
+              <span class="quote-label">海报原话 · 视线引导</span>
+              「通过线性秩序与节奏，引导视线自然向右移动。」
+            </blockquote>
+            <p>
+              在静态构图与电影镜头里，人物的朝向、伸出的手臂、色块由浅到深的递进，都在悄悄替观众铺一条无形的水平铁轨。如果 313 原海报中段只是四块孤立颜色，眼睛会散开；但它从最左的琥珀金圆起笔，接暖沙、中钢蓝一路加深到深炭墨，右下角再补三枚右向金三角，目光自然就顺着横轴滑完一整幅画面。
+            </p>
+            <div class="caveat-box">
+              <span class="caveat-tag">看语境</span>
+              <p>
+                视觉心理学家鲁道夫·阿恩海姆（Rudolf Arnheim）在《艺术与视知觉》中分析过，在横排从左到右阅读的文化语境里，眼睛确实偏好自左向右扫描；但横向流动并非只能向右——传统东亚手卷右起向左展卷，电影里的逆向行走也常用自右向左制造阻滞或回溯感。真正致命的不是方向，而是<strong>中段朝向互撞</strong>，以及<strong>末位贴边盯画外把视线放跑</strong>。
+              </p>
+            </div>
+          </div>
+
+          <div class="lab-card">
+            <div class="lab-head">
+              <span class="lab-title">朝向与前导留白试验</span>
+              <span class="lab-readout">点击按钮切换朝向</span>
+            </div>
+            <svg id="sightline-svg" class="sightline-svg" viewBox="0 0 640 190" aria-label="人物朝向与前导留白示意图"></svg>
+            <div class="preset-row" role="group" aria-label="翻转单个角色朝向">
+              <button type="button" class="pill-btn" data-sight-idx="0" aria-pressed="false">① 起点：朝右 →</button>
+              <button type="button" class="pill-btn" data-sight-idx="1" aria-pressed="false">② 中继：朝右 →</button>
+              <button type="button" class="pill-btn" data-sight-idx="2" aria-pressed="false">③ 终点：朝右 →</button>
+              <button type="button" class="pill-btn" id="sightline-lead-btn" aria-pressed="false">前导留白：紧贴右框（10%）</button>
+            </div>
+            <div class="sightline-verdict" aria-live="polite">
+              <p class="sv-title" id="sightline-title"></p>
+              <p class="sv-body" id="sightline-body"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 节：从手卷到宽银幕（纯净暖白） -->
+    <section class="sec sec-white" id="sec-04" aria-labelledby="h-04">
+      <div class="wrap">
+        <header class="sec-head">
+          <div class="sec-kicker">
+            <span class="sec-no" lang="en">04</span>
+            <span class="sec-en" lang="en">FROM HANDSCROLLS TO CINEMASCOPE</span>
+          </div>
+          <h2 id="h-04">从手卷到宽银幕</h2>
+        </header>
+
+        <p class="sec-lead">
+          远在电影发明之前，人类就一直在借一条细长的水平画带讲连贯故事。下面四件经博物馆与电影史料核实的代表坐标，串起了横向调度近千年的演变。点选卡片或按步进按钮横向展卷。
+        </p>
+
+        <div class="history-scale-bar" aria-live="polite">
+          <div class="scale-bar-head">
+            <span class="scale-bar-tag">横向延展尺度示意</span>
+            <span class="scale-bar-label" id="history-scale-label"></span>
+          </div>
+          <div class="scale-track">
+            <div class="scale-fill" id="history-scale-fill"></div>
+          </div>
+        </div>
+
+        <div class="history-controls">
+          <button type="button" class="pill-btn" id="history-prev">← 上一段</button>
+          <button type="button" class="pill-btn" id="history-next">下一段 →</button>
+        </div>
+
+        <!-- 真正容器内横向展阅长卷（不造成页面横向溢出） -->
+        <div class="history-rail" id="history-rail" tabindex="0" aria-label="横向调度历史长卷，可左右滚动或点选卡片">
+          <article class="history-card is-active" data-scale-pct="100" data-scale-note="约 1 : 136 超长刺绣叙事带（高约 50 厘米 × 长约 68.38 米）">
+            <span class="hc-era" lang="en">11TH CENTURY</span>
+            <h3>《巴约挂毯》横带叙事</h3>
+            <p class="hc-spec">9 段亚麻缝接 · 58 个连续场景 · 法国巴约博物馆藏</p>
+            <p>
+              以高约 50 厘米、长近 70 米（约 68.38 米）的连续横幅，自左向右铺陈 1066 年诺曼征服英格兰的完整战史。树干与建筑立柱充当自然分镜标点，观众沿长廊步行，边走边读完一条永不间断的水平剧情线。
+            </p>
+          </article>
+
+          <article class="history-card" data-scale-pct="68" data-scale-note="约 1 : 21 传统手卷形制（纵 24.8 厘米 × 横 528.7 厘米）">
+            <span class="hc-era" lang="en">NORTHERN SONG</span>
+            <h3>张择端《清明上河图》</h3>
+            <p class="hc-spec">绢本淡设色手卷 · 北京故宫博物院藏</p>
+            <p>
+              从郊野村道、汴河虹桥高潮再到城内街市，观者两手右收左展，视线随散点透视横向漫游。画卷靠河岸、长街与桥身拉出连续水平引导线，证明东方手卷早就深谙横向节奏的疏密起落。
+            </p>
+          </article>
+
+          <article class="history-card" data-scale-pct="42" data-scale-note="2.55 : 1 初代 CinemaScope 变形宽银幕（后兼容光学声道调为 2.35 : 1）">
+            <span class="hc-era" lang="en">1953 · CINEMASCOPE</span>
+            <h3>《圣袍千秋》与宽银幕转向</h3>
+            <p class="hc-spec">20 世纪福斯 · 亨利·克雷蒂安变形镜头 · 1953 年 9 月 16 日首映</p>
+            <p>
+              电影史学家约翰·贝尔顿（John Belton）在《宽银幕电影》（1992）中详述了 1953 年宽银幕浪潮如何改变拍摄语法：2.55:1 的宽画幅和早期镜头近距限制，迫使好莱坞导演减少特写硬切，改在同一宽幅镜头内横向布阵。
+            </p>
+          </article>
+
+          <article class="history-card" data-scale-pct="38" data-scale-note="2.35 : 1 东宝 TohoScope 宽银幕室内群像调度">
+            <span class="hc-era" lang="en">1963 · TOHOSCOPE</span>
+            <h3>黑泽明《天国与地狱》</h3>
+            <p class="hc-spec">2.35:1 宽银幕 · 室内横向群像长镜头</p>
+            <p>
+              影片前半部几乎全在权藤家的客厅展开。黑泽明拒绝呆板的「晾衣绳」排排站，而是借人物在 2.35:1 宽框里的横向挪步、分组靠近与背身离群，在一条水平线上精准折射出道德拉锯与立场分裂。大卫·波德维尔在《光影浮现的身影》（2005）中也深入梳理了长镜头导演如何将横向空间转化为叙事工具。
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 节：同一场戏，五种调度法（钢蓝岩板暗版） -->
+    <section class="sec sec-slate-dark" id="sec-05" aria-labelledby="h-05">
+      <div class="wrap">
+        <header class="sec-head">
+          <div class="sec-kicker">
+            <span class="sec-no" lang="en">05</span>
+            <span class="sec-en" lang="en">FIVE STAGING APPROACHES</span>
+          </div>
+          <h2 id="h-05">同一场戏，五种调度法</h2>
+        </header>
+
+        <p class="sec-lead">
+          「场面调度与景深」小类里有五张紧密相连的海报。横向调度不靠把人推向远方、也不急着拼出斜角尖点，而是把关系摊平在一条稳定流动的水平线上。点击下方编号对比它们各自的站位重心。
+        </p>
+
+        <div class="siblings-box">
+          <div class="siblings-tabs" role="group" aria-label="同小类五种调度法切换">
+            <button type="button" class="sib-btn" data-sibling="310" aria-pressed="false">310 深度调度</button>
+            <button type="button" class="sib-btn" data-sibling="311" aria-pressed="false">311 平面调度</button>
+            <button type="button" class="sib-btn" data-sibling="312" aria-pressed="false">312 三角调度</button>
+            <button type="button" class="sib-btn" data-sibling="313" aria-pressed="true">313 横向调度</button>
+            <button type="button" class="sib-btn" data-sibling="314" aria-pressed="false">314 多层前景</button>
+          </div>
+
+          <div class="siblings-stage">
+            <svg id="siblings-svg" class="siblings-svg" viewBox="0 0 500 196" aria-label="五种场面调度结构对比简图"></svg>
+            <div class="siblings-info" aria-live="polite">
+              <h3 id="siblings-name"></h3>
+              <p id="siblings-desc"></p>
+              <a id="siblings-link" class="sib-link" href="#" target="_blank" rel="noopener" hidden></a>
+            </div>
+          </div>
+
+          <!-- 一句话同小类直达索引，确保全部四个兄弟编号均有明确链接 -->
+          <ul class="siblings-index">
+            <li><a href="https://layout.xiaoxiaodong.ai/310/play/" target="_blank" rel="noopener">310 深度调度</a>：沿前、中、后三层纵深拉开空间层次。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/311/play/" target="_blank" rel="noopener">311 平面调度</a>：垂直正拍压平透视，经营二维平面平衡。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/312/play/" target="_blank" rel="noopener">312 三角调度</a>：用高低错落与斜边汇聚锁定视觉顶点。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/314/play/" target="_blank" rel="noopener">314 多层前景调度</a>：借镜头前缘遮挡框造出画中画窥视感。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 节：什么时候用，什么时候别用（暖米纸） -->
+    <section class="sec sec-paper" id="sec-06" aria-labelledby="h-06">
+      <div class="wrap">
+        <header class="sec-head">
+          <div class="sec-kicker">
+            <span class="sec-no" lang="en">06</span>
+            <span class="sec-en" lang="en">WHEN TO USE — AND AVOID</span>
+          </div>
+          <h2 id="h-06">什么时候用，什么时候别用</h2>
+        </header>
+
+        <div class="use-grid">
+          <div class="use-col use-good">
+            <div class="use-head">
+              <span class="use-badge">适合用</span>
+              <h3>横向结构 · 拓展视野</h3>
+            </div>
+            <ul class="use-list">
+              <li><strong>群像并列与关系摊牌</strong>：会议长桌、庭审对峙或家庭晚餐，把多方立场摊在同一条水平线上，谁站谁旁边一眼看清。</li>
+              <li><strong>行进、旅途与时间流</strong>：列车车厢、长廊跟拍、公路横移镜头或网页里的步骤时间轴，横向延展天然承载时间推移。</li>
+              <li><strong>沉静开阔的开篇定调</strong>：海岸、草原、现代建筑长立面，需要稳定、克制、不急不躁的呼吸感时，水平轴最稳妥。</li>
+            </ul>
+          </div>
+
+          <div class="use-col use-avoid">
+            <div class="use-head">
+              <span class="use-badge use-badge-warn">什么时候别用</span>
+              <h3>这三种情况，别硬套横向调度</h3>
+            </div>
+            <ul class="use-list">
+              <li><strong>需要悬殊压迫或高耸眩晕时</strong>：摩天楼仰拍、悬崖坠落、居高临下的权力碾压，要靠竖向纵轴或斜向失衡，水平排布会立刻卸掉威慑力。</li>
+              <li><strong>竖屏 9:16 强塞横排群像时</strong>：横向宽度只剩窄窄一条，强行一字排开要么把人切得只剩半个身子，要么缩成屏幕中间一条黑边细缝。</li>
+              <li><strong>高速打斗与失控惊悚时</strong>：水平基准线自带理性与秩序感，混乱爆发的动作戏更需要斜线倾覆、快速剪辑或近景纵深撞击。</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 反例体验器：宽银幕 vs 9:16 竖屏硬裁 -->
+        <div class="crash-lab">
+          <div class="crash-top">
+            <div>
+              <h3 class="crash-title">为什么竖屏别硬用横向调度？点下面切着看</h3>
+              <p class="crash-note" id="crash-note" aria-live="polite"></p>
+            </div>
+            <div class="preset-row" role="group" aria-label="画幅适配反例切换">
+              <button type="button" class="pill-btn" data-crash-mode="wide" aria-pressed="true">2.39:1 宽银幕</button>
+              <button type="button" class="pill-btn" data-crash-mode="crop" aria-pressed="false">9:16 竖屏硬裁</button>
+              <button type="button" class="pill-btn" data-crash-mode="letterbox" aria-pressed="false">9:16 强塞黑边</button>
+            </div>
+          </div>
+
+          <div class="crash-stage">
+            <div class="crash-frame" id="crash-frame" data-mode="wide">
+              <svg class="crash-svg" viewBox="0 0 640 220" preserveAspectRatio="xMidYMid slice" aria-label="宽银幕横向调度在不同画幅下的裁切对照">
+                <rect x="0" y="0" width="640" height="220" fill="#EEE7DC" />
+                <rect x="0" y="84" width="640" height="58" fill="#DBD2C1" />
+                <rect x="0" y="142" width="640" height="78" fill="#4C6A84" />
+                <line x1="0" y1="142" x2="640" y2="142" stroke="#1B221F" stroke-width="1.5" />
+                <!-- 4 位人物剪影 -->
+                <g transform="translate(92,142)"><rect x="-10" y="-50" width="20" height="50" fill="#1F2626"/><rect x="-8" y="-40" width="16" height="12" fill="#CD9639"/><circle cx="0" cy="-60" r="9" fill="#1F2626"/></g>
+                <g transform="translate(215,142)"><rect x="-10" y="-50" width="20" height="50" fill="#1F2626"/><rect x="-8" y="-40" width="16" height="12" fill="#DBD2C1"/><circle cx="0" cy="-60" r="9" fill="#1F2626"/></g>
+                <g transform="translate(410,142)"><rect x="-10" y="-50" width="20" height="50" fill="#1F2626"/><rect x="-8" y="-40" width="16" height="12" fill="#405A71"/><circle cx="0" cy="-60" r="9" fill="#1F2626"/></g>
+                <g transform="translate(548,142)"><rect x="-10" y="-50" width="20" height="50" fill="#1F2626"/><rect x="-8" y="-40" width="16" height="12" fill="#FAF7F0"/><circle cx="0" cy="-60" r="9" fill="#1F2626"/></g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 节：小练习（浅宣米白） -->
+    <section class="sec sec-paper-light" id="sec-07" aria-labelledby="h-07">
+      <div class="wrap">
+        <header class="sec-head">
+          <div class="sec-kicker">
+            <span class="sec-no" lang="en">07</span>
+            <span class="sec-en" lang="en">PRACTICE: PICK THE BEST FRAME</span>
+          </div>
+          <h2 id="h-07">挑出最顺眼的一场调度</h2>
+        </header>
+
+        <p class="sec-lead">
+          下面四张 2.39:1 海滨长廊镜头画的是同一场戏：四位人物在一条水平长堤上走位。四个方案只差一个关键变量。别看解析，先凭直觉点选你觉得最顺眼的一张。
+        </p>
+
+        <div class="quiz-grid" role="group" aria-label="横向调度四选一练习">
+          <!-- A：机械等距 1:1:1 晾衣绳 -->
+          <button type="button" class="quiz-card" data-quiz="A" aria-pressed="false">
+            <span class="quiz-letter" lang="en">A</span>
+            <svg viewBox="0 0 420 176" aria-hidden="true">
+              <rect width="420" height="176" fill="#EEE7DC"/>
+              <rect y="74" width="420" height="40" fill="#DBD2C1"/>
+              <rect y="114" width="420" height="62" fill="#4C6A84"/>
+              <!-- 四人机械等距：56, 158, 260, 362（间隔全为 102） -->
+              <g transform="translate(56,114)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#CD9639"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="3,-52 11,-49 4,-46" fill="#CD9639"/></g>
+              <g transform="translate(158,114)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#DBD2C1"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="3,-52 11,-49 4,-46" fill="#DBD2C1"/></g>
+              <g transform="translate(260,114)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#405A71"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="3,-52 11,-49 4,-46" fill="#FAF7F0"/></g>
+              <g transform="translate(362,114)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#FAF7F0"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="-3,-52 -11,-49 -4,-46" fill="#FAF7F0"/></g>
+              <g class="quiz-guides">
+                <line x1="56" y1="142" x2="158" y2="142" stroke="#E4B356" stroke-width="2"/>
+                <line x1="158" y1="142" x2="260" y2="142" stroke="#E4B356" stroke-width="2"/>
+                <line x1="260" y1="142" x2="362" y2="142" stroke="#E4B356" stroke-width="2"/>
+                <text x="107" y="136" text-anchor="middle" fill="#FAF7F0" font-size="11" font-family="Space Mono, monospace">=1</text>
+                <text x="209" y="136" text-anchor="middle" fill="#FAF7F0" font-size="11" font-family="Space Mono, monospace">=1</text>
+                <text x="311" y="136" text-anchor="middle" fill="#FAF7F0" font-size="11" font-family="Space Mono, monospace">=1</text>
+              </g>
+            </svg>
+          </button>
+
+          <!-- B（正确）：跨度 74%、共享水平线、2+1+1 疏密呼吸、前三右流 + 末位回望 -->
+          <button type="button" class="quiz-card" data-quiz="B" aria-pressed="false">
+            <span class="quiz-letter" lang="en">B</span>
+            <svg viewBox="0 0 420 176" aria-hidden="true">
+              <rect width="420" height="176" fill="#EEE7DC"/>
+              <rect y="74" width="420" height="40" fill="#DBD2C1"/>
+              <rect y="114" width="420" height="62" fill="#4C6A84"/>
+              <!-- 四人疏密分组：54, 114（近距 60）, 252（呼吸空 138）, 364（收口 112） -->
+              <g transform="translate(54,114)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#CD9639"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="3,-52 11,-49 4,-46" fill="#CD9639"/></g>
+              <g transform="translate(114,114)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#DBD2C1"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="3,-52 11,-49 4,-46" fill="#DBD2C1"/></g>
+              <g transform="translate(252,114)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#405A71"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="3,-52 11,-49 4,-46" fill="#FAF7F0"/></g>
+              <g transform="translate(364,114)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#FAF7F0"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="-3,-52 -11,-49 -4,-46" fill="#FAF7F0"/></g>
+              <g class="quiz-guides">
+                <line x1="20" y1="114" x2="400" y2="114" stroke="#E4B356" stroke-width="2" stroke-dasharray="5 4"/>
+                <path d="M 64 50 L 340 50" stroke="#2B6B56" stroke-width="2"/>
+                <polygon points="346,50 338,45 338,55" fill="#2B6B56"/>
+                <text x="84" y="144" text-anchor="middle" fill="#FAF7F0" font-size="11" font-family="Space Mono, monospace">近</text>
+                <text x="183" y="144" text-anchor="middle" fill="#E4B356" font-size="11" font-family="Space Mono, monospace">宽呼吸</text>
+                <text x="308" y="144" text-anchor="middle" fill="#FAF7F0" font-size="11" font-family="Space Mono, monospace">收口</text>
+              </g>
+            </svg>
+          </button>
+
+          <!-- C：位置与地平线全同 B，唯一变量：朝向错乱对撞 -->
+          <button type="button" class="quiz-card" data-quiz="C" aria-pressed="false">
+            <span class="quiz-letter" lang="en">C</span>
+            <svg viewBox="0 0 420 176" aria-hidden="true">
+              <rect width="420" height="176" fill="#EEE7DC"/>
+              <rect y="74" width="420" height="40" fill="#DBD2C1"/>
+              <rect y="114" width="420" height="62" fill="#4C6A84"/>
+              <g transform="translate(54,114)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#CD9639"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="-3,-52 -11,-49 -4,-46" fill="#CD9639"/></g>
+              <g transform="translate(114,114)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#DBD2C1"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="-3,-52 -11,-49 -4,-46" fill="#DBD2C1"/></g>
+              <g transform="translate(252,114)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#405A71"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="3,-52 11,-49 4,-46" fill="#FAF7F0"/></g>
+              <g transform="translate(364,114)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#FAF7F0"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="3,-52 11,-49 4,-46" fill="#FAF7F0"/></g>
+              <g class="quiz-guides">
+                <path d="M 106 50 L 36 50" stroke="#B33A2B" stroke-width="2" stroke-dasharray="4 3"/>
+                <path d="M 262 50 L 398 50" stroke="#B33A2B" stroke-width="2" stroke-dasharray="4 3"/>
+                <text x="183" y="54" text-anchor="middle" fill="#B33A2B" font-size="11" font-weight="700">← 背向撕裂 →</text>
+              </g>
+            </svg>
+          </button>
+
+          <!-- D：水平间距与朝向全同 B，唯一变量：高低脱轴锯齿 -->
+          <button type="button" class="quiz-card" data-quiz="D" aria-pressed="false">
+            <span class="quiz-letter" lang="en">D</span>
+            <svg viewBox="0 0 420 176" aria-hidden="true">
+              <rect width="420" height="176" fill="#EEE7DC"/>
+              <rect y="74" width="420" height="40" fill="#DBD2C1"/>
+              <rect y="114" width="420" height="62" fill="#4C6A84"/>
+              <g transform="translate(54,84)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#CD9639"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="3,-52 11,-49 4,-46" fill="#CD9639"/></g>
+              <g transform="translate(114,154)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#DBD2C1"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="3,-52 11,-49 4,-46" fill="#DBD2C1"/></g>
+              <g transform="translate(252,78)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#405A71"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="3,-52 11,-49 4,-46" fill="#FAF7F0"/></g>
+              <g transform="translate(364,148)"><rect x="-7" y="-40" width="14" height="40" fill="#1F2626"/><rect x="-5" y="-32" width="10" height="9" fill="#FAF7F0"/><circle cx="0" cy="-48" r="7" fill="#1F2626"/><polygon points="-3,-52 -11,-49 -4,-46" fill="#FAF7F0"/></g>
+              <g class="quiz-guides">
+                <polyline points="54,84 114,154 252,78 364,148" fill="none" stroke="#B33A2B" stroke-width="2" stroke-dasharray="4 3"/>
+                <line x1="20" y1="114" x2="400" y2="114" stroke="#1B221F" stroke-width="1" stroke-dasharray="3 3"/>
+              </g>
+            </svg>
+          </button>
+        </div>
+
+        <div class="quiz-verdict" aria-live="polite">
+          <div class="qv-head">
+            <p class="qv-title" id="quiz-verdict-title">先凭第一眼直觉挑一张。</p>
+            <button type="button" class="pill-btn" id="quiz-reset" hidden>重新挑一次</button>
+          </div>
+          <p class="qv-body" id="quiz-verdict-body">
+            四张图画的是同一场四人海滨长廊宽银幕戏，只差一个变量。选完后会显出隐藏的水平轴、间距尺与视线箭头。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 节：原海报与关键词（暖米纸） -->
+    <section class="sec sec-poster" id="sec-08" aria-labelledby="h-08">
+      <div class="wrap">
+        <header class="sec-head">
+          <div class="sec-kicker">
+            <span class="sec-no" lang="en">08</span>
+            <span class="sec-en" lang="en">THE ORIGINAL POSTER</span>
+          </div>
+          <h2 id="h-08">原海报与关键词</h2>
+        </header>
+
+        <div class="poster-layout">
+          <figure class="poster-fig">
+            <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="点击放大查看 313 横向调度原海报">
+              <img
+                id="poster"
+                src="poster.webp"
+                draggable="false"
+                width="1086"
+                height="1448"
+                alt="313 横向调度原海报：暖米纸底上三栏虚线要点眉，中段通栏钢蓝地平带托起琥珀金圆与暖沙、钢蓝、炭墨横向递进色块，右下配三枚右向金三角；下方是横向调度超大标题、总述与右侧眼睛图标竖框，底部为四枚几何关键词。"
+              >
+            </button>
+            <figcaption>点按放大海报，放大后可拖拽平移或滚轮缩放，按 Esc 收起。</figcaption>
+          </figure>
+
+          <div class="poster-meta-col">
+            <div class="poster-usage-card">
+              <p class="usage-kicker" lang="en">POSTER USAGE NOTE</p>
+              <h3>横向结构 · 拓展视野</h3>
+              <ul>
+                <li>强化秩序感与延展性</li>
+                <li>提升内容的可读性</li>
+              </ul>
+              <p class="usage-en" lang="en">
+                USING HORIZONTAL EXTENSION AS THE CORE ORGANIZING PRINCIPLE STRENGTHENS STABILITY AND BREADTH WHILE GUIDING THE EYE LATERALLY TO CREATE A CLEAR AND CONTINUOUS FLOW OF INFORMATION.
+              </p>
+            </div>
+
+            <div class="keywords-block">
+              <h3 class="kw-heading">海报四枚关键词 <span lang="en">KEYWORDS</span></h3>
+              <ul class="kw-grid">
+                <li>
+                  <svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="12" fill="#4D6883"/></svg>
+                  <div><b>地平视野</b><span lang="en">HORIZON</span></div>
+                </li>
+                <li>
+                  <svg viewBox="0 0 36 36" aria-hidden="true"><rect x="6" y="6" width="24" height="24" fill="#CC9536"/></svg>
+                  <div><b>流动引导</b><span lang="en">FLOW</span></div>
+                </li>
+                <li>
+                  <svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="18,6 31,30 5,30" fill="#1D2424"/></svg>
+                  <div><b>平衡稳定</b><span lang="en">BALANCE</span></div>
+                </li>
+                <li>
+                  <svg viewBox="0 0 36 36" aria-hidden="true"><rect x="6" y="7" width="6" height="22" fill="#46647F"/><rect x="15" y="7" width="6" height="22" fill="#46647F"/><rect x="24" y="7" width="6" height="22" fill="#46647F"/></svg>
+                  <div><b>连贯延续</b><span lang="en">CONTINUITY</span></div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 复现原海报底沿标志性「左方点 + 水平线 + 右三圆点」收口 -->
+            <div class="poster-signoff" aria-hidden="true">
+              <span class="sign-sq"></span>
+              <span class="sign-line"></span>
+              <span class="sign-dots"><i></i><i></i><i></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 原海报放大灯箱 -->
+  <div class="lightbox" id="poster-lightbox" hidden role="dialog" aria-modal="true" aria-label="313 横向调度原海报大图查看">
+    <div class="lightbox-bar">
+      <span class="lightbox-title">No. 313 横向调度 · 原海报（拖动平移 · 滚轮缩放 · Esc 关闭）</span>
+      <div class="lightbox-actions">
+        <button type="button" class="lb-btn" id="lightbox-zout" aria-label="缩小">−</button>
+        <button type="button" class="lb-btn" id="lightbox-reset">100%</button>
+        <button type="button" class="lb-btn" id="lightbox-zin" aria-label="放大">+</button>
+        <button type="button" class="lb-btn lb-close" id="lightbox-close">关闭 Esc</button>
+      </div>
+    </div>
+    <div class="lightbox-stage" id="lightbox-stage">
+      <img id="lightbox-img" draggable="false" alt="313 横向调度原海报放大视图">
+    </div>
+  </div>
+
+  <footer class="foot">
+    <div class="wrap foot-inner">
+      <p class="foot-title"><span lang="en" class="num">No. 313</span> 横向调度 · 350 种排版</p>
+      <p class="foot-meta">
+        <a href="https://layout.xiaoxiaodong.ai/313/play/" target="_blank" rel="noopener">在线版</a> /
+        <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+        <span class="sep">·</span>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+        <span class="sep">·</span>源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
