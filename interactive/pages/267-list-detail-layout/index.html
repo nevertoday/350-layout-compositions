@@ -28,9 +28,9 @@
       <p class="title-en" lang="en">LIST–DETAIL LAYOUT</p>
     </div>
 
-    <!-- 主角交互玩具：实战工单收件箱 × 窗口宽度断点工作台（<600px 手机自动退为单窗格钻取） -->
+    <!-- 主角交互玩具：实战工单收件箱 × 窗口宽度断点工作台（360–1080px，含 <600 强行双栏反例） -->
     <div class="workbench-wrap" id="hero-workbench" data-tier="expanded">
-      <!-- 顶部窗口宽度导轨：拖标尺或点刻度，跨过 600 / 840 两道断点 -->
+      <!-- 顶部窗口宽度导轨：360 → 600 → 840 → 1080 等距刻度，跨过两道断点 -->
       <div class="wb-bar">
         <div class="wb-bar-meta">
           <output class="wb-w-num" id="hero-w-num" lang="en">960px</output>
@@ -46,18 +46,18 @@
             tabindex="0"
             role="slider"
             aria-orientation="horizontal"
-            aria-valuemin="340"
-            aria-valuemax="1120"
+            aria-valuemin="360"
+            aria-valuemax="1080"
             aria-valuenow="960"
-            aria-label="窗口宽度导轨：左右拖动或用方向键跨过 600px 与 840px 断点"
+            aria-label="窗口宽度导轨（360px 至 1080px）：左右拖动或用方向键跨过 600px 与 840px 断点"
           >
             <canvas id="hero-width-canvas" aria-hidden="true"></canvas>
           </div>
           <div class="wb-ticks" role="group" aria-label="快捷窗口宽度">
-            <button type="button" class="wb-tick" data-hero-w="390" aria-pressed="false"><span lang="en">390</span><em>手机</em></button>
-            <button type="button" class="wb-tick" data-hero-w="600" aria-pressed="false"><span lang="en">600</span><em>断点</em></button>
-            <button type="button" class="wb-tick" data-hero-w="840" aria-pressed="false"><span lang="en">840</span><em>展开</em></button>
-            <button type="button" class="wb-tick" data-hero-w="1080" aria-pressed="false"><span lang="en">1080</span><em>桌面</em></button>
+            <button type="button" class="wb-tick t-start" data-hero-w="360" aria-pressed="false"><span lang="en">360</span><em>手机</em></button>
+            <button type="button" class="wb-tick t-600" data-hero-w="600" aria-pressed="false"><span lang="en">600</span><em>断点</em></button>
+            <button type="button" class="wb-tick t-840" data-hero-w="840" aria-pressed="false"><span lang="en">840</span><em>展开</em></button>
+            <button type="button" class="wb-tick t-end" data-hero-w="1080" aria-pressed="false"><span lang="en">1080</span><em>桌面</em></button>
           </div>
         </div>
       </div>
@@ -67,8 +67,8 @@
         <div class="wb-guide g600" aria-hidden="true"><span lang="en">600</span></div>
         <div class="wb-guide g840" aria-hidden="true"><span lang="en">840</span></div>
 
-        <div class="workbench" id="hero-stage" data-tier="expanded" data-pane="both">
-          <!-- 左栏：深松墨工单收件箱列表（7 条真实条目，可滚并记忆滚动位置） -->
+        <div class="workbench" id="hero-stage" data-tier="expanded" data-forced="0" data-pane="both">
+          <!-- 左栏：深松墨工单收件箱列表（7 条真实条目，固定行高可滚并记忆滚动位置） -->
           <aside class="wb-list" aria-label="工单收件箱列表">
             <div class="wb-list-head">
               <span class="wl-title">收件箱 · 待处理工单</span>
@@ -205,7 +205,7 @@
         </button>
       </div>
 
-      <!-- 底置效率读数带：核心记「切换次数 / 无效返回次数」并讲清省力原理；左栏比例退为次要微调 -->
+      <!-- 底置效率读数带：核心记「切换次数 / 无效返回次数」并收编「反面示范：<600 强行双栏」开关 -->
       <div class="hero-dock">
         <div class="dock-stats" aria-live="polite">
           <div class="stat-pill"><span>已看工单</span><b id="hero-seen-num" lang="en">1 / 7</b></div>
@@ -216,11 +216,17 @@
         <div class="dock-explain">
           <p class="dock-text" id="hero-read-text" aria-live="polite"></p>
           <div class="dock-secondary">
-            <label class="sec-ratio">
-              <span>次要微调 · 左栏占比 <b id="hero-ratio-val" lang="en">34%</b></span>
-              <input type="range" id="hero-ratio-range" min="24" max="48" step="1" value="34">
+            <label class="hero-force-chk is-disabled">
+              <input type="checkbox" id="hero-force" disabled>
+              <span>反面示范：&lt;600 强行双栏<em class="hf-hint" id="hero-force-hint">（调至 &lt;600px 后可勾选）</em></span>
             </label>
-            <button type="button" class="btn btn-sm" id="hero-reset">重置计数</button>
+            <div class="dock-tools">
+              <label class="sec-ratio">
+                <span>左栏占比 <b id="hero-ratio-val" lang="en">34%</b></span>
+                <input type="range" id="hero-ratio-range" min="24" max="48" step="1" value="34">
+              </label>
+              <button type="button" class="btn btn-sm" id="hero-reset">重置计数</button>
+            </div>
           </div>
         </div>
       </div>
@@ -390,77 +396,85 @@
     </div>
   </section>
 
-  <!-- 03 为什么省力：切换成本与上下文保留实验 -->
+  <!-- 03 选中态、空状态与直达链接（列表—详情专属边界状态实验台，严格遵守 <600px 单窗格） -->
   <section class="sec sec-paper" aria-labelledby="s3">
     <div class="wrap">
       <header class="sec-head reveal">
         <p class="sec-no" lang="en">03</p>
         <div>
-          <h2 id="s3">算一笔「切换的账」</h2>
-          <p class="sec-en" lang="en">Context &amp; switching cost</p>
+          <h2 id="s3"><span class="nb">选中态、空状态</span><span class="nb">与直达链接</span></h2>
+          <p class="sec-en" lang="en">Selection, empty states &amp; deep links</p>
         </div>
       </header>
 
-      <div class="cols-split">
-        <div class="prose reveal">
-          <p class="lead">如果你每天只需要看一篇文章，列表—详情并不比普通单页更快。它真正的威力出现在<b>连续浏览、筛选、批处理多条同类信息</b>的时候。</p>
-          <p>在传统的「列表页 ⇄ 详情页」跳转里，你点进第 1 条，原来的清单就从屏幕上消失了；看完想点第 2 条，必须先点「返回」，再在脑子里回忆刚才看到第几行。列表—详情把清单一直留着，用屏幕上的视觉锚点替人扛住了这份工作记忆。</p>
-          <p>右边有 5 条模拟客服工单，先在<b>列表—详情同屏</b>里点一遍，再切到<b>单页来回跳转</b>试一遍，直接看步数差别。</p>
+      <p class="lead reveal">把页面劈成左右两栏只是开头。真正决定列表—详情好不好用的，是四个专门考这套布局的边界问题：<b>刚打开还没选、筛选把当前项藏掉了、删完当前项焦点去哪、复制网址能不能直达这一条</b>。点下面的标签，逐个对比「坏做法」和「好做法」。</p>
+
+      <div class="state-lab reveal" id="state-lab" data-scase="empty" data-smode="good" data-pane="detail">
+        <!-- 顶部：四个场景标签 + 坏做法/好做法即时切换 -->
+        <div class="sl-top">
+          <div class="sl-tabs" role="group" aria-label="四个列表—详情边界问题">
+            <button type="button" class="btn btn-dark" data-scase="empty" aria-pressed="true">① 未选中时</button>
+            <button type="button" class="btn btn-dark" data-scase="filter" aria-pressed="false">② 筛选后消失</button>
+            <button type="button" class="btn btn-dark" data-scase="delete" aria-pressed="false">③ 删完跳去哪</button>
+            <button type="button" class="btn btn-dark" data-scase="deeplink" aria-pressed="false">④ 链接直达</button>
+          </div>
+
+          <div class="sl-mode-group" role="group" aria-label="对比好坏做法">
+            <button type="button" class="btn btn-outline-dark" data-smode="bad" aria-pressed="false">常见坑（坏）</button>
+            <button type="button" class="btn btn-dark" data-smode="good" aria-pressed="true">推荐做法（好）</button>
+          </div>
         </div>
 
-        <div class="cost-lab reveal" id="cost-lab" data-mode="split" data-view="detail">
-          <div class="cl-head">
-            <div class="btns" role="group" aria-label="浏览模式">
-              <button type="button" class="btn btn-dark" data-cost-mode="split" aria-pressed="true">列表—详情同屏</button>
-              <button type="button" class="btn btn-dark" data-cost-mode="page" aria-pressed="false">单页来回跳转</button>
-            </div>
-            <div class="btns">
-              <button type="button" class="btn btn-outline-dark" id="cost-auto" aria-pressed="false">演示连看 5 条</button>
-              <button type="button" class="btn btn-outline-dark" id="cost-reset">重置计数</button>
-            </div>
+        <!-- 当前场景提问 + 快捷操作 -->
+        <div class="sl-subbar">
+          <h3 class="sl-case-title" id="sl-case-title">刚打开页面、还没点任何一条，右栏放什么？</h3>
+          <div class="btns">
+            <button type="button" class="btn btn-dark btn-sm-p" id="sl-trigger">模拟刚打开（未选中）</button>
+            <button type="button" class="btn btn-outline-dark btn-sm-p" id="sl-reset">重置本例</button>
+          </div>
+        </div>
+
+        <!-- <600px 手机端专属单窗格切换条（严格不强行双栏挤压） -->
+        <div class="sl-pane-switch" role="group" aria-label="窄屏单窗格切换">
+          <button type="button" class="sl-pane-btn" data-spane="list" aria-pressed="false">列表窗格</button>
+          <button type="button" class="sl-pane-btn" data-spane="detail" aria-pressed="true">详情窗格</button>
+          <span class="sl-pane-note">窄屏单窗格演示</span>
+        </div>
+
+        <!-- 模拟工作框（含条件展示的 URL 地址栏） -->
+        <div class="sl-shell">
+          <div class="sl-url-bar" id="sl-url-bar" data-synced="1" hidden>
+            <span class="sl-url-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <code class="sl-url-text" id="sl-url-text" lang="en">app.example/reqs/RQ-103</code>
+            <button type="button" class="sl-url-btn" id="sl-url-reopen">模拟刷新 / 分享打开</button>
           </div>
 
-          <div class="cl-metrics" aria-live="polite">
-            <div><span>已看工单</span><b id="cost-seen" lang="en">1 / 5</b></div>
-            <div><span>切换操作</span><b id="cost-steps">1 次</b></div>
-            <div><span>无效返回</span><b id="cost-backs" class="accent">0 次</b></div>
-          </div>
-
-          <div class="cl-frame">
-            <div class="cl-list" id="cost-list" role="listbox" aria-label="五条模拟工单">
-              <button type="button" class="cl-row is-active is-seen" role="option" aria-selected="true">
-                <span class="cl-tag">紧急</span><b>导出报表中文乱码</b><small>2 分钟前 · 财务部</small>
-              </button>
-              <button type="button" class="cl-row" role="option" aria-selected="false">
-                <span class="cl-tag">待审</span><b>申请扩容附件空间</b><small>14 分钟前 · 设计组</small>
-              </button>
-              <button type="button" class="cl-row" role="option" aria-selected="false">
-                <span class="cl-tag">咨询</span><b>新成员登录权限异常</b><small>38 分钟前 · 研发部</small>
-              </button>
-              <button type="button" class="cl-row" role="option" aria-selected="false">
-                <span class="cl-tag">常规</span><b>修改发票抬头信息</b><small>1 小时前 · 运营组</small>
-              </button>
-              <button type="button" class="cl-row" role="option" aria-selected="false">
-                <span class="cl-tag">已查</span><b>移动端推送延迟反馈</b><small>2 小时前 · 客服组</small>
-              </button>
+          <div class="sl-frame">
+            <div class="sl-list-col">
+              <div class="sl-list-head">
+                <span class="sl-list-name">设计规范评审清单</span>
+                <div class="sl-filter-bar" id="sl-filter-bar" role="group" aria-label="按优先级筛选" hidden>
+                  <button type="button" class="sl-chip" data-sfilter="all" aria-pressed="true">全部 (5)</button>
+                  <button type="button" class="sl-chip" data-sfilter="high" aria-pressed="false">仅看高优 (2)</button>
+                </div>
+              </div>
+              <div class="sl-list" id="sl-list" role="listbox" aria-label="设计规范评审条目"></div>
             </div>
 
-            <div class="cl-detail" id="cost-detail">
-              <button type="button" class="cl-back" id="cost-back">← 返回列表</button>
-              <p class="cd-meta-top"><span id="cd-id" lang="en">TK-401</span><em id="cd-tag">紧急</em></p>
-              <h4 id="cd-title">导出报表中文乱码</h4>
-              <p class="cd-sub" id="cd-meta">2 分钟前 · 财务部</p>
-              <p class="cd-body" id="cd-body">用户在导出季度 CSV 对账单时，Excel 直接双击打开出现乱码。需要给导出文件补上 UTF-8 BOM 头并通知对方重下。</p>
-              <div class="cd-foot"><span class="cd-btn-mock" id="cd-cta">下发补丁</span></div>
-            </div>
+            <div class="sl-detail" id="sl-detail" aria-live="polite"></div>
           </div>
-          <p class="readout readout-paper" id="cost-read" aria-live="polite"></p>
+        </div>
+
+        <!-- 当前对比观察 + 一句话为什么 -->
+        <div class="sl-explain" aria-live="polite">
+          <p class="sl-diff" id="sl-diff"></p>
+          <p class="sl-why-row"><b class="sl-why-tag">为什么</b><span id="sl-why"></span></p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 04 屏幕变窄怎么办：响应式断点模拟器 -->
+  <!-- 04 屏幕变窄怎么办（去掉重复滑杆，保留海报对照、顶部工作台回跳与三档规则卡） -->
   <section class="sec sec-dark" aria-labelledby="s4">
     <div class="wrap">
       <header class="sec-head reveal">
@@ -479,80 +493,69 @@
         </blockquote>
         <div>
           <p class="tag">大屏前提</p>
-          <p>左右并排有一个隐含条件：<b>水平宽度够用</b>。在 390px 的手机竖屏上硬摆两栏，列表只剩两三个字、详情挤成一根竖条，两边都废掉。按照 <b>Material Design 3</b> 的窗口分级与 <b>Apple HIG</b> 的分栏原则，窄屏必须主动退回单窗格钻取（点击进入详情、左上角返回列表），宽屏才展开为双栏。</p>
+          <p>左右并排有一个隐含条件：<b>水平宽度够用</b>。在 360–390px 的手机竖屏上硬摆两栏，列表只剩两三个字、详情挤成一根竖条，两边都废掉。按照 <b>Material Design 3</b> 的窗口分级与 <b>Apple HIG</b> 的分栏原则，窄屏必须主动退回单窗格钻取（点击进入详情、左上角返回列表并恢复滚动位置），宽屏才展开为双栏。</p>
         </div>
       </div>
 
-      <div class="bp-lab reveal">
-        <div class="bp-bar">
-          <div class="bp-head-info">
-            <output class="bp-px" id="bp-px" lang="en">960px</output>
-            <span class="bp-tier" id="bp-tier" data-mode="expanded-dual">Expanded（≥ 840dp）· 经典双栏</span>
-          </div>
-          <div class="btns" role="group" aria-label="常见设备宽度">
-            <button type="button" class="btn" data-bp="390" aria-pressed="false">手机 390</button>
-            <button type="button" class="btn" data-bp="680" aria-pressed="false">竖平板 680</button>
-            <button type="button" class="btn" data-bp="960" aria-pressed="true">横平板 960</button>
-            <button type="button" class="btn" data-bp="1240" aria-pressed="false">桌面 1240</button>
-          </div>
-        </div>
-
-        <div class="bp-slider-wrap">
-          <label class="range-row">
-            <span>拖动窗口宽度（<span lang="en">360px – 1280px</span>）</span>
-            <input type="range" id="bp-range" min="360" max="1280" step="10" value="960" aria-describedby="bp-read">
-          </label>
-          <div class="bp-ticks" aria-hidden="true">
-            <span style="--p:0%">360</span>
-            <span style="--p:26.1%">600<em class="tick-lbl"> · Medium</em></span>
-            <span style="--p:52.2%">840<em class="tick-lbl"> · Expanded</em></span>
-            <span style="--p:100%">1280</span>
-          </div>
-          <label class="chk-row">
-            <input type="checkbox" id="bp-force">
-            <span>反面示范：在手机宽度（&lt; 600px）强行保持双栏<em class="chk-hint" id="bp-force-hint">（调至 &lt;600px 后可勾选）</em></span>
-          </label>
-        </div>
-
-        <div class="bp-stage" id="bp-stage">
-          <p class="bp-scale-badge" id="bp-scale-badge" hidden></p>
-          <div class="bp-scale-box" id="bp-scale-box">
-            <div class="bp-sim" id="bp-sim" data-mode="expanded-dual" data-pane="list">
-              <div class="bp-chrome" aria-hidden="true"><i></i><i></i><i></i><span>收件箱 / 工单台</span></div>
-              <div class="bp-body">
-                <div class="bp-list" role="listbox" aria-label="断点模拟列表">
-                  <button type="button" class="bp-row is-active" role="option" aria-selected="true"><b>导出报表中文乱码</b><small>财务部 · 2m</small></button>
-                  <button type="button" class="bp-row" role="option" aria-selected="false"><b>申请扩容附件空间</b><small>设计组 · 14m</small></button>
-                  <button type="button" class="bp-row" role="option" aria-selected="false"><b>新成员登录权限异常</b><small>研发部 · 38m</small></button>
-                  <button type="button" class="bp-row" role="option" aria-selected="false"><b>修改发票抬头信息</b><small>运营组 · 1h</small></button>
-                </div>
-                <div class="bp-detail">
-                  <button type="button" class="bp-back" id="bp-back">← 返回列表</button>
-                  <p class="bp-d-id" id="bp-d-id" lang="en">TK-401</p>
-                  <h4 id="bp-d-title">导出报表中文乱码</h4>
-                  <p class="bp-d-meta" id="bp-d-meta">2 分钟前 · 财务部</p>
-                  <p class="bp-d-body" id="bp-d-body">用户在导出季度 CSV 对账单时，Excel 直接双击打开出现乱码。需要给导出文件补上 UTF-8 BOM 头并通知对方重下。</p>
-                  <span class="bp-d-cta" id="bp-d-cta">下发补丁</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <p class="readout readout-dark" id="bp-read" aria-live="polite"></p>
+      <div class="bp-jump reveal">
+        <p>开场工作台已经自带 <b>360–1080px</b> 宽度导轨，以及 <b>&lt;600 强行双栏</b> 的反面示范勾选框，随时可以对照下面三档断点现场拖一遍。</p>
+        <a class="btn btn-accent" href="#hero-workbench">回到开场工作台实测 ↑</a>
       </div>
 
       <dl class="bp-rules reveal">
         <div>
+          <svg class="bp-mini" viewBox="0 0 180 76" aria-hidden="true">
+            <rect x="6" y="6" width="66" height="64" rx="6" fill="#06231F" stroke="#2EA08A" stroke-width="1.5"/>
+            <rect x="13" y="15" width="52" height="11" rx="2" fill="#0D352E"/>
+            <rect x="13" y="15" width="3" height="11" rx="1" fill="#EE610A"/>
+            <rect x="13" y="32" width="44" height="6" rx="1.5" fill="#207767"/>
+            <rect x="13" y="44" width="48" height="6" rx="1.5" fill="#207767"/>
+            <rect x="13" y="56" width="38" height="6" rx="1.5" fill="#207767"/>
+            <path d="M80 38 H98 M93 33 L99 38 L93 43" fill="none" stroke="#EE610A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="108" y="6" width="66" height="64" rx="6" fill="#F8EBD8"/>
+            <rect x="115" y="13" width="22" height="7" rx="2" fill="#042923"/>
+            <rect x="115" y="26" width="46" height="7" rx="1.5" fill="#042923"/>
+            <rect x="115" y="38" width="52" height="4" rx="1" fill="#B9AC98"/>
+            <rect x="115" y="46" width="42" height="4" rx="1" fill="#B9AC98"/>
+            <rect x="142" y="56" width="25" height="8" rx="2" fill="#EE610A"/>
+          </svg>
           <dt><span lang="en">Compact</span> · &lt; 600dp</dt>
-          <dd>手机竖屏：单窗格进出，返回列表时务必恢复刚才的滚动位置，别让人重新从第一条往下翻。</dd>
+          <dd>手机竖屏（如 360–390px）：一次只显一个窗格。点条目整屏推入详情，返回列表时务必恢复先前的滚动位置，别让人重新从第 1 条往下翻；千万别在窄屏强行并排。</dd>
         </div>
         <div>
+          <svg class="bp-mini" viewBox="0 0 180 76" aria-hidden="true">
+            <rect x="10" y="6" width="160" height="64" rx="6" fill="#06231F" stroke="#2EA08A" stroke-width="1.5"/>
+            <rect x="16" y="12" width="62" height="52" rx="4" fill="#0A2C27"/>
+            <rect x="20" y="18" width="3" height="12" rx="1" fill="#EE610A"/>
+            <rect x="26" y="19" width="44" height="5" rx="1" fill="#F8EBD8"/>
+            <rect x="26" y="34" width="38" height="4" rx="1" fill="#207767"/>
+            <rect x="26" y="45" width="42" height="4" rx="1" fill="#207767"/>
+            <rect x="84" y="12" width="80" height="52" rx="4" fill="#F8EBD8"/>
+            <rect x="92" y="20" width="44" height="7" rx="1.5" fill="#042923"/>
+            <rect x="92" y="33" width="62" height="4" rx="1" fill="#B9AC98"/>
+            <rect x="92" y="41" width="50" height="4" rx="1" fill="#B9AC98"/>
+            <rect x="130" y="51" width="26" height="8" rx="2" fill="#EE610A"/>
+          </svg>
           <dt><span lang="en">Medium</span> · 600–839dp</dt>
-          <dd>竖屏平板与折叠屏：按内容密度取舍，列表文字短可谨慎双栏，文字长就改单窗格或配合 <a href="https://layout.xiaoxiaodong.ai/263/play/" target="_blank" rel="noopener">导航抽屉（No. 263）</a>。</dd>
+          <dd>竖屏平板与折叠屏：临界过渡区。列表标题够短、单行放得下时可以谨慎进入紧凑双栏；正文复杂或字段较宽时，宁可继续保持单窗格，或配合 <a href="https://layout.xiaoxiaodong.ai/263/play/" target="_blank" rel="noopener">导航抽屉（No. 263）</a> 临时拉出列表。</dd>
         </div>
         <div>
+          <svg class="bp-mini" viewBox="0 0 180 76" aria-hidden="true">
+            <rect x="4" y="6" width="172" height="64" rx="6" fill="#06231F" stroke="#2EA08A" stroke-width="1.5"/>
+            <rect x="10" y="12" width="50" height="52" rx="4" fill="#0A2C27"/>
+            <rect x="14" y="18" width="3" height="12" rx="1" fill="#EE610A"/>
+            <rect x="20" y="19" width="34" height="5" rx="1" fill="#F8EBD8"/>
+            <rect x="20" y="34" width="30" height="4" rx="1" fill="#207767"/>
+            <rect x="20" y="45" width="32" height="4" rx="1" fill="#207767"/>
+            <rect x="66" y="12" width="104" height="52" rx="4" fill="#F8EBD8"/>
+            <rect x="75" y="19" width="54" height="7" rx="1.5" fill="#042923"/>
+            <rect x="75" y="31" width="68" height="4" rx="1" fill="#B9AC98"/>
+            <rect x="75" y="39" width="64" height="4" rx="1" fill="#B9AC98"/>
+            <line x1="149" y1="16" x2="149" y2="50" stroke="#EE610A" stroke-width="1" stroke-dasharray="2 2"/>
+            <rect x="134" y="51" width="28" height="8" rx="2" fill="#EE610A"/>
+          </svg>
           <dt><span lang="en">Expanded</span> · ≥ 840dp</dt>
-          <dd>横屏平板与桌面：列表固定合理宽度（Material Design 3 参考约 360dp，桌面经验值多在 260–380px），详情吃满剩余宽度并限制正文行长。</dd>
+          <dd>横屏平板与桌面：经典双栏主场。左栏锁定合理定宽（Material Design 3 参考约 360dp，桌面经验值多在 260–380px），右栏吃满剩余空间，但超宽屏记得给正文段落设行长上限（经验值约 35–42 个汉字）。</dd>
         </div>
       </dl>
     </div>
@@ -685,128 +688,102 @@
     </div>
   </section>
 
-  <!-- 07 小练习 -->
+  <!-- 07 小练习：有取舍的 4 场景版式判断题（带入「什么时候别用」和断点取舍） -->
   <section class="sec sec-paper sec-quiz" aria-labelledby="s7">
     <div class="wrap">
       <header class="sec-head reveal">
         <p class="sec-no" lang="en">07</p>
         <div>
-          <h2 id="s7"><span class="nb">练一练：四套工单台，</span><span class="nb">哪套最顺手？</span></h2>
-          <p class="sec-en" lang="en">Practice · pick the clearest layout</p>
+          <h2 id="s7"><span class="nb">练一练：四个需求，</span><span class="nb">哪个该用双栏？</span></h2>
+          <p class="sec-en" lang="en">Practice · judge the right pattern</p>
         </div>
       </header>
 
-      <p class="lead reveal">桌面端客服系统每天要连续翻看、回复上百条工单。下面四张界面方案，哪一张把列表—详情做对了？</p>
+      <p class="lead reveal">下面四个真实产品需求，乍看都像是「一堆条目配详情」——但真正适合直接上<b>列表—详情双栏</b>的其实只有一个。替每个场景拍板：该用双栏，还是该换成<b>单栏钻取</b>、<b>顶部标签页</b>或<b>对比表格</b>？</p>
 
-      <div class="quiz-grid reveal" role="group" aria-label="四套界面线框方案">
-        <!-- A：五五开 + 过载 + 无选中态 -->
-        <button type="button" class="quiz-pick" data-pick="a" aria-pressed="false">
-          <svg viewBox="0 0 220 150" aria-hidden="true">
-            <rect width="220" height="150" rx="8" fill="#04211D"/>
-            <rect x="8" y="8" width="98" height="134" rx="5" fill="#F8EBD8"/>
-            <rect x="114" y="8" width="98" height="134" rx="5" fill="#F8EBD8"/>
-            <!-- 左边臃肿卡片，全部带橙按钮，分不清选中 -->
-            <rect x="14" y="16" width="86" height="36" rx="3" fill="#EFE0C7"/>
-            <rect x="19" y="21" width="22" height="26" rx="2" fill="#207767"/>
-            <rect x="46" y="22" width="48" height="5" rx="1" fill="#042923"/>
-            <rect x="46" y="31" width="38" height="3" rx="1" fill="#B9AC98"/>
-            <rect x="74" y="39" width="20" height="8" rx="2" fill="#EE610A"/>
-            <rect x="14" y="58" width="86" height="36" rx="3" fill="#EFE0C7"/>
-            <rect x="19" y="63" width="22" height="26" rx="2" fill="#207767"/>
-            <rect x="46" y="64" width="46" height="5" rx="1" fill="#042923"/>
-            <rect x="46" y="73" width="34" height="3" rx="1" fill="#B9AC98"/>
-            <rect x="74" y="81" width="20" height="8" rx="2" fill="#EE610A"/>
-            <rect x="14" y="100" width="86" height="36" rx="3" fill="#EFE0C7"/>
-            <rect x="19" y="105" width="22" height="26" rx="2" fill="#207767"/>
-            <rect x="46" y="106" width="42" height="5" rx="1" fill="#042923"/>
-            <rect x="74" y="123" width="20" height="8" rx="2" fill="#EE610A"/>
-            <!-- 右边 -->
-            <rect x="122" y="18" width="82" height="44" rx="3" fill="#207767" opacity="0.45"/>
-            <rect x="122" y="72" width="58" height="7" rx="1" fill="#042923"/>
-            <rect x="122" y="86" width="80" height="4" rx="1" fill="#B9AC98"/>
-            <rect x="122" y="95" width="70" height="4" rx="1" fill="#B9AC98"/>
-            <rect x="172" y="120" width="32" height="12" rx="2" fill="#EE610A"/>
-          </svg>
-          <span class="qp-foot"><b lang="en">A</b><span>五五平分 · 全员按钮</span></span>
-        </button>
-
-        <!-- B：最佳 30:70 暗列表 × 亮详情 + 清晰橙条选中 + 右下 CTA -->
-        <button type="button" class="quiz-pick" data-pick="b" aria-pressed="false">
-          <svg viewBox="0 0 220 150" aria-hidden="true">
-            <rect width="220" height="150" rx="8" fill="#011613"/>
-            <rect x="8" y="8" width="62" height="134" rx="5" fill="#06221E"/>
-            <rect x="8" y="16" width="62" height="24" rx="4" fill="#0E362F"/>
-            <rect x="8" y="16" width="3.5" height="24" rx="1" fill="#EE610A"/>
-            <circle cx="20" cy="28" r="4.5" fill="#EE610A"/>
-            <rect x="29" y="24" width="34" height="4" rx="1" fill="#F8EBD8"/>
-            <rect x="29" y="31" width="22" height="2.5" rx="1" fill="#2EA08A"/>
-            <circle cx="20" cy="54" r="4" fill="#207767"/>
-            <rect x="29" y="51" width="30" height="3.5" rx="1" fill="#207767"/>
-            <circle cx="20" cy="78" r="4" fill="#207767"/>
-            <rect x="29" y="75" width="26" height="3.5" rx="1" fill="#207767"/>
-            <circle cx="20" cy="102" r="4" fill="#207767"/>
-            <rect x="29" y="99" width="32" height="3.5" rx="1" fill="#207767"/>
-            <!-- 详情纸面 -->
-            <rect x="78" y="8" width="134" height="134" rx="6" fill="#F8EBD8"/>
-            <rect x="88" y="18" width="52" height="8" rx="1.5" fill="#042923"/>
-            <rect x="88" y="30" width="20" height="2.5" rx="1" fill="#EE610A"/>
-            <rect x="88" y="40" width="114" height="44" rx="3" fill="#EE610A"/>
-            <circle cx="122" cy="60" r="11" fill="#FAD8B6"/>
-            <polygon points="126,84 162,48 196,84" fill="#042923"/>
-            <rect x="88" y="92" width="108" height="4" rx="1" fill="#B9AC98"/>
-            <rect x="88" y="101" width="90" height="4" rx="1" fill="#B9AC98"/>
-            <rect x="164" y="118" width="38" height="14" rx="3" fill="#EE610A"/>
-          </svg>
-          <span class="qp-foot"><b lang="en">B</b><span>暗窄列表 · 亮宽详情</span></span>
-        </button>
-
-        <!-- C：列表压成 12% 细缝，看不清文字 -->
-        <button type="button" class="quiz-pick" data-pick="c" aria-pressed="false">
-          <svg viewBox="0 0 220 150" aria-hidden="true">
-            <rect width="220" height="150" rx="8" fill="#011613"/>
-            <rect x="8" y="8" width="22" height="134" rx="4" fill="#06221E"/>
-            <rect x="8" y="18" width="3" height="18" fill="#EE610A"/>
-            <circle cx="19" cy="27" r="4.5" fill="#EE610A"/>
-            <circle cx="19" cy="52" r="4" fill="#207767"/>
-            <circle cx="19" cy="77" r="4" fill="#207767"/>
-            <circle cx="19" cy="102" r="4" fill="#207767"/>
-            <circle cx="19" cy="127" r="4" fill="#207767"/>
-            <rect x="36" y="8" width="176" height="134" rx="6" fill="#F8EBD8"/>
-            <rect x="48" y="20" width="90" height="8" rx="1.5" fill="#042923"/>
-            <rect x="48" y="36" width="152" height="50" rx="3" fill="#EE610A" opacity="0.82"/>
-            <rect x="48" y="96" width="152" height="4" rx="1" fill="#B9AC98"/>
-            <rect x="48" y="106" width="140" height="4" rx="1" fill="#B9AC98"/>
-            <rect x="164" y="120" width="36" height="12" rx="3" fill="#EE610A"/>
-          </svg>
-          <span class="qp-foot"><b lang="en">C</b><span>极窄细缝 · 无标题</span></span>
-        </button>
-
-        <!-- D：点击弹出居中遮罩盖住列表 -->
-        <button type="button" class="quiz-pick" data-pick="d" aria-pressed="false">
-          <svg viewBox="0 0 220 150" aria-hidden="true">
-            <rect width="220" height="150" rx="8" fill="#011613"/>
-            <!-- 背景列表被压暗遮住 -->
-            <rect x="12" y="14" width="196" height="22" rx="3" fill="#0A2B26" opacity="0.5"/>
-            <rect x="12" y="42" width="196" height="22" rx="3" fill="#0A2B26" opacity="0.5"/>
-            <rect x="12" y="70" width="196" height="22" rx="3" fill="#0A2B26" opacity="0.5"/>
-            <rect x="12" y="98" width="196" height="22" rx="3" fill="#0A2B26" opacity="0.5"/>
-            <rect width="220" height="150" rx="8" fill="#011613" opacity="0.55"/>
-            <!-- 居中模态框 -->
-            <rect x="36" y="22" width="148" height="106" rx="7" fill="#F8EBD8" stroke="#EE610A" stroke-width="1.5"/>
-            <text x="172" y="36" fill="#042923" font-size="11" font-weight="700" text-anchor="middle">×</text>
-            <rect x="48" y="32" width="64" height="7" rx="1.5" fill="#042923"/>
-            <rect x="48" y="48" width="124" height="36" rx="3" fill="#207767" opacity="0.4"/>
-            <rect x="48" y="92" width="106" height="4" rx="1" fill="#B9AC98"/>
-            <rect x="136" y="106" width="36" height="12" rx="3" fill="#EE610A"/>
-          </svg>
-          <span class="qp-foot"><b lang="en">D</b><span>居中弹窗 · 遮断列表</span></span>
-        </button>
+      <div class="quiz-toolbar reveal">
+        <output class="quiz-score" id="quiz-score" aria-live="polite">已判断 0 / 4 · 答对 0 / 4</output>
+        <div class="btns">
+          <button type="button" class="btn btn-outline-dark btn-sm-p" id="quiz-reveal">直接看全部答案</button>
+          <button type="button" class="btn btn-outline-dark btn-sm-p" id="quiz-reset">重新判断</button>
+        </div>
       </div>
 
-      <div class="quiz-out reveal" id="quiz-out" aria-live="polite">
-        <p class="qo-title" id="quiz-title">先凭直觉挑一套。</p>
-        <p class="qo-text" id="quiz-text">点击上面任意卡片，对比各套方案在高频切换工单时的真实体验。</p>
+      <div class="scenario-grid reveal">
+        <!-- 场景 A：390px 手机收件箱 -> 单栏钻取 -->
+        <article class="scenario-card" data-scenario="phone-inbox" data-state="idle">
+          <div class="sc-head">
+            <span class="sc-code" lang="en">A</span>
+            <span class="sc-env">390px 手机竖屏</span>
+            <span class="sc-status">待判断</span>
+          </div>
+          <h3>手机端邮件收件箱</h3>
+          <p class="sc-desc">通勤路上每天翻几十封邮件，点开要读正文、看图片附件并快速回复，但视口只有 390px 宽。</p>
+          <div class="sc-choices" role="group" aria-label="场景 A 版式选择">
+            <button type="button" class="sc-btn" data-choice="split" aria-pressed="false">列表—详情双栏</button>
+            <button type="button" class="sc-btn" data-choice="drill" aria-pressed="false">单栏钻取</button>
+            <button type="button" class="sc-btn" data-choice="tabs" aria-pressed="false">顶部标签页</button>
+            <button type="button" class="sc-btn" data-choice="table" aria-pressed="false">对比表格</button>
+          </div>
+          <p class="sc-verdict" aria-live="polite">挑一个最合适的版式，看取舍理由。</p>
+        </article>
+
+        <!-- 场景 B：1280px 客服工单台 -> 列表—详情双栏 -->
+        <article class="scenario-card" data-scenario="desktop-tickets" data-state="idle">
+          <div class="sc-head">
+            <span class="sc-code" lang="en">B</span>
+            <span class="sc-env">1280px 桌面端</span>
+            <span class="sc-status">待判断</span>
+          </div>
+          <h3>客服每日工单处理台</h3>
+          <p class="sc-desc">客服每天要连续翻看、审阅并回复上百条待办工单，每条都有文字说明、截图附件与结单按钮。</p>
+          <div class="sc-choices" role="group" aria-label="场景 B 版式选择">
+            <button type="button" class="sc-btn" data-choice="split" aria-pressed="false">列表—详情双栏</button>
+            <button type="button" class="sc-btn" data-choice="drill" aria-pressed="false">单栏钻取</button>
+            <button type="button" class="sc-btn" data-choice="tabs" aria-pressed="false">顶部标签页</button>
+            <button type="button" class="sc-btn" data-choice="table" aria-pressed="false">对比表格</button>
+          </div>
+          <p class="sc-verdict" aria-live="polite">挑一个最合适的版式，看取舍理由。</p>
+        </article>
+
+        <!-- 场景 C：1280px 3 分组账号设置 -> 顶部标签页 -->
+        <article class="scenario-card" data-scenario="three-settings" data-state="idle">
+          <div class="sc-head">
+            <span class="sc-code" lang="en">C</span>
+            <span class="sc-env">1280px 桌面端</span>
+            <span class="sc-status">待判断</span>
+          </div>
+          <h3>只有 3 个分组的账号设置</h3>
+          <p class="sc-desc">个人中心的账号设置页，固定只有「基本资料 / 登录安全 / 通知偏好」三大块，以后也很少再增加。</p>
+          <div class="sc-choices" role="group" aria-label="场景 C 版式选择">
+            <button type="button" class="sc-btn" data-choice="split" aria-pressed="false">列表—详情双栏</button>
+            <button type="button" class="sc-btn" data-choice="drill" aria-pressed="false">单栏钻取</button>
+            <button type="button" class="sc-btn" data-choice="tabs" aria-pressed="false">顶部标签页</button>
+            <button type="button" class="sc-btn" data-choice="table" aria-pressed="false">对比表格</button>
+          </div>
+          <p class="sc-verdict" aria-live="polite">挑一个最合适的版式，看取舍理由。</p>
+        </article>
+
+        <!-- 场景 D：1440px 6 款手机参数比价 -> 对比表格 -->
+        <article class="scenario-card" data-scenario="compare-phones" data-state="idle">
+          <div class="sc-head">
+            <span class="sc-code" lang="en">D</span>
+            <span class="sc-env">1440px 桌面端</span>
+            <span class="sc-status">待判断</span>
+          </div>
+          <h3>横向比较 6 款手机参数</h3>
+          <p class="sc-desc">采购经理要同时对比 6 款备选机型的价格、芯片、电池、屏幕与交货周期，决定下单哪两款。</p>
+          <div class="sc-choices" role="group" aria-label="场景 D 版式选择">
+            <button type="button" class="sc-btn" data-choice="split" aria-pressed="false">列表—详情双栏</button>
+            <button type="button" class="sc-btn" data-choice="drill" aria-pressed="false">单栏钻取</button>
+            <button type="button" class="sc-btn" data-choice="tabs" aria-pressed="false">顶部标签页</button>
+            <button type="button" class="sc-btn" data-choice="table" aria-pressed="false">对比表格</button>
+          </div>
+          <p class="sc-verdict" aria-live="polite">挑一个最合适的版式，看取舍理由。</p>
+        </article>
       </div>
+
+      <p class="quiz-summary reveal" id="quiz-summary" data-state="idle" aria-live="polite"></p>
     </div>
   </section>
 

@@ -1,14 +1,13 @@
-// 01 / 03 / 04 / 05 / 07 / 08 节交互逻辑与海报放大查看器
+// 01 / 03 / 05 / 07 / 08 节交互逻辑与海报放大查看器
 import { reducedMotion } from "../../lib/stage.js";
-import { QUIZ, TICKETS, breakpointInfo, clamp } from "./model.js";
+import { QUIZ_SCENARIOS, STATE_CASES, STATE_ITEMS, clamp } from "./model.js";
 
 const $ = (id) => document.getElementById(id);
 
 export function initFigures() {
   initReveal();
   initContrastLab();
-  initSwitchCostLab();
-  initResponsiveLab();
+  initStateLab();
   initDensityLab();
   initQuiz();
   initPosterViewer();
@@ -61,280 +60,393 @@ function initContrastLab() {
   apply("poster");
 }
 
-// ---------- 03 节：切换成本对比实验（单页跳页 vs 列表—详情同屏） ----------
-function initSwitchCostLab() {
-  const root = $("cost-lab");
+// ---------- 03 节：选中态、空状态与直达链接实验台（严格遵守 <600px 单窗格） ----------
+function initStateLab() {
+  const root = $("state-lab");
   if (!root) return;
 
-  const modeBtns = [...root.querySelectorAll("[data-cost-mode]")];
-  const listWrap = $("cost-list");
-  const detailWrap = $("cost-detail");
-  const backBtn = $("cost-back");
-  const autoBtn = $("cost-auto");
-  const resetBtn = $("cost-reset");
+  const caseBtns = [...root.querySelectorAll("[data-scase]")];
+  const modeBtns = [...root.querySelectorAll("[data-smode]")];
+  const paneBtns = [...root.querySelectorAll("[data-spane]")];
+  const filterBtns = [...root.querySelectorAll("[data-sfilter]")];
+  const listEl = $("sl-list");
+  const detailEl = $("sl-detail");
+  const urlBar = $("sl-url-bar");
+  const urlText = $("sl-url-text");
+  const urlBtn = $("sl-url-reopen");
+  const filterBar = $("sl-filter-bar");
+  const triggerBtn = $("sl-trigger");
+  const resetBtn = $("sl-reset");
+  const titleEl = $("sl-case-title");
+  const diffEl = $("sl-diff");
+  const whyEl = $("sl-why");
 
   const st = {
-    mode: "split", // "split" | "page"
-    view: "list",  // 单页模式下 "list" | "detail"
-    selected: 0,
-    visited: new Set([0]),
-    steps: 1,      // 页面切换 / 点击次数
-    backs: 0,      // 返回次数
-    timer: 0,
+    caseId: "empty",       // "empty" | "filter" | "delete" | "deeplink"
+    mode: "good",          // "bad" | "good"
+    mobilePane: "detail",  // <600px 单窗格切换："list" | "detail"
+    filter: "all",         // "all" | "high"
+    removed: new Set(),
+    selectedId: null,
+    notice: "",
+    flashId: "",
   };
 
-  function stopAuto() {
-    if (st.timer) {
-      clearInterval(st.timer);
-      st.timer = 0;
-      autoBtn.textContent = "演示连看 5 条";
-      autoBtn.setAttribute("aria-pressed", "false");
-    }
+  function visibleItems() {
+    return STATE_ITEMS.filter((it) => !st.removed.has(it.id) && (st.filter === "all" || it.priority === "high"));
   }
 
-  function render() {
-    root.dataset.mode = st.mode;
-    root.dataset.view = st.view;
-    modeBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.costMode === st.mode)));
-
-    listWrap.querySelectorAll(".cl-row").forEach((btn, i) => {
-      const sel = i === st.selected && (st.mode === "split" || st.view === "detail");
-      btn.setAttribute("aria-selected", String(sel));
-      btn.classList.toggle("is-active", sel);
-      btn.classList.toggle("is-seen", st.visited.has(i));
-    });
-
-    const tk = TICKETS[st.selected];
-    $("cd-id").textContent = tk.id;
-    $("cd-tag").textContent = tk.tag;
-    $("cd-title").textContent = tk.title;
-    $("cd-meta").textContent = tk.meta;
-    $("cd-body").textContent = tk.body;
-    $("cd-cta").textContent = tk.cta;
-
-    $("cost-seen").textContent = `${st.visited.size} / ${TICKETS.length}`;
-    $("cost-steps").textContent = `${st.steps} 次`;
-    $("cost-backs").textContent = `${st.backs} 次`;
-
-    const msg = $("cost-read");
-    if (st.mode === "split") {
-      msg.textContent =
-        st.visited.size >= TICKETS.length
-          ? `列表—详情同屏模式：看完 5 条共点 ${st.steps} 次、返回 0 次。列表始终留在左手边，看得见哪条已看、下一条在哪。`
-          : "列表—详情同屏模式：直接点左侧任意工单，右侧就地刷新。不用点「返回」，上下文一直留在眼前。";
-    } else {
-      msg.textContent =
-        st.visited.size >= TICKETS.length
-          ? `单页来回跳转模式：看完 5 条一共走了 ${st.steps} 步，其中 ${st.backs} 次花在「点返回退回列表」上，每次切屏都得重新找刚才看到哪一行。`
-          : st.view === "detail"
-            ? "单页跳转模式：详情占满全屏，原来的列表不见了——想看下一条，必须先点左上角「← 返回列表」。"
-            : "单页跳转模式：点进一条后列表会整屏消失。试试连续看完 5 条，感受多出来的「返回」步数。";
-    }
+  function findItem(id) {
+    return STATE_ITEMS.find((it) => it.id === id) || null;
   }
 
-  function reset(newMode = st.mode) {
-    stopAuto();
-    st.mode = newMode;
-    st.view = newMode === "split" ? "detail" : "list";
-    st.selected = 0;
-    st.visited = newMode === "split" ? new Set([0]) : new Set();
-    st.steps = newMode === "split" ? 1 : 0;
-    st.backs = 0;
+  function setupCase(caseId, keepMode = true) {
+    st.caseId = caseId;
+    if (!keepMode) st.mode = "good";
+    st.filter = "all";
+    st.removed.clear();
+    st.notice = "";
+    st.flashId = "";
+
+    if (caseId === "empty") {
+      st.selectedId = null;
+      st.mobilePane = "detail";
+    } else if (caseId === "filter") {
+      st.selectedId = "RQ-102"; // 常规项，一旦点「仅看高优」就会被筛掉
+      st.filter = "high";
+      applyFilterPolicy();
+      st.mobilePane = "detail";
+    } else if (caseId === "delete") {
+      // 预演示刚移出 RQ-102 的瞬间，让坏/好做法一打开就形成直观对比，同时还能继续删完剩下 4 条
+      st.selectedId = "RQ-102";
+      removeCurrent({ silentRender: true });
+      st.mobilePane = "detail";
+    } else if (caseId === "deeplink") {
+      st.selectedId = "RQ-103";
+      simulateReloadLink({ silentRender: true });
+      st.mobilePane = "detail";
+    }
     render();
   }
 
-  modeBtns.forEach((b) => b.addEventListener("click", () => reset(b.dataset.costMode)));
-
-  listWrap.querySelectorAll(".cl-row").forEach((btn, i) => {
-    btn.addEventListener("click", () => {
-      stopAuto();
-      st.selected = i;
-      st.visited.add(i);
-      st.steps += 1;
-      if (st.mode === "page") st.view = "detail";
-      render();
-    });
-  });
-
-  backBtn.addEventListener("click", () => {
-    stopAuto();
-    if (st.mode === "page" && st.view === "detail") {
-      st.view = "list";
-      st.steps += 1;
-      st.backs += 1;
-      render();
-    }
-  });
-
-  resetBtn.addEventListener("click", () => reset(st.mode));
-
-  autoBtn.addEventListener("click", () => {
-    if (st.timer) {
-      stopAuto();
+  function applyFilterPolicy() {
+    const vis = visibleItems();
+    const stillHere = vis.some((it) => it.id === st.selectedId);
+    if (stillHere) {
+      st.notice = "";
       return;
     }
-    reset(st.mode);
-    const queue = [];
-    if (st.mode === "split") {
-      for (let i = 1; i < TICKETS.length; i++) queue.push({ act: "open", i });
+    if (st.mode === "bad") {
+      // 坏做法：右栏继续停留在已被过滤掉的幽灵详情
+      st.notice = "ghost";
     } else {
-      for (let i = 0; i < TICKETS.length; i++) {
-        queue.push({ act: "open", i });
-        if (i < TICKETS.length - 1) queue.push({ act: "back" });
-      }
+      // 好做法：同步切到筛选结果第 1 条，并告知用户原因
+      st.selectedId = vis.length ? vis[0].id : null;
+      st.notice = vis.length ? "synced-filter" : "empty-filter";
     }
-    if (reducedMotion.matches) {
-      for (const step of queue) {
-        if (step.act === "open") {
-          st.selected = step.i;
-          st.visited.add(step.i);
-          st.steps += 1;
-          if (st.mode === "page") st.view = "detail";
-        } else {
-          st.view = "list";
-          st.steps += 1;
-          st.backs += 1;
-        }
-      }
-      render();
-      return;
+  }
+
+  function removeCurrent({ silentRender = false } = {}) {
+    if (!st.selectedId) return;
+    const before = visibleItems();
+    const idx = before.findIndex((it) => it.id === st.selectedId);
+    if (idx < 0) return;
+
+    const gone = before[idx];
+    st.removed.add(gone.id);
+    const after = visibleItems();
+
+    if (st.mode === "bad") {
+      st.selectedId = null;
+      st.notice = `lost:${gone.id}`;
+    } else if (after.length) {
+      const nextItem = after[Math.min(idx, after.length - 1)];
+      st.selectedId = nextItem.id;
+      st.flashId = nextItem.id;
+      st.notice = `advanced:${gone.id}:${nextItem.id}`;
+    } else {
+      st.selectedId = null;
+      st.notice = "all-cleared";
     }
-    autoBtn.textContent = "停止演示";
-    autoBtn.setAttribute("aria-pressed", "true");
-    st.timer = setInterval(() => {
-      const step = queue.shift();
-      if (!step) {
-        stopAuto();
-        return;
-      }
-      if (step.act === "open") {
-        st.selected = step.i;
-        st.visited.add(step.i);
-        st.steps += 1;
-        if (st.mode === "page") st.view = "detail";
+    st.mobilePane = "detail";
+    if (!silentRender) render();
+  }
+
+  function simulateReloadLink({ silentRender = false } = {}) {
+    const targetId = st.selectedId || "RQ-103";
+    if (st.mode === "bad") {
+      st.selectedId = STATE_ITEMS[0].id;
+      st.notice = `url-lost:${targetId}`;
+    } else {
+      st.selectedId = targetId;
+      st.flashId = targetId;
+      st.notice = `url-hit:${targetId}`;
+    }
+    st.mobilePane = "detail";
+    if (!silentRender) render();
+  }
+
+  function render() {
+    const cfg = STATE_CASES[st.caseId];
+    const vis = visibleItems();
+
+    root.dataset.scase = st.caseId;
+    root.dataset.smode = st.mode;
+    root.dataset.pane = st.mobilePane;
+
+    caseBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.scase === st.caseId)));
+    modeBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.smode === st.mode)));
+    paneBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.spane === st.mobilePane)));
+    filterBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.sfilter === st.filter)));
+
+    titleEl.textContent = cfg.heading;
+    diffEl.textContent = st.mode === "bad" ? cfg.badDesc : cfg.goodDesc;
+    whyEl.textContent = cfg.why;
+
+    // 按当前情况露出专属控制条（不堆多余控件）
+    filterBar.hidden = st.caseId !== "filter";
+    urlBar.hidden = st.caseId !== "deeplink";
+
+    if (st.caseId === "deeplink") {
+      const shownId = st.selectedId || "RQ-103";
+      urlText.textContent = st.mode === "bad" ? "app.example/reqs" : `app.example/reqs/${shownId}`;
+      urlBar.dataset.synced = st.mode === "good" ? "1" : "0";
+    }
+
+    // 主演示触发按钮文案随情况变化
+    if (st.caseId === "empty") {
+      triggerBtn.textContent = "模拟刚打开（未选中）";
+    } else if (st.caseId === "filter") {
+      triggerBtn.textContent = st.filter === "high" ? "恢复全部 5 条" : "筛选「仅看高优」";
+    } else if (st.caseId === "delete") {
+      triggerBtn.textContent = vis.length && st.selectedId ? `完成并移出 ${st.selectedId}` : "恢复 5 条队列";
+    } else {
+      triggerBtn.textContent = "模拟同事打开链接 / 刷新";
+    }
+
+    // 渲染左栏列表
+    const highCount = STATE_ITEMS.filter((it) => !st.removed.has(it.id) && it.priority === "high").length;
+    const allCount = STATE_ITEMS.filter((it) => !st.removed.has(it.id)).length;
+    const allBtn = filterBar.querySelector('[data-sfilter="all"]');
+    const hiBtn = filterBar.querySelector('[data-sfilter="high"]');
+    if (allBtn) allBtn.textContent = `全部 (${allCount})`;
+    if (hiBtn) hiBtn.textContent = `仅看高优 (${highCount})`;
+
+    if (!vis.length) {
+      listEl.innerHTML = `<div class="sl-list-empty">当前列表已清空<br><button type="button" class="sl-inline-btn" data-sact="restore">恢复 5 条清单</button></div>`;
+    } else {
+      listEl.innerHTML = vis
+        .map((it) => {
+          const isSel = it.id === st.selectedId;
+          const isFlash = it.id === st.flashId;
+          return `
+            <button type="button" class="sl-row${isSel ? " is-active" : ""}${isFlash ? " is-flash" : ""}" role="option" aria-selected="${isSel}" data-sid="${it.id}">
+              <span class="sl-row-top">
+                <span class="sl-id" lang="en">${it.id}</span>
+                <em class="sl-prio" data-p="${it.priority}">${it.priorityLabel}</em>
+                <time>${it.time}</time>
+              </span>
+              <b>${it.title}</b>
+              <small>${it.owner}</small>
+            </button>`;
+        })
+        .join("");
+    }
+
+    // 渲染右栏详情 / 空状态 / 冲突提示
+    const activeItem = findItem(st.selectedId);
+    const inVis = activeItem && vis.some((it) => it.id === activeItem.id);
+    let bannerHtml = "";
+    let bodyHtml = "";
+
+    const backBarHtml = `<div class="sl-mobile-back-row"><button type="button" class="sl-back" data-sact="to-list">← 返回列表</button><span class="sl-back-meta">${vis.length ? `清单共 ${vis.length} 条` : "队列为空"}</span></div>`;
+
+    if (st.caseId === "empty" && !activeItem) {
+      if (st.mode === "bad") {
+        bodyHtml = `
+          <div class="sl-empty is-bad">
+            <p class="sl-empty-blank">暂无数据</p>
+            <p class="sl-empty-sub">（整块右栏留白，看不出是没选中、列表为空，还是网络加载失败）</p>
+          </div>`;
       } else {
-        st.view = "list";
-        st.steps += 1;
-        st.backs += 1;
+        bodyHtml = `
+          <div class="sl-empty is-good">
+            <span class="sl-empty-badge">未选中条目 · 轻量引导态</span>
+            <h4>从左侧选择一条评审单</h4>
+            <p>当前待处理 <b>${allCount}</b> 条（其中高优 <b>${highCount}</b> 条）。宽屏下点击任意行或按 <kbd>↑</kbd><kbd>↓</kbd> 即刻在右侧展开。</p>
+            <button type="button" class="sl-action-btn" data-sact="pick-first">选中第 1 条开始 →</button>
+          </div>`;
       }
-      render();
-    }, 520);
-  });
-
-  render();
-}
-
-// ---------- 04 节：响应式视口宽度模拟器（按「模拟宽度 / 容器宽度」等比缩放，窄屏绝不失真） ----------
-function initResponsiveLab() {
-  const range = $("bp-range");
-  const forceChk = $("bp-force");
-  const stage = $("bp-stage");
-  const scaleBox = $("bp-scale-box");
-  const sim = $("bp-sim");
-  const scaleBadge = $("bp-scale-badge");
-  const backBtn = $("bp-back");
-  if (!range || !sim || !scaleBox) return;
-
-  const presets = [...document.querySelectorAll("[data-bp]")];
-  const rows = [...sim.querySelectorAll(".bp-row")];
-  const state = { width: 960, force: false, selected: 0, compactPane: "list" };
-
-  function syncScale() {
-    const cs = getComputedStyle(stage);
-    const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-    const availW = Math.max(220, Math.floor(stage.clientWidth - padX));
-    const simW = state.width;
-    const scale = Math.min(1, availW / simW);
-
-    sim.style.width = `${simW}px`;
-    sim.style.transform = "none";
-    const naturalH = Math.max(220, sim.offsetHeight);
-
-    if (scale < 0.995) {
-      sim.style.left = "0px";
-      sim.style.transform = `scale(${scale.toFixed(4)})`;
-      scaleBox.style.height = `${Math.ceil(naturalH * scale)}px`;
-      if (scaleBadge) {
-        scaleBadge.hidden = false;
-        scaleBadge.textContent = `按真实 ${simW}px 渲染 · 等比缩放 ${Math.round(scale * 100)}%`;
+    } else if (st.caseId === "delete" && !activeItem) {
+      if (st.notice === "all-cleared") {
+        bodyHtml = `
+          <div class="sl-empty is-good">
+            <span class="sl-empty-badge">队列已清空</span>
+            <h4>5 条评审单已全部处理完成</h4>
+            <p>直到最后一条移出后，右栏才切入完成态，并给出明确的下一步入口。</p>
+            <button type="button" class="sl-action-btn" data-sact="restore">恢复 5 条再试一次</button>
+          </div>`;
+      } else {
+        const goneId = st.notice.startsWith("lost:") ? st.notice.slice(5) : "当前项";
+        bodyHtml = `
+          <div class="sl-empty is-bad">
+            <span class="sl-empty-badge is-warn">反例 · 选中态丢失</span>
+            <p class="sl-empty-blank">${goneId} 已删除，右栏变空</p>
+            <p class="sl-empty-sub">左栏还剩 ${vis.length} 条待办，却没有自动顺延下一条——你得重新去左栏点一行才能继续。</p>
+          </div>`;
       }
-    } else {
-      const offsetX = Math.max(0, Math.round((availW - simW) / 2));
-      sim.style.left = `${offsetX}px`;
-      sim.style.transform = "none";
-      scaleBox.style.height = `${naturalH}px`;
-      if (scaleBadge) scaleBadge.hidden = true;
+    } else if (activeItem) {
+      if (st.caseId === "filter" && !inVis) {
+        bannerHtml = `<p class="sl-banner is-warn">⚠ 幽灵详情：左栏筛选为「仅看高优」已不含 ${activeItem.id}，右栏却仍死停在这条常规项上，左右不再对应。</p>`;
+      } else if (st.notice === "synced-filter") {
+        bannerHtml = `<p class="sl-banner is-ok">✓ 原常规项已被筛选隐藏 → 自动同步选中筛选后第 1 条（${activeItem.id}）。<button type="button" class="sl-link-btn" data-sact="clear-filter">恢复全部</button></p>`;
+      } else if (st.notice.startsWith("advanced:")) {
+        const [, gone, next] = st.notice.split(":");
+        bannerHtml = `<p class="sl-banner is-ok">✓ ${gone} 已移出 → 选中态与焦点自动顺延至紧邻下一条 ${next}，可连续处理。</p>`;
+      } else if (st.notice.startsWith("url-lost:")) {
+        const wanted = st.notice.slice(9);
+        bannerHtml = `<p class="sl-banner is-warn">⚠ 地址栏没有记录 ${wanted}：刷新或打开同事发来的 /reqs 链接后，页面直接掉回了第 1 条 ${activeItem.id}。</p>`;
+      } else if (st.notice.startsWith("url-hit:")) {
+        bannerHtml = `<p class="sl-banner is-ok">✓ 网址直达 /reqs/${activeItem.id}：打开即定位到目标详情，左栏同步滚入并高亮。</p>`;
+      }
+
+      const footAction =
+        st.caseId === "delete"
+          ? `<button type="button" class="sl-action-btn" data-sact="delete-cur">完成并移出 ${activeItem.id}</button>`
+          : st.caseId === "deeplink"
+            ? `<button type="button" class="sl-action-btn" data-sact="reopen">模拟刷新 / 发给同事打开</button>`
+            : `<span class="sl-note-chip">${activeItem.note}</span>`;
+
+      bodyHtml = `
+        ${bannerHtml}
+        <div class="sl-d-card">
+          <div class="sl-d-meta">
+            <span class="sl-d-id" lang="en">${activeItem.id}</span>
+            <em class="sl-prio" data-p="${activeItem.priority}">${activeItem.priorityLabel}</em>
+            <span>${activeItem.owner} · ${activeItem.time}</span>
+          </div>
+          <h4>${activeItem.title}</h4>
+          <p class="sl-d-body">${activeItem.body}</p>
+          <div class="sl-d-foot">
+            <span class="sl-d-note">${activeItem.note}</span>
+            ${footAction}
+          </div>
+        </div>`;
     }
+
+    detailEl.innerHTML = backBarHtml + bodyHtml;
+    st.flashId = "";
   }
 
-  function render() {
-    const info = breakpointInfo(state.width, state.force);
-    range.value = String(state.width);
-    $("bp-px").textContent = `${state.width}px`;
-    const tag = $("bp-tier");
-    tag.textContent = info.name;
-    tag.dataset.mode = info.mode;
-    $("bp-read").textContent = info.text;
-
-    sim.dataset.mode = info.mode;
-    sim.dataset.pane = state.compactPane;
-
-    // 只在 Compact 区间启用「反例：强行双栏」选项，但保持高对比度清晰可读
-    const locked = state.width >= 600;
-    forceChk.disabled = locked;
-    const lbl = forceChk.closest("label");
-    lbl.classList.toggle("is-disabled", locked);
-    const hint = $("bp-force-hint");
-    if (hint) hint.textContent = locked ? "（调至 <600px 后可勾选）" : "（当前已可切换）";
-
-    presets.forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.bp === state.width)));
-
-    rows.forEach((btn, i) => {
-      const sel = i === state.selected;
-      btn.setAttribute("aria-selected", String(sel));
-      btn.classList.toggle("is-active", sel);
-    });
-    const tk = TICKETS[state.selected];
-    $("bp-d-id").textContent = tk.id;
-    $("bp-d-title").textContent = tk.title;
-    $("bp-d-meta").textContent = tk.meta;
-    $("bp-d-body").textContent = tk.body;
-    $("bp-d-cta").textContent = tk.cta;
-
-    syncScale();
-  }
-
-  new ResizeObserver(syncScale).observe(stage);
-
-  range.addEventListener("input", () => {
-    state.width = +range.value;
-    if (state.width >= 600) state.compactPane = "list";
+  // 事件委托：列表点击与详情区按钮
+  listEl.addEventListener("click", (e) => {
+    const restore = e.target.closest('[data-sact="restore"]');
+    if (restore) {
+      setupCase(st.caseId, true);
+      return;
+    }
+    const row = e.target.closest("[data-sid]");
+    if (!row) return;
+    st.selectedId = row.dataset.sid;
+    st.notice = "";
+    st.mobilePane = "detail";
     render();
   });
-  presets.forEach((b) =>
+
+  detailEl.addEventListener("click", (e) => {
+    const act = e.target.closest("[data-sact]")?.dataset.sact;
+    if (!act) return;
+    if (act === "to-list") {
+      st.mobilePane = "list";
+      render();
+    } else if (act === "pick-first") {
+      const vis = visibleItems();
+      if (vis.length) {
+        st.selectedId = vis[0].id;
+        st.notice = "";
+        st.mobilePane = "detail";
+        render();
+      }
+    } else if (act === "clear-filter") {
+      st.filter = "all";
+      st.notice = "";
+      render();
+    } else if (act === "delete-cur") {
+      removeCurrent();
+    } else if (act === "restore") {
+      setupCase("delete", true);
+    } else if (act === "reopen") {
+      simulateReloadLink();
+    }
+  });
+
+  // 顶部 4 个情况标签
+  caseBtns.forEach((b) => b.addEventListener("click", () => setupCase(b.dataset.scase, true)));
+
+  // 坏做法 vs 好做法即时切换对比
+  modeBtns.forEach((b) =>
     b.addEventListener("click", () => {
-      state.width = +b.dataset.bp;
-      state.compactPane = "list";
+      st.mode = b.dataset.smode;
+      setupCase(st.caseId, true);
+    })
+  );
+
+  // <600px 单窗格切换器（列表窗格 / 详情窗格）
+  paneBtns.forEach((b) =>
+    b.addEventListener("click", () => {
+      st.mobilePane = b.dataset.spane;
       render();
     })
   );
-  forceChk.addEventListener("change", () => {
-    state.force = forceChk.checked;
-    render();
-  });
-  rows.forEach((btn, i) =>
-    btn.addEventListener("click", () => {
-      state.selected = i;
-      if (state.width < 600 && !state.force) state.compactPane = "detail";
+
+  // 情况 2 筛选条
+  filterBtns.forEach((b) =>
+    b.addEventListener("click", () => {
+      st.filter = b.dataset.sfilter;
+      if (st.filter === "high") {
+        if (!st.selectedId) st.selectedId = "RQ-102";
+        applyFilterPolicy();
+        st.mobilePane = "detail";
+      } else {
+        st.notice = "";
+      }
       render();
     })
   );
-  backBtn.addEventListener("click", () => {
-    state.compactPane = "list";
-    render();
+
+  // 情况 4 地址栏右侧模拟打开按钮
+  if (urlBtn) urlBtn.addEventListener("click", simulateReloadLink);
+
+  // 主操作按钮 & 重置
+  triggerBtn.addEventListener("click", () => {
+    if (st.caseId === "empty") {
+      st.selectedId = null;
+      st.notice = "";
+      st.mobilePane = "detail";
+      render();
+    } else if (st.caseId === "filter") {
+      if (st.filter === "high") {
+        st.filter = "all";
+        st.selectedId = "RQ-102";
+        st.notice = "";
+      } else {
+        st.selectedId = "RQ-102";
+        st.filter = "high";
+        applyFilterPolicy();
+      }
+      st.mobilePane = "detail";
+      render();
+    } else if (st.caseId === "delete") {
+      if (visibleItems().length && st.selectedId) removeCurrent();
+      else setupCase("delete", true);
+    } else {
+      simulateReloadLink();
+    }
   });
 
-  render();
+  resetBtn.addEventListener("click", () => setupCase(st.caseId, true));
+
+  setupCase("empty", true);
 }
 
 // ---------- 05 节：列表密度调节器 ----------
@@ -359,31 +471,98 @@ function initDensityLab() {
   apply("balanced");
 }
 
-// ---------- 07 节：小练习 ----------
+// ---------- 07 节：4 场景版式取舍判断练习 ----------
 function initQuiz() {
-  const picks = [...document.querySelectorAll("[data-pick]")];
-  const title = $("quiz-title");
-  const text = $("quiz-text");
-  const box = $("quiz-out");
-  if (!picks.length) return;
+  const cards = [...document.querySelectorAll("[data-scenario]")];
+  const scoreEl = $("quiz-score");
+  const summaryEl = $("quiz-summary");
+  const revealBtn = $("quiz-reveal");
+  const resetBtn = $("quiz-reset");
+  if (!cards.length) return;
 
-  picks.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const k = btn.dataset.pick;
-      const ans = QUIZ[k];
-      picks.forEach((p) => {
-        const isMe = p === btn;
-        const isRight = QUIZ[p.dataset.pick].right;
-        p.setAttribute("aria-pressed", String(isMe));
-        p.classList.toggle("is-picked", isMe);
-        p.classList.toggle("is-right", isRight);
-        p.classList.toggle("is-wrong", isMe && !isRight);
+  const map = Object.fromEntries(QUIZ_SCENARIOS.map((s) => [s.id, s]));
+  const picked = {};
+
+  function updateSummary() {
+    const keys = Object.keys(picked);
+    const rightCount = keys.filter((id) => picked[id] === map[id].answer).length;
+    scoreEl.textContent = `已判断 ${keys.length} / ${QUIZ_SCENARIOS.length} · 答对 ${rightCount} / ${QUIZ_SCENARIOS.length}`;
+    if (keys.length === 0) {
+      summaryEl.textContent = "四个需求都像「清单配详情」，但只有 1 个真正该上桌面列表—详情双栏。先逐个拍板，看你会不会踩进常见惯性里。";
+      summaryEl.dataset.state = "idle";
+    } else if (keys.length < QUIZ_SCENARIOS.length) {
+      summaryEl.textContent = `已完成 ${keys.length} 个场景判断，继续选完剩下 ${QUIZ_SCENARIOS.length - keys.length} 个；选错的卡片可以直接改选，对比不同版式的取舍理由。`;
+      summaryEl.dataset.state = "progress";
+    } else if (rightCount === QUIZ_SCENARIOS.length) {
+      summaryEl.textContent = "全部判断准确！一句话收尾：条目多、高频切换、单条深看、屏幕够宽，四条凑齐才上列表—详情双栏；缺了哪一条，就果断换成单栏钻取、标签页或对比表格。";
+      summaryEl.dataset.state = "right";
+    } else {
+      summaryEl.textContent = `4 个场景已全部试完（答对 ${rightCount} / 4）。再点一下选错卡片里的其他按钮，把「什么时候别用」的四条边界对齐一遍。`;
+      summaryEl.dataset.state = "done";
+    }
+  }
+
+  function renderCard(card) {
+    const id = card.dataset.scenario;
+    const sc = map[id];
+    const choice = picked[id];
+    const btns = [...card.querySelectorAll("[data-choice]")];
+    const out = card.querySelector(".sc-verdict");
+    const badge = card.querySelector(".sc-status");
+
+    if (!choice) {
+      card.dataset.state = "idle";
+      badge.textContent = "待判断";
+      out.textContent = "挑一个最合适的版式，看取舍理由。";
+      btns.forEach((b) => {
+        b.setAttribute("aria-pressed", "false");
+        b.classList.remove("is-right", "is-wrong");
       });
-      title.textContent = ans.title;
-      text.textContent = ans.text;
-      box.dataset.state = ans.right ? "right" : "wrong";
+      return;
+    }
+
+    const ok = choice === sc.answer;
+    card.dataset.state = ok ? "right" : "wrong";
+    badge.textContent = ok ? "✓ 选对了" : "× 再想想";
+    out.textContent = sc.feedback[choice];
+    btns.forEach((b) => {
+      const c = b.dataset.choice;
+      const isMe = c === choice;
+      b.setAttribute("aria-pressed", String(isMe));
+      b.classList.toggle("is-right", isMe && ok);
+      b.classList.toggle("is-wrong", isMe && !ok);
     });
+  }
+
+  cards.forEach((card) => {
+    const id = card.dataset.scenario;
+    card.querySelectorAll("[data-choice]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        picked[id] = btn.dataset.choice;
+        renderCard(card);
+        updateSummary();
+      });
+    });
+    renderCard(card);
   });
+
+  if (revealBtn) {
+    revealBtn.addEventListener("click", () => {
+      for (const sc of QUIZ_SCENARIOS) picked[sc.id] = sc.answer;
+      cards.forEach(renderCard);
+      updateSummary();
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      for (const k of Object.keys(picked)) delete picked[k];
+      cards.forEach(renderCard);
+      updateSummary();
+    });
+  }
+
+  updateSummary();
 }
 
 // ---------- 08 节：原海报放大查看器（支持缩放、拖动、Esc 关闭） ----------

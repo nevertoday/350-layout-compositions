@@ -1,14 +1,14 @@
-// 开场主角玩具：真实可用工单收件箱 × 窗口宽度断点模拟器
+// 开场主角玩具：真实可用工单收件箱 × 窗口宽度断点模拟器（360–1080px，含 <600 强行双栏反例）
 // 核心操作：①点选或按↑↓切换 7 条真实工单（就地刷新正文、专属附件图与行动按钮，实时记「切换次数 / 无效返回次数」）
-// ②拖窗口右边缘（或顶部宽度导轨）跨过 600 / 840 两档，现场看双栏退为单窗格钻取（全屏列表 → 推入详情 → 「← 列表」返回并恢复滚动位置）
-// <600px 手机竖屏默认遵循自身规律，直接以 1:1 满宽单窗格列表呈现。
+// ②拖窗口右边缘（或顶部 360–1080px 宽度导轨）跨过 600 / 840 两档，现场看双栏退为单窗格钻取（全屏列表 → 推入详情 → 「← 列表」返回并恢复滚动位置）
+// ③在 <600px 手机宽度下勾选「反面示范：<600 强行双栏」，亲眼对比窄屏硬排双栏为何崩溃。
 import { loop, pixelRatio, reducedMotion } from "../../lib/stage.js";
-import { HERO_TICKETS, clamp, heroBreakpoint } from "./model.js";
+import { HERO_MAX_W, HERO_MIN_W, HERO_TICKETS, clamp, heroBreakpoint } from "./model.js";
 
 const $ = (id) => document.getElementById(id);
 
-const MIN_W = 340;
-const MAX_W = 1120;
+const MIN_W = HERO_MIN_W;
+const MAX_W = HERO_MAX_W;
 
 const C = {
   bg: "#041c18",
@@ -111,6 +111,8 @@ export function initHero() {
   const ctaBtn = $("hero-cta");
   const ratioRange = $("hero-ratio-range");
   const ratioVal = $("hero-ratio-val");
+  const forceChk = $("hero-force");
+  const forceHint = $("hero-force-hint");
   const resetBtn = $("hero-reset");
   const scaleTag = $("hero-scale-tag");
   const restoreBadge = $("hero-restore-badge");
@@ -126,15 +128,16 @@ export function initHero() {
   let railW = 0;
   let railH = 0;
   let dpr = 1;
-  let lastTier = "";
+  let lastTierKey = "";
   let restoreFlashTimer = 0;
 
   const state = {
-    simWidth: isPhoneInit() ? 360 : 960,
-    shownWidth: isPhoneInit() ? 360 : (reducedMotion.matches ? 960 : 880),
+    simWidth: isPhoneInit() ? MIN_W : 960,
+    shownWidth: isPhoneInit() ? MIN_W : (reducedMotion.matches ? 960 : 880),
     listPct: 34,
+    forceSplit: false,
     active: 0,
-    pane: isPhoneInit() ? "list" : "detail", // compact(<600) 下在 "list" 与 "detail" 之间钻取
+    pane: isPhoneInit() ? "list" : "detail", // compact(<600) 且未勾选反例时在 "list" 与 "detail" 间钻取
     savedScrollTop: 0,
     lastReturnedIndex: -1,
     visited: isPhoneInit() ? new Set() : new Set([0]),
@@ -146,30 +149,51 @@ export function initHero() {
     introDone: reducedMotion.matches || isPhoneInit(),
   };
 
-  function getTier() {
-    return heroBreakpoint(state.simWidth).tier;
+  function getBP() {
+    return heroBreakpoint(state.simWidth, state.forceSplit);
+  }
+
+  function isSinglePane() {
+    const bp = getBP();
+    return bp.tier === "compact" && !bp.forced;
   }
 
   function updateTelemetry() {
-    const bp = heroBreakpoint(state.simWidth);
-    const tier = bp.tier;
-    const isCompact = tier === "compact";
+    const bp = getBP();
+    const isCompact = bp.tier === "compact";
+    const single = isSinglePane();
 
     $("hero-w-num").textContent = `${Math.round(state.simWidth)}px`;
     const badge = $("hero-tier-badge");
     badge.textContent = window.innerWidth < 600 ? bp.shortBadge : bp.badge;
-    badge.dataset.tier = tier;
+    badge.dataset.tier = bp.forced ? "forced" : bp.tier;
 
     $("hero-seen-num").textContent = `${state.visited.size} / ${HERO_TICKETS.length}`;
     $("hero-switch-num").textContent = `${state.switches} 次`;
     $("hero-back-num").textContent = `${state.backs} 次`;
     $("hero-done-num").textContent = `${state.done.size} / ${HERO_TICKETS.length}`;
 
-    // 次要控件：左栏占比滑轨在单窗格下停用
-    ratioRange.disabled = isCompact;
+    // 次要控件：左栏占比滑轨在单窗格或强行双栏反例下停用
+    const lockRatio = isCompact;
+    ratioRange.disabled = lockRatio;
     ratioRange.value = String(state.listPct);
-    ratioVal.textContent = isCompact ? "单窗格满宽" : `${state.listPct}%`;
-    ratioRange.closest(".sec-ratio").classList.toggle("is-disabled", isCompact);
+    ratioVal.textContent = bp.forced ? "36%（被挤窄）" : single ? "单窗格满宽" : `${state.listPct}%`;
+    ratioRange.closest(".sec-ratio").classList.toggle("is-disabled", lockRatio);
+
+    // 反面示范开关：仅在 <600px 手机区间可勾选（桌面端先拖窄或点 360 刻度即可体验）
+    const lockForce = !isCompact;
+    forceChk.disabled = lockForce;
+    forceChk.checked = state.forceSplit;
+    const forceLabel = forceChk.closest("label");
+    forceLabel.classList.toggle("is-disabled", lockForce);
+    forceLabel.classList.toggle("is-on", bp.forced);
+    if (forceHint) {
+      forceHint.textContent = lockForce
+        ? "（调至 <600px 后可勾选）"
+        : bp.forced
+          ? "（反例开启：看两栏如何挤碎）"
+          : "（当前可勾选对比）";
+    }
 
     // 标尺预设高亮
     widthPresetBtns.forEach((b) => {
@@ -177,15 +201,17 @@ export function initHero() {
       b.setAttribute("aria-pressed", String(Math.abs(state.simWidth - bw) <= 18));
     });
 
-    // 动态白话解释：说清「为什么省力」以及「窄屏为何退回单窗格」
+    // 动态白话解释：说清「为什么省力」「窄屏为何退回单窗格」「强行双栏为什么坏掉」
     const readEl = $("hero-read-text");
-    if (isCompact) {
+    if (bp.forced) {
+      readEl.textContent = bp.rule;
+    } else if (single) {
       if (state.pane === "detail") {
         readEl.textContent = `当前 ${Math.round(state.simWidth)}px（<600px 单窗格）：列表先让出全宽给详情阅读。想看下一条必须先点顶部「← 列表」（已记录刚才的列表滚动位置，返回后会自动还原）。`;
       } else if (state.backs > 0) {
         readEl.textContent = `已从详情返回列表并恢复刚才的滚动位置（累计无效返回 ${state.backs} 次）。窄屏退回单窗格保住了字号与可读性，代价是每换一条多一步「返回」；把导轨拉过 600px 立刻恢复零返回双栏。`;
       } else {
-        readEl.textContent = `当前 ${Math.round(state.simWidth)}px（<600px）：按本页规矩自动退成单窗格。点击任意一条工单推入详情，再点「← 列表」看它如何恢复滚动位置；拖动上方导轨跨过 600 / 840 可对比双栏。`;
+        readEl.textContent = `当前 ${Math.round(state.simWidth)}px（<600px）：按本页规矩自动退成单窗格。点任意工单推入详情并试「← 列表」恢复滚动；也可勾选下方「反面示范：<600 强行双栏」看硬排两栏的后果。`;
       }
     } else if (state.switches > 0) {
       readEl.textContent =
@@ -233,22 +259,25 @@ export function initHero() {
     });
   }
 
-  // 根据 simWidth 与容器可用宽 availW，应用真实宽度或等比 scale（杜绝手机窄屏出现反例挤压）
+  // 根据 simWidth 与容器可用宽 availW，应用真实宽度或等比 scale（杜绝横向溢出）
   function applyWindowLayout({ remeasure = false } = {}) {
-    const tier = getTier();
-    const isCompact = tier === "compact";
-    const tierChanged = tier !== lastTier;
-    lastTier = tier;
+    const bp = getBP();
+    const isCompact = bp.tier === "compact";
+    const single = isSinglePane();
+    const tierKey = `${bp.tier}-${bp.forced ? "f" : "n"}`;
+    const tierChanged = tierKey !== lastTierKey;
+    lastTierKey = tierKey;
 
-    winEl.dataset.tier = tier;
-    winEl.dataset.pane = isCompact ? state.pane : "both";
+    winEl.dataset.tier = bp.tier;
+    winEl.dataset.forced = bp.forced ? "1" : "0";
+    winEl.dataset.pane = single ? state.pane : "both";
     winEl.style.setProperty("--list-pct", `${state.listPct}%`);
 
     if (!availW) {
       availW = Math.max(280, Math.floor(viewport.getBoundingClientRect().width));
     }
 
-    // 在真实 <600 手机上，若 simWidth <= availW + 12 且处于 compact，按 100% 满宽 1:1 渲染最清晰
+    // 在真实 <600 手机上，若 simWidth <= availW + 24 且处于 compact，按 100% 满宽 1:1 渲染最清晰
     const w = Math.round(state.simWidth);
     let scale = 1;
     let cssW = w;
@@ -305,7 +334,7 @@ export function initHero() {
       edgeHandle.style.left = `${Math.min(cssW, availW - 26)}px`;
     }
 
-    heroWrap.dataset.tier = tier;
+    heroWrap.dataset.tier = bp.forced ? "forced" : bp.tier;
   }
 
   function setSimWidth(next, { fromUser = true, remeasure = false } = {}) {
@@ -313,21 +342,21 @@ export function initHero() {
       state.introDone = true;
       state.userSized = true;
     }
-    const prevTier = getTier();
+    const prevSingle = isSinglePane();
     state.simWidth = clamp(Math.round(next), MIN_W, MAX_W);
     if (fromUser || reducedMotion.matches) state.shownWidth = state.simWidth;
-    const nextTier = getTier();
+    const nextSingle = isSinglePane();
 
     // 刚从双栏缩进单窗格时，默认展示列表页以便马上体验「点选推入 → ← 列表返回」
-    if (prevTier !== "compact" && nextTier === "compact") {
+    if (!prevSingle && nextSingle) {
       state.pane = "list";
     }
     // 从单窗格拉宽成双栏时，确保当前选中的条目算作已看
-    if (prevTier === "compact" && nextTier !== "compact") {
+    if (prevSingle && !nextSingle) {
       state.visited.add(state.active);
     }
 
-    applyWindowLayout({ remeasure: remeasure || prevTier !== nextTier });
+    applyWindowLayout({ remeasure: remeasure || prevSingle !== nextSingle });
     updateTelemetry();
     draw();
   }
@@ -335,10 +364,10 @@ export function initHero() {
   function openTicket(index, { fromUser = true, keepFocus = false } = {}) {
     const prev = state.active;
     const next = (index + HERO_TICKETS.length) % HERO_TICKETS.length;
-    const isCompact = getTier() === "compact";
+    const single = isSinglePane();
 
     if (fromUser) {
-      if (isCompact) {
+      if (single) {
         // 记住当前列表滚动位置，等「← 列表」时精确还原
         state.savedScrollTop = listScrollEl.scrollTop;
         state.pane = "detail";
@@ -351,15 +380,15 @@ export function initHero() {
     state.active = next;
     state.visited.add(next);
     updateDetailDOM();
-    applyWindowLayout({ remeasure: isCompact });
+    applyWindowLayout({ remeasure: single });
     updateTelemetry();
-    if (keepFocus && !isCompact) items[next].focus();
-    if (isCompact && fromUser) backBtn.focus({ preventScroll: true });
+    if (keepFocus && !single) items[next].focus();
+    if (single && fromUser) backBtn.focus({ preventScroll: true });
     draw();
   }
 
   function returnToList() {
-    if (getTier() !== "compact" || state.pane !== "detail") return;
+    if (!isSinglePane() || state.pane !== "detail") return;
     state.pane = "list";
     state.backs += 1;
     state.lastReturnedIndex = state.active;
@@ -389,7 +418,7 @@ export function initHero() {
     draw();
   }
 
-  // ---------- 2D Canvas 宽度断点标尺（高效 60fps，响应拖拽并标明 600 / 840 两档） ----------
+  // ---------- 2D Canvas 宽度断点标尺（360–1080px，600/840 正落 1/3 与 2/3） ----------
   function xForW(w) {
     const pad = 14;
     const span = Math.max(10, railW - pad * 2);
@@ -425,7 +454,6 @@ export function initHero() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, railW, railH);
 
-    const pad = 14;
     const trackY = Math.round(railH * 0.52);
     const trackH = 10;
     const xMin = xForW(MIN_W);
@@ -434,7 +462,7 @@ export function initHero() {
     const xMax = xForW(MAX_W);
     const xCur = xForW(state.shownWidth);
 
-    // 三档区间色带（Compact / Medium / Expanded）
+    // 三档区间色带（Compact 360-599 / Medium 600-839 / Expanded 840-1080）
     ctx.fillStyle = C.compact;
     ctx.fillRect(xMin, trackY - trackH / 2, x600 - xMin, trackH);
     ctx.fillStyle = C.medium;
@@ -442,12 +470,12 @@ export function initHero() {
     ctx.fillStyle = C.expanded;
     ctx.fillRect(x840, trackY - trackH / 2, xMax - x840, trackH);
 
-    // 标尺小刻度
+    // 标尺小刻度（从 360 起每 40px 一格，600 / 840 / 1080 精准对齐）
     ctx.strokeStyle = "rgba(248, 235, 216, 0.24)";
     ctx.lineWidth = 1;
-    for (let w = 360; w <= 1120; w += 40) {
+    for (let w = MIN_W; w <= MAX_W; w += 40) {
       const tx = Math.round(xForW(w)) + 0.5;
-      const major = w === 600 || w === 840;
+      const major = w === MIN_W || w === 600 || w === 840 || w === MAX_W;
       ctx.beginPath();
       ctx.moveTo(tx, trackY - (major ? 10 : 5));
       ctx.lineTo(tx, trackY + (major ? 10 : 5));
@@ -503,7 +531,6 @@ export function initHero() {
     const nextRailH = Math.round(rr.height);
     const nextAvail = Math.max(280, Math.floor(viewport.getBoundingClientRect().width));
 
-    // 高度变化（如手机单窗格列表/详情切换）不应重置用户当前视图或重复重算
     if (lastMeasuredAvailW && Math.abs(nextAvail - lastMeasuredAvailW) < 2 && Math.abs(nextRailW - lastMeasuredRailW) < 2) {
       return;
     }
@@ -521,14 +548,13 @@ export function initHero() {
 
     availW = nextAvail;
 
-    // 仅在首次挂载或容器宽度真正变化且用户未手动改窗宽时，按当前设备设置最自然的初始宽度
     if (widthChanged && !state.userSized) {
       if (window.innerWidth < 600) {
-        state.simWidth = clamp(availW, MIN_W, 560);
+        // 起点钉在 MIN_W(360)，避免 390px 手机上读数落在最左刻度左侧
+        state.simWidth = clamp(Math.max(MIN_W, availW), MIN_W, 560);
         state.shownWidth = state.simWidth;
         state.pane = "list";
       } else {
-        // 桌面与平板预留 30px 给右侧橙色「拖窗宽」把手，绝不贴边裁切
         const desktopRoom = Math.max(620, availW - 30);
         state.simWidth = clamp(Math.min(960, desktopRoom), 620, MAX_W);
         if (state.introDone) state.shownWidth = state.simWidth;
@@ -545,34 +571,29 @@ export function initHero() {
   ro.observe(rail);
 
   // ---------- 交互绑定 ----------
-  // 1. 工单列表点击 + 键盘 ↑↓ Home End（支持双栏就地刷新 & 窄屏钻取）
+  // 1. 工单列表点击 + 键盘 ↑↓ Home End
   items.forEach((btn, i) => {
     btn.addEventListener("click", () => openTicket(i, { fromUser: true }));
     btn.addEventListener("keydown", (e) => {
+      const single = isSinglePane();
       if (e.key === "ArrowDown") {
         e.preventDefault();
         const next = (i + 1) % items.length;
-        if (getTier() === "compact") {
-          items[next].focus();
-        } else {
-          openTicket(next, { fromUser: true, keepFocus: true });
-        }
+        if (single) items[next].focus();
+        else openTicket(next, { fromUser: true, keepFocus: true });
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         const prev = (i - 1 + items.length) % items.length;
-        if (getTier() === "compact") {
-          items[prev].focus();
-        } else {
-          openTicket(prev, { fromUser: true, keepFocus: true });
-        }
+        if (single) items[prev].focus();
+        else openTicket(prev, { fromUser: true, keepFocus: true });
       } else if (e.key === "Home") {
         e.preventDefault();
-        if (getTier() === "compact") items[0].focus();
+        if (single) items[0].focus();
         else openTicket(0, { fromUser: true, keepFocus: true });
       } else if (e.key === "End") {
         e.preventDefault();
         const last = items.length - 1;
-        if (getTier() === "compact") items[last].focus();
+        if (single) items[last].focus();
         else openTicket(last, { fromUser: true, keepFocus: true });
       }
     });
@@ -581,13 +602,13 @@ export function initHero() {
   // 2. 单窗格返回按钮（恢复滚动位置 + 累计无效返回）
   backBtn.addEventListener("click", returnToList);
   winEl.addEventListener("keydown", (e) => {
-    if ((e.key === "Escape" || e.key === "ArrowLeft") && getTier() === "compact" && state.pane === "detail") {
+    if ((e.key === "Escape" || e.key === "ArrowLeft") && isSinglePane() && state.pane === "detail") {
       e.preventDefault();
       returnToList();
     }
   });
 
-  // 3. 详情区真实主行动按钮 CTA（标记该工单已处理）
+  // 3. 详情区真实主行动按钮 CTA
   ctaBtn.addEventListener("click", () => {
     const tk = HERO_TICKETS[state.active];
     if (state.done.has(tk.id)) state.done.delete(tk.id);
@@ -630,14 +651,14 @@ export function initHero() {
       setSimWidth(state.simWidth + step, { remeasure: true });
     } else if (e.key === "Home") {
       e.preventDefault();
-      setSimWidth(390, { remeasure: true });
+      setSimWidth(MIN_W, { remeasure: true });
     } else if (e.key === "End") {
       e.preventDefault();
-      setSimWidth(1080, { remeasure: true });
+      setSimWidth(MAX_W, { remeasure: true });
     }
   });
 
-  // 点击宽度刻度快捷跳转（390 / 600 / 840 / 1080）
+  // 点击宽度刻度快捷跳转（360 / 600 / 840 / 1080）
   widthPresetBtns.forEach((b) => {
     b.addEventListener("click", () => setSimWidth(+b.dataset.heroW, { remeasure: true }));
   });
@@ -677,21 +698,36 @@ export function initHero() {
     }
   });
 
-  // 6. 次要控件：左栏占比微调滑轨（不抢主角，无预设按钮）
+  // 6. 次要控件：左栏占比微调滑轨
   ratioRange.addEventListener("input", () => {
     state.listPct = clamp(+ratioRange.value, 24, 48);
     applyWindowLayout();
     updateTelemetry();
   });
 
-  // 7. 重置计数
+  // 7. 反面示范：<600px 强行双栏勾选框（由原 04 节并入开场工作台，避免重复滑杆）
+  forceChk.addEventListener("change", () => {
+    state.forceSplit = forceChk.checked;
+    if (!state.forceSplit && state.simWidth < 600) {
+      state.pane = "list";
+    } else if (state.forceSplit) {
+      state.visited.add(state.active);
+    }
+    applyWindowLayout({ remeasure: true });
+    updateTelemetry();
+    draw();
+  });
+
+  // 8. 重置计数
   resetBtn.addEventListener("click", () => {
-    const isCompact = getTier() === "compact";
+    state.forceSplit = false;
+    forceChk.checked = false;
+    const single = isSinglePane();
     state.active = 0;
-    state.pane = isCompact ? "list" : "detail";
+    state.pane = single ? "list" : "detail";
     state.savedScrollTop = 0;
     listScrollEl.scrollTop = 0;
-    state.visited = isCompact ? new Set() : new Set([0]);
+    state.visited = single ? new Set() : new Set([0]);
     state.done.clear();
     state.switches = 0;
     state.backs = 0;
@@ -699,6 +735,7 @@ export function initHero() {
     updateDetailDOM();
     applyWindowLayout({ remeasure: true });
     updateTelemetry();
+    draw();
   });
 
   updateDetailDOM();
