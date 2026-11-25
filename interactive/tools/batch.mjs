@@ -153,7 +153,8 @@ async function makePage(id) {
   if (followup) writeFileSync(FOLLOWUP, readFileSync(FOLLOWUP, "utf8").split("\n").filter((x) => x && x !== id).map((x) => x + "\n").join(""));
   let retry = null, reviews = 0, flaky = 0, skipAuthor = revisit, lastPoints = [];
   // 上一轮批量被打断时做到一半的页：接着做，不从零开始
-  if (!revisit && pageDir(id)) {
+  const built = existsSync(join(OUT, `${id}-1.log`)); // 动手做过页面没有（只写过方案的不算）
+  if (!revisit && pageDir(id) && built) {
     retry = { reason: "上一轮批量被打断了", tail: "（没有检查输出）" };
     // 被打断前主编已经给过意见的，把最近一轮意见一起交过去
     const last = readdirSync(OUT).filter((f) => new RegExp(`^${id}-review-\\d+\\.log$`).test(f)).sort().at(-1);
@@ -166,13 +167,18 @@ async function makePage(id) {
   const notes = [];
   if (revisit) log(`${id} 回头查（新规矩之前提交的）`);
   // 新页先出方案、过主编这一关再动手：构思上的问题（玩法撞车、答案先给、练习太易）在这里改最便宜
-  if (!revisit && !pageDir(id) && !stopped()) {
-    await roomToRun();
-    log(`${id} 先写方案`);
-    await run(AGY, ["-p", await prompt(id, null, "plan"), "--model", MODEL, "--dangerously-skip-permissions", "--disable-slash-commands"], { ms: 25 * 60_000, file: join(OUT, `${id}-plan.log`) });
-    if (pageDir(id) && existsSync(join(ROOT, "pages", pageDir(id), "PLAN.md"))) {
+  if (!revisit && !built && !stopped()) {
+    const hasPlan = () => pageDir(id) && existsSync(join(ROOT, "pages", pageDir(id), "PLAN.md"));
+    if (!hasPlan()) {
+      await roomToRun();
+      log(`${id} 先写方案`);
+      await run(AGY, ["-p", await prompt(id, null, "plan"), "--model", MODEL, "--dangerously-skip-permissions", "--disable-slash-commands"], { ms: 25 * 60_000, file: join(OUT, `${id}-plan.log`) });
+    }
+    if (hasPlan()) {
       const { planReviewArgs, verdict } = await import(`./review.mjs?${Date.now()}`);
-      const r = await run(CLAUDE, planReviewArgs(id), { ms: 15 * 60_000, file: join(OUT, `${id}-planreview.log`) });
+      const reviewed = join(OUT, `${id}-planreview.log`);
+      // 被打断前方案已经审过的，沿用那次的意见
+      const r = existsSync(reviewed) && /"verdict"/.test(readFileSync(reviewed, "utf8")) ? { code: 0, out: readFileSync(reviewed, "utf8") } : await run(CLAUDE, planReviewArgs(id), { ms: 15 * 60_000, file: reviewed });
       const v = r.code === 0 ? verdict(r.out) : { pass: true, points: [] };
       log(`${id} 方案${v.pass ? "通过" : `要改 ${v.points.length} 条`}${v.points[0] ? `：${v.points[0].slice(0, 50)}…` : ""}`);
       notes.push(...v.points.map((p) => `方案：${p}`));
