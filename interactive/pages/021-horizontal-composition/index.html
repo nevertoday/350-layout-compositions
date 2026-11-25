@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7ECDD">
+<title>021 水平构图 · Horizontal Composition</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap masthead-in">
+    <p class="mast-left"><span class="mast-dot" aria-hidden="true">•</span><span>构图原理</span><span class="mast-sep" aria-hidden="true">/</span><span class="mast-cat">构图逻辑 · 重心、线条与轴线</span></p>
+    <p class="mast-right"><span class="en-mono" lang="en">NO. 021</span><span class="mast-sep" aria-hidden="true">·</span><span class="en-caps" lang="en">COMPOSITION PRINCIPLES</span><span class="mast-dot" aria-hidden="true">•</span></p>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== 开场：通栏海平水准与地平构图台 ==================== -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="wrap hero-head">
+      <div class="hero-title-col">
+        <h1 id="page-title" class="hero-h1">水平构图</h1>
+        <p class="hero-en" lang="en">HORIZONTAL COMPOSITION</p>
+        <div class="title-level-wrap" aria-hidden="true">
+          <span class="title-level-ghost"></span>
+          <span class="title-level-rule" id="title-horizon-rule" data-level="false"></span>
+        </div>
+      </div>
+
+      <div class="hero-summary-col">
+        <p class="hero-lead">以水平线为主导的构图方式，强调稳定、延伸与宁静之美。</p>
+        <p class="hero-lead-en" lang="en">A composition guided by horizontal lines, emphasizing stability, extension and serenity.</p>
+        <div class="hero-switchers">
+          <div class="chip-group" role="group" aria-label="切换场景标本">
+            <button type="button" class="chip-btn" data-hero-specimen="poster" aria-pressed="true">原海报 · 海帆</button>
+            <button type="button" class="chip-btn" data-hero-specimen="lighthouse" aria-pressed="false">海岸灯塔</button>
+            <button type="button" class="chip-btn" data-hero-specimen="prairie" aria-pressed="false">草原长屋</button>
+            <button type="button" class="chip-btn" data-hero-specimen="minimal" aria-pressed="false">极简空海</button>
+          </div>
+          <div class="chip-group frame-group" role="group" aria-label="切换画幅比例">
+            <button type="button" class="chip-btn chip-sub" data-hero-frame="pano" aria-pressed="true">宽银幕</button>
+            <button type="button" class="chip-btn chip-sub" data-hero-frame="standard" aria-pressed="false">4:3</button>
+            <button type="button" class="chip-btn chip-sub" data-hero-frame="portrait" aria-pressed="false">3:4 竖框</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 通栏海天全景舞台 -->
+    <div class="wrap stage-wrap">
+      <div class="hero-stage" id="hero-stage">
+        <canvas id="hero-canvas" class="hero-canvas" aria-label="水平构图海平校准画布：通过下方水准气泡调平倾角，或上下拖动贯穿海面的白色海平线调节天地比例"></canvas>
+
+        <!-- 左右双侧海平线升降拉耳 -->
+        <button
+          type="button"
+          id="horizon-grip-l"
+          class="horizon-grip horizon-grip-l"
+          role="slider"
+          aria-label="上下拖动调整海平线高度"
+          aria-orientation="vertical"
+          aria-valuemin="16"
+          aria-valuemax="84"
+          aria-valuenow="50"
+          title="上下拖动海平线，或按 ↑ ↓ 键调节天地比例"
+        >
+          <span class="grip-arrow" aria-hidden="true">↕</span>
+          <span class="grip-pct en-mono" id="horizon-grip-pct">50%</span>
+        </button>
+
+        <button
+          type="button"
+          id="horizon-grip-r"
+          class="horizon-grip horizon-grip-r"
+          role="slider"
+          aria-label="右侧海平线高度拉耳"
+          aria-orientation="vertical"
+          aria-valuemin="16"
+          aria-valuemax="84"
+          aria-valuenow="50"
+          title="上下拖动海平线，或按 ↑ ↓ 键调节天地比例"
+        >
+          <span class="grip-arrow" aria-hidden="true">↕</span>
+          <span class="grip-word">海平线</span>
+        </button>
+      </div>
+
+      <!-- 紧贴舞台底沿的一体化实体气泡水准仪长轨（data-perf-drag） -->
+      <div class="level-bar" role="region" aria-label="海平倾角水准仪与海平快捷调节">
+        <div class="level-readouts">
+          <div class="readout-pair">
+            <span class="ro-k">倾角</span>
+            <span class="ro-v en-mono" id="ro-tilt-val">+5.2°</span>
+          </div>
+          <div class="readout-pair">
+            <span class="ro-k">水准状态</span>
+            <span class="ro-v ro-v-text" id="ro-bubble-dir">左高右低 · 气泡偏左</span>
+          </div>
+          <div class="readout-pair">
+            <span class="ro-k">天地比</span>
+            <span class="ro-v en-mono" id="ro-sky-sea">天 50% · 海 50%</span>
+          </div>
+        </div>
+
+        <div class="bubble-row">
+          <span class="bubble-end-lbl" aria-hidden="true">左高 +8°</span>
+          <div
+            id="bubble-track"
+            class="bubble-track"
+            data-perf-drag
+            role="slider"
+            tabindex="0"
+            aria-label="实体气泡水准尺：左右拖动将气泡归中以调平海平线，支持方向键微调"
+            aria-valuemin="-8"
+            aria-valuemax="8"
+            aria-valuenow="5.2"
+          >
+            <div class="bubble-scale" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+              <span class="scale-zero"></span>
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <div class="bubble-center-gate" aria-hidden="true">
+              <i class="gate-glow" id="bubble-glow"></i>
+            </div>
+            <div class="bubble-knob" id="bubble-knob" data-level="false" aria-hidden="true">
+              <span class="bubble-spec"></span>
+            </div>
+          </div>
+          <span class="bubble-end-lbl" aria-hidden="true">−8° 右高</span>
+        </div>
+
+        <div class="level-actions">
+          <div class="preset-group" role="group" aria-label="海平高度快捷位置">
+            <button type="button" class="act-btn" data-horizon-preset="0.33" aria-pressed="false">低地平 33%</button>
+            <button type="button" class="act-btn" data-horizon-preset="0.50" aria-pressed="true">正中 50%</button>
+            <button type="button" class="act-btn" data-horizon-preset="0.67" aria-pressed="false">高地平 67%</button>
+          </div>
+          <div class="util-group">
+            <button type="button" class="act-btn act-primary" id="btn-hero-level">归平 0°</button>
+            <button type="button" class="act-btn" id="btn-hero-reset">复原错态</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 原海报底栏同款深普鲁士海蓝诊断带 -->
+      <div class="diag-band" aria-live="polite">
+        <div class="diag-main">
+          <div class="diag-icon-col" aria-hidden="true">
+            <svg class="level-ring-svg" id="diag-level-ring" data-level="false" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="20" fill="none" stroke="currentColor" stroke-width="2.4"/>
+              <circle cx="28" cy="28" r="6" fill="currentColor"/>
+              <line x1="28" y1="3" x2="28" y2="12" stroke="currentColor" stroke-width="2.2"/>
+              <line x1="28" y1="44" x2="28" y2="53" stroke="currentColor" stroke-width="2.2"/>
+              <line x1="3" y1="28" x2="12" y2="28" stroke="currentColor" stroke-width="2.2"/>
+              <line x1="44" y1="28" x2="53" y2="28" stroke="currentColor" stroke-width="2.2"/>
+            </svg>
+          </div>
+          <div class="diag-copy">
+            <div class="diag-tags">
+              <span class="diag-tip en-caps" lang="en">TIP</span>
+              <span class="diag-badge" id="ro-badge" data-tone="alert">倾角 +5.2° · 死切正中</span>
+              <span class="diag-band-lvl" id="ro-band" data-tone="alert">双料失稳</span>
+            </div>
+            <p class="diag-headline" id="ro-headline">海面往右溜水，地平又卡在 50% 正中</p>
+            <p class="diag-why" id="ro-why">倾角 +5.2° 远超人眼对 0° 水平基准约 1°–2° 的敏感阈，整片海像端歪的盘子往右滑；同时海平卡在正中，天海各抢一半主次。先把气泡拖回 0° 中线，再上下拉动白海平线分清主次。</p>
+          </div>
+        </div>
+
+        <div class="diag-aside">
+          <svg class="mini-frame-svg" viewBox="0 0 132 72" aria-hidden="true">
+            <rect x="6" y="6" width="120" height="60" fill="none" stroke="#FBF5EC" stroke-width="1.5"/>
+            <line id="mini-ref-line" x1="8" y1="36" x2="124" y2="36" stroke="#FBF5EC" stroke-width="1" stroke-dasharray="3 3" opacity="0.55"/>
+            <line id="mini-horizon-line" x1="8" y1="31" x2="124" y2="41" stroke="#FBF5EC" stroke-width="2"/>
+            <circle id="mini-horizon-dot" cx="66" cy="36" r="11" fill="#E87A5D"/>
+          </svg>
+          <div class="diag-motto">
+            <p class="motto-zh">让画面“平”下来，<br>让情绪“静”下来。</p>
+            <p class="motto-en" lang="en">Keep the frame level,<br>Let the mind settle.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01 为什么人眼一看就怕歪 ==================== -->
+  <section id="s1" class="sec sec-paper" aria-labelledby="h-s1">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num en-mono">01</span>
+        <div>
+          <h2 id="h-s1" class="sec-h2">为什么人眼一看就怕歪</h2>
+          <p class="sec-en" lang="en">Why the Eye Trusts a Level Line</p>
+        </div>
+      </div>
+
+      <div class="split-2">
+        <div class="prose-col">
+          <p>在真实世界里，重力永远垂直向下。所有斜着立的东西都有倾倒的势能，唯独<strong>水平面</strong>与重力严格成直角——水不再流、物体不再滑坠，一切停在最低能量的休止状态。格式塔艺术心理学家鲁道夫·阿恩海姆在 1954 年出版的《艺术与视知觉》（Art and Visual Perception）中指出，人观看画面时并非被动接收像素，而是始终用身体前庭与重力构成的「水平—垂直结构骨架」去校验每一条线：垂直象征挺立与对抗，斜线制造滑坠与动势，而水平线天然传递着陆、支撑与平静。</p>
+          <p>更微妙的是，我们的大脑对「差一点没平」极其苛刻。心理物理学家斯图尔特·阿佩尔于 1972 年在《心理学公报》（Psychological Bulletin）发表综述，系统总结了人与动物视觉系统中的「斜向效应」（Oblique Effect）：大脑初级视觉皮层对水平（0°）与垂直（90°）主轴的分辨与检测精度明显高于斜角方向。这意味着一条海平线哪怕只偏 1.5°–2°，眼睛就会立刻拉响警报，觉得整片海正往低处漏出去。</p>
+          <p class="note-callout">先别急着相信论文，直接用旁边的盲测台测一测：不借任何参考线，你肉眼最少能抓出几度的倾斜？</p>
+        </div>
+
+        <div class="panel-box">
+          <div class="panel-bar">
+            <span class="panel-tag">倾角直觉盲测仪</span>
+            <span class="en-mono panel-step" id="s1-step">1 / 5</span>
+          </div>
+          <div class="s1-dots" id="s1-dots" aria-hidden="true"></div>
+          <div class="s1-canvas-wrap">
+            <canvas id="s1-canvas" class="s1-canvas" aria-label="海平线盲测画布"></canvas>
+          </div>
+          <p class="s1-prompt" id="s1-prompt">先不借任何刻度线，只凭肉眼判断：眼前这条海平线是平的，还是歪了？</p>
+          <div class="s1-btns">
+            <button type="button" class="btn-solid" id="s1-btn-flat">平的（0°）</button>
+            <button type="button" class="btn-outline" id="s1-btn-tilt">歪了</button>
+            <button type="button" class="btn-accent" id="s1-btn-next" hidden>下一题 →</button>
+            <button type="button" class="btn-ghost" id="s1-btn-restart">换一组重测</button>
+          </div>
+          <p class="s1-feedback" id="s1-feedback" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 一根线干五件事（原海报五要点） ==================== -->
+  <section id="s2" class="sec sec-sand" aria-labelledby="h-s2">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num en-mono">02</span>
+        <div>
+          <h2 id="h-s2" class="sec-h2">一根线干五件事</h2>
+          <p class="sec-en" lang="en">Five Principles from the Original Poster</p>
+        </div>
+      </div>
+
+      <p class="sec-intro">021 号原海报把水平构图拆成五个词——<strong>稳定、延伸、引导、地平、节奏</strong>。看起来只是横着画一条线，实际在画面里同时承担五种分工。点击下面五列原海报要点，直接解剖每条怎么起作用。</p>
+
+      <!-- 致敬 021 海报中幅：五列竖线矩阵 -->
+      <div class="five-grid" role="group" aria-label="原海报五项核心要点">
+        <button type="button" class="five-col" data-p5-id="stability" aria-pressed="true">
+          <svg class="five-ico" viewBox="0 0 64 44" aria-hidden="true">
+            <circle cx="32" cy="22" r="17" fill="#264F7B"/>
+            <line x1="12" y1="22" x2="52" y2="22" stroke="#F7ECDD" stroke-width="3.2"/>
+          </svg>
+          <span class="five-zh">稳定</span>
+          <span class="five-en en-caps" lang="en">STABILITY</span>
+          <span class="five-body">水平线给人平稳、安定的感受，营造可靠的视觉基础。</span>
+        </button>
+
+        <button type="button" class="five-col" data-p5-id="extension" aria-pressed="false">
+          <svg class="five-ico" viewBox="0 0 64 44" aria-hidden="true">
+            <line x1="14" y1="22" x2="50" y2="22" stroke="#264F7B" stroke-width="4"/>
+            <polygon points="6,22 17,14 17,30" fill="#264F7B"/>
+            <polygon points="58,22 47,14 47,30" fill="#264F7B"/>
+          </svg>
+          <span class="five-zh">延伸</span>
+          <span class="five-en en-caps" lang="en">EXTENSION</span>
+          <span class="five-body">水平线具有向两侧延展的张力，拓展画面空间感。</span>
+        </button>
+
+        <button type="button" class="five-col" data-p5-id="guidance" aria-pressed="false">
+          <svg class="five-ico" viewBox="0 0 64 44" aria-hidden="true">
+            <circle cx="32" cy="18" r="6" fill="#D35638"/>
+            <line x1="8" y1="30" x2="56" y2="30" stroke="#264F7B" stroke-width="4"/>
+          </svg>
+          <span class="five-zh">引导</span>
+          <span class="five-en en-caps" lang="en">GUIDANCE</span>
+          <span class="five-body">视线沿水平线自然移动，形成清晰的观看路径。</span>
+        </button>
+
+        <button type="button" class="five-col" data-p5-id="horizon" aria-pressed="false">
+          <svg class="five-ico" viewBox="0 0 64 44" aria-hidden="true">
+            <rect x="12" y="9" width="40" height="3.2" fill="#264F7B"/>
+            <rect x="12" y="15.5" width="40" height="3.2" fill="#264F7B"/>
+            <rect x="12" y="22" width="40" height="3.2" fill="#264F7B"/>
+            <rect x="12" y="28.5" width="40" height="3.2" fill="#264F7B"/>
+            <rect x="12" y="35" width="40" height="3.2" fill="#264F7B"/>
+          </svg>
+          <span class="five-zh">地平</span>
+          <span class="five-en en-caps" lang="en">HORIZON</span>
+          <span class="five-body">水平构图常用于表达地平线、水面等自然意象，传达宁静与辽阔。</span>
+        </button>
+
+        <button type="button" class="five-col" data-p5-id="rhythm" aria-pressed="false">
+          <svg class="five-ico" viewBox="0 0 64 44" aria-hidden="true">
+            <circle cx="13" cy="19" r="3.6" fill="#D35638"/>
+            <circle cx="22.5" cy="19" r="3.6" fill="#D35638"/>
+            <circle cx="32" cy="19" r="3.6" fill="#D35638"/>
+            <circle cx="41.5" cy="19" r="3.6" fill="#D35638"/>
+            <circle cx="51" cy="19" r="3.6" fill="#D35638"/>
+            <line x1="8" y1="30" x2="56" y2="30" stroke="#264F7B" stroke-width="4"/>
+          </svg>
+          <span class="five-zh">节奏</span>
+          <span class="five-en en-caps" lang="en">RHYTHM</span>
+          <span class="five-body">通过元素在水平线上的重复与间隔，建立画面节奏感。</span>
+        </button>
+      </div>
+
+      <!-- 五要点活体解剖台 -->
+      <div class="s2-lab">
+        <div class="s2-lab-meta">
+          <div class="s2-lab-head">
+            <span class="label-box" id="s2-active-title">稳定 · STABILITY</span>
+            <div class="s2-sub-controls" id="s2-sub-controls"></div>
+          </div>
+          <p class="s2-poster-quote" id="s2-active-poster">原海报：「水平线给人平稳、安定的感受，营造可靠的视觉基础。」</p>
+          <p class="s2-plain" id="s2-active-plain"></p>
+        </div>
+        <div class="s2-canvas-wrap">
+          <canvas id="s2-canvas" class="s2-canvas" aria-label="五要点动态解剖画布"></canvas>
+        </div>
+        <p class="s2-readout" id="s2-sub-readout" aria-live="polite"></p>
+      </div>
+
+      <div class="tip-strip">
+        <span class="tip-pill en-caps" lang="en">POSTER TIP</span>
+        <p>原海报底栏提醒：<strong>「将主体或重要元素放置在水平线上或其附近，可增强画面的稳定性与整体感。」</strong>如果主体远远悬在半空不沾地平，水平线就会退化成无关的背景底条。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 地平线放哪：低中高的讲究 ==================== -->
+  <section id="s3" class="sec sec-sea" aria-labelledby="h-s3">
+    <div class="wrap">
+      <div class="sec-head sec-head-light">
+        <span class="sec-num en-mono">03</span>
+        <div>
+          <h2 id="h-s3" class="sec-h2">地平线放哪：低中高的讲究</h2>
+          <p class="sec-en" lang="en">Low, Center, or High Horizon</p>
+        </div>
+      </div>
+
+      <div class="split-2">
+        <div class="prose-col prose-light">
+          <p>把海平线调平之后，第二个决定画面情绪的动作是<strong>定高低</strong>。经验上最顺手的位置常落在画幅下三分之一或上三分之一附近（延伸比例可看 <a href="https://layout.xiaoxiaodong.ai/001/play/" target="_blank" rel="noopener">001 三分法构图</a>）：压低地平线，大片天空云海成为主角，画面轻盈开阔；抬高地平线，水面波纹、麦田或长街铺满视线，情绪变得沉静厚重。</p>
+          <div class="soft-fix">
+            <span class="fix-tag">说多了一点</span>
+            <p>许多入门教材把「千万别把地平线放正中 50%」写成铁律。在山、船、建筑俱全的繁景里，正中五五分确实容易把画面劈成互相抢戏的两截；但一旦画面被极度抽空，只剩水面与天空的微妙明暗（或形成平静水面倒影，参见 <a href="https://layout.xiaoxiaodong.ai/018/play/" target="_blank" rel="noopener">018 对称构图</a> 与 <a href="https://layout.xiaoxiaodong.ai/020/play/" target="_blank" rel="noopener">020 镜像构图</a>），严丝合缝的 50% 中分反而会制造出近乎冥想的均势。</p>
+          </div>
+          <p>用旁边的滑轨亲自试一次：先在「繁景」里推过 50%，再切到「极简空海」推到同一条 50% 线，感受同一条位置为什么评价完全翻盘。</p>
+        </div>
+
+        <div class="s3-lab">
+          <div class="s3-toolbar">
+            <div class="chip-group" role="group" aria-label="切换繁景与极简空海">
+              <button type="button" class="sea-chip" data-s3-mode="complex" aria-pressed="true">繁景：山日帆俱全</button>
+              <button type="button" class="sea-chip" data-s3-mode="minimal" aria-pressed="false">极简：空海薄雾</button>
+            </div>
+            <span class="en-mono s3-pct" id="s3-pct">天 50% / 海 50%</span>
+          </div>
+
+          <svg class="s3-svg" viewBox="0 0 400 220" aria-label="地平线低中高对比视图">
+            <rect x="0" y="0" width="400" height="220" fill="#F7ECDD"/>
+            <circle id="s3-sun" cx="312" cy="54" r="24" fill="#D35638"/>
+            <g id="s3-detail-group">
+              <path d="M 164 140 Q 222 108 268 120 Q 322 98 400 116 L 400 140 Z" fill="#0A2036"/>
+              <polygon points="274,138 274,104 254,138" fill="#FBF5EC"/>
+              <polygon points="278,138 278,110 293,138" fill="#FBF5EC"/>
+            </g>
+            <rect id="s3-sea-rect" x="0" y="110" width="400" height="110" fill="#1D426A"/>
+            <line id="s3-white-line" x1="0" y1="110" x2="400" y2="110" stroke="#FBF5EC" stroke-width="2.4"/>
+            <!-- 三分与中线刻度 -->
+            <line x1="0" y1="73" x2="12" y2="73" stroke="#E87A5D" stroke-width="1.5"/>
+            <line x1="0" y1="110" x2="16" y2="110" stroke="#E87A5D" stroke-width="1.5"/>
+            <line x1="0" y1="147" x2="12" y2="147" stroke="#E87A5D" stroke-width="1.5"/>
+            <text id="s3-sky-lbl" x="22" y="54" fill="#1D426A" font-family="Space Mono, Noto Sans SC, sans-serif" font-size="12" font-weight="700">天 50%</text>
+            <text id="s3-sea-lbl" x="22" y="166" fill="#F7ECDD" font-family="Space Mono, Noto Sans SC, sans-serif" font-size="12" font-weight="700">海 50%</text>
+          </svg>
+
+          <div class="s3-slider-row">
+            <label for="s3-slider" class="s3-slider-lbl">地平线高度</label>
+            <input id="s3-slider" class="s3-range" type="range" min="15" max="85" step="1" value="50">
+          </div>
+
+          <div class="s3-presets" role="group" aria-label="三境快选">
+            <button type="button" class="sea-chip" data-s3-preset="30" aria-pressed="false">低地平 30%</button>
+            <button type="button" class="sea-chip" data-s3-preset="50" aria-pressed="true">正中 50%</button>
+            <button type="button" class="sea-chip" data-s3-preset="70" aria-pressed="false">高地平 70%</button>
+          </div>
+
+          <div class="s3-verdict-box" aria-live="polite">
+            <span class="s3-zone-tag" id="s3-zone-tag" data-tone="alert">正中死对半 · 上下抢戏</span>
+            <p class="s3-verdict" id="s3-verdict"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 水平构图从哪来 ==================== -->
+  <section id="s4" class="sec sec-paper" aria-labelledby="h-s4">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num en-mono">04</span>
+        <div>
+          <h2 id="h-s4" class="sec-h2">水平构图从哪来</h2>
+          <p class="sec-en" lang="en">From Dutch Skies to Widescreen Cinema</p>
+        </div>
+      </div>
+
+      <p class="sec-intro">水平线不是某个软件或摄影课凭空发明的套路。从 17 世纪的荷兰油画、20 世纪初的芝加哥住宅，到宽银幕电影与极简海景摄影，每一代创作者都在重新改写画幅与水平线的关系。点击四个年代节点，观察画幅真实比例与水平骨架的变化。</p>
+
+      <div class="lineage-tabs" role="group" aria-label="水平构图演进编年">
+        <button type="button" class="lineage-btn" data-lineage-id="ruisdael" aria-pressed="true">
+          <span class="en-mono l-year">c. 1670–1675</span>
+          <span class="l-name">荷兰低地平风景</span>
+        </button>
+        <button type="button" class="lineage-btn" data-lineage-id="wright" aria-pressed="false">
+          <span class="en-mono l-year">1908–1910</span>
+          <span class="l-name">草原学派长屋</span>
+        </button>
+        <button type="button" class="lineage-btn" data-lineage-id="cinemascope" aria-pressed="false">
+          <span class="en-mono l-year">1953</span>
+          <span class="l-name">2.55:1 宽银幕</span>
+        </button>
+        <button type="button" class="lineage-btn" data-lineage-id="sugimoto" aria-pressed="false">
+          <span class="en-mono l-year">1980 起</span>
+          <span class="l-name">极简正中海景</span>
+        </button>
+      </div>
+
+      <div class="lineage-stage">
+        <div class="lineage-visual">
+          <div class="s4-ratio-box" id="s4-ratio-box">
+            <svg id="s4-svg" class="s4-svg" viewBox="0 0 180 160" aria-label="对应历史作品的真实比例与水平骨架示意"></svg>
+          </div>
+        </div>
+        <div class="lineage-detail" aria-live="polite">
+          <p class="en-mono s4-meta" id="s4-meta"></p>
+          <h3 class="s4-title" id="s4-title"></h3>
+          <p class="s4-work-en" id="s4-work-en" lang="en"></p>
+          <p class="s4-summary" id="s4-summary"></p>
+          <div class="s4-takeaway-box">
+            <span class="takeaway-lbl">构图启示</span>
+            <p id="s4-takeaway"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 打破沉闷：横线配竖锚 ==================== -->
+  <section id="s5" class="sec sec-sand" aria-labelledby="h-s5">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num en-mono">05</span>
+        <div>
+          <h2 id="h-s5" class="sec-h2">打破沉闷：横线配竖锚</h2>
+          <p class="sec-en" lang="en">Why Calm Lines Still Need a Vertical Anchor</p>
+        </div>
+      </div>
+
+      <p class="sec-intro">回头细看 021 原海报下方的三张「应用示例」——<strong>海面上的灯塔、白墙上的红门、麦田上的一行树</strong>——没有一张是光秃秃的纯横线。水平线负责让情绪静下来，一小枚垂直锚点或疏密节奏负责让眼睛停下来，两者相克反成全（纯纵线与交叉平衡详见 <a href="https://layout.xiaoxiaodong.ai/022/play/" target="_blank" rel="noopener">022 垂直构图</a>、<a href="https://layout.xiaoxiaodong.ai/024/play/" target="_blank" rel="noopener">024 平行线构图</a> 与 <a href="https://layout.xiaoxiaodong.ai/030/play/" target="_blank" rel="noopener">030 十字构图</a>）。</p>
+
+      <div class="s5-grid">
+        <div class="s5-canvas-col">
+          <div class="s5-scene-tabs" role="group" aria-label="切换原海报三幅应用示例">
+            <button type="button" class="chip-btn" data-s5-scene="lighthouse" aria-pressed="true">01 地平线 · 灯塔</button>
+            <button type="button" class="chip-btn" data-s5-scene="architecture" aria-pressed="false">02 建筑 · 白墙红门</button>
+            <button type="button" class="chip-btn" data-s5-scene="landscape" aria-pressed="false">03 景观 · 麦田行树</button>
+          </div>
+          <div class="s5-canvas-wrap">
+            <canvas id="s5-canvas" class="s5-canvas" aria-label="原海报应用示例锚点拆装画布"></canvas>
+          </div>
+          <p class="s5-caption" id="s5-caption">地平线构图 • 宁静开阔</p>
+        </div>
+
+        <div class="s5-ctrl-col">
+          <div class="s5-block">
+            <span class="s5-k">第一步 · 亲手拆掉垂直锚点试试</span>
+            <button type="button" class="btn-accent s5-toggle-btn" id="s5-toggle-anchor" aria-pressed="false">拆掉「右侧礁堤灯塔」</button>
+            <p class="s5-why" id="s5-why" aria-live="polite"></p>
+          </div>
+
+          <div class="s5-block">
+            <span class="s5-k">第二步 · 改变锚点落位或节奏</span>
+            <div class="s5-place-btns" role="group" aria-label="切换锚点落位">
+              <button type="button" class="mini-btn" data-s5-place="rule" aria-pressed="true">偏侧锚定</button>
+              <button type="button" class="mini-btn" data-s5-place="center" aria-pressed="false">正中孤立</button>
+              <button type="button" class="mini-btn" data-s5-place="rhythm" aria-pressed="false">双锚呼应</button>
+            </div>
+            <p class="s5-place-note" id="s5-place-note" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 什么时候别用水平构图 ==================== -->
+  <section id="s6" class="sec sec-night" aria-labelledby="h-s6">
+    <div class="wrap">
+      <div class="sec-head sec-head-light">
+        <span class="sec-num en-mono">06</span>
+        <div>
+          <h2 id="h-s6" class="sec-h2">什么时候别用水平构图</h2>
+          <p class="sec-en" lang="en">When Horizontal Lines Work Against You</p>
+        </div>
+      </div>
+
+      <p class="sec-intro sec-intro-light">水平线的长处是「降速、安抚、铺宽」，正因如此，当你要表达崇高、速度、紧张冲突，或画幅本身极其狭长时，硬套水平构图反而会把力道泄光。</p>
+
+      <div class="anti-tabs" role="group" aria-label="选择容易翻车的场景">
+        <button type="button" class="anti-btn" data-anti-id="tower" aria-pressed="true">拍高耸建筑与峡谷</button>
+        <button type="button" class="anti-btn" data-anti-id="sprint" aria-pressed="false">拍冲刺、赛车与对抗</button>
+        <button type="button" class="anti-btn" data-anti-id="mobile" aria-pressed="false">9:16 竖屏强塞单横线</button>
+        <button type="button" class="anti-btn" data-anti-id="blinds" aria-pressed="false">等距条纹铺满整屏</button>
+      </div>
+
+      <div class="anti-compare" aria-live="polite">
+        <article class="anti-card anti-bad">
+          <div class="anti-head">
+            <span class="anti-pill pill-bad">硬用水平 · 翻车</span>
+            <span class="anti-tag" id="s6-bad-tag"></span>
+          </div>
+          <svg id="s6-bad-svg" class="anti-svg" viewBox="0 0 240 140" aria-hidden="true"></svg>
+          <p class="anti-desc" id="s6-bad-desc"></p>
+        </article>
+
+        <article class="anti-card anti-good">
+          <div class="anti-head">
+            <span class="anti-pill pill-good">改用对路 · 生效</span>
+            <span class="anti-tag" id="s6-good-tag"></span>
+          </div>
+          <svg id="s6-good-svg" class="anti-svg" viewBox="0 0 240 140" aria-hidden="true"></svg>
+          <p class="anti-desc" id="s6-good-desc"></p>
+        </article>
+      </div>
+      <p class="s6-links" id="s6-links"></p>
+    </div>
+  </section>
+
+  <!-- ==================== 07 小练习：选一张稳下来的稿 ==================== -->
+  <section id="s7" class="sec sec-paper" aria-labelledby="h-s7">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num en-mono">07</span>
+        <div>
+          <h2 id="h-s7" class="sec-h2">小练习：选一张稳下来的稿</h2>
+          <p class="sec-en" lang="en">Spot the Single Variable That Makes It Settle</p>
+        </div>
+      </div>
+
+      <div class="q-top">
+        <div class="chip-group" role="group" aria-label="切换练习题">
+          <button type="button" class="chip-btn" data-q-id="q1" aria-pressed="true">第 1 题 · 海滨长屋横幅</button>
+          <button type="button" class="chip-btn" data-q-id="q2" aria-pressed="false">第 2 题 · 极简雾海特例</button>
+        </div>
+        <button type="button" class="btn-ghost" id="s7-retry" hidden>重做本题</button>
+      </div>
+
+      <p class="q-prompt" id="s7-prompt"></p>
+      <div class="q-grid" id="s7-grid"></div>
+      <p class="q-result" id="s7-result" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- ==================== 08 原海报与同族索引 ==================== -->
+  <section id="s8" class="sec sec-sand" aria-labelledby="h-s8">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num en-mono">08</span>
+        <div>
+          <h2 id="h-s8" class="sec-h2">原海报与同族索引</h2>
+          <p class="sec-en" lang="en">Original Poster &amp; Sibling Principles</p>
+        </div>
+      </div>
+
+      <div class="poster-layout">
+        <div class="poster-col">
+          <button type="button" class="poster-btn" id="poster-open" aria-label="点击放大查看 021 水平构图原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="021 水平构图原海报" draggable="false">
+            <span class="poster-hint">点击放大 · 支持拖动平移与 Esc 关闭</span>
+          </button>
+        </div>
+
+        <div class="poster-meta-col">
+          <div class="meta-block">
+            <h3 class="meta-h3">原海报全文摘录</h3>
+            <p class="meta-quote">「以水平线为主导的构图方式，强调稳定、延伸与宁静之美。」</p>
+            <p class="meta-sub-en" lang="en">A composition guided by horizontal lines, emphasizing stability, extension and serenity.</p>
+            <ul class="meta-list">
+              <li><strong>核心要点：</strong>稳定 STABILITY · 延伸 EXTENSION · 引导 GUIDANCE · 地平 HORIZON · 节奏 RHYTHM</li>
+              <li><strong>应用示例：</strong>地平线构图 • 宁静开阔 · 建筑摄影 • 稳定秩序 · 景观摄影 • 延伸与节奏</li>
+              <li><strong>TIP：</strong>将主体或重要元素放置在水平线上或其附近，可增强画面的稳定性与整体感。</li>
+              <li><strong>底栏金句：</strong>让画面“平”下来，让情绪“静”下来。Keep the frame level, Let the mind settle.</li>
+            </ul>
+          </div>
+
+          <div class="meta-block">
+            <h3 class="meta-h3">同小类其他 14 种构图（构图逻辑 / 重心、线条与轴线）</h3>
+            <p class="meta-tip">每一种各有独立互动专页，不在此重复展开：</p>
+            <ul class="sibling-grid">
+              <li><a href="https://layout.xiaoxiaodong.ai/016/play/" target="_blank" rel="noopener"><span class="en-mono">016</span> 居中构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/017/play/" target="_blank" rel="noopener"><span class="en-mono">017</span> 偏心构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/018/play/" target="_blank" rel="noopener"><span class="en-mono">018</span> 对称构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/019/play/" target="_blank" rel="noopener"><span class="en-mono">019</span> 非对称构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/020/play/" target="_blank" rel="noopener"><span class="en-mono">020</span> 镜像构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/022/play/" target="_blank" rel="noopener"><span class="en-mono">022</span> 垂直构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/023/play/" target="_blank" rel="noopener"><span class="en-mono">023</span> 对角线构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/024/play/" target="_blank" rel="noopener"><span class="en-mono">024</span> 平行线构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/025/play/" target="_blank" rel="noopener"><span class="en-mono">025</span> 汇聚线构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/026/play/" target="_blank" rel="noopener"><span class="en-mono">026</span> 交叉线构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/027/play/" target="_blank" rel="noopener"><span class="en-mono">027</span> 中轴构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/028/play/" target="_blank" rel="noopener"><span class="en-mono">028</span> 偏轴构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/029/play/" target="_blank" rel="noopener"><span class="en-mono">029</span> 双轴构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/030/play/" target="_blank" rel="noopener"><span class="en-mono">030</span> 十字构图</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-in">
+    <p>
+      <a href="https://layout.xiaoxiaodong.ai/021/play/" target="_blank" rel="noopener">在线版</a>
+      <span aria-hidden="true"> / </span>
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="f-dot" aria-hidden="true">·</span>
+      <span>海报 CC BY 4.0</span>
+      <span class="f-dot" aria-hidden="true">·</span>
+      <a href="https://github.com/xxd-dev/350-layout-interactive" target="_blank" rel="noopener">源文件 GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱 -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="021 水平构图原海报放大视图" hidden>
+  <div class="lb-bar">
+    <span class="lb-title">021 水平构图 · 原海报（可滚轮缩放、拖动平移，按 Esc 关闭）</span>
+    <div class="lb-ctrls">
+      <button type="button" class="lb-btn" id="lb-out">缩小 −</button>
+      <button type="button" class="lb-btn" id="lb-reset">100%</button>
+      <button type="button" class="lb-btn" id="lb-in">放大 +</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" class="lb-img" alt="021 水平构图原海报大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
