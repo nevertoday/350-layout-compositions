@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>282 地图主导布局 · MAP-LED LAYOUT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-cat">
+      <span class="cat-dots" aria-hidden="true"><i></i><i></i></span>
+      <span>网页与 UI / 内容与产品模式</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-code" lang="en">NO. 282 · MAP-LED LAYOUT</span>
+      <span class="status-pill" id="topStatusPill">0 / 4 待理图</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== HERO：全幅海湾地形地图工作台 ==================== -->
+  <section class="hero" aria-label="地图主导布局互动编排台">
+    <div class="hero-wrap">
+      <!-- 刊头带：复刻原海报暖羊皮纸大标、青竖线总述、右上叠圆与 5×4 点阵 -->
+      <div class="masthead">
+        <div class="masthead-left">
+          <div class="title-block">
+            <h1 class="hero-title">
+              地图主导布局
+              <svg class="title-route-mark" viewBox="0 0 186 20" aria-hidden="true">
+                <path d="M8,13 Q56,3 93,11 T178,9" fill="none" stroke="#08756E" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
+                <circle cx="8" cy="13" r="3.6" fill="#028E93"/>
+                <circle cx="93" cy="11" r="5" fill="#063329"/>
+                <circle cx="93" cy="11" r="2" fill="#FCF5E8"/>
+                <circle cx="178" cy="9" r="3.6" fill="#E59500"/>
+              </svg>
+            </h1>
+            <p class="hero-en" lang="en">MAP-LED LAYOUT</p>
+          </div>
+          <p class="hero-summary">以地图为视觉骨架，承载信息、组织动线、建立层级，让内容围绕位置自然展开。</p>
+        </div>
+        <div class="masthead-right">
+          <div class="poster-ornament" aria-hidden="true">
+            <span class="orn-circle-lg"></span>
+            <span class="orn-circle-sm"></span>
+            <span class="orn-dots"></span>
+          </div>
+          <div class="scenario-tabs" role="group" aria-label="切换地图应用场景">
+            <button type="button" class="sc-tab is-active" data-scenario="coastal" aria-pressed="true">原海报 · 滨海新城</button>
+            <button type="button" class="sc-tab" data-scenario="citystay" aria-pressed="false">城市找房</button>
+            <button type="button" class="sc-tab" data-scenario="park" aria-pressed="false">徒步导览</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主工作台：左 4 张原海报白色圆角图层卡 × 右全幅 2D Canvas 活体海湾地图 -->
+      <div class="desk-grid">
+        <div class="map-stage-col">
+          <div class="map-toolbar">
+            <span class="map-cue">拖中央主锚 · 拖红框卡片 · 点红叉解结</span>
+            <div class="map-presets">
+              <button type="button" class="btn-mini btn-teal" data-preset="poster">原海报 4 色解</button>
+              <button type="button" class="btn-mini" data-preset="loop">3 色环线解</button>
+              <button type="button" class="btn-mini" data-preset="contour">等高线解</button>
+              <button type="button" class="btn-mini btn-outline-err" data-preset="broken">复原 0/4 错态</button>
+            </div>
+          </div>
+
+          <div class="map-canvas-shell">
+            <canvas
+              id="heroMapCanvas"
+              class="hero-canvas"
+              data-perf-drag
+              tabindex="0"
+              aria-label="可拖拽互动滨海地图画布：拖中央主锚点调整枢纽，拖红框信息卡贴近对应锚点，点红色交点理顺路线"
+            ></canvas>
+          </div>
+
+          <!-- 手机首屏快捷操作条（紧凑露在地图下方） -->
+          <div class="mobile-quick-strip">
+            <button type="button" class="btn-mini" id="quickSnapCardsBtn" data-snap-cards>拉近偏移卡片</button>
+            <button type="button" class="btn-mini btn-teal" data-preset="poster">原海报解</button>
+            <button type="button" class="btn-mini btn-outline-err" data-preset="broken">复原错态</button>
+          </div>
+        </div>
+
+        <!-- 4 张原海报核心功能卡（实时状态 + 直接调控） -->
+        <aside class="layer-cards" aria-label="地图四维制图控制台">
+          <div class="layer-card is-err" id="layerCard-anchor">
+            <div class="lc-head">
+              <span class="lc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2.5C8.4 2.5 5.5 5.3 5.5 8.9c0 4.8 6.5 12.1 6.5 12.1s6.5-7.3 6.5-12.1C18.5 5.3 15.6 2.5 12 2.5zm0 8.8a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+              </span>
+              <div class="lc-titles">
+                <span class="lc-en" lang="en">LOCATION</span>
+                <strong>位置锚点</strong>
+              </div>
+              <span class="lc-chip is-err" id="layerStatus-anchor">平权失焦 1.0×</span>
+            </div>
+            <p class="lc-quote">用锚点标记关键位置，成为信息的聚焦点。</p>
+            <div class="lc-controls" role="group" aria-label="位置锚点层级">
+              <button type="button" class="ctl-btn is-active" data-anchor-mode="flat" aria-pressed="true">平权同大</button>
+              <button type="button" class="ctl-btn" data-anchor-mode="balanced" aria-pressed="false">主次 1.6×</button>
+              <button type="button" class="ctl-btn" data-anchor-mode="giant" aria-pressed="false">巨钉 2.3×</button>
+            </div>
+          </div>
+
+          <div class="layer-card is-err" id="layerCard-region">
+            <div class="lc-head">
+              <span class="lc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5zm-9 9.2 9 5 9-5M3 16.2l9 5 9-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <div class="lc-titles">
+                <span class="lc-en" lang="en">REGION</span>
+                <strong>区域分组</strong>
+              </div>
+              <span class="lc-chip is-err" id="layerStatus-region">7 色过载</span>
+            </div>
+            <p class="lc-quote">用色块区分区域，快速建立空间归属。</p>
+            <div class="lc-controls" role="group" aria-label="区域分组设色">
+              <button type="button" class="ctl-btn is-active" data-region-palette="rainbow7" aria-pressed="true">7 色撞色</button>
+              <button type="button" class="ctl-btn" data-region-palette="mono0" aria-pressed="false">0 色全灰</button>
+              <button type="button" class="ctl-btn" data-region-palette="poster4" aria-pressed="false">4 色柔区</button>
+              <button type="button" class="ctl-btn" data-region-palette="minimal3" aria-pressed="false">3 色极简</button>
+            </div>
+          </div>
+
+          <div class="layer-card is-err" id="layerCard-route">
+            <div class="lc-head">
+              <span class="lc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.6"/><circle cx="18" cy="6" r="2.6"/><path d="M8.5 16.5C11 14 13 10 15.5 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 2.5" stroke-linecap="round"/></svg>
+              </span>
+              <div class="lc-titles">
+                <span class="lc-en" lang="en">ROUTE</span>
+                <strong>路径引导</strong>
+              </div>
+              <span class="lc-chip is-err" id="layerStatus-route">交叉 2 处</span>
+            </div>
+            <p class="lc-quote">用路线连接节点，引导视线流动与顺序。</p>
+            <div class="lc-controls" role="group" aria-label="路径连接方式">
+              <button type="button" class="ctl-btn is-active" data-route-topo="custom" aria-pressed="true">交叉乱线</button>
+              <button type="button" class="ctl-btn" data-route-topo="radial" aria-pressed="false">中心放射</button>
+              <button type="button" class="ctl-btn" data-route-topo="loop" aria-pressed="false">沿海环线</button>
+              <button type="button" class="ctl-btn" data-route-topo="mesh" aria-pressed="false">全连蛛网</button>
+              <button type="button" class="ctl-btn" data-route-topo="none" aria-pressed="false">无路线</button>
+            </div>
+          </div>
+
+          <div class="layer-card is-err" id="layerCard-proximity">
+            <div class="lc-head">
+              <span class="lc-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M5 9V5h4M15 5h4v4M19 15v4h-4M9 19H5v-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <div class="lc-titles">
+                <span class="lc-en" lang="en">CONTEXT</span>
+                <strong>场景语境与就近</strong>
+              </div>
+              <span class="lc-chip is-err" id="layerStatus-proximity">远跳 2 张</span>
+            </div>
+            <p class="lc-quote">用地图背景提供语境，注释靠近对应位置。</p>
+            <div class="lc-controls" role="group" aria-label="底图语境与注释归位">
+              <button type="button" class="ctl-btn is-active" data-context-level="balanced" aria-pressed="true">原海报地形</button>
+              <button type="button" class="ctl-btn" data-context-level="contour" aria-pressed="false">等高线</button>
+              <button type="button" class="ctl-btn" data-context-level="blank" aria-pressed="false">纯白无底</button>
+              <button type="button" class="ctl-btn" data-context-level="noisy" aria-pressed="false">重噪路网</button>
+              <button type="button" class="ctl-btn ctl-snap" data-snap-cards>卡片就近归位</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- 底部带 1：原海报深松绿 TIPS 实测诊单带（置于图例前确保手机首屏即见诊单主句） -->
+      <div class="tips-diag-band is-err" id="heroDiagnosis">
+        <div class="tips-badge" id="tipsBadgeBox">
+          <svg viewBox="0 0 28 28" aria-hidden="true">
+            <path d="M14 4a7 7 0 0 0-4.2 12.6c.7.6 1.2 1.4 1.2 2.4h6c0-1 .5-1.8 1.2-2.4A7 7 0 0 0 14 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <line x1="11" y1="22" x2="17" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="12.2" y1="25" x2="15.8" y2="25" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <div class="tips-badge-txt">
+            <strong>使用要点</strong>
+            <span lang="en">TIPS · <b id="tipsScoreVal">0 / 4</b></span>
+          </div>
+        </div>
+
+        <div class="diag-main">
+          <div class="diag-top">
+            <span class="diag-tag" id="diagTag">错态 · 位置锚点 (0/4)</span>
+            <span class="diag-source">实绘几何单真源核算</span>
+          </div>
+          <p class="diag-headline" id="diagHeadline">六枚锚点一般大，眼睛找不到起点</p>
+          <p class="diag-why" id="diagWhy">所有锚点用同样大小和灰红平铺时，主枢纽和外围次级节点没有视觉阶梯。</p>
+          <p class="diag-action" id="diagAction">在「位置锚点」图层卡里把主锚切到「主次 1.6×」。</p>
+        </div>
+
+        <ul class="tips-checklist" aria-label="原海报四条使用要点实况">
+          <li id="tipCheck-anchor"><i>✓</i><div><strong>先定锚点</strong><span>确定核心位置，再展开内容。</span></div></li>
+          <li id="tipCheck-region"><i>✓</i><div><strong>分组着色</strong><span>区域色彩不超过 4 种，避免干扰。</span></div></li>
+          <li id="tipCheck-route"><i>✓</i><div><strong>动线清晰</strong><span>路径避免交叉，保持简单直接。</span></div></li>
+          <li id="tipCheck-proximity"><i>✓</i><div><strong>信息就近</strong><span>注释靠近对应位置，减少视觉跳跃。</span></div></li>
+        </ul>
+      </div>
+
+      <!-- 底部带 2：原海报 5 项实况图例横盘 -->
+      <div class="legend-tray" aria-label="原海报五项核心图例与实时读数">
+        <div class="legend-item">
+          <span class="leg-mark leg-hub" aria-hidden="true"></span>
+          <div><strong>主锚点 <em lang="en">ANCHOR</em></strong><span class="leg-val" id="legAnchorVal">1.0× · 半岛枢纽</span></div>
+        </div>
+        <div class="legend-item">
+          <span class="leg-mark leg-sec" aria-hidden="true"></span>
+          <div><strong>次级锚点 <em lang="en">SECONDARY</em></strong><span class="leg-val" id="legSecondaryVal">5 节点</span></div>
+        </div>
+        <div class="legend-item">
+          <span class="leg-mark leg-route" aria-hidden="true"></span>
+          <div><strong>路径动线 <em lang="en">ROUTE</em></strong><span class="leg-val" id="legRouteVal">交叉 2 处</span></div>
+        </div>
+        <div class="legend-item">
+          <span class="leg-mark leg-region" aria-hidden="true"></span>
+          <div><strong>区域分组 <em lang="en">REGION</em></strong><span class="leg-val" id="legRegionVal">7 色区域</span></div>
+        </div>
+        <div class="legend-item">
+          <span class="leg-mark leg-ctx" aria-hidden="true"></span>
+          <div><strong>背景语境 <em lang="en">CONTEXT</em></strong><span class="leg-val" id="legContextVal">原海报地形</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01 四把空间骨架（四层地图剥离器） ==================== -->
+  <section class="band band-mist" id="sec-pillars">
+    <div class="sec-wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">01</span>
+        <div>
+          <p class="sec-eyebrow" lang="en">Four Spatial Pillars</p>
+          <h2>四把空间骨架</h2>
+        </div>
+      </header>
+
+      <div class="pillars-layout">
+        <div class="pillars-copy">
+          <p class="lead">地图主导布局不是「在文字底下垫一张地图当壁纸」，而是把二维地理位置升级成整页的索引骨架。原海报拆出的四条法则，本质上是四层自下而上、各司其职的视觉透明片。</p>
+          <p>只要其中一层越权——比如底图画得太抢戏、区域塞进七八种艳色、路线拧成麻花，或者忘记立一枚最大最深的主锚点——大脑原本 1 秒钟就能读懂的空间关系就会立刻散架。</p>
+
+          <div class="peel-controls">
+            <div class="peel-toggles">
+              <label class="peel-check"><input type="checkbox" data-peel-layer="anchor" checked><span><strong>④ 位置锚点</strong> · 标记核心聚焦点（最高对比）</span></label>
+              <label class="peel-check"><input type="checkbox" data-peel-layer="route" checked><span><strong>③ 路径引导</strong> · 用简短虚线串联先后顺序</span></label>
+              <label class="peel-check"><input type="checkbox" data-peel-layer="region" checked><span><strong>② 区域分组</strong> · ≤ 4 种低饱和色建立归属</span></label>
+              <label class="peel-check"><input type="checkbox" data-peel-layer="context" checked><span><strong>① 场景语境</strong> · 海岸、山势与微弱路网</span></label>
+            </div>
+            <button type="button" class="btn-solid" id="peelPerspectiveBtn" aria-pressed="true">切回正视叠合</button>
+          </div>
+          <p class="peel-readout" id="peelReadout"></p>
+        </div>
+
+        <div class="peel-stage">
+          <div class="peel-stack is-exploded" id="peelStack" aria-label="四层地图结构拆层示意图">
+            <div class="peel-sheet" data-layer="context">
+              <span class="sheet-tag">① 场景语境 CONTEXT</span>
+              <svg viewBox="0 0 320 180" aria-hidden="true">
+                <rect width="320" height="180" rx="10" fill="#FCF5E8"/>
+                <path d="M18,24 L145,16 L126,96 L94,124 L18,120 Z" fill="#BCE2DC"/>
+                <path d="M145,16 L300,26 L296,162 L24,158 L18,120 L94,124 L126,96 Z" fill="#EFE8D9"/>
+                <ellipse cx="228" cy="52" rx="48" ry="26" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
+                <ellipse cx="228" cy="52" rx="70" ry="38" fill="none" stroke="#FFFFFF" stroke-width="1.2"/>
+                <path d="M294,104 Q240,114 216,136 T226,162" fill="none" stroke="#9AD2C9" stroke-width="6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="peel-sheet" data-layer="region">
+              <span class="sheet-tag">② 区域分组 REGION</span>
+              <svg viewBox="0 0 320 180" aria-hidden="true">
+                <path d="M145,16 L300,26 L298,82 L134,80 Z" fill="rgba(164,191,132,0.48)"/>
+                <path d="M126,80 L298,82 L296,134 L120,130 Z" fill="rgba(235,204,142,0.52)"/>
+                <path d="M24,122 L120,126 L116,158 L24,156 Z" fill="rgba(176,165,162,0.46)"/>
+                <path d="M120,130 L296,134 L290,164 L116,162 Z" fill="rgba(174,198,148,0.48)"/>
+              </svg>
+            </div>
+            <div class="peel-sheet" data-layer="route">
+              <span class="sheet-tag">③ 路径引导 ROUTE</span>
+              <svg viewBox="0 0 320 180" aria-hidden="true">
+                <path d="M164,94 Q130,86 98,74" fill="none" stroke="#028E93" stroke-width="3" stroke-dasharray="6 5" stroke-linecap="round"/>
+                <path d="M164,94 Q192,66 218,44" fill="none" stroke="#49763F" stroke-width="3" stroke-dasharray="6 5" stroke-linecap="round"/>
+                <path d="M164,94 Q202,96 238,94" fill="none" stroke="#E59500" stroke-width="3" stroke-dasharray="6 5" stroke-linecap="round"/>
+                <path d="M164,94 Q124,112 78,128" fill="none" stroke="#5A5466" stroke-width="3" stroke-dasharray="6 5" stroke-linecap="round"/>
+                <path d="M164,94 Q188,124 220,144" fill="none" stroke="#4C7941" stroke-width="3" stroke-dasharray="6 5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="peel-sheet" data-layer="anchor">
+              <span class="sheet-tag">④ 位置锚点 LOCATION</span>
+              <svg viewBox="0 0 320 180" aria-hidden="true">
+                <circle cx="164" cy="94" r="18" fill="rgba(8,117,110,0.22)"/>
+                <circle cx="164" cy="94" r="10.5" fill="#063329" stroke="#FEFDF9" stroke-width="2.5"/>
+                <circle cx="98" cy="74" r="6.5" fill="#028E93" stroke="#FEFDF9" stroke-width="2"/>
+                <circle cx="218" cy="44" r="6.5" fill="#49763F" stroke="#FEFDF9" stroke-width="2"/>
+                <circle cx="238" cy="94" r="6.5" fill="#E59500" stroke="#FEFDF9" stroke-width="2"/>
+                <circle cx="78" cy="128" r="6.5" fill="#5A5466" stroke="#FEFDF9" stroke-width="2"/>
+                <circle cx="220" cy="144" r="6.5" fill="#4C7941" stroke="#FEFDF9" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 一页装下多少点（缩放聚合 + 地图列表双向联动） ==================== -->
+  <section class="band band-paper" id="sec-density">
+    <div class="sec-wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">02</span>
+        <div>
+          <p class="sec-eyebrow" lang="en">Zoom, Cluster &amp; Linked List</p>
+          <h2>一页装下多少点</h2>
+        </div>
+      </header>
+
+      <div class="density-intro">
+        <p class="lead">静态海报往往只放 5 到 6 个锚点，但真实网页产品（地图找房、探店筛选、门店查询）动辄几十上百条数据。把它们全摊在低缩放地图上，锚点立刻撞成一团无法点击的红海——这就是地图交互最常见的「过绘制（Overplotting）」。</p>
+        <div class="nuance-box">
+          <span class="nuance-pill">原海报辨析 · 经验参考</span>
+          <p>海报写着「区域色彩不超过 4 种，避免干扰」。在强调一眼扫清的平面海报和轻量界面里，3–4 色是非常稳妥的经验值；而在专业专题地图领域，辛西娅·布鲁尔设计的 ColorBrewer 定性色板上限也只给到 8–12 类——再多，人眼就分不清色相差异，必须靠缩放聚合和列表筛选来消化密度。</p>
+        </div>
+      </div>
+
+      <div class="zoom-workbench">
+        <div class="zoom-bar">
+          <label class="zoom-slider-wrap" for="zoomSlider">
+            <span>缩放层级</span>
+            <input type="range" id="zoomSlider" min="10" max="16" step="1" value="11">
+            <strong id="zoomLevelVal" lang="en">Z11</strong>
+          </label>
+          <div class="zoom-toggles">
+            <button type="button" class="btn-chip is-warn" id="clusterToggleBtn" aria-pressed="false">自动聚合：关（正在过绘制）</button>
+            <button type="button" class="btn-chip" id="priceChipBtn" aria-pressed="true">价格标签：开</button>
+          </div>
+        </div>
+
+        <div class="zoom-split">
+          <div class="zoom-map-col">
+            <canvas id="zoomMapCanvas" class="zoom-canvas" aria-label="缩放聚合与双栏联动演示地图"></canvas>
+            <p class="zoom-stat is-alert" id="zoomStatBar"></p>
+          </div>
+          <div class="zoom-list-col">
+            <div class="zoom-list-head">
+              <strong>当前视野房源</strong>
+              <span>悬停或点选与地图联动</span>
+            </div>
+            <div class="zoom-list" id="zoomPoiList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 拓扑还是实距（深松夜航暗室 · 连续形变画布） ==================== -->
+  <section class="band band-night" id="sec-topology">
+    <div class="sec-wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">03</span>
+        <div>
+          <p class="sec-eyebrow" lang="en">Topology vs. Topography</p>
+          <h2>拓扑还是实距</h2>
+        </div>
+      </header>
+
+      <div class="topo-grid">
+        <div class="topo-copy">
+          <p class="lead">做地图主导布局，第一道分水岭不是配色，而是决定「要不要按真实比例画地形」。</p>
+          <p>如果你在做一个步行导航或周边找房应用，距离远近直接决定用户要不要走过去，必须忠实保留地理实距（Topography）。但如果你要做地铁换乘图、景区导览或校园动线，核心区站点在真实地图上常常挤成密密麻麻的一小撮——学 1933 年哈里·贝克那样把线路收束成水平、垂直与 45° 斜线、主动撑开拥挤中心，用「善意的几何变形」换来瞬间读懂的连接顺序，反而更诚实。</p>
+
+          <div class="topo-metrics">
+            <div class="tm-box">
+              <span>拓扑抽象度</span>
+              <strong id="topoMorphVal" lang="en">0%</strong>
+            </div>
+            <div class="tm-box">
+              <span>核心站最小间距</span>
+              <strong id="topoGapVal" lang="en">32 px</strong>
+            </div>
+            <div class="tm-box">
+              <span>核心区站名碰撞</span>
+              <strong id="topoOverlapVal" class="is-warn">4 处撞字</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="topo-stage">
+          <canvas id="topoCanvas" class="topo-canvas" aria-label="地理实距到贝克 45 度拓扑线路的连续形变画布"></canvas>
+          <div class="topo-ctrl-bar">
+            <label class="topo-slider-label" for="topoSlider">
+              <span>地理实距</span>
+              <input type="range" id="topoSlider" min="0" max="100" step="1" value="0">
+              <span>贝克拓扑</span>
+            </label>
+            <div class="topo-presets">
+              <button type="button" class="btn-night is-active" data-topo-preset="0">实距 0%</button>
+              <button type="button" class="btn-night" data-topo-preset="50">轻规整 50%</button>
+              <button type="button" class="btn-night" data-topo-preset="100">纯拓扑 100%</button>
+            </div>
+          </div>
+          <p class="topo-note" id="topoNote"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 从宽街到指尖（真实历史谱系） ==================== -->
+  <section class="band band-white" id="sec-lineage">
+    <div class="sec-wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">04</span>
+        <div>
+          <p class="sec-eyebrow" lang="en">Lineage of Map-Led UI</p>
+          <h2>从宽街到指尖</h2>
+        </div>
+      </header>
+
+      <p class="lead">地图主导布局不是互联网时代凭空发明的。从 1854 年伦敦街头的疫情点位图，到 2005 年在浏览器里第一次能用鼠标直接拖动的瓦片地图，一百五十年间四次关键跃迁，定下了今天这套设计语法。</p>
+
+      <div class="lineage-tabs" role="tablist" aria-label="地图主导布局历史里程碑">
+        <button type="button" role="tab" class="lin-tab is-active" data-lineage-id="snow" aria-selected="true"><b>1854–1855</b><span>John Snow 宽街地图</span></button>
+        <button type="button" role="tab" class="lin-tab" data-lineage-id="beck" aria-selected="false"><b>1933</b><span>Harry Beck 地铁图</span></button>
+        <button type="button" role="tab" class="lin-tab" data-lineage-id="bertin" aria-selected="false"><b>1967</b><span>Bertin 视觉变量</span></button>
+        <button type="button" role="tab" class="lin-tab" data-lineage-id="gmaps" aria-selected="false"><b>1996 / 2005</b><span>总览箴言与瓦片地图</span></button>
+      </div>
+
+      <div class="lineage-panel" id="lineagePanel" role="tabpanel"></div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 什么时候别用（翻牌分流仪 + 同类兄弟页） ==================== -->
+  <section class="band band-sand" id="sec-notuse">
+    <div class="sec-wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">05</span>
+        <div>
+          <p class="sec-eyebrow" lang="en">When NOT to Use Map-Led</p>
+          <h2>什么时候别用</h2>
+        </div>
+      </header>
+
+      <p class="lead">地图天生霸占屏幕面积。只要核心任务不是「找位置、看分布、算路线」，硬把地图搬到主角位置反而会挤压真正有用的对比信息。下面四个真实需求，先自己判一判该不该用地图主导：</p>
+
+      <div class="triage-grid" id="triageGrid"></div>
+
+      <div class="siblings-bar">
+        <strong>同属「内容与产品模式」的其他常用骨架：</strong>
+        <p>需要多图画册陈列看 <a href="https://layout.xiaoxiaodong.ai/270/play/" target="_blank" rel="noopener">270 卡片网格布局</a> 或 <a href="https://layout.xiaoxiaodong.ai/275/play/" target="_blank" rel="noopener">275 画廊布局</a>；汇总多模块概览看 <a href="https://layout.xiaoxiaodong.ai/272/play/" target="_blank" rel="noopener">272 便当盒布局</a> 与 <a href="https://layout.xiaoxiaodong.ai/273/play/" target="_blank" rel="noopener">273 仪表盘布局</a>；按日期排程看 <a href="https://layout.xiaoxiaodong.ai/279/play/" target="_blank" rel="noopener">279 日历布局</a>；一问一答交互看紧邻的 <a href="https://layout.xiaoxiaodong.ai/281/play/" target="_blank" rel="noopener">281 对话布局</a>，自由白板创作则交给 <a href="https://layout.xiaoxiaodong.ai/283/play/" target="_blank" rel="noopener">283 画布工作区布局</a>。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 实战小练习（单变量对照） ==================== -->
+  <section class="band band-mist" id="sec-quiz">
+    <div class="sec-wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">06</span>
+        <div>
+          <p class="sec-eyebrow" lang="en">Cartography Eye Check</p>
+          <h2>实战小练习</h2>
+        </div>
+      </header>
+
+      <p class="lead">每道题的四张缩略地图只改变一个变量——选项名不带任何暗示，试着凭本页讲过的空间逻辑挑出最清楚的一版。</p>
+      <div class="quiz-box" id="quizHost"></div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 原海报与关键词 ==================== -->
+  <section class="band band-paper" id="sec-poster">
+    <div class="sec-wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">07</span>
+        <div>
+          <p class="sec-eyebrow" lang="en">Original Poster &amp; Glossary</p>
+          <h2>原海报与关键词</h2>
+        </div>
+      </header>
+
+      <div class="poster-grid">
+        <div class="poster-figure">
+          <button type="button" class="poster-frame" id="posterOpenBtn" aria-label="放大查看 282 地图主导布局原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="282 地图主导布局教学原海报">
+            <span class="poster-zoom-hint">点击放大 · 支持拖动查看细节</span>
+          </button>
+        </div>
+
+        <div class="poster-meta">
+          <h3>原海报五组核心词</h3>
+          <dl class="glossary-list">
+            <div><dt>主锚点 <span lang="en">ANCHOR</span></dt><dd>布局的核心参照，所有内容围绕其组织。</dd></div>
+            <div><dt>次级锚点 <span lang="en">SECONDARY</span></dt><dd>支撑信息分布，强化层级关系。</dd></div>
+            <div><dt>路径动线 <span lang="en">ROUTE</span></dt><dd>引导阅读顺序，建立视觉节奏。</dd></div>
+            <div><dt>区域分组 <span lang="en">REGION</span></dt><dd>通过色彩与边界，快速区分与归类。</dd></div>
+            <div><dt>背景语境 <span lang="en">CONTEXT</span></dt><dd>提供环境信息，增强理解与代入感。</dd></div>
+          </dl>
+
+          <h3>原海报四条使用要点</h3>
+          <ol class="usage-list">
+            <li><strong>先定锚点：</strong>确定核心位置，再展开内容。</li>
+            <li><strong>分组着色：</strong>区域色彩不超过 4 种，避免干扰。</li>
+            <li><strong>动线清晰：</strong>路径避免交叉，保持简单直接。</li>
+            <li><strong>信息就近：</strong>注释靠近对应位置，减少视觉跳跃。</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span><a href="https://layout.xiaoxiaodong.ai/282/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a></span>
+    <span>海报 CC BY 4.0</span>
+    <span><a href="https://github.com/xxd-design/350-layout-redesign" target="_blank" rel="noopener">源文件 GitHub</a></span>
+  </div>
+</footer>
+
+<!-- 原海报放大拖拽灯箱 -->
+<div class="lightbox" id="posterLightbox" hidden role="dialog" aria-modal="true" aria-label="282 原海报放大预览">
+  <div class="lightbox-bar">
+    <span>282 · 地图主导布局原海报（可拖动平移 · Esc 关闭）</span>
+    <div class="lightbox-actions">
+      <button type="button" class="lb-btn" id="lbZoomOut">缩小</button>
+      <button type="button" class="lb-btn" id="lbZoomReset">还原</button>
+      <button type="button" class="lb-btn" id="lbZoomIn">放大</button>
+      <button type="button" class="lb-btn lb-close" id="lbClose">关闭</button>
+    </div>
+  </div>
+  <div class="lightbox-stage" id="lightboxStage">
+    <img id="lightboxImg" src="poster.webp" alt="282 地图主导布局原海报大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
