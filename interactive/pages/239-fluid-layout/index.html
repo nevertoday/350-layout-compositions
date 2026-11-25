@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#02A7CC">
+<title>流体布局 · FLUID LAYOUT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <p class="mh-cat"><span class="mh-sq" aria-hidden="true"></span><span>网页与 UI / CSS 流、定位与响应</span></p>
+    <p class="mh-no"><span lang="en">No. 239</span><span class="mh-tag">按比例流，按护栏止</span></p>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== HERO：复刻 239 海报青蓝三轨活体流体窗台 ==================== -->
+  <section class="hero" id="top" aria-labelledby="title">
+    <div class="wrap hero-inner">
+      <div class="hero-top">
+        <div class="hero-copy">
+          <div class="title-lockup">
+            <h1 id="title" class="hero-title">流体布局</h1>
+            <span class="title-ratio" id="title-ratio" lang="en" aria-hidden="true">25% · 50% · 25%</span>
+          </div>
+          <p class="hero-en" lang="en">FLUID LAYOUT</p>
+          <p class="hero-summary">流体布局（Fluid Layout）是一种基于比例与弹性的布局方式，界面元素随窗口尺寸变化而自动调整，实现更灵活、适配更广泛的显示效果。</p>
+        </div>
+
+        <!-- 海报右上角标志性有机酸柠绿液滴 + 白圆 + 黑点阵 + 黑色四分弧 + 白浪线 -->
+        <div class="hero-art" aria-hidden="true">
+          <svg id="hero-blob-svg" viewBox="0 0 320 210" fill="none">
+            <circle cx="268" cy="36" r="24" fill="#F4F7F6"/>
+            <g fill="#0D1517" opacity="0.9">
+              <circle cx="242" cy="78" r="3.2"/><circle cx="255" cy="78" r="3.2"/><circle cx="268" cy="78" r="3.2"/><circle cx="281" cy="78" r="3.2"/><circle cx="294" cy="78" r="3.2"/>
+              <circle cx="242" cy="91" r="3.2"/><circle cx="255" cy="91" r="3.2"/><circle cx="268" cy="91" r="3.2"/><circle cx="281" cy="91" r="3.2"/><circle cx="294" cy="91" r="3.2"/>
+              <circle cx="242" cy="104" r="3.2"/><circle cx="255" cy="104" r="3.2"/><circle cx="268" cy="104" r="3.2"/><circle cx="281" cy="104" r="3.2"/><circle cx="294" cy="104" r="3.2"/>
+              <circle cx="242" cy="117" r="3.2"/><circle cx="255" cy="117" r="3.2"/><circle cx="268" cy="117" r="3.2"/><circle cx="281" cy="117" r="3.2"/><circle cx="294" cy="117" r="3.2"/>
+            </g>
+            <path id="hero-blob-path" d="M132 16 C172 14, 198 38, 196 76 C194 98, 212 114, 192 132 C176 146, 178 186, 140 192 C98 198, 66 174, 68 140 C70 112, 98 98, 102 68 C106 38, 104 18, 132 16 Z" fill="#C3E41F"/>
+            <path d="M254 142 A 42 42 0 0 1 212 184 L 212 158 A 16 16 0 0 0 228 142 Z" fill="#0D1517"/>
+            <path id="hero-deco-wave" d="M8 122 C44 128, 72 86, 118 86 C164 86, 188 134, 236 134 C272 134, 294 102, 318 96" stroke="#F4F7F6" stroke-width="5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 海报三圆支柱带 -->
+      <ul class="pillars" aria-label="流体布局三条海报要点">
+        <li>
+          <span class="p-dot p-dot-lime" aria-hidden="true"></span>
+          <div class="p-txt">
+            <b>比例伸缩</b>
+            <span class="p-desc">按比例分配空间</span>
+            <em lang="en">PERCENT</em>
+          </div>
+        </li>
+        <li>
+          <span class="p-dot p-dot-paper" aria-hidden="true"></span>
+          <div class="p-txt">
+            <b>随窗变化</b>
+            <span class="p-desc">跟随窗口自由伸缩</span>
+            <em lang="en">FLEX</em>
+          </div>
+        </li>
+        <li>
+          <span class="p-dot p-dot-ink" aria-hidden="true"></span>
+          <div class="p-txt">
+            <b>连续适配</b>
+            <span class="p-desc">适配各种屏幕尺寸</span>
+            <em lang="en">STRETCH</em>
+          </div>
+        </li>
+      </ul>
+
+      <!-- ==================== 主角交互玩具：三轨同步活体流体窗台 ==================== -->
+      <div class="fluid-bench" id="fluid-bench" data-tone="wide" data-guarded="0">
+        <!-- 顶栏：实时视口宽度 + 护栏模式切换 + 复原 -->
+        <div class="bench-bar">
+          <div class="bench-metric">
+            <span class="bm-lbl">模拟视口</span>
+            <output class="bm-val" id="hero-vw-val" lang="en">1520PX</output>
+            <span class="bm-badge" id="hero-badge">超宽面条行预警</span>
+          </div>
+          <div class="bench-actions">
+            <button type="button" class="b-btn b-toggle" id="hero-guard-btn" aria-pressed="false">
+              <span class="b-dot" aria-hidden="true"></span>
+              <span id="hero-guard-lbl">裸流体 % · 点此加护栏</span>
+            </button>
+            <button type="button" class="b-btn b-ghost" id="hero-reset-btn" aria-label="复原初始 1520 像素与 25/50/25 比例">复原初始</button>
+          </div>
+        </div>
+
+        <!-- 顶沿宽度刻度槽：刻度位置与壳体右缘宽度映射 36% + r*64% 严格对齐（320–1920px） -->
+        <div class="bench-ruler" id="bench-ruler" aria-hidden="true">
+          <span class="br-mark br-origin" style="left:0%">0</span>
+          <span class="br-mark" style="left:36%">320</span>
+          <span class="br-mark" style="left:52%">720</span>
+          <span class="br-mark" style="left:68%">1120</span>
+          <span class="br-mark br-hide-sm" style="left:84%">1520</span>
+          <span class="br-mark br-end" style="left:100%">1920px</span>
+        </div>
+
+        <!-- 流体伸缩槽：左侧是活体视口框，右侧是可拉出的剩余空气，中间竖着酸柠绿弹性右墙把手 -->
+        <div class="bench-arena" id="bench-arena">
+          <div class="viewport-shell" id="viewport-shell">
+            <!-- 轨 01：百分比宽度 PERCENT -->
+            <div class="track track-pct">
+              <div class="track-hd">
+                <span class="th-title"><i class="sq-lime" aria-hidden="true"></i><b>百分比宽度</b><em lang="en">PERCENT</em></span>
+                <span class="th-note" id="t1-readout" lang="en">380 · 760 · 380 px</span>
+              </div>
+              <div class="pct-bar" id="pct-bar">
+                <div class="pct-seg seg-l" id="seg-l">
+                  <span class="seg-p" id="seg-l-p" lang="en">25%</span>
+                  <span class="seg-px" id="seg-l-px" lang="en">380px</span>
+                </div>
+                <button
+                  type="button"
+                  class="seam-handle"
+                  id="seam-1"
+                  role="slider"
+                  aria-orientation="horizontal"
+                  aria-valuemin="12"
+                  aria-valuemax="45"
+                  aria-valuenow="25"
+                  aria-label="左栏与中栏百分比分界线：左右拖动或按方向键调整左栏占比"
+                ><i aria-hidden="true"></i></button>
+                <div class="pct-seg seg-m" id="seg-m">
+                  <span class="seg-p" id="seg-m-p" lang="en">50%</span>
+                  <span class="seg-px" id="seg-m-px" lang="en">760px</span>
+                </div>
+                <button
+                  type="button"
+                  class="seam-handle"
+                  id="seam-2"
+                  role="slider"
+                  aria-orientation="horizontal"
+                  aria-valuemin="12"
+                  aria-valuemax="45"
+                  aria-valuenow="25"
+                  aria-label="中栏与右栏百分比分界线：左右拖动或按方向键调整右栏占比"
+                ><i aria-hidden="true"></i></button>
+                <div class="pct-seg seg-r" id="seg-r">
+                  <span class="seg-p" id="seg-r-p" lang="en">25%</span>
+                  <span class="seg-px" id="seg-r-px" lang="en">380px</span>
+                </div>
+              </div>
+              <p class="track-arrow" aria-hidden="true">
+                <span class="ar-l">←</span><i class="ar-dash"></i><span class="ar-txt">按百分比分配宽度，随窗口变化等比例伸缩（拖两条白缝改占比）</span><i class="ar-dash"></i><span class="ar-r">→</span>
+              </p>
+            </div>
+
+            <!-- 轨 02：连续拉伸 FLEX（内嵌 2D Canvas 活体青色正弦流体波） -->
+            <div class="track track-flex">
+              <div class="track-hd">
+                <span class="th-title"><i class="sq-lime" aria-hidden="true"></i><b>连续拉伸</b><em lang="en">FLEX</em></span>
+                <span class="th-note" id="t2-readout" lang="en">定翼 156px · 中栏 1208px (79%)</span>
+              </div>
+              <div class="flex-bar" id="flex-bar">
+                <div class="flex-wing wing-l" id="flex-wing-l" aria-hidden="true">
+                  <span class="sk-line w80"></span>
+                  <span class="sk-line w60"></span>
+                  <span class="sk-line w90"></span>
+                  <b class="wing-px" id="wing-l-px" lang="en">156px</b>
+                </div>
+                <div class="flex-core" id="flex-core">
+                  <canvas id="hero-wave-canvas" aria-hidden="true"></canvas>
+                  <span class="core-tag" id="core-tag" lang="en">FLEX: 1 · 1208PX</span>
+                </div>
+                <div class="flex-wing wing-r" id="flex-wing-r" aria-hidden="true">
+                  <span class="sk-line w75"></span>
+                  <span class="sk-line w55"></span>
+                  <span class="sk-line w85"></span>
+                  <b class="wing-px" id="wing-r-px" lang="en">156px</b>
+                </div>
+              </div>
+              <p class="track-arrow ar-dot-row" aria-hidden="true">
+                <span class="ar-l">←</span><i class="ar-dots"></i><span class="ar-txt">中间区域连续拉伸，填充剩余空间</span><i class="ar-dots"></i><span class="ar-r">→</span>
+              </p>
+            </div>
+
+            <!-- 轨 03：弹性分栏 STRETCH（按模拟 vw 真像素 15px 排版并按舞台宽÷vw 等比缩放，实测单行字数） -->
+            <div class="track track-stretch">
+              <div class="track-hd">
+                <span class="th-title"><i class="sq-lime" aria-hidden="true"></i><b>弹性分栏</b><em lang="en">STRETCH</em></span>
+                <span class="th-note" id="t3-readout" lang="en">15px 真排 · 中栏 760px · 实测 49 字/行</span>
+                <div class="th-pills" role="group" aria-label="快捷分栏比例">
+                  <button type="button" class="mini-pill is-on" data-split="25,50,25" aria-pressed="true" lang="en">25 / 50 / 25</button>
+                  <button type="button" class="mini-pill" data-split="33,34,33" aria-pressed="false" lang="en">33.3% 均分</button>
+                </div>
+              </div>
+              <div class="stretch-viewport" id="stretch-viewport">
+                <div class="stretch-grid" id="stretch-grid" data-cols="3col">
+                  <div class="st-col st-l" id="st-l">
+                    <div class="st-head">
+                      <span class="st-ico" aria-hidden="true"><svg viewBox="0 0 18 18"><rect x="2" y="2" width="14" height="14" fill="#034846"/></svg></span>
+                      <b class="st-cap">目录导航 <em id="st-l-px" lang="en">380px</em></b>
+                    </div>
+                    <ul class="st-nav">
+                      <li>比例单位与换算</li>
+                      <li>弹性容器伸缩</li>
+                      <li>流式网格分栏</li>
+                      <li>上下限护栏</li>
+                    </ul>
+                  </div>
+                  <div class="st-col st-m" id="st-m">
+                    <div class="st-prose" id="st-m-prose">
+                      <span class="wcag-guide" id="wcag-guide" aria-hidden="true"><i lang="en">40字线</i></span>
+                      <div class="st-head">
+                        <span class="st-ico" aria-hidden="true"><svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="7.5" fill="#036966"/></svg></span>
+                        <b class="st-cap">正文主栏 <em id="st-m-px" lang="en">760px · 实测 49 字/行</em></b>
+                      </div>
+                      <p class="st-copy" id="st-m-copy">流体布局让页面像水一样顺着浏览器窗口的宽窄自由舒展，既不会在窄屏上多出横向滚动条，也不会在大屏上缩成孤零零的一小条。然而窗口从手机一路拉到超宽显示器，跨度往往达到四五倍，如果不给文字栏设下宽度护栏，单行字数就会越拉越长。读者顺着过长的句子扫到行尾，再回头寻找下一行开头时极易跳行或重读，阅读节奏很快就会被打散；反过来一旦窗口收得太窄，按死比例切出来的侧栏又会被压成细条，导航和正文双双挤成碎块。真正耐拉的流体页面，总是靠比例承接变化、靠护栏守住两端。</p>
+                    </div>
+                  </div>
+                  <div class="st-col st-r" id="st-r">
+                    <div class="st-head">
+                      <span class="st-ico" aria-hidden="true"><svg viewBox="0 0 18 18"><polygon points="9,2 17,16 1,16" fill="#034846"/></svg></span>
+                      <b class="st-cap">本页大纲 <em id="st-r-px" lang="en">380px</em></b>
+                    </div>
+                    <ul class="st-nav">
+                      <li>比例与弹力</li>
+                      <li>长行与串行</li>
+                      <li>窄屏与护栏</li>
+                      <li>视口实测</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 弹性右墙拖动手柄（perf.mjs 的 data-perf-drag 挂在这里，初始停在 84% 处，左右皆有拖动行程） -->
+            <button
+              type="button"
+              class="wall-handle"
+              id="wall-handle"
+              data-perf-drag
+              role="slider"
+              aria-orientation="horizontal"
+              aria-valuemin="320"
+              aria-valuemax="1920"
+              aria-valuenow="1520"
+              aria-label="模拟视口右墙手柄：左右拖动或按方向键在 320 至 1920 像素间拉伸视口宽度"
+            >
+              <span class="wh-grip" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="wh-tag" aria-hidden="true">↔ 拖宽</span>
+            </button>
+          </div>
+
+          <!-- 视口右侧未占用的屏幕余白提示 -->
+          <div class="arena-slack" aria-hidden="true">
+            <span class="slack-arrow slack-full">← 拖右墙拉伸或收窄 →</span>
+            <span class="slack-arrow slack-short">← 拖 →</span>
+          </div>
+        </div>
+
+        <!-- 底部设备连续适配带（复刻海报底部 桌面····→平板····→手机） -->
+        <div class="device-strip" role="group" aria-label="常用视口宽度快捷锚点">
+          <button type="button" class="dev-btn" data-vw="360" aria-pressed="false">
+            <svg viewBox="0 0 22 26" aria-hidden="true"><rect x="4" y="2" width="14" height="22" rx="2.5"/><circle cx="11" cy="20.5" r="1.1"/></svg>
+            <span>手机 <em lang="en">360</em></span>
+          </button>
+          <span class="dev-trail" aria-hidden="true">····→</span>
+          <button type="button" class="dev-btn" data-vw="768" aria-pressed="false">
+            <svg viewBox="0 0 28 24" aria-hidden="true"><rect x="2" y="3" width="24" height="18" rx="2.2"/><circle cx="23" cy="12" r="1"/></svg>
+            <span>平板 <em lang="en">768</em></span>
+          </button>
+          <span class="dev-trail" aria-hidden="true">····→</span>
+          <button type="button" class="dev-btn" data-vw="1024" aria-pressed="false">
+            <svg viewBox="0 0 32 24" aria-hidden="true"><rect x="4" y="3" width="24" height="15" rx="1.8"/><path d="M1 20 H31"/></svg>
+            <span>笔记本 <em lang="en">1024</em></span>
+          </button>
+          <span class="dev-trail" aria-hidden="true">····→</span>
+          <button type="button" class="dev-btn" data-vw="1280" aria-pressed="false">
+            <svg viewBox="0 0 32 26" aria-hidden="true"><rect x="2" y="2" width="28" height="18" rx="2"/><path d="M12 20 V24 M20 20 V24 M9 24 H23"/></svg>
+            <span>桌面 <em lang="en">1280</em></span>
+          </button>
+          <span class="dev-trail" aria-hidden="true">····→</span>
+          <button type="button" class="dev-btn is-on" data-vw="1520" aria-pressed="true">
+            <svg viewBox="0 0 38 24" aria-hidden="true"><rect x="2" y="3" width="34" height="16" rx="2"/><path d="M14 19 V23 M24 19 V23 M11 23 H27"/></svg>
+            <span>超宽 <em lang="en">1520</em></span>
+          </button>
+        </div>
+
+        <!-- 实时「为什么」人眼诊断条 -->
+        <div class="bench-verdict" id="hero-verdict-box" aria-live="polite">
+          <p class="bv-lead" id="hero-verdict">50% 中栏飙到 760px，单行实测 49 个汉字（超出 WCAG 1.4.8（AAA 级）建议的 40 字）</p>
+          <p class="bv-why" id="hero-why">刚打开就撞上裸流体在大屏上的通病：15px 正文被拉成横贯全栏的长行，读到行尾再回扫下一行极易串行。向左拖酸柠绿右墙到 1024px 附近，或直接点上方「点此加护栏」锁住正文行宽。</p>
+        </div>
+        <p class="bench-tip">向左拖酸柠绿<b>右墙手柄</b>看 15px 真实段落重排，或拖轨 1 里的两条<b>白缝</b>重分比例；聚焦手柄按 <kbd>←</kbd> <kbd>→</kbd> 微调，按 <kbd>R</kbd> 复原。</p>
+      </div>
+    </div>
+
+    <!-- 海报底部连续白浪线与点阵过渡 -->
+    <div class="hero-wave-foot" aria-hidden="true">
+      <svg viewBox="0 0 1440 76" preserveAspectRatio="none">
+        <path d="M0 44 C120 12, 240 68, 360 36 C480 4, 600 66, 720 34 C840 2, 960 66, 1080 34 C1200 2, 1320 60, 1440 30 L1440 76 L0 76 Z" fill="#F4F7F6"/>
+        <path d="M0 44 C120 12, 240 68, 360 36 C480 4, 600 66, 720 34 C840 2, 960 66, 1080 34 C1200 2, 1320 60, 1440 30" stroke="#F4F7F6" stroke-width="5" fill="none"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ==================== 01 三条流律与百分比换算公式 ==================== -->
+  <section class="sec sec-paper" id="sec-1" aria-labelledby="s1">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="sec-no" lang="en">01</p>
+        <div class="sec-titles">
+          <h2 id="s1">三条流律与一道除法</h2>
+          <p class="sec-en" lang="en">Three fluid mechanics &amp; target ÷ context</p>
+        </div>
+      </header>
+
+      <p class="lead reveal">原海报把流体布局浓缩成三句极简口诀——先看原话，再把它翻译成浏览器里真正跑起来的数学规则。</p>
+
+      <div class="poster-pillars reveal">
+        <article class="pp-card">
+          <div class="pp-top"><span class="pp-dot pp-lime" aria-hidden="true"></span><h3>比例伸缩</h3><em lang="en">PERCENT</em></div>
+          <blockquote class="pp-quote">「按比例分配空间」</blockquote>
+          <p>不再写死「左栏 240px」，而是改写「左栏占父容器 25%」。只要父容器一变宽或变窄，三栏就按同一套比例同步膨胀或收缩，永远加起来正好 100%。</p>
+        </article>
+        <article class="pp-card">
+          <div class="pp-top"><span class="pp-dot pp-cyan" aria-hidden="true"></span><h3>随窗变化</h3><em lang="en">FLEX</em></div>
+          <blockquote class="pp-quote">「跟随窗口自由伸缩」</blockquote>
+          <p>当两侧需要稳住图标与菜单宽度时，把「伸缩权」集中交给中间主栏（<code lang="en">flex: 1</code> 或 <code lang="en">1fr</code>），让它像弹簧一样吞吐全部剩余空间。</p>
+        </article>
+        <article class="pp-card">
+          <div class="pp-top"><span class="pp-dot pp-ink" aria-hidden="true"></span><h3>连续适配</h3><em lang="en">STRETCH</em></div>
+          <blockquote class="pp-quote">「适配各种屏幕尺寸」<span class="gentle-tag">说满了一点</span></blockquote>
+          <p>纯百分比确实能做到「每 1 像素都不断档」，但它并不能单靠自己吃下所有屏幕：从 320px 手机到 2560px 超宽屏跨度高达 8 倍，没有下限会被压扁，没有上限会把正文拉成面条行。</p>
+        </article>
+      </div>
+
+      <!-- 互动实验 1：Ethan Marcotte (2009) target ÷ context = result 实时公式换算台 -->
+      <div class="lab-box lab-light reveal" id="formula-lab">
+        <div class="lab-hd">
+          <div>
+            <h3>把设计稿像素翻译成流体百分比</h3>
+            <p class="lab-sub">2009 年 Ethan Marcotte 在《Fluid Grids》里给出那道著名除法：<b>目标宽 ÷ 父容器宽 = 比例</b>。调下面三项设计稿参数，再切实测屏宽档位，看固定像素怎样变成精确的百分比 CSS。</p>
+          </div>
+          <div class="lab-presets" role="group" aria-label="常见设计稿宽度">
+            <button type="button" class="pill-btn" data-ctx="960" aria-pressed="false" lang="en">960px 稿</button>
+            <button type="button" class="pill-btn is-on" data-ctx="1200" aria-pressed="true" lang="en">1200px 稿</button>
+            <button type="button" class="pill-btn" data-ctx="1440" aria-pressed="false" lang="en">1440px 稿</button>
+          </div>
+        </div>
+
+        <div class="formula-grid">
+          <div class="formula-controls">
+            <label class="ctrl-row">
+              <span class="ctrl-lbl">父容器稿宽 <em lang="en">context</em></span>
+              <output class="ctrl-out" id="f-ctx-out" lang="en">1200px</output>
+              <input type="range" id="f-ctx" min="720" max="1600" step="20" value="1200">
+            </label>
+            <label class="ctrl-row">
+              <span class="ctrl-lbl">单侧栏目标宽 <em lang="en">target</em></span>
+              <output class="ctrl-out" id="f-side-out" lang="en">288px</output>
+              <input type="range" id="f-side" min="120" max="420" step="4" value="288">
+            </label>
+            <label class="ctrl-row">
+              <span class="ctrl-lbl">栏间距 <em lang="en">gutter</em></span>
+              <output class="ctrl-out" id="f-gut-out" lang="en">24px</output>
+              <input type="range" id="f-gut" min="0" max="48" step="4" value="24">
+            </label>
+            <div class="ctrl-test">
+              <div class="ctrl-test-hd">
+                <span class="ctrl-lbl">放进不同实测窗口验算</span>
+                <output class="ctrl-out" id="f-test-out" lang="en">900px</output>
+              </div>
+              <div class="test-chips" role="group" aria-label="实测窗口宽度档位">
+                <button type="button" class="test-chip" data-ftest="600" aria-pressed="false" lang="en">600px</button>
+                <button type="button" class="test-chip is-on" data-ftest="900" aria-pressed="true" lang="en">900px</button>
+                <button type="button" class="test-chip" data-ftest="1440" aria-pressed="false" lang="en">1440px</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="formula-stage">
+            <div class="eq-banner" id="f-eq" lang="en">288 ÷ 1200 = 24.00%</div>
+            <div class="f-visual" id="f-visual">
+              <div class="fv-col fv-side" id="fv-l"><b lang="en">24.0%</b><span id="fv-l-px" lang="en">216px</span></div>
+              <div class="fv-gap" id="fv-g1" aria-hidden="true"></div>
+              <div class="fv-col fv-mid" id="fv-m"><b lang="en">48.0%</b><span id="fv-m-px" lang="en">432px</span></div>
+              <div class="fv-gap" id="fv-g2" aria-hidden="true"></div>
+              <div class="fv-col fv-side" id="fv-r"><b lang="en">24.0%</b><span id="fv-r-px" lang="en">216px</span></div>
+            </div>
+            <pre class="code-strip" id="f-css" lang="en">.sidebar { width: 24.00%; }  /* 288 ÷ 1200 */
+.main    { width: 48.00%; }  /* 576 ÷ 1200 */
+.gutter  { gap:    2.00%; }  /*  24 ÷ 1200 */</pre>
+            <p class="f-explain" id="f-explain">原稿 1200px 换成 900px 窗口时，三栏和栏距全部按 0.75× 等比收缩，整行总和依然精确咬合 100%，不会多出 1 像素横向滚动条。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 四条宽度的脾气：固定 / 纯流体 / 自适应 / 响应式 ==================== -->
+  <section class="sec sec-teal" id="sec-2" aria-labelledby="s2">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="sec-no" lang="en">02</p>
+        <div class="sec-titles">
+          <h2 id="s2">四种宽度，别混为一谈</h2>
+          <p class="sec-en" lang="en">Fluid vs fixed, adaptive &amp; responsive</p>
+        </div>
+      </header>
+
+      <p class="lead reveal">网页排版的四种宽度哲学经常被混着叫。点五档设备按钮跳着对比，或按「自动扫屏」看同一扇窗口从 320px 一路滑到 1440px，四条赛道的脾气立刻分明。</p>
+
+      <!-- 互动实验 2：四轨同步宽度赛跑台（五档设备按钮 + 自动扫屏，不重复滑杆） -->
+      <div class="race-lab reveal" id="race-lab">
+        <div class="race-top">
+          <div class="race-read">
+            <span class="rr-lbl">同步实测窗口宽度</span>
+            <output class="rr-val" id="race-vw-val" lang="en">768PX</output>
+            <button type="button" class="r-play" id="race-play-btn" aria-pressed="false">▶ 自动扫屏</button>
+          </div>
+          <div class="race-presets" role="group" aria-label="四轨对比快捷窗宽">
+            <button type="button" class="r-pill" data-rvw="360" aria-pressed="false" lang="en">360</button>
+            <button type="button" class="r-pill" data-rvw="640" aria-pressed="false" lang="en">640</button>
+            <button type="button" class="r-pill is-on" data-rvw="768" aria-pressed="true" lang="en">768</button>
+            <button type="button" class="r-pill" data-rvw="1040" aria-pressed="false" lang="en">1040</button>
+            <button type="button" class="r-pill" data-rvw="1400" aria-pressed="false" lang="en">1400</button>
+          </div>
+        </div>
+
+        <div class="race-lanes">
+          <!-- 赛道 1：固定宽度 -->
+          <article class="lane" id="lane-fixed">
+            <div class="lane-hd">
+              <h3><b>01 固定宽度</b><span lang="en">FIXED · 960px</span></h3>
+              <span class="lane-tag" id="tag-fixed">溢出 192px</span>
+            </div>
+            <div class="lane-frame" id="frame-fixed">
+              <div class="lf-window" id="win-fixed">
+                <div class="lf-content lf-fixed-inner" id="inner-fixed">
+                  <i></i><i></i><i></i>
+                </div>
+              </div>
+            </div>
+            <p class="lane-note" id="note-fixed"></p>
+          </article>
+
+          <!-- 赛道 2：纯流体（本页主角） -->
+          <article class="lane lane-hero-pick" id="lane-fluid">
+            <div class="lane-hd">
+              <h3><b>02 纯流体（本页）</b><span lang="en">FLUID · 25/50/25%</span></h3>
+              <span class="lane-tag" id="tag-fluid">192 / 384 / 192px</span>
+            </div>
+            <div class="lane-frame" id="frame-fluid">
+              <div class="lf-window" id="win-fluid">
+                <div class="lf-content lf-fluid-inner">
+                  <i class="c-lime"></i><i class="c-paper"></i><i class="c-teal"></i>
+                </div>
+              </div>
+            </div>
+            <p class="lane-note" id="note-fluid"></p>
+          </article>
+
+          <!-- 赛道 3：自适应（离散档位） -->
+          <article class="lane" id="lane-adaptive">
+            <div class="lane-hd">
+              <h3><b>03 自适应</b><span lang="en">ADAPTIVE · 4 档跳变</span></h3>
+              <span class="lane-tag" id="tag-adaptive">停在 720px 档</span>
+            </div>
+            <div class="lane-frame" id="frame-adaptive">
+              <div class="lf-window" id="win-adaptive">
+                <div class="lf-content lf-adaptive-inner" id="inner-adaptive">
+                  <i></i><i></i>
+                </div>
+              </div>
+            </div>
+            <p class="lane-note" id="note-adaptive"></p>
+          </article>
+
+          <!-- 赛道 4：响应式（流体 + 断点重排） -->
+          <article class="lane" id="lane-responsive">
+            <div class="lane-hd">
+              <h3><b>04 响应式</b><span lang="en">RESPONSIVE · 流体+断点</span></h3>
+              <span class="lane-tag" id="tag-responsive">2 栏流体</span>
+            </div>
+            <div class="lane-frame" id="frame-responsive">
+              <div class="lf-window" id="win-responsive">
+                <div class="lf-content lf-resp-inner" id="inner-responsive" data-cols="2">
+                  <i class="c-lime"></i><i class="c-paper"></i><i class="c-teal"></i>
+                </div>
+              </div>
+            </div>
+            <p class="lane-note" id="note-responsive"></p>
+          </article>
+        </div>
+      </div>
+
+      <p class="sibling-note reveal">
+        这四套策略和它们的近亲各有专页：锁死像素版心见 <a href="https://layout.xiaoxiaodong.ai/238/play/" target="_blank" rel="noopener">固定宽度布局（No. 238）</a>；靠媒体查询在不同断点切换结构见 <a href="https://layout.xiaoxiaodong.ai/240/play/" target="_blank" rel="noopener">响应式布局（No. 240）</a>；按设备档位切固定模板见 <a href="https://layout.xiaoxiaodong.ai/241/play/" target="_blank" rel="noopener">自适应布局（No. 241）</a>；让单个卡片跟着自己父盒而非整扇窗口伸缩见 <a href="https://layout.xiaoxiaodong.ai/242/play/" target="_blank" rel="noopener">容器查询布局（No. 242）</a>。一句话分清：<b>流体管「连续伸缩」，响应式是在流体之上再加「断点变阵」。</b>
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================== 03 从哪来：网页天生就是液体 ==================== -->
+  <section class="sec sec-paper" id="sec-3" aria-labelledby="s3">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="sec-no" lang="en">03</p>
+        <div class="sec-titles">
+          <h2 id="s3">从哪来：网页天生是液体</h2>
+          <p class="sec-en" lang="en">Where fluid layout came from</p>
+        </div>
+      </header>
+
+      <div class="origin-split reveal">
+        <div class="origin-lead">
+          <p class="lead">流体布局并不是后来发明的奇技淫巧——恰恰相反，它是网页被发明出来的第一天就自带的本性。</p>
+          <p>纸张有裁切死的四条边，浏览器窗口却没有。最早的 HTML 文档放进任何尺寸的显示器里，段落都会顺着窗口自动重新折行，这就是 <a href="https://layout.xiaoxiaodong.ai/222/play/" target="_blank" rel="noopener">普通流布局（No. 222）</a> 与生俱来的流动性。后来九十年代设计师试图用表格把网页钉死成印刷海报，行业才不得不重新找回「让页面像水一样跟着容器走」的方法。</p>
+          <div class="origin-card" aria-label="网页宽度观念三次演进">
+            <p class="oc-kicker" lang="en">THREE ERAS OF WIDTH</p>
+            <div class="oc-row">
+              <span class="oc-yr" lang="en">1990s</span>
+              <span class="oc-bar"><i class="oc-seg-fixed"></i></span>
+              <span class="oc-lbl">表格钉死像素</span>
+            </div>
+            <div class="oc-row">
+              <span class="oc-yr" lang="en">2009–10</span>
+              <span class="oc-bar"><i class="oc-seg-fluid"></i></span>
+              <span class="oc-lbl">百分比 + 媒体查询</span>
+            </div>
+            <div class="oc-row">
+              <span class="oc-yr" lang="en">2018+</span>
+              <span class="oc-bar"><i class="oc-seg-clamp"></i></span>
+              <span class="oc-lbl">内生流体 + clamp 护栏</span>
+            </div>
+            <p class="oc-foot">从「控制像素」到「放手比例」，再到「给比例装上河岸」，二十年绕回的正是网页的液体本性。</p>
+          </div>
+        </div>
+
+        <ol class="timeline" aria-label="流体布局发展脉络">
+          <li>
+            <span class="tl-yr" lang="en">2000</span>
+            <div class="tl-body">
+              <h3>John Allsopp《A Dao of Web Design》</h3>
+              <p>2000 年 4 月 7 日发表于 <i>A List Apart</i>。文章直言网页设计师把印刷品「像素掌控欲」错搬到了屏幕上，提出应当顺应网页的可变性，用相对单位而非死像素去排版——这是流体与响应式思想最早的宣言。</p>
+            </div>
+          </li>
+          <li>
+            <span class="tl-yr" lang="en">2006</span>
+            <div class="tl-body">
+              <h3>Matthew Levine《In Search of the Holy Grail》</h3>
+              <p>2006 年 1 月 30 日发表于 <i>A List Apart</i>。它解决了当时最棘手的纯 CSS 难题：左右两栏固定宽度、中间主栏随窗连续拉伸（圣杯布局）——这正是 239 号海报中段「连续拉伸 FLEX」的工程前身。</p>
+            </div>
+          </li>
+          <li>
+            <span class="tl-yr" lang="en">2009</span>
+            <div class="tl-body">
+              <h3>Ethan Marcotte《Fluid Grids》</h3>
+              <p>2009 年 3 月 3 日发表于 <i>A List Apart</i>。Marcotte 用极简的 <code lang="en">target ÷ context = result</code> 证明：固定网格里的每一栏和每一道栏距，都能精确换算成百分比流体网格，而不必牺牲版面比例。</p>
+            </div>
+          </li>
+          <li>
+            <span class="tl-yr" lang="en">2010</span>
+            <div class="tl-body">
+              <h3>Ethan Marcotte《Responsive Web Design》</h3>
+              <p>2010 年 5 月 25 日，Marcotte 把「流体网格」放在响应式设计三大支柱的第一位，再加上弹性图片与 CSS 媒体查询，让流体布局从此长出了跨断点变阵的能力。</p>
+            </div>
+          </li>
+          <li>
+            <span class="tl-yr" lang="en">2018+</span>
+            <div class="tl-body">
+              <h3>Jen Simmons「Intrinsic Web Design」与 CSS 数学护栏</h3>
+              <p>2018 年 Jen Simmons 提出结合 <a href="https://layout.xiaoxiaodong.ai/226/play/" target="_blank" rel="noopener">弹性盒（No. 226）</a>、<a href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">网格（No. 227）</a> 与 <code lang="en">fr</code>、<code lang="en">minmax()</code> 的「内生网页设计」；随后 2020 年 <code lang="en">clamp()</code> 落地主流浏览器，一栏定、一栏流、两端自带上下限护栏，让流体布局真正成熟。</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 给流体装上护栏：clamp() 平—斜—平曲线图 ==================== -->
+  <section class="sec sec-ink" id="sec-4" aria-labelledby="s4">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="sec-no" lang="en">04</p>
+        <div class="sec-titles">
+          <h2 id="s4">给流体装上护栏</h2>
+          <p class="sec-en" lang="en">clamp(min, val, max) · flat-slope-flat transfer curve</p>
+        </div>
+      </header>
+
+      <p class="lead reveal">纯百分比的栏宽随窗口是一条没有尽头的直线（虚线）。现代 CSS 的 <code lang="en">clamp(下限, 流体值, 上限)</code> 把这条直线掰成<b>「平 — 斜 — 平」三段</b>：直接拖动曲线上的两个拐点，看栏宽究竟在哪个窗宽处停止缩小、又在哪个窗宽处停止拉长。</p>
+
+      <!-- 互动实验 3：clamp()「平—斜—平」交互函数曲线图 -->
+      <div class="clamp-lab reveal" id="clamp-lab">
+        <div class="cl-bar">
+          <div class="cl-presets" role="group" aria-label="三种常见流体元素斜率">
+            <button type="button" class="g-btn is-on" data-cpreset="prose" aria-pressed="true">正文主栏 <em lang="en">50vw</em></button>
+            <button type="button" class="g-btn" data-cpreset="card" aria-pressed="false">详情卡片 <em lang="en">35vw</em></button>
+            <button type="button" class="g-btn" data-cpreset="sidebar" aria-pressed="false">侧栏导航 <em lang="en">20vw</em></button>
+          </div>
+          <div class="cl-actions">
+            <code class="cl-css-inline" id="cl-css" lang="en">width: clamp(300px, 50vw, 570px);</code>
+            <button type="button" class="cl-reset" id="cl-reset-btn">复原拐点</button>
+          </div>
+        </div>
+
+        <div class="cl-plot-wrap">
+          <svg id="clamp-svg" class="clamp-svg" viewBox="0 0 800 340" role="img" aria-label="clamp 函数平斜平三段曲线图：横轴为窗口宽度，纵轴为元素栏宽，可拖动下限与上限两个拐点">
+            <!-- 背景三分区带 -->
+            <rect id="cz-min" x="64" y="38" width="120" height="254" fill="rgba(2, 167, 204, 0.14)"/>
+            <rect id="cz-slope" x="184" y="38" width="240" height="254" fill="rgba(195, 228, 31, 0.11)"/>
+            <rect id="cz-max" x="424" y="38" width="346" height="254" fill="rgba(2, 167, 204, 0.14)"/>
+
+            <!-- 网格与坐标轴（JS 填充刻度） -->
+            <g id="cl-grid" aria-hidden="true"></g>
+
+            <!-- WCAG 40 字参考线（仅正文主栏预设显示） -->
+            <g id="cl-wcag-ref" aria-hidden="true">
+              <line id="cl-wcag-line" x1="64" y1="110" x2="770" y2="110" stroke="#FF7B57" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.82"/>
+              <text id="cl-wcag-lbl" x="764" y="104" text-anchor="end" fill="#FF9475" font-size="11.5" font-family="JetBrains Mono, Noto Sans SC, monospace">WCAG 1.4.8（AAA）40字参考 ≈ 600px</text>
+            </g>
+
+            <!-- 三分区顶部文字标签 -->
+            <text id="cz-lbl-min" x="124" y="55" text-anchor="middle" fill="#68E1FA" font-size="12" font-weight="700">左平段 · 停止缩小</text>
+            <text id="cz-lbl-slope" x="304" y="55" text-anchor="middle" fill="#C3E41F" font-size="12" font-weight="700">流体斜坡 · 跟随窗口</text>
+            <text id="cz-lbl-max" x="596" y="55" text-anchor="middle" fill="#68E1FA" font-size="12" font-weight="700">右平段 · 停止拉长</text>
+
+            <!-- 纯裸流体无护栏直线（虚线对比） -->
+            <line id="cl-raw-ray" x1="64" y1="244" x2="770" y2="38" stroke="#FF7B57" stroke-width="2" stroke-dasharray="7 6" opacity="0.72"/>
+
+            <!-- 拐点到坐标轴的垂直/水平虚线引线 -->
+            <g id="cl-drops" aria-hidden="true">
+              <line id="cd-x1" x1="184" y1="201" x2="184" y2="292" stroke="#C3E41F" stroke-width="1.4" stroke-dasharray="4 4"/>
+              <line id="cd-y1" x1="64" y1="201" x2="184" y2="201" stroke="#68E1FA" stroke-width="1.2" stroke-dasharray="4 4"/>
+              <line id="cd-x2" x1="424" y1="120" x2="424" y2="292" stroke="#C3E41F" stroke-width="1.4" stroke-dasharray="4 4"/>
+              <line id="cd-y2" x1="64" y1="120" x2="424" y2="120" stroke="#68E1FA" stroke-width="1.2" stroke-dasharray="4 4"/>
+            </g>
+
+            <!-- 平—斜—平三段主曲线 -->
+            <line id="cl-seg-min" x1="64" y1="201" x2="184" y2="201" stroke="#22D3EE" stroke-width="4.5" stroke-linecap="round"/>
+            <line id="cl-seg-slope" x1="184" y1="201" x2="424" y2="120" stroke="#C3E41F" stroke-width="5" stroke-linecap="round"/>
+            <line id="cl-seg-max" x1="424" y1="120" x2="770" y2="120" stroke="#22D3EE" stroke-width="4.5" stroke-linecap="round"/>
+
+            <!-- 悬停/点击读数探针（默认隐藏） -->
+            <g id="cl-probe" visibility="hidden" pointer-events="none">
+              <line id="cp-line" x1="300" y1="38" x2="300" y2="292" stroke="rgba(244,247,246,0.55)" stroke-width="1.2" stroke-dasharray="3 3"/>
+              <circle id="cp-dot" cx="300" cy="160" r="5" fill="#F4F7F6" stroke="#0D1517" stroke-width="2"/>
+            </g>
+
+            <!-- 轴上拐点高亮数值胶囊 -->
+            <g id="cl-axis-badges" aria-hidden="true">
+              <rect id="cb-x1-bg" x="156" y="296" width="56" height="20" rx="3" fill="#C3E41F"/>
+              <text id="cb-x1-txt" x="184" y="310" text-anchor="middle" fill="#0D1517" font-size="11.5" font-weight="700" font-family="JetBrains Mono, monospace">600px</text>
+              <rect id="cb-x2-bg" x="394" y="296" width="60" height="20" rx="3" fill="#C3E41F"/>
+              <text id="cb-x2-txt" x="424" y="310" text-anchor="middle" fill="#0D1517" font-size="11.5" font-weight="700" font-family="JetBrains Mono, monospace">1140px</text>
+              <rect id="cb-y1-bg" x="6" y="191" width="52" height="20" rx="3" fill="#22D3EE"/>
+              <text id="cb-y1-txt" x="32" y="205" text-anchor="middle" fill="#0D1517" font-size="11.5" font-weight="700" font-family="JetBrains Mono, monospace">300px</text>
+              <rect id="cb-y2-bg" x="6" y="110" width="52" height="20" rx="3" fill="#22D3EE"/>
+              <text id="cb-y2-txt" x="32" y="124" text-anchor="middle" fill="#0D1517" font-size="11.5" font-weight="700" font-family="JetBrains Mono, monospace">570px</text>
+            </g>
+
+            <!-- 两个可拖动的拐点手柄（支持鼠标、触屏与方向键） -->
+            <g class="clamp-knot" id="clamp-knot-min" role="slider" tabindex="0" aria-label="下限拐点：拖动或按方向键调整 clamp 下限像素" aria-valuemin="180" aria-valuemax="520" aria-valuenow="300">
+              <circle class="ck-hit" cx="184" cy="201" r="24" fill="transparent"/>
+              <circle class="ck-ring" cx="184" cy="201" r="11" fill="#0D1517" stroke="#C3E41F" stroke-width="3.5"/>
+              <circle class="ck-core" cx="184" cy="201" r="4" fill="#C3E41F"/>
+              <g id="ck-min-tag" pointer-events="none">
+                <rect x="196" y="209" width="84" height="22" rx="3" fill="#0D1517" stroke="#C3E41F" stroke-width="1.2"/>
+                <text x="238" y="224" text-anchor="middle" fill="#C3E41F" font-size="11.5" font-weight="700" font-family="JetBrains Mono, Noto Sans SC, monospace">下限 300px</text>
+              </g>
+            </g>
+
+            <g class="clamp-knot" id="clamp-knot-max" role="slider" tabindex="0" aria-label="上限拐点：拖动或按方向键调整 clamp 上限像素" aria-valuemin="320" aria-valuemax="780" aria-valuenow="570">
+              <circle class="ck-hit" cx="424" cy="120" r="24" fill="transparent"/>
+              <circle class="ck-ring" cx="424" cy="120" r="11" fill="#0D1517" stroke="#22D3EE" stroke-width="3.5"/>
+              <circle class="ck-core" cx="424" cy="120" r="4" fill="#22D3EE"/>
+              <g id="ck-max-tag" pointer-events="none">
+                <rect x="330" y="88" width="84" height="22" rx="3" fill="#0D1517" stroke="#22D3EE" stroke-width="1.2"/>
+                <text x="372" y="103" text-anchor="middle" fill="#68E1FA" font-size="11.5" font-weight="700" font-family="JetBrains Mono, Noto Sans SC, monospace">上限 570px</text>
+              </g>
+            </g>
+
+            <!-- 轴标题与右上虚线图例（完全避开三分区带文字） -->
+            <text x="64" y="24" fill="rgba(244,247,246,0.88)" font-size="12" font-weight="700">栏宽 (px)</text>
+            <g aria-hidden="true">
+              <line x1="644" y1="20" x2="672" y2="20" stroke="#FF7B57" stroke-width="2" stroke-dasharray="6 4"/>
+              <text id="cl-raw-lbl" x="770" y="24" text-anchor="end" fill="#FF9475" font-size="11.5" font-family="JetBrains Mono, Noto Sans SC, monospace">无护栏 50vw</text>
+            </g>
+            <text x="770" y="332" text-anchor="end" fill="rgba(244,247,246,0.88)" font-size="12" font-weight="700">窗口宽度 vw (px)</text>
+          </svg>
+        </div>
+
+        <div class="cl-readouts">
+          <div class="cl-card">
+            <span class="cl-k">下限拐点（停止缩小）</span>
+            <b class="cl-v" id="cl-x1-out" lang="en">vw = 600px → 300px</b>
+            <p class="cl-sub" id="cl-x1-sub">300 ÷ 50% = 600px</p>
+          </div>
+          <div class="cl-card cl-card-mid">
+            <span class="cl-k">流体斜坡（连续跟随）</span>
+            <b class="cl-v" id="cl-span-out" lang="en">600 – 1140px（宽 540px）</b>
+            <p class="cl-sub" id="cl-probe-out">移到曲线上可查任意窗宽</p>
+          </div>
+          <div class="cl-card">
+            <span class="cl-k">上限拐点（停止拉长）</span>
+            <b class="cl-v" id="cl-x2-out" lang="en">vw = 1140px → 570px</b>
+            <p class="cl-sub" id="cl-x2-sub">570 ÷ 50% = 1140px</p>
+          </div>
+        </div>
+
+        <div class="cl-diag" aria-live="polite">
+          <span class="gl-status" id="cl-status">三段护栏生效</span>
+          <p id="cl-detail"></p>
+        </div>
+        <p class="cl-tip">拖曲线上的<b>青/绿圆点拐点</b>（或聚焦圆点按 <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd>）实时移动拐点位置；指针滑过坐标系可读出任意窗宽下的实算栏宽。</p>
+      </div>
+
+      <!-- 流体字号小注：clamp() 防止字号锁死放大 -->
+      <div class="tip-strip reveal">
+        <span class="ts-badge" lang="en">WCAG 1.4.4</span>
+        <p><b>流体字号的小陷阱：</b>用 <code lang="en">font-size: clamp(1rem, 0.85rem + 0.8vw, 1.35rem)</code> 让字号随窗微调时，中间的流体项务必混入 <code lang="en">rem</code>（不要只写纯 <code lang="en">2vw</code>）且收窄上下限比值——否则浏览器按 <code lang="en">Ctrl / Cmd +</code> 放大 200% 时，视口 CSS 宽度减半会把纯视口单位的增幅抵消掉；上线前仍需在 200% 缩放下实测。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 什么时候用，什么时候别用 + 反面教材急救箱 ==================== -->
+  <section class="sec sec-tint" id="sec-5" aria-labelledby="s5">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="sec-no" lang="en">05</p>
+        <div class="sec-titles">
+          <h2 id="s5">什么时候用，什么时候别用</h2>
+          <p class="sec-en" lang="en">When to flow — and when to hold back</p>
+        </div>
+      </header>
+
+      <div class="when-grid reveal">
+        <div class="when-col when-yes">
+          <h3><span class="w-mark" aria-hidden="true">✓</span> 这些地方，流体布局最好用</h3>
+          <ul>
+            <li><b>文档站、知识库与管理后台</b>——主内容区吃进剩余空间（<code lang="en">1fr</code>），大屏少翻页，窄屏不溢出。</li>
+            <li><b>图表画布、代码编辑器与地图工作台</b>——窗口越宽、视野越大，每一寸像素都是真实工作面积。</li>
+            <li><b>电商商品墙与素材流</b>——配合网格自动换列与百分比列宽，从平板到带鱼屏自然多排一列。</li>
+            <li><b>跨端 Web 应用（桌面分屏 / iPad 分屏）</b>——用户随时把窗口拉到任意奇怪宽度（比如 613px），没有固定档位能猜中，只能靠流体连续承接。</li>
+          </ul>
+        </div>
+        <div class="when-col when-no">
+          <h3><span class="w-mark" aria-hidden="true">×</span> 这些时候，千万别直接裸奔纯流体</h3>
+          <ul>
+            <li><b>长篇深度阅读直接 <code lang="en">width: 100%</code></b>——超宽屏一行飙到六七十字，眼球来回扫读极易疲惫、换行串行。</li>
+            <li><b>含固定宽度表单、日期选择器的侧栏写死 <code lang="en">20%</code></b>——屏幕一窄就压穿控件最小宽度，按钮文字被挤成竖条。</li>
+            <li><b>强构图海报、杂志跨页或精准图文对齐</b>——窗口拉长 10% 就会把原本算好的留白与对齐彻底扯松，更适合受控的 <a href="https://layout.xiaoxiaodong.ai/238/play/" target="_blank" rel="noopener">固定宽度（No. 238）</a> 或 <a href="https://layout.xiaoxiaodong.ai/229/play/" target="_blank" rel="noopener">多栏布局（No. 229）</a>。</li>
+            <li><b>密集财务报表与多列数据表</b>——强行把 12 列塞进窄屏百分比里，数字会互相撞车截断；应保列宽并允许表格局部横向滚动。</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 互动实验 4：反面教材急救箱（点一下看一行 CSS 如何把裸流体救回来） -->
+      <div class="rescue-box reveal" id="rescue-box" data-case="noodle" data-fixed="0">
+        <div class="rb-top">
+          <div>
+            <h3>反面教材急救箱</h3>
+            <p class="rb-sub">点三种最常见的裸流体事故，再按「看修复写法」对比一行 CSS 怎样把它救活。</p>
+          </div>
+          <div class="rb-tabs" role="group" aria-label="三种裸流体事故案例">
+            <button type="button" class="rb-tab is-on" data-rcase="noodle" aria-pressed="true">① 超宽面条行</button>
+            <button type="button" class="rb-tab" data-rcase="crush" aria-pressed="false">② 窄屏压扁侧栏</button>
+            <button type="button" class="rb-tab" data-rcase="card" aria-pressed="false">③ 卡片拉成扁砖</button>
+          </div>
+        </div>
+
+        <div class="rb-stage">
+          <div class="rb-demo" id="rb-demo">
+            <!-- 由 JS 渲染三个真实 DOM 事故 vs 急救形态 -->
+          </div>
+          <div class="rb-bar">
+            <code class="rb-css" id="rb-css" lang="en">.article { width: 100%; } /* 事故：1440px 下单行超 75 字 */</code>
+            <button type="button" class="rb-fix-btn" id="rb-fix-btn" aria-pressed="false">看修复写法 →</button>
+          </div>
+          <p class="rb-note" id="rb-note" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 流体图片与比例锁：容器能流，图形不能歪 ==================== -->
+  <section class="sec sec-paper" id="sec-6" aria-labelledby="s6">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="sec-no" lang="en">06</p>
+        <div class="sec-titles">
+          <h2 id="s6">容器能流，图不能歪</h2>
+          <p class="sec-en" lang="en">Fluid boxes vs aspect-locked media</p>
+        </div>
+      </header>
+
+      <p class="lead reveal">流体布局里最容易翻车的细节，是把「宽度设成 100%」和「高度写死像素」混在一起用——框是跟着窗口流了，里面的圆却被扯成了椭圆。拖动容器宽度，对比三种图片缩放策略。</p>
+
+      <div class="media-lab reveal" id="media-lab" data-mmode="stretch">
+        <div class="ml-top">
+          <div class="ml-modes" role="group" aria-label="三种流体图片处理方式">
+            <button type="button" class="pill-btn is-on" data-mmode="stretch" aria-pressed="true">× 宽 100% + 定高（拉歪）</button>
+            <button type="button" class="pill-btn" data-mmode="auto" aria-pressed="false">✓ 等比随窗 <em lang="en">height: auto</em></button>
+            <button type="button" class="pill-btn" data-mmode="cover" aria-pressed="false">✓ 锁画幅裁切 <em lang="en">aspect-ratio + cover</em></button>
+          </div>
+          <label class="ml-w">
+            <span>框宽</span>
+            <input type="range" id="ml-slider" min="220" max="760" step="10" value="620" aria-label="调整图片所在流体容器的宽度">
+            <output id="ml-w-out" lang="en">620px</output>
+          </label>
+        </div>
+
+        <div class="ml-arena">
+          <div class="ml-frame" id="ml-frame">
+            <!-- 纯几何海报标本图形：正圆 + 正方 + 对角尺，一拉歪立刻露馅 -->
+            <svg id="ml-svg" class="ml-svg" viewBox="0 0 400 225" preserveAspectRatio="none" aria-label="流体容器内正圆与正方形标尺图形">
+              <rect width="400" height="225" fill="#02A7CC"/>
+              <path d="M0 175 C80 140, 140 205, 220 170 C300 135, 340 190, 400 162 L400 225 L0 225 Z" fill="#036966"/>
+              <circle cx="140" cy="108" r="56" fill="#C3E41F"/>
+              <rect x="230" y="54" width="108" height="108" fill="#F4F7F6"/>
+              <circle cx="284" cy="108" r="24" fill="#0D1517"/>
+              <line x1="84" y1="108" x2="196" y2="108" stroke="#0D1517" stroke-width="2" stroke-dasharray="5 4"/>
+              <line x1="140" y1="52" x2="140" y2="164" stroke="#0D1517" stroke-width="2" stroke-dasharray="5 4"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="ml-verdict" aria-live="polite">
+          <code id="ml-css" lang="en">img { width: 100%; height: 150px; }</code>
+          <p id="ml-text">框宽 620px 而高度锁死 150px（宽高比 4.1:1），原图 16:9，里面的正圆和正方形被拉成椭圆和扁矩形——流体只该伸缩容器，绝不该扭曲图形比例。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 小练习：四套真实三栏流体 CSS 规则 ==================== -->
+  <section class="sec sec-teal" id="sec-7" aria-labelledby="s7">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="sec-no" lang="en">07</p>
+        <div class="sec-titles">
+          <h2 id="s7">练一练：哪套经得起拉窗？</h2>
+          <p class="sec-en" lang="en">Practice · pick the resilient three-column fluid rule</p>
+        </div>
+      </header>
+
+      <p class="lead reveal">场景：你要写一个<b>三栏技术文档站</b>的桌面与分屏样式（左目录 + 中正文 + 右大纲；低于 560px 已另做单栏收起）。读者会在 <b>680px 窄分屏</b>、<b>1024px 笔记本</b> 与 <b>1520px 超宽屏</b> 之间来回拖窗口。四套都是真实可用的 CSS 网格规则，选出唯一两端都不翻车的那一套。</p>
+
+      <div class="quiz-grid reveal" role="group" aria-label="四套三栏流体规则选项">
+        <button type="button" class="quiz-opt" data-opt="A" aria-pressed="false">
+          <span class="qo-key" lang="en">A</span>
+          <div class="qo-body">
+            <b><code lang="en">22% 56% 22%</code> · 正文 <code lang="en">width: 100%</code></b>
+            <p>三栏按比例随窗口连续缩放，正文填满中间主栏。</p>
+            <span class="qo-mini" aria-hidden="true"><i style="width:22%" class="c-lime"></i><i style="width:56%" class="c-paper"></i><i style="width:22%" class="c-teal"></i></span>
+          </div>
+        </button>
+
+        <button type="button" class="quiz-opt" data-opt="B" aria-pressed="false">
+          <span class="qo-key" lang="en">B</span>
+          <div class="qo-body">
+            <b><code lang="en">220px 1fr 220px</code> · 正文 <code lang="en">max-width: 38em</code></b>
+            <p>两翼定宽 220px，中栏用 1fr 吸收余量，正文行宽封顶 38em。</p>
+            <span class="qo-mini" aria-hidden="true"><i style="width:24%" class="c-lime"></i><i style="width:52%" class="c-paper"></i><i style="width:24%" class="c-lime"></i></span>
+          </div>
+        </button>
+
+        <button type="button" class="quiz-opt" data-opt="C" aria-pressed="false">
+          <span class="qo-key" lang="en">C</span>
+          <div class="qo-body">
+            <b><code lang="en">clamp()</code> 两翼 + <code lang="en">1fr</code> · 正文 <code lang="en">max-width: 38em</code></b>
+            <p>左翼 160–220px、右翼 150–200px 弹性滑动，中栏 1fr，正文封顶 38em。</p>
+            <span class="qo-mini" aria-hidden="true"><i style="width:20%" class="c-lime"></i><i style="width:60%" class="c-paper"></i><i style="width:20%" class="c-lime"></i></span>
+          </div>
+        </button>
+
+        <button type="button" class="quiz-opt" data-opt="D" aria-pressed="false">
+          <span class="qo-key" lang="en">D</span>
+          <div class="qo-body">
+            <b><code lang="en">clamp()</code> 两翼 + <code lang="en">1fr</code> · 正文 <code lang="en">width: 100%</code></b>
+            <p>左翼 160–220px、右翼 150–200px 弹性滑动，中栏 1fr，正文填满主栏。</p>
+            <span class="qo-mini" aria-hidden="true"><i style="width:20%" class="c-lime"></i><i style="width:60%" class="c-paper"></i><i style="width:20%" class="c-lime"></i></span>
+          </div>
+        </button>
+      </div>
+
+      <div class="quiz-verdict" id="quiz-verdict" aria-live="polite" data-state="idle">
+        <p class="qv-title" id="qv-title">选一套规则，用 680px、1024px 和 1520px 三把尺子现场验算。</p>
+        <p class="qv-body" id="qv-body">四套方案在 1024px 笔记本上都能看，差别藏在 680px 窄分屏和 1520px 超宽屏两端。</p>
+        <dl class="qv-tri" id="qv-tri" hidden>
+          <div><dt lang="en">680px 窄分屏</dt><dd id="qv-680"></dd></div>
+          <div><dt lang="en">1024px 笔记本</dt><dd id="qv-1024"></dd></div>
+          <div><dt lang="en">1520px 超宽屏</dt><dd id="qv-1520"></dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 08 原海报与关键词 ==================== -->
+  <section class="sec sec-cyan" id="sec-8" aria-labelledby="s8">
+    <div class="wrap poster-layout">
+      <div class="poster-left">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">08</p>
+          <div class="sec-titles">
+            <h2 id="s8">原海报与关键词</h2>
+            <p class="sec-en" lang="en">The original poster · No. 239</p>
+          </div>
+        </header>
+
+        <div class="kw-list">
+          <article class="kw-item reveal">
+            <svg viewBox="0 0 56 36" aria-hidden="true">
+              <rect x="2" y="6" width="13" height="24" rx="2" fill="#C3E41F"/>
+              <rect x="17" y="6" width="22" height="24" rx="2" fill="#F4F7F6"/>
+              <rect x="41" y="6" width="13" height="24" rx="2" fill="#036966"/>
+            </svg>
+            <div>
+              <h3>百分比宽度 <em lang="en">PERCENT</em></h3>
+              <p>用相对比例取代死像素，让栏宽总和永远贴紧容器。</p>
+            </div>
+          </article>
+
+          <article class="kw-item reveal">
+            <svg viewBox="0 0 56 36" aria-hidden="true">
+              <rect x="2" y="6" width="10" height="24" rx="2" fill="#C3E41F"/>
+              <rect x="14" y="6" width="28" height="24" rx="2" fill="#F4F7F6"/>
+              <path d="M17 18 C21 11, 25 25, 29 18 C33 11, 37 25, 39 18" stroke="#036966" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+              <rect x="44" y="6" width="10" height="24" rx="2" fill="#C3E41F"/>
+            </svg>
+            <div>
+              <h3>连续拉伸 <em lang="en">FLEX</em></h3>
+              <p>固定侧翼稳住控件，把全部伸缩弹力交给中心主栏。</p>
+            </div>
+          </article>
+
+          <article class="kw-item reveal">
+            <svg viewBox="0 0 56 36" aria-hidden="true">
+              <rect x="2" y="4" width="16" height="12" rx="1.5" fill="#C3E41F"/>
+              <rect x="20" y="4" width="16" height="12" rx="1.5" fill="#F4F7F6"/>
+              <rect x="38" y="4" width="16" height="12" rx="1.5" fill="#C3E41F"/>
+              <rect x="2" y="20" width="12" height="12" rx="1.5" fill="#C3E41F"/>
+              <rect x="16" y="20" width="24" height="12" rx="1.5" fill="#F4F7F6"/>
+              <rect x="42" y="20" width="12" height="12" rx="1.5" fill="#C3E41F"/>
+            </svg>
+            <div>
+              <h3>弹性分栏 <em lang="en">STRETCH</em></h3>
+              <p>配合上下限护栏与行宽封顶，才算真正从宽屏一路流到小屏。</p>
+            </div>
+          </article>
+        </div>
+        <p class="kw-sum reveal">记住一句话：<b>流体负责每一像素的顺滑，护栏负责两端的体面。</b></p>
+      </div>
+
+      <figure class="poster-card reveal">
+        <button type="button" class="poster-btn" id="poster-btn" aria-label="点击放大查看 239 号流体布局原海报">
+          <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="流体布局原海报：青蓝底色配酸柠绿液滴与白色浪线，下方三条深墨标题带依次展示百分比宽度（25%/50%/25%）、连续拉伸（中间波浪主栏）与弹性分栏（25/50/25 与 33.3% 均分）及桌面至手机连续适配图标。">
+        </button>
+        <figcaption>点按放大原海报 · 支持缩放、拖动与 Esc 关闭</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<!-- 原海报放大查看器 -->
+<dialog id="viewer" aria-label="原海报大图查看器">
+  <div class="viewer-bar">
+    <span class="viewer-title"><em lang="en">No. 239</em> 流体布局 · 原海报</span>
+    <div class="viewer-tools">
+      <button type="button" class="v-btn" id="zoom-out" aria-label="缩小海报">−</button>
+      <output id="zoom-val" lang="en">100%</output>
+      <button type="button" class="v-btn" id="zoom-in" aria-label="放大海报">+</button>
+      <button type="button" class="v-btn" id="zoom-reset">复原</button>
+      <button type="button" class="v-btn v-close" id="viewer-close">关闭</button>
+    </div>
+  </div>
+  <div class="viewer-scroll" id="viewer-scroll" tabindex="0" aria-label="海报大图区域，可鼠标拖动平移">
+    <img id="viewer-img" draggable="false" alt="流体布局原海报大图">
+  </div>
+</dialog>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p class="foot-brand"><span class="foot-no" lang="en">No. 239</span> 流体布局 · 350 种排版</p>
+    <p class="foot-links">
+      <a href="https://layout.xiaoxiaodong.ai/239/play/" target="_blank" rel="noopener">在线版</a>
+      <span class="sep">/</span>
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      <span>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a></span>
+      <span class="sep">·</span>
+      <span>源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></span>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
