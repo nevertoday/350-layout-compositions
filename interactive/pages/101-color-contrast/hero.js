@@ -1,8 +1,8 @@
-// 开场主角玩具：原海报「分色双圆色彩对比仪」的互动 2D 画布实现
+// 开场主角玩具：原海报「分色大圆 + 0–180° 色相轨 + 面积分缝 + 抽灰实测」2D 画布实现
 // 遵循 lib/stage.js 节电规范（离屏/后台自动停帧、pixelRatio<=2、reducedMotion 一帧到位）
 
 import { loop, pixelRatio, reducedMotion } from "../../lib/stage.js";
-import { bestInkOn, clamp, computeHeroColors, lerp, POSTER, rgbCss, SNAP_ANGLES } from "./color.js";
+import { bestInkOn, clamp, computeHeroColors, hexToRgb, lerp, POSTER, rgbToHex, simulateVision, SNAP_ANGLES } from "./color.js";
 
 const smooth = (t) => {
   const x = clamp(t, 0, 1);
@@ -11,43 +11,48 @@ const smooth = (t) => {
 
 export function createHero(canvas, stageEl, state, onLayout) {
   const ctx = canvas.getContext("2d");
-  let w = 520;
+  let w = 480;
   let h = 440;
   let dpr = 1;
 
-  // 开场缓动：先从 108° 青绿对比滑向正中央 180° 海报蓝橙互补，每一刻都饱满清晰
+  // 开场缓动：先从 112° 青绿对比滑向 180° 原海报经典蓝橙互补，每一刻都饱满清晰
   let enter = reducedMotion.matches ? 1 : 0;
-  let dispDelta = reducedMotion.matches ? state.delta : 108;
-  let dispSat = state.sat;
+  let dispDelta = reducedMotion.matches ? state.delta : 112;
+  let dispSatL = state.satLeft;
+  let dispSatR = state.satRight;
+  let dispSpread = state.lumSpread;
   let dispRatio = state.ratio;
-  let dispMono = state.mono ? 1 : 0;
 
-  let geom = { cx: 260, cy: 195, R: 120, orbitR: 152, x0: 48, x1: 472, ty: 392 };
+  let geom = { cx: 240, cy: 190, R: 120, orbitR: 150, x0: 44, x1: 436, ty: 386, barY: 270 };
   let dirty = true;
   let lastLayoutKey = "";
+  let cachedGray = null;
   const bgCanvas = document.createElement("canvas");
   const bgCtx = bgCanvas.getContext("2d");
 
-  function buildStaticLayer() {
+  function trackStopColor(hex, gray) {
+    return gray ? rgbToHex(simulateVision(hexToRgb(hex), "gray")) : hex;
+  }
+
+  function buildStaticLayer(gray) {
     const { cx, cy, orbitR, x0, x1, ty } = computeGeom();
     bgCanvas.width = canvas.width;
     bgCanvas.height = canvas.height;
     bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    // 温暖纸底（忠实还原 101 海报 #f7f0e5）
-    bgCtx.fillStyle = POSTER.paper;
-    bgCtx.fillRect(0, 0, w, h);
+    // 透明纸底（让海报纸色与 6 条 SVG 虚线引线无缝穿透至外圈虚线轨道）
+    bgCtx.clearRect(0, 0, w, h);
 
     // 十字虚线轴与外围同心虚线轨道圆
     bgCtx.save();
-    bgCtx.strokeStyle = "rgba(16, 16, 14, 0.24)";
+    bgCtx.strokeStyle = "rgba(16, 16, 14, 0.26)";
     bgCtx.lineWidth = 1;
     bgCtx.setLineDash([4, 4]);
     bgCtx.beginPath();
     bgCtx.moveTo(cx, cy - orbitR - 14);
-    bgCtx.lineTo(cx, cy + orbitR + 14);
-    bgCtx.moveTo(cx - orbitR - 22, cy);
-    bgCtx.lineTo(cx + orbitR + 22, cy);
+    bgCtx.lineTo(cx, cy + orbitR + 12);
+    bgCtx.moveTo(cx - orbitR - 20, cy);
+    bgCtx.lineTo(cx + orbitR + 20, cy);
     bgCtx.stroke();
 
     bgCtx.beginPath();
@@ -56,7 +61,7 @@ export function createHero(canvas, stageEl, state, onLayout) {
     bgCtx.stroke();
     bgCtx.setLineDash([]);
 
-    // 12 色轮刻度短线
+    // 12 色轮细刻度
     bgCtx.strokeStyle = "rgba(16, 16, 14, 0.22)";
     bgCtx.lineWidth = 1;
     for (let i = 0; i < 12; i++) {
@@ -67,13 +72,13 @@ export function createHero(canvas, stageEl, state, onLayout) {
       bgCtx.stroke();
     }
 
-    // 底部全色轮 360° 刻度轨道
+    // 底部 0°–180° 单向色相夹角轨道（无重复后半段！）
     const grad = bgCtx.createLinearGradient(x0, ty, x1, ty);
-    grad.addColorStop(0, POSTER.blue);
-    grad.addColorStop(0.25, "#19a95b");
-    grad.addColorStop(0.5, POSTER.orange);
-    grad.addColorStop(0.75, "#c929a8");
-    grad.addColorStop(1, POSTER.blue);
+    grad.addColorStop(0, trackStopColor(POSTER.blue, gray));
+    grad.addColorStop(0.28, trackStopColor("#0e8ed5", gray));
+    grad.addColorStop(0.52, trackStopColor("#19a95b", gray));
+    grad.addColorStop(0.76, trackStopColor("#e2a400", gray));
+    grad.addColorStop(1, trackStopColor(POSTER.orange, gray));
     bgCtx.strokeStyle = grad;
     bgCtx.lineWidth = 4;
     bgCtx.lineCap = "round";
@@ -83,31 +88,35 @@ export function createHero(canvas, stageEl, state, onLayout) {
     bgCtx.stroke();
 
     for (const deg of SNAP_ANGLES) {
-      const tx = lerp(x0, x1, deg / 360);
-      bgCtx.strokeStyle = deg === 180 ? "rgba(16, 16, 14, 0.55)" : "rgba(16, 16, 14, 0.30)";
-      bgCtx.lineWidth = deg === 180 ? 1.5 : 1;
+      const tx = lerp(x0, x1, deg / 180);
+      const major = deg === 0 || deg === 90 || deg === 180;
+      bgCtx.strokeStyle = major ? "rgba(16, 16, 14, 0.52)" : "rgba(16, 16, 14, 0.26)";
+      bgCtx.lineWidth = major ? 1.4 : 1;
       bgCtx.beginPath();
-      bgCtx.moveTo(tx, ty - 8);
-      bgCtx.lineTo(tx, ty + 8);
+      bgCtx.moveTo(tx, ty - (major ? 8 : 5));
+      bgCtx.lineTo(tx, ty + (major ? 8 : 5));
       bgCtx.stroke();
     }
 
-    // 轨道小字刻度（放在手柄底缘下方留足 4px 空隙）
+    // 轨道刻度标注（细体等宽 Space Mono + Noto Sans SC）
+    const lblOff = w <= 420 ? 29 : 30;
     bgCtx.fillStyle = POSTER.inkSoft;
-    bgCtx.font = `600 10.5px "JetBrains Mono", "Noto Sans SC", sans-serif`;
+    bgCtx.font = `400 10.5px "Space Mono", "Noto Sans SC", monospace`;
     bgCtx.textAlign = "left";
-    bgCtx.fillText("0° 同色", x0, ty + 38);
+    bgCtx.fillText("0° 同色", x0, ty + lblOff);
     bgCtx.textAlign = "center";
-    bgCtx.fillText("180° 正互补", (x0 + x1) * 0.5, ty + 38);
+    bgCtx.fillText("90° 中度", (x0 + x1) * 0.5, ty + lblOff);
     bgCtx.textAlign = "right";
-    bgCtx.fillText("360° 同色", x1, ty + 38);
+    bgCtx.fillText("180° 正互补", x1, ty + lblOff);
     bgCtx.restore();
+
+    cachedGray = gray;
   }
 
   function resize() {
     const r = stageEl.getBoundingClientRect();
     w = Math.max(260, Math.round(r.width));
-    h = Math.max(260, Math.round(r.height));
+    h = Math.max(240, Math.round(r.height));
     dpr = pixelRatio(w <= 520 ? 1.5 : 2);
     const cw = Math.round(w * dpr);
     const ch = Math.round(h * dpr);
@@ -115,50 +124,57 @@ export function createHero(canvas, stageEl, state, onLayout) {
       canvas.width = cw;
       canvas.height = ch;
     }
-    buildStaticLayer();
+    buildStaticLayer(!!state.gray);
     dirty = true;
   }
 
   function computeGeom() {
-    const topPad = 42;
-    const trackSpace = 90;
+    const narrow = w <= 420;
+    const topPad = narrow ? 12 : 20;
+    const trackSpace = narrow ? 68 : 78;
     const availH = Math.max(150, h - topPad - trackSpace);
-    const availW = Math.max(200, w - 36);
-    const maxR = Math.min(availW * 0.34, availH * 0.385);
-    const R = clamp(maxR, 62, 154);
+    const availW = Math.max(200, w - (narrow ? 16 : 24));
+    const maxR = Math.min(availW * 0.35, availH * 0.39);
+    const R = clamp(maxR, 62, 150);
     const orbitR = R * 1.24;
     const cx = w * 0.5;
     const cy = topPad + availH * 0.5;
-    const padX = Math.max(38, Math.min(w * 0.11, 64));
+    const padX = Math.max(26, Math.min(w * 0.09, 52));
     const x0 = padX;
     const x1 = w - padX;
-    const ty = h - 50;
-    geom = { cx, cy, R, orbitR, x0, x1, ty };
+    const ty = h - (narrow ? 39 : 44);
+    const barH = Math.max(14, R * 0.155);
+    const barY = cy + R * 0.65 + barH * 0.5;
+    geom = { cx, cy, R, orbitR, x0, x1, ty, barY };
     return geom;
   }
 
-  function drawScene(dNow, sNow, rNow, monoNow, ent) {
-    const { cx, cy, R, orbitR, x0, x1, ty } = computeGeom();
+  function drawScene(dNow, sLNow, sRNow, spNow, rNow, ent) {
+    if (cachedGray !== !!state.gray) buildStaticLayer(!!state.gray);
+
+    const { cx, cy, R, orbitR, x0, x1, ty, barY } = computeGeom();
     const colors = computeHeroColors({
       delta: dNow,
-      sat: sNow,
+      satLeft: sLNow,
+      satRight: sRNow,
+      lumSpread: spNow,
       ratio: rNow,
-      mono: monoNow > 0.5,
+      gray: state.gray,
     });
 
-    const colA = colors.hexA;
-    const colB = colors.hexB;
+    const colA = colors.dispHexA;
+    const colB = colors.dispHexB;
 
-    // 复用预渲染静态底图（纸底、十字虚线、轨道环、刻度与底部 360° 渐变轨），拖动时免重复光栅化文字
+    // 清空画布并复用预渲染静态底图
+    ctx.clearRect(0, 0, w, h);
     ctx.drawImage(bgCanvas, 0, 0, w, h);
 
-    // 分割线 x 坐标随面积比 rNow (15..85) 移动
-    // rNow = 50 -> splitX = cx；rNow = 70 -> 左侧占圆宽约 64%
-    const frac = clamp(rNow / 100, 0.14, 0.86);
+    // 面积分界线 x 随 rNow (15..85) 移动
+    const frac = clamp(rNow / 100, 0.15, 0.85);
     const splitX = cx - R + 2 * R * frac;
 
-    // 1) 主大圆（按 splitX 左右分色，随开场轻微舒展）
-    const rMain = R * lerp(0.92, 1, smooth(ent));
+    // 1) 主大圆（按 splitX 左右分色）
+    const rMain = R * lerp(0.93, 1, smooth(ent));
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, cy, rMain, 0, Math.PI * 2);
@@ -170,14 +186,13 @@ export function createHero(canvas, stageEl, state, onLayout) {
     ctx.fillRect(splitX, cy - rMain - 2, cx + rMain - splitX + 4, rMain * 2 + 4);
     ctx.restore();
 
-    // 2) 中央反色小圆（同时对比核心：左侧放 B 色，右侧放 A 色！）
+    // 2) 中央反色小圆（同时对比核心：左放 B、右放 A）
     const rInner = rMain * 0.375;
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, cy, rInner, 0, Math.PI * 2);
     ctx.clip();
 
-    // 为防止 splitX 偏离太远导致内圆只剩单色，内圆中缝柔和贴近 splitX，同时保证反色关系清晰
     const innerSplit = lerp(cx, splitX, 0.42);
     ctx.fillStyle = colB;
     ctx.fillRect(cx - rInner - 2, cy - rInner - 2, innerSplit - (cx - rInner) + 3, rInner * 2 + 4);
@@ -185,20 +200,20 @@ export function createHero(canvas, stageEl, state, onLayout) {
     ctx.fillRect(innerSplit, cy - rInner - 2, cx + rInner - innerSplit + 4, rInner * 2 + 4);
     ctx.restore();
 
-    // 3) 下方贯穿反色横条（精准还原 101 海报标志性构件）
+    // 3) 下方贯穿反色横条（原海报核心构件）
     const barW = rMain * 1.62;
     const barH = Math.max(14, rMain * 0.155);
     const barX = cx - barW * 0.5;
-    const barY = cy + rMain * 0.65;
+    const barTop = cy + rMain * 0.65;
     const barSplit = clamp(splitX, barX + 18, barX + barW - 18);
 
     ctx.fillStyle = colB;
-    ctx.fillRect(barX, barY, barSplit - barX, barH);
+    ctx.fillRect(barX, barTop, barSplit - barX, barH);
     ctx.fillStyle = colA;
-    ctx.fillRect(barSplit, barY, barX + barW - barSplit, barH);
+    ctx.fillRect(barSplit, barTop, barX + barW - barSplit, barH);
 
-    // 若分割线偏离正中，画一条极细的读数垂线提示当前面积分界
-    if (Math.abs(rNow - 50) > 1.5) {
+    // 若分割线偏离正中，画细虚线标示当前面积分界
+    if (Math.abs(rNow - 50) > 1.2) {
       ctx.save();
       ctx.strokeStyle = "rgba(16, 16, 14, 0.48)";
       ctx.lineWidth = 1;
@@ -210,39 +225,34 @@ export function createHero(canvas, stageEl, state, onLayout) {
       ctx.restore();
     }
 
-    // 4) 四角环绕几何卫星（左上圆 B、右上正方 A、左下三角 A、右下菱形 B —— 精确复刻海报四形）
-    // 随色相差微微旋转张开，产生克制的光学仪式感
-    const swing = ((dNow - 180) / 180) * 0.22;
+    // 4) 四角环绕几何卫星（左上圆 B、右上正方 A、左下三角 A、右下菱形 B —— 精准复刻原海报）
+    const swing = ((dNow - 180) / 180) * 0.20;
     const satDist = orbitR * 1.07;
-    const sSize = clamp(rMain * 0.15, 11, 20);
+    const sSize = clamp(rMain * 0.148, 10, 19);
 
-    // 左上：橙圆 (colB)
     const aTL = -Math.PI * 0.74 + swing;
     ctx.fillStyle = colB;
     ctx.beginPath();
     ctx.arc(cx + Math.cos(aTL) * satDist, cy + Math.sin(aTL) * satDist, sSize, 0, Math.PI * 2);
     ctx.fill();
 
-    // 右上：蓝方 (colA)
     const aTR = -Math.PI * 0.26 - swing;
     const trX = cx + Math.cos(aTR) * satDist;
     const trY = cy + Math.sin(aTR) * satDist;
     ctx.fillStyle = colA;
-    ctx.fillRect(trX - sSize * 0.92, trY - sSize * 0.92, sSize * 1.84, sSize * 1.84);
+    ctx.fillRect(trX - sSize * 0.9, trY - sSize * 0.9, sSize * 1.8, sSize * 1.8);
 
-    // 左下：蓝三角 (colA)
     const aBL = Math.PI * 0.74 - swing;
     const blX = cx + Math.cos(aBL) * satDist;
     const blY = cy + Math.sin(aBL) * satDist;
     ctx.fillStyle = colA;
     ctx.beginPath();
-    ctx.moveTo(blX, blY - sSize * 1.08);
-    ctx.lineTo(blX - sSize * 1.02, blY + sSize * 0.82);
-    ctx.lineTo(blX + sSize * 1.02, blY + sSize * 0.82);
+    ctx.moveTo(blX, blY - sSize * 1.06);
+    ctx.lineTo(blX - sSize * 1.0, blY + sSize * 0.8);
+    ctx.lineTo(blX + sSize * 1.0, blY + sSize * 0.8);
     ctx.closePath();
     ctx.fill();
 
-    // 右下：橙菱形 (colB)
     const aBR = Math.PI * 0.26 + swing;
     const brX = cx + Math.cos(aBR) * satDist;
     const brY = cy + Math.sin(aBR) * satDist;
@@ -250,78 +260,54 @@ export function createHero(canvas, stageEl, state, onLayout) {
     ctx.translate(brX, brY);
     ctx.rotate(Math.PI / 4);
     ctx.fillStyle = colB;
-    ctx.fillRect(-sSize * 0.82, -sSize * 0.82, sSize * 1.64, sSize * 1.64);
+    ctx.fillRect(-sSize * 0.8, -sSize * 0.8, sSize * 1.6, sSize * 1.6);
     ctx.restore();
 
-    // 5) 轨道圆上的两枚色相锚点（左固定锚点 = 钴蓝起点；右锚点沿全圆 0°..360° 轨道滑动，180° 恰好落在右水平轴）
-    const leftDotX = cx - orbitR;
-    const leftDotY = cy;
+    // 5) 外圈 0°..180° 上半弧与左右锚点（9 点钟 = 0° 基准，顺时针扫到 3 点钟 = 180° 正互补）
     ctx.fillStyle = colB;
     ctx.beginPath();
-    ctx.arc(leftDotX, leftDotY, 4.5, 0, Math.PI * 2);
+    ctx.arc(cx - orbitR, cy, 4.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // 顺时针或逆时针画最短弧线，直观展示当前两色在色轮上的最小夹角
-    const arcEnd = -Math.PI + (dNow / 180) * Math.PI;
+    const arcEnd = -Math.PI + (clamp(dNow, 0, 180) / 180) * Math.PI;
     ctx.save();
     ctx.strokeStyle = colB;
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 2.4;
     ctx.beginPath();
-    if (dNow <= 180) ctx.arc(cx, cy, orbitR, -Math.PI, arcEnd, false);
-    else ctx.arc(cx, cy, orbitR, -Math.PI, arcEnd, true);
+    ctx.arc(cx, cy, orbitR, -Math.PI, arcEnd, false);
     ctx.stroke();
 
     const tipX = cx + Math.cos(arcEnd) * orbitR;
     const tipY = cy + Math.sin(arcEnd) * orbitR;
     ctx.fillStyle = colA;
     ctx.beginPath();
-    ctx.arc(tipX, tipY, 5.5, 0, Math.PI * 2);
+    ctx.arc(tipX, tipY, 5.2, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = POSTER.paper;
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.restore();
 
-    // 6) 左下微型「蓝 + 橙 = 中和暗色」色相公式角标（极简呼应海报底部公式，不占空间）
-    if (w >= 360) {
-      const ex = 22;
-      const ey = h - 92;
-      const er = 7;
-      ctx.fillStyle = colA;
-      ctx.beginPath();
-      ctx.arc(ex + er, ey, er, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = colB;
-      ctx.beginPath();
-      ctx.arc(ex + er * 2.15, ey, er, 0, Math.PI * 2);
-      ctx.fill();
-      // 交叠透镜（使用剪裁精确画出交集深色）
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(ex + er, ey, er, 0, Math.PI * 2);
-      ctx.clip();
-      ctx.fillStyle = colors.lensHex;
-      ctx.beginPath();
-      ctx.arc(ex + er * 2.15, ey, er, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-
-    const handleX = lerp(x0, x1, clamp(dNow / 360, 0, 1));
-    const inkB = bestInkOn(colors.rgbB);
-    const key = `${handleX.toFixed(1)}|${ty.toFixed(1)}|${colB}|${inkB}`;
+    const hueX = lerp(x0, x1, clamp(dNow / 180, 0, 1));
+    const inkB = bestInkOn(colors.dispRgbB);
+    const inkA = bestInkOn(colors.dispRgbA);
+    const key = `${hueX.toFixed(1)}|${ty.toFixed(1)}|${barSplit.toFixed(1)}|${barY.toFixed(1)}|${cx.toFixed(1)}|${cy.toFixed(1)}|${orbitR.toFixed(1)}|${colB}|${inkB}`;
     if (key !== lastLayoutKey) {
       lastLayoutKey = key;
       onLayout({
-        x: handleX,
-        y: ty,
+        hueX,
+        ty,
         x0,
         x1,
+        splitX: barSplit,
+        barY,
         cx,
         cy,
+        R,
         orbitR,
         colA,
         colB,
+        inkA,
         inkB,
       });
     }
@@ -332,49 +318,53 @@ export function createHero(canvas, stageEl, state, onLayout) {
     resize();
     ctrl.draw();
   }).observe(stageEl);
+
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => {
-      buildStaticLayer();
+      buildStaticLayer(!!state.gray);
       dirty = true;
       ctrl.draw();
     });
   }
 
   const ctrl = loop(stageEl, (_t, dt, { still }) => {
-    const targetMono = state.mono ? 1 : 0;
     if (still) {
       enter = 1;
       dispDelta = state.delta;
-      dispSat = state.sat;
+      dispSatL = state.satLeft;
+      dispSatR = state.satRight;
+      dispSpread = state.lumSpread;
       dispRatio = state.ratio;
-      dispMono = targetMono;
       dirty = true;
     } else {
       const moving =
         dirty ||
         enter < 1 ||
         Math.abs(state.delta - dispDelta) > 0.04 ||
-        Math.abs(state.sat - dispSat) > 0.04 ||
-        Math.abs(state.ratio - dispRatio) > 0.04 ||
-        Math.abs(targetMono - dispMono) > 0.005;
+        Math.abs(state.satLeft - dispSatL) > 0.04 ||
+        Math.abs(state.satRight - dispSatR) > 0.04 ||
+        Math.abs(state.lumSpread - dispSpread) > 0.04 ||
+        Math.abs(state.ratio - dispRatio) > 0.04;
       if (!moving) return;
 
       const k = dt > 0 ? 1 - Math.exp(-16 * dt) : 0.45;
       enter = Math.min(1, enter + (dt || 0.016) / 0.85);
-      const kd = state.userMoved ? k : (dt > 0 ? 1 - Math.exp(-5.2 * dt) : 0.12);
+      const kd = state.userMoved ? k : (dt > 0 ? 1 - Math.exp(-5.4 * dt) : 0.12);
       dispDelta += (state.delta - dispDelta) * kd;
-      dispSat += (state.sat - dispSat) * k;
+      dispSatL += (state.satLeft - dispSatL) * k;
+      dispSatR += (state.satRight - dispSatR) * k;
+      dispSpread += (state.lumSpread - dispSpread) * k;
       dispRatio += (state.ratio - dispRatio) * k;
-      dispMono += (targetMono - dispMono) * k;
       if (Math.abs(state.delta - dispDelta) <= 0.04) dispDelta = state.delta;
-      if (Math.abs(state.sat - dispSat) <= 0.04) dispSat = state.sat;
+      if (Math.abs(state.satLeft - dispSatL) <= 0.04) dispSatL = state.satLeft;
+      if (Math.abs(state.satRight - dispSatR) <= 0.04) dispSatR = state.satRight;
+      if (Math.abs(state.lumSpread - dispSpread) <= 0.04) dispSpread = state.lumSpread;
       if (Math.abs(state.ratio - dispRatio) <= 0.04) dispRatio = state.ratio;
-      if (Math.abs(targetMono - dispMono) <= 0.005) dispMono = targetMono;
     }
 
     dirty = false;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    drawScene(dispDelta, dispSat, dispRatio, dispMono, enter);
+    drawScene(dispDelta, dispSatL, dispSatR, dispSpread, dispRatio, enter);
   });
 
   return {
@@ -386,9 +376,10 @@ export function createHero(canvas, stageEl, state, onLayout) {
     jump() {
       enter = 1;
       dispDelta = state.delta;
-      dispSat = state.sat;
+      dispSatL = state.satLeft;
+      dispSatR = state.satRight;
+      dispSpread = state.lumSpread;
       dispRatio = state.ratio;
-      dispMono = state.mono ? 1 : 0;
       dirty = true;
       ctrl.draw();
     },

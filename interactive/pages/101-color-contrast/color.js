@@ -54,7 +54,9 @@ export function rgbToHex([r, g, b]) {
 }
 
 export function rgbCss([r, g, b], a = 1) {
-  return a >= 1 ? `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})` : `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`;
+  return a >= 1
+    ? `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`
+    : `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`;
 }
 
 // sRGB -> linear (WCAG 2.1 定义)
@@ -90,13 +92,11 @@ export function bestInkOn(rgb) {
 
 // 线性 RGB 空间的色觉缺陷与灰度模拟（Viénot 1999 简化变换矩阵）
 const CVD_MATRICES = {
-  // 绿色盲（Deuteranopia）
   deutan: [
     [0.29275, 0.70725, 0.0],
     [0.29275, 0.70725, 0.0],
     [-0.02234, 0.02234, 1.0],
   ],
-  // 红色盲（Protanopia）
   protan: [
     [0.11238, 0.88762, 0.0],
     [0.11238, 0.88762, 0.0],
@@ -122,191 +122,431 @@ export function simulateVision(rgb, mode) {
   return [fromLinear(nr), fromLinear(ng), fromLinear(nb)];
 }
 
-// 减色混合近似（模仿原海报底部的「蓝圆 + 橙圆 = 交叠深暗」光学/颜料中和感）
+// 减色混合近似（模仿原海报底部的「蓝圆 + 橙圆 = 交叠深暗」颜料中和感）
 export function subtractiveMix(rgbA, rgbB) {
   return [
-    Math.round((rgbA[0] * rgbB[0]) / 255 * 0.82 + 12),
-    Math.round((rgbA[1] * rgbB[1]) / 255 * 0.82 + 10),
-    Math.round((rgbA[2] * rgbB[2]) / 255 * 0.82 + 10),
+    Math.round(((rgbA[0] * rgbB[0]) / 255) * 0.82 + 12),
+    Math.round(((rgbA[1] * rgbB[1]) / 255) * 0.82 + 10),
+    Math.round(((rgbA[2] * rgbB[2]) / 255) * 0.82 + 10),
   ];
 }
 
-// ---------- 开场光学仪器模型（状态与读数完全独立于画布实现） ----------
-// 原海报基准：冷色钴蓝 (224°, 87%, 45%)，暖色朱橙 (19°, 92%, 51%)。
-// 沿色轮向前推进 delta (0°..180°)：当 delta = 155° 时，右色恰好落在海报原汁原味的 #f5590e 附近；
-// 为直观易懂，我们映射 delta ∈ [0, 180]：0° = 同色相，30° = 邻近，90° = 中度对比，155°..180° = 强互补（180° 默认锁至海报蓝/橙经典对）。
-export const HERO_PRESETS = {
-  poster: {
-    id: "poster",
-    label: "互补 · 海报原色",
-    delta: 180,
-    sat: 90,
-    ratio: 50,
-    mono: false,
-  },
-  analogous: {
-    id: "analogous",
-    label: "邻近 · 柔和过渡",
-    delta: 32,
-    sat: 76,
-    ratio: 62,
-    mono: false,
-  },
-  warmcool: {
-    id: "warmcool",
-    label: "冷暖 · 主次拉满",
-    delta: 162,
-    sat: 86,
-    ratio: 70,
-    mono: false,
-  },
-  monochrome: {
-    id: "monochrome",
-    label: "同色 · 纯靠明度",
-    delta: 0,
-    sat: 72,
-    ratio: 66,
-    mono: true,
-  },
-};
-
-export const SNAP_ANGLES = [0, 30, 90, 150, 180, 210, 270, 330, 360];
+// ---------- 开场原海报六维对照模型（0–180° 色相夹角 + 明度拉开度 + 面积分缝 + 抽灰检验） ----------
+export const SNAP_ANGLES = [0, 30, 60, 90, 120, 150, 180];
 
 export function snapDelta(raw) {
-  const d = clamp(Math.round(raw), 0, 360);
+  const d = clamp(Math.round(raw), 0, 180);
   for (const mark of SNAP_ANGLES) {
-    if (Math.abs(d - mark) <= 6) return { delta: mark, snapped: true };
+    if (Math.abs(d - mark) <= 5) return { delta: mark, snapped: true };
   }
   return { delta: d, snapped: false };
 }
 
-// 有效色相夹角 sep ∈ [0..180]：180°（轨道正中）为正互补，0° 与 360°（两端）均回到同色
-export const hueSep = (delta) => Math.round(180 - Math.abs(clamp(delta, 0, 360) - 180));
+export const MOOD_MODES = {
+  calm: {
+    id: "calm",
+    label: "理性冷静",
+    delta: 26,
+    satLeft: 38,
+    satRight: 44,
+    lumSpread: 68,
+    ratio: 66,
+  },
+  retro: {
+    id: "retro",
+    label: "复古暖调",
+    delta: 146,
+    satLeft: 30,
+    satRight: 64,
+    lumSpread: 54,
+    ratio: 62,
+  },
+  vivid: {
+    id: "vivid",
+    label: "高能撞色",
+    delta: 180,
+    satLeft: 90,
+    satRight: 92,
+    lumSpread: 0,
+    ratio: 50,
+  },
+};
 
-// 由仪器状态算出左右两色的 RGB、HEX 及感知指标
+// 点击原海报六条标注各自切入的演示状态
+export const AXIS_PRESETS = {
+  warmcool: {
+    id: "warmcool",
+    zh: "冷暖",
+    en: "WARM & COOL",
+    motto: "冷色后退 · 暖色前进",
+    delta: 168,
+    satLeft: 86,
+    satRight: 92,
+    lumSpread: 16,
+    ratio: 64,
+  },
+  complementary: {
+    id: "complementary",
+    zh: "互补",
+    en: "COMPLEMENTARY",
+    motto: "色相相对 · 形成强对比",
+    delta: 180,
+    satLeft: 90,
+    satRight: 92,
+    lumSpread: 0,
+    ratio: 50,
+  },
+  saturation: {
+    id: "saturation",
+    zh: "饱和",
+    en: "SATURATION",
+    motto: "高饱和更醒目 · 低饱和更平衡",
+    delta: 180,
+    satLeft: 20,
+    satRight: 94,
+    lumSpread: 8,
+    ratio: 64,
+  },
+  brightness: {
+    id: "brightness",
+    zh: "明度",
+    en: "BRIGHTNESS",
+    motto: "明暗对比 · 增强层次",
+    delta: 180,
+    satLeft: 82,
+    satRight: 88,
+    lumSpread: 86,
+    ratio: 50,
+  },
+  proportion: {
+    id: "proportion",
+    zh: "面积",
+    en: "PROPORTION",
+    motto: "主次分明 · 对比更有效",
+    delta: 180,
+    satLeft: 90,
+    satRight: 92,
+    lumSpread: 0,
+    ratio: 72,
+  },
+  mood: {
+    id: "mood",
+    zh: "情绪",
+    en: "MOOD",
+    motto: "色彩影响感受 · 传递情绪信息",
+    ...MOOD_MODES.calm,
+  },
+};
+
+// 计算开场分色大圆的左右真实色值与抽灰后色值
 export function computeHeroColors(state) {
-  const baseH = 224; // 海报钴蓝起点
-  const s = clamp(state.sat, 12, 100);
-  const d = clamp(state.delta, 0, 360);
-  const sep = 180 - Math.abs(d - 180);
+  const baseH = 224; // 海报钴蓝
+  const d = clamp(state.delta, 0, 180);
+  const satL = clamp(state.satLeft, 12, 100);
+  const satR = clamp(state.satRight, 12, 100);
+  const spread = clamp(state.lumSpread, 0, 100) / 100;
 
-  // 全色轮映射：
-  //   0°..180° 经青、绿、黄到海报朱橙 (224° -> 19°)
-  //   180°..360° 经正红、洋红、紫罗兰回到钴蓝 (19° -> 224°)
-  let hB;
-  if (d <= 180) {
-    hB = ((baseH - (d / 180) * 205) % 360 + 360) % 360;
-  } else {
-    hB = ((19 - ((d - 180) / 180) * 155) % 360 + 360) % 360;
-  }
+  // 0° -> 180° 单向扫过色轮半周：钴蓝(224°) -> 青蓝 -> 翠绿(122°) -> 金黄 -> 海报朱橙(19°)
+  const hB = ((baseH - (d / 180) * 205) % 360 + 360) % 360;
 
-  // 左色保持稳重的钴蓝明度；同色模式下右色大幅提亮，展示纯明度对比
-  const lA = state.mono ? 34 : lerp(46, 44.5, s / 100);
-  let lB;
-  if (state.mono) {
-    lB = 78;
-  } else {
-    const warmLift = Math.sin((sep / 180) * Math.PI) * 5;
-    lB = lerp(45, 51, sep / 180) + warmLift * 0.4;
-  }
+  // 基准明度随 lumSpread 向两极拉开：spread=0 为原海报等明度区 (CR 2.29:1)，spread=0.86 可达 CR ~9.5:1
+  const lA = lerp(45, 19, spread);
+  const baseLB = lerp(45, 51, d / 180);
+  const lB = lerp(baseLB, 76, spread);
 
-  // 恰好落在海报默认正互补点 (180°, sat>=88, !mono) 时，精准返回海报采样色
-  const exactPoster = !state.mono && Math.abs(d - 180) < 0.6 && state.sat >= 88;
-  const rgbA = exactPoster ? hexToRgb(POSTER.blue) : hslToRgb(baseH, s, lA);
-  const rgbB = exactPoster ? hexToRgb(POSTER.orange) : hslToRgb(hB, state.mono ? Math.max(24, s * 0.55) : s, lB);
+  // 落在原海报正互补点时精准返回海报采样色 #0f42d5 与 #f5590e
+  const exactPoster =
+    Math.abs(d - 180) < 0.6 &&
+    satL >= 88 &&
+    satR >= 88 &&
+    spread < 0.02;
 
-  const hexA = rgbToHex(rgbA);
-  const hexB = rgbToHex(rgbB);
-  const lens = subtractiveMix(rgbA, rgbB);
+  const rgbA = exactPoster ? hexToRgb(POSTER.blue) : hslToRgb(baseH, satL, lA);
+  const rgbB = exactPoster ? hexToRgb(POSTER.orange) : hslToRgb(hB, satR, lB);
+
+  const grayA = simulateVision(rgbA, "gray");
+  const grayB = simulateVision(rgbB, "gray");
+  const dispRgbA = state.gray ? grayA : rgbA;
+  const dispRgbB = state.gray ? grayB : rgbB;
+
+  const lensReal = subtractiveMix(rgbA, rgbB);
+  const lensDisp = state.gray ? simulateVision(lensReal, "gray") : lensReal;
   const lumRatio = contrastRatio(rgbA, rgbB);
-
-  const isWarm = (h) => h <= 68 || h >= 315;
-  const tempGap = isWarm(hB) && !state.mono;
-  const lumDiff = Math.abs(relativeLuminance(rgbA) - relativeLuminance(rgbB));
-  const vibrating = !state.mono && sep >= 120 && s >= 78 && lumDiff < 0.14;
 
   return {
     hA: baseH,
     hB: Math.round(hB),
-    sep: Math.round(sep),
+    sep: Math.round(d),
     rgbA,
     rgbB,
-    hexA,
-    hexB,
-    lens,
-    lensHex: rgbToHex(lens),
+    hexA: rgbToHex(rgbA),
+    hexB: rgbToHex(rgbB),
+    dispRgbA,
+    dispRgbB,
+    dispHexA: rgbToHex(dispRgbA),
+    dispHexB: rgbToHex(dispRgbB),
+    lensHex: rgbToHex(lensDisp),
     lumRatio,
-    tempGap,
-    vibrating,
+    satGap: Math.round(Math.abs(satR - satL)),
   };
 }
 
+// 根据当前激活的海报维度、0–180° 夹角、面积比与是否抽灰，生成「读数 + 一句为什么」
 export function describeHero(state, colors) {
-  const { delta, sat, ratio, mono } = state;
-  const { sep, lumRatio, vibrating } = colors;
-  const ratioDiff = Math.abs(ratio - 50);
-  const redSide = delta > 188;
+  const { axis, ratio, satLeft, satRight, lumSpread, mood, gray } = state;
+  const { sep, lumRatio } = colors;
+  const cr = lumRatio.toFixed(2);
+  const leftPct = Math.round(ratio);
+  const rightPct = 100 - leftPct;
 
-  let badge = "强互补 · 高张力";
-  let status = "strong";
-  let headline = "";
-  let body = "";
-  let note = "";
-
-  if (mono) {
-    badge = "同色相 · 纯明度";
-    status = "calm";
-    headline = "色相为零差，层级全靠深浅拉开";
-    body = "左右同属蓝色家族，视线不会跳来跳去，画面安静统一。这更偏向 100 号明暗对比的主场——只要亮度差足够大，不换色相也能分出主次。";
-  } else if (sep <= 15) {
-    badge = "几乎同色 · 零冲突";
-    status = "weak";
-    headline = "色相太近，左右快融成一块";
-    body = "眼睛找不到落脚点：内圆几乎藏进外圆里。除非刻意做极简底纹，否则这样的配色很难在第一时间抓住注意力。";
-  } else if (sep <= 55) {
-    badge = "邻近色 · 柔和协调";
-    status = "calm";
-    headline = redSide ? "蓝紫邻近过渡，深邃而含蓄" : "冷色内部细微过渡，耐看但不够炸";
-    body = redSide
-      ? "钴蓝滑向靛紫，温差极小、氛围克制，适合沉静的品牌或深色视觉页；想制造强烈行动焦点，还得把色差再推远。"
-      : "蓝色滑向青蓝，温差小、冲突低，适合背景氛围、编辑长文或舒缓的品牌页。想让某个按钮一眼跳出来，还得把色差再推远。";
-  } else if (sep <= 115) {
-    badge = "中度对比 · 活而不噪";
-    status = "mid";
-    headline = redSide ? "蓝配洋红：潮流张力渐起" : "蓝配青绿：清新节奏拉开";
-    body = redSide
-      ? "色轮滑向洋红与紫红区间，冷暖开始拉扯，画面显得鲜活摩登，常用于音乐、时尚与潮流视觉。"
-      : "蓝与青绿之间已经能一眼分清区域，但又不像互补色那样紧绷。适合多分类信息图、插画主色与辅助色搭配。";
-  } else if (sep < 165) {
-    badge = "大跨度 · 暖色前推";
-    status = "strong";
-    headline = redSide ? "钴蓝遇绯红：热烈逼近极值" : "冷暖阵营成形，金黄暖块前推";
-    body = redSide
-      ? "右侧进入高能量红橙段，冷暖两极剧烈对抗。中央反色内圆格外抢眼，但红蓝亮度接近时要注意避开边缘震颤。"
-      : "右侧滑进金黄与暖橙区间，冷色开始往后退、暖色往前跳。中央反色内圆像一颗靶心，把视线牢牢钉在交界线上。";
-  } else {
-    badge = "互补极值 · 视觉爆点";
-    status = "strong";
-    headline = "钴蓝撞朱橙：海报原型的最大色相张力";
-    body = "色轮相对的两端正面相遇，彼此把对方的鲜艳度推到极值——蓝显得更冷峻，橙显得更炽热。并置时炸裂醒目，重叠时却会中和成深暗色。";
+  // 通用明度等级标签（始终直白呈现，不埋角落）
+  let crTag = "不可互相当字色";
+  let crKind = "warn";
+  if (lumRatio >= 4.5) {
+    crTag = "正文达标 ≥4.5:1";
+    crKind = "good";
+  } else if (lumRatio >= 3.0) {
+    crTag = "仅大字可用 ≥3:1";
+    crKind = "calm";
   }
 
-  // 面积与饱和度实时补充解读
-  if (sat <= 32) {
-    note = `当前饱和度仅 ${sat}%：情绪立刻降温，强互补也被磨成了沉静的灰调；高识别度让位给耐看与平衡。`;
-  } else if (ratioDiff <= 8 && sep >= 120) {
-    note = `当前面积接近五五分（${ratio}:${100 - ratio}）：两种高能量颜色势均力敌，容易在版面上互相抢戏。试着把面积滑到 70:30，立刻分出主次。`;
-  } else if (ratioDiff >= 20) {
-    const bigSide = ratio > 50 ? "冷色（左）" : "暖色（右）";
-    const smallSide = ratio > 50 ? "暖色（右）" : "冷色（左）";
-    note = `当前面积 ${ratio}:${100 - ratio}：${bigSide}退成大背景，${smallSide}缩成小面积爆点——这正是「面积主次让对比更有效」的实战用法。`;
-  } else if (vibrating) {
-    note = `提示：高饱和（${sat}%）加上两色亮度接近（对比度 ${lumRatio.toFixed(2)}:1），交界处容易产生轻微震颤感。用来做图形冲击很爽，但别直接把这两色叠成小号正文。`;
-  } else {
-    note = `两色直接相邻的亮度对比度为 ${lumRatio.toFixed(2)}:1（饱和度 ${sat}%，面积 ${ratio}:${100 - ratio}）。`;
+  // 1) 抽成灰度开启：立刻说出灰度下看到的真相
+  if (gray) {
+    if (lumRatio < 3.0 && sep >= 120) {
+      return {
+        metric: `灰度实测 · 亮度对比 ${cr}:1（ΔH ${sep}°）`,
+        badge: "两半几乎一样灰",
+        kind: "warn",
+        crTag,
+        crKind,
+        why: `抽成灰度后两半几乎一样灰（仅 ${cr}:1）——色相拉满，明度没拉开，所以这对颜色只能做色块，不能互相当字色。点「明度」看看把明暗拉开后的区别。`,
+      };
+    }
+    if (lumRatio < 3.0) {
+      return {
+        metric: `灰度实测 · 亮度对比 ${cr}:1（ΔH ${sep}°）`,
+        badge: "灰调融成一片",
+        kind: "warn",
+        crTag,
+        crKind,
+        why: `抽成灰度后两半几乎融成一片（${cr}:1）：不仅色相相近，明度也没拉开，图形边缘与文字层级都会同时塌掉。`,
+      };
+    }
+    if (lumRatio < 4.5) {
+      return {
+        metric: `灰度实测 · 亮度对比 ${cr}:1（ΔH ${sep}°）`,
+        badge: "灰度隐约可分",
+        kind: "calm",
+        crTag,
+        crKind,
+        why: `抽成灰度后能分出深浅两块（${cr}:1），大图形和大标题还撑得住，但小号正文依然达不到 WCAG 4.5:1，容易读累。`,
+      };
+    }
+    return {
+      metric: `灰度实测 · 亮度对比 ${cr}:1（ΔH ${sep}°）`,
+      badge: "抽灰依旧锐利",
+      kind: "good",
+      crTag,
+      crKind,
+      why: `就算抽掉全部彩色，两半依然黑白分明（${cr}:1，超过正文 4.5:1 标准）——因为明度差真的拉开了，这组配色才能扛住文字阅读和色盲检验。`,
+    };
   }
 
-  return { badge, status, headline, body, note };
+  // 2) 面积维度（或用户拖动圆内面积分缝）：明确说清哪一边成了主角、为什么
+  if (axis === "proportion") {
+    if (leftPct >= 62) {
+      return {
+        metric: `左冷 ${leftPct}% : 右暖 ${rightPct}% · 亮度 ${cr}:1`,
+        badge: "右暖成为主角",
+        kind: "good",
+        crTag,
+        crKind,
+        why: `冷色占 ${leftPct}% 退成大舞台，暖色缩到 ${rightPct}% 成了绝对主角——因为稀缺制造聚焦，小面积高饱和暖色把全场视线吸到一点，比五五对分更有力量。`,
+      };
+    }
+    if (rightPct >= 62) {
+      return {
+        metric: `左冷 ${leftPct}% : 右暖 ${rightPct}% · 亮度 ${cr}:1`,
+        badge: "左冷成为锚点",
+        kind: "good",
+        crTag,
+        crKind,
+        why: `暖色铺到 ${rightPct}% 主导了整张画面的炽热情绪，冷色缩到 ${leftPct}% 成了冷静主角锚点——大暖定气氛、小冷压边界，视觉重心立刻清晰。`,
+      };
+    }
+    if (Math.abs(leftPct - 50) <= 6) {
+      return {
+        metric: `左冷 ${leftPct}% : 右暖 ${rightPct}% · 亮度 ${cr}:1`,
+        badge: "五五分 · 互相抢戏",
+        kind: "warn",
+        crTag,
+        crKind,
+        why: `左右面积接近五五开（${leftPct}:${rightPct}），谁都没让步、谁都不是主角——因为等面积高纯色视觉重量互相打架，眼睛在中缝左右摇摆。拖向 70:30 试试。`,
+      };
+    }
+    const lead = leftPct > 50 ? "冷色" : "暖色";
+    const star = leftPct > 50 ? "暖色" : "冷色";
+    return {
+      metric: `左冷 ${leftPct}% : 右暖 ${rightPct}% · 亮度 ${cr}:1`,
+      badge: `${star}渐成焦点`,
+      kind: "calm",
+      crTag,
+      crKind,
+      why: `${lead}已略占大面，${star}开始收拢成焦点主角——再把比例推向 70:30 或 80:20，主次反差会更利落。`,
+    };
+  }
+
+  // 3) 互补维度（默认进入的原海报状态）
+  if (axis === "complementary") {
+    if (sep >= 155) {
+      return {
+        metric: `色相夹角 ${sep}° · 亮度对比 ${cr}:1`,
+        badge: lumRatio < 3.0 ? "色相拉满 · 明度偏近" : "强互补 + 高明度",
+        kind: lumRatio < 3.0 ? "warn" : "good",
+        crTag,
+        crKind,
+        why:
+          lumRatio < 3.0
+            ? `色相拉满到 ${sep}°，蓝把橙衬得最炽热，但两色亮度对比只有 ${cr}:1——所以这对颜色只能做色块碰撞，不能互相当字色。点「抽成灰度」一眼看穿。`
+            : `色相相对（${sep}°）又拉开了明度差（${cr}:1），既炸眼又能把图形与文字层次站稳。`,
+      };
+    }
+    if (sep >= 95) {
+      return {
+        metric: `色相夹角 ${sep}° · 亮度对比 ${cr}:1`,
+        badge: "大跨度对比",
+        kind: "good",
+        crTag,
+        crKind,
+        why: `两色在色轮上拉开 ${sep}°，对比已经很鲜明但比 180° 少一分紧绷；目前亮度对比 ${cr}:1，若要直接叠文字仍需再拉深浅。`,
+      };
+    }
+    if (sep >= 40) {
+      return {
+        metric: `色相夹角 ${sep}° · 亮度对比 ${cr}:1`,
+        badge: "中度对比 · 偏柔和",
+        kind: "calm",
+        crTag,
+        crKind,
+        why: `夹角收窄到 ${sep}°，蓝与青绿之间能轻松区分区域，情绪明显缓和下来，适合多分类图解而不抢走主焦点。`,
+      };
+    }
+    return {
+      metric: `色相夹角 ${sep}° · 亮度对比 ${cr}:1`,
+      badge: "几乎同色 · 零冲突",
+      kind: "warn",
+      crTag,
+      crKind,
+      why: `夹角只有 ${sep}°，左右快融成同一块色——没有色相差时，眼睛找不到落脚点，必须靠「明度」把深浅拉开才撑得起层级。`,
+    };
+  }
+
+  // 4) 冷暖维度
+  if (axis === "warmcool") {
+    const isWarmRight = sep >= 120;
+    return {
+      metric: `色相 ${sep}° · 冷 ${leftPct}% : 暖 ${rightPct}% · 亮度 ${cr}:1`,
+      badge: isWarmRight ? "冷退暖进成形" : "温差减弱",
+      kind: isWarmRight ? "good" : "calm",
+      crTag,
+      crKind,
+      why: isWarmRight
+        ? `大块冷蓝视觉后退作空间背景，暖橙向前凸出抓住视线——因为人眼对短波蓝与长波橙的折射与大气透视经验不同；但若明度太近（${cr}:1），抽灰后纵深会立刻变平。`
+        : `夹角拖小到 ${sep}° 后右侧已偏离暖区，两半同处冷调，前推与后退的层次感随之消失。`,
+    };
+  }
+
+  // 5) 饱和维度
+  if (axis === "saturation") {
+    if (satLeft <= 35 && satRight >= 80) {
+      return {
+        metric: `左底纯度 ${satLeft}% : 右焦点 ${satRight}%`,
+        badge: "低纯衬高纯 · 最醒目",
+        kind: "good",
+        crTag,
+        crKind,
+        why: `左半压到 ${satLeft}% 灰蓝变成静音场，右半 ${satRight}% 朱橙立刻像聚光灯一样跳出来——因为高饱和只有在低饱和的克制里才显得珍贵。`,
+      };
+    }
+    if (satLeft >= 78) {
+      return {
+        metric: `左底纯度 ${satLeft}% : 右焦点 ${satRight}%`,
+        badge: "双高饱和 · 视觉发吵",
+        kind: "warn",
+        crTag,
+        crKind,
+        why: `两边纯度都拉到 ${satLeft}% 以上，每个角落都在大喊大叫，反而没人听清重点；试着把底色纯度往左拉低，画面立刻安静又有焦点。`,
+      };
+    }
+    return {
+      metric: `左底纯度 ${satLeft}% : 右焦点 ${satRight}%`,
+      badge: "纯度过渡区间",
+      kind: "calm",
+      crTag,
+      crKind,
+      why: `底色纯度降到 ${satLeft}% 后，高纯度暖色开始浮出画面——纯度差越大，主次越分明，越久看越不累。`,
+    };
+  }
+
+  // 6) 明度维度
+  if (axis === "brightness") {
+    if (lumRatio >= 4.5) {
+      return {
+        metric: `明暗拉开 ${lumSpread}% · 亮度对比 ${cr}:1`,
+        badge: "层级稳固 · 抽灰不塌",
+        kind: "good",
+        crTag,
+        crKind,
+        why: `深靛底与高亮暖黄拉开 ${cr}:1（远超 WCAG 正文线 4.5:1）——因为人眼辨认形状和文字首先靠亮度通道，哪怕点「抽成灰度」层级依旧纹丝不动。`,
+      };
+    }
+    if (lumRatio >= 3.0) {
+      return {
+        metric: `明暗拉开 ${lumSpread}% · 亮度对比 ${cr}:1`,
+        badge: "中等明度差",
+        kind: "calm",
+        crTag,
+        crKind,
+        why: `当前亮度对比 ${cr}:1，大图形和大标题已经能分清，再把明暗滑块往右推一点跨过 4.5:1，小号文字也能轻松直读。`,
+      };
+    }
+    return {
+      metric: `明暗拉开 ${lumSpread}% · 亮度对比 ${cr}:1`,
+      badge: "等明度陷阱",
+      kind: "warn",
+      crTag,
+      crKind,
+      why: `明暗差缩回 ${cr}:1：哪怕色相完全相对，一旦抽成灰度两半几乎一样灰——这正是不能直接拿蓝橙互相当字色的原因。`,
+    };
+  }
+
+  // 7) 情绪维度
+  const moodMap = {
+    calm: {
+      badge: "理性冷静 · 低唤醒",
+      kind: "calm",
+      why: `图形一笔没改，只把色相收窄到 ${sep}°、纯度压低并拉开明度（${cr}:1），整张海报立刻从街头冲击切换成安静理性的工具与编辑气质。`,
+    },
+    retro: {
+      badge: "复古暖调 · 纸本温度",
+      kind: "good",
+      why: `保留大跨度冷暖关系（${sep}°），但把冷底降纯成灰青、暖色收成陶土橙，情绪从刺目促销转成克制温润的手工画册感。`,
+    },
+    vivid: {
+      badge: "高能撞色 · 强唤醒",
+      kind: "warn",
+      why: `满饱和 180° 蓝橙正面撞击，生理唤醒度最高，半秒就能从远距离抓住目光——适合活动主视觉，却不适合久读正文。`,
+    },
+  };
+  const m = moodMap[mood] || moodMap.calm;
+  return {
+    metric: `色相 ${sep}° · 纯度 ${satLeft}/${satRight}% · 亮度 ${cr}:1`,
+    badge: m.badge,
+    kind: m.kind,
+    crTag,
+    crKind,
+    why: m.why,
+  };
 }
 
 // 歌德（1810）光值与伊顿（1961）面积平衡比
@@ -320,7 +560,7 @@ export const GOETHE_PAIRS = {
     hexB: "#f5590e",
     lightA: 4,
     lightB: 8,
-    idealA: 67, // 蓝 2/3 : 橙 1/3
+    idealA: 67,
     ratioLabel: "蓝 2 : 橙 1",
     goetheNote: "歌德给纯橙打光值 8、纯蓝打光值 4（2:1），伊顿反推面积应给蓝约 2/3、橙约 1/3，视觉才不一边倒。",
   },
@@ -333,7 +573,7 @@ export const GOETHE_PAIRS = {
     hexB: "#f5c400",
     lightA: 3,
     lightB: 9,
-    idealA: 75, // 紫 3/4 : 黄 1/4
+    idealA: 75,
     ratioLabel: "紫 3 : 黄 1",
     goetheNote: "明黄光值高达 9，深紫只有 3（3:1）。同样面积下黄色会完全淹没紫色；给紫色 3/4、黄色 1/4，画面才会稳下来。",
   },
@@ -346,7 +586,7 @@ export const GOETHE_PAIRS = {
     hexB: "#d92b2b",
     lightA: 6,
     lightB: 6,
-    idealA: 50, // 绿 1/2 : 红 1/2
+    idealA: 50,
     ratioLabel: "绿 1 : 红 1",
     goetheNote: "红与绿在歌德标尺里同为光值 6，等面积时视觉重量相近；但实际排版中 50:50 的纯红绿容易刺眼且对色盲不友好，通常仍要拉开主次。",
   },

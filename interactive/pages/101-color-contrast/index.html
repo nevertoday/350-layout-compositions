@@ -18,7 +18,7 @@
 </header>
 
 <main>
-  <!-- 开场：标题 + 分色双圆色彩对比仪 -->
+  <!-- 开场：复刻 101 原海报居中对称版式 —— 巨标压顶、中央分色大圆、左右六条原海报标注即控件 -->
   <section class="hero wrap" aria-labelledby="title">
     <div class="hero-head">
       <h1 id="title" class="split-title" aria-label="色彩对比">
@@ -28,72 +28,176 @@
       <p class="poster-tagline">强烈差异 · 视觉突出 · 有效传达 <span lang="en" class="mono">STRONG CONTRAST · VISUAL IMPACT · EFFECTIVE COMMUNICATION</span></p>
     </div>
 
-    <div class="stage-wrap">
-      <div class="stage" id="stage">
-        <canvas id="hero-canvas" class="stage-canvas" aria-hidden="true"></canvas>
-        <p class="hud hud-tl mono" aria-hidden="true"><span id="hud-angle">ΔH 180°</span></p>
-        <p class="hud hud-tr" aria-hidden="true"><span class="hud-pill" id="hud-badge">互补极值 · 视觉爆点</span></p>
-        <button
-          type="button"
-          class="handle"
-          id="hero-handle"
-          data-perf-drag
-          role="slider"
-          aria-valuemin="0"
-          aria-valuemax="360"
-          aria-valuenow="180"
-          aria-describedby="ro-body"
-        >
-          <span class="handle-glyph mono" aria-hidden="true">↔</span>
-        </button>
+    <div class="poster-board" id="poster-board">
+      <svg class="leader-svg" id="leader-svg" aria-hidden="true"></svg>
+
+      <!-- 左栏：原海报左侧三条标注（冷暖 / 互补 / 饱和），桌面端与右栏等高镜像对齐 -->
+      <div class="callout-col callout-left">
+        <div class="callout" data-axis="warmcool" data-side="left" style="--tab-order:3;--mob-order:2">
+          <button type="button" class="callout-btn" data-axis="warmcool" aria-pressed="false">
+            <span class="dot dot-b" aria-hidden="true"></span>
+            <span class="c-title">冷暖</span>
+            <span class="c-en mono" lang="en">WARM &amp; COOL</span>
+            <span class="c-motto">冷色后退<br><span class="c-sep" aria-hidden="true"> · </span>暖色前进</span>
+            <i class="bar bar-b" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="callout on" data-axis="complementary" data-side="left" style="--tab-order:5;--mob-order:4">
+          <button type="button" class="callout-btn" data-axis="complementary" aria-pressed="true">
+            <span class="dot dot-o" aria-hidden="true"></span>
+            <span class="c-title">互补</span>
+            <span class="c-en mono" lang="en">COMPLEMENTARY</span>
+            <span class="c-motto">色相相对<br><span class="c-sep" aria-hidden="true"> · </span>形成强对比</span>
+            <i class="bar bar-o" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="callout" data-axis="saturation" data-side="left" style="--tab-order:7;--mob-order:6">
+          <button type="button" class="callout-btn" data-axis="saturation" aria-pressed="false">
+            <span class="dot dot-b" aria-hidden="true"></span>
+            <span class="c-title">饱和</span>
+            <span class="c-en mono" lang="en">SATURATION</span>
+            <span class="c-motto">高饱和更醒目<br><span class="c-sep" aria-hidden="true"> · </span>低饱和更平衡</span>
+            <i class="bar bar-b" aria-hidden="true"></i>
+          </button>
+        </div>
       </div>
-      <p class="stage-hint">左右拖动轨道上的<b>色差手柄</b>（或点按外围虚线环、按左右方向键），看海报里的蓝与橙怎样随色相、饱和与面积彼此拉扯。</p>
-    </div>
 
-    <div class="hero-side">
-      <div class="panel">
-        <div class="presets" role="group" aria-label="快捷配色预设">
-          <button type="button" class="btn-chip on" data-preset="poster" aria-pressed="true">互补 · 原海报</button>
-          <button type="button" class="btn-chip" data-preset="analogous" aria-pressed="false">邻近 · 柔和</button>
-          <button type="button" class="btn-chip" data-preset="warmcool" aria-pressed="false">冷暖 · 70:30</button>
-          <button type="button" class="btn-chip" data-preset="monochrome" aria-pressed="false">同色 · 纯明度</button>
+      <!-- 中栏：原海报分色大圆 + 0–180° 色相夹角轨 + 面积分缝柄 -->
+      <div class="stage-wrap">
+        <div class="stage" id="stage">
+          <canvas id="hero-canvas" class="stage-canvas" aria-hidden="true"></canvas>
+
+          <button
+            type="button"
+            class="split-handle"
+            id="split-handle"
+            data-perf-drag
+            role="slider"
+            aria-valuemin="15"
+            aria-valuemax="85"
+            aria-valuenow="50"
+            aria-label="左右面积分缝手柄：当前 50 比 50，左右拖动改变冷暖主次面积"
+            aria-describedby="dock-why"
+          >
+            <span class="split-pill" aria-hidden="true"><i></i></span>
+          </button>
+
+          <button
+            type="button"
+            class="handle"
+            id="hero-handle"
+            role="slider"
+            aria-valuemin="0"
+            aria-valuemax="180"
+            aria-valuenow="180"
+            aria-label="0 到 180 度色相夹角手柄：当前 180 度正互补，左右拖动或按方向键调节色相距离"
+            aria-describedby="dock-why"
+          >
+            <span class="handle-glyph mono" aria-hidden="true">↔</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 右栏：原海报右侧三条标注（明度 / 面积 / 情绪），桌面端与左栏三条严格齐平 -->
+      <div class="callout-col callout-right">
+        <div class="callout" data-axis="brightness" data-side="right" style="--tab-order:4;--mob-order:3">
+          <button type="button" class="callout-btn" data-axis="brightness" aria-pressed="false">
+            <span class="dot dot-o" aria-hidden="true"></span>
+            <span class="c-title">明度</span>
+            <span class="c-en mono" lang="en">BRIGHTNESS</span>
+            <span class="c-motto">明暗对比<br><span class="c-sep" aria-hidden="true"> · </span>增强层次</span>
+            <i class="bar bar-o" aria-hidden="true"></i>
+          </button>
         </div>
 
-        <div class="sliders">
-          <div class="ctrl">
-            <div class="ctrl-top">
-              <label for="ctrl-delta">色相夹角 <span lang="en" class="mono">ΔH</span></label>
-              <output id="out-delta" class="mono">180°</output>
-            </div>
-            <input type="range" id="ctrl-delta" min="0" max="360" step="1" value="180">
-          </div>
-          <div class="ctrl">
-            <div class="ctrl-top">
-              <label for="ctrl-sat">色彩饱和度 <span lang="en" class="mono">SAT</span></label>
-              <output id="out-sat" class="mono">90%</output>
-            </div>
-            <input type="range" id="ctrl-sat" min="15" max="100" step="1" value="90">
-          </div>
-          <div class="ctrl">
-            <div class="ctrl-top">
-              <label for="ctrl-ratio">左右面积比 <span lang="en" class="mono">AREA</span></label>
-              <output id="out-ratio" class="mono">50:50</output>
-            </div>
-            <input type="range" id="ctrl-ratio" min="15" max="85" step="1" value="50">
-          </div>
+        <div class="callout" data-axis="proportion" data-side="right" style="--tab-order:6;--mob-order:5">
+          <button type="button" class="callout-btn" data-axis="proportion" aria-pressed="false">
+            <span class="dot dot-b" aria-hidden="true"></span>
+            <span class="c-title">面积</span>
+            <span class="c-en mono" lang="en">PROPORTION</span>
+            <span class="c-motto">主次分明<br><span class="c-sep" aria-hidden="true"> · </span>对比更有效</span>
+            <i class="bar bar-b" aria-hidden="true"></i>
+          </button>
         </div>
 
-        <div class="swatch-strip">
+        <div class="callout" data-axis="mood" data-side="right" style="--tab-order:8;--mob-order:7">
+          <button type="button" class="callout-btn" data-axis="mood" aria-pressed="false">
+            <span class="dot dot-o" aria-hidden="true"></span>
+            <span class="c-title">情绪</span>
+            <span class="c-en mono" lang="en">MOOD</span>
+            <span class="c-motto">色彩影响感受<br><span class="c-sep" aria-hidden="true"> · </span>传递情绪信息</span>
+            <i class="bar bar-o" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 通栏实时明度读数与「抽成灰度」开关带 -->
+      <div class="stage-bar" id="stage-bar">
+        <div class="bar-swatches">
           <span class="sw"><i id="sw-a"></i><b class="mono" id="sw-a-hex">#0F42D5</b></span>
           <span class="sw-arrow mono" aria-hidden="true">↔</span>
           <span class="sw"><i id="sw-b"></i><b class="mono" id="sw-b-hex">#F5590E</b></span>
-          <span class="sw-cr mono" id="sw-cr">CR 1.98:1</span>
         </div>
+        <div class="bar-cr">
+          <span class="cr-num mono" id="hero-cr">亮度 2.29:1</span>
+          <span class="ro-badge" id="hero-cr-tag" data-kind="warn">不可互相当字色</span>
+        </div>
+        <p class="bar-hint">点六条标注演示 · 拖色相柄或圆内分缝</p>
+        <button type="button" class="btn-gray" id="hero-gray" aria-pressed="false">
+          <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 1.8 A6.2 6.2 0 0 0 8 14.2 Z" fill="currentColor"/>
+          </svg>
+          <span id="hero-gray-lbl">抽成灰度</span>
+        </button>
+      </div>
 
-        <div class="readout" aria-live="polite">
-          <p class="ro-head"><b id="ro-title">钴蓝撞朱橙：海报原型的最大色相张力</b><span class="ro-badge" id="ro-badge">互补极值 · 视觉爆点</span></p>
-          <p class="ro-body" id="ro-body"></p>
-          <p class="ro-note" id="ro-note"></p>
+      <!-- 通栏当前选中标注的读数与「为什么」说明框：不再插入侧栏，永不破坏左右镜像对称 -->
+      <div class="hero-dock" id="hero-dock" aria-live="polite">
+        <div class="dock-head">
+          <div class="dock-top">
+            <span class="dock-axis-tag mono" id="dock-axis-tag">互补 · COMPLEMENTARY</span>
+            <span class="ro-badge" id="dock-badge" data-kind="warn">色相拉满 · 明度偏近</span>
+          </div>
+          <p class="dock-motto" id="dock-motto">色相相对 · 形成强对比</p>
+          <p class="dock-metric mono" id="dock-metric">色相夹角 180° · 亮度对比 2.29:1</p>
+
+          <div class="dock-ctrl" id="dock-ctrl-sat" hidden>
+            <div class="ctrl-top">
+              <label for="ctrl-sat-left">底色纯度 <span lang="en" class="mono">SAT</span></label>
+              <output id="out-sat-left" class="mono">20%</output>
+            </div>
+            <input type="range" id="ctrl-sat-left" min="15" max="100" step="1" value="20">
+          </div>
+
+          <div class="dock-ctrl" id="dock-ctrl-bright" hidden>
+            <div class="ctrl-top">
+              <label for="ctrl-lum">明暗拉开度 <span lang="en" class="mono">LUM</span></label>
+              <output id="out-lum" class="mono">86%</output>
+            </div>
+            <input type="range" id="ctrl-lum" min="0" max="100" step="1" value="86">
+          </div>
+
+          <div class="dock-ctrl" id="dock-ctrl-area" hidden>
+            <div class="ctrl-top">
+              <label for="ctrl-ratio">左右面积比 <span lang="en" class="mono">AREA</span></label>
+              <output id="out-ratio" class="mono">72:28</output>
+            </div>
+            <input type="range" id="ctrl-ratio" min="15" max="85" step="1" value="72">
+          </div>
+
+          <div class="dock-ctrl" id="dock-ctrl-mood" hidden>
+            <div class="mood-chips" role="group" aria-label="切换情绪色组">
+              <button type="button" class="mood-chip on" data-mood="calm" aria-pressed="true">理性冷静</button>
+              <button type="button" class="mood-chip" data-mood="retro" aria-pressed="false">复古暖调</button>
+              <button type="button" class="mood-chip" data-mood="vivid" aria-pressed="false">高能撞色</button>
+            </div>
+          </div>
+        </div>
+        <div class="dock-body">
+          <p class="dock-why" id="dock-why"></p>
         </div>
       </div>
     </div>
@@ -127,19 +231,27 @@
               <label><input type="radio" name="albers-plate" value="value"><span>深靛 × 浅米（明度）</span></label>
               <label><input type="radio" name="albers-plate" value="chroma"><span>纯橙 × 暖灰（纯度）</span></label>
             </fieldset>
-            <span class="mono lab-code">中心同色 <b id="albers-hex">#7C777E</b></span>
+            <fieldset class="seg" id="albers-size">
+              <legend>中心块大小 <span lang="en" class="mono">SIZE</span></legend>
+              <label><input type="radio" name="albers-size" value="small" checked><span>小块（充分包围）</span></label>
+              <label><input type="radio" name="albers-size" value="large"><span>大块（效应减弱）</span></label>
+            </fieldset>
+            <span class="mono lab-code">中心同色 <b id="albers-hex">#726A74</b></span>
           </div>
 
           <div class="albers-stage">
-            <svg viewBox="0 0 440 210" class="albers-svg" role="img" aria-label="阿尔伯斯同色异相实验：左右两个不同底色中各有一块完全相同的中心色块，可向中缝合并验证">
+            <svg viewBox="0 0 440 210" class="albers-svg" role="img" aria-label="阿尔伯斯同色异相实验：左右两个不同底色中各有一块完全相同的中心色块，可切换大小块并向中缝合并验证">
               <rect id="alb-bg-l" x="0" y="0" width="220" height="210" fill="#0f42d5"/>
               <rect id="alb-bg-r" x="220" y="0" width="220" height="210" fill="#f5590e"/>
-              <line x1="220" y1="0" x2="220" y2="210" stroke="#10100e" stroke-opacity="0.32" stroke-dasharray="4 4"/>
-              <rect id="alb-sq-l" x="78" y="65" width="60" height="80" fill="#7c777e"/>
-              <rect id="alb-sq-r" x="302" y="65" width="60" height="80" fill="#7c777e"/>
-              <text id="alb-lbl-l" x="110" y="182" text-anchor="middle" font-size="11" font-weight="700" fill="#f7f0e5"></text>
-              <text id="alb-lbl-r" x="330" y="182" text-anchor="middle" font-size="11" font-weight="700" fill="#10100e"></text>
-              <text id="alb-proof-lbl" x="220" y="109" text-anchor="middle" font-size="12" font-weight="700" fill="#f7f0e5" opacity="0"></text>
+              <line x1="220" y1="0" x2="220" y2="210" stroke="#10100e" stroke-opacity="0.28" stroke-dasharray="4 4"/>
+              <rect id="alb-sq-l" x="96" y="70" width="28" height="54" fill="#726a74"/>
+              <rect id="alb-sq-r" x="316" y="70" width="28" height="54" fill="#726a74"/>
+              <text id="alb-lbl-l" x="110" y="186" text-anchor="middle" font-size="11" font-weight="700" fill="#f7f0e5"></text>
+              <text id="alb-lbl-r" x="330" y="186" text-anchor="middle" font-size="11" font-weight="700" fill="#10100e"></text>
+              <g id="alb-proof-grp" opacity="0">
+                <rect id="alb-proof-bg" x="128" y="156" width="184" height="26" rx="2" fill="#10100e"/>
+                <text id="alb-proof-lbl" x="220" y="173" text-anchor="middle" font-size="11.5" font-weight="700" fill="#f7f0e5"></text>
+              </g>
             </svg>
           </div>
 
@@ -168,46 +280,16 @@
         </header>
         <div class="sec-body">
           <p class="lead reveal">1961 年，曾在包豪斯任教的瑞士艺术家<strong>约翰内斯·伊顿（<span lang="en">Johannes Itten</span>，1888–1967）</strong>在《色彩艺术》（<cite lang="en">Kunst der Farbe</cite> / <cite lang="en">The Art of Color</cite>）中，把色彩之间的相互拉扯归纳为经典的<strong>七种对比</strong>：色相、明暗、冷暖、互补、同时、纯度（饱和度）与面积。</p>
-          <p class="reveal">对照看看原海报左右两侧的六条标注——它正好把这套理论浓缩成一张设计师随时可查的实战地图。逐个点开下面六项，切「反例」看每一种对比成立与失效的区别。</p>
+          <p class="reveal">刚才在开场大圆上选中的维度，放进真实排版卡片里会怎样改变层次？点下方标签切换六个维度（也会随开场标注同步），再切「反例」看每一种对比成立与失效的区别。</p>
 
           <div class="six-lab reveal">
-            <div class="dim-grid" role="tablist" aria-label="原海报六项色彩对比维度">
-              <button type="button" class="dim-tab on" role="tab" aria-selected="true" data-dim="warmcool">
-                <span class="dot dot-b" aria-hidden="true"></span>
-                <b>冷暖</b><span lang="en" class="mono">WARM &amp; COOL</span>
-                <small>冷色后退<br>暖色前进</small>
-                <i class="bar bar-b" aria-hidden="true"></i>
-              </button>
-              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="brightness">
-                <span class="dot dot-o" aria-hidden="true"></span>
-                <b>明度</b><span lang="en" class="mono">BRIGHTNESS</span>
-                <small>明暗对比<br>增强层次</small>
-                <i class="bar bar-o" aria-hidden="true"></i>
-              </button>
-              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="complementary">
-                <span class="dot dot-o" aria-hidden="true"></span>
-                <b>互补</b><span lang="en" class="mono">COMPLEMENTARY</span>
-                <small>色相相对<br>形成强对比</small>
-                <i class="bar bar-o" aria-hidden="true"></i>
-              </button>
-              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="proportion">
-                <span class="dot dot-b" aria-hidden="true"></span>
-                <b>面积</b><span lang="en" class="mono">PROPORTION</span>
-                <small>主次分明<br>对比更有效</small>
-                <i class="bar bar-b" aria-hidden="true"></i>
-              </button>
-              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="saturation">
-                <span class="dot dot-b" aria-hidden="true"></span>
-                <b>饱和</b><span lang="en" class="mono">SATURATION</span>
-                <small>高饱和更醒目<br>低饱和更平衡</small>
-                <i class="bar bar-b" aria-hidden="true"></i>
-              </button>
-              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="mood">
-                <span class="dot dot-o" aria-hidden="true"></span>
-                <b>情绪</b><span lang="en" class="mono">MOOD</span>
-                <small>色彩影响感受<br>传递情绪信息</small>
-                <i class="bar bar-o" aria-hidden="true"></i>
-              </button>
+            <div class="dim-strip" role="tablist" aria-label="原海报六项色彩对比维度">
+              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="warmcool"><span class="dot dot-b" aria-hidden="true"></span><span>冷暖</span></button>
+              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="brightness"><span class="dot dot-o" aria-hidden="true"></span><span>明度</span></button>
+              <button type="button" class="dim-tab on" role="tab" aria-selected="true" data-dim="complementary"><span class="dot dot-o" aria-hidden="true"></span><span>互补</span></button>
+              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="proportion"><span class="dot dot-b" aria-hidden="true"></span><span>面积</span></button>
+              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="saturation"><span class="dot dot-b" aria-hidden="true"></span><span>饱和</span></button>
+              <button type="button" class="dim-tab" role="tab" aria-selected="false" data-dim="mood"><span class="dot dot-o" aria-hidden="true"></span><span>情绪</span></button>
             </div>
 
             <div class="dim-stage">
@@ -335,7 +417,7 @@
                 <div class="ac-main">
                   <p class="ac-kicker mono">EXHIBITION · 2026</p>
                   <h3>包豪斯色彩构成展</h3>
-                  <p class="ac-sub">当主色撑起秩序，小面积互补色就成了全场唯一焦点。</p>
+                  <p class="ac-sub" id="ac-sub">钴蓝 67% 配朱橙 33%，刚好贴合蓝 2 : 橙 1 的视觉分量平衡。</p>
                   <span class="ac-btn" id="ac-btn">预约观展 →</span>
                 </div>
                 <div class="ac-accent" id="ac-accent" aria-hidden="true"></div>
@@ -385,7 +467,7 @@
           </div>
 
           <div class="cvd-meter" aria-live="polite">
-            <span class="mono">正文亮度对比度 <b id="cvd-cr">1.18 : 1</b></span>
+            <span class="mono">正文亮度对比度 <b id="cvd-cr">1.50 : 1</b></span>
             <span class="ro-badge" id="cvd-status" data-kind="warn">未达标</span>
           </div>
           <p class="lab-read" id="cvd-read" aria-live="polite"></p>
@@ -448,12 +530,12 @@
     <section class="sec wrap" aria-labelledby="s7">
       <header class="sec-head reveal">
         <p class="sec-no mono" lang="en">07</p>
-        <h2 id="s7">小练习：四张配色，<br>哪张最有效？</h2>
-        <p class="sec-en mono" lang="en">Practice · Pick the strongest contrast</p>
+        <h2 id="s7">小练习：四张里<br>哪张真正过关？</h2>
+        <p class="sec-en mono" lang="en">Practice · Spot the rule each card breaks</p>
       </header>
       <div class="sec-body">
         <div class="quiz-head reveal">
-          <p class="lead">同一张「夏日爵士夜」海报版式，换了四种色彩对比做法。先凭第一眼挑出最清晰、最抓人的一张。</p>
+          <p class="lead">同一套「夏日爵士夜」海报版式，换了四种看起来都挺像样的配色方案。只有一张同时守住了面积主次、明度可读性与色彩焦点——先挑一张，也可以切灰度验明度。</p>
           <button type="button" class="btn-outline" id="quiz-gray" aria-pressed="false">切灰度验明度层级</button>
         </div>
 
@@ -477,8 +559,8 @@
         </div>
 
         <div class="verdict" aria-live="polite">
-          <p class="v-title" id="quiz-title">先凭直觉点选一张。</p>
-          <p class="v-text" id="quiz-text">选完后会拆解每张的对比问题，也可以点上方按钮一键抽成灰度验收。</p>
+          <p class="v-title" id="quiz-title">四张乍看都整齐，用面积、明度和焦点三条尺子量一遍。</p>
+          <p class="v-text" id="quiz-text">点选任意一张会拆解它守住或踩坑的具体规则；也可以点「切灰度验明度层级」检查蓝底上的字还清不清楚。</p>
         </div>
       </div>
     </section>
@@ -503,9 +585,9 @@
           <div class="eq-box">
             <svg viewBox="0 0 210 64" class="eq-svg" aria-hidden="true">
               <circle cx="30" cy="32" r="21" fill="#0f42d5"/>
-              <text x="65" y="38" text-anchor="middle" font-size="20" font-family="JetBrains Mono, monospace" fill="#10100e">+</text>
+              <text x="65" y="38" text-anchor="middle" font-size="20" font-family="Space Mono, monospace" font-weight="400" fill="#10100e">+</text>
               <circle cx="100" cy="32" r="21" fill="#f5590e"/>
-              <text x="135" y="38" text-anchor="middle" font-size="20" font-family="JetBrains Mono, monospace" fill="#10100e">=</text>
+              <text x="135" y="38" text-anchor="middle" font-size="20" font-family="Space Mono, monospace" font-weight="400" fill="#10100e">=</text>
               <defs><clipPath id="eq-clip"><circle cx="166" cy="32" r="21"/></clipPath></defs>
               <circle cx="166" cy="32" r="21" fill="#0f42d5"/>
               <circle cx="188" cy="32" r="21" fill="#f5590e"/>
