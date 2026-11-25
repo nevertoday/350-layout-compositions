@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>208 流体网格 · FLUID GRID</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hero" id="top">
+    <div class="hero-ornament" aria-hidden="true">
+      <svg viewBox="0 0 460 150" fill="none" preserveAspectRatio="xMaxYMin meet">
+        <path d="M90 -16 C140 58, 178 40, 214 96 C250 150, 314 142, 366 106 C406 78, 434 114, 466 146" stroke="#E8689E" stroke-width="11" stroke-linecap="round" />
+        <circle cx="144" cy="94" r="24" fill="#E8689E" />
+        <path d="M332 30 V48 M323 39 H341" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="square" />
+        <g fill="#E6E1FF" opacity="0.88">
+          <circle cx="384" cy="18" r="2.2" /><circle cx="398" cy="18" r="2.2" /><circle cx="412" cy="18" r="2.2" />
+          <circle cx="384" cy="31" r="2.2" /><circle cx="398" cy="31" r="2.2" /><circle cx="412" cy="31" r="2.2" />
+          <circle cx="384" cy="44" r="2.2" /><circle cx="398" cy="44" r="2.2" /><circle cx="412" cy="44" r="2.2" />
+          <circle cx="384" cy="57" r="2.2" /><circle cx="398" cy="57" r="2.2" /><circle cx="412" cy="57" r="2.2" />
+          <circle cx="384" cy="70" r="2.2" /><circle cx="398" cy="70" r="2.2" /><circle cx="412" cy="70" r="2.2" />
+          <circle cx="384" cy="83" r="2.2" /><circle cx="398" cy="83" r="2.2" /><circle cx="412" cy="83" r="2.2" />
+        </g>
+      </svg>
+    </div>
+
+    <div class="hero-inner">
+      <div class="masthead">
+        <div class="mast-title-wrap">
+          <div class="mast-meta">
+            <span class="meta-crumb">字体、网格与东亚文字 / 网格系统</span>
+            <span class="meta-num">NO. 208</span>
+            <span class="status-pill" id="heroStatusPill" role="status" aria-live="polite">溢出 +320px</span>
+          </div>
+          <div class="title-block">
+            <h1 class="hero-h1">流体网格</h1>
+            <span class="hero-en" aria-hidden="true">FLUID GRID</span>
+          </div>
+          <div class="title-ribbon" id="titleRibbon" aria-hidden="true"></div>
+          <p class="hero-tagline desktop-tagline">随着空间自由伸缩，始终保持节奏与秩序 <span class="tagline-en">FLOW WITH SPACE, STAY IN RHYTHM</span></p>
+        </div>
+
+        <div class="mast-actions">
+          <div class="scene-switch" role="group" aria-label="切换流体网格题材">
+            <button type="button" class="scene-btn is-active" data-scene="poster"><span class="lbl-full">原海报比例</span><span class="lbl-short">原海报</span></button>
+            <button type="button" class="scene-btn" data-scene="editorial"><span class="lbl-full">编辑图文</span><span class="lbl-short">编辑</span></button>
+            <button type="button" class="scene-btn" data-scene="dashboard"><span class="lbl-full">数据看板</span><span class="lbl-short">看板</span></button>
+          </div>
+          <p class="mast-hint">左右拖拽弹性右壁调视口宽 · 拖列间竖缝改比例 · 方向键 ← → 微调</p>
+        </div>
+      </div>
+
+      <div class="stage-shell">
+        <div class="stage-head">
+          <span class="poster-pill">流体网格示意 <span class="pill-en">FLUID GRID IN ACTION</span></span>
+          <span class="stage-readout" id="stageReadout">容器 960px · 固定 px · 6 列</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas
+            id="fluidCanvas"
+            class="fluid-canvas"
+            data-perf-drag
+            tabindex="0"
+            role="application"
+            aria-label="流体网格弹性水槽：左右拖拽或按左右方向键改变视口宽度，拖拽列缝重新分配比例"
+          ></canvas>
+        </div>
+      </div>
+
+      <p class="hero-tagline mobile-tagline">随着空间自由伸缩，始终保持节奏与秩序 · 流动的空间，不变的秩序。</p>
+
+      <div class="hero-dock">
+        <section class="diag-panel" aria-label="流体网格实时诊单">
+          <div class="diag-top">
+            <span class="diag-badge" id="diagBadge">待校准 · 0/4 原理通流</span>
+            <span class="diag-source">实绘轨道单真源</span>
+          </div>
+          <h2 class="diag-title" id="diagTitle">固定写死 1280px，当前 960px 视口向右破框 +320px</h2>
+          <p class="diag-why" id="diagWhy"></p>
+          <div class="diag-action-row">
+            <p class="diag-tip" id="diagAction"></p>
+            <button type="button" class="fix-btn" id="diagFixBtn">改用弹性 fr 单位</button>
+          </div>
+          <div class="principles-grid" id="principlesGrid" aria-label="四条核心原理实时状态"></div>
+        </section>
+
+        <section class="code-panel" aria-label="活体 CSS 代码与网格调谐">
+          <div class="code-head">
+            <span class="code-label">实现方式示例 <span class="code-en">LIVE CSS</span></span>
+            <span class="code-metrics" id="codeMetrics">溢出 +320px · 最窄 48px</span>
+          </div>
+          <pre class="live-css" id="liveCss" aria-live="polite"></pre>
+
+          <div class="ctrl-rows">
+            <div class="ctrl-group">
+              <span class="ctrl-k">列宽单位</span>
+              <div class="seg-row" role="group" aria-label="选择列宽单位">
+                <button type="button" class="seg-btn is-active" data-unit="px">固定 px</button>
+                <button type="button" class="seg-btn" data-unit="pct">百分比 %</button>
+                <button type="button" class="seg-btn" data-unit="fr">弹性 fr</button>
+              </div>
+            </div>
+
+            <div class="ctrl-group">
+              <span class="ctrl-k">列间栏距</span>
+              <div class="seg-row" role="group" aria-label="选择栏距">
+                <button type="button" class="seg-btn" data-gap="0">0px 无缝</button>
+                <button type="button" class="seg-btn is-active" data-gap="16">16px 常规</button>
+                <button type="button" class="seg-btn" data-gap="28">28px 宽缝</button>
+              </div>
+            </div>
+
+            <div class="ctrl-group">
+              <span class="ctrl-k">工程护栏</span>
+              <div class="seg-row" role="group" aria-label="开关护栏">
+                <button type="button" class="toggle-btn" id="toggleReflow" aria-pressed="false">小屏重排：关</button>
+                <button type="button" class="toggle-btn" id="toggleClamp" aria-pressed="false">行宽护栏：关</button>
+              </div>
+            </div>
+
+            <div class="preset-row" role="group" aria-label="多解与试错预设">
+              <button type="button" class="preset-btn is-valid" data-preset="poster">原海报无缝解</button>
+              <button type="button" class="preset-btn is-valid" data-preset="modernFr">现代 fr 解</button>
+              <button type="button" class="preset-btn is-valid" data-preset="asym4">四列不对称解</button>
+              <button type="button" class="preset-btn is-valid" data-preset="even4">四列均衡解</button>
+              <button type="button" class="preset-btn is-trap" data-preset="errPctGap">试错：% 加缝</button>
+              <button type="button" class="preset-btn is-trap" data-preset="errUltrawide">试错：超宽拉爆</button>
+              <button type="button" class="preset-btn is-reset" data-preset="broken">复原错态</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 01 流体从哪来 -->
+    <section class="sec sec-lavender" id="sec-01">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-no">01</span>
+          <div class="sec-titles">
+            <h2>流体从哪来</h2>
+            <p class="sec-en">FROM FIXED PAPER TO LIQUID CONTAINERS</p>
+          </div>
+        </div>
+
+        <p class="lead">印刷纸张在裁切机落刀那一刻就定死了宽高，而屏幕从 320px 的掌心手机一直延展到 2560px 的桌面显示器。流体网格诞生的全部理由，就是把版面从「赌中某一个像素宽度」解放成「永远守住列与列的相对比例」。</p>
+
+        <div class="timeline-grid" role="tablist" aria-label="流体网格演进节点">
+          <button type="button" class="era-card is-active" data-era="0" role="tab" aria-selected="true">
+            <span class="era-year">2000</span>
+            <strong class="era-name">放弃纸面控制</strong>
+            <span class="era-by">John Allsopp</span>
+          </button>
+          <button type="button" class="era-card" data-era="1" role="tab" aria-selected="false">
+            <span class="era-year">2009</span>
+            <strong class="era-name">流体网格公式</strong>
+            <span class="era-by">Ethan Marcotte</span>
+          </button>
+          <button type="button" class="era-card" data-era="2" role="tab" aria-selected="false">
+            <span class="era-year">2010</span>
+            <strong class="era-name">响应式三支柱</strong>
+            <span class="era-by">Ethan Marcotte</span>
+          </button>
+          <button type="button" class="era-card" data-era="3" role="tab" aria-selected="false">
+            <span class="era-year">2016–17</span>
+            <strong class="era-name">CSS Grid 与 fr</strong>
+            <span class="era-by">W3C Level 1</span>
+          </button>
+          <button type="button" class="era-card" data-era="4" role="tab" aria-selected="false">
+            <span class="era-year">2018</span>
+            <strong class="era-name">内在网页设计</strong>
+            <span class="era-by">Jen Simmons</span>
+          </button>
+        </div>
+
+        <div class="era-detail" id="eraDetail" aria-live="polite"></div>
+
+        <div class="calc-box">
+          <div class="calc-copy">
+            <span class="kicker">MARCOTTE 2009 经典换算公式</span>
+            <h3>动手算一次：target ÷ context = result</h3>
+            <p>2009 年 Ethan Marcotte 在《Fluid Grids》里给出的核心算式只有三个词：把设计稿里的目标列宽（<code>target</code>）除以父容器总宽（<code>context</code>），所得小数就是这列在任何屏幕上的百分比（<code>result</code>）。</p>
+            <div class="calc-presets" role="group" aria-label="公式案例预设">
+              <button type="button" class="mini-pill is-active" data-calc="700,988">Marcotte 原文（700 ÷ 988）</button>
+              <button type="button" class="mini-pill" data-calc="432,1440">208 原海报主列（432 ÷ 1440）</button>
+              <button type="button" class="mini-pill" data-calc="280,1200">侧边栏案例（280 ÷ 1200）</button>
+            </div>
+          </div>
+
+          <div class="calc-panel">
+            <div class="calc-equation">
+              <div class="stepper">
+                <span class="step-label">目标列宽 target</span>
+                <div class="step-ctrls">
+                  <button type="button" class="step-btn" id="targetDec" aria-label="减小目标列宽">−</button>
+                  <span class="step-val" id="targetVal">700px</span>
+                  <button type="button" class="step-btn" id="targetInc" aria-label="增大目标列宽">+</button>
+                </div>
+              </div>
+              <span class="eq-op" aria-hidden="true">÷</span>
+              <div class="stepper">
+                <span class="step-label">容器总宽 context</span>
+                <div class="step-ctrls">
+                  <button type="button" class="step-btn" id="ctxDec" aria-label="减小容器总宽">−</button>
+                  <span class="step-val" id="ctxVal">988px</span>
+                  <button type="button" class="step-btn" id="ctxInc" aria-label="增大容器总宽">+</button>
+                </div>
+              </div>
+              <span class="eq-op" aria-hidden="true">=</span>
+              <div class="eq-result">
+                <span class="step-label">流体占比 result</span>
+                <strong class="result-pct" id="calcResult">70.85%</strong>
+              </div>
+            </div>
+            <div class="calc-bars" id="calcBars"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 比例与暗礁 -->
+    <section class="sec sec-white" id="sec-02">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-no">02</span>
+          <div class="sec-titles">
+            <h2>比例与暗礁</h2>
+            <p class="sec-en">CORE PRINCIPLES &amp; THE PERCENTAGE-GAP TRAP</p>
+          </div>
+        </div>
+
+        <p class="lead">208 原海报把流体网格浓缩成四句核心原理。把它们放进真实浏览器引擎里逐条拆开，你会发现前三条说透了比例分配的本质，而第二条有一处值得工程师和设计师一起补全的细节。</p>
+
+        <div class="quote-cards">
+          <article class="q-card">
+            <span class="q-badge" aria-hidden="true">%</span>
+            <h3>比例宽度 <span class="q-en">PERCENTAGE WIDTH</span></h3>
+            <blockquote class="poster-quote">「使用百分比定义列宽，相对于容器自适应。」</blockquote>
+            <p>不再问「这一栏多少像素」，而是问「这一栏在容器里占几成」。容器翻倍，它跟着翻倍；容器减半，它同步收缩。</p>
+          </article>
+          <article class="q-card q-card-note">
+            <span class="q-badge" aria-hidden="true"><svg viewBox="0 0 20 20" width="16" height="16" fill="none"><path d="M2.5 10.5C4.5 7 7 7 10 10C13 13 15.5 13 17.5 9.5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg></span>
+            <h3>连续流动 <span class="q-en">CONTINUITY</span> <span class="gentle-tag">说多了一点</span></h3>
+            <blockquote class="poster-quote">「模块之间无固定间隙，宽度连续分配。」</blockquote>
+            <p>流体网格并不是必须「零间隙」——真正不能写死的是列宽本身。原海报示例之所以没写 <code>gap</code>，是因为百分比加固定 <code>gap</code> 会让总宽超过 100%；换成 CSS Grid 的 <code>fr</code> 单位后，带 16px 固定缝照样严丝合缝。</p>
+          </article>
+          <article class="q-card">
+            <span class="q-badge" aria-hidden="true"><svg viewBox="0 0 20 20" width="16" height="16" fill="none"><path d="M2.5 10C4.5 5 6.8 5 10 10C13.2 15 15.5 15 17.5 10" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg></span>
+            <h3>弹性伸缩 <span class="q-en">ELASTICITY</span></h3>
+            <blockquote class="poster-quote">「空间变化时，模块按比例弹性伸缩。」</blockquote>
+            <p><code>10% · 10% · 20% · 30% · 20% · 10%</code> 在任何宽屏下都维持 <code>1 : 1 : 2 : 3 : 2 : 1</code> 的轻重阶梯——空间在流，层级关系不变。</p>
+          </article>
+          <article class="q-card">
+            <span class="q-badge" aria-hidden="true"><svg viewBox="0 0 20 20" width="16" height="16" fill="none"><path d="M7.5 4H4v3.5M12.5 4H16v3.5M7.5 16H4v-3.5M12.5 16H16v-3.5M4.5 4.5l4 4M15.5 4.5l-4 4M4.5 15.5l4-4M15.5 15.5l-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <h3>响应适配 <span class="q-en">RESPONSIVE</span></h3>
+            <blockquote class="poster-quote">「从大屏到小屏，自动重排，内容始终清晰有序。」</blockquote>
+            <p>原海报本身画出了三档：桌面 6 列、平板 5 列、手机 100% 堆叠。纯比例伸缩管的是同一档内的连续变化，跨档重排则靠断点接棒（详见 <a href="https://layout.xiaoxiaodong.ai/209/play/">209 响应式网格</a>）。</p>
+          </article>
+        </div>
+
+        <div class="trap-lab">
+          <div class="trap-head">
+            <div>
+              <span class="kicker">双轨实时剖面 · 为什么 10%×6 加 gap 会破框</span>
+              <h3>同为 1 : 1 : 2 : 3 : 2 : 1，看看 % 与 fr 遇到栏距的区别</h3>
+            </div>
+            <div class="trap-ctrls" role="group" aria-label="切换栏距与固定侧栏对比">
+              <button type="button" class="seg-light is-active" data-trap-gap="0">gap: 0px</button>
+              <button type="button" class="seg-light" data-trap-gap="16">gap: 16px</button>
+              <button type="button" class="seg-light" data-trap-gap="32">gap: 32px</button>
+              <button type="button" class="seg-light" id="trapSidebarBtn" aria-pressed="false">加固定边栏 180px：关</button>
+            </div>
+          </div>
+
+          <div class="trap-tracks" id="trapTracks"></div>
+          <p class="trap-verdict" id="trapVerdict" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 行长与护栏（深靛暗室） -->
+    <section class="sec sec-dark" id="sec-03">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-no">03</span>
+          <div class="sec-titles">
+            <h2>行长与护栏</h2>
+            <p class="sec-en">WHY PURE FLUIDITY NEEDS GUARDRAILS</p>
+          </div>
+        </div>
+
+        <p class="lead">流体网格最容易被忽略的反面：容器可以一路拉到 2560px，人眼的水平扫视舒适区却不会跟着变宽。加拿大字体学者 Robert Bringhurst 在《The Elements of Typographic Style》（1992，第 2.1 节）里指出，单栏英文正文的舒适行长约为 45–75 个字符（理想约 66 字符）；中文正文按 16px 字号折算，经验上每行约 25–42 个汉字最不易回行跳行。</p>
+
+        <div class="measure-lab">
+          <div class="measure-bar">
+            <div class="measure-slider-wrap">
+              <label for="measureRange" class="measure-lbl">拖动模拟屏幕宽度：<strong id="measureWidthOut">1680px</strong></label>
+              <input id="measureRange" type="range" min="360" max="2200" step="20" value="1680" />
+              <div class="measure-ticks" aria-hidden="true">
+                <span>360px 手机</span>
+                <span>768px 平板</span>
+                <span>1280px 常规</span>
+                <span>1680px 宽屏</span>
+                <span>2200px 带鱼屏</span>
+              </div>
+            </div>
+            <div class="measure-mode" role="group" aria-label="切换有无护栏">
+              <button type="button" class="dark-seg is-active" data-guard="off">裸奔纯流体（无上限）</button>
+              <button type="button" class="dark-seg" data-guard="on">护栏流体（minmax + 上限）</button>
+            </div>
+          </div>
+
+          <div class="measure-stage">
+            <div class="measure-viewport" id="measureViewport">
+              <div class="measure-col" id="measureCol">
+                <span class="measure-col-tag" id="measureColTag">主文列 50% · 实宽 840px</span>
+                <p class="measure-sample" id="measureSample">水倒进细长的玻璃瓶会顺着瓶壁向上立起，倒进宽敞的浅盘则会贴着盘底舒展开来。流体网格借的正是水的顺应性，但版面不是毫无骨架的积水——一旦超宽屏里没有任何最大宽度护栏，读者扫完一行正文往回寻找下一行开头时，视线要横跨半米距离，节奏与秩序就会在回行那一瞬断掉。</p>
+              </div>
+            </div>
+            <div class="measure-stats" id="measureStats"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 四大真场景 -->
+    <section class="sec sec-blush" id="sec-04">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-no">04</span>
+          <div class="sec-titles">
+            <h2>四大真场景</h2>
+            <p class="sec-en">WHERE FLUID GRIDS SHINE IN REAL DOM</p>
+          </div>
+        </div>
+
+        <p class="lead">原海报底部点名了流体网格最擅长的四类应用：网页布局、数据看板、卡片列表、内容排版。下面这扇橱窗不是示意图，而是真正跑着 CSS Grid 的活体容器——切场景、点屏宽，直接看浏览器怎么重排每一块内容。</p>
+
+        <div class="showcase-shell">
+          <div class="showcase-toolbar">
+            <div class="sc-tabs" role="tablist" aria-label="四大应用场景">
+              <button type="button" class="sc-tab is-active" data-sc="web" role="tab" aria-selected="true">网页布局 WEB</button>
+              <button type="button" class="sc-tab" data-sc="dash" role="tab" aria-selected="false">数据看板 DASHBOARD</button>
+              <button type="button" class="sc-tab" data-sc="cards" role="tab" aria-selected="false">卡片列表 CARDS</button>
+              <button type="button" class="sc-tab" data-sc="editorial" role="tab" aria-selected="false">内容排版 EDITORIAL</button>
+            </div>
+            <div class="sc-widths" role="group" aria-label="切换测试视口宽度">
+              <button type="button" class="w-pill" data-sw="360">手机 360</button>
+              <button type="button" class="w-pill" data-sw="768">平板 768</button>
+              <button type="button" class="w-pill is-active" data-sw="1280">桌面 1280</button>
+              <button type="button" class="w-pill" data-sw="1600">超宽 1600</button>
+            </div>
+          </div>
+
+          <div class="showcase-stage">
+            <div class="showcase-frame" id="showcaseFrame"></div>
+          </div>
+
+          <div class="showcase-foot">
+            <code class="showcase-css" id="showcaseCss"></code>
+            <p class="showcase-note" id="showcaseNote"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 什么时候别用 -->
+    <section class="sec sec-sand" id="sec-05">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-no">05</span>
+          <div class="sec-titles">
+            <h2>什么时候别用</h2>
+            <p class="sec-en">BOUNDARIES &amp; NEIGHBORING GRID SYSTEMS</p>
+          </div>
+        </div>
+
+        <p class="lead">流体网格擅长在多尺寸屏幕上保持弹性比例，但并非万能。遇到下面四类场景，硬套流体比例反而会把优势变成负担，换用同族里更趁手的网格会干净得多。</p>
+
+        <div class="avoid-grid">
+          <article class="avoid-card">
+            <span class="avoid-num">01</span>
+            <h3>物理尺寸锁死的纸质印刷品</h3>
+            <p>书刊、画册与折页印出来永远是固定毫米数，比例伸缩毫无用武之地，反而干扰字距与跨页基准——请改用 <a href="https://layout.xiaoxiaodong.ai/207/play/">207 固定网格</a> 与 <a href="https://layout.xiaoxiaodong.ai/198/play/">198 基线网格</a>。</p>
+          </article>
+          <article class="avoid-card">
+            <span class="avoid-num">02</span>
+            <h3>不同端需要彻底重构信息架构</h3>
+            <p>当手机端要把桌面左侧树形导航整个换到底部 Tab 栏、甚至隐藏次要模块时，光靠比例缩放救不了交互结构，需要配合断点换骨架——请看 <a href="https://layout.xiaoxiaodong.ai/209/play/">209 响应式网格</a>。</p>
+          </article>
+          <article class="avoid-card">
+            <span class="avoid-num">03</span>
+            <h3>多层嵌套卡片要死磕跨卡基线</h3>
+            <p>外层流体了，卡片里面的标题、图片和价格各自算百分比仍会参差不齐；想让子元素直接继承外层轨道线，应该叠加 <a href="https://layout.xiaoxiaodong.ai/206/play/">206 子网格</a>（或对比 <a href="https://layout.xiaoxiaodong.ai/205/play/">205 嵌套网格</a>）。</p>
+          </article>
+          <article class="avoid-card">
+            <span class="avoid-num">04</span>
+            <h3>强情绪冲击的艺术海报与实验专题</h3>
+            <p>处处按比例自适应的流道容易显得理性克制，若你要反常规视觉张力，改用 <a href="https://layout.xiaoxiaodong.ai/200/play/">200 非对称网格</a> 或 <a href="https://layout.xiaoxiaodong.ai/210/play/">210 破格网格</a>；纯线性长文或标准多栏可参考 <a href="https://layout.xiaoxiaodong.ai/194/play/">194 手稿网格</a>、<a href="https://layout.xiaoxiaodong.ai/195/play/">195 分栏网格</a> 与 <a href="https://layout.xiaoxiaodong.ai/196/play/">196 模块化网格</a>。</p>
+          </article>
+        </div>
+
+        <div class="triage-box">
+          <div class="triage-head">
+            <span class="kicker">三例真实需求快速分诊</span>
+            <h3>你接手这 3 个项目，用不用流体网格？</h3>
+          </div>
+          <div class="triage-cards" id="triageCards"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 小练习 -->
+    <section class="sec sec-white" id="sec-06">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-no">06</span>
+          <div class="sec-titles">
+            <h2>小练习</h2>
+            <p class="sec-en">SPOT THE WORKING FLUID GRID</p>
+          </div>
+        </div>
+
+        <div class="quiz-wrap">
+          <p class="quiz-prompt"><strong>题目：</strong>一个资讯站点在桌面端沿用 <code>1 : 1 : 2 : 3 : 2 : 1</code> 六列不对称比例，要求各列之间保留 <code>20px</code> 栏距，并且同时兼顾 <code>390px</code> 手机端与 <code>1920px</code> 宽屏阅读。下面四个方案只差在<strong>列轨与护栏写法</strong>上，哪一项在不同屏宽下都能站得住？</p>
+
+          <div class="quiz-options" id="quizOptions" role="radiogroup" aria-label="流体网格方案四选一"></div>
+          <div class="quiz-feedback" id="quizFeedback" aria-live="polite" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 原海报展柜 -->
+    <section class="sec sec-gallery" id="sec-07">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-no">07</span>
+          <div class="sec-titles">
+            <h2>原海报展柜</h2>
+            <p class="sec-en">ORIGINAL POSTER · NO. 208</p>
+          </div>
+        </div>
+
+        <div class="poster-layout">
+          <div class="poster-stage">
+            <button type="button" class="poster-trigger" id="posterOpenBtn" aria-label="放大查看 208 流体网格原海报">
+              <img id="poster" src="poster.webp" alt="208 流体网格原海报" draggable="false" />
+              <span class="poster-zoom-hint">点击放大检视 · 支持缩放与拖动</span>
+            </button>
+          </div>
+
+          <div class="poster-info">
+            <span class="gallery-pill">NO. 208 · FLUID GRID</span>
+            <blockquote class="gallery-motto">「流体网格，让设计像水一样灵活，像网格一样有序。」</blockquote>
+            <p class="gallery-en">FLUID GRID MAKES DESIGN FLUID LIKE WATER, ORDERLY LIKE A GRID.</p>
+            <p class="gallery-desc">原海报以深靛紫为画布、珊瑚粉为焦点列和导流波浪，自上而下排开「桌面 6 列 10/10/20/30/20/10 → 平板 5 列 15/15/25/25/20 → 手机 100% 堆叠」三条视口流体带，底部直出 CSS Grid 示例与四大应用场景。点击原图可放大细看每处数字与比例关系。</p>
+
+            <div class="keyword-list" aria-label="本页核心概念词">
+              <span class="kw-chip">比例宽度 %</span>
+              <span class="kw-chip">连续流动</span>
+              <span class="kw-chip">弹性伸缩</span>
+              <span class="kw-chip">响应适配</span>
+              <span class="kw-chip">target ÷ context</span>
+              <span class="kw-chip">fr 与 minmax()</span>
+              <span class="kw-chip">行长护栏</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <a href="https://layout.xiaoxiaodong.ai/208/play/">在线版</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://layout.xiaoxiaodong.ai/">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span aria-hidden="true">·</span>
+      <span>海报 CC BY 4.0</span>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/xiaoxiaodong-ai/350-layout-redesign">源文件 GitHub</a>
+    </div>
+  </footer>
+
+  <!-- 原海报放大灯箱 -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="208 原海报放大检视">
+    <div class="lb-bar">
+      <span class="lb-title">208 流体网格 · 原海报（拖动平移 / 滚轮缩放 / Esc 关闭）</span>
+      <div class="lb-ctrls">
+        <button type="button" class="lb-btn" id="lbZoomOut">缩小 −</button>
+        <button type="button" class="lb-btn" id="lbReset">100%</button>
+        <button type="button" class="lb-btn" id="lbZoomIn">放大 +</button>
+        <button type="button" class="lb-btn lb-close" id="lbClose">关闭 ×</button>
+      </div>
+    </div>
+    <div class="lb-stage" id="lbStage">
+      <img id="lbImg" alt="208 流体网格原海报放大图" draggable="false" />
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
