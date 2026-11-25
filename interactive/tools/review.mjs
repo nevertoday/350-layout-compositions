@@ -10,7 +10,7 @@ import { context } from "./gate.mjs";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const SHOTS = join(ROOT, ".build/shots");
 
-export function reviewArgs(id) {
+export function reviewArgs(id, { round = 1, previous = [] } = {}) {
   const dir = readdirSync(join(ROOT, "pages")).find((d) => d.startsWith(`${id}-`));
   const shots = existsSync(SHOTS) ? readdirSync(SHOTS).filter((f) => f.startsWith(`${id}-`)).sort().map((f) => join(SHOTS, f)) : [];
   const prompt = `你是这套「350 种排版 · 互动版」的主编，审 ${id} 这一页。作者是另一个模型，你的意见会原样交给它去改。
@@ -31,7 +31,10 @@ ${shots.map((s) => `   ${s}`).join("\n")}
 - 内容：讲清为什么而不只是是什么；来源具体可查（人名、书名、年份）；有「什么时候别用」和带理由的练习；有没有空话套话、凑字数、编的数字、明显的事实错误。
 - 画人有没有画五官（不许）。
 
-只有具体、值得改一轮的问题才提；挑剔细枝末节不算。好就放行。
+${round > 1 ? `这是第 ${round} 轮。上一轮提的意见是：
+${previous.map((p, i) => `${i + 1}. ${p}`).join("\n")}
+这一轮先逐条核对它们改到了没有；没改到或改坏了的照提。新问题只提硬伤：事实错误、看不清或被截断、手机上用不了、和别的页明显重复；其余小毛病不再提，能放行就放行。
+` : ""}只有具体、值得改一轮的问题才提；挑剔细枝末节不算。好就放行。
 最后一行只输出一个 JSON（不要代码块）：
 {"verdict":"pass" 或 "revise","points":["……"]}
 revise 时 points 最多 6 条，按重要性排，每条写清：在哪（第几节 / 哪个控件 / 哪个尺寸的截图）、哪里不好、怎么改。pass 时 points 可以写 0–2 条小建议。`;

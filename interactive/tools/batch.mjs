@@ -6,7 +6,7 @@
 //   - 每提交 DEPLOY_EVERY 页、以及全部做完时，跑 tools/release.mjs 上线。
 // 记录：.build/batch/run.log（一行一件事），results.jsonl，每页作者的输出 <编号>-<第几次>.log。
 import { spawn, execFileSync } from "node:child_process";
-import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,7 +16,7 @@ const OUT = join(ROOT, ".build/batch");
 mkdirSync(OUT, { recursive: true });
 
 const MODEL = process.env.MODEL || "gemini-4-neon-xhigh";
-const WORKERS = Number(process.env.WORKERS || 4);
+const WORKERS = Number(process.env.WORKERS || 6);
 const ATTEMPTS = 4;
 const REVIEWS = 2;
 const CLAUDE = "/opt/homebrew/bin/claude";
@@ -135,10 +135,18 @@ function maybeRelease(force = false) {
 // 作者最多跑 ATTEMPTS 次；两轮审稿后的修改不再审，只要 build / check / gate 过了就提交。
 // 新规矩（page.json 有 concept）之前提交的页：不重做，先过 gate 和审稿，不好再交给作者改。
 const hasConcept = (id) => { try { return !!JSON.parse(readFileSync(join(ROOT, "pages", pageDir(id), "page.json"), "utf8")).concept; } catch { return false; } };
+// 每个编号同一时间只有一个作者：.build/batch/lock/<编号>（开跑时清掉上一轮留下的）
+const LOCKS = join(OUT, "lock");
 async function page(id) {
+  try { mkdirSync(join(LOCKS, id), { recursive: false }); } catch { return; }
+  try { await makePage(id); } finally { rmSync(join(LOCKS, id), { recursive: true, force: true }); }
+}
+async function makePage(id) {
   const revisit = committed(id);
   if (revisit && hasConcept(id)) return;
-  let retry = null, reviews = 0, flaky = 0, skipAuthor = revisit;
+  let retry = null, reviews = 0, flaky = 0, skipAuthor = revisit, lastPoints = [];
+  // 上一轮批量被打断时做到一半的页：接着做，不从零开始
+  if (!revisit && pageDir(id)) retry = { reason: "上一轮批量被打断了", tail: "（没有检查输出）" };
   const notes = [];
   if (revisit) log(`${id} 回头查（新规矩之前提交的）`);
   for (let attempt = 1; attempt <= ATTEMPTS; ) {
@@ -175,10 +183,11 @@ async function page(id) {
     if (reviews < REVIEWS && attempt <= ATTEMPTS) {
       reviews++;
       const { reviewArgs, verdict } = await import(`./review.mjs?${Date.now()}`);
-      const r = await run(CLAUDE, reviewArgs(id), { ms: 20 * 60_000, file: join(OUT, `${id}-review-${reviews}.log`) });
+      const r = await run(CLAUDE, reviewArgs(id, { round: reviews, previous: lastPoints }), { ms: 20 * 60_000, file: join(OUT, `${id}-review-${reviews}.log`) });
       const v = r.code === 0 ? verdict(r.out) : { pass: true, points: [], failed: true };
       if (v.failed || v.unparsed) log(`${id} 审稿没出结果（${r.timedOut ? "超时" : `退出码 ${r.code}`}），当作放行`);
       notes.push(...v.points.map((p) => `第 ${reviews} 轮：${p}`));
+      lastPoints = v.points;
       if (!v.pass) {
         log(`${id} ↺ 审稿第 ${reviews} 轮要改 ${v.points.length} 条：${v.points[0]?.slice(0, 60) ?? ""}…`);
         retry = { review: true, reason: `主编审稿（第 ${reviews} 轮）认为还不够好`, tail: v.points.map((p, i) => `${i + 1}. ${p}`).join("\n") };
@@ -214,6 +223,8 @@ async function commitPage(id, { minutes, timedOut, reviews, notes, revisit }) {
 }
 
 // ---------- 分段，开跑 ----------
+rmSync(LOCKS, { recursive: true, force: true });
+mkdirSync(LOCKS, { recursive: true });
 const segments = Array.from({ length: WORKERS }, (_, k) => ids.slice(Math.round((k * ids.length) / WORKERS), Math.round(((k + 1) * ids.length) / WORKERS)));
 log(`开跑 ${MODEL}：${ids.length} 个编号，${WORKERS} 段 ${segments.map((s) => `${s[0]}–${s.at(-1)}`).join(" ")}，每 ${DEPLOY_EVERY} 页上线一次`);
 await Promise.all(segments.map(async (seg) => { for (const id of seg) { if (stopped()) break; await page(id); } }));
