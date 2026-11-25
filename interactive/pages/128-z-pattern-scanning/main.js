@@ -10,23 +10,30 @@ import {
   maybeSnap,
   analyzeLayout,
   sampleGaze,
+  projectOntoWaypoints,
   DISTRACT_TIERS,
   CTA_TIERS,
   computeHierarchyOverride,
 } from "./model.js";
 
 // =========================================================================
-// 1. 开场：Z 轨校准排布台（2D Canvas + 四节点磁吸拖拽 + 中央眼眸时间探针）
+// 1. 开场：Z 轨校准排布台（2D Canvas + 四节点磁吸拖拽 + 路径白点与底沿扫读轨）
 // =========================================================================
 const state = createInitialState();
 const stageWrap = document.getElementById("z-stage-wrap");
 const canvas = document.getElementById("hero-canvas");
 const ctx = canvas.getContext("2d");
 const nodeHandles = [...stageWrap.querySelectorAll(".node-handle")];
-const eyeHandle = document.getElementById("eye-handle");
+const gazeHandle = document.getElementById("gaze-handle");
+const gazeRail = document.getElementById("gaze-rail");
+const railTrack = document.getElementById("rail-track");
+const railFill = document.getElementById("rail-fill");
+const railThumb = document.getElementById("rail-thumb");
+const railPct = document.getElementById("rail-pct");
 
 const elPhase = document.getElementById("gaze-phase");
-const elMs = document.getElementById("gaze-ms");
+const elProgress = document.getElementById("gaze-progress");
+const elShortHint = document.getElementById("hud-short-hint");
 const elBadge = document.getElementById("diag-badge");
 const elHeadline = document.getElementById("diag-headline");
 const elReason = document.getElementById("diag-reason");
@@ -56,59 +63,37 @@ let cachedAnalysis = null;
 // 共享几何尺寸：保证画布方块/卡片与 DOM 拖拽手柄 1:1 严格对齐，2560 宽屏同步放大
 function getStageMetrics(w, h) {
   const compact = w < 540;
-  const shortLandscape = h < 285 && !compact;
+  const shortLandscape = h < 260 && !compact;
   const wide = w > 1600;
   const box = compact
-    ? Math.min(62, Math.round(w * 0.16))
+    ? Math.min(58, Math.round(w * 0.155))
     : shortLandscape
-      ? Math.min(68, Math.round(h * 0.25))
-      : Math.min(176, Math.max(84, Math.round(h * 0.22)));
+      ? Math.min(64, Math.round(h * 0.26))
+      : Math.min(176, Math.max(82, Math.round(h * 0.22)));
   const cardW = compact
-    ? Math.min(134, Math.round(w * 0.36))
+    ? Math.min(132, Math.round(w * 0.36))
     : Math.min(312, Math.max(198, Math.round(w * 0.175)));
   const cardH = compact
-    ? 56
+    ? 52
     : shortLandscape
-      ? 54
+      ? 52
       : Math.min(96, Math.max(68, Math.round(h * 0.11)));
   return { compact, shortLandscape, wide, box, cardW, cardH };
 }
 
-// 眼眸探针偏离 2→3 对角路径放置（与原海报一致，移动白点与光晕全程无遮挡）
-function getEyeAnchor() {
-  const compact = stageW < 540;
-  if (state.distractor) {
-    const baseU = compact ? 0.84 : 0.74;
-    const baseV = 0.5;
-    return {
-      u: clampCoord(baseU + state.pullBend * 0.12, 0.16, 0.88),
-      v: baseV,
-    };
-  }
-  const p2 = state.positions[1];
-  const p3 = state.positions[2];
-  const midU = (p2.u + p3.u) * 0.5;
-  const midV = (p2.v + p3.v) * 0.5;
-  const du = p3.u - p2.u;
-  const dv = p3.v - p2.v;
-  const dLen = Math.hypot(du, dv) || 1;
-  let nu = dv / dLen;
-  let nv = -du / dLen;
-  if (nu < 0) {
-    nu = -nu;
-    nv = -nv;
-  }
-  const off = compact ? 0.145 : 0.13;
-  return {
-    u: clampCoord(midU + nu * off + state.pullBend * 0.14, 0.16, 0.86),
-    v: clampCoord(midV + nv * off, 0.22, 0.78),
-  };
+// 精确射线-矩形边界距离：确保对角箭头（2→3、3→4）稳稳停在方块/卡片外缘之外，不刺入节点、不压序号圈
+function rectEdgeDist(hw, hh, ang, gap = 0) {
+  const ca = Math.abs(Math.cos(ang));
+  const sa = Math.abs(Math.sin(ang));
+  const tx = ca > 1e-4 ? hw / ca : Infinity;
+  const ty = sa > 1e-4 ? hh / sa : Infinity;
+  return Math.min(tx, ty) + gap;
 }
 
 function resizeCanvas() {
   const rect = stageWrap.getBoundingClientRect();
   stageW = Math.max(280, Math.round(rect.width));
-  stageH = Math.max(210, Math.round(rect.height));
+  stageH = Math.max(180, Math.round(rect.height));
   // 窄屏手机上限 1.5 像素比（GUIDE.md 建议），兼顾清晰度与软渲染帧率
   dpr = pixelRatio(stageW < 540 ? 1.5 : 2);
   const pw = Math.round(stageW * dpr);
@@ -121,7 +106,6 @@ function resizeCanvas() {
   needsDraw = true;
   lastSpot = null;
   syncNodeHandles();
-  syncEyeHandle();
 }
 
 function syncNodeHandles() {
@@ -138,18 +122,20 @@ function syncNodeHandles() {
   });
 }
 
-function syncEyeHandle() {
-  const anchor = getEyeAnchor();
-  const px = Math.round(anchor.u * stageW);
-  const py = Math.round(anchor.v * stageH);
-  eyeHandle.style.left = "0px";
-  eyeHandle.style.top = "0px";
-  eyeHandle.style.transform = `translate3d(${px}px, ${py}px, 0) translate(-50%, -50%)`;
+function syncGazeControls(gaze) {
+  const px = Math.round(gaze.u * stageW);
+  const py = Math.round(gaze.v * stageH);
+  gazeHandle.style.transform = `translate3d(${px}px, ${py}px, 0) translate(-50%, -50%)`;
+
+  const pctStr = `${gaze.pct}%`;
+  railFill.style.width = pctStr;
+  railThumb.style.left = pctStr;
+  railPct.textContent = pctStr;
+  gazeRail.setAttribute("aria-valuenow", String(gaze.pct));
 }
 
 function syncHandlePositions() {
   syncNodeHandles();
-  syncEyeHandle();
 }
 
 function markLayoutDirty() {
@@ -165,12 +151,22 @@ function markGazeDirty() {
 
 // 刷新遥测坞读数（仅在内容变化时改 DOM，避免高频无效重排）
 function syncTelemetry(analysis, gaze) {
-  const key = `${analysis.badge}|${analysis.shares.join(",")}|${analysis.distractorShare}|${gaze.simSec}|${gaze.phase}|${state.replaying}`;
+  const shortHint =
+    analysis.status === "ok"
+      ? "Z 轨已贯通"
+      : state.distractor || state.weakCta
+        ? "切下方开关排查"
+        : state.scene === "poster" && Math.hypot(state.positions[2].u - 0.48, state.positions[2].v - 0.58) < 0.09
+          ? "拖 3 号试试"
+          : "拖 1–4 节点排查";
+
+  const key = `${analysis.badge}|${analysis.shares.join(",")}|${analysis.distractorShare}|${gaze.progressText}|${gaze.phase}|${state.replaying}|${shortHint}`;
   if (key === lastReadoutKey) return;
   lastReadoutKey = key;
 
   elPhase.textContent = gaze.phase;
-  elMs.textContent = `模拟 ${gaze.simSec} s`;
+  elProgress.textContent = gaze.progressText;
+  if (elShortHint) elShortHint.textContent = shortHint;
 
   elBadge.textContent = analysis.badge;
   elBadge.className = `diag-badge is-${analysis.status}`;
@@ -197,7 +193,7 @@ function syncTelemetry(analysis, gaze) {
     elExtra.hidden = true;
   }
 
-  elReplayLabel.textContent = state.replaying ? `扫描中 · ${gaze.simSec} s` : "重播眼动 >>>";
+  elReplayLabel.textContent = state.replaying ? `扫读中 · ${gaze.pct}%` : "重播眼动 >>>";
 }
 
 function drawThickArrow(targetCtx, x1, y1, x2, y2, width, color, dashed = false) {
@@ -392,30 +388,42 @@ function rebuildBackgroundLayer(analysis) {
     bgCtx.restore();
   });
 
-  // 4. 对角牵引辐射视线纹（围绕偏置眼眸位置绘制，与原海报呼应）
+  // 4. 对角牵引辅助引导线（沿 2→3 对角走廊两侧画细虚线轨道，无额外眼眸干扰）
   if (state.diagonalCue && !state.distractor) {
-    bgCtx.save();
-    const eyeA = getEyeAnchor();
-    const ex0 = eyeA.u * w;
-    const ey0 = eyeA.v * h;
-    const rIn = wide ? 32 : 24;
-    const rOut = wide ? 82 : 58;
-    bgCtx.strokeStyle = "rgba(19, 192, 209, 0.32)";
-    bgCtx.lineWidth = 1;
-    bgCtx.setLineDash([2, 5]);
-    for (let k = -2; k <= 2; k++) {
-      const a = -0.35 + k * 0.24;
-      bgCtx.beginPath();
-      bgCtx.moveTo(ex0 + Math.cos(a) * rIn, ey0 + Math.sin(a) * rIn);
-      bgCtx.lineTo(ex0 + Math.cos(a) * rOut, ey0 + Math.sin(a) * rOut);
-      bgCtx.stroke();
+    const p2 = pts[1];
+    const p3 = pts[2];
+    const dx = p3.x - p2.x;
+    const dy = p3.y - p2.y;
+    const dLen = Math.hypot(dx, dy);
+    if (dLen > 60) {
+      const nx = -dy / dLen;
+      const ny = dx / dLen;
+      const offset = compact ? 13 : wide ? 24 : 18;
+      bgCtx.save();
+      bgCtx.strokeStyle = "rgba(19, 192, 209, 0.24)";
+      bgCtx.lineWidth = 1;
+      bgCtx.setLineDash([3, 6]);
+      for (const side of [-1, 1]) {
+        bgCtx.beginPath();
+        bgCtx.moveTo(p2.x + dx * 0.22 + nx * offset * side, p2.y + dy * 0.22 + ny * offset * side);
+        bgCtx.lineTo(p2.x + dx * 0.78 + nx * offset * side, p2.y + dy * 0.78 + ny * offset * side);
+        bgCtx.stroke();
+      }
+      bgCtx.restore();
     }
-    bgCtx.restore();
   }
 
-  // 5. 实际计算出的模拟眼动路线箭头
+  // 5. 实际计算出的模拟眼动路线箭头（射线与矩形边界精确求交，箭头尖始终停在方块外缘，绝不刺入节点或撞序号圈）
   const wpPts = analysis.waypoints.map((wp) => ({ ...wp, x: wp.u * w, y: wp.v * h }));
-  const arrowW = compact ? 7 : Math.max(10, Math.round(box * 0.11));
+  const arrowW = compact ? 6.5 : Math.max(10, Math.round(box * 0.11));
+  const distW = compact ? 148 : Math.min(276, Math.max(188, Math.round(w * 0.16)));
+  const distH = Math.min(76, Math.max(54, Math.round(h * 0.095)));
+  const halfOf = (wp) => {
+    if (wp.kind === "distractor") return [distW * 0.5, distH * 0.5];
+    if (wp.kind === "exit") return [0, 0];
+    return state.scene === "poster" ? [box * 0.5, box * 0.5] : [cardW * 0.5, cardH * 0.5];
+  };
+
   for (let i = 0; i < wpPts.length - 1; i++) {
     const a = wpPts[i];
     const b = wpPts[i + 1];
@@ -424,8 +432,10 @@ function rebuildBackgroundLayer(analysis) {
     const isWeakDiag = i === 1 && !state.diagonalCue && !isHijackSeg;
 
     const ang = Math.atan2(b.y - a.y, b.x - a.x);
-    const padA = state.scene === "poster" ? box * 0.48 : cardW * 0.36;
-    const padB = b.kind === "exit" ? 4 : state.scene === "poster" ? box * 0.54 : cardW * 0.42;
+    const [hwA, hhA] = halfOf(a);
+    const [hwB, hhB] = halfOf(b);
+    const padA = a.kind === "exit" ? 4 : rectEdgeDist(hwA, hhA, ang, compact ? 3 : 4);
+    const padB = b.kind === "exit" ? 4 : rectEdgeDist(hwB, hhB, ang, compact ? 5 : 6);
     const dist = Math.hypot(b.x - a.x, b.y - a.y);
     if (dist <= padA + padB + 8) continue;
 
@@ -510,11 +520,11 @@ function drawHeroFrame(t, dt, { still }) {
     }
   } else if (state.replaying) {
     state.replayClock += dt;
-    state.gazeProgress = Math.min(1, state.replayClock / 1.8);
+    state.gazeProgress = Math.min(1, state.replayClock / 1.95);
     if (state.gazeProgress >= 1) state.replaying = false;
     animating = true;
-  } else if (!state.scrubbing && state.activeNode < 0 && t <= 1.65) {
-    state.gazeProgress = Math.min(1, t / 1.6);
+  } else if (!state.scrubbing && state.activeNode < 0 && t <= 2.0) {
+    state.gazeProgress = Math.min(1, t / 1.95);
     animating = true;
   }
 
@@ -530,7 +540,7 @@ function drawHeroFrame(t, dt, { still }) {
     lastSpot = null;
   } else if (lastSpot) {
     // 仅复原上一帧视点所占的局部矩形，避免整屏软件像素重刷
-    const pad = 4;
+    const pad = 5;
     const sx = Math.max(0, Math.floor((lastSpot.x - lastSpot.r - pad) * dpr));
     const sy = Math.max(0, Math.floor((lastSpot.y - lastSpot.r - pad) * dpr));
     const ex = Math.min(bgCanvas.width, Math.ceil((lastSpot.x + lastSpot.r + pad) * dpr));
@@ -544,51 +554,73 @@ function drawHeroFrame(t, dt, { still }) {
   }
 
   const analysis = cachedAnalysis;
-  const gaze = sampleGaze(analysis.waypoints, state.gazeProgress, state.pullBend);
+  const gaze = sampleGaze(analysis.waypoints, state.gazeProgress);
   syncTelemetry(analysis, gaze);
+  syncGazeControls(gaze);
 
   const w = stageW;
   const h = stageH;
-  const compact = w < 540;
-  const wide = w > 1600;
+  const { compact, wide, box, cardH } = getStageMetrics(w, h);
   const gx = gaze.u * w;
   const gy = gaze.v * h;
-  const outerR = compact ? 30 : wide ? 50 : 38;
-  const midR = compact ? 18 : wide ? 30 : 23;
-  const dotR = wide ? 12 : 10;
+  const lastWp = analysis.waypoints[analysis.waypoints.length - 1];
+  const arrivedAtNode = state.gazeProgress >= 0.985 && lastWp && lastWp.kind === "node";
 
-  // 轻量分层同心光斑（无 createRadialGradient 分配，软件渲染极速）
   ctx.save();
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-  ctx.fillStyle = state.distractor ? "rgba(236, 62, 11, 0.22)" : "rgba(67, 203, 207, 0.2)";
-  ctx.beginPath();
-  ctx.arc(gx, gy, outerR, 0, Math.PI * 2);
-  ctx.fill();
+  if (arrivedAtNode) {
+    // 抵达终点站时改画镂空聚焦环，让 4 号节点里的对勾图标保持完整清晰
+    const ringR = state.scene === "poster" ? box * 0.42 : cardH * 0.46;
+    const haloR = ringR + (compact ? 11 : 15);
+    ctx.strokeStyle = state.distractor ? "rgba(236, 62, 11, 0.35)" : "rgba(67, 203, 207, 0.35)";
+    ctx.lineWidth = compact ? 5 : 7;
+    ctx.beginPath();
+    ctx.arc(gx, gy, haloR - 4, 0, Math.PI * 2);
+    ctx.stroke();
 
-  ctx.fillStyle = state.distractor ? "rgba(236, 62, 11, 0.42)" : "rgba(67, 203, 207, 0.42)";
-  ctx.beginPath();
-  ctx.arc(gx, gy, midR, 0, Math.PI * 2);
-  ctx.fill();
+    ctx.strokeStyle = "#f0f1ec";
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.arc(gx, gy, ringR, 0, Math.PI * 2);
+    ctx.stroke();
+    lastSpot = { x: gx, y: gy, r: haloR + 3 };
+  } else {
+    const outerR = compact ? 23 : wide ? 46 : 34;
+    const midR = compact ? 14 : wide ? 26 : 20;
+    const dotR = compact ? 8.5 : wide ? 11.5 : 9.5;
 
-  ctx.fillStyle = "rgba(240, 241, 236, 0.92)";
-  ctx.beginPath();
-  ctx.arc(gx, gy, dotR, 0, Math.PI * 2);
-  ctx.fill();
+    // 轻量分层同心光斑（无 createRadialGradient 分配，软件渲染极速）
+    ctx.fillStyle = state.distractor ? "rgba(236, 62, 11, 0.22)" : "rgba(67, 203, 207, 0.22)";
+    ctx.beginPath();
+    ctx.arc(gx, gy, outerR, 0, Math.PI * 2);
+    ctx.fill();
 
-  ctx.strokeStyle = "#f0f1ec";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(gx, gy, dotR, 0, Math.PI * 2);
-  ctx.stroke();
+    ctx.fillStyle = state.distractor ? "rgba(236, 62, 11, 0.44)" : "rgba(67, 203, 207, 0.44)";
+    ctx.beginPath();
+    ctx.arc(gx, gy, midR, 0, Math.PI * 2);
+    ctx.fill();
 
-  ctx.fillStyle = "#001122";
-  ctx.beginPath();
-  ctx.arc(gx, gy, wide ? 5 : 4, 0, Math.PI * 2);
-  ctx.fill();
+    ctx.fillStyle = "rgba(240, 241, 236, 0.94)";
+    ctx.beginPath();
+    ctx.arc(gx, gy, dotR, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "#f0f1ec";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(gx, gy, dotR, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = "#001122";
+    ctx.beginPath();
+    ctx.arc(gx, gy, compact ? 3.4 : wide ? 4.8 : 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    lastSpot = { x: gx, y: gy, r: outerR };
+  }
 
   ctx.restore();
-  lastSpot = { x: gx, y: gy, r: outerR };
   needsDraw = false;
 }
 
@@ -645,87 +677,151 @@ nodeHandles.forEach((btn, index) => {
   });
 });
 
-// 拖拽中央眼眸探针（左右拖动扫读 0..1.8 s 模拟路径，同时作为 perf 拖动标靶）
+// 1) 直接沿 Z 轨拖动路径白色视线点本体（投影到最近路径段，支持鼠标、触屏、方向键）
 (() => {
   let dragId = null;
-  let startX = 0;
-  let startProg = 0.5;
+  let touching = false;
 
-  const updateFromClientX = (clientX) => {
+  const scrubAlongPath = (clientX, clientY) => {
     const rect = stageWrap.getBoundingClientRect();
-    const span = Math.max(120, rect.width * 0.56);
-    const delta = (clientX - startX) / span;
-    state.gazeProgress = Math.max(0, Math.min(1, startProg + delta));
-    state.pullBend = Math.max(-1, Math.min(1, delta * 1.4));
-    syncEyeHandle();
+    const u = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const v = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+    const analysis = cachedAnalysis || analyzeLayout(state);
+    state.gazeProgress = projectOntoWaypoints(analysis.waypoints, u, v, state.gazeProgress);
     markGazeDirty();
   };
 
-  eyeHandle.addEventListener("pointerdown", (e) => {
+  gazeHandle.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     dragId = e.pointerId;
-    try { eyeHandle.setPointerCapture(dragId); } catch {}
-    startX = e.clientX;
-    startProg = state.gazeProgress > 0.96 || state.gazeProgress < 0.04 ? 0.5 : state.gazeProgress;
+    try { gazeHandle.setPointerCapture(dragId); } catch {}
     state.scrubbing = true;
     state.replaying = false;
-    eyeHandle.classList.add("is-dragging");
-    updateFromClientX(e.clientX);
+    gazeHandle.classList.add("is-dragging");
+    scrubAlongPath(e.clientX, e.clientY);
   });
 
   window.addEventListener("pointermove", (e) => {
     if (e.pointerId !== dragId) return;
-    updateFromClientX(e.clientX);
+    scrubAlongPath(e.clientX, e.clientY);
   });
 
-  const endEye = (e) => {
+  const endDot = (e) => {
     if (e.pointerId !== dragId) return;
     dragId = null;
     state.scrubbing = false;
-    state.pullBend = 0;
-    eyeHandle.classList.remove("is-dragging");
-    syncEyeHandle();
+    gazeHandle.classList.remove("is-dragging");
     markGazeDirty();
   };
-  window.addEventListener("pointerup", endEye);
-  window.addEventListener("pointercancel", endEye);
+  window.addEventListener("pointerup", endDot);
+  window.addEventListener("pointercancel", endDot);
 
-  // 兜底原生 TouchEvent，确保 CDP 触屏压测同样顺滑跟手
-  let touching = false;
-  eyeHandle.addEventListener("touchstart", (e) => {
+  gazeHandle.addEventListener("touchstart", (e) => {
     if (!e.touches.length || dragId !== null) return;
     e.preventDefault();
     touching = true;
-    startX = e.touches[0].clientX;
-    startProg = 0.5;
     state.scrubbing = true;
     state.replaying = false;
-    updateFromClientX(e.touches[0].clientX);
+    scrubAlongPath(e.touches[0].clientX, e.touches[0].clientY);
   }, { passive: false });
 
-  eyeHandle.addEventListener("touchmove", (e) => {
+  gazeHandle.addEventListener("touchmove", (e) => {
     if (!touching || !e.touches.length) return;
     e.preventDefault();
-    updateFromClientX(e.touches[0].clientX);
+    scrubAlongPath(e.touches[0].clientX, e.touches[0].clientY);
   }, { passive: false });
 
-  const endTouch = () => {
+  const endDotTouch = () => {
     if (!touching) return;
     touching = false;
     state.scrubbing = false;
-    state.pullBend = 0;
-    syncEyeHandle();
     markGazeDirty();
   };
-  eyeHandle.addEventListener("touchend", endTouch);
-  eyeHandle.addEventListener("touchcancel", endTouch);
+  gazeHandle.addEventListener("touchend", endDotTouch);
+  gazeHandle.addEventListener("touchcancel", endDotTouch);
 
-  eyeHandle.addEventListener("keydown", (e) => {
+  gazeHandle.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
       e.preventDefault();
       state.replaying = false;
       state.scrubbing = true;
-      state.gazeProgress = Math.max(0, Math.min(1, state.gazeProgress + (e.key === "ArrowRight" ? 0.08 : -0.08)));
+      state.gazeProgress = Math.max(0, Math.min(1, state.gazeProgress + (e.key === "ArrowRight" ? 0.06 : -0.06)));
+      markGazeDirty();
+    }
+  });
+})();
+
+// 2) 舞台底沿路径进度轨（点击或左右拖动实时扫读 0–100%，同时作为 perf 触屏压测标靶）
+(() => {
+  let dragId = null;
+  let touching = false;
+
+  const scrubFromRailX = (clientX) => {
+    const rect = railTrack.getBoundingClientRect();
+    const span = Math.max(40, rect.width);
+    const prog = Math.max(0, Math.min(1, (clientX - rect.left) / span));
+    state.gazeProgress = prog;
+    markGazeDirty();
+  };
+
+  gazeRail.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    dragId = e.pointerId;
+    try { gazeRail.setPointerCapture(dragId); } catch {}
+    state.scrubbing = true;
+    state.replaying = false;
+    gazeRail.classList.add("is-dragging");
+    scrubFromRailX(e.clientX);
+  });
+
+  window.addEventListener("pointermove", (e) => {
+    if (e.pointerId !== dragId) return;
+    scrubFromRailX(e.clientX);
+  });
+
+  const endRail = (e) => {
+    if (e.pointerId !== dragId) return;
+    dragId = null;
+    state.scrubbing = false;
+    gazeRail.classList.remove("is-dragging");
+    markGazeDirty();
+  };
+  window.addEventListener("pointerup", endRail);
+  window.addEventListener("pointercancel", endRail);
+
+  // 兜底原生 TouchEvent，确保 CDP 触屏压测同样顺滑跟手
+  gazeRail.addEventListener("touchstart", (e) => {
+    if (!e.touches.length || dragId !== null) return;
+    e.preventDefault();
+    touching = true;
+    state.scrubbing = true;
+    state.replaying = false;
+    gazeRail.classList.add("is-dragging");
+    scrubFromRailX(e.touches[0].clientX);
+  }, { passive: false });
+
+  gazeRail.addEventListener("touchmove", (e) => {
+    if (!touching || !e.touches.length) return;
+    e.preventDefault();
+    scrubFromRailX(e.touches[0].clientX);
+  }, { passive: false });
+
+  const endRailTouch = () => {
+    if (!touching) return;
+    touching = false;
+    state.scrubbing = false;
+    gazeRail.classList.remove("is-dragging");
+    markGazeDirty();
+  };
+  gazeRail.addEventListener("touchend", endRailTouch);
+  gazeRail.addEventListener("touchcancel", endRailTouch);
+
+  gazeRail.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      e.preventDefault();
+      state.replaying = false;
+      state.scrubbing = true;
+      state.gazeProgress = Math.max(0, Math.min(1, state.gazeProgress + (e.key === "ArrowRight" ? 0.06 : -0.06)));
       markGazeDirty();
     }
   });
@@ -741,7 +837,6 @@ sceneBtns.forEach((btn) => {
     state.diagonalCue = preset.diagonalCue;
     state.distractor = preset.distractor;
     state.weakCta = preset.weakCta;
-    state.pullBend = 0;
     state.scrubbing = false;
     state.replaying = !reducedMotion.matches;
     state.replayClock = 0;
@@ -779,7 +874,6 @@ btnDiag.addEventListener("click", () => {
 btnDistract.addEventListener("click", () => {
   state.distractor = !state.distractor;
   syncControlButtons();
-  syncEyeHandle();
   markLayoutDirty();
 });
 
@@ -794,7 +888,6 @@ btnReset.addEventListener("click", () => {
   state.diagonalCue = true;
   state.distractor = false;
   state.weakCta = false;
-  state.pullBend = 0;
   state.gazeProgress = 1;
   state.replaying = false;
   syncControlButtons();

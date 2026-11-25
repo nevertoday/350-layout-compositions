@@ -99,13 +99,12 @@ export function createInitialState() {
     diagonalCue: init.diagonalCue,
     distractor: init.distractor,
     weakCta: init.weakCta,
-    // 0..1 的模拟扫视进度；开场自动走一遍，也可由对角眼眸手柄拖动或点击朱红块重播控制
+    // 0..1 的路径扫读进度；开场自动沿 Z 轨走一遍，也可直接拖动白点或舞台底沿进度轨扫读
     gazeProgress: 1,
     replaying: false,
     replayClock: 0,
     activeNode: -1, // 0..3 或 -1
     scrubbing: false,
-    pullBend: 0,
   };
 }
 
@@ -294,67 +293,96 @@ function buildResult(state, waypoints, shares, distractorShare, flags) {
   };
 }
 
-// 沿着折线路径按进度 t ∈ [0, 1] 插值出当前模拟眼动坐标、段名与示意时间
-export function sampleGaze(waypoints, progress, pullBend = 0) {
+// 沿着折线路径按进度 t ∈ [0, 1] 插值出当前视线点坐标、所在段与百分比进度（按段等分，不编造秒数）
+export function sampleGaze(waypoints, progress) {
   const t = Math.max(0, Math.min(1, progress));
-  const simSec = (t * 1.8).toFixed(2);
-  const ms = Math.round(t * 1800);
+  const pct = Math.round(t * 100);
   if (waypoints.length < 2) {
     const p = waypoints[0] || { u: 0.2, v: 0.2 };
-    return { u: p.u, v: p.v, ms, simSec, segIndex: 0, phase: "1 · 顶部吸引 · LEAD" };
+    return {
+      u: p.u,
+      v: p.v,
+      pct,
+      segIndex: 0,
+      phase: "1 · 顶部吸引",
+      progressText: `第 1 站 · ${pct}%`,
+      local: 0,
+    };
   }
 
-  const segs = [];
-  let totalLen = 0;
-  for (let i = 0; i < waypoints.length - 1; i++) {
+  const segCount = waypoints.length - 1;
+  const scaled = t * segCount;
+  const segIndex = Math.min(segCount - 1, Math.floor(scaled));
+  const rawLocal = Math.max(0, Math.min(1, scaled - segIndex));
+  // 轻柔缓动与匀速混合，让白点平稳经过箭头中段，不在箭头尖堆积
+  const quad = rawLocal < 0.5 ? 2 * rawLocal * rawLocal : 1 - Math.pow(-2 * rawLocal + 2, 2) / 2;
+  const eased = rawLocal * 0.72 + quad * 0.28;
+
+  const a = waypoints[segIndex];
+  const b = waypoints[segIndex + 1];
+  const u = a.u + (b.u - a.u) * eased;
+  const v = a.v + (b.v - a.v) * eased;
+
+  let phase = "1 · 顶部吸引";
+  let segLabel = `第 ${a.id}→${b.id} 段`;
+
+  if (b.kind === "distractor" || a.kind === "distractor") {
+    phase = "中段干扰 · 视线被劫持";
+    segLabel = b.kind === "distractor" ? "第 1→干扰 段" : `干扰→${b.id} 段`;
+  } else if (b.kind === "exit") {
+    phase = rawLocal > 0.45 ? "终点失焦 · 滑出画外" : `第 ${a.id} 站 → 滑出`;
+    segLabel = "末端滑出";
+  } else if (t <= 0.03) {
+    phase = "1 · 顶部吸引";
+    segLabel = "第 1 站";
+  } else if (t >= 0.97) {
+    phase = "4 · 终点转化";
+    segLabel = "第 4 站";
+  } else if (segIndex === 0) {
+    phase = rawLocal > 0.85 ? "2 · 横向浏览" : "1 → 2 横向扫视";
+  } else if (segIndex === 1) {
+    phase = rawLocal > 0.85 ? "3 · 对角落点" : "2 → 3 对角牵引";
+  } else {
+    phase = rawLocal > 0.85 ? "4 · 终点转化" : "3 → 4 推向行动点";
+  }
+
+  return {
+    u,
+    v,
+    pct,
+    segIndex,
+    phase,
+    progressText: `${segLabel} · ${pct}%`,
+    local: rawLocal,
+  };
+}
+
+// 把指针坐标 (u, v) 投影到当前折线路径上，返回最近的进度 t ∈ [0, 1]（用于直接沿 Z 轨拖动白点）
+export function projectOntoWaypoints(waypoints, u, v, currentProgress = 0.5) {
+  if (!waypoints || waypoints.length < 2) return 0;
+  const segCount = waypoints.length - 1;
+  let bestScore = Infinity;
+  let bestProg = currentProgress;
+
+  for (let i = 0; i < segCount; i++) {
     const a = waypoints[i];
     const b = waypoints[i + 1];
-    const len = Math.hypot(b.u - a.u, b.v - a.v) || 0.001;
-    segs.push({ a, b, len });
-    totalLen += len;
-  }
-
-  let target = t * totalLen;
-  let segIndex = 0;
-  for (let i = 0; i < segs.length; i++) {
-    if (target <= segs[i].len || i === segs.length - 1) {
-      segIndex = i;
-      break;
+    const dx = b.u - a.u;
+    const dy = b.v - a.v;
+    const len2 = dx * dx + dy * dy;
+    const proj = len2 > 1e-6 ? Math.max(0, Math.min(1, ((u - a.u) * dx + (v - a.v) * dy) / len2)) : 0;
+    const px = a.u + dx * proj;
+    const py = a.v + dy * proj;
+    const dist = Math.hypot(u - px, v - py);
+    const candProg = (i + proj) / segCount;
+    // 轻微偏好靠近当前进度的段，避免交点或折角处跳段
+    const score = dist + Math.abs(candProg - currentProgress) * 0.06;
+    if (score < bestScore) {
+      bestScore = score;
+      bestProg = candProg;
     }
-    target -= segs[i].len;
   }
-
-  const s = segs[segIndex];
-  const rawLocal = Math.max(0, Math.min(1, target / s.len));
-  const eased = rawLocal < 0.5 ? 2 * rawLocal * rawLocal : 1 - Math.pow(-2 * rawLocal + 2, 2) / 2;
-
-  let u = s.a.u + (s.b.u - s.a.u) * eased;
-  let v = s.a.v + (s.b.v - s.a.v) * eased;
-
-  if (segIndex === 1 && s.a.kind === "node" && s.b.kind === "node" && Math.abs(pullBend) > 0.001) {
-    const midU = (s.a.u + s.b.u) / 2 + pullBend * 0.14;
-    const midV = (s.a.v + s.b.v) / 2 + pullBend * 0.08;
-    const inv = 1 - eased;
-    u = inv * inv * s.a.u + 2 * inv * eased * midU + eased * eased * s.b.u;
-    v = inv * inv * s.a.v + 2 * inv * eased * midV + eased * eased * s.b.v;
-  }
-
-  let phase = "1 · 顶部吸引 · LEAD";
-  if (s.b.kind === "distractor" || s.a.kind === "distractor") {
-    phase = "中段干扰 · 视线被劫持";
-  } else if (s.b.kind === "exit" && rawLocal > 0.45) {
-    phase = "终点失焦 · 滑出画外";
-  } else if (t < 0.08) {
-    phase = "1 · 顶部吸引 · LEAD";
-  } else if (segIndex === 0) {
-    phase = rawLocal > 0.8 ? "2 · 横向浏览 · TRANSIT" : "1 → 2 横向扫视";
-  } else if (segIndex === 1) {
-    phase = rawLocal > 0.82 ? "3 · 对角落点 · FOCUS" : "2 → 3 对角牵引 · PULL";
-  } else {
-    phase = rawLocal > 0.78 ? "4 · 终点转化 · ACTION" : "3 → 4 推向行动点";
-  }
-
-  return { u, v, ms, simSec, segIndex, phase, local: rawLocal };
+  return Math.max(0, Math.min(1, bestProg));
 }
 
 // Section 02：层级改写实验统一档位模型（三档干扰 × 三档终点对比 + LTR/RTL 翻转，不造假精确百分比）
@@ -418,7 +446,7 @@ export function computeHierarchyOverride({ distractTier, ctaTier, rtl }) {
       mode: "rtl",
       kicker: "MIRRORED · RTL READING HABIT",
       title: "换作右向左阅读，Z 水平翻成反 Z",
-      desc: `中段保持「${dLabel}」档、终点保持「${cLabel}」档。阿拉伯语、希伯来语等 RTL 读者从小形成自右向左的阅读惯性，NN/g 国际眼动研究显示其页面扫描同样水平镜像：起扫在右上，行动按钮应落在左下角。`,
+      desc: `中段保持「${dLabel}」档、终点保持「${cLabel}」档。阿拉伯语、希伯来语等 RTL 读者从小形成自右向左的阅读惯性，NN/g 对阿拉伯语网页的眼动研究显示文字扫读（如 F 型）同样水平镜像；按同样逻辑排布稀疏首屏时，起扫在右上，行动按钮落在左下角（设计经验推演）。`,
       first: "右上品牌（镜像第 1 站）",
       cta: ctaTier === 2 ? "左下角稳稳命中（高对比收口）" : "左下角可达，但同色系反差偏平",
       why: "Z 型来自书写阅读习惯而非眼球结构，换了书写方向就必须整套镜像。",

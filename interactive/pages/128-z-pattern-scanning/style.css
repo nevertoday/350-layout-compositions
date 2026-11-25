@@ -317,7 +317,7 @@ button {
 .z-stage-wrap {
   position: relative;
   width: 100%;
-  height: clamp(360px, 47vh, 444px);
+  height: clamp(336px, 43vh, 412px);
   background: var(--navy-mid);
   overflow: hidden;
   user-select: none;
@@ -326,7 +326,7 @@ button {
 
 @media (min-width: 1700px) {
   .z-stage-wrap {
-    height: clamp(440px, 48vh, 580px);
+    height: clamp(420px, 46vh, 550px);
   }
 }
 
@@ -348,7 +348,7 @@ button {
   }
 
   .z-stage-wrap {
-    height: clamp(580px, min(61vh, 37vw), 900px);
+    height: clamp(550px, min(58vh, 35vw), 860px);
   }
 
   .nh-num {
@@ -359,9 +359,10 @@ button {
     font-size: 15px;
   }
 
-  .eye-handle svg {
-    width: 48px;
-    height: 48px;
+  .node-handle[data-node="3"] .nh-num {
+    left: auto;
+    right: -13px;
+    top: -13px;
   }
 
   .dock {
@@ -433,6 +434,11 @@ button {
   margin-left: auto;
   color: var(--muted);
   font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.hud-hint-short {
+  display: none;
 }
 
 /* 4 个节点直接拖拽手柄 */
@@ -446,7 +452,7 @@ button {
   padding: 0;
   border: 2px solid transparent;
   background: transparent;
-  z-index: 5;
+  z-index: 7;
   touch-action: none;
   display: flex;
   align-items: flex-start;
@@ -480,53 +486,139 @@ button {
   pointer-events: none;
 }
 
-/* 中央对角眼眸探针（perf 拖动靶；偏离对角路径放置，标签仅悬停/聚焦显出） */
-.eye-handle {
+/* 4 号序号圈置右上角，避开自左上或正左进入的 3→4 箭头尖 */
+.node-handle[data-node="3"] .nh-num {
+  left: auto;
+  right: -10px;
+  top: -10px;
+}
+
+/* 路径白色视线点本体拖拽手柄（与画布白点重合，沿 Z 轨拖动；节点优先层级在上，不挡节点拖拽） */
+.gaze-handle {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 7;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 3px;
+  left: 0;
+  top: 0;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   border: 0;
+  border-radius: 50%;
   background: transparent;
-  display: grid;
-  place-items: center;
+  z-index: 6;
   touch-action: none;
   cursor: grab;
 }
 
-.eye-handle:active,
-.eye-handle.is-dragging {
+.gaze-handle:hover {
+  box-shadow: 0 0 0 2px rgba(67, 203, 207, 0.55);
+}
+
+.gaze-handle:active,
+.gaze-handle.is-dragging {
   cursor: grabbing;
 }
 
-.eye-cap {
-  display: none;
-  position: absolute;
-  left: calc(100% + 6px);
-  top: 50%;
-  transform: translateY(-50%);
+/* 舞台底沿集成路径进度轨（兼任 perf 触屏压测拖动标靶） */
+.stage-rail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+  padding: 0 14px;
+  background: rgba(0, 11, 23, 0.96);
+  border-top: 1px dashed rgba(19, 192, 209, 0.28);
+  touch-action: none;
+  cursor: ew-resize;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.rail-label {
   font-family: var(--f-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--cyan-hi);
-  background: rgba(0, 14, 30, 0.94);
-  border: 1px dashed rgba(19, 192, 209, 0.55);
-  padding: 2px 7px;
+  color: var(--muted);
   white-space: nowrap;
+}
+
+.rail-track {
+  position: relative;
+  flex: 1;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  margin: 0 6px;
+}
+
+.rail-track::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 3px;
+  transform: translateY(-50%);
+  background: rgba(19, 192, 209, 0.22);
+}
+
+.rail-fill {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 3px;
+  transform: translateY(-50%);
+  background: var(--cyan);
   pointer-events: none;
 }
 
-.eye-handle:hover .eye-cap,
-.eye-handle:focus-visible .eye-cap {
-  display: block;
+.rail-tick {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--navy-mid);
+  border: 1px solid rgba(19, 192, 209, 0.58);
+  color: var(--muted);
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
 }
 
-.eye-handle.is-dragging .eye-cap {
-  display: none;
+.rail-tick.is-end {
+  border-color: rgba(236, 62, 11, 0.72);
+  color: #ff9a7c;
+}
+
+.rail-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 3px solid var(--navy-mid);
+  box-shadow: 0 0 0 2px var(--cyan-hi), 0 0 0 5px rgba(19, 192, 209, 0.24);
+  pointer-events: none;
+}
+
+.stage-rail.is-dragging .rail-thumb {
+  box-shadow: 0 0 0 2px var(--ink), 0 0 0 7px rgba(67, 203, 207, 0.36);
+}
+
+.rail-pct {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--cyan-hi);
+  min-width: 38px;
+  text-align: right;
+  white-space: nowrap;
 }
 
 /* ==================== 原海报底沿三栏虚线遥测坞 + 朱红块 ==================== */
@@ -1125,12 +1217,23 @@ button {
   color: var(--ink);
 }
 
-/* ==================== 02 层级改写实验（双连续滑杆 + RTL 翻转，冷白印纸） ==================== */
+/* ==================== 02 层级改写实验（双三档滑杆 + RTL 翻转，冷白印纸） ==================== */
+.override-shell {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 20px 24px;
+  align-items: stretch;
+}
+
 .override-lab-bar {
+  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: 1fr 1fr 1.15fr;
   gap: 14px;
-  margin-bottom: 20px;
+}
+
+.ov-sliders-card {
+  display: contents;
 }
 
 .ov-slider-box,
@@ -1220,13 +1323,6 @@ button {
   border-color: var(--paper-cyan);
   background: var(--paper-cyan);
   color: #ffffff;
-}
-
-.override-board {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 24px;
-  align-items: stretch;
 }
 
 .ov-visual {
@@ -2144,11 +2240,25 @@ button {
   }
 
   .stops-grid,
-  .override-board,
+  .override-shell,
   .override-lab-bar,
   .xray-grid,
   .poster-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* 窄屏第 02 节：示意图置顶，控件紧贴其下，确保拖动滑杆与示意图同屏 */
+  .override-shell .ov-visual {
+    order: 1;
+  }
+
+  .override-shell .override-lab-bar {
+    order: 2;
+    gap: 10px;
+  }
+
+  .override-shell .ov-copy {
+    order: 3;
   }
 
   .stops-tabs {
@@ -2168,23 +2278,54 @@ button {
   }
 
   .hero {
-    padding: 10px 0 18px;
+    padding: 8px 0 14px;
   }
 
   .hero-inner {
-    gap: 8px;
+    gap: 6px;
+  }
+
+  .hero-bar {
+    padding-bottom: 5px;
+    font-size: 11.5px;
   }
 
   .hero-legend,
   .zhead-bridge,
   .scene-label,
-  .hud-hint {
+  .hud-hint-full {
     display: none;
+  }
+
+  .hud-hint {
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .hud-hint-short {
+    display: inline;
+    color: #f8d474;
+    font-weight: 700;
+    font-size: 11.5px;
+    white-space: nowrap;
   }
 
   .hero-zhead {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 6px;
+  }
+
+  .hero-title {
+    font-size: 28px;
+  }
+
+  .title-z {
+    font-size: 38px;
+  }
+
+  .hero-en {
+    font-size: 11px;
   }
 
   .zhead-right {
@@ -2202,29 +2343,85 @@ button {
     font-size: 12.5px;
   }
 
-  /* 390x844 首屏舞台占比 ≥ 46% */
+  .stage-hud {
+    padding: 5px 10px;
+    gap: 6px;
+    font-size: 11px;
+    flex-wrap: nowrap;
+  }
+
+  .hud-sep {
+    display: none;
+  }
+
+  .hud-chip,
+  .hud-ms {
+    padding: 2px 6px;
+  }
+
+  /* 390x844 收紧舞台下沿空带：整框（顶栏+画布+底轨）约 47% 屏高，诊断与四钮同进首屏 */
   .z-stage-wrap {
-    height: clamp(384px, 46.5vh, 412px);
+    height: clamp(304px, 38vh, 328px);
+  }
+
+  .stage-rail {
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .rail-label {
+    font-size: 10.5px;
   }
 
   .dock {
     grid-template-columns: 1fr;
   }
 
-  .dock-dist {
-    border-right: 0;
+  /* 手机首屏：诊断标题 + 四个排查开关紧贴在舞台下方，打开即见哪里坏了、怎么操作 */
+  .dock-diag {
+    order: -1;
     border-bottom: 1px dashed rgba(240, 241, 236, 0.22);
-    padding: 10px 12px;
+    padding: 9px 11px;
     gap: 6px;
   }
 
-  .dp-bar {
-    height: 26px;
+  .diag-top {
+    gap: 6px;
   }
 
-  .dock-col {
-    padding: 10px 12px;
-    gap: 7px;
+  .diag-badge {
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+
+  .diag-headline {
+    font-size: 14px;
+  }
+
+  .diag-reason {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .dock-dist {
+    border-right: 0;
+    border-bottom: 1px dashed rgba(240, 241, 236, 0.22);
+    padding: 8px 11px;
+    gap: 5px;
+  }
+
+  .dp-bar {
+    height: 20px;
+  }
+
+  .dp-dot {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .dp-arrow {
+    margin-bottom: 20px;
   }
 
   .diag-actions {
@@ -2243,11 +2440,11 @@ button {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 11px 14px;
+    padding: 10px 14px;
   }
 
   .cta-zh {
-    font-size: 16px;
+    font-size: 15.5px;
   }
 
   .cta-en {
@@ -2258,16 +2455,61 @@ button {
     padding: 48px 0;
   }
 
+  /* 手机第 02 节：示意图 + 合并两根档位轨卡 + 一行四小预设卡，整组同屏可见 */
+  .override-shell {
+    gap: 10px;
+  }
+
+  .ov-visual {
+    padding: 8px;
+  }
+
+  .ov-sliders-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--paper-card);
+    border: 1.5px solid var(--paper-ink);
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .ov-sliders-card .ov-slider-box {
+    border: 0;
+    padding: 0;
+    gap: 2px;
+    background: transparent;
+  }
+
+  .ov-sliders-card .ov-slider-box + .ov-slider-box {
+    padding-top: 8px;
+    border-top: 1px dashed var(--paper-hair);
+  }
+
+  .ov-range {
+    height: 32px;
+  }
+
+  .ov-dir-box {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+
+  .ov-presets {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+
+  .ov-preset {
+    padding: 0 2px;
+    font-size: 11.5px;
+  }
+
   .stops-tabs {
     grid-template-columns: repeat(2, 1fr);
   }
 
   .stop-tab[data-stop="4"] {
     grid-column: 1 / -1;
-  }
-
-  .ov-presets {
-    grid-template-columns: repeat(2, 1fr);
   }
 
   .stops-stage,
@@ -2312,8 +2554,16 @@ button {
   .hero-en,
   .zhead-bridge,
   .scene-label,
-  .hud-hint {
+  .hud-hint-full {
     display: none;
+  }
+
+  .hud-hint-short {
+    display: inline;
+    color: #f8d474;
+    font-weight: 700;
+    font-size: 11.5px;
+    white-space: nowrap;
   }
 
   .hero-zhead {
@@ -2326,7 +2576,7 @@ button {
   }
 
   .z-stage-wrap {
-    height: clamp(220px, 60vh, 268px);
+    height: clamp(188px, 49vh, 228px);
   }
 }
 

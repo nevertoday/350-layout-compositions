@@ -42,17 +42,20 @@
       </div>
     </div>
 
-    <!-- 全幅 Z 轨光学校准舞台（顶条独立不压画布） -->
-    <div class="z-stage-frame">
+    <!-- 全幅 Z 轨光学校准舞台（顶条与底沿扫读轨独立不压画布） -->
+    <div class="z-stage-frame" id="z-stage-frame">
       <div class="stage-hud" aria-live="polite">
-        <span class="hud-chip" id="gaze-phase">4 · 终点转化 · ACTION</span>
+        <span class="hud-chip" id="gaze-phase">4 · 终点转化</span>
         <span class="hud-sep" aria-hidden="true">·</span>
-        <span class="hud-ms" id="gaze-ms">模拟 1.80 s</span>
-        <span class="hud-hint">切标本查三类断层 · 拖 1–4 节点或切开关排查 · 拖眼眸扫读时间轴</span>
+        <span class="hud-ms" id="gaze-progress">第 4 站 · 100%</span>
+        <span class="hud-hint">
+          <span class="hud-hint-full">切标本查三类断层 · 拖 1–4 节点或切开关排查 · 拖白点或底轨扫读</span>
+          <span class="hud-hint-short" id="hud-short-hint">拖 3 号试试</span>
+        </span>
       </div>
 
       <div class="z-stage-wrap" id="z-stage-wrap">
-        <canvas id="hero-canvas" class="z-canvas" aria-label="Z 型扫描模式互动校准画布，支持拖动四个页面节点或拖动中央眼眸扫读模拟眼动轨迹"></canvas>
+        <canvas id="hero-canvas" class="z-canvas" aria-label="Z 型扫描模式互动校准画布，支持拖动四个页面节点或沿路径拖动视线白点"></canvas>
 
         <!-- 4 个可键盘聚焦与直接触屏拖拽的节点手柄（宽高与画布方块/卡片 1:1 同步） -->
         <button type="button" class="node-handle" data-node="0" aria-label="节点 1：顶部吸引，可拖动或用方向键调整位置">
@@ -68,16 +71,22 @@
           <span class="nh-num">4</span>
         </button>
 
-        <!-- 中央对角眼眸探针（perf 拖动标靶：左右拖动实时扫读 0–1.8 s 模拟眼动路径） -->
-        <button type="button" id="eye-handle" class="eye-handle" data-perf-drag aria-label="对角牵引眼眸探针：左右拖动或按左右方向键扫读模拟视线路径">
-          <svg viewBox="0 0 44 44" width="38" height="38" aria-hidden="true">
-            <circle cx="22" cy="22" r="20" fill="#001122" stroke="#13c0d1" stroke-width="1.5" stroke-dasharray="3 3"/>
-            <path d="M8 22 C13 14.5 31 14.5 36 22 C31 29.5 13 29.5 8 22 Z" fill="#f0f1ec"/>
-            <circle cx="22" cy="22" r="4.8" fill="#001122"/>
-            <circle cx="23.4" cy="20.6" r="1.5" fill="#13c0d1"/>
-          </svg>
-          <span class="eye-cap">拖眼眸扫读</span>
-        </button>
+        <!-- 路径白色视线点本体拖拽手柄（与画布白点 1:1 重合，沿 Z 轨直接拖动扫读） -->
+        <button type="button" id="gaze-handle" class="gaze-handle" aria-label="路径视线白点：沿 Z 轨拖动或按左右方向键扫读路径进度"></button>
+      </div>
+
+      <!-- 舞台底沿集成路径进度轨（perf 拖动标靶：左右拖动实时扫读 0–100% 段落路径） -->
+      <div class="stage-rail" id="gaze-rail" data-perf-drag role="slider" tabindex="0" aria-label="沿 Z 轨扫读路径进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+        <span class="rail-label">路径扫读</span>
+        <div class="rail-track" id="rail-track">
+          <span class="rail-fill" id="rail-fill" style="width:100%"></span>
+          <span class="rail-tick" style="left:0%" aria-hidden="true">1</span>
+          <span class="rail-tick" style="left:33.33%" aria-hidden="true">2</span>
+          <span class="rail-tick" style="left:66.67%" aria-hidden="true">3</span>
+          <span class="rail-tick is-end" style="left:100%" aria-hidden="true">4</span>
+          <span class="rail-thumb" id="rail-thumb" style="left:100%" aria-hidden="true"></span>
+        </div>
+        <span class="rail-pct" id="rail-pct">100%</span>
       </div>
     </div>
 
@@ -138,7 +147,7 @@
       </button>
     </div>
 
-    <p class="hero-note">三个标本各自藏着一处典型的视线断层：拖动任意 1–4 节点或切换下方开关排查问题，让 Z 轨重新贯通；拖动偏置眼眸可沿 0–1.8 s 扫读路径，点击朱红块随时重播。</p>
+    <p class="hero-note">三个标本各自藏着一处典型的视线断层：拖动任意 1–4 节点或切换开关排查问题，让 Z 轨重新贯通；直接沿路径拖动白色视线点或底沿扫读轨可逐段观察，点击朱红块随时重播。</p>
   </div>
 </header>
 
@@ -272,44 +281,47 @@
         </div>
       </div>
 
-      <p class="sec-lead">Z 型不是眼睛见图就会画出来的物理铁律，而是<strong>版面足够稀疏、层级足够克制</strong>时，设计师借阅读惯性「铺」出来的路。拨动下面两根档位轨或翻转阅读方向，看视觉显著性怎样改写视线。</p>
+      <p class="sec-lead">Z 型不是眼睛见图就会画出来的物理铁律，而是<strong>版面足够稀疏、层级足够克制</strong>时，设计师借阅读惯性「铺」出来的路。拨动两根档位轨或翻转阅读方向，看视觉显著性怎样改写视线。</p>
 
-      <!-- 与 01 节完全不同的交互语法：双三档滑杆 + LTR/RTL 翻转器 + 快捷预设 -->
-      <div class="override-lab-bar">
-        <label class="ov-slider-box" for="ov-distract">
-          <span class="ov-sl-head">
-            <span>中段干扰档位</span>
-            <strong id="ov-distract-val">克制</strong>
-          </span>
-          <input type="range" id="ov-distract" class="ov-range" min="0" max="2" step="1" value="0">
-          <span class="ov-sl-scale"><span>克制</span><span>抢眼</span><span>霸屏</span></span>
-        </label>
+      <!-- 与 01 节完全不同的交互语法：双三档滑杆 + LTR/RTL 翻转器 + 快捷预设（窄屏示意图在前、控件紧贴其下同屏可见） -->
+      <div class="override-shell">
+        <div class="override-lab-bar">
+          <div class="ov-sliders-card">
+            <label class="ov-slider-box" for="ov-distract">
+              <span class="ov-sl-head">
+                <span>中段干扰档位</span>
+                <strong id="ov-distract-val">克制</strong>
+              </span>
+              <input type="range" id="ov-distract" class="ov-range" min="0" max="2" step="1" value="0">
+              <span class="ov-sl-scale"><span>克制</span><span>抢眼</span><span>霸屏</span></span>
+            </label>
 
-        <label class="ov-slider-box" for="ov-cta">
-          <span class="ov-sl-head">
-            <span>终点按钮对比</span>
-            <strong id="ov-cta-val">高对比</strong>
-          </span>
-          <input type="range" id="ov-cta" class="ov-range" min="0" max="2" step="1" value="2">
-          <span class="ov-sl-scale"><span>淡对比</span><span>中对比</span><span>高对比</span></span>
-        </label>
+            <label class="ov-slider-box" for="ov-cta">
+              <span class="ov-sl-head">
+                <span>终点按钮对比</span>
+                <strong id="ov-cta-val">高对比</strong>
+              </span>
+              <input type="range" id="ov-cta" class="ov-range" min="0" max="2" step="1" value="2">
+              <span class="ov-sl-scale"><span>淡对比</span><span>中对比</span><span>高对比</span></span>
+            </label>
+          </div>
 
-        <div class="ov-dir-box">
-          <span class="ov-sl-head"><span>书写与阅读方向</span></span>
-          <button type="button" class="ov-dir-btn" id="ov-rtl" aria-pressed="false">当前：LTR 左向右 ⇄ 切 RTL</button>
-          <div class="ov-presets" id="override-controls" role="group" aria-label="快捷实验预设">
-            <button type="button" class="ov-preset is-active" data-ov="clean">标准 Z</button>
-            <button type="button" class="ov-preset" data-ov="hijack">霸屏劫持</button>
-            <button type="button" class="ov-preset" data-ov="fade">淡对比失焦</button>
-            <button type="button" class="ov-preset" data-ov="rtl">RTL 镜像</button>
+          <div class="ov-dir-box">
+            <span class="ov-sl-head"><span>书写与阅读方向</span></span>
+            <button type="button" class="ov-dir-btn" id="ov-rtl" aria-pressed="false">当前：LTR 左向右 ⇄ 切 RTL</button>
+            <div class="ov-presets" id="override-controls" role="group" aria-label="快捷实验预设">
+              <button type="button" class="ov-preset is-active" data-ov="clean">标准 Z</button>
+              <button type="button" class="ov-preset" data-ov="hijack">霸屏劫持</button>
+              <button type="button" class="ov-preset" data-ov="fade">淡对比</button>
+              <button type="button" class="ov-preset" data-ov="rtl">RTL 镜像</button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="override-board">
         <div class="ov-visual">
           <svg id="ov-svg" viewBox="0 0 600 350" role="img" aria-label="不同视觉层级与阅读方向下的模拟眼动扫视轨迹图"></svg>
         </div>
+
         <div class="ov-copy" aria-live="polite">
           <div class="ov-kicker" id="ov-kicker" lang="en">BALANCED · CONTROLLED HIERARCHY</div>
           <h3 id="ov-title">中段「克制」、终点「高对比」，Z 轨贯通</h3>
@@ -337,14 +349,14 @@
     </div>
   </section>
 
-  <!-- ========== 03 它从哪来（1956–2020 查证史料脉络） ========== -->
+  <!-- ========== 03 它从哪来（1950s–2020 查证史料脉络） ========== -->
   <section class="sec sec-navy" id="sec-03">
     <div class="wrap">
       <div class="sec-head">
         <span class="sec-num" lang="en">03</span>
         <div class="sec-titles">
           <h2>它从哪来</h2>
-          <p class="sec-en" lang="en">FROM 1956 NEWSPRINT TO MODERN LANDING PAGES</p>
+          <p class="sec-en" lang="en">FROM 1950S NEWSPRINT TO MODERN LANDING PAGES</p>
         </div>
       </div>
 
@@ -352,9 +364,9 @@
 
       <ol class="history-rail">
         <li class="hist-card">
-          <span class="hist-year" lang="en">1956</span>
+          <span class="hist-year" lang="en">1950s</span>
           <h3>报版里的「阅读重力」</h3>
-          <p>被称为现代报业版面奠基人的美国编辑 <strong>Edmund C. Arnold</strong> 在 <em>Functional Newspaper Design</em>（Harper &amp; Brothers, 1956）中，把左向右读者从左上扫向右下的视觉惯性命名为「阅读重力（Reading Gravity）」，并以四象限图式描述报纸版面的视觉落区。</p>
+          <p>被称为现代报业版面奠基人的美国编辑 <strong>Edmund C. Arnold</strong> 在 1950 年代的报业排版实践中，提出了后来被归于其名下的四象限「古腾堡图式」与「阅读重力（Reading Gravity）」观念，用以描述左向右读者在均质文字页上从左上扫向右下的视觉惯性（后经 Colin Wheildon 的 <em>Type &amp; Layout</em> 与 William Lidwell 等人的 <em>Universal Principles of Design</em> 广泛传播）。</p>
         </li>
         <li class="hist-card">
           <span class="hist-year" lang="en">2006–2009</span>
@@ -364,12 +376,12 @@
         <li class="hist-card">
           <span class="hist-year" lang="en">2010–2011</span>
           <h3>落地页的 Z 型启发法成形</h3>
-          <p>网页设计作者 <strong>Brandon Jones</strong>（Envato Tuts+, <em>Understanding the Z-Layout in Web Design</em>, 2010）与 <strong>Steven Bradley</strong>（Vanseo Design, 2011）把报版重力改写为面向稀疏网页与广告的 Z 型布局指南。Bradley 特别强调：只有均质无层级的页面才服从被动阅读重力，强对比的视觉层级永远能接管视线。</p>
+          <p>网页设计作者 <strong>Brandon Jones</strong>（Envato Tuts+, <em>Understanding the Z-Layout in Web Design</em>, 2010）与 <strong>Steven Bradley</strong>（Vanseo Design, 2011）把报版重力改写为面向稀疏网页与广告的 Z 型布局指南。Bradley 特别强调：只有均质无层级的页面才服从被动阅读重力，强对比的视觉层级往往能接管视线。</p>
         </li>
         <li class="hist-card">
           <span class="hist-year" lang="en">2017–2020</span>
-          <h3>长页「之字形」遭到实证反击</h3>
-          <p>Nielsen Norman Group（<strong>Kim Flaherty</strong> 2017 年图文之字排版研究；<strong>Kara Pernice</strong> 2017；<strong>Kate Moran</strong> 2020）进一步明确：单个首屏做 Z 型清晰利落，但把长页面做成一行左图右文、一行右图左文的反复「之字形（Zigzag）」，反而让眼睛不停重找行首，拖慢扫读速度。</p>
+          <h3>长页之字形与文字扫读实证</h3>
+          <p>Nielsen Norman Group 的眼动研究划清了边界：<strong>Kim Flaherty</strong>（2017）针对多行图文交替的「之字形（Zigzag）」排版指出，左右来回跳行会拖慢扫读、不如竖向对齐；<strong>Kara Pernice</strong>（2017）与 <strong>Kate Moran</strong>（2020）则聚焦 F 型及各类文字扫读模式，证实读者面对长文会按层级与目标跳读。至于「稀疏首屏宜用 Z 型」，属于设计经验总结，并非这几项眼动研究的结论。</p>
         </li>
       </ol>
     </div>
