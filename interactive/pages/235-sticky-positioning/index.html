@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>235 · 粘性定位布局 STICKY POSITIONING — 350 种排版互动版</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 极细出版顶眉 -->
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="crumb">
+        <span class="crumb-dot" aria-hidden="true"></span>
+        <span>网页与 UI / CSS 流、定位与响应</span>
+      </div>
+      <div class="topbar-right">
+        <span class="code-tag" lang="en">NO. 235 · STICKY POSITIONING</span>
+        <span class="status-pill" id="top-status-pill" data-state="err">0 / 4 未吸合</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== 开场：奶油手账刊头 + 活体三分区滚卷试验台 ==================== -->
+    <section class="hero" id="hero" aria-label="粘性定位布局开场试验台">
+      <div class="wrap">
+        <!-- 原海报同款不对称刊头 -->
+        <div class="masthead">
+          <div class="masthead-left">
+            <h1 class="hero-title">
+              <span class="title-sticky-badge" id="title-sticky-badge" data-stuck="0">粘性</span><span class="title-rest">定位布局</span>
+            </h1>
+            <p class="hero-en" lang="en">STICKY POSITIONING</p>
+          </div>
+          <div class="masthead-right">
+            <svg class="motif-wave" viewBox="0 0 88 16" width="88" height="16" aria-hidden="true">
+              <path d="M2 10 Q10 2 18 10 T34 10 T50 10 T66 10 T84 10" fill="none" stroke="#E43C74" stroke-width="2.6" stroke-linecap="round"/>
+            </svg>
+            <p class="hero-lead">元素在正常文档流中，滚动到阈值时吸附在顶部，内容继续滚动。</p>
+            <span class="motif-olive-dot" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <!-- 主工作区：忠实承袭原海报左 37% 规则手账 × 右 63% 滚动状态演示联台 -->
+        <div class="bench-grid">
+          <!-- 左栏：白话诊单 + 四维排障控钮 + 实时 CSS 语法盒 -->
+          <div class="bench-controls">
+            <!-- 白话单真源诊单 -->
+            <div class="diag-card" id="diag-card" data-severity="error" role="status" aria-live="polite">
+              <div class="diag-head">
+                <span class="diag-tag" id="diag-tag">错态 · 祖先截断</span>
+                <span class="diag-meta">单真源实算 · 体验调校</span>
+              </div>
+              <h2 class="diag-title" id="diag-title">外层套了 overflow: hidden，粘性标题当场失灵</h2>
+              <p class="diag-why" id="diag-why">规范规定 position: sticky 只盯住「最近的滚动祖先」。祖先写了 overflow: hidden 会暗中建立一个不能滚动的滚动容器，浏览器以为你从未滚动过，标题只能跟着正文直接滑出屏幕。</p>
+              <p class="diag-action" id="diag-action">把「祖先容器 overflow」切到 overflow: clip（现代裁切正解）或 overflow: visible，把滚动参照还给视口。</p>
+              <div class="diag-metrics">
+                <div class="metric-item">
+                  <span class="metric-k">当前阶段</span>
+                  <strong class="metric-v" id="m-phase">脱轨滑走</strong>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-k">滑行余量</span>
+                  <strong class="metric-v" id="m-runway">0px</strong>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-k">净阅读区</span>
+                  <strong class="metric-v" id="m-readable">87%</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- 四维排障操控槽 -->
+            <div class="ctrl-panel" aria-label="粘性定位四维排障参数">
+              <div class="ctrl-row">
+                <div class="ctrl-label">
+                  <span class="ctrl-dot" id="dot-overflow"></span>
+                  <span>① 祖先容器 overflow</span>
+                </div>
+                <div class="seg-group" role="group" aria-label="祖先容器 overflow 属性">
+                  <button type="button" class="seg-btn" data-param="overflowMode" data-val="hidden" aria-pressed="true">hidden 截断</button>
+                  <button type="button" class="seg-btn" data-param="overflowMode" data-val="auto-trap" aria-pressed="false">auto 矮盒</button>
+                  <button type="button" class="seg-btn" data-param="overflowMode" data-val="clip" aria-pressed="false">clip 裁切</button>
+                  <button type="button" class="seg-btn" data-param="overflowMode" data-val="visible" aria-pressed="false">visible</button>
+                </div>
+              </div>
+
+              <div class="ctrl-row">
+                <div class="ctrl-label">
+                  <span class="ctrl-dot" id="dot-threshold"></span>
+                  <span>② 触发阈值 top</span>
+                </div>
+                <div class="seg-group" role="group" aria-label="触发阈值 top">
+                  <button type="button" class="seg-btn" data-param="topMode" data-val="auto" aria-pressed="true">未设 auto</button>
+                  <button type="button" class="seg-btn" data-param="topMode" data-val="0" aria-pressed="false">0px 贴顶</button>
+                  <button type="button" class="seg-btn" data-param="topMode" data-val="12" aria-pressed="false">12px 微缝</button>
+                  <button type="button" class="seg-btn" data-param="topMode" data-val="148" aria-pressed="false">148px 悬腰</button>
+                </div>
+              </div>
+
+              <div class="ctrl-row">
+                <div class="ctrl-label">
+                  <span class="ctrl-dot" id="dot-parent"></span>
+                  <span>③ 父容器包裹范围</span>
+                </div>
+                <div class="seg-group" role="group" aria-label="父容器包裹范围">
+                  <button type="button" class="seg-btn" data-param="parentMode" data-val="wrapper" aria-pressed="true">仅包标题 (0px)</button>
+                  <button type="button" class="seg-btn" data-param="parentMode" data-val="section" aria-pressed="false">完整分区 (268px)</button>
+                </div>
+              </div>
+
+              <div class="ctrl-row">
+                <div class="ctrl-label">
+                  <span class="ctrl-dot" id="dot-layer"></span>
+                  <span>④ 层叠与吸顶占空</span>
+                </div>
+                <div class="seg-group" role="group" aria-label="层叠与吸顶占空">
+                  <button type="button" class="seg-btn" data-param="layerMode" data-val="bleed" aria-pressed="true">z:0 透明穿字</button>
+                  <button type="button" class="seg-btn" data-param="layerMode" data-val="solid" aria-pressed="false">z:10 实底单条</button>
+                  <button type="button" class="seg-btn" data-param="layerMode" data-val="heavy" aria-pressed="false">三层胖叠 (42%)</button>
+                </div>
+              </div>
+
+              <div class="preset-row">
+                <button type="button" class="action-btn ghost" id="btn-reset-broken">复原 0/4 失灵态</button>
+                <button type="button" class="action-btn primary" id="btn-poster-sol">原海报解 (top:0 + clip)</button>
+                <button type="button" class="action-btn subtle" id="btn-breath-sol">呼吸缝解 (top:12)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右台：原海报「滚动状态演示」活体联台 + 底沿实时 CSS 语法盒 -->
+          <div class="bench-stage">
+            <div class="stage-bar">
+              <span class="stage-label"><span class="ring-dot" aria-hidden="true"></span>滚动状态演示 · 拖轨道或滚视口</span>
+              <div class="stage-jump">
+                <button type="button" class="mini-jump" data-jump="0">起点</button>
+                <button type="button" class="mini-jump" data-jump="180">区1吸附</button>
+                <button type="button" class="mini-jump" data-jump="385">交棒瞬间</button>
+                <button type="button" class="mini-jump" data-jump="610">区2吸附</button>
+              </div>
+            </div>
+
+            <!-- 顶沿 2D Canvas 粘性状态轨道示波器 & 水平滚卷拖轨 -->
+            <div class="track-wrap">
+              <canvas
+                id="track-canvas"
+                class="track-canvas"
+                data-perf-drag
+                role="slider"
+                tabindex="0"
+                aria-label="滚动进度与粘性行程轨道，左右拖动或用方向键控制滚卷位置"
+                aria-valuemin="0"
+                aria-valuemax="842"
+                aria-valuenow="142"
+              ></canvas>
+            </div>
+
+            <!-- 主联台：左竖向四阶段轴 + 中 3 分区活体阅读视口 + 右向上滚动箭头 -->
+            <div class="reel-shell">
+              <!-- 左侧：原海报竖向阶段状态轴 -->
+              <ol class="phase-rail" id="phase-rail" aria-label="粘性定位四阶段实时状态">
+                <li class="phase-node" data-phase="01">
+                  <span class="phase-dot" aria-hidden="true"></span>
+                  <div class="phase-txt">
+                    <strong>阶段 01 · 正常流程</strong>
+                    <span>标题在文档流中随内容一起滚动</span>
+                  </div>
+                </li>
+                <li class="phase-node" data-phase="02">
+                  <span class="phase-dot" aria-hidden="true"></span>
+                  <div class="phase-txt">
+                    <strong>阶段 02 · 过渡状态</strong>
+                    <span>接近粉红阈值线，准备吸合</span>
+                  </div>
+                </li>
+                <li class="phase-node" data-phase="03">
+                  <span class="phase-dot" aria-hidden="true"></span>
+                  <div class="phase-txt">
+                    <strong>阶段 03 · 吸附顶部</strong>
+                    <span>到达阈值后固定，卡片从下方穿行</span>
+                  </div>
+                </li>
+                <li class="phase-node" data-phase="04">
+                  <span class="phase-dot" aria-hidden="true"></span>
+                  <div class="phase-txt">
+                    <strong>阶段 04 · 顶出交棒</strong>
+                    <span>父容器底边抵达，交棒给下一分区</span>
+                  </div>
+                </li>
+              </ol>
+
+              <!-- 中央：活体三分区手账阅读视口（不直接含裸文本，避免裁剪误报） -->
+              <div class="reel-viewport" id="reel-viewport" data-overflow="hidden" data-layer="bleed" tabindex="0" aria-label="三分区粘性定位演示阅读视口，可用鼠标滚轮或方向键上下滚卷">
+                <!-- 可选胖叠层（仅在 heavy 错态展示） -->
+                <div class="heavy-stack" id="heavy-stack" hidden>
+                  <div class="heavy-bar promo"><span>全局活动公告条（52px · 强行吸顶）</span></div>
+                  <div class="heavy-bar filter"><span>多维筛选工具栏（48px · 二层吸顶）</span></div>
+                </div>
+
+                <!-- 原海报标志性的水平粉红虚线阈值线 -->
+                <div class="threshold-line" id="threshold-line" data-active="0">
+                  <span class="threshold-pill" id="threshold-pill">未设 top（无阈值）</span>
+                </div>
+
+                <!-- 错态时在顶部显示的干净幽灵残影提醒 -->
+                <div class="ghost-miss" id="ghost-miss">
+                  <span>「阅读分区一」已随流滑出顶部 · 未吸合</span>
+                </div>
+
+                <!-- 嵌套矮滚盒提示罩（仅 auto-trap 时显示） -->
+                <div class="trap-frame" id="trap-frame" hidden>
+                  <span class="trap-tag">祖先 overflow: auto 矮滚盒截断</span>
+                </div>
+
+                <!-- 内部随 scrollY 精确平移的内容文档流 -->
+                <div class="reel-content" id="reel-content">
+                  <!-- 卷首导读块（92px） -->
+                  <div class="reel-intro">
+                    <div class="intro-kicker">手账卷首 · NORMAL FLOW</div>
+                    <div class="intro-line">向下滚动，看下方粉红分区标头碰到阈值线后会发生什么。</div>
+                  </div>
+                  <!-- 3 个分区由 JS 按 model.js 单真源常数精确生成并驱动 -->
+                  <div id="reel-sections"></div>
+                  <!-- 尾部缓冲块（126px） -->
+                  <div class="reel-tail">
+                    <div class="tail-line">文档流尾声 · 分区三父盒已结束</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 右侧：原海报向上流动箭头（兼作单步滚卷按键） -->
+              <div class="flow-rail">
+                <button type="button" class="flow-step-btn" id="btn-step-up" aria-label="向下滚动内容 72 像素">
+                  <svg viewBox="0 0 24 44" width="22" height="40" aria-hidden="true">
+                    <line x1="12" y1="40" x2="12" y2="6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+                    <polyline points="5,13 12,5 19,13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="flow-word">滚动中</span>
+                </button>
+                <span class="flow-note">内容持续向上滑动</span>
+                <button type="button" class="flow-back-btn" id="btn-step-down" aria-label="向上回退内容 72 像素">↓ 回退</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 原海报同款实时 CSS 语法盒（网格独立子项：桌面落右台下方齐底，手机落控参下方不抢首屏诊单） -->
+          <div class="css-box" aria-label="实时同步 CSS 语法">
+            <div class="css-box-head">
+              <span class="css-title"><span class="ring-dot" aria-hidden="true"></span>关键属性（CSS）· 实时同步</span>
+              <span class="css-badge" id="css-valid-badge">4 处阻断</span>
+            </div>
+            <pre class="css-code" id="live-css-code"></pre>
+          </div>
+        </div>
+
+        <!-- 原海报底沿：4×4 粉红点阵 + 淡梅雾粉「一行记忆」圆角胶囊 -->
+        <div class="hero-foot">
+          <div class="dot-matrix" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="memory-pill">
+            <span class="memory-mark" aria-hidden="true">✓</span>
+            <strong class="memory-label">一行记忆</strong>
+            <span class="memory-sep" aria-hidden="true"></span>
+            <p class="memory-text">粘性定位 = <em>正常流动</em> → <em>触发阈值</em> → <em>吸附固定</em>，内容继续滚动（出父盒即松手）。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 01 · 什么是粘性定位（洁净暖象牙纸） ==================== -->
+    <section class="chapter band-ivory" id="sec-01">
+      <div class="wrap">
+        <div class="chap-head">
+          <span class="chap-num" lang="en">01</span>
+          <div class="chap-titles">
+            <h2>什么是粘性定位</h2>
+            <p class="chap-en" lang="en">THE HYBRID STATE · RELATIVE MEETS FIXED</p>
+          </div>
+        </div>
+
+        <div class="two-col prose-split">
+          <div class="prose">
+            <blockquote class="poster-quote">
+              <span class="quote-chip">原海报 · 核心概念</span>
+              <p>「粘性定位融合相对定位与固定定位：在阈值之前表现为相对定位；到达阈值后固定在指定位置。」</p>
+            </blockquote>
+            <p>如果把网页文档流比作一条向上匀速前进的纸带，我们在同一小类里见过几种截然不同的站位方式：守规矩排队的 <a href="https://layout.xiaoxiaodong.ai/222/play/" target="_blank" rel="noopener">222 普通流布局</a>、原位微移且保留旧坑的 <a href="https://layout.xiaoxiaodong.ai/232/play/" target="_blank" rel="noopener">232 相对定位布局</a>，以及干脆脱离纸带、永久焊在屏幕玻璃上的 <a href="https://layout.xiaoxiaodong.ai/234/play/" target="_blank" rel="noopener">234 固定定位布局</a>。</p>
+            <p><strong>粘性定位（<code>position: sticky</code>）不是独立新物种，而是带边界开关的混合体。</strong>第一，它始终留在文档流里占住原本那块高度，不会像固定定位那样突然塌陷把第一行正文吸到顶栏背后；第二，它在滚过阈值线后借用固定定位的视觉停驻；第三，它永远只服务于自己的父容器。</p>
+
+            <div class="gentle-note">
+              <span class="note-badge">原海报说简了一点</span>
+              <p>原海报右侧画了「01 正常流程 → 02 过渡状态 → 03 吸附顶部」三段，这是入门最好懂的切面。在 W3C 正式规范里还有决定性的<strong>第四幕：到达父容器底边时被平滑顶走</strong>。正是这一步让它能完成章节接力，而不会像固定导航那样一路霸占到页脚。</p>
+            </div>
+          </div>
+
+          <!-- 01 节专属交互：三列同步滚筒对比（Relative vs Sticky vs Fixed） -->
+          <div class="triad-lab" aria-label="相对、粘性与固定定位三列同步滚筒对比">
+            <div class="lab-head">
+              <strong>三态同步滚筒 · 同一份文档流，三种定位</strong>
+              <span class="lab-mono" id="triad-readout">滚卷 0% · scrollY 0px</span>
+            </div>
+
+            <div class="triad-cols">
+              <div class="triad-col">
+                <div class="triad-col-head">
+                  <span class="pill-tag olive">relative</span>
+                  <span class="triad-state" id="triad-st-rel">随流上移</span>
+                </div>
+                <div class="triad-screen" id="triad-scr-rel">
+                  <div class="triad-guide" aria-hidden="true"></div>
+                  <div class="triad-flow" id="triad-flow-rel">
+                    <div class="t-row dim">导语首行（顶部区域）</div>
+                    <div class="t-row dim">导语次行</div>
+                    <div class="t-block olive-fill" id="triad-blk-rel"><span>相对标题</span></div>
+                    <div class="t-row">分区一 · 正文卡片 A</div>
+                    <div class="t-row">分区一 · 正文卡片 B</div>
+                    <div class="t-row">分区一 · 正文卡片 C</div>
+                    <div class="t-row dim">后续新章节内容</div>
+                    <div class="t-row dim">页脚与扩展链接</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="triad-col featured">
+                <div class="triad-col-head">
+                  <span class="pill-tag pink">sticky</span>
+                  <span class="triad-state" id="triad-st-sticky">阶段 01 · 正常流动</span>
+                </div>
+                <div class="triad-screen" id="triad-scr-sticky">
+                  <div class="triad-guide pink-line" aria-hidden="true"></div>
+                  <div class="triad-sec-box" id="triad-sec-box" aria-hidden="true"></div>
+                  <div class="triad-flow" id="triad-flow-sticky">
+                    <div class="t-row dim">导语首行（顶部区域）</div>
+                    <div class="t-row dim">导语次行</div>
+                    <div class="t-slot"><span>文档流原位占位</span></div>
+                    <div class="t-row">分区一 · 正文卡片 A</div>
+                    <div class="t-row">分区一 · 正文卡片 B</div>
+                    <div class="t-row">分区一 · 正文卡片 C</div>
+                    <div class="t-row dim">后续新章节内容</div>
+                    <div class="t-row dim">页脚与扩展链接</div>
+                  </div>
+                  <div class="t-block pink-fill floating-bar" id="triad-blk-sticky"><span>粘性标题 (top: 10px)</span></div>
+                </div>
+              </div>
+
+              <div class="triad-col">
+                <div class="triad-col-head">
+                  <span class="pill-tag dark">fixed</span>
+                  <span class="triad-state" id="triad-st-fixed">压住首行正文</span>
+                </div>
+                <div class="triad-screen" id="triad-scr-fixed">
+                  <div class="triad-guide" aria-hidden="true"></div>
+                  <div class="triad-flow" id="triad-flow-fixed">
+                    <div class="t-row warn-row">导语首行（被直接压盖！）</div>
+                    <div class="t-row dim">导语次行</div>
+                    <div class="t-row">分区一 · 正文卡片 A</div>
+                    <div class="t-row">分区一 · 正文卡片 B</div>
+                    <div class="t-row">分区一 · 正文卡片 C</div>
+                    <div class="t-row dim">后续新章节内容</div>
+                    <div class="t-row dim">页脚与扩展链接</div>
+                  </div>
+                  <div class="t-block dark-fill floating-bar" id="triad-blk-fixed"><span>固定标题 (永不退场)</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="triad-slider-row">
+              <label for="triad-range">同步滚卷三列</label>
+              <input type="range" id="triad-range" min="0" max="100" value="0" step="1">
+              <div class="triad-presets">
+                <button type="button" class="mini-btn" data-triad="0">0% 起点</button>
+                <button type="button" class="mini-btn" data-triad="46">46% 吸顶中</button>
+                <button type="button" class="mini-btn" data-triad="86">86% 顶出退场</button>
+              </div>
+            </div>
+            <p class="lab-verdict" id="triad-verdict">在 0% 起点：relative 与 sticky 都规矩待在原位不挡导语；fixed 已经脱离文档流直接压住了第一行导语。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 02 · 阈值与双向吸合（淡杏手账纸） ==================== -->
+    <section class="chapter band-apricot" id="sec-02">
+      <div class="wrap">
+        <div class="chap-head">
+          <span class="chap-num" lang="en">02</span>
+          <div class="chap-titles">
+            <h2>阈值与双向吸合</h2>
+            <p class="chap-en" lang="en">INSET THRESHOLDS &amp; TWO-AXIS STICKY</p>
+          </div>
+        </div>
+
+        <div class="sec02-intro">
+          <p>原海报用 <code>top: 0</code> 演示了最常用的顶边吸附，但 <code>position: sticky</code> 实际支持 <code>top</code>、<code>bottom</code>、<code>left</code>、<code>right</code> 四个方向（以及逻辑属性 <code>inset-block-start</code> 等）。把 <code>bottom: 0</code> 赋给长表单的操作栏，按钮在抵达表单底部前都会紧跟手指；把 <code>top: 0</code> 和 <code>left: 0</code> 同时用在同一张宽数据表里，横滚看列、竖滚看行时，行列坐标永远不会丢失。</p>
+        </div>
+
+        <!-- 02 节专属交互：真实原生 CSS position: sticky 的双向数据表实验室 -->
+        <div class="matrix-lab" aria-label="双向粘性数据表实验室">
+          <div class="matrix-toolbar">
+            <div class="matrix-switches">
+              <label class="toggle-chip">
+                <input type="checkbox" id="chk-stick-top" checked>
+                <span>锁定顶行表头 (<code>top: 0</code>)</span>
+              </label>
+              <label class="toggle-chip">
+                <input type="checkbox" id="chk-stick-left" checked>
+                <span>锁定首列项目 (<code>left: 0</code>)</span>
+              </label>
+              <label class="toggle-chip">
+                <input type="checkbox" id="chk-corner-z" checked>
+                <span>左上角交汇格提权 (<code>z-index: 4</code>)</span>
+              </label>
+            </div>
+            <span class="matrix-hint" id="matrix-status">双向均已吸合：请直接在下方表格内上下、左右真实滚动。</span>
+          </div>
+
+          <div class="matrix-scroll" id="matrix-scroll" data-stick-top="1" data-stick-left="1" data-corner-z="1" tabindex="0" aria-label="可上下左右滚动的双向粘性对比表">
+            <table class="sticky-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="corner-cell">布局属性 / 指标</th>
+                  <th scope="col">保留文档流占位</th>
+                  <th scope="col">触发阈值属性</th>
+                  <th scope="col">参照坐标系</th>
+                  <th scope="col">受限于父容器底边</th>
+                  <th scope="col">典型适用部件</th>
+                  <th scope="col">高频排障点</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">sticky 粘性定位</th>
+                  <td>保留原位不塌陷</td>
+                  <td>top / bottom / left / right</td>
+                  <td>最近滚动祖先</td>
+                  <td>是 · 抵达底边交棒</td>
+                  <td>分区标题、表头、筛选栏</td>
+                  <td>祖先 overflow: hidden</td>
+                </tr>
+                <tr>
+                  <th scope="row">fixed 固定定位</th>
+                  <td>脱离文档流</td>
+                  <td>top / bottom / left / right</td>
+                  <td>视口（transform 会劫持）</td>
+                  <td>否 · 全程常驻</td>
+                  <td>全局主导航、悬浮客服</td>
+                  <td>忘留 padding-top 遮首行</td>
+                </tr>
+                <tr>
+                  <th scope="row">relative 相对定位</th>
+                  <td>保留原位不塌陷</td>
+                  <td>相对自身原位偏移</td>
+                  <td>元素自身原位置</td>
+                  <td>不随滚动吸附</td>
+                  <td>微调对齐、立包含块锚点</td>
+                  <td>偏移留空、层叠上下文</td>
+                </tr>
+                <tr>
+                  <th scope="row">absolute 绝对定位</th>
+                  <td>脱离文档流</td>
+                  <td>相对已定位祖先</td>
+                  <td>最近非 static 祖先</td>
+                  <td>不随滚动吸附</td>
+                  <td>角标、悬浮气泡、蒙层</td>
+                  <td>父级漏写 position: relative</td>
+                </tr>
+                <tr>
+                  <th scope="row">底边 sticky 工具栏</th>
+                  <td>保留原位不塌陷</td>
+                  <td>bottom: 0</td>
+                  <td>最近滚动祖先底沿</td>
+                  <td>是 · 到表单顶部松手</td>
+                  <td>长表单提交条、购物车汇总</td>
+                  <td>被移动端底部安全区遮挡</td>
+                </tr>
+                <tr>
+                  <th scope="row">横向 sticky 目录列</th>
+                  <td>保留原位不塌陷</td>
+                  <td>left: 0</td>
+                  <td>横向滚动容器左沿</td>
+                  <td>是 · 到列组右端松手</td>
+                  <td>宽表首列、甘特图任务名</td>
+                  <td>未给实底背景导致穿透</td>
+                </tr>
+                <tr>
+                  <th scope="row">侧栏 sticky 大纲</th>
+                  <td>保留原位不塌陷</td>
+                  <td>top: 24px</td>
+                  <td>文档视口上沿</td>
+                  <td>是 · 到文章末尾停驻</td>
+                  <td>文档目录、电商购买卡片</td>
+                  <td>Flex 默认 stretch 拉满高</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="matrix-caption">注意左上角「布局属性 / 指标」格：关闭「左上角交汇格提权」后同时向右、向下滚动，首列单元格会从它上方碾过——双向粘性必须让交汇角的 <code>z-index</code> 严格高于顶行与首列。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 03 · 四大失效暗坑诊所（深焙浓缩棕暗室） ==================== -->
+    <section class="chapter band-dark" id="sec-03">
+      <div class="wrap">
+        <div class="chap-head">
+          <span class="chap-num" lang="en">03</span>
+          <div class="chap-titles">
+            <h2>四大失效暗坑诊所</h2>
+            <p class="chap-en" lang="en">WHY POSITION: STICKY SILENTLY FAILS</p>
+          </div>
+        </div>
+
+        <p class="dark-lead">写 <code>position: sticky</code> 最挫败的时刻，是浏览器既不报错也不吸顶。下面四份病历覆盖了线上九成以上的失效现场——切一份病历，滚一滚旁边的实景预览，再亲手修掉那一行致命 CSS。</p>
+
+        <!-- 03 节专属交互：4 份真实故障病历逐行修复台 -->
+        <div class="clinic-tabs" role="tablist" aria-label="粘性定位失效病历切换">
+          <button type="button" class="clinic-tab" role="tab" data-case="0" aria-selected="true">病历 01 · 祖先 overflow</button>
+          <button type="button" class="clinic-tab" role="tab" data-case="1" aria-selected="false">病历 02 · Flex 拉伸</button>
+          <button type="button" class="clinic-tab" role="tab" data-case="2" aria-selected="false">病历 03 · 漏写阈值</button>
+          <button type="button" class="clinic-tab" role="tab" data-case="3" aria-selected="false">病历 04 · 超高粘性块</button>
+        </div>
+
+        <div class="clinic-board">
+          <div class="clinic-info">
+            <div class="clinic-meta">
+              <span class="clinic-badge" id="clinic-badge" data-fixed="0">故障重现中</span>
+              <h3 id="clinic-title">祖先套了 overflow: hidden 裁圆角</h3>
+            </div>
+            <p class="clinic-symptom" id="clinic-symptom"></p>
+            <p class="clinic-cause" id="clinic-cause"></p>
+            <pre class="clinic-code" id="clinic-code"></pre>
+            <div class="clinic-actions">
+              <button type="button" class="clinic-fix-btn" id="btn-clinic-toggle">把 hidden 改成 overflow: clip</button>
+              <span class="clinic-status-txt" id="clinic-status-txt"></span>
+            </div>
+          </div>
+
+          <div class="clinic-preview-wrap">
+            <div class="clinic-preview-head">
+              <span>实景预览 · 拖动下方滑块检验是否吸顶</span>
+              <span class="lab-mono" id="clinic-scroll-val">滚卷 54%</span>
+            </div>
+            <!-- 纯几何单真源模拟 4 种真实 CSS 失效与修复现场 -->
+            <div class="clinic-stage" id="clinic-stage"></div>
+            <div class="clinic-slider-row">
+              <label for="clinic-range">检验滚卷</label>
+              <input type="range" id="clinic-range" min="0" max="100" value="54" step="1">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 04 · 从哪来（洁净暖象牙纸） ==================== -->
+    <section class="chapter band-ivory" id="sec-04">
+      <div class="wrap">
+        <div class="chap-head">
+          <span class="chap-num" lang="en">04</span>
+          <div class="chap-titles">
+            <h2>从哪来</h2>
+            <p class="chap-en" lang="en">FROM MOBILE LIST HEADERS TO COMPOSITOR-DRIVEN CSS</p>
+          </div>
+        </div>
+
+        <p class="sec-intro">在原生 <code>position: sticky</code> 普及之前，网页要实现「滚到顶就固定」，全靠 JavaScript 监听 <code>scroll</code> 事件、反复读取元素坐标再切换 <code>position: fixed</code>。但现代浏览器为了 60 帧顺滑滚屏，早就把滚动放到了独立的合成线程——主线程的 JS 回调永远慢半拍，一急滚标题就会抖动、错位甚至闪烁。粘性定位的诞生，本质上是一次<strong>把吸顶权限交还给浏览器渲染引擎</strong>的漫长工程接力。</p>
+
+        <!-- 04 节专属交互：年代节点脉络卡 -->
+        <div class="timeline-bar" role="tablist" aria-label="粘性定位发展年代节点">
+          <button type="button" class="tl-node" role="tab" data-tl="0" aria-selected="false"><span class="tl-yr" lang="en">2002</span><span class="tl-nm">OEBPS 先声</span></button>
+          <button type="button" class="tl-node" role="tab" data-tl="1" aria-selected="false"><span class="tl-yr" lang="en">2008</span><span class="tl-nm">iOS 通讯录</span></button>
+          <button type="button" class="tl-node" role="tab" data-tl="2" aria-selected="true"><span class="tl-yr" lang="en">2012</span><span class="tl-nm">W3C 提案</span></button>
+          <button type="button" class="tl-node" role="tab" data-tl="3" aria-selected="false"><span class="tl-yr" lang="en">2014–2017</span><span class="tl-nm">双核定型</span></button>
+          <button type="button" class="tl-node" role="tab" data-tl="4" aria-selected="false"><span class="tl-yr" lang="en">2022–2025</span><span class="tl-nm">现代补全</span></button>
+        </div>
+
+        <div class="tl-card" id="tl-card">
+          <div class="tl-card-top">
+            <span class="tl-year-big" id="tl-year-big" lang="en">2012</span>
+            <span class="tl-badge" id="tl-badge">标准起航</span>
+          </div>
+          <h3 id="tl-title">Edward O'Connor 在 www-style 提案并落地 WebKit</h3>
+          <p id="tl-body">2012 年 6 月 26 日，Apple 工程师 Edward O'Connor 在 W3C www-style 邮件列表提交 Sticky Positioning 提案，直指当时用 JavaScript scroll 监听切换 fixed 会破坏浏览器异步硬件滚屏、引发明显抖动（jank）。同年 8 月，WebKit 率先实现 -webkit-sticky。</p>
+        </div>
+
+        <!-- 对比条：旧 JS 监听抖动 vs 原生合成线程锁顶 -->
+        <div class="jank-box">
+          <div class="jank-head">
+            <div>
+              <strong>为什么不能用 JS 监听 scroll 硬写？</strong>
+              <p>点一次「模拟急滚一屏」，直观看主线程异步追赶与原生合成层同步贴顶的视觉差别（示意图，帧偏移按典型急滚延迟示意）。</p>
+            </div>
+            <button type="button" class="action-btn primary" id="btn-jank-demo">模拟急滚一屏</button>
+          </div>
+          <div class="jank-lanes">
+            <div class="jank-lane">
+              <div class="jank-lane-top">
+                <span>旧做法 · JS 监听 scroll 切 fixed</span>
+                <span class="jank-metric err" id="jank-lag-js">待触发 · 易滞后 2–3 帧抖动</span>
+              </div>
+              <div class="jank-track">
+                <div class="jank-bar err" id="jank-bar-js"><span>JS 吸顶条</span></div>
+              </div>
+            </div>
+            <div class="jank-lane">
+              <div class="jank-lane-top">
+                <span>原生 · CSS position: sticky</span>
+                <span class="jank-metric ok" id="jank-lag-css">待触发 · 合成线程 0px 零漂移</span>
+              </div>
+              <div class="jank-track">
+                <div class="jank-bar ok" id="jank-bar-css"><span>CSS 粘性条</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 05 · 什么时候用，什么时候别用（浅梅雾纸） ==================== -->
+    <section class="chapter band-blush" id="sec-05">
+      <div class="wrap">
+        <div class="chap-head">
+          <span class="chap-num" lang="en">05</span>
+          <div class="chap-titles">
+            <h2>什么时候用，什么时候别用</h2>
+            <p class="chap-en" lang="en">APPLICABLE SCENES &amp; WHEN TO STEP BACK</p>
+          </div>
+        </div>
+
+        <!-- 完整承接原海报四大适用场景（含原海报四枚线性圆徽） -->
+        <div class="usage-strip" aria-label="原海报四大适用场景">
+          <div class="usage-card">
+            <span class="usage-ico" aria-hidden="true">
+              <svg viewBox="0 0 28 28" width="24" height="24"><path d="M5 7h7a3 3 0 0 1 2 1 3 3 0 0 1 2-1h7v14h-7a3 3 0 0 0-2 1 3 3 0 0 0-2-1H5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><line x1="14" y1="8" x2="14" y2="21" stroke="currentColor" stroke-width="1.8"/></svg>
+            </span>
+            <strong>阅读导航</strong>
+            <p>长文档右侧大纲或顶部阅读进度条，滚到正文结束即停驻，不盖页脚。</p>
+          </div>
+          <div class="usage-card">
+            <span class="usage-ico" aria-hidden="true">
+              <svg viewBox="0 0 28 28" width="24" height="24"><circle cx="7" cy="9" r="1.6" fill="currentColor"/><line x1="11" y1="9" x2="22" y2="9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="14" r="1.6" fill="currentColor"/><line x1="11" y1="14" x2="22" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="19" r="1.6" fill="currentColor"/><line x1="11" y1="19" x2="22" y2="19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <strong>分区标题</strong>
+            <p>通讯录字母组、日程按月分组、商品品类分段，下一组自动顶走上一组。</p>
+          </div>
+          <div class="usage-card">
+            <span class="usage-ico" aria-hidden="true">
+              <svg viewBox="0 0 28 28" width="24" height="24"><path d="M5 7h18l-7 8v6l-4-2v-4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </span>
+            <strong>筛选工具栏</strong>
+            <p>搜索结果上方有横幅介绍，滚过横幅后筛选条才顺势吸顶，省出首屏空间。</p>
+          </div>
+          <div class="usage-card">
+            <span class="usage-ico" aria-hidden="true">
+              <svg viewBox="0 0 28 28" width="24" height="24"><rect x="6" y="8" width="14" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 8V6a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-1" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+            </span>
+            <strong>标签切换栏</strong>
+            <p>详情页的「参数 / 评价 / 问答」切换条，读到深处依然伸手可切。</p>
+          </div>
+        </div>
+
+        <div class="two-col avoid-split">
+          <div class="avoid-list">
+            <h3>什么时候别用粘性定位</h3>
+            <ul>
+              <li><strong>全站永久不退场的主控条：</strong>如果导航或应急悬浮按钮从第 1 像素到页底都必须常驻屏幕，请直接交给 <a href="https://layout.xiaoxiaodong.ai/234/play/" target="_blank" rel="noopener">234 固定定位布局</a>，别硬套粘性定位平添祖先溢出隐患。</li>
+              <li><strong>需要跳脱容器自由叠层：</strong>徽章角标、气泡提示或模态弹窗，请看 <a href="https://layout.xiaoxiaodong.ai/233/play/" target="_blank" rel="noopener">233 绝对定位布局</a> 或 <a href="https://layout.xiaoxiaodong.ai/237/play/" target="_blank" rel="noopener">237 覆盖布局</a>。</li>
+              <li><strong>多层吸顶叠罗汉：</strong>公告条 + 主导航 + 筛选栏 + 分区头四层一起吸顶，在矮屏上能直接吞掉一半视口；配合 <a href="https://layout.xiaoxiaodong.ai/240/play/" target="_blank" rel="noopener">240 响应式布局</a>，在矮横屏（如 <code>max-height: 480px</code>）应主动回退 <code>position: static</code>。</li>
+              <li><strong>锚点跳转忘配 <code>scroll-margin-top</code>：</strong>点击目录跳到 <code>#sec-2</code> 时，浏览器默认把标题滚到视口 0px，正好钻进吸顶栏背后——务必给各锚点标题补上不小于吸顶高度的 <code>scroll-margin-top</code>。</li>
+              <li><strong>网格与弹性盒里忘写对齐：</strong>在 <a href="https://layout.xiaoxiaodong.ai/226/play/" target="_blank" rel="noopener">226 弹性盒布局</a> 或 <a href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">227 网格布局</a> 中做粘性侧栏，必须显式设 <code>align-self: start</code>，否则默认拉伸会让它锁死。</li>
+            </ul>
+          </div>
+
+          <!-- 05 节专属交互：多屏设备粘性占空计算器 -->
+          <div class="budget-lab" aria-label="多屏设备粘性占空计算器">
+            <div class="lab-head">
+              <strong>屏高与粘性占空计算器</strong>
+              <span class="lab-mono" id="budget-pct">40%</span>
+            </div>
+
+            <div class="device-tabs" role="group" aria-label="选择屏幕设备">
+              <button type="button" class="seg-btn" data-dev="desktop" aria-pressed="false">桌面 1440×900</button>
+              <button type="button" class="seg-btn" data-dev="mobileV" aria-pressed="false">手机竖 390×844</button>
+              <button type="button" class="seg-btn" data-dev="mobileH" aria-pressed="true">手机横 844×390</button>
+            </div>
+
+            <div class="layer-checks">
+              <label class="chk-pill"><input type="checkbox" data-layer="nav" checked><span>主导航 56px</span></label>
+              <label class="chk-pill"><input type="checkbox" data-layer="sec" checked><span>分区头 44px</span></label>
+              <label class="chk-pill"><input type="checkbox" data-layer="filter" checked><span>筛选栏 52px</span></label>
+              <label class="chk-pill"><input type="checkbox" data-layer="promo"><span>公告条 46px</span></label>
+            </div>
+
+            <label class="unstick-toggle">
+              <input type="checkbox" id="chk-auto-unstick">
+              <span>启用响应式保护：<code>@media (max-height: 480px) { position: static; }</code></span>
+            </label>
+
+            <!-- 可视化屏幕切分条 -->
+            <div class="budget-screen" id="budget-screen">
+              <div class="budget-pinned" id="budget-pinned"><span>吸顶占用 152px</span></div>
+              <div class="budget-net" id="budget-net"><span>净阅读区 238px</span></div>
+            </div>
+
+            <p class="budget-verdict" id="budget-verdict" data-status="error"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 06 · 实战小练习（洁净暖象牙纸） ==================== -->
+    <section class="chapter band-ivory" id="sec-06">
+      <div class="wrap">
+        <div class="chap-head">
+          <span class="chap-num" lang="en">06</span>
+          <div class="chap-titles">
+            <h2>实战小练习</h2>
+            <p class="chap-en" lang="en">CODE REVIEW · ONE VARIABLE MAKES OR BREAKS STICKY</p>
+          </div>
+        </div>
+
+        <div class="quiz-brief">
+          <div class="quiz-prompt">
+            <h3>代码审查：哪一套 CSS 能让右侧目录稳稳吸顶？</h3>
+            <p>页面外层 <code>.page</code> 需要防止文章里的宽图把整页横向撑宽；主体 <code>.main</code> 是左右双栏（左为长正文，右为较短的目录 <code>.toc</code>）。需求是：滚到距顶 <code>24px</code> 时 <code>.toc</code> 吸住，滚完文章后随 <code>.main</code> 一起退场、不压页脚。</p>
+            <p class="quiz-sub">以下四套方案极其相近，每两套之间只差一个关键属性。挑出唯一全部成立的那一套：</p>
+          </div>
+          <!-- 简明结构示意图 -->
+          <svg class="quiz-diagram" viewBox="0 0 280 156" width="280" height="156" role="img" aria-label="双栏长文与右侧目录结构示意图">
+            <rect x="4" y="4" width="272" height="148" rx="8" fill="#FBF0DD" stroke="#CBB9A0" stroke-width="1.5"/>
+            <text x="14" y="21" fill="#5C3B26" font-size="11" font-family="IBM Plex Mono, monospace">.page (防横向撑宽)</text>
+            <rect x="14" y="29" width="252" height="90" rx="6" fill="#FDF9F0" stroke="#A89139" stroke-dasharray="4 3" stroke-width="1.4"/>
+            <text x="22" y="44" fill="#5F500F" font-size="10.5" font-family="IBM Plex Mono, monospace">.main (flex)</text>
+            <rect x="22" y="51" width="154" height="60" rx="4" fill="#EFE4D2"/>
+            <text x="32" y="84" fill="#361905" font-size="11" font-family="Noto Sans SC, sans-serif">长正文区 (2400px)</text>
+            <rect x="186" y="51" width="72" height="34" rx="4" fill="#DB3E6D"/>
+            <text x="222" y="72" text-anchor="middle" fill="#FFFDF8" font-size="10.5" font-family="IBM Plex Mono, monospace">.toc</text>
+            <line x1="184" y1="51" x2="260" y2="51" stroke="#B31E4F" stroke-width="1.5" stroke-dasharray="3 2"/>
+            <rect x="14" y="125" width="252" height="20" rx="4" fill="#EAD7DB"/>
+            <text x="140" y="139" text-anchor="middle" fill="#5C3B26" font-size="10.5" font-family="Noto Sans SC, sans-serif">footer 页脚（不可被目录压盖）</text>
+          </svg>
+        </div>
+
+        <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四选一代码审查选项">
+          <!-- 4 个中性选项由 JS 按 model.js 渲染 -->
+        </div>
+
+        <div class="quiz-feedback" id="quiz-feedback" hidden role="status" aria-live="polite">
+          <div class="quiz-fb-head">
+            <strong id="quiz-fb-title"></strong>
+            <button type="button" class="mini-btn" id="btn-quiz-retry">重选一次</button>
+          </div>
+          <p id="quiz-fb-body"></p>
+          <ul class="quiz-breakdown" id="quiz-breakdown"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 07 · 原海报与关键词（奶油原纸） ==================== -->
+    <section class="chapter band-cream" id="sec-07">
+      <div class="wrap">
+        <div class="chap-head">
+          <span class="chap-num" lang="en">07</span>
+          <div class="chap-titles">
+            <h2>原海报与关键词</h2>
+            <p class="chap-en" lang="en">ORIGINAL POSTER · NO. 235</p>
+          </div>
+        </div>
+
+        <div class="poster-layout">
+          <div class="poster-frame-col">
+            <button type="button" class="poster-trigger" id="poster-trigger" aria-label="点击放大查看 235 号粘性定位布局原海报">
+              <img id="poster" src="poster.webp" alt="235 粘性定位布局教学海报" draggable="false">
+              <span class="poster-zoom-tip">点击放大 · 支持拖动与 Esc 关闭</span>
+            </button>
+          </div>
+
+          <div class="poster-meta-col">
+            <div class="poster-meta-card">
+              <h3>海报原话摘录</h3>
+              <p class="poster-tagline">「元素在正常文档流中，滚动到阈值时吸附在顶部，内容继续滚动。」</p>
+              <p class="poster-oneliner"><strong>一行记忆：</strong>粘性定位 = 正常流动 → 触发阈值 → 吸附固定，内容继续滚动。</p>
+            </div>
+
+            <div class="poster-meta-card">
+              <h3>海报适用场景与核心词</h3>
+              <div class="kw-list">
+                <span class="kw-chip">阅读导航</span>
+                <span class="kw-chip">分区标题</span>
+                <span class="kw-chip">筛选工具栏</span>
+                <span class="kw-chip">标签切换栏</span>
+                <span class="kw-chip" lang="en">position: sticky</span>
+                <span class="kw-chip" lang="en">top: 0</span>
+                <span class="kw-chip" lang="en">overflow: clip</span>
+              </div>
+            </div>
+
+            <div class="poster-meta-card">
+              <h3>同小类相关布局（CSS 流、定位与响应）</h3>
+              <div class="sibling-links">
+                <a href="https://layout.xiaoxiaodong.ai/222/play/" target="_blank" rel="noopener">222 普通流布局</a>
+                <a href="https://layout.xiaoxiaodong.ai/226/play/" target="_blank" rel="noopener">226 弹性盒布局</a>
+                <a href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">227 网格布局</a>
+                <a href="https://layout.xiaoxiaodong.ai/232/play/" target="_blank" rel="noopener">232 相对定位布局</a>
+                <a href="https://layout.xiaoxiaodong.ai/233/play/" target="_blank" rel="noopener">233 绝对定位布局</a>
+                <a href="https://layout.xiaoxiaodong.ai/234/play/" target="_blank" rel="noopener">234 固定定位布局</a>
+                <a href="https://layout.xiaoxiaodong.ai/237/play/" target="_blank" rel="noopener">237 覆盖布局</a>
+                <a href="https://layout.xiaoxiaodong.ai/240/play/" target="_blank" rel="noopener">240 响应式布局</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="foot wrap">
+    <p><span lang="en" class="num">No. 235</span> 粘性定位布局 · 350 种排版</p>
+    <p>正常流动，触线停驻，出盒即松。</p>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/235/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a> ·
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </footer>
+
+  <!-- 原海报放大查看灯箱 -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报放大查看器">
+    <div class="lb-bar">
+      <span class="lb-title">235 · 粘性定位布局原海报（拖动平移 · 滚轮或按键缩放 · Esc 关闭）</span>
+      <div class="lb-btns">
+        <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+        <button type="button" class="lb-btn" id="lb-zoom-reset">100%</button>
+        <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+        <button type="button" class="lb-btn close" id="lb-close" aria-label="关闭灯箱">关闭 Esc</button>
+      </div>
+    </div>
+    <div class="lb-stage" id="lb-stage">
+      <img id="lb-img" alt="235 粘性定位布局原海报放大视图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
