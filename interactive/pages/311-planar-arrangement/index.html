@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>311 平面调度 · PLANAR ARRANGEMENT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-crumb">
+      <span class="crumb-dot" aria-hidden="true"></span>
+      <span>影视画面构图</span>
+      <span class="crumb-sep" aria-hidden="true">/</span>
+      <span>场面调度与景深</span>
+    </div>
+    <div class="topbar-meta">
+      <span class="meta-num" lang="en">NO. 311</span>
+      <span class="meta-sep" aria-hidden="true">·</span>
+      <span class="meta-motto">简洁 · 清晰 · 有序 · 有效</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- HERO：承袭 311 原海报暖亚麻整版纵落 + 四向圆点虚线十字开放画台 -->
+  <section class="hero" id="hero" aria-label="平面调度交互舞台">
+    <div class="hero-shell">
+      <div class="hero-masthead">
+        <div class="hero-title-group">
+          <div class="hero-title-row">
+            <h1>平面调度</h1>
+            <div class="hero-mode-switch" role="group" aria-label="场景视角切换">
+              <button type="button" class="mode-btn is-active" data-stage-mode="poster" aria-pressed="true">海报构成</button>
+              <button type="button" class="mode-btn" data-stage-mode="cinema" aria-pressed="false">电影立面</button>
+            </div>
+          </div>
+          <p class="hero-en" lang="en">PLANAR ARRANGEMENT</p>
+          <div class="hero-rule" aria-hidden="true"></div>
+          <p class="hero-summary">
+            在二维平面上，合理组织视觉元素，建立秩序与关系。
+            <span class="hero-summary-en" lang="en">Organize visual elements on a two-dimensional plane to establish order and relationships.</span>
+          </p>
+        </div>
+
+        <!-- 311 原海报右上单线正圆徽记（内刻横线随阿恩海姆重心微倾） -->
+        <div class="hero-seal" aria-hidden="true">
+          <span class="seal-line-1">视觉组织</span>
+          <span class="seal-line-2">基础原理</span>
+          <span class="seal-bar" id="seal-balance-line"></span>
+        </div>
+      </div>
+
+      <!-- 十字开放画台：画布居中，四周直连原海报四条圆点虚线活体引注 -->
+      <div class="hero-stage-grid">
+        <div class="callout callout-top" id="callout-align" data-ok="false">
+          <div class="callout-text">
+            <span class="callout-zh">对齐</span>
+            <span class="callout-en" lang="en">ALIGN</span>
+            <strong class="callout-val" id="callout-align-val">0 组共线</strong>
+            <span class="callout-sub" id="callout-align-sub">至少对齐 2 组边或轴</span>
+          </div>
+          <span class="callout-stem stem-v" aria-hidden="true"></span>
+        </div>
+
+        <div class="callout callout-left" id="callout-balance" data-ok="false">
+          <div class="callout-text">
+            <span class="callout-zh">平衡</span>
+            <span class="callout-en" lang="en">BALANCE</span>
+            <strong class="callout-val" id="callout-balance-val">右倾 +18%</strong>
+            <span class="callout-sub" id="callout-balance-sub">远端轻条可配平大块</span>
+          </div>
+          <span class="callout-stem stem-h" aria-hidden="true"></span>
+        </div>
+
+        <div class="stage-canvas-wrap">
+          <canvas
+            id="hero-canvas"
+            class="hero-canvas"
+            width="800"
+            height="500"
+            tabindex="0"
+            aria-label="平面调度交互画布：可直接拖动朱红大圆、米白穿孔圆、朱红横条与深绿竖条，或选中后用方向键微调"
+          ></canvas>
+        </div>
+
+        <div class="callout callout-right" id="callout-contrast" data-ok="false">
+          <span class="callout-stem stem-h" aria-hidden="true"></span>
+          <div class="callout-text">
+            <span class="callout-zh">对比</span>
+            <span class="callout-en" lang="en">CONTRAST</span>
+            <strong class="callout-val" id="callout-contrast-val">穿孔滑出</strong>
+            <span class="callout-sub" id="callout-contrast-sub">穿孔圆入深绿、各件留缝</span>
+          </div>
+        </div>
+
+        <div class="callout callout-bottom" id="callout-rhythm" data-ok="false">
+          <span class="callout-stem stem-v" aria-hidden="true"></span>
+          <div class="callout-text">
+            <span class="callout-zh">节奏</span>
+            <span class="callout-en" lang="en">RHYTHM</span>
+            <strong class="callout-val" id="callout-rhythm-val">挤成一团</strong>
+            <span class="callout-sub" id="callout-rhythm-sub">拉开主次空隙忌等距</span>
+          </div>
+        </div>
+
+        <!-- 控制台与实时诊断带（横屏时自然并列至右侧，竖屏紧贴画布下方） -->
+        <div class="hero-dock">
+          <!-- 镜头立面归正游标（data-perf-drag 标记于此，左右拖从斜拍压平到 0° 垂直立面） -->
+          <div class="angle-panel">
+            <div class="angle-head">
+              <span class="angle-label">镜头立面角 <span class="angle-en" lang="en">CAMERA YAW</span></span>
+              <span class="angle-readout" id="angle-readout" data-ok="false">+26° · 斜拍透视</span>
+            </div>
+            <div class="angle-track-row">
+              <span class="angle-end" lang="en">-34°</span>
+              <div class="angle-track" id="angle-track" data-perf-drag>
+                <span class="angle-zero-mark" aria-hidden="true">0°</span>
+                <span class="angle-fill" id="angle-fill" data-ok="false"></span>
+                <button
+                  type="button"
+                  class="angle-thumb"
+                  id="angle-thumb"
+                  role="slider"
+                  aria-label="镜头立面偏角"
+                  aria-valuemin="-34"
+                  aria-valuemax="34"
+                  aria-valuenow="26"
+                  data-ok="false"
+                ></button>
+              </div>
+              <span class="angle-end" lang="en">+34°</span>
+            </div>
+          </div>
+
+          <!-- 构件选择与触控微调条 -->
+          <div class="piece-bar">
+            <div class="piece-btns" role="group" aria-label="选择要微调的平面构件">
+              <button type="button" class="piece-btn is-active" data-select-piece="warmBar" aria-pressed="true">
+                <span class="swatch swatch-warm-bar" aria-hidden="true"></span>
+                <span class="piece-btn-name">朱红横条</span>
+              </button>
+              <button type="button" class="piece-btn" data-select-piece="accentCircle" aria-pressed="false">
+                <span class="swatch swatch-warm-dot" aria-hidden="true"></span>
+                <span class="piece-btn-name">朱红大圆</span>
+              </button>
+              <button type="button" class="piece-btn" data-select-piece="cutoutCircle" aria-pressed="false">
+                <span class="swatch swatch-cutout" aria-hidden="true"></span>
+                <span class="piece-btn-name">米白穿孔圆</span>
+              </button>
+              <button type="button" class="piece-btn" data-select-piece="darkBar" aria-pressed="false">
+                <span class="swatch swatch-pine-bar" aria-hidden="true"></span>
+                <span class="piece-btn-name">深绿竖条</span>
+              </button>
+            </div>
+            <div class="piece-actions">
+              <div class="nudge-group" role="group" aria-label="方向微调当前选中构件">
+                <button type="button" class="nudge-btn" data-nudge="-0.03,0" aria-label="向左移">←</button>
+                <button type="button" class="nudge-btn" data-nudge="0,-0.03" aria-label="向上移">↑</button>
+                <button type="button" class="nudge-btn" data-nudge="0,0.03" aria-label="向下移">↓</button>
+                <button type="button" class="nudge-btn" data-nudge="0.03,0" aria-label="向右移">→</button>
+              </div>
+              <button type="button" class="ghost-btn" data-hero-preset="skewed">复原斜拍挤堆</button>
+              <button type="button" class="ghost-btn" data-hero-preset="uniform">试看死板均分</button>
+              <button type="button" class="ghost-btn ref-btn" id="hero-ref-toggle" disabled aria-pressed="false">原海报轮廓（待成序）</button>
+            </div>
+          </div>
+
+          <!-- 阿恩海姆重心微尺 + 白话诊断 -->
+          <div class="hero-diag" id="hero-diag" data-level="error">
+            <div class="diag-top">
+              <span class="diag-tag" id="hero-diag-tag">错态 · 斜拍 +26°</span>
+              <div class="lever-mini" aria-live="polite">
+                <span class="lever-mini-label" id="hero-lever-text">重心右偏 +18%</span>
+                <span class="lever-mini-rail" aria-hidden="true">
+                  <span class="lever-mini-band"></span>
+                  <span class="lever-mini-dot" id="hero-lever-dot" data-ok="false"></span>
+                </span>
+              </div>
+              <span class="diag-count" id="hero-diag-count" lang="en">0 / 5 成立</span>
+            </div>
+            <p class="diag-head" id="hero-diag-head">机位偏斜 26°，透视斜线正在抢走二维秩序</p>
+            <p class="diag-body" id="hero-diag-body">
+              背景深绿墙面正往远处斜收，眼睛会顺着透视线往纵深里滑，没法把元素当作一张平面构成来读。先把「镜头立面角」游标拖到 0° 垂直立面，压平空间后再调平面关系。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 节：浅宣纸 · 为什么影视导演要刻意压平三维空间 -->
+  <section class="sec sec-light" id="sec-01">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div>
+          <h2>压扁空间，换来秩序</h2>
+          <p class="sec-en" lang="en">FLATTENING SPACE FOR ORDER</p>
+        </div>
+      </div>
+
+      <div class="split-layout">
+        <div class="prose-col">
+          <p class="lead">
+            摄影机明明站在三维实景里，为什么很多导演和摄影师偏偏把镜头严丝合缝地垂直对准一面墙，故意抹掉斜线纵深？
+          </p>
+          <p>
+            当镜头从斜角切入空间，人的大脑会优先按「近大远小」来分配注意力——那是<a href="https://layout.xiaoxiaodong.ai/310/play/">310 深度调度</a>与<a href="https://layout.xiaoxiaodong.ai/314/play/">314 多层前景调度</a>的主场。反过来，一旦把机位摆正到 0° 并退远换用中长焦，斜收的透视线瞬间拉直，前后人物的身高差距急剧缩小，整个银幕就折叠成了一张二维平面画布。
+          </p>
+          <p>
+            纵深退场后，人物之间谁孤立、谁并肩、谁被环境框住，不再靠「走近镜头」来吼，而是直接写在左右距离、上下高低与背景几何分格里——冷静、透明，一眼看穿关系。
+          </p>
+
+          <div class="lens-cards" role="group" aria-label="切换摄影机位与焦段">
+            <button type="button" class="lens-card is-active" data-lens-preset="wide24" aria-pressed="true">
+              <strong lang="en">24mm</strong>
+              <span>斜角 32° 纵深</span>
+            </button>
+            <button type="button" class="lens-card" data-lens-preset="std50" aria-pressed="false">
+              <strong lang="en">50mm</strong>
+              <span>半斜 16° 过渡</span>
+            </button>
+            <button type="button" class="lens-card" data-lens-preset="tele85" aria-pressed="false">
+              <strong lang="en">85mm</strong>
+              <span>正对 0° 立面</span>
+            </button>
+            <button type="button" class="lens-card" data-lens-preset="tele135" aria-pressed="false">
+              <strong lang="en">135mm</strong>
+              <span>压缩纯平面</span>
+            </button>
+          </div>
+
+          <div class="metric-strip">
+            <div class="metric-item">
+              <span class="metric-k">机位偏角</span>
+              <strong class="metric-v" id="lab01-angle" lang="en">32°</strong>
+            </div>
+            <div class="metric-item">
+              <span class="metric-k">前后身高比（示意）</span>
+              <strong class="metric-v" id="lab01-ratio" lang="en">1.68×</strong>
+            </div>
+            <div class="metric-item">
+              <span class="metric-k">空间形态</span>
+              <strong class="metric-v" id="lab01-flat">强斜角纵深</strong>
+            </div>
+          </div>
+
+          <p class="lab-note" id="lab01-readout"></p>
+        </div>
+
+        <div class="visual-col">
+          <div class="canvas-frame">
+            <canvas id="lab01-canvas" width="720" height="430" aria-label="俯拍机位与银幕成片对照画布"></canvas>
+          </div>
+          <p class="caption">上方为片场俯拍机位与视锥，下方为同一时刻银幕里的墙面平行度与人物身高变化。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 节：深松林墨绿反白 · 拆解 311 原海报的核心要点与四向法则 -->
+  <section class="sec sec-dark" id="sec-02">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div>
+          <h2>四维法则，一图同生</h2>
+          <p class="sec-en" lang="en">FOUR PILLARS ON ONE PLANE</p>
+        </div>
+      </div>
+
+      <div class="anatomy-layout">
+        <div class="anatomy-stage">
+          <div class="canvas-frame dark-frame">
+            <canvas id="lab02-canvas" width="680" height="440" aria-label="311 原海报构图 X 光解剖画布"></canvas>
+          </div>
+          <div class="anatomy-tabs" role="group" aria-label="选择原海报解剖图层">
+            <button type="button" class="anatomy-btn is-active" data-anatomy-layer="all" aria-pressed="true">四层叠加</button>
+            <button type="button" class="anatomy-btn" data-anatomy-layer="align" aria-pressed="false">对齐 ALIGN</button>
+            <button type="button" class="anatomy-btn" data-anatomy-layer="balance" aria-pressed="false">平衡 BALANCE</button>
+            <button type="button" class="anatomy-btn" data-anatomy-layer="contrast" aria-pressed="false">对比 CONTRAST</button>
+            <button type="button" class="anatomy-btn" data-anatomy-layer="rhythm" aria-pressed="false">节奏 RHYTHM</button>
+          </div>
+          <div class="anatomy-readout">
+            <strong id="lab02-title">四维叠加 · 原海报完整秩序</strong>
+            <p id="lab02-body"></p>
+          </div>
+        </div>
+
+        <div class="anatomy-notes">
+          <p class="lead">
+            311 原海报没有用复杂场景，只靠一块深松绿大方块与几枚圆、条、点阵，把二维组织的全部骨架摆在了明面上。
+          </p>
+          <p class="sub-kicker">原海报三大核心要点</p>
+          <ul class="poster-points-list">
+            <li>
+              <span class="pt-icon pt-square" aria-hidden="true"></span>
+              <div>
+                <strong>平面分布</strong>
+                <p>「元素在平面上的位置安排」——先立主次场域，再决定谁落在域内、谁跨界切边、谁在外侧呼应。</p>
+              </div>
+            </li>
+            <li>
+              <span class="pt-icon pt-circle" aria-hidden="true"></span>
+              <div>
+                <strong>均衡关系</strong>
+                <p>「视觉重量的平衡与稳定」——重色大圆沉在右下，靠左上轻条与左下点阵拉回重心，而不必左右照镜子。</p>
+              </div>
+            </li>
+            <li>
+              <span class="pt-icon pt-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+              <div>
+                <strong>疏密节奏</strong>
+                <p>「变化中的秩序与韵律」——大片实色、中等穿孔、窄细竖条、密集点阵层层换拍，秩序里藏着呼吸。</p>
+              </div>
+            </li>
+          </ul>
+          <p class="gentle-note">
+            <span class="note-badge">补充一句</span>
+            原海报把「平面分布、均衡关系、疏密节奏」列成三条并列要点，实际操盘时它们互相牵制：往外挪一步拉出疏密，重心就会跟着偏移，必须四维同调。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 节：暖亚麻纸 · 阿恩海姆视觉重量与杠杆原理 -->
+  <section class="sec sec-paper" id="sec-03">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <div>
+          <h2>视觉重量，不是面积</h2>
+          <p class="sec-en" lang="en">VISUAL WEIGHT &amp; THE LEVER</p>
+        </div>
+      </div>
+
+      <div class="split-layout split-reverse">
+        <div class="prose-col">
+          <p class="lead">
+            为什么 311 原海报左上角一条细细的朱红横条，就能稳稳抗衡右下方那颗硕大的朱红实心圆？
+          </p>
+          <p>
+            格式塔心理学家鲁道夫·阿恩海姆在《艺术与视知觉》（1954 年初版，1974 年修订）第一章「平衡」里借用了物理杠杆来解释：眼睛衡量画面时，算的不是冷冰冰的面积平方厘米，而是「视觉重量 × 离中心支点的距离」。高饱和暖色比浅灰重，实心块比空心线框重，放在远端角落的轻物件，因为力臂够长，照样能托平靠近中轴的庞然大物。
+          </p>
+          <p>
+            这就是非对称平面调度的核心武器——不用把所有元素呆板地居中对称，照样能让画面稳如磐石。
+          </p>
+
+          <div class="lever-controls">
+            <div class="ctrl-row">
+              <span class="ctrl-label">右侧形态</span>
+              <div class="btn-group" role="group" aria-label="选择右侧砝码形态">
+                <button type="button" class="pill-btn" data-lever-shape="circle" aria-pressed="false">实心大圆</button>
+                <button type="button" class="pill-btn is-active" data-lever-shape="bar" aria-pressed="true">细长横条</button>
+                <button type="button" class="pill-btn" data-lever-shape="frame" aria-pressed="false">空心线框</button>
+              </div>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label">色彩饱和</span>
+              <div class="btn-group" role="group" aria-label="选择右侧砝码色彩">
+                <button type="button" class="pill-btn" data-lever-color="terracotta" aria-pressed="false">陶橘红</button>
+                <button type="button" class="pill-btn" data-lever-color="pine" aria-pressed="false">深松绿</button>
+                <button type="button" class="pill-btn is-active" data-lever-color="stone" aria-pressed="true">浅暖灰</button>
+              </div>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label">杠杆力臂</span>
+              <div class="btn-group" role="group" aria-label="选择右侧砝码力臂位置">
+                <button type="button" class="pill-btn is-active" data-lever-arm="near" aria-pressed="true">近端 1×</button>
+                <button type="button" class="pill-btn" data-lever-arm="mid" aria-pressed="false">中段 2×</button>
+                <button type="button" class="pill-btn" data-lever-arm="far" aria-pressed="false">远端 3×</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="lever-status">
+            <span class="status-pill" id="lab03-verdict" data-state="warn">左侧下沉</span>
+            <span class="status-ratio" id="lab03-ratio" lang="en">右 : 左 ≈ 0.12 : 1（示意）</span>
+          </div>
+          <p class="lab-note" id="lab03-desc"></p>
+        </div>
+
+        <div class="visual-col">
+          <div class="canvas-frame">
+            <canvas id="lab03-canvas" width="700" height="310" aria-label="阿恩海姆视觉重量物理杠杆实验画布"></canvas>
+          </div>
+          <p class="caption">左侧深松绿主块固定在近中轴处；改变右侧物件的形态、色彩或外挪力臂，观察天平倾角如何回正。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 节：次暖石纸 · 疏密节奏（8 格视觉节拍带） -->
+  <section class="sec sec-stone" id="sec-04">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div>
+          <h2>疏密有喘息，才成节奏</h2>
+          <p class="sec-en" lang="en">RHYTHM OF DENSITY &amp; VOID</p>
+        </div>
+      </div>
+
+      <p class="lead lead-wide">
+        很多人把「秩序」理解成「间距完全相等」——结果排出一面工整却催眠的瓷砖墙。真正有生命力的平面调度，要像乐谱一样有重音、细碎连音和空白休止符。
+      </p>
+
+      <div class="rhythm-board">
+        <div class="canvas-frame">
+          <canvas id="lab04-canvas" width="720" height="260" aria-label="8 格视觉节拍与密度起伏画布"></canvas>
+        </div>
+
+        <div class="beat-slots" role="group" aria-label="点击每一格切换视觉密度">
+          <button type="button" class="beat-slot" data-beat-slot="0" data-kind="block">1 大块</button>
+          <button type="button" class="beat-slot" data-beat-slot="1" data-kind="block">2 大块</button>
+          <button type="button" class="beat-slot" data-beat-slot="2" data-kind="block">3 大块</button>
+          <button type="button" class="beat-slot" data-beat-slot="3" data-kind="block">4 大块</button>
+          <button type="button" class="beat-slot" data-beat-slot="4" data-kind="block">5 大块</button>
+          <button type="button" class="beat-slot" data-beat-slot="5" data-kind="block">6 大块</button>
+          <button type="button" class="beat-slot" data-beat-slot="6" data-kind="block">7 大块</button>
+          <button type="button" class="beat-slot" data-beat-slot="7" data-kind="block">8 大块</button>
+        </div>
+
+        <div class="rhythm-foot">
+          <div class="rhythm-presets" role="group" aria-label="节奏范式对比">
+            <button type="button" class="ghost-btn" data-beat-preset="flat">机械均分（错）</button>
+            <button type="button" class="ghost-btn" data-beat-preset="gradual">前紧后松 · 渐舒</button>
+            <button type="button" class="ghost-btn" data-beat-preset="cluster">聚群留白 · 停顿</button>
+          </div>
+          <div class="rhythm-verdict-box">
+            <span class="status-pill" id="lab04-verdict" data-state="warn">机械铺满</span>
+            <p class="lab-note" id="lab04-desc"></p>
+          </div>
+        </div>
+      </div>
+
+      <p class="sibling-tip">
+        点开同小类对照：如果你想用聚拢斜线把目光送往单一顶点，那是<a href="https://layout.xiaoxiaodong.ai/312/play/">312 三角调度</a>；如果想让视线沿着宽阔水平轴线连贯滑行，看<a href="https://layout.xiaoxiaodong.ai/313/play/">313 横向调度</a>。
+      </p>
+    </div>
+  </section>
+
+  <!-- 05 节：浅宣纸 · 历史源流（可核实人名、书名、年份） -->
+  <section class="sec sec-light" id="sec-05">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div>
+          <h2>从画框到银幕的脉络</h2>
+          <p class="sec-en" lang="en">ORIGINS: FROM PAINTING TO CINEMA</p>
+        </div>
+      </div>
+
+      <div class="history-layout">
+        <div class="era-tabs" role="group" aria-label="选择历史阶段">
+          <button type="button" class="era-btn is-active" data-era="1915" aria-pressed="true">
+            <span class="era-y" lang="en">1915</span>
+            <span class="era-n">沃尔夫林</span>
+          </button>
+          <button type="button" class="era-btn" data-era="1926" aria-pressed="false">
+            <span class="era-y" lang="en">1926</span>
+            <span class="era-n">康定斯基</span>
+          </button>
+          <button type="button" class="era-btn" data-era="1954" aria-pressed="false">
+            <span class="era-y" lang="en">1954</span>
+            <span class="era-n">阿恩海姆</span>
+          </button>
+          <button type="button" class="era-btn" data-era="2005" aria-pressed="false">
+            <span class="era-y" lang="en">2005</span>
+            <span class="era-n">波德维尔与银幕</span>
+          </button>
+        </div>
+
+        <div class="history-stage">
+          <div class="canvas-frame">
+            <canvas id="lab05-canvas" width="560" height="320" aria-label="四个历史时期的平面构图语法示意"></canvas>
+          </div>
+          <div class="history-copy">
+            <p class="history-year" id="lab05-year">1915 · 沃尔夫林《艺术史的基本概念》</p>
+            <h3 id="lab05-title">平面（Plane）与纵深（Recession）之分</h3>
+            <p id="lab05-body"></p>
+            <p class="history-quote" lang="en">
+              Planimetric framing turns the screen back into a deliberate pictorial plane.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 节：深松林墨绿警戒版 · 什么时候别用平面调度 -->
+  <section class="sec sec-dark" id="sec-06">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <div>
+          <h2>什么时候别用平面调度</h2>
+          <p class="sec-en" lang="en">WHEN NOT TO USE PLANAR STAGING</p>
+        </div>
+      </div>
+
+      <p class="lead lead-wide">
+        平面调度像一座透明的建筑剖面模型——它的优势是冷静、克制与高度可控的几何秩序，代价则是主动拆掉了「身临其境」的三维纵深幻觉。下面四种处境，硬套它反而会适得其反。
+      </p>
+
+      <div class="avoid-tabs" role="group" aria-label="选择平面调度的禁用场景">
+        <button type="button" class="anatomy-btn is-active" data-avoid-case="chase" aria-pressed="true">惊悚追逐与危机</button>
+        <button type="button" class="anatomy-btn" data-avoid-case="narrow" aria-pressed="false">狭小走廊退不开</button>
+        <button type="button" class="anatomy-btn" data-avoid-case="apex" aria-pressed="false">单一顶点强聚焦</button>
+        <button type="button" class="anatomy-btn" data-avoid-case="clutter" aria-pressed="false">杂乱无序的背景</button>
+      </div>
+
+      <div class="avoid-stage">
+        <div class="canvas-frame dark-frame">
+          <canvas id="lab06-canvas" width="720" height="290" aria-label="硬套平面调度与改用合适调度的双画幅对照"></canvas>
+        </div>
+        <div class="avoid-cards">
+          <div class="avoid-card avoid-bad" id="lab06-bad"></div>
+          <div class="avoid-card avoid-good" id="lab06-good"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 节：暖亚麻纸 · 小练习（4 选项同源实算，中性标签，只差单一变量） -->
+  <section class="sec sec-paper" id="sec-07">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div>
+          <h2>小练习：挑出成立的一版</h2>
+          <p class="sec-en" lang="en">PRACTICE · SPOT THE PLANAR ORDER</p>
+        </div>
+      </div>
+
+      <p class="lead lead-wide">
+        下面四幅 0° 垂直平面构成使用完全相同的四件元素与尺寸，只改变了排布方式。哪一版同时守住了<strong>对齐秩序、非对称杠杆平衡、图底清晰与疏密节奏</strong>？点选一幅查看实测重心与对齐线。
+      </p>
+
+      <div class="quiz-grid" role="group" aria-label="平面调度四选一练习">
+        <button type="button" class="quiz-card" data-quiz-option="A" aria-pressed="false">
+          <canvas width="320" height="200" aria-hidden="true"></canvas>
+          <span class="quiz-meta">
+            <strong>方案 A</strong>
+            <span>右缘对齐 · 同侧集中</span>
+          </span>
+        </button>
+
+        <button type="button" class="quiz-card" data-quiz-option="B" aria-pressed="false">
+          <canvas width="320" height="200" aria-hidden="true"></canvas>
+          <span class="quiz-meta">
+            <strong>方案 B</strong>
+            <span>中线平铺 · 等距并列</span>
+          </span>
+        </button>
+
+        <button type="button" class="quiz-card" data-quiz-option="C" aria-pressed="false">
+          <canvas width="320" height="200" aria-hidden="true"></canvas>
+          <span class="quiz-meta">
+            <strong>方案 C</strong>
+            <span>左远右近 · 错落配平</span>
+          </span>
+        </button>
+
+        <button type="button" class="quiz-card" data-quiz-option="D" aria-pressed="false">
+          <canvas width="320" height="200" aria-hidden="true"></canvas>
+          <span class="quiz-meta">
+            <strong>方案 D</strong>
+            <span>中区聚拢 · 重叠交错</span>
+          </span>
+        </button>
+      </div>
+
+      <div class="quiz-result" id="quiz-result" hidden>
+        <strong id="quiz-result-title"></strong>
+        <p id="quiz-result-body"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 节：浅宣纸 · 原海报、关键词档案与同小类互链 -->
+  <section class="sec sec-light" id="sec-08">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">08</span>
+        <div>
+          <h2>原海报与关键词档案</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; KEYWORDS</p>
+        </div>
+      </div>
+
+      <div class="archive-layout">
+        <div class="poster-col">
+          <button type="button" class="poster-trigger" id="poster-trigger" aria-label="点击放大查看 311 平面调度原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="311 平面调度原海报" draggable="false">
+            <span class="poster-hint">点击放大查看 · 支持拖拽与滚轮缩放</span>
+          </button>
+        </div>
+
+        <div class="archive-info">
+          <div class="archive-block">
+            <h3 class="archive-label">核心要点</h3>
+            <ul class="archive-points">
+              <li>
+                <span class="pt-icon pt-square" aria-hidden="true"></span>
+                <span><strong>平面分布</strong> — 元素在平面上的位置安排</span>
+              </li>
+              <li>
+                <span class="pt-icon pt-circle" aria-hidden="true"></span>
+                <span><strong>均衡关系</strong> — 视觉重量的平衡与稳定</span>
+              </li>
+              <li>
+                <span class="pt-icon pt-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span><strong>疏密节奏</strong> — 变化中的秩序与韵律</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="archive-block archive-kw-row">
+            <div>
+              <h3 class="archive-label">关键词</h3>
+              <ul class="kw-list" lang="en">
+                <li>PLANE</li>
+                <li>BALANCE</li>
+                <li>RHYTHM</li>
+                <li>CONTRAST</li>
+                <li>ORDER</li>
+              </ul>
+            </div>
+            <!-- 311 原海报右下角 7×7 陶橘红圆点阵母题 -->
+            <div class="terracotta-dots" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <div class="archive-block">
+            <h3 class="archive-label">同一小类 · 场面调度与景深</h3>
+            <div class="sibling-links">
+              <a href="https://layout.xiaoxiaodong.ai/310/play/"><strong>310 深度调度</strong><span>沿 Z 轴拉出前中后纵深层次</span></a>
+              <a href="https://layout.xiaoxiaodong.ai/312/play/"><strong>312 三角调度</strong><span>底宽顶窄汇聚目光于顶点</span></a>
+              <a href="https://layout.xiaoxiaodong.ai/313/play/"><strong>313 横向调度</strong><span>沿水平轴线铺展连贯信息流</span></a>
+              <a href="https://layout.xiaoxiaodong.ai/314/play/"><strong>314 多层前景调度</strong><span>借多道前景遮挡推开景深</span></a>
+            </div>
+          </div>
+
+          <div class="archive-motto">
+            <span>简洁 · 清晰 · 有序 · 有效</span>
+            <span class="motto-rule" aria-hidden="true"></span>
+            <span class="motto-dot" aria-hidden="true"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-links">
+      <a href="https://layout.xiaoxiaodong.ai/311/play/">在线版</a>
+      <span aria-hidden="true"> / </span>
+      <a href="https://layout.xiaoxiaodong.ai/">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span aria-hidden="true"> · </span>
+      <span>海报 CC BY 4.0</span>
+      <span aria-hidden="true"> · </span>
+      <a href="https://github.com/xiaoxiaodong-ai/350-layout-redesign">源文件 GitHub</a>
+    </p>
+    <span class="footer-dot" aria-hidden="true"></span>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱（Escape 关闭，图片 draggable="false"） -->
+<div class="lightbox" id="poster-lightbox" role="dialog" aria-modal="true" aria-label="311 平面调度原海报大图" hidden>
+  <div class="lightbox-bar">
+    <span class="lightbox-title">NO. 311 平面调度 · 原海报</span>
+    <div class="lightbox-tools">
+      <button type="button" class="lb-btn" id="poster-zoom-out" aria-label="缩小">−</button>
+      <span class="lb-readout" id="poster-zoom-readout" lang="en">100%</span>
+      <button type="button" class="lb-btn" id="poster-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn" id="poster-zoom-reset">复原</button>
+      <button type="button" class="lb-btn lb-close" id="poster-lightbox-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lightbox-stage" id="poster-lightbox-stage">
+    <img id="poster-lightbox-img" alt="311 平面调度原海报放大视图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
