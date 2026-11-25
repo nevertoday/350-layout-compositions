@@ -1,5 +1,5 @@
 // 01–08 各小节的互动实验、练习诊断与海报放大灯箱
-import { describeBreakpoint, describeStress, QUIZ_OPTIONS } from "./model.js";
+import { describePresentation, describeStress, QUIZ_OPTIONS } from "./model.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -53,7 +53,6 @@ export function initLinkLab() {
     const visible = LINK_ITEMS.filter((it) => !synced || filterCat === "all" || it.cat === filterCat);
     if (!visible.some((it) => it.id === activeId) && visible.length) activeId = visible[0].id;
     const cur = LINK_ITEMS.find((it) => it.id === activeId) || LINK_ITEMS[0];
-    // 断联状态下右侧锁定死板内容，不再随左侧选区变化
     const shown = synced ? cur : LINK_ITEMS[0];
 
     listEl.querySelectorAll(".link-card").forEach((btn) => {
@@ -107,7 +106,7 @@ export function initModalLab() {
   if (!box) return;
 
   const state = {
-    mode: "pane", // "pane" | "modal"
+    mode: "pane",
     modalOpen: false,
     accent: "navy",
     density: "normal",
@@ -121,15 +120,14 @@ export function initModalLab() {
   const openBtn = $("ml-open-modal");
   const closeBtn = $("ml-close-modal");
 
-  function syncControls(prefix) {
-    box.querySelectorAll(`[data-ml-prop]`).forEach((btn) => {
+  function syncControls() {
+    box.querySelectorAll("[data-ml-prop]").forEach((btn) => {
       const prop = btn.dataset.mlProp;
       const val = btn.dataset.mlVal;
       const active = String(state[prop]) === val;
       btn.setAttribute("aria-pressed", String(active));
       btn.classList.toggle("is-on", active);
     });
-    void prefix;
   }
 
   function render() {
@@ -195,7 +193,7 @@ export function initModalLab() {
 }
 
 /* =========================================================
-   03 · 宽度、策略与视觉噪声压力台
+   03 · 宽度、策略与视觉噪声压力台（360 px 定宽 vs 32% 比例）
    ========================================================= */
 export function initStressLab() {
   const vwRange = $("stress-vw");
@@ -216,7 +214,6 @@ export function initStressLab() {
     $("stress-badge").dataset.status = info.status;
     $("stress-verdict").textContent = info.verdict;
 
-    // 预览框按视口相对缩放，一眼看出 768 / 1440 / 2200 下的真实松紧度
     const stage = $("stress-stage");
     const scalePct = Math.round(((vw - 640) / (2200 - 640)) * 42 + 58);
     stage.style.setProperty("--vp-w", `${scalePct}%`);
@@ -245,58 +242,47 @@ export function initStressLab() {
 }
 
 /* =========================================================
-   04 · 跨端形态变形台（360px – 1440px 断点 + Push/Overlay + 折叠）
+   04 · 固定宽度下对比三种展开方式（Push / Overlay / Bottom Sheet）
    ========================================================= */
-export function initBreakpointLab() {
-  const range = $("bp-range");
-  const presets = $("bp-presets");
-  const behavSeg = $("bp-behavior");
-  const toggleBtn = $("bp-toggle");
-  if (!range) return;
+export function initEnterModeLab() {
+  const modeSeg = $("enter-mode");
+  const toggleBtn = $("enter-toggle");
+  const frame = $("enter-frame");
+  if (!modeSeg || !frame) return;
 
-  let vw = 1280;
-  let behavior = "push";
+  let mode = "push";
   let open = true;
 
   function render() {
-    const info = describeBreakpoint(vw, behavior, open);
-    range.value = String(vw);
-    $("bp-vw-out").textContent = `${vw} px`;
-    $("bp-tier").textContent = info.tierLabel;
-    $("bp-badge").textContent = info.badge;
-    $("bp-title").textContent = info.title;
-    $("bp-text").textContent = info.text;
+    const info = describePresentation(mode, open);
+    frame.dataset.mode = mode;
+    frame.dataset.open = String(open);
 
-    const frame = $("bp-frame");
-    frame.dataset.mode = info.layoutMode;
-    frame.dataset.tier = info.tier;
-    // 动态设备外框宽度感
-    const framePct = Math.round(((vw - 360) / (1440 - 360)) * 58 + 42);
-    frame.style.setProperty("--dev-w", `${framePct}%`);
+    $("enter-badge").textContent = info.badge;
+    $("enter-badge").dataset.tone = open ? (mode === "push" ? "mid" : mode === "overlay" ? "warn" : "good") : "neutral";
 
-    toggleBtn.setAttribute("aria-pressed", String(!open));
-    toggleBtn.textContent = open ? "折叠辅助窗格" : "展开辅助窗格";
+    const rEl = $("enter-reflow");
+    rEl.textContent = info.reflow.value;
+    rEl.dataset.tone = info.reflow.tone;
 
-    presets.querySelectorAll("button").forEach((b) => {
-      const hit = Math.abs(+b.dataset.vw - vw) <= 10;
-      b.setAttribute("aria-pressed", String(hit));
-    });
+    const oEl = $("enter-occlusion");
+    oEl.textContent = info.occlusion.value;
+    oEl.dataset.tone = info.occlusion.tone;
+
+    const tEl = $("enter-thumb");
+    tEl.textContent = info.thumb.value;
+    tEl.dataset.tone = info.thumb.tone;
+
+    $("enter-title").textContent = info.title;
+    $("enter-text").textContent = info.text;
+
+    toggleBtn.setAttribute("aria-pressed", String(open));
+    toggleBtn.textContent = open ? "收起辅助窗格" : "展开辅助窗格";
   }
 
-  range.addEventListener("input", () => {
-    vw = +range.value;
-    render();
-  });
-
-  presets.addEventListener("click", (e) => {
-    const b = e.target.closest("button[data-vw]");
-    if (!b) return;
-    vw = +b.dataset.vw;
-    render();
-  });
-
-  behavSeg.addEventListener("change", (e) => {
-    behavior = e.target.value;
+  modeSeg.addEventListener("change", (e) => {
+    mode = e.target.value;
+    open = true;
     render();
   });
 
@@ -377,7 +363,7 @@ export function initScenariosLab() {
 }
 
 /* =========================================================
-   07 · 小练习：四个数据看板辅助窗格方案
+   07 · 小练习：文档评审页四套辅助窗格方案
    ========================================================= */
 export function initQuiz() {
   const quiz = $("quiz");
@@ -484,9 +470,7 @@ export function initLightbox() {
     const dx = e.clientX - drag.x;
     const dy = e.clientY - drag.y;
     if (Math.hypot(dx, dy) > 4) moved = true;
-    if (!zoomed && moved) {
-      zoomed = true;
-    }
+    if (!zoomed && moved) zoomed = true;
     tx = Math.max(-420, Math.min(420, drag.sx + dx));
     ty = Math.max(-520, Math.min(520, drag.sy + dy));
     applyTransform();
