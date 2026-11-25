@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F8F3E9">
+<title>弹性盒布局 · FLEXBOX LAYOUT · No. 226</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <p class="crumb"><span class="crumb-dot" aria-hidden="true"></span><span>网页与 UI</span><span class="crumb-sep" aria-hidden="true">/</span><span>CSS 流、定位与响应</span></p>
+    <p class="issue"><span class="issue-no" lang="en">NO. 226</span><span class="issue-tag">一个维度，多种可能</span></p>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== HERO：瑞士五图标报头 + 巨幅朱红 f 框内一维弹轨工坊 ==================== -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="wrap">
+      <div class="poster-head">
+        <div class="title-col">
+          <h1 id="page-title">弹性盒布局</h1>
+          <p class="title-en" lang="en">FLEXBOX LAYOUT</p>
+        </div>
+        <div class="head-rule" aria-hidden="true"></div>
+        <ul class="five-pillars" aria-label="弹性盒五大核心状态">
+          <li class="pillar" data-pillar="mainAxis">
+            <span class="pillar-zh">主轴</span>
+            <span class="pillar-en" lang="en">MAIN AXIS</span>
+            <svg viewBox="0 0 44 22" class="pillar-ico" aria-hidden="true">
+              <path d="M5 11H39M10 6L4 11L10 16M34 6L40 11L34 16"/>
+            </svg>
+          </li>
+          <li class="pillar" data-pillar="crossAxis">
+            <span class="pillar-zh">交叉轴</span>
+            <span class="pillar-en" lang="en">CROSS AXIS</span>
+            <svg viewBox="0 0 44 22" class="pillar-ico" aria-hidden="true">
+              <path d="M22 3V19M17 7L22 2L27 7M17 15L22 20L27 15"/>
+            </svg>
+          </li>
+          <li class="pillar" data-pillar="align">
+            <span class="pillar-zh">对齐</span>
+            <span class="pillar-en" lang="en">ALIGN</span>
+            <svg viewBox="0 0 44 22" class="pillar-ico" aria-hidden="true">
+              <path d="M6 11H38M15 6H29M18 16H26"/>
+            </svg>
+          </li>
+          <li class="pillar" data-pillar="distribute">
+            <span class="pillar-zh">分配</span>
+            <span class="pillar-en" lang="en">DISTRIBUTE</span>
+            <svg viewBox="0 0 44 22" class="pillar-ico" aria-hidden="true">
+              <circle cx="8" cy="11" r="2.2"/><circle cx="15" cy="11" r="2.2"/><circle cx="22" cy="11" r="2.2"/><circle cx="29" cy="11" r="2.2"/><circle cx="36" cy="11" r="2.2"/>
+            </svg>
+          </li>
+          <li class="pillar" data-pillar="wrap">
+            <span class="pillar-zh">换行</span>
+            <span class="pillar-en" lang="en">WRAP</span>
+            <svg viewBox="0 0 44 22" class="pillar-ico" aria-hidden="true">
+              <path d="M11 5H33V16H17M22 12L16 16L22 20"/>
+            </svg>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 巨幅朱红小写 f 建筑框：顶梁贯通全宽，左竖柱下挂原海报 5×7 点阵，右舱承托活体弹轨工坊 -->
+      <div class="f-monolith">
+        <div class="f-beam" aria-hidden="true">
+          <span class="f-beam-tag" lang="en">DISPLAY: FLEX · 1D TRACK BENCH</span>
+          <span class="f-beam-hint">右壁朱红拉杆可拖 · 点子项调伸缩角色</span>
+        </div>
+
+        <div class="f-body">
+          <aside class="f-stem" aria-hidden="true">
+            <div class="f-pillar"></div>
+            <div class="f-crossbar"></div>
+            <div class="f-dots" id="hero-dots"></div>
+          </aside>
+
+          <div class="hero-chamber">
+            <!-- 顶控条：容器主轴、交叉轴对齐、换行与重置 -->
+            <div class="hero-toolbar">
+              <div class="ctrl-group" role="group" aria-label="主轴方向">
+                <span class="ctrl-label">主轴</span>
+                <button type="button" class="chip" data-dir="row" aria-pressed="true">row 横排</button>
+                <button type="button" class="chip" data-dir="column" aria-pressed="false">column 竖排</button>
+              </div>
+              <div class="ctrl-group" role="group" aria-label="交叉轴对齐">
+                <span class="ctrl-label">交叉轴</span>
+                <button type="button" class="chip" data-align="flex-start" aria-pressed="true">顶齐 start</button>
+                <button type="button" class="chip" data-align="center" aria-pressed="false">居中 center</button>
+                <button type="button" class="chip" data-align="stretch" aria-pressed="false">拉满 stretch</button>
+              </div>
+              <div class="ctrl-group" role="group" aria-label="是否换行">
+                <span class="ctrl-label">换行</span>
+                <button type="button" class="chip" data-wrap="nowrap" aria-pressed="true">不换行</button>
+                <button type="button" class="chip" data-wrap="wrap" aria-pressed="false">允许换行</button>
+              </div>
+              <div class="ctrl-actions">
+                <button type="button" class="btn-ghost" id="hero-reset">还原错态</button>
+                <button type="button" class="btn-outline" id="hero-solve">参考解</button>
+              </div>
+            </div>
+
+            <!-- 活体弹轨舞台：真实 Flexbox DOM + 2D Canvas X-Ray 透视层 + data-perf-drag 右壁拉杆 -->
+            <div class="bench-stage" id="hero-stage">
+              <div class="bench-axis-top">
+                <span class="axis-tag" id="hero-axis-main">主轴方向 / MAIN AXIS →</span>
+                <span class="axis-read" id="hero-width-read" lang="en">容器 0px</span>
+              </div>
+
+              <div class="bench-track" id="hero-track">
+                <div class="bench-cross-label" id="hero-axis-cross" aria-hidden="true">交叉轴 ↕</div>
+
+                <div class="bench-box-wrap" id="hero-box-wrap">
+                  <div class="flex-stage" id="hero-flex" role="region" aria-label="弹性盒实测顶栏">
+                    <button type="button" class="fx-item fx-logo" data-item="logo" aria-pressed="false">
+                      <span class="fx-code" lang="en">01</span>
+                      <span class="fx-name" lang="en">FLEX</span>
+                    </button>
+                    <button type="button" class="fx-item fx-search" data-item="search" aria-pressed="true">
+                      <span class="fx-code" lang="en">02</span>
+                      <span class="fx-name">搜索课程…</span>
+                    </button>
+                    <button type="button" class="fx-item fx-nav" data-item="nav" aria-pressed="false">
+                      <span class="fx-code" lang="en">03</span>
+                      <span class="fx-name">首页 课程</span>
+                    </button>
+                    <button type="button" class="fx-item fx-cta" data-item="cta" aria-pressed="false">
+                      <span class="fx-code" lang="en">04</span>
+                      <span class="fx-name">开始学习</span>
+                    </button>
+                  </div>
+
+                  <!-- 右壁可拖拉杆：标 data-perf-drag 供真机触控帧率测量 -->
+                  <button type="button" class="rail-handle" id="hero-rail-handle" data-perf-drag
+                    aria-label="拖动调整弹性容器宽度，聚焦后可用左右方向键微调"
+                    aria-valuemin="200" aria-valuemax="760" aria-valuenow="640">
+                    <span class="rail-grip" aria-hidden="true"><i></i><i></i></span>
+                    <span class="rail-px" id="hero-handle-px" lang="en">640</span>
+                  </button>
+                </div>
+
+                <!-- 透明 2D Canvas X-Ray 层：绘制轴箭、溢出红纹、闲置余量与中线偏差 -->
+                <canvas class="xray-canvas" id="hero-canvas" aria-hidden="true"></canvas>
+              </div>
+            </div>
+
+            <!-- 底部控制与诊断区：4 项策略槽 + 实时 CSS 声明 + 唯一权威白话诊断 -->
+            <div class="hero-lower">
+              <div class="item-slots" id="hero-slots" role="group" aria-label="各子项弹性策略">
+                <div class="slot" data-slot="logo">
+                  <div class="slot-head"><span class="slot-id" lang="en">01</span><b>LOGO</b><span class="slot-px" data-px="logo" lang="en">0px</span></div>
+                  <div class="slot-pills">
+                    <button type="button" class="pill" data-set-item="logo" data-policy="lock" aria-pressed="false">锁死</button>
+                    <button type="button" class="pill" data-set-item="logo" data-policy="shrink" aria-pressed="false">仅缩</button>
+                    <button type="button" class="pill" data-set-item="logo" data-policy="grow" aria-pressed="true">弹性</button>
+                  </div>
+                </div>
+                <div class="slot is-focus" data-slot="search">
+                  <div class="slot-head"><span class="slot-id" lang="en">02</span><b>搜索栏</b><span class="slot-px" data-px="search" lang="en">0px</span></div>
+                  <div class="slot-pills">
+                    <button type="button" class="pill" data-set-item="search" data-policy="lock" aria-pressed="true">锁死</button>
+                    <button type="button" class="pill" data-set-item="search" data-policy="shrink" aria-pressed="false">仅缩</button>
+                    <button type="button" class="pill" data-set-item="search" data-policy="grow" aria-pressed="false">弹性</button>
+                  </div>
+                </div>
+                <div class="slot" data-slot="nav">
+                  <div class="slot-head"><span class="slot-id" lang="en">03</span><b>导航组</b><span class="slot-px" data-px="nav" lang="en">0px</span></div>
+                  <div class="slot-pills">
+                    <button type="button" class="pill" data-set-item="nav" data-policy="lock" aria-pressed="false">锁死</button>
+                    <button type="button" class="pill" data-set-item="nav" data-policy="shrink" aria-pressed="true">仅缩</button>
+                    <button type="button" class="pill" data-set-item="nav" data-policy="grow" aria-pressed="false">弹性</button>
+                  </div>
+                </div>
+                <div class="slot" data-slot="cta">
+                  <div class="slot-head"><span class="slot-id" lang="en">04</span><b>操作钮</b><span class="slot-px" data-px="cta" lang="en">0px</span></div>
+                  <div class="slot-pills">
+                    <button type="button" class="pill" data-set-item="cta" data-policy="lock" aria-pressed="false">锁死</button>
+                    <button type="button" class="pill" data-set-item="cta" data-policy="shrink" aria-pressed="false">仅缩</button>
+                    <button type="button" class="pill" data-set-item="cta" data-policy="grow" aria-pressed="true">弹性</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="hero-readout" id="hero-readout" data-status="err" aria-live="polite">
+                <div class="ro-top">
+                  <span class="ro-badge" id="ro-badge">错态 · 配角发胖</span>
+                  <code class="ro-css" id="ro-css" lang="en">display: flex; flex-direction: row; align-items: flex-start; flex-wrap: nowrap;</code>
+                </div>
+                <p class="ro-title" id="ro-title">01 LOGO、04 操作钮不该开启弹性分配</p>
+                <p class="ro-detail" id="ro-detail">先观察台面：品牌标与按钮吃走了搜索栏的空间，四项顶缘挂齐、底缘参差。试着修改子项策略、把交叉轴调居中，再左右拖动朱红拉杆压测。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01 一根主轴，九十度旋转 ==================== -->
+  <article class="essay">
+    <section class="sec sec-stone" id="sec-01" aria-labelledby="h-01">
+      <div class="wrap sec-split">
+        <header class="sec-head sticky-head">
+          <p class="sec-no" lang="en">01</p>
+          <h2 id="h-01">一根主轴，九十度旋转</h2>
+          <p class="sec-en" lang="en">MAIN &amp; CROSS AXES</p>
+          <p class="sec-lead">普通流里，块级元素天生竖着摞，行内元素天生横着排；弹性盒先废掉「上下左右」，只认一根主轴和垂直于它的交叉轴。</p>
+          <p class="sec-note">普通文档流的默认堆叠与行内排列分别见 <a href="https://layout.xiaoxiaodong.ai/222/play/" target="_blank" rel="noopener">222 普通流布局</a>、<a href="https://layout.xiaoxiaodong.ai/223/play/" target="_blank" rel="noopener">223 块级布局</a> 与 <a href="https://layout.xiaoxiaodong.ai/224/play/" target="_blank" rel="noopener">224 行内布局</a>。</p>
+          <div class="poster-quotes">
+            <p class="pq"><b>原海报要点</b>：「主轴方向 <code class="tok">flex-direction</code>」「主轴对齐 <code class="tok">justify-content</code>」「交叉轴对齐 <code class="tok">align-items</code>」</p>
+          </div>
+        </header>
+
+        <div class="sec-main">
+          <div class="lab-card" id="axis-lab">
+            <div class="axis-top">
+              <div class="compass-box" role="group" aria-label="主轴方向罗盘">
+                <p class="mini-label">主轴方向 <code class="tok">flex-direction</code></p>
+                <div class="compass-grid">
+                  <button type="button" class="compass-btn" data-ax-dir="row" aria-pressed="true"><span class="arr" aria-hidden="true">→</span><span>row</span></button>
+                  <button type="button" class="compass-btn" data-ax-dir="row-reverse" aria-pressed="false"><span class="arr" aria-hidden="true">←</span><span>row-reverse</span></button>
+                  <button type="button" class="compass-btn" data-ax-dir="column" aria-pressed="false"><span class="arr" aria-hidden="true">↓</span><span>column</span></button>
+                  <button type="button" class="compass-btn" data-ax-dir="column-reverse" aria-pressed="false"><span class="arr" aria-hidden="true">↑</span><span>column-reverse</span></button>
+                </div>
+              </div>
+
+              <div class="axis-stage-wrap">
+                <div class="axis-stage-meta">
+                  <span id="ax-main-desc">主轴：从左到右（水平）</span>
+                  <span id="ax-cross-desc">交叉轴：从上到下（垂直）</span>
+                </div>
+                <div class="axis-stage" id="ax-stage">
+                  <div class="ax-guide-main" id="ax-guide-main" aria-hidden="true"></div>
+                  <div class="ax-guide-cross" id="ax-guide-cross" aria-hidden="true"></div>
+                  <div class="ax-baseline-rule" id="ax-baseline-rule" aria-hidden="true"><span>baseline 字脚基线</span></div>
+                  <div class="ax-box" id="ax-box">
+                    <div class="ax-item ax-a"><span class="ax-num" lang="en">1</span><span class="ax-glyph" lang="en">A</span></div>
+                    <div class="ax-item ax-b"><span class="ax-num" lang="en">2</span><span class="ax-glyph" lang="en">A</span></div>
+                    <div class="ax-item ax-c"><span class="ax-num" lang="en">3</span><span class="ax-glyph" lang="en">A</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="axis-controls">
+              <div class="ctrl-row" role="group" aria-label="主轴对齐 justify-content">
+                <span class="row-label">主轴对齐 <code class="tok">justify-content</code></span>
+                <div class="btn-strip">
+                  <button type="button" class="chip" data-ax-jc="flex-start" aria-pressed="true">flex-start</button>
+                  <button type="button" class="chip" data-ax-jc="center" aria-pressed="false">center</button>
+                  <button type="button" class="chip" data-ax-jc="space-between" aria-pressed="false">space-between</button>
+                  <button type="button" class="chip" data-ax-jc="space-around" aria-pressed="false">space-around</button>
+                  <button type="button" class="chip" data-ax-jc="space-evenly" aria-pressed="false">space-evenly</button>
+                </div>
+              </div>
+              <div class="ctrl-row" role="group" aria-label="交叉轴对齐 align-items">
+                <span class="row-label">交叉轴对齐 <code class="tok">align-items</code></span>
+                <div class="btn-strip">
+                  <button type="button" class="chip" data-ax-ai="flex-start" aria-pressed="false">flex-start</button>
+                  <button type="button" class="chip" data-ax-ai="center" aria-pressed="true">center</button>
+                  <button type="button" class="chip" data-ax-ai="flex-end" aria-pressed="false">flex-end</button>
+                  <button type="button" class="chip" data-ax-ai="stretch" aria-pressed="false">stretch</button>
+                  <button type="button" class="chip" data-ax-ai="baseline" aria-pressed="false">baseline</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="lab-verdict" id="ax-verdict" aria-live="polite">
+              <p class="lv-main" id="ax-v-title">横排主轴（row）：justify-content 管左右分配，align-items 管上下对齐。</p>
+              <p class="lv-sub" id="ax-v-sub">试着在罗盘里切到 column，再点同一组 space-between 或 center——你会亲眼看见两个属性的管辖方向跟着主轴一起旋转了 90 度；切到 baseline 时，三个大小不同的字母 A 会自动对齐文字底脚。</p>
+            </div>
+          </div>
+
+          <div class="rule-cards">
+            <div class="rule-card">
+              <h3>为什么记不住谁管横谁管竖？</h3>
+              <p>因为记「水平/垂直」本身就是错的。永远记住 <strong>justify 管主轴，align 管交叉轴</strong>——主轴朝哪走，它俩就跟着转。</p>
+            </div>
+            <div class="rule-card">
+              <h3>三种分散间距的细微差别</h3>
+              <p><code class="tok">space-between</code> 两头贴墙；<code class="tok">space-around</code> 项间空隙是两侧边缘的 2 倍；<code class="tok">space-evenly</code> 连两侧边缘和项间缝都严格等宽。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 02 伸缩三件套怎么算账 ==================== -->
+    <section class="sec sec-paper" id="sec-02" aria-labelledby="h-02">
+      <div class="wrap sec-split">
+        <header class="sec-head sticky-head">
+          <p class="sec-no" lang="en">02</p>
+          <h2 id="h-02">伸缩三件套怎么算账</h2>
+          <p class="sec-en" lang="en">GROW · SHRINK · BASIS</p>
+          <p class="sec-lead">容器比内容宽，按 <code class="tok">flex-grow</code> 分余量；容器比内容窄，按 <code class="tok">flex-shrink × flex-basis</code> 加权分赤字——而所有计算，都从 <code class="tok">flex-basis</code> 出发。</p>
+          <div class="poster-quotes">
+            <p class="pq"><b>原海报要点</b>：「弹性分配 <code class="tok">flex-grow: 1 / 2 / 1</code>」「固定与自适应 <code class="tok">flex: 1 1 200px</code> / <code class="tok">1 1 auto</code> / <code class="tok">0 0 100px</code>」</p>
+          </div>
+          <p class="sec-note">实战里最常踩的坑，是把 <code class="tok">flex: 1</code>（等价于 <code class="tok">1 1 0%</code>，先归零再平分全宽）和 <code class="tok">flex-grow: 1</code>（保留 <code class="tok">basis: auto</code>，只平分剩余空间）当成同一件事。</p>
+        </header>
+
+        <div class="sec-main">
+          <div class="lab-card" id="math-lab">
+            <div class="preset-bar" role="group" aria-label="伸缩算账标本">
+              <button type="button" class="chip" data-math-preset="poster" aria-pressed="true">原海报 A/B/C</button>
+              <button type="button" class="chip" data-math-preset="grow121" aria-pressed="false">原海报 1 : 2 : 1</button>
+              <button type="button" class="chip" data-math-preset="basisDiff" aria-pressed="false">basis: 0% 对比 auto</button>
+            </div>
+
+            <div class="slider-row">
+              <label for="math-width">容器宽度 <strong id="math-w-val" lang="en">560px</strong></label>
+              <input type="range" id="math-width" min="260" max="660" step="10" value="560">
+              <span class="slider-state" id="math-mode-tag">剩余空间 +140px</span>
+            </div>
+
+            <!-- 真实 CSS Flexbox 计算视口（比例与逻辑宽度实时同步） -->
+            <div class="math-viewport" id="math-viewport">
+              <div class="math-ruler" aria-hidden="true">
+                <span>0px</span>
+                <span id="math-ruler-mid">280px</span>
+                <span id="math-ruler-end">560px</span>
+              </div>
+              <div class="math-flex" id="math-flex">
+                <div class="mf-block mf-a" id="mf-0">
+                  <span class="mf-name">A</span>
+                  <span class="mf-spec" id="mf-spec-0" lang="en">1 1 200px</span>
+                  <strong class="mf-out" id="mf-out-0" lang="en">200px</strong>
+                </div>
+                <div class="mf-block mf-b" id="mf-1">
+                  <span class="mf-name">B</span>
+                  <span class="mf-spec" id="mf-spec-1" lang="en">1 1 auto</span>
+                  <strong class="mf-out" id="mf-out-1" lang="en">120px</strong>
+                </div>
+                <div class="mf-block mf-c" id="mf-2">
+                  <span class="mf-name">C</span>
+                  <span class="mf-spec" id="mf-spec-2" lang="en">0 0 100px</span>
+                  <strong class="mf-out" id="mf-out-2" lang="en">100px</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- 可单独微调三项的 grow 权重（在 basisDiff 模式下切换 0% vs auto） -->
+            <div class="math-tweak" id="math-tweak">
+              <div class="tweak-item">
+                <span class="tweak-name">A 弹性 <code class="tok" id="tw-label-0">grow 1</code></span>
+                <div class="tweak-btns">
+                  <button type="button" class="mini-btn" data-tw-i="0" data-tw-v="0" aria-pressed="false">0</button>
+                  <button type="button" class="mini-btn" data-tw-i="0" data-tw-v="1" aria-pressed="true">1</button>
+                  <button type="button" class="mini-btn" data-tw-i="0" data-tw-v="2" aria-pressed="false">2</button>
+                </div>
+              </div>
+              <div class="tweak-item">
+                <span class="tweak-name">B 弹性 <code class="tok" id="tw-label-1">grow 1</code></span>
+                <div class="tweak-btns">
+                  <button type="button" class="mini-btn" data-tw-i="1" data-tw-v="0" aria-pressed="false">0</button>
+                  <button type="button" class="mini-btn" data-tw-i="1" data-tw-v="1" aria-pressed="true">1</button>
+                  <button type="button" class="mini-btn" data-tw-i="1" data-tw-v="2" aria-pressed="false">2</button>
+                </div>
+              </div>
+              <div class="tweak-item">
+                <span class="tweak-name">C 弹性 <code class="tok" id="tw-label-2">grow 0</code></span>
+                <div class="tweak-btns">
+                  <button type="button" class="mini-btn" data-tw-i="2" data-tw-v="0" aria-pressed="true">0</button>
+                  <button type="button" class="mini-btn" data-tw-i="2" data-tw-v="1" aria-pressed="false">1</button>
+                  <button type="button" class="mini-btn" data-tw-i="2" data-tw-v="2" aria-pressed="false">2</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ledger" id="math-ledger" aria-live="polite">
+              <p class="ledger-eq" id="math-eq" lang="en">可用宽 560px − 基数和 420px = 剩余 +140px</p>
+              <p class="ledger-explain" id="math-explain">A（基数 200px）与 B（内容基数 120px）各拿走剩余空间的一半，C 设为 flex: 0 0 100px 稳如磐石；把滑块往左拖到 360px 以下，看看谁按 basis 加权缩得更快。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 03 换行以后，行与行归谁管 ==================== -->
+    <section class="sec sec-ink" id="sec-03" aria-labelledby="h-03">
+      <div class="wrap sec-split">
+        <header class="sec-head sticky-head">
+          <p class="sec-no" lang="en">03</p>
+          <h2 id="h-03">换行后，行轨归谁管</h2>
+          <p class="sec-en" lang="en">WRAP &amp; ALIGN-CONTENT</p>
+          <p class="sec-lead">默认状态下弹性盒死守一行（<code class="tok">nowrap</code>）；打开 <code class="tok">wrap</code> 折出多行后，容器里会多出一层新对象：<strong>每一条弹性行</strong>。</p>
+          <div class="gentle-note">
+            <span class="gn-tag">温和补充</span>
+            <p>原海报「一行排列（默认不换行）」把 5 个红块工整画在框内，仿佛 <code class="tok">nowrap</code> 永远不会出事。实际上，一旦子项多过容器能承受的最小宽度，默认不换行并不会自动折行，而是直接撑爆容器边界。</p>
+          </div>
+          <p class="sec-note">记住两兄弟的分工：<code class="tok">align-items</code> 管<strong>行内单项</strong>，<code class="tok">align-content</code> 管<strong>多行之间</strong>。只有 1 行时，<code class="tok">align-content</code> 彻底休眠。</p>
+        </header>
+
+        <div class="sec-main">
+          <div class="lab-card lab-dark" id="wrap-lab">
+            <div class="wrap-controls">
+              <div class="ctrl-group" role="group" aria-label="子项数量">
+                <span class="ctrl-label">方块数</span>
+                <button type="button" class="chip-dark" id="wrap-dec" aria-label="减少一块">− 减一块</button>
+                <strong class="count-read" id="wrap-count" lang="en">3 块</strong>
+                <button type="button" class="chip-dark" id="wrap-inc" aria-label="增加一块">+ 加一块</button>
+              </div>
+              <div class="ctrl-group" role="group" aria-label="换行方式">
+                <span class="ctrl-label">换行</span>
+                <button type="button" class="chip-dark" data-wr-mode="nowrap" aria-pressed="false">nowrap</button>
+                <button type="button" class="chip-dark" data-wr-mode="wrap" aria-pressed="true">wrap</button>
+                <button type="button" class="chip-dark" data-wr-mode="wrap-reverse" aria-pressed="false">wrap-reverse</button>
+              </div>
+              <div class="ctrl-group" role="group" aria-label="容器间距">
+                <span class="ctrl-label">gap</span>
+                <button type="button" class="chip-dark" data-wr-gap="0" aria-pressed="false">0</button>
+                <button type="button" class="chip-dark" data-wr-gap="10" aria-pressed="true">10px</button>
+                <button type="button" class="chip-dark" data-wr-gap="20" aria-pressed="false">20px</button>
+              </div>
+            </div>
+
+            <div class="wrap-ac-bar" role="group" aria-label="换行相关对齐 align-content">
+              <span class="ctrl-label">多行对齐 <code class="tok">align-content</code></span>
+              <div class="btn-strip">
+                <button type="button" class="chip-dark" data-wr-ac="flex-start" aria-pressed="true">flex-start</button>
+                <button type="button" class="chip-dark" data-wr-ac="center" aria-pressed="false">center</button>
+                <button type="button" class="chip-dark" data-wr-ac="space-between" aria-pressed="false">space-between</button>
+                <button type="button" class="chip-dark" data-wr-ac="space-around" aria-pressed="false">space-around</button>
+                <button type="button" class="chip-dark" data-wr-ac="stretch" aria-pressed="false">stretch</button>
+              </div>
+            </div>
+
+            <div class="wrap-stage-frame">
+              <div class="wrap-meta">
+                <span id="wrap-lines-badge">实测 1 行（align-content 未激活）</span>
+                <span id="wrap-overflow-badge" lang="en">溢出 0px</span>
+              </div>
+              <div class="wrap-stage-shell">
+                <div class="wrap-stage" id="wrap-stage"></div>
+                <div class="wrap-line-overlay" id="wrap-line-overlay" aria-hidden="true"></div>
+              </div>
+            </div>
+
+            <div class="lab-verdict dark-verdict" aria-live="polite">
+              <p class="lv-main" id="wrap-v-title">目前只有 1 行：无论怎么点 align-content，方块位置都纹丝不动。</p>
+              <p class="lv-sub" id="wrap-v-sub">按几次「+ 加一块」把第 2 行撑出来，行间立刻出现虚线行轨，此时再点 space-between 或 stretch 就能清楚看见整行如何分布。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 04 从补丁时代到弹性标准（从哪来） ==================== -->
+    <section class="sec sec-paper" id="sec-04" aria-labelledby="h-04">
+      <div class="wrap">
+        <header class="sec-head wide-head">
+          <div class="wh-left">
+            <p class="sec-no" lang="en">04</p>
+            <h2 id="h-04">从补丁时代到弹性标准</h2>
+            <p class="sec-en" lang="en">WHERE FLEXBOX CAME FROM</p>
+          </div>
+          <p class="wh-lead">在弹性盒成熟之前，为了把一段文字垂直居中或让侧栏与主区等高，前端工程师借用过 <a href="https://layout.xiaoxiaodong.ai/230/play/" target="_blank" rel="noopener">230 表格布局</a>、用过 <a href="https://layout.xiaoxiaodong.ai/231/play/" target="_blank" rel="noopener">231 浮动布局</a> 配清除补丁（如今已由 <a href="https://layout.xiaoxiaodong.ai/225/play/" target="_blank" rel="noopener">225 流根布局</a> 替代），也用过 <a href="https://layout.xiaoxiaodong.ai/233/play/" target="_blank" rel="noopener">233 绝对定位布局</a> 加负边距硬算。标准本身也经历了三次语法推倒重写，才走到今天的两行代码。</p>
+        </header>
+
+        <div class="history-deck" id="history-deck">
+          <div class="era-tabs" role="tablist" aria-label="弹性盒规范演进时间线">
+            <button type="button" class="era-tab" role="tab" data-era="0" aria-selected="true"><b lang="en">2009</b><span>首份草案</span></button>
+            <button type="button" class="era-tab" role="tab" data-era="1" aria-selected="false"><b lang="en">2012.03</b><span>过渡重写</span></button>
+            <button type="button" class="era-tab" role="tab" data-era="2" aria-selected="false"><b lang="en">2012.09</b><span>语法定型</span></button>
+            <button type="button" class="era-tab" role="tab" data-era="3" aria-selected="false"><b lang="en">2013</b><span>告别补丁</span></button>
+            <button type="button" class="era-tab" role="tab" data-era="4" aria-selected="false"><b lang="en">2018</b><span>边界修补</span></button>
+            <button type="button" class="era-tab" role="tab" data-era="5" aria-selected="false"><b lang="en">2021</b><span>gap 贯通</span></button>
+          </div>
+
+          <div class="era-panel" id="era-panel" role="tabpanel" aria-live="polite">
+            <div class="era-story">
+              <p class="era-date" id="era-date" lang="en">2009-07-23 · W3C Working Draft</p>
+              <h3 id="era-title">从 XUL 走出的第一代 box 语法</h3>
+              <p id="era-body">W3C 发布首份 Flexible Box Layout Module 工作草案，编辑为 Mozilla 的 L. David Baron，早期作者还包括 Neil Deakin、Ian Hickson 与 David Hyatt。它脱胎于 Firefox 界面使用的 XUL 盒模型，语法写作 display: box 与 box-pack、box-orient，虽在早期 WebKit 与 Gecko 中实验落地，但架构扩展性受限。</p>
+              <p class="era-source" id="era-source">出处：W3C Flexible Box Layout Module (WD-css3-flexbox-20090723)</p>
+            </div>
+            <div class="era-code-compare">
+              <div class="code-slab">
+                <p class="code-cap" id="era-old-cap">当年写法（2009 草案）</p>
+                <pre class="code-pre" id="era-old-code" lang="en">.bar {
+  display: -webkit-box;
+  display: -moz-box;
+  -webkit-box-pack: justify;
+  -webkit-box-align: center;
+}</pre>
+              </div>
+              <div class="code-slab code-modern">
+                <p class="code-cap">今日标准写法</p>
+                <pre class="code-pre" id="era-new-code" lang="en">.bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 05 原海报的整页怎么搭起来 ==================== -->
+    <section class="sec sec-stone" id="sec-05" aria-labelledby="h-05">
+      <div class="wrap sec-split">
+        <header class="sec-head sticky-head">
+          <p class="sec-no" lang="en">05</p>
+          <h2 id="h-05">原海报整页怎么搭</h2>
+          <p class="sec-en" lang="en">NESTED 1D COMPOSITION</p>
+          <p class="sec-lead">原海报右下角的「综合示例（应用）」看似是一张完整的二维网站，拆开以后，它其实是 <strong>4 个一维弹性盒层层套娃</strong>的结果。</p>
+          <div class="gentle-note">
+            <span class="gn-tag">温和澄清</span>
+            <p>口号「一个维度，多种可能」不是说一个 <code class="tok">display: flex</code> 能同时管横纵二维——它一次只管一根轴。真正搭出完整页面，靠的是外层用 <code class="tok">column</code> 管上下骨架，内层各带再用 <code class="tok">row</code> 管左右分配。</p>
+          </div>
+          <p class="sec-note">若要让顶栏吸顶或随屏宽换列，只需把这套一维骨架与 <a href="https://layout.xiaoxiaodong.ai/234/play/" target="_blank" rel="noopener">234 固定定位布局</a>、<a href="https://layout.xiaoxiaodong.ai/235/play/" target="_blank" rel="noopener">235 粘性定位布局</a>、<a href="https://layout.xiaoxiaodong.ai/240/play/" target="_blank" rel="noopener">240 响应式布局</a> 或 <a href="https://layout.xiaoxiaodong.ai/242/play/" target="_blank" rel="noopener">242 容器查询布局</a> 配合。</p>
+        </header>
+
+        <div class="sec-main">
+          <div class="lab-card" id="nest-lab">
+            <div class="nest-bar">
+              <div class="nest-layers" role="group" aria-label="选择要透视的嵌套层级">
+                <button type="button" class="chip" data-layer="all" aria-pressed="false">全层总览</button>
+                <button type="button" class="chip" data-layer="l0" aria-pressed="true">L0 整页竖轴</button>
+                <button type="button" class="chip" data-layer="l1" aria-pressed="false">L1 顶栏两端推</button>
+                <button type="button" class="chip" data-layer="l2" aria-pressed="false">L2 主区与侧栏</button>
+                <button type="button" class="chip" data-layer="l3" aria-pressed="false">L3 三卡均分</button>
+              </div>
+              <button type="button" class="btn-outline" id="nest-vp-toggle" aria-pressed="false">切到手机窄屏</button>
+            </div>
+
+            <!-- 严格按原海报右下角「综合示例（应用）」还原的活体网页 -->
+            <div class="nest-shell" id="nest-shell" data-active-layer="l0" data-vp="desktop">
+              <div class="mock-page" data-layer-box="l0">
+                <span class="layer-flag flag-l0" lang="en">L0 · flex-direction: column; gap: 12px</span>
+
+                <header class="mock-nav" data-layer-box="l1">
+                  <span class="layer-flag flag-l1" lang="en">L1 · row · space-between</span>
+                  <strong class="mock-logo" lang="en">LOGO</strong>
+                  <span class="mock-links"><span>首页</span><span>课程</span><span>资源</span><span>关于</span></span>
+                </header>
+
+                <div class="mock-mid" data-layer-box="l2">
+                  <span class="layer-flag flag-l2" lang="en">L2 · row · 主区 flex: 2 / 侧栏 flex: 1</span>
+                  <div class="mock-main">主要内容区</div>
+                  <aside class="mock-side">侧边栏</aside>
+                </div>
+
+                <div class="mock-cards" data-layer-box="l3">
+                  <span class="layer-flag flag-l3" lang="en">L3 · row · 三卡各 flex: 1 1 0</span>
+                  <div class="mock-card">
+                    <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10"/><path d="M12 10L18 14L12 18Z"/></svg>
+                    <span>视频课程</span>
+                  </div>
+                  <div class="mock-card">
+                    <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 7H14V21H6Z M14 7H22V21H14Z"/></svg>
+                    <span>学习资料</span>
+                  </div>
+                  <div class="mock-card">
+                    <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 21V15M12 21V11M18 21V13M23 21V8M5 12L12 8L18 10L23 5"/></svg>
+                    <span>进度统计</span>
+                  </div>
+                </div>
+
+                <footer class="mock-foot">页脚信息 / 联系我们</footer>
+              </div>
+            </div>
+
+            <div class="lab-verdict" aria-live="polite">
+              <p class="lv-main" id="nest-v-title">L0 整页外壳：主轴竖排（flex-direction: column），把顶栏、中区、三卡与页脚从上到下连成一列。</p>
+              <p class="lv-sub" id="nest-v-sub">把页脚自动压在视口最底（俗称粘底页脚），只要给中间区加 flex: 1，或给页脚加 margin-top: auto 就能办到，彻底不用算高度。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 06 什么时候别用弹性盒 ==================== -->
+    <section class="sec sec-ink" id="sec-06" aria-labelledby="h-06">
+      <div class="wrap">
+        <header class="sec-head wide-head">
+          <div class="wh-left">
+            <p class="sec-no" lang="en">06</p>
+            <h2 id="h-06">什么时候别用弹性盒</h2>
+            <p class="sec-en" lang="en">WHEN NOT TO USE FLEXBOX</p>
+          </div>
+          <p class="wh-lead">弹性盒强在<strong>一维内容驱动</strong>，一旦拿它硬扛二维对齐、长串不折行文本或视觉重排，就会露馅。跨行严丝合缝请交由 <a href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">227 网格布局</a> 与 <a href="https://layout.xiaoxiaodong.ai/228/play/" target="_blank" rel="noopener">228 子网格布局</a>；报纸式流淌分栏看 <a href="https://layout.xiaoxiaodong.ai/229/play/" target="_blank" rel="noopener">229 多栏布局</a>，不等高卡墙看 <a href="https://layout.xiaoxiaodong.ai/236/play/" target="_blank" rel="noopener">236 瀑布流布局</a>，图文绕排与叠层定位看 <a href="https://layout.xiaoxiaodong.ai/231/play/" target="_blank" rel="noopener">231 浮动布局</a>、<a href="https://layout.xiaoxiaodong.ai/232/play/" target="_blank" rel="noopener">232 相对定位布局</a> 与 <a href="https://layout.xiaoxiaodong.ai/237/play/" target="_blank" rel="noopener">237 覆盖布局</a>。</p>
+        </header>
+
+        <div class="pitfall-deck" id="pitfall-deck">
+          <div class="pitfall-tabs" role="tablist" aria-label="三个典型反例">
+            <button type="button" class="chip-dark" role="tab" data-pit="0" aria-selected="true">反例一 · 5 卡末行歪斜</button>
+            <button type="button" class="chip-dark" role="tab" data-pit="1" aria-selected="false">反例二 · 长词顶破容器</button>
+            <button type="button" class="chip-dark" role="tab" data-pit="2" aria-selected="false">反例三 · order 打乱焦点</button>
+          </div>
+
+          <!-- 反例一：5 卡 Flex wrap vs CSS Grid -->
+          <div class="pit-panel" data-pit-panel="0">
+            <div class="pit-duo">
+              <div class="pit-box pit-bad">
+                <p class="pit-cap"><span class="pit-tag bad">硬用 Flex wrap + flex: 1</span><span>每行独立算账，末行 2 卡胖成两半</span></p>
+                <div class="demo-flex-5">
+                  <div>卡 01</div><div>卡 02</div><div>卡 03</div><div>卡 04 失齐</div><div>卡 05 失齐</div>
+                </div>
+              </div>
+              <div class="pit-box pit-good">
+                <p class="pit-cap"><span class="pit-tag good">改用 227 网格布局</span><span>repeat(3, 1fr) 跨行锁定垂直列缝</span></p>
+                <div class="demo-grid-5">
+                  <div>卡 01</div><div>卡 02</div><div>卡 03</div><div>卡 04 齐列</div><div>卡 05 齐列</div>
+                </div>
+              </div>
+            </div>
+            <p class="pit-why">原因：Flexbox 换行后，第 1 行和第 2 行互不认识；第 2 行只剩 2 张卡，各自伸到 50%，垂直中缝和上一行彻底错开。二维卡片墙应直接换 CSS Grid。</p>
+          </div>
+
+          <!-- 反例二：min-width: auto 长串文本顶爆 flex: 1 子项 -->
+          <div class="pit-panel" data-pit-panel="1" hidden>
+            <div class="pit-duo">
+              <div class="pit-box pit-bad">
+                <p class="pit-cap"><span class="pit-tag bad">默认 min-width: auto</span><span>长链接拒绝缩到比文字短，顶破外框</span></p>
+                <div class="demo-trunc-shell">
+                  <div class="demo-trunc-row is-broken">
+                    <span class="dt-ico" lang="en">PDF</span>
+                    <span class="dt-text" lang="en">flexbox_specification_level1_candidate_recommendation_2025.pdf</span>
+                  </div>
+                </div>
+              </div>
+              <div class="pit-box pit-good">
+                <p class="pit-cap"><span class="pit-tag good">补上 min-width: 0</span><span>解除自动最小宽，省略号正常生效</span></p>
+                <div class="demo-trunc-shell">
+                  <div class="demo-trunc-row is-fixed">
+                    <span class="dt-ico" lang="en">PDF</span>
+                    <span class="dt-text" lang="en">flexbox_specification_level1_candidate_recommendation_2025.pdf</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="pit-why">原因：W3C 规范让弹性子项默认带自动最小宽度（min-width: auto），防止内容被压成零。但遇到长 URL 或不换行标题时，它反而会让 <code class="tok">text-overflow: ellipsis</code> 失效，给该弹性子项补一句 <code class="tok">min-width: 0</code> 即可解套。</p>
+          </div>
+
+          <!-- 反例三：滥用 order 导致 Tab 焦点乱跳 -->
+          <div class="pit-panel" data-pit-panel="2" hidden>
+            <div class="order-demo">
+              <div class="order-top">
+                <p class="pit-cap"><span class="pit-tag bad">滥用 order 视觉调序</span><span>DOM 顺序仍是 1→2→3→4，键盘焦点满屏横跳</span></p>
+                <button type="button" class="chip-dark" id="tab-step-btn">模拟按 Tab（第 <span id="tab-step-no" lang="en">1</span> / 4 步）</button>
+              </div>
+              <div class="order-track" id="order-track">
+                <div class="ord-card is-focused" data-dom="1" style="order: 3"><span class="ord-vis">视觉第 3</span><b>DOM ① 登录</b><span class="ord-css" lang="en">order: 3</span></div>
+                <div class="ord-card" data-dom="2" style="order: 1"><span class="ord-vis">视觉第 1</span><b>DOM ② 返回</b><span class="ord-css" lang="en">order: 1</span></div>
+                <div class="ord-card" data-dom="3" style="order: 4"><span class="ord-vis">视觉第 4</span><b>DOM ③ 提交</b><span class="ord-css" lang="en">order: 4</span></div>
+                <div class="ord-card" data-dom="4" style="order: 2"><span class="ord-vis">视觉第 2</span><b>DOM ④ 帮助</b><span class="ord-css" lang="en">order: 2</span></div>
+              </div>
+              <p class="pit-why" id="order-readout">当前焦点落在视觉第 3 格（DOM ① 登录）。再按一次 Tab，焦点会突然往左跳回视觉第 1 格——W3C Flexbox 规范明确警告：切勿用 order 替代正确的 HTML 源码顺序。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 07 小练习：谁会拿到多宽？ ==================== -->
+    <section class="sec sec-paper" id="sec-07" aria-labelledby="h-07">
+      <div class="wrap">
+        <header class="sec-head wide-head">
+          <div class="wh-left">
+            <p class="sec-no" lang="en">07</p>
+            <h2 id="h-07">小练习：谁会拿到多宽？</h2>
+            <p class="sec-en" lang="en">PRACTICE · PREDICT THE WIDTH</p>
+          </div>
+          <p class="wh-lead">检验一下你是否真正看透了 <code class="tok">flex-grow</code> 与 <code class="tok">flex-basis</code> 的关系。先别翻回上文，凭手算选一个答案。</p>
+        </header>
+
+        <div class="quiz-box" id="quiz-box">
+          <div class="quiz-prompt">
+            <p class="qp-text">一个宽 <strong>600px</strong>、无内边距、无间距（<code class="tok">gap: 0</code>）的横向弹性容器里放着两项：<strong>甲项</strong>文字自然宽 <strong>60px</strong>，<strong>乙项</strong>文字自然宽 <strong>240px</strong>。两项都只写了一句 <code class="tok">flex-grow: 1</code>（未改写 <code class="tok">flex-basis</code>）。渲染后甲、乙两项的实测宽度分别是多少？</p>
+            <pre class="qp-code" lang="en">.container { display: flex; width: 600px; gap: 0; }
+.a, .b     { flex-grow: 1; /* flex-basis 保持默认 auto */ }</pre>
+          </div>
+
+          <div class="quiz-opts" role="group" aria-label="四个预测选项">
+            <button type="button" class="quiz-opt" data-ans="A" aria-pressed="false">
+              <span class="opt-key" lang="en">A</span>
+              <span class="opt-val">甲 300px · 乙 300px</span>
+            </button>
+            <button type="button" class="quiz-opt" data-ans="B" aria-pressed="false">
+              <span class="opt-key" lang="en">B</span>
+              <span class="opt-val">甲 210px · 乙 390px</span>
+            </button>
+            <button type="button" class="quiz-opt" data-ans="C" aria-pressed="false">
+              <span class="opt-key" lang="en">C</span>
+              <span class="opt-val">甲 120px · 乙 480px</span>
+            </button>
+            <button type="button" class="quiz-opt" data-ans="D" aria-pressed="false">
+              <span class="opt-key" lang="en">D</span>
+              <span class="opt-val">甲 60px · 乙 540px</span>
+            </button>
+          </div>
+
+          <div class="quiz-reveal" id="quiz-reveal" aria-live="polite">
+            <p class="qr-status" id="qr-status">点选上方 A / B / C / D，立刻启动真实 Flexbox 同比例拆账验证。</p>
+            <div class="qr-demo" id="qr-demo" hidden>
+              <div class="qr-bar-head">
+                <span id="qr-mode-desc">当前实测：<code class="tok">flex-grow: 1</code>（<code class="tok">flex-basis: auto</code>）</span>
+                <button type="button" class="btn-outline" id="qr-toggle-basis" aria-pressed="false">改用 flex: 1（basis: 0%）对照</button>
+              </div>
+              <div class="qr-live-flex" id="qr-live-flex">
+                <div class="qr-cell qr-a" id="qr-cell-a">
+                  <div class="qr-parts">
+                    <span class="qr-base" id="qr-base-a">基数 60px</span>
+                    <span class="qr-extra" id="qr-extra-a">+150px</span>
+                  </div>
+                  <strong class="qr-total" id="qr-total-a">甲 · 210px</strong>
+                </div>
+                <div class="qr-cell qr-b" id="qr-cell-b">
+                  <div class="qr-parts">
+                    <span class="qr-base" id="qr-base-b">基数 240px</span>
+                    <span class="qr-extra" id="qr-extra-b">+150px</span>
+                  </div>
+                  <strong class="qr-total" id="qr-total-b">乙 · 390px</strong>
+                </div>
+              </div>
+              <p class="qr-explain" id="qr-explain"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 08 原海报与关键词 ==================== -->
+    <section class="sec sec-stone" id="sec-08" aria-labelledby="h-08">
+      <div class="wrap">
+        <div class="poster-layout">
+          <div class="poster-col">
+            <header class="sec-head">
+              <p class="sec-no" lang="en">08</p>
+              <h2 id="h-08">原海报与关键词</h2>
+              <p class="sec-en" lang="en">THE ORIGINAL POSTER</p>
+            </header>
+            <figure class="poster-fig">
+              <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="点击放大查看 226 号原海报">
+                <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="226 号弹性盒布局原海报：暖奶油纸底上左侧有巨幅朱红小写 f 与 5×7 圆点阵，右侧分层演示一行排列、主轴与交叉轴对齐、换行排列、align-content、flex-grow、flex-shrink/basis、主轴方向及综合应用页面，底部配朱红实心圆与九组核心关键词。">
+              </button>
+              <figcaption>点击海报可放大检视并拖动浏览，再点或按 Esc 关闭。</figcaption>
+            </figure>
+          </div>
+
+          <div class="kw-col">
+            <div class="poster-motto">
+              <span class="motto-dot" aria-hidden="true"></span>
+              <div>
+                <p class="motto-zh">一个维度，多种可能</p>
+                <p class="motto-en" lang="en">ONE DIMENSION, MANY POSSIBILITIES</p>
+              </div>
+              <div class="motto-grid" aria-hidden="true" id="motto-dots"></div>
+            </div>
+
+            <h3 class="sub-h3">原海报九枚关键词 <span lang="en">KEYWORDS</span></h3>
+            <ul class="kw-list">
+              <li><b>主轴</b><span lang="en">MAIN AXIS</span></li>
+              <li><b>交叉轴</b><span lang="en">CROSS AXIS</span></li>
+              <li><b>对齐</b><span lang="en">ALIGN</span></li>
+              <li><b>分配</b><span lang="en">DISTRIBUTE</span></li>
+              <li><b>换行</b><span lang="en">WRAP</span></li>
+              <li class="kw-trait"><b>灵活</b><span lang="en">FLEXIBLE</span></li>
+              <li class="kw-trait"><b>高效</b><span lang="en">EFFICIENT</span></li>
+              <li class="kw-trait"><b>自适应</b><span lang="en">ADAPTIVE</span></li>
+              <li class="kw-trait"><b>可控</b><span lang="en">CONTROLLED</span></li>
+            </ul>
+
+            <h3 class="sub-h3">同一小类速览 <span lang="en">CSS FLOW &amp; RESPONSIVE</span></h3>
+            <p class="peer-intro">弹性盒是「CSS 流、定位与响应」家族中的一维主力；想系统串联其他机制，可直达对应互动页：</p>
+            <ul class="peer-links">
+              <li><a href="https://layout.xiaoxiaodong.ai/222/play/" target="_blank" rel="noopener">222 普通流布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/223/play/" target="_blank" rel="noopener">223 块级布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/224/play/" target="_blank" rel="noopener">224 行内布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/225/play/" target="_blank" rel="noopener">225 流根布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">227 网格布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/228/play/" target="_blank" rel="noopener">228 子网格布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/229/play/" target="_blank" rel="noopener">229 多栏布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/230/play/" target="_blank" rel="noopener">230 表格布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/231/play/" target="_blank" rel="noopener">231 浮动布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/232/play/" target="_blank" rel="noopener">232 相对定位布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/233/play/" target="_blank" rel="noopener">233 绝对定位布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/234/play/" target="_blank" rel="noopener">234 固定定位布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/235/play/" target="_blank" rel="noopener">235 粘性定位布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/236/play/" target="_blank" rel="noopener">236 瀑布流布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/237/play/" target="_blank" rel="noopener">237 覆盖布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/238/play/" target="_blank" rel="noopener">238 固定宽度布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/239/play/" target="_blank" rel="noopener">239 流体布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/240/play/" target="_blank" rel="noopener">240 响应式布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/241/play/" target="_blank" rel="noopener">241 自适应布局</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/242/play/" target="_blank" rel="noopener">242 容器查询布局</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p><span lang="en" class="foot-no">NO. 226</span> 弹性盒布局 · 350 种排版</p>
+    <p class="foot-meta"><a href="https://layout.xiaoxiaodong.ai/226/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a> · 海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a> · 源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></p>
+  </div>
+</footer>
+
+<!-- 原海报放大检视灯箱 -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="226 号弹性盒布局原海报大图检视">
+  <div class="lb-bar">
+    <span class="lb-info">拖动画面平移 · 滚轮或按钮缩放 · 按 Esc 关闭</span>
+    <div class="lb-btns">
+      <button type="button" class="lb-btn" id="lb-out" aria-label="缩小">−</button>
+      <button type="button" class="lb-btn" id="lb-reset">100%</button>
+      <button type="button" class="lb-btn" id="lb-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" alt="弹性盒布局原海报放大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
