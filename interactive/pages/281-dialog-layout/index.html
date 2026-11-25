@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>281 对话布局 · DIALOG LAYOUT</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar" aria-label="页面索引信息">
+    <div class="wrap topbar-inner">
+      <div class="topbar-cat">
+        <span class="cat-dot" aria-hidden="true"></span>
+        <span>网页与 UI / 内容与产品模式</span>
+      </div>
+      <div class="topbar-meta">
+        <span class="meta-code">NO. 281 · DIALOG LAYOUT</span>
+        <span class="status-pill is-error" id="top-status-pill" aria-live="polite">0 / 4 待理对话</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO：忠实承袭 281 原海报气泡大标 + 冰蓝双轨活体对话剧场 -->
+    <section class="hero" aria-label="对话布局互动剧场">
+      <div class="wrap hero-grid">
+        <!-- 刊头：左纯白气泡示范大标 × 右蓝竖杠总述与 5 枚原海报关键词实时标 -->
+        <div class="masthead">
+          <div class="title-bubble" aria-label="标题：对话布局 DIALOG LAYOUT">
+            <div class="typing-dots" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </div>
+            <h1 class="hero-title">对话布局</h1>
+            <p class="hero-en">DIALOG LAYOUT</p>
+            <svg class="title-tail" viewBox="0 0 36 24" width="36" height="24" aria-hidden="true">
+              <path d="M4 0 L34 0 L6 22 Z" fill="#FFFFFF" />
+            </svg>
+          </div>
+
+          <div class="masthead-right">
+            <div class="summary-block">
+              <span class="summary-bar" aria-hidden="true"></span>
+              <p class="summary-text">通过左右交替的对话结构，模拟真实交流顺序，增强互动感与阅读节奏。</p>
+            </div>
+            <ul class="kw-strip" id="hero-kw-strip" aria-label="原海报五项关键词实时核验"></ul>
+          </div>
+        </div>
+
+        <!-- 全宽冰蓝圆角对话剧场 -->
+        <div class="theatre-shell" id="theatre-shell">
+          <!-- 剧场顶栏：剧本切签 + 快捷解法 -->
+          <div class="theatre-bar">
+            <div class="script-tabs" role="tablist" aria-label="对话题材切换">
+              <button type="button" class="tab-btn is-active" data-script="poster" role="tab" aria-selected="true">原海报 · 设计问答</button>
+              <button type="button" class="tab-btn" data-script="support" role="tab" aria-selected="false">客服 · 退换排查</button>
+              <button type="button" class="tab-btn" data-script="teaching" role="tab" aria-selected="false">教学 · 排版诊室</button>
+            </div>
+            <div class="preset-actions">
+              <button type="button" class="mini-btn is-on" id="btn-scan-toggle" aria-pressed="true">视线动线: 开</button>
+              <button type="button" class="mini-btn btn-accent" id="btn-preset-poster">载入原海报解</button>
+              <button type="button" class="mini-btn" id="btn-preset-minimal">极简黑白解</button>
+              <button type="button" class="mini-btn btn-danger" id="btn-preset-broken">复原 0/4 错态</button>
+            </div>
+          </div>
+
+          <!-- 顶沿 2D Canvas 气泡宽度与节拍标尺（data-perf-drag） -->
+          <div class="ruler-wrap">
+            <div class="ruler-head">
+              <span class="ruler-label">气泡最大宽度与节拍标尺 · 左右拖动调宽（或用 ← → 键）</span>
+              <span class="ruler-readout" id="ruler-readout">88% · 约 36 字/行 · 宽墙越界</span>
+            </div>
+            <canvas
+              id="width-ruler"
+              class="width-ruler"
+              data-perf-drag
+              tabindex="0"
+              role="slider"
+              aria-label="拖动调节对话气泡最大宽度百分比"
+              aria-valuemin="28"
+              aria-valuemax="96"
+              aria-valuenow="88"
+            ></canvas>
+          </div>
+
+          <!-- 活体双轨对话舞台：2D Canvas 视线动线层 + 真实 DOM 气泡 -->
+          <div class="dialog-viewport" id="dialog-viewport">
+            <div class="dialog-stage" id="dialog-stage">
+              <canvas id="saccade-canvas" class="saccade-canvas" aria-hidden="true"></canvas>
+              <div class="spine-milestones" id="spine-milestones" aria-hidden="true"></div>
+              <div class="dialog-thread" id="dialog-thread" aria-live="polite"></div>
+            </div>
+          </div>
+
+          <!-- 底部一体化诊单与对话控槽（取代右侧仪表盘侧栏） -->
+          <div class="theatre-dock">
+            <div class="diag-card is-error" id="diag-card" aria-live="polite">
+              <div class="diag-top">
+                <span class="diag-tag" id="diag-tag">错态 · 角色塌陷 (0 / 4)</span>
+                <span class="diag-source">单真源实算 · 经验参考带</span>
+              </div>
+              <h2 class="diag-headline" id="diag-headline">双方全压在左边且同色，眼睛每行都要重新找署名</h2>
+              <p class="diag-reason" id="diag-reason"></p>
+              <p class="diag-action" id="diag-action"></p>
+              <div class="diag-metrics" id="diag-metrics"></div>
+            </div>
+
+            <div class="dock-controls">
+              <div class="ctrl-group">
+                <span class="ctrl-label">角色区分 <small>ROLE ENCODING</small></span>
+                <div class="btn-row" id="ctrl-role" role="group" aria-label="角色区分模式">
+                  <button type="button" class="seg-btn" data-role="flat">同侧同色</button>
+                  <button type="button" class="seg-btn" data-role="split">极简左右</button>
+                  <button type="button" class="seg-btn" data-role="paired">左右双色</button>
+                  <button type="button" class="seg-btn" data-role="rainbow">五彩盲乱</button>
+                </div>
+              </div>
+
+              <div class="ctrl-group">
+                <span class="ctrl-label">轮次间距与排错 <small>TURN PACING</small></span>
+                <div class="btn-row" id="ctrl-pacing" role="group" aria-label="轮次间距模式">
+                  <button type="button" class="seg-btn" data-pacing="cramped">粘连 6/6px</button>
+                  <button type="button" class="seg-btn" data-pacing="paired">成对 10/28px</button>
+                  <button type="button" class="seg-btn" data-pacing="inverted">脱节 38/10px</button>
+                  <button type="button" class="seg-btn seg-action" id="btn-fix-order">理顺轮次</button>
+                  <button type="button" class="seg-btn seg-action" id="btn-toggle-wall">拆短长段</button>
+                </div>
+              </div>
+
+              <div class="ctrl-group composer-group">
+                <span class="ctrl-label">现场续聊试跑 <small>LIVE QUICK REPLY</small></span>
+                <div class="composer-chips" id="composer-chips"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 01 为什么左右交替好读 -->
+    <section class="band band-white" id="sec-01">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div>
+            <h2>为什么左右交替好读</h2>
+            <p class="sec-en">WHY ALTERNATION WORKS</p>
+          </div>
+        </div>
+
+        <div class="prose-lead">
+          <p>
+            281 号原海报开门见山地指出，对话布局「通过左右交替的对话结构，模拟真实交流顺序，增强互动感与阅读节奏」。它之所以比整页段落或单栏流水账更省脑力，核心在于把<strong>「谁在说」交给了空间位置，把「说什么」留给了文字本身</strong>——视觉心理学里称为位置预注意编码，眼睛还没开始认字，就已经凭左右轨道和浅色反差判断出发言身份。
+          </p>
+          <p>
+            海报把这套方法凝练成五条原则，下面点击切换同一段对话的三种排法，亲眼对比它和纯文本日志以及单栏
+            <a href="https://layout.xiaoxiaodong.ai/288/play/" target="_blank" rel="noopener">媒体对象布局（288）</a>、
+            <a href="https://layout.xiaoxiaodong.ai/269/play/" target="_blank" rel="noopener">信息流布局（269）</a>
+            在眼动负担上的区别。
+          </p>
+        </div>
+
+        <!-- 呼应原海报底部的五项原则徽带 -->
+        <div class="principles-row" aria-label="原海报五项对话布局原则">
+          <article class="p-card">
+            <svg viewBox="0 0 44 44" width="40" height="40" aria-hidden="true">
+              <circle cx="22" cy="22" r="20" fill="#EDF4FE" stroke="#C6DDFB" />
+              <circle cx="16" cy="20" r="6.5" fill="#1171FD" />
+              <circle cx="29" cy="25" r="6" fill="#FE754F" />
+            </svg>
+            <h3>角色明确</h3>
+            <p>左右区分发言者身份，建立清晰的对话关系。</p>
+          </article>
+          <article class="p-card">
+            <svg viewBox="0 0 44 44" width="40" height="40" aria-hidden="true">
+              <rect x="4" y="4" width="36" height="36" rx="10" fill="#EDF4FE" stroke="#C6DDFB" />
+              <rect x="10" y="13" width="16" height="4" rx="2" fill="#1171FD" />
+              <rect x="18" y="21" width="16" height="4" rx="2" fill="#FE754F" />
+              <rect x="10" y="29" width="14" height="4" rx="2" fill="#1171FD" />
+            </svg>
+            <h3>交替排列</h3>
+            <p>左右交替的排列方式，引导自然的阅读动线。</p>
+          </article>
+          <article class="p-card">
+            <svg viewBox="0 0 44 44" width="40" height="40" aria-hidden="true">
+              <rect x="4" y="6" width="36" height="30" rx="14" fill="#EDF4FE" stroke="#C6DDFB" />
+              <circle cx="15" cy="21" r="2.8" fill="#1171FD" />
+              <circle cx="22" cy="21" r="2.8" fill="#1171FD" />
+              <circle cx="29" cy="21" r="2.8" fill="#FE754F" />
+            </svg>
+            <h3>信息分组</h3>
+            <p>按话题成对呈现，每轮包含「提问 + 回应」。</p>
+          </article>
+          <article class="p-card">
+            <svg viewBox="0 0 44 44" width="40" height="40" aria-hidden="true">
+              <rect x="4" y="4" width="36" height="36" rx="10" fill="#EDF4FE" stroke="#C6DDFB" />
+              <rect x="11" y="16" width="22" height="3.5" rx="1.75" fill="#1171FD" />
+              <rect x="11" y="25" width="17" height="3.5" rx="1.75" fill="#FE754F" />
+            </svg>
+            <h3>节奏控制</h3>
+            <p>控制气泡长度与间距，保持视觉呼吸感。</p>
+          </article>
+          <article class="p-card">
+            <svg viewBox="0 0 44 44" width="40" height="40" aria-hidden="true">
+              <circle cx="22" cy="22" r="20" fill="#EDF4FE" stroke="#C6DDFB" />
+              <circle cx="22" cy="22" r="10.5" fill="#1171FD" />
+              <path d="M17.5 22 L20.8 25.3 L27 19" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <h3>聚焦互动</h3>
+            <p>突出交流与回应，强化参与与信任感。</p>
+          </article>
+        </div>
+
+        <!-- 交互 01：三态结构解剖镜 -->
+        <div class="xray-box">
+          <div class="xray-controls" role="tablist" aria-label="三种对话排布方式对照">
+            <button type="button" class="xray-tab" data-format="irc" role="tab" aria-selected="false">纯文本日志（IRC 1988）</button>
+            <button type="button" class="xray-tab" data-format="stream" role="tab" aria-selected="false">单侧同栏流（频道 / 媒体对象）</button>
+            <button type="button" class="xray-tab is-active" data-format="dialog" role="tab" aria-selected="true">左右双侧气泡（对话布局）</button>
+          </div>
+          <div class="xray-grid">
+            <div class="xray-stage" id="xray-stage"></div>
+            <div class="xray-aside">
+              <div class="xray-svg-wrap">
+                <span class="micro-cap">视线跳转轨迹示意</span>
+                <svg id="xray-svg" viewBox="0 0 320 200" width="320" height="200" aria-label="眼动轨迹示意图"></svg>
+              </div>
+              <div class="xray-facts" id="xray-facts"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 气泡里的五个零件 -->
+    <section class="band band-mist" id="sec-02">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div>
+            <h2>气泡里的五个零件</h2>
+            <p class="sec-en">ANATOMY OF A DIALOG PAIR</p>
+          </div>
+        </div>
+
+        <p class="prose-single">
+          一套耐看的对话界面不只是把文字套进圆角框。点击下方放大标本上的 <strong>01–05</strong> 编号针，逐一查看头像锚点、方向尾角、冷暖语义、中轴阶段锚点与连发折叠如何各司其职；也可以直接拨动「连发折叠」开关看真实屏效变化。
+        </p>
+
+        <div class="anatomy-grid">
+          <div class="anatomy-board">
+            <div class="anatomy-toolbar">
+              <span class="micro-cap">放大解剖标本 · 点击 01–05 编号查看说明</span>
+              <button type="button" class="mini-btn" id="btn-burst-toggle" aria-pressed="false">连发 3 条：逐条重复 → 切为合并折叠</button>
+            </div>
+
+            <div class="specimen-canvas" id="specimen-canvas">
+              <!-- 左轨：设计师 -->
+              <div class="spec-row spec-left">
+                <div class="spec-avatar-wrap">
+                  <svg class="avatar-svg" viewBox="0 0 56 56" width="52" height="52" aria-hidden="true">
+                    <circle cx="28" cy="28" r="24" fill="#96BEFC" />
+                    <path d="M28 11 A17 17 0 0 1 28 45 Z" fill="#1171FD" transform="rotate(180 28 28)" />
+                    <circle cx="46" cy="44" r="6" fill="#FFFFFF" />
+                    <circle cx="46" cy="44" r="4" fill="#1171FD" />
+                  </svg>
+                  <span class="spec-role">设计师</span>
+                  <button type="button" class="pin-btn is-active" data-part="avatar" aria-label="01 抽象身份头像">01</button>
+                </div>
+                <div class="spec-bubble spec-bubble-left">
+                  <button type="button" class="pin-btn pin-tail" data-part="tail" aria-label="02 气泡方向尾角">02</button>
+                  <p class="spec-lead">对话气泡有什么作用？</p>
+                  <p class="spec-body">气泡区分角色与语气，聚焦内容，形成视觉层次。</p>
+                </div>
+              </div>
+
+              <!-- 中轴节点 -->
+              <div class="spec-spine-row">
+                <span class="spec-spine-line" aria-hidden="true"></span>
+                <span class="spec-spine-node">
+                  <span class="ring-dot" aria-hidden="true"></span>
+                  <span>解释 · EXPLAIN</span>
+                  <button type="button" class="pin-btn pin-inline" data-part="spine" aria-label="04 中轴阶段锚点">04</button>
+                </span>
+                <span class="spec-spine-line" aria-hidden="true"></span>
+              </div>
+
+              <!-- 右轨：阅读者连发 3 条对比区 -->
+              <div class="spec-burst-zone" id="spec-burst-zone" data-grouped="false">
+                <div class="spec-burst-items" id="spec-burst-items"></div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="anatomy-detail" id="anatomy-detail" aria-live="polite"></aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 宽屏、窄屏与群聊（深海蓝暗室带） -->
+    <section class="band band-dark" id="sec-03">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">03</span>
+          <div>
+            <h2>宽屏、窄屏与群聊</h2>
+            <p class="sec-en">SCALE, WIDTH &amp; GROUP BOUNDARIES</p>
+          </div>
+        </div>
+
+        <div class="dark-note-bar">
+          <span class="gentle-tag">说多了一点</span>
+          <p>
+            原海报画的是最理想的二人一问一答。但在真实产品里，一旦进入<strong>五人群聊</strong>、<strong>2560 超宽桌面屏</strong>或<strong>AI 生成代码与表格的长回答</strong>，机械照搬「一左一右」反而会让位置锚点错乱、眼睛来回甩头。下面的演练台用实绘比例尺算给你看：结构化宽数据宜交给
+            <a href="https://layout.xiaoxiaodong.ai/274/play/" target="_blank" rel="noopener">数据表格布局（274）</a>
+            或
+            <a href="https://layout.xiaoxiaodong.ai/269/play/" target="_blank" rel="noopener">信息流布局（269）</a>。
+          </p>
+        </div>
+
+        <div class="sim-layout">
+          <div class="sim-canvas-card">
+            <canvas id="sim-canvas" class="sim-canvas" aria-label="不同屏宽与人数的对话布局几何演练画布"></canvas>
+          </div>
+
+          <div class="sim-panel">
+            <div class="sim-ctrl">
+              <span class="sim-label">参与形态</span>
+              <div class="dark-btn-row" id="sim-mode-btns" role="group" aria-label="选择对话参与形态">
+                <button type="button" class="dark-btn is-active" data-sim-mode="two">二人私聊</button>
+                <button type="button" class="dark-btn" data-sim-mode="group">五人群聊</button>
+                <button type="button" class="dark-btn" data-sim-mode="ai">AI 长回答</button>
+              </div>
+            </div>
+
+            <div class="sim-ctrl">
+              <span class="sim-label">模拟屏幕宽度</span>
+              <div class="dark-btn-row" id="sim-vp-btns" role="group" aria-label="选择模拟屏宽">
+                <button type="button" class="dark-btn" data-sim-vp="390">390px 手机</button>
+                <button type="button" class="dark-btn" data-sim-vp="768">768px 平板</button>
+                <button type="button" class="dark-btn is-active" data-sim-vp="1200">1200px 宽屏</button>
+              </div>
+            </div>
+
+            <div class="sim-ctrl">
+              <div class="slider-top">
+                <label class="sim-label" for="sim-cap-range">气泡宽度上限（占容器 %）</label>
+                <span class="sim-val" id="sim-cap-val">64%</span>
+              </div>
+              <input id="sim-cap-range" class="dark-range" type="range" min="42" max="92" value="64" step="2" />
+            </div>
+
+            <div class="sim-verdict" id="sim-verdict" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 对话布局从哪来（暖杏纸带，呼应阅读者气泡底色） -->
+    <section class="band band-apricot" id="sec-04">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div>
+            <h2>对话布局从哪来</h2>
+            <p class="sec-en">FROM TURN-TAKING TO SPEECH BUBBLES</p>
+          </div>
+        </div>
+
+        <p class="prose-single">
+          左右交替的对话气泡不是凭空冒出来的潮流。它先后吸收了社会语言学对「话轮」的发现、早期终端聊天的空间试错，以及漫画对话球在桌面与手机屏幕上的两次落地。点击五个年代节点，看同一句问答如何随媒介演进：
+        </p>
+
+        <div class="era-nav" id="era-nav" role="tablist" aria-label="对话布局演进年代"></div>
+
+        <div class="era-grid">
+          <article class="era-story" id="era-story" aria-live="polite"></article>
+          <div class="era-mockup-wrap">
+            <span class="micro-cap" id="era-mock-cap">界面标本还原</span>
+            <div class="era-mockup" id="era-mockup"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 什么时候用，什么时候别用 -->
+    <section class="band band-ice" id="sec-05">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div>
+            <h2>什么时候用，什么时候别用</h2>
+            <p class="sec-en">WHEN TO USE &amp; WHEN TO AVOID</p>
+          </div>
+        </div>
+
+        <div class="prose-lead">
+          <p>
+            原海报列出了对话布局最顺手的五个场景：<strong>问答学习、客服对话、访谈内容、教学互动、协作沟通</strong>。它们的共同点是「信息天然按来回轮次展开」。一旦任务需要一次看清全局字段、跨行比对数值或按深层目录检索，强行塞进聊天窗口反而徒增点击负担——这时应果断改用
+            <a href="https://layout.xiaoxiaodong.ai/284/play/" target="_blank" rel="noopener">表单布局（284）</a>、
+            <a href="https://layout.xiaoxiaodong.ai/285/play/" target="_blank" rel="noopener">分步表单（285）</a>、
+            <a href="https://layout.xiaoxiaodong.ai/273/play/" target="_blank" rel="noopener">仪表盘布局（273）</a>
+            或
+            <a href="https://layout.xiaoxiaodong.ai/277/play/" target="_blank" rel="noopener">时间线布局（277）</a>。
+          </p>
+        </div>
+
+        <div class="triage-filters" role="group" aria-label="场景分诊筛选">
+          <button type="button" class="filter-pill is-active" data-triage="all">全部 6 项任务</button>
+          <button type="button" class="filter-pill" data-triage="use">适合用对话布局</button>
+          <button type="button" class="filter-pill" data-triage="avoid">别用对话布局</button>
+        </div>
+
+        <div class="triage-grid" id="triage-grid"></div>
+      </div>
+    </section>
+
+    <!-- 06 眼力小练习：挑出好对话 -->
+    <section class="band band-white" id="sec-06">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div>
+            <h2>眼力小练习：挑出好对话</h2>
+            <p class="sec-en">VISUAL DIAGNOSTIC QUIZ</p>
+          </div>
+        </div>
+
+        <div class="quiz-bar">
+          <div class="quiz-tabs" role="tablist" aria-label="选择练习题">
+            <button type="button" class="tab-btn is-active" data-quiz="0" role="tab" aria-selected="true">第 1 题 · 间距与宽度边界</button>
+            <button type="button" class="tab-btn" data-quiz="1" role="tab" aria-selected="false">第 2 题 · 五人群聊轨道</button>
+          </div>
+          <span class="quiz-score" id="quiz-score">已答 0 / 2 题</span>
+        </div>
+
+        <p class="quiz-prompt" id="quiz-prompt"></p>
+        <div class="quiz-grid" id="quiz-grid"></div>
+        <div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- 07 原海报与关键词 -->
+    <section class="band band-poster" id="sec-07">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div>
+            <h2>原海报与关键词</h2>
+            <p class="sec-en">ORIGINAL POSTER &amp; KEYWORDS</p>
+          </div>
+        </div>
+
+        <div class="poster-grid">
+          <div class="poster-frame-col">
+            <button type="button" class="poster-trigger" id="poster-open" aria-label="点击放大查看 281 号对话布局原海报">
+              <img id="poster" src="poster.webp" alt="281 对话布局 DIALOG LAYOUT 原海报" draggable="false" />
+              <span class="poster-zoom-hint">点击放大 · 可拖拽看细节 · Esc 关闭</span>
+            </button>
+          </div>
+
+          <div class="poster-info-col">
+            <div class="poster-block">
+              <h3>海报五枚关键词</h3>
+              <ul class="poster-kw-list">
+                <li><strong>交流</strong><span>EXCHANGE</span></li>
+                <li><strong>回应</strong><span>RESPONSE</span></li>
+                <li><strong>成对</strong><span>PAIRING</span></li>
+                <li><strong>节奏</strong><span>RHYTHM</span></li>
+                <li><strong>互动</strong><span>INTERACTION</span></li>
+              </ul>
+            </div>
+
+            <div class="poster-block">
+              <h3>原海报应用场景</h3>
+              <ul class="poster-usage-list">
+                <li>问答学习 <span>Q&amp;A LEARNING</span></li>
+                <li>客服对话 <span>CUSTOMER SERVICE</span></li>
+                <li>访谈内容 <span>INTERVIEWS</span></li>
+                <li>教学互动 <span>TEACHING</span></li>
+                <li>协作沟通 <span>COLLABORATION</span></li>
+              </ul>
+            </div>
+
+            <div class="poster-block">
+              <h3>参考来源（已核实）</h3>
+              <ul class="ref-list">
+                <li>Harvey Sacks, Emanuel A. Schegloff &amp; Gail Jefferson (1974), <em>A Simplest Systematics for the Organization of Turn-Taking for Conversation</em>, Language 50(4), pp. 696–735.</li>
+                <li>Jarkko Oikarinen &amp; Darren Reed (1993), <em>RFC 1459: Internet Relay Chat Protocol</em>（1988 年奥卢大学始创）.</li>
+                <li>Jens Alfke (1997 / 2008), <em>The Origin Of The iChat UI</em>; Apple Mac OS X 10.2 Jaguar iChat (2002) &amp; iPhone SMS (2007).</li>
+                <li>Nielsen Norman Group, <em>10 Guidelines for Designing Your Site's AI Chatbots</em> &amp; <em>The User Experience of Chatbots</em>.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <a href="https://layout.xiaoxiaodong.ai/281/play/" target="_blank" rel="noopener">在线版 / 全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span aria-hidden="true">·</span>
+      <span>海报 CC BY 4.0</span>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/nicepkg/350-layout" target="_blank" rel="noopener">源文件 GitHub</a>
+    </div>
+  </footer>
+
+  <!-- 原海报看图器（支持缩放、拖拽、Esc 关闭） -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报放大查看器">
+    <div class="lb-toolbar">
+      <span class="lb-title">281 对话布局 · 原海报细节</span>
+      <div class="lb-actions">
+        <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+        <span class="lb-scale" id="lb-scale">100%</span>
+        <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+        <button type="button" class="lb-btn" id="lb-reset">重置</button>
+        <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭看图器">关闭 Esc</button>
+      </div>
+    </div>
+    <div class="lb-stage" id="lb-stage">
+      <img id="lb-img" alt="281 对话布局原海报放大图" draggable="false" />
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
