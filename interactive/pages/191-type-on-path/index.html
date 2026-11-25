@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F6F8EA">
+<title>路径文字 · Type on Path</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap masthead-in">
+    <p class="series"><i class="m-dot" aria-hidden="true"></i><span>字体、网格与东亚文字 / 对齐、缩进与文字造型</span></p>
+    <p class="issue"><span lang="en">NO. 191 · TYPE ON PATH</span></p>
+  </div>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="title">
+    <div class="hero-decor" aria-hidden="true">
+      <div class="dec-sage-arc"></div>
+      <div class="dec-sage-dots">
+        <i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i>
+      </div>
+      <div class="dec-coral-arc"></div>
+      <div class="dec-sage-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+
+    <div class="wrap hero-grid">
+      <div class="hero-left">
+        <div class="hero-title-block">
+          <h1 id="title" class="path-title" aria-label="路径文字">
+            <span class="pt-char c1" aria-hidden="true">路</span><span class="pt-char c2" aria-hidden="true">径</span><span class="pt-char c3" aria-hidden="true">文</span><span class="pt-char c4" aria-hidden="true">字</span>
+            <svg class="pt-arc" viewBox="0 0 260 28" aria-hidden="true">
+              <path d="M8 22 C 88 26, 152 10, 246 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+              <circle cx="8" cy="22" r="4" fill="#EB6847"/>
+              <polygon points="244,2 256,7 245,13" fill="#EB6847"/>
+            </svg>
+          </h1>
+          <p class="hero-en" lang="en">TYPE ON PATH</p>
+          <span class="hero-bar" aria-hidden="true"></span>
+        </div>
+
+        <p class="hero-summary">文字沿曲线或既定路径排布，强化视线引导与运动感。</p>
+        <hr class="hero-rule" aria-hidden="true">
+        <p class="hero-kw">曲线 / 引导 / 运动 / 节奏 / 路径</p>
+
+        <div class="hero-controls" aria-label="路径控制">
+          <div class="ctrl-group">
+            <span class="ctrl-label">路径形态</span>
+            <div class="btn-row" role="group" aria-label="切换路径形态" id="preset-group">
+              <button type="button" class="pill is-on" data-preset="sCurve" aria-pressed="true">S 形曲流</button>
+              <button type="button" class="pill" data-preset="arch" aria-pressed="false">穹顶拱弧</button>
+              <button type="button" class="pill" data-preset="ribbon" aria-pressed="false">双波丝带</button>
+            </div>
+          </div>
+
+          <div class="ctrl-group">
+            <span class="ctrl-label">基线位置与透视</span>
+            <div class="btn-row">
+              <button type="button" class="pill" id="btn-flip" aria-pressed="false">基线外侧</button>
+              <button type="button" class="pill is-on" id="btn-normals" aria-pressed="true">法线透视：开</button>
+              <button type="button" class="pill pill-ghost" id="btn-reset">复原错态</button>
+            </div>
+          </div>
+
+          <div class="ctrl-group ctrl-tracking">
+            <div class="ctrl-head">
+              <label for="track-range" class="ctrl-label">沿轨字距</label>
+              <span class="mono-val" id="track-val">-0.08em</span>
+            </div>
+            <input type="range" id="track-range" class="ink-range" min="-0.16" max="0.62" step="0.02" value="-0.08">
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="stage-shell">
+          <div class="stage-top-meta">
+            <span class="stage-tip">直接拖 <b>P1 / P2 控柄</b> 弯曲线，拖 <b>朱橘圆点</b> 移起点（焦点后可用方向键微调）</span>
+            <span class="stage-score" id="hero-score" aria-live="polite">0 / 4 达标</span>
+          </div>
+
+          <div class="canvas-wrap" id="hero-canvas-wrap">
+            <canvas id="hero-canvas" tabindex="0" role="application" aria-label="活体贝塞尔路径排字画布：可拖动控制点弯曲路径，按 Tab 与方向键可微调选中手柄"></canvas>
+            <div class="kbd-bar" aria-label="键盘选择手柄">
+              <button type="button" class="kbd-chip is-on" data-handle="c1" aria-pressed="true">控柄 P1</button>
+              <button type="button" class="kbd-chip" data-handle="c2" aria-pressed="false">控柄 P2</button>
+              <button type="button" class="kbd-chip" data-handle="start" aria-pressed="false">起点圆</button>
+            </div>
+          </div>
+
+          <div class="arrow-rail-block">
+            <div class="rail-head">
+              <span class="rail-title">弯曲张力 <span lang="en" class="rail-en">CURVATURE BEND</span></span>
+              <span class="mono-val" id="bend-read">94% · 最小半径 34px</span>
+            </div>
+            <div class="bend-rail" id="bend-rail" data-perf-drag role="slider" tabindex="0" aria-label="弯曲张力拨珠" aria-valuemin="0" aria-valuemax="100" aria-valuenow="94">
+              <div class="rail-zones" aria-hidden="true">
+                <span class="z-flat">死直</span>
+                <span class="z-sweet">顺读舒展带（经验）</span>
+                <span class="z-wild">急弯撞字</span>
+              </div>
+              <div class="rail-shaft" aria-hidden="true">
+                <div class="rail-fill" id="rail-fill"></div>
+                <div class="rail-sweet-mark" aria-hidden="true"></div>
+                <span class="rail-arrowhead"></span>
+              </div>
+              <div class="rail-bead" id="rail-bead" aria-hidden="true"><span>↔</span></div>
+            </div>
+          </div>
+
+          <div class="hero-diag-row">
+            <ul class="check-strip" id="check-strip" aria-label="四项路径体检">
+              <li data-k="noCollision"><i class="chk-dot" aria-hidden="true"></i><b>无撞字</b><span id="m-col">5 处</span></li>
+              <li data-k="uprightRead"><i class="chk-dot" aria-hidden="true"></i><b>顺读角</b><span id="m-deg">94°</span></li>
+              <li data-k="curveGrace"><i class="chk-dot" aria-hidden="true"></i><b>曲率势</b><span id="m-rad">R 34</span></li>
+              <li data-k="onTrack"><i class="chk-dot" aria-hidden="true"></i><b>落轨度</b><span id="m-cov">溢出</span></li>
+            </ul>
+
+            <div class="diag-note" id="diag-note" data-tone="warn" aria-live="polite">
+              <div class="diag-head">
+                <span class="diag-label">基线方向</span>
+                <svg class="diag-arrow" viewBox="0 0 88 12" aria-hidden="true">
+                  <line x1="0" y1="6" x2="78" y2="6" stroke="currentColor" stroke-width="2"/>
+                  <polygon points="77,1 88,6 77,11" fill="currentColor"/>
+                </svg>
+                <span class="diag-badge" id="diag-badge">急弯撞字</span>
+              </div>
+              <p class="diag-title" id="diag-title">加载路径几何中…</p>
+              <p class="diag-body" id="diag-body">正在由贝塞尔曲线弧长引擎核算曲率与字符包围盒。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="hero-summary-mobile">文字沿曲线或既定路径排布，强化视线引导与运动感。拖动上方朱橘拨珠或直接捏塑 P1 / P2 控制柄，解开急弯撞字。</p>
+    </div>
+  </section>
+
+  <article class="essay">
+    <!-- 01 节：纯暖竹白 -->
+    <section class="sec sec-warm" id="sec-01" aria-labelledby="s1">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">01</p>
+          <h2 id="s1">基线弯了，字怎么转</h2>
+          <p class="sec-en" lang="en">Baseline Tangent &amp; Curvature</p>
+        </header>
+        <div class="sec-body">
+          <p class="lead">原海报上只有一条核心注记——<strong>「基线方向：文字基线沿路径方向延展，保持顺畅的阅读体验。」</strong>说起来简单，真正动手一弯，字距立刻就会出怪相。</p>
+          <p>平排时，字脚和字头走过的距离完全一样。一旦基线弯成半径为 <span class="mono-inline">R</span> 的圆弧，每个字保持笔直垂直于切线（沿着法线向外立起），问题就来了：如果字高是 <span class="mono-inline">h</span>，排在<strong>外凸弧</strong>上时，字头所在圆弧半径变成 <span class="mono-inline">R + h</span>，字头被扇形拉宽，顶部显松；排在<strong>内凹弧</strong>上时，字头半径缩成 <span class="mono-inline">R − h</span>，字脚还留着缝，字顶已经啃在一起。</p>
+
+          <figure class="lab-box" id="lab-normal">
+            <div class="lab-toolbar">
+              <div class="btn-row" role="group" aria-label="弯曲状态">
+                <button type="button" class="pill" data-nmode="flat" aria-pressed="false">平直基线</button>
+                <button type="button" class="pill is-on" data-nmode="convex" aria-pressed="true">外凸拱弧</button>
+                <button type="button" class="pill" data-nmode="concave" aria-pressed="false">内凹谷弧</button>
+                <button type="button" class="pill" data-nmode="sharp" aria-pressed="false">急弯折点</button>
+              </div>
+              <div class="btn-row" role="group" aria-label="对齐方式">
+                <button type="button" class="pill pill-sm is-on" data-nalign="baseline" aria-pressed="true">底边贴轨</button>
+                <button type="button" class="pill pill-sm" data-nalign="center" aria-pressed="false">字中穿轨</button>
+                <button type="button" class="pill pill-sm" data-nalign="top" aria-pressed="false">顶边挂轨</button>
+              </div>
+            </div>
+            <div class="normal-stage">
+              <svg id="normal-svg" viewBox="0 0 680 280" role="img" aria-label="基线弯曲与法线扇形几何示意"></svg>
+            </div>
+            <figcaption class="lab-cap" id="normal-cap" aria-live="polite"></figcaption>
+          </figure>
+
+          <aside class="callout-note">
+            <span class="tag-chip">看原海报的细节</span>
+            <p>仔细放大页底的 191 原海报，会发现中段 S 弯反折处「自然流动」与「意更具层次」在拐点微微相碰——这正是曲率瞬间变号（从左凹翻成右凸）时的经典陷阱。遇到 S 形曲线，要么拉宽拐点曲率半径，要么在反弯处放宽字距，或者干脆像专业手写标志那样把字停在舒缓段，避开最尖的拐角。</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 节：浅豆绿纸 -->
+    <section class="sec sec-sage" id="sec-02" aria-labelledby="s2">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">02</p>
+          <h2 id="s2">从古币铭文到矢量路径</h2>
+          <p class="sec-en" lang="en">Where Type on Path Comes From</p>
+        </header>
+        <div class="sec-body">
+          <p class="lead">让文字顺着弯道走，比电脑软件早了两千多年。每一次松绑，都和人们手里的新工具分不开。</p>
+          <p>最早的刚性需求来自圆盘器物。自公元前 6 世纪古希腊城邦铸币与后来的罗马帝国钱币起，工匠就沿着圆周外缘镌刻环形铭文（钱币学称 legend），让统治者头衔与地名绕着中央肖像流转，在极小圆面上把文字与图像严丝合缝地装进去。</p>
+          <p>近代金属活字印刷把字锁进了横平竖直的铁框，排一条弯字要靠黄铜弯条和木楔反复塞紧。直到 1796 年德国剧作家阿洛伊斯·塞内费尔德发明石版印刷（并于 1818 年出版《石版印刷全书》），绘师得以直接在石灰石板上自由勾画弧线与飘带，19 世纪彩色石版海报由此迎来弯弧标题的黄金年代。</p>
+          <p>在严肃信息设计里，瑞士制图学家爱德华·伊姆霍夫于 1962 年发表、1975 年以英文刊于《美国制图师》的《地图注记配置》立下清晰章法：河流与山脉名称要顺走势平滑弯曲、避开急折碎弯、绝不倒立，并适度拉宽字距标示地理范围。到了数字时代，1988 年的 Aldus FreeHand 与 1990 年的 Adobe Illustrator 3.0 让「路径排字」变成矢量软件的常规指令；2001 年 9 月 4 日 W3C 正式发布 SVG 1.0 推荐标准，把 &lt;textPath&gt; 写进网页图形语言。</p>
+
+          <div class="era-deck" id="era-deck">
+            <div class="era-tabs" role="tablist" aria-label="四个历史节点">
+              <button type="button" class="era-tab is-on" role="tab" aria-selected="true" data-era="0"><span class="mono-inline">BC 6C</span><b>古币环铭</b></button>
+              <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="1"><span class="mono-inline">1796–1818</span><b>石版彩印</b></button>
+              <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="2"><span class="mono-inline">1962 / 1975</span><b>伊姆霍夫河道</b></button>
+              <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="3"><span class="mono-inline">1990 / 2001</span><b>矢量与 SVG</b></button>
+            </div>
+            <div class="era-stage">
+              <svg id="era-svg" viewBox="0 0 420 240" role="img" aria-label="对应时代的曲线文字标本图"></svg>
+              <div class="era-copy" aria-live="polite">
+                <p class="era-year" id="era-year">公元前 6 世纪起</p>
+                <h3 id="era-title">钱币外缘的环形铭文</h3>
+                <p id="era-desc"></p>
+                <p class="era-lesson" id="era-lesson"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 节：深孔雀松黛暗版（高潮节） -->
+    <section class="sec sec-dark" id="sec-03" aria-labelledby="s3">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">03</p>
+          <h2 id="s3">圆徽下弧为何倒立</h2>
+          <p class="sec-en" lang="en">The Inverted Bottom-Arc Trap</p>
+        </header>
+        <div class="sec-body">
+          <p class="lead">做品牌圆章、杯套贴纸或印章时，新手十有八九会踩进同一个坑：画一个整圆，把上下两句打在同一条路径上，下半句顺着圆周拐过去，字就头朝下倒了过来。</p>
+          <p>修好圆徽不是按一次「翻转」就完事，而是一套三连动作：<strong>先拆成上下两条反向弧</strong>，让下半弧从左向右顺读；接着因为上弧字脚踩在线上、下弧字顶挂在线下，两条字圈半径会一内一外错开，必须把<strong>下弧基线向外推齐</strong>；最后内凹的下弧字顶收紧，还要给下弧补一点<strong>正字距</strong>，上下两排才显得一样透气。</p>
+
+          <div class="seal-lab" id="seal-lab">
+            <div class="seal-visual">
+              <svg id="seal-svg" viewBox="0 0 380 380" role="img" aria-label="圆形徽章单轨倒立与双轨校准对比图"></svg>
+            </div>
+            <div class="seal-panel">
+              <p class="seal-status" id="seal-status" aria-live="polite">当前状态：单圆硬绕（下弧倒立）</p>
+              <p class="seal-explain" id="seal-explain"></p>
+
+              <div class="seal-steps" role="group" aria-label="圆徽三步校准">
+                <button type="button" class="step-toggle" id="tog-split" aria-pressed="false">
+                  <span class="st-num">STEP 1</span>
+                  <span class="st-name">拆成上下反向双轨</span>
+                  <span class="st-state" data-state>关</span>
+                </button>
+                <button type="button" class="step-toggle" id="tog-shift" aria-pressed="false">
+                  <span class="st-num">STEP 2</span>
+                  <span class="st-name">下弧基线向外推齐</span>
+                  <span class="st-state" data-state>关</span>
+                </button>
+                <button type="button" class="step-toggle" id="tog-kern" aria-pressed="false">
+                  <span class="st-num">STEP 3</span>
+                  <span class="st-name">内凹下弧放宽字距</span>
+                  <span class="st-state" data-state>关</span>
+                </button>
+              </div>
+
+              <div class="seal-sub-row">
+                <button type="button" class="dark-pill is-on" data-srad="large" aria-pressed="true">舒展圆径 R=118</button>
+                <button type="button" class="dark-pill" data-srad="tight" aria-pressed="false">紧凑小章 R=84</button>
+                <button type="button" class="dark-pill" id="tog-guides" aria-pressed="true">同心辅线：开</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 节：淡竹宣纸白 -->
+    <section class="sec sec-bamboo" id="sec-04" aria-labelledby="s4">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">04</p>
+          <h2 id="s4">弯曲，是在画一条视线</h2>
+          <p class="sec-en" lang="en">Motion, Flow &amp; Neighbours</p>
+        </header>
+        <div class="sec-body">
+          <p class="lead">路径文字的本事，不只是把字「贴在曲线上」，而是借格式塔良好延续性，让一串字符本身长成带速度与指向的箭头。</p>
+          <p>它和同一小类里的几个邻居各有分工：想把一整段话灌进水滴、圆盘等封闭外框里，那是 <a href="https://layout.xiaoxiaodong.ai/189/play/" target="_blank" rel="noopener">189 形状文字</a>；靠行长伸缩与留白把字排成山河意象，那是 <a href="https://layout.xiaoxiaodong.ai/190/play/" target="_blank" rel="noopener">190 图形诗排版</a>；正文遇到插画边缘自动退让，那是 <a href="https://layout.xiaoxiaodong.ai/182/play/" target="_blank" rel="noopener">182 轮廓绕排</a>；把直排文字转九十度作竖列题签，那是 <a href="https://layout.xiaoxiaodong.ai/192/play/" target="_blank" rel="noopener">192 垂直文字排版</a>。唯有需要用文字本身勾出一条动线、把目光从入口一路送往焦点时，才轮到路径文字上场。</p>
+
+          <figure class="flow-lab" id="flow-lab">
+            <div class="lab-toolbar">
+              <div class="btn-row" role="group" aria-label="应用场景" id="flow-scene-group">
+                <button type="button" class="pill is-on" data-scene="cup" aria-pressed="true">咖啡杯套弧标</button>
+                <button type="button" class="pill" data-scene="river" aria-pressed="false">地形河道注记</button>
+                <button type="button" class="pill" data-scene="poster" aria-pressed="false">音乐节斜流海报</button>
+                <button type="button" class="pill" data-scene="stamp" aria-pressed="false">圆形封签贴纸</button>
+              </div>
+              <div class="btn-row">
+                <button type="button" class="pill pill-sm" id="flow-compare" aria-pressed="false">切平直排对比</button>
+                <button type="button" class="pill pill-sm" id="flow-replay">重播视线扫视</button>
+              </div>
+            </div>
+            <div class="flow-canvas-wrap">
+              <canvas id="flow-canvas" aria-label="不同场景下路径文字引导视线的动势演示画布"></canvas>
+            </div>
+            <figcaption class="lab-cap" id="flow-cap" aria-live="polite"></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 节：纯暖竹白 -->
+    <section class="sec sec-warm" id="sec-05" aria-labelledby="s5">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">05</p>
+          <h2 id="s5">什么时候别用路径文字</h2>
+          <p class="sec-en" lang="en">When to Stay Straight</p>
+        </header>
+        <div class="sec-body">
+          <p class="lead">路径文字靠打破平直基线抢眼，代价是每一字都在迫使眼球重新对准阅读轴。一旦内容需要快读、精读或核对，弯曲就从帮手变成绊脚石。</p>
+          <ul class="ban-grid">
+            <li>
+              <h3>超过一句话的正文</h3>
+              <p>经验上，曲线路径最适合 4 至 18 字的短标、题签或引导句；长段落请老老实实回到 <a href="https://layout.xiaoxiaodong.ai/176/play/" target="_blank" rel="noopener">176 左对齐右参差</a> 或 <a href="https://layout.xiaoxiaodong.ai/193/play/" target="_blank" rel="noopener">193 水平文字排版</a>。</p>
+            </li>
+            <li>
+              <h3>数据、价格与界面控件</h3>
+              <p>表单、账单、导航栏靠的是横向基线快速扫读。字一旦弯起来，横向对齐参照就没了，比价和点选都会慢半拍。</p>
+            </li>
+            <li>
+              <h3>小字号与高频锯齿波</h3>
+              <p>屏幕像素格本来是横平竖直的，低于约 14px 的倾斜小字极易发虚、笔画粗细抖动；频繁上下折返的波浪更会把人晃晕。</p>
+            </li>
+            <li>
+              <h3>繁复汉字挤进小内弯</h3>
+              <p>拉丁小写字母上下留有起伏空间，方块汉字四角饱满；小半径内凹弧上排繁笔汉字，字顶很快粘成一团黑块。</p>
+            </li>
+          </ul>
+
+          <figure class="compare-lab" id="ban-lab">
+            <div class="lab-toolbar">
+              <div class="btn-row" role="group" aria-label="选择反例场景" id="ban-tabs">
+                <button type="button" class="pill is-on" data-ban="terms" aria-pressed="true">38 字活动条款</button>
+                <button type="button" class="pill" data-ban="label" aria-pressed="false">12px 配料表</button>
+                <button type="button" class="pill" data-ban="badge" aria-pressed="false">6 字短句印章</button>
+              </div>
+              <button type="button" class="pill pill-accent" id="ban-toggle" aria-pressed="false">拉平看差距</button>
+            </div>
+            <div class="ban-stage" id="ban-stage">
+              <svg id="ban-svg" viewBox="0 0 680 230" role="img" aria-label="不同字数与字号下弯曲路径与平排的可读性对照"></svg>
+            </div>
+            <figcaption class="lab-cap" id="ban-cap" aria-live="polite"></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 节：浅豆绿纸 -->
+    <section class="sec sec-sage" id="sec-06" aria-labelledby="s6">
+      <div class="wrap">
+        <header class="sec-head sec-head-wide">
+          <p class="sec-no" lang="en">06</p>
+          <h2 id="s6">练一练：四枚圆章选一枚</h2>
+          <p class="sec-en" lang="en">Practice · Spot the Clean Path</p>
+        </header>
+        <p class="practice-intro">同一枚直径 80 mm 的咖啡豆圆形封签，上弧排「山谷烘焙工坊」、下弧排「ROASTERY 2026」。四版只有一个关键处理不同，先凭眼睛挑出最顺读、最工整的那一枚。</p>
+
+        <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四个圆章选项">
+          <button type="button" class="quiz-card" data-opt="A" aria-pressed="false">
+            <span class="quiz-letter" lang="en">A</span>
+            <svg viewBox="0 0 260 260" class="quiz-svg" id="quiz-svg-A" aria-hidden="true"></svg>
+          </button>
+          <button type="button" class="quiz-card" data-opt="B" aria-pressed="false">
+            <span class="quiz-letter" lang="en">B</span>
+            <svg viewBox="0 0 260 260" class="quiz-svg" id="quiz-svg-B" aria-hidden="true"></svg>
+          </button>
+          <button type="button" class="quiz-card" data-opt="C" aria-pressed="false">
+            <span class="quiz-letter" lang="en">C</span>
+            <svg viewBox="0 0 260 260" class="quiz-svg" id="quiz-svg-C" aria-hidden="true"></svg>
+          </button>
+          <button type="button" class="quiz-card" data-opt="D" aria-pressed="false">
+            <span class="quiz-letter" lang="en">D</span>
+            <svg viewBox="0 0 260 260" class="quiz-svg" id="quiz-svg-D" aria-hidden="true"></svg>
+          </button>
+        </div>
+
+        <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+          <p class="qv-title" id="qv-title">点选 A、B、C、D 中的一枚圆章。</p>
+          <p class="qv-body" id="qv-body">选完之后，四枚圆章会同步显出同心基准圆、阅读方向箭头与挤压标红，逐一拆解每一版差在哪一个变量上。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 节：淡竹宣纸白（原海报与关键词） -->
+    <section class="sec sec-bamboo sec-poster" id="sec-07" aria-labelledby="s7">
+      <div class="wrap poster-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">07</p>
+          <h2 id="s7">原海报与关键词</h2>
+          <p class="sec-en" lang="en">Original Poster &amp; Keywords</p>
+        </header>
+
+        <figure class="poster-fig">
+          <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="放大查看 191 号路径文字原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="191 号路径文字原海报：淡竹宣纸白底上，左上深孔雀松黛大字「路径文字」与 TYPE ON PATH 及珊瑚朱橘短杠，下方总述与五个关键词；一条深黛绿 S 形粗曲线从左下朱橘起点圆盘旋至右上朱橘大箭头，文字沿曲线流动并用朱橘高亮「阅读节奏与方向感，」；右下角配「基线方向」箭头注记与朱橘大圆弧和七根灰绿细竖线。">
+          </button>
+          <figcaption>点击海报可放大查看，放大后拖动平移，再点关闭或按 Esc 收起。</figcaption>
+        </figure>
+
+        <div class="kw-col">
+          <h3 class="kw-heading">原海报关键词 <span lang="en">KEYWORDS</span></h3>
+          <ul class="kw-list">
+            <li>
+              <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 30 C 18 32, 16 8, 34 10" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="6" cy="30" r="3" fill="#EB6847"/></svg>
+              <div><b>曲线</b><p>弯度要服务动势，宁可宽缓舒展，切忌在拐点拧出急折死弯。</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 26 Q 20 12 31 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><polygon points="29,7 36,12 29,17" fill="#EB6847"/></svg>
+              <div><b>引导</b><p>文字切线方向首尾相接，替版面修出一条不用另画箭头的视线通道。</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 24 Q 13 10 21 22 T 35 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="29" cy="18" r="2.8" fill="#EB6847"/></svg>
+              <div><b>运动</b><p>斜率起伏自带加速与停顿感，比静止的横排更容易唤醒速度联想。</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 40 40" aria-hidden="true"><line x1="7" y1="28" x2="7" y2="14" stroke="currentColor" stroke-width="2.4"/><line x1="15" y1="28" x2="15" y2="10" stroke="currentColor" stroke-width="2.4"/><line x1="23" y1="28" x2="23" y2="16" stroke="#EB6847" stroke-width="2.6"/><line x1="31" y1="28" x2="31" y2="12" stroke="currentColor" stroke-width="2.4"/></svg>
+              <div><b>节奏</b><p>外凸略收、内凹略放，用微调字距熨平曲率造成的松紧波动。</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="9" cy="29" r="3.5" fill="#EB6847"/><path d="M12 27 C 20 22, 22 16, 30 11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-dasharray="3 3"/><circle cx="31" cy="10" r="3.5" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
+              <div><b>路径</b><p>路径画完不一定要留在画面上，藏掉黑线后文字仍能撑起隐形骨架。</p></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="191 号原海报放大视图">
+  <div class="lb-bar">
+    <span>拖动画面平移 · 滚轮或按钮缩放 · Esc 关闭</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+      <button type="button" class="lb-btn" id="lb-zoom-reset">100%</button>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lb-viewport">
+    <img id="lb-img" alt="191 号路径文字原海报大图" draggable="false">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p class="foot-title"><span lang="en">No. 191</span> 路径文字 · 350 种排版</p>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/191/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
