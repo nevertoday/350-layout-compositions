@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>128 · Z 型扫描模式 · Z-PATTERN SCANNING</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ========== 开场：示范型 Z 字顶栏 + 全幅 Z 轨校准排布台 + 原海报三栏虚线遥测坞 ========== -->
+<header class="hero" id="top">
+  <div class="wrap hero-inner">
+    <!-- 顶栏本身就是第一条横扫：左起标题 → 横向虚线轨 → 右端标本切换 -->
+    <div class="hero-bar">
+      <div class="hero-id">
+        <span class="badge-no">NO. 128</span>
+        <span class="hero-cat">视觉原则与阅读模式 / 页面阅读模式</span>
+      </div>
+      <div class="hero-legend" aria-hidden="true">
+        <span class="legend-item"><i class="leg-arrow"></i>Z 型主路径</span>
+        <span class="legend-item"><i class="leg-dots"></i>注意力扩散</span>
+      </div>
+    </div>
+
+    <div class="hero-zhead">
+      <div class="zhead-left">
+        <h1 class="hero-title"><span class="title-z" aria-hidden="true">Z</span><span class="title-rest">型扫描模式</span></h1>
+        <p class="hero-en" lang="en">Z-PATTERN SCANNING</p>
+      </div>
+      <div class="zhead-bridge" aria-hidden="true">
+        <span class="bridge-line"></span>
+        <span class="bridge-tag" lang="en">PATH · 1 → 2 → 3 → 4</span>
+      </div>
+      <div class="zhead-right" role="group" aria-label="切换演示标本">
+        <span class="scene-label" lang="en">SPECIMEN</span>
+        <div class="scene-tabs" id="scene-tabs">
+          <button type="button" class="scene-btn is-active" data-scene="poster" aria-pressed="true">原海报图解</button>
+          <button type="button" class="scene-btn" data-scene="landing" aria-pressed="false">落地页首屏</button>
+          <button type="button" class="scene-btn" data-scene="event" aria-pressed="false">活动海报</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 全幅 Z 轨光学校准舞台（顶条独立不压画布） -->
+    <div class="z-stage-frame">
+      <div class="stage-hud" aria-live="polite">
+        <span class="hud-chip" id="gaze-phase">4 · 终点转化 · ACTION</span>
+        <span class="hud-sep" aria-hidden="true">·</span>
+        <span class="hud-ms" id="gaze-ms">模拟 1.80 s</span>
+        <span class="hud-hint">切标本查三类断层 · 拖 1–4 节点或切开关排查 · 拖眼眸扫读时间轴</span>
+      </div>
+
+      <div class="z-stage-wrap" id="z-stage-wrap">
+        <canvas id="hero-canvas" class="z-canvas" aria-label="Z 型扫描模式互动校准画布，支持拖动四个页面节点或拖动中央眼眸扫读模拟眼动轨迹"></canvas>
+
+        <!-- 4 个可键盘聚焦与直接触屏拖拽的节点手柄（宽高与画布方块/卡片 1:1 同步） -->
+        <button type="button" class="node-handle" data-node="0" aria-label="节点 1：顶部吸引，可拖动或用方向键调整位置">
+          <span class="nh-num">1</span>
+        </button>
+        <button type="button" class="node-handle" data-node="1" aria-label="节点 2：横向浏览，可拖动或用方向键调整位置">
+          <span class="nh-num">2</span>
+        </button>
+        <button type="button" class="node-handle" data-node="2" aria-label="节点 3：对角落点，可拖动或用方向键调整位置">
+          <span class="nh-num">3</span>
+        </button>
+        <button type="button" class="node-handle" data-node="3" aria-label="节点 4：终点转化，可拖动或用方向键调整位置">
+          <span class="nh-num">4</span>
+        </button>
+
+        <!-- 中央对角眼眸探针（perf 拖动标靶：左右拖动实时扫读 0–1.8 s 模拟眼动路径） -->
+        <button type="button" id="eye-handle" class="eye-handle" data-perf-drag aria-label="对角牵引眼眸探针：左右拖动或按左右方向键扫读模拟视线路径">
+          <svg viewBox="0 0 44 44" width="38" height="38" aria-hidden="true">
+            <circle cx="22" cy="22" r="20" fill="#001122" stroke="#13c0d1" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <path d="M8 22 C13 14.5 31 14.5 36 22 C31 29.5 13 29.5 8 22 Z" fill="#f0f1ec"/>
+            <circle cx="22" cy="22" r="4.8" fill="#001122"/>
+            <circle cx="23.4" cy="20.6" r="1.5" fill="#13c0d1"/>
+          </svg>
+          <span class="eye-cap">拖眼眸扫读</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 原海报同款底沿三栏虚线遥测坞 + 右下实心朱红行动块 -->
+    <div class="dock" aria-live="polite">
+      <div class="dock-col dock-dist">
+        <div class="dock-head">
+          <span class="dock-title">焦点分布</span>
+          <span class="dock-sim">模型示意</span>
+          <span class="dock-en" lang="en">BY STATION</span>
+        </div>
+        <div class="dist-pills" id="dist-pills">
+          <div class="dist-pill" data-pill="0">
+            <span class="dp-bar" aria-hidden="true"><i class="dp-bar-fill" id="bar-0" style="height:78%"></i></span>
+            <span class="dp-dot">1</span>
+            <strong class="dp-val" id="share-0">36%</strong>
+          </div>
+          <span class="dp-arrow" aria-hidden="true">→</span>
+          <div class="dist-pill" data-pill="1">
+            <span class="dp-bar" aria-hidden="true"><i class="dp-bar-fill" id="bar-1" style="height:43%"></i></span>
+            <span class="dp-dot">2</span>
+            <strong class="dp-val" id="share-1">20%</strong>
+          </div>
+          <span class="dp-arrow" aria-hidden="true">→</span>
+          <div class="dist-pill" data-pill="2">
+            <span class="dp-bar" aria-hidden="true"><i class="dp-bar-fill" id="bar-2" style="height:37%"></i></span>
+            <span class="dp-dot">3</span>
+            <strong class="dp-val" id="share-2">17%</strong>
+          </div>
+          <span class="dp-arrow" aria-hidden="true">→</span>
+          <div class="dist-pill" data-pill="3">
+            <span class="dp-bar" aria-hidden="true"><i class="dp-bar-fill" id="bar-3" style="height:59%"></i></span>
+            <span class="dp-dot">4</span>
+            <strong class="dp-val" id="share-3">27%</strong>
+          </div>
+        </div>
+        <p class="dist-extra" id="dist-extra" hidden></p>
+      </div>
+
+      <div class="dock-col dock-diag">
+        <div class="diag-top">
+          <span class="diag-badge is-warn" id="diag-badge">待诊断 · 路径偏斜</span>
+          <strong class="diag-headline" id="diag-headline">对角线太浅，3 号接不住视线</strong>
+        </div>
+        <p class="diag-reason" id="diag-reason">3 号缩在画面中段，2 → 3 的对角牵引走不透，3 → 4 的底边横扫也被截短，视线还没铺开就匆匆折向终点。</p>
+        <div class="diag-actions">
+          <button type="button" class="ctrl-btn is-on" id="btn-diag" aria-pressed="true">对角牵引</button>
+          <button type="button" class="ctrl-btn" id="btn-distract" aria-pressed="false">塞入干扰</button>
+          <button type="button" class="ctrl-btn" id="btn-weak" aria-pressed="false">弱化终点</button>
+          <button type="button" class="ctrl-btn ctrl-reset" id="btn-reset">校准标准 Z</button>
+        </div>
+      </div>
+
+      <button type="button" class="dock-cta" id="btn-replay">
+        <span class="cta-zh"><span>引导视线</span><span>创造价值</span></span>
+        <span class="cta-en" lang="en"><span>FOLLOW THE Z</span><span>DRIVE THE RESULT</span></span>
+        <span class="cta-go" id="replay-label">重播眼动 &gt;&gt;&gt;</span>
+      </button>
+    </div>
+
+    <p class="hero-note">三个标本各自藏着一处典型的视线断层：拖动任意 1–4 节点或切换下方开关排查问题，让 Z 轨重新贯通；拖动偏置眼眸可沿 0–1.8 s 扫读路径，点击朱红块随时重播。</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- ========== 01 五步路径拆解（原海报五点 + 「说多了一点」修正） ========== -->
+  <section class="sec sec-abyss" id="sec-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div class="sec-titles">
+          <h2>五步路径拆解</h2>
+          <p class="sec-en" lang="en">FIVE STOPS ON THE Z-PATH</p>
+        </div>
+      </div>
+
+      <blockquote class="poster-quote">
+        <p>「视觉沿“Z”字路径移动，先横向吸引注意，再对角牵引，最终落点转化，适用于信息分层与引导设计。」</p>
+        <cite>128 号原海报总述</cite>
+      </blockquote>
+
+      <div class="stops-grid">
+        <div class="stops-tabs" id="stops-tabs" role="tablist" aria-label="Z 字路径五个环节">
+          <button type="button" class="stop-tab is-active" role="tab" aria-selected="true" data-stop="0">
+            <span class="st-idx">1</span>
+            <span class="st-main"><strong>顶部吸引</strong><em lang="en">LEAD · 曝光</em></span>
+          </button>
+          <button type="button" class="stop-tab" role="tab" aria-selected="false" data-stop="1">
+            <span class="st-idx">2</span>
+            <span class="st-main"><strong>横向浏览</strong><em lang="en">TRANSIT · 浏览</em></span>
+          </button>
+          <button type="button" class="stop-tab" role="tab" aria-selected="false" data-stop="2">
+            <span class="st-idx">↘</span>
+            <span class="st-main"><strong>对角牵引</strong><em lang="en">PULL · 牵引</em></span>
+          </button>
+          <button type="button" class="stop-tab" role="tab" aria-selected="false" data-stop="3">
+            <span class="st-idx">3</span>
+            <span class="st-main"><strong>对角落点</strong><em lang="en">FOCUS · 聚焦</em></span>
+          </button>
+          <button type="button" class="stop-tab" role="tab" aria-selected="false" data-stop="4">
+            <span class="st-idx">4</span>
+            <span class="st-main"><strong>终点转化</strong><em lang="en">ACTION · 行动</em></span>
+          </button>
+        </div>
+
+        <div class="stops-stage">
+          <svg id="stops-svg" class="stops-svg" viewBox="0 0 460 280" role="img" aria-label="Z 字五步路径局部高亮示意图">
+            <!-- 背景虚线网格 -->
+            <g stroke="rgba(19,192,209,0.16)" stroke-width="1" stroke-dasharray="3 4">
+              <line x1="92" y1="16" x2="92" y2="264"/>
+              <line x1="184" y1="16" x2="184" y2="264"/>
+              <line x1="276" y1="16" x2="276" y2="264"/>
+              <line x1="368" y1="16" x2="368" y2="264"/>
+              <line x1="20" y1="140" x2="440" y2="140"/>
+            </g>
+            <!-- 路径三段 -->
+            <line id="ss-leg1" x1="100" y1="68" x2="342" y2="68" stroke="#13c0d1" stroke-width="7" stroke-linecap="round" opacity="0.28"/>
+            <line id="ss-leg2" x1="352" y1="76" x2="108" y2="204" stroke="#13c0d1" stroke-width="7" stroke-linecap="round" opacity="0.28"/>
+            <line id="ss-leg3" x1="108" y1="212" x2="342" y2="212" stroke="#13c0d1" stroke-width="7" stroke-linecap="round" opacity="0.28"/>
+            <!-- 四个节点 -->
+            <g id="ss-n0" class="ss-node is-lit">
+              <circle cx="92" cy="68" r="38" fill="none" stroke="#13c0d1" stroke-dasharray="3 4" opacity="0.7"/>
+              <rect x="64" y="40" width="56" height="56" fill="#13b5c2"/>
+              <circle cx="92" cy="68" r="18" fill="#001122"/>
+              <circle cx="64" cy="40" r="11" fill="#f0f1ec"/>
+              <text x="64" y="44" text-anchor="middle" font-size="12" font-weight="700" fill="#001122">1</text>
+            </g>
+            <g id="ss-n1" class="ss-node">
+              <circle cx="368" cy="68" r="38" fill="none" stroke="#13c0d1" stroke-dasharray="3 4" opacity="0.35"/>
+              <rect x="340" y="40" width="56" height="56" fill="#13b5c2"/>
+              <rect x="350" y="50" width="36" height="5" fill="#001122"/>
+              <rect x="350" y="60" width="26" height="5" fill="#001122"/>
+              <rect x="350" y="70" width="18" height="16" fill="#001122"/>
+              <circle cx="340" cy="40" r="11" fill="#f0f1ec"/>
+              <text x="340" y="44" text-anchor="middle" font-size="12" font-weight="700" fill="#001122">2</text>
+            </g>
+            <g id="ss-mid" class="ss-node">
+              <circle cx="230" cy="140" r="24" fill="#001122" stroke="#13c0d1" stroke-dasharray="3 3" opacity="0.45"/>
+              <path d="M214 140 C220 131 240 131 246 140 C240 149 220 149 214 140 Z" fill="#f0f1ec"/>
+              <circle cx="230" cy="140" r="4.5" fill="#001122"/>
+            </g>
+            <g id="ss-n3" class="ss-node">
+              <circle cx="92" cy="212" r="38" fill="none" stroke="#13c0d1" stroke-dasharray="3 4" opacity="0.35"/>
+              <rect x="64" y="184" width="56" height="56" fill="#13b5c2"/>
+              <polygon points="92,196 110,228 74,228" fill="#001122"/>
+              <circle cx="64" cy="184" r="11" fill="#f0f1ec"/>
+              <text x="64" y="188" text-anchor="middle" font-size="12" font-weight="700" fill="#001122">3</text>
+            </g>
+            <g id="ss-n4" class="ss-node">
+              <circle cx="368" cy="212" r="38" fill="none" stroke="#ec3e0b" stroke-dasharray="3 4" opacity="0.45"/>
+              <rect x="340" y="184" width="56" height="56" fill="#ec3e0b"/>
+              <circle cx="368" cy="212" r="18" fill="#001122"/>
+              <path d="M359 212 L365 218 L378 205" fill="none" stroke="#f0f1ec" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="340" cy="184" r="11" fill="#f0f1ec"/>
+              <text x="340" y="188" text-anchor="middle" font-size="12" font-weight="700" fill="#001122">4</text>
+            </g>
+          </svg>
+
+          <div class="stop-detail" id="stop-detail" aria-live="polite">
+            <div class="sd-meta">
+              <span class="sd-badge" id="sd-badge" lang="en">01 · LEAD</span>
+              <span class="sd-kw" id="sd-kw">曝光 EXPOSURE</span>
+            </div>
+            <h3 id="sd-title">顶部吸引</h3>
+            <p class="sd-orig" id="sd-orig">原海报：「最先进入视野的区域，决定内容是否被关注」</p>
+            <p class="sd-plain" id="sd-plain">左向右阅读文化里，视线的默认落脚点就在左上角。这里要放最容易辨认的身份锚点——品牌标志、一句直白的主标题，或者画面里最先亮起来的主角，让读者第一眼确认「这页和我有关」。</p>
+            <p class="sd-pitfall" id="sd-pitfall"><strong>常见失误：</strong>把冗长免责声明、灰淡小字或空洞装饰摆在左上，读者第一眼抓不到重点，后面三站根本走不到。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 温和纠偏：原海报「说多了一点」 -->
+      <aside class="nuance-box">
+        <div class="nuance-tag">说多了一点</div>
+        <div class="nuance-body">
+          <h3>原海报底栏写「焦点分布：高 → 低（1 &gt; 2 &gt; 3 &gt; 4）」——真实排版里不能让第 4 站真的最弱</h3>
+          <p>如果一张页面上四个区域字号、色块全一样，按自然阅读重力，注意力确实会从左上到右下逐站衰减。但正因如此，<strong>好用的 Z 型页面绝不会任由第 4 站变暗</strong>——反而要像 128 号原海报自己做的那样，给右下角一块高纯朱红「引导视线 · 创造价值」来补偿重力衰减，把注意力重新拉回高点。你可以回到开场舞台点一下「弱化终点」，亲眼看看去掉对比后视线怎么滑出画外。</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ========== 02 层级会改写路径（连续滑杆 + 阅读方向翻转，冷白眼动实验印纸带） ========== -->
+  <section class="sec sec-paper" id="sec-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div class="sec-titles">
+          <h2>层级会改写路径</h2>
+          <p class="sec-en" lang="en">HIERARCHY OVERRIDES READING GRAVITY</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">Z 型不是眼睛见图就会画出来的物理铁律，而是<strong>版面足够稀疏、层级足够克制</strong>时，设计师借阅读惯性「铺」出来的路。拨动下面两根档位轨或翻转阅读方向，看视觉显著性怎样改写视线。</p>
+
+      <!-- 与 01 节完全不同的交互语法：双三档滑杆 + LTR/RTL 翻转器 + 快捷预设 -->
+      <div class="override-lab-bar">
+        <label class="ov-slider-box" for="ov-distract">
+          <span class="ov-sl-head">
+            <span>中段干扰档位</span>
+            <strong id="ov-distract-val">克制</strong>
+          </span>
+          <input type="range" id="ov-distract" class="ov-range" min="0" max="2" step="1" value="0">
+          <span class="ov-sl-scale"><span>克制</span><span>抢眼</span><span>霸屏</span></span>
+        </label>
+
+        <label class="ov-slider-box" for="ov-cta">
+          <span class="ov-sl-head">
+            <span>终点按钮对比</span>
+            <strong id="ov-cta-val">高对比</strong>
+          </span>
+          <input type="range" id="ov-cta" class="ov-range" min="0" max="2" step="1" value="2">
+          <span class="ov-sl-scale"><span>淡对比</span><span>中对比</span><span>高对比</span></span>
+        </label>
+
+        <div class="ov-dir-box">
+          <span class="ov-sl-head"><span>书写与阅读方向</span></span>
+          <button type="button" class="ov-dir-btn" id="ov-rtl" aria-pressed="false">当前：LTR 左向右 ⇄ 切 RTL</button>
+          <div class="ov-presets" id="override-controls" role="group" aria-label="快捷实验预设">
+            <button type="button" class="ov-preset is-active" data-ov="clean">标准 Z</button>
+            <button type="button" class="ov-preset" data-ov="hijack">霸屏劫持</button>
+            <button type="button" class="ov-preset" data-ov="fade">淡对比失焦</button>
+            <button type="button" class="ov-preset" data-ov="rtl">RTL 镜像</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="override-board">
+        <div class="ov-visual">
+          <svg id="ov-svg" viewBox="0 0 600 350" role="img" aria-label="不同视觉层级与阅读方向下的模拟眼动扫视轨迹图"></svg>
+        </div>
+        <div class="ov-copy" aria-live="polite">
+          <div class="ov-kicker" id="ov-kicker" lang="en">BALANCED · CONTROLLED HIERARCHY</div>
+          <h3 id="ov-title">中段「克制」、终点「高对比」，Z 轨贯通</h3>
+          <p id="ov-desc">中段保持「克制」档、终点处于「高对比」档，主标让出对角通道且没有异物抢戏，眼睛顺着 1 → 2 → 3 → 4 的节拍稳稳落进右下按钮。</p>
+          <dl class="ov-metrics">
+            <div>
+              <dt>首眼落点（模型示意）</dt>
+              <dd id="ov-first">左上品牌（第 1 站）</dd>
+            </div>
+            <div>
+              <dt>终点 CTA 抵达</dt>
+              <dd id="ov-cta-out">右下角稳稳命中（第 4 站）</dd>
+            </div>
+            <div>
+              <dt>阅读惯性方向</dt>
+              <dd id="ov-dir-out">左向右（LTR 标准）</dd>
+            </div>
+            <div>
+              <dt>为什么这样走</dt>
+              <dd id="ov-why">克制的中段留出对角通道，高对比终点把末端注意力重新收束。</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 03 它从哪来（1956–2020 查证史料脉络） ========== -->
+  <section class="sec sec-navy" id="sec-03">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <div class="sec-titles">
+          <h2>它从哪来</h2>
+          <p class="sec-en" lang="en">FROM 1956 NEWSPRINT TO MODERN LANDING PAGES</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">把 Z 型和 F 型混为一谈，是网页设计里最常见的误会：<strong>F 型是眼动仪拍出来的文字扫读现象，Z 型则是从 1950 年代报业「阅读重力」演化出的主动版式策略。</strong></p>
+
+      <ol class="history-rail">
+        <li class="hist-card">
+          <span class="hist-year" lang="en">1956</span>
+          <h3>报版里的「阅读重力」</h3>
+          <p>被称为现代报业版面奠基人的美国编辑 <strong>Edmund C. Arnold</strong> 在 <em>Functional Newspaper Design</em>（Harper &amp; Brothers, 1956）中，把左向右读者从左上扫向右下的视觉惯性命名为「阅读重力（Reading Gravity）」，并以四象限图式描述报纸版面的视觉落区。</p>
+        </li>
+        <li class="hist-card">
+          <span class="hist-year" lang="en">2006–2009</span>
+          <h3>眼动实证打破「精读」幻想</h3>
+          <p><strong>Jakob Nielsen</strong>（2006）以及与 <strong>Kara Pernice</strong> 合著的 <em>Eyetracking Web Usability</em>（New Riders, 2009）通过对大量网页注视点的记录，证实用户几乎不逐字通读网页；但在文字密集页里，眼动仪测出的是 F 型，而非自动走出的 Z 型。</p>
+        </li>
+        <li class="hist-card">
+          <span class="hist-year" lang="en">2010–2011</span>
+          <h3>落地页的 Z 型启发法成形</h3>
+          <p>网页设计作者 <strong>Brandon Jones</strong>（Envato Tuts+, <em>Understanding the Z-Layout in Web Design</em>, 2010）与 <strong>Steven Bradley</strong>（Vanseo Design, 2011）把报版重力改写为面向稀疏网页与广告的 Z 型布局指南。Bradley 特别强调：只有均质无层级的页面才服从被动阅读重力，强对比的视觉层级永远能接管视线。</p>
+        </li>
+        <li class="hist-card">
+          <span class="hist-year" lang="en">2017–2020</span>
+          <h3>长页「之字形」遭到实证反击</h3>
+          <p>Nielsen Norman Group（<strong>Kim Flaherty</strong> 2017 年图文之字排版研究；<strong>Kara Pernice</strong> 2017；<strong>Kate Moran</strong> 2020）进一步明确：单个首屏做 Z 型清晰利落，但把长页面做成一行左图右文、一行右图左文的反复「之字形（Zigzag）」，反而让眼睛不停重找行首，拖慢扫读速度。</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ========== 04 什么时候用（原海报三条布局策略 + 三套页面 X 光透视） ========== -->
+  <section class="sec sec-abyss" id="sec-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div class="sec-titles">
+          <h2>什么时候用</h2>
+          <p class="sec-en" lang="en">PLACEMENT STRATEGY &amp; GOLDEN USE CASES</p>
+        </div>
+      </div>
+
+      <!-- 原海报三条布局策略原话 -->
+      <div class="strategy-strip">
+        <div class="strat-cap">
+          <span>原海报 · 布局策略</span>
+          <em lang="en">PLACEMENT STRATEGY</em>
+        </div>
+        <div class="strat-items">
+          <div class="strat-card">
+            <svg viewBox="0 0 36 36" width="32" height="32" aria-hidden="true">
+              <rect x="6" y="6" width="24" height="24" fill="none" stroke="#f0f1ec" stroke-width="2"/>
+              <path d="M4 10 L4 4 L10 4 M26 4 L32 4 L32 10" fill="none" stroke="#13c0d1" stroke-width="2"/>
+            </svg>
+            <p>「重要信息放顶部，抓住第一眼注意」</p>
+          </div>
+          <div class="strat-card">
+            <svg viewBox="0 0 36 36" width="32" height="32" aria-hidden="true">
+              <line x1="8" y1="28" x2="28" y2="8" stroke="#13c0d1" stroke-width="2.4"/>
+              <polyline points="17,8 28,8 28,19" fill="none" stroke="#f0f1ec" stroke-width="2.2"/>
+            </svg>
+            <p>「中段内容做引导，用对角增强牵引」</p>
+          </div>
+          <div class="strat-card">
+            <svg viewBox="0 0 36 36" width="32" height="32" aria-hidden="true">
+              <circle cx="18" cy="18" r="13" fill="none" stroke="#ec3e0b" stroke-width="2.2"/>
+              <polyline points="12,18 16.5,22.5 24.5,14" fill="none" stroke="#f0f1ec" stroke-width="2.4"/>
+            </svg>
+            <p>「结尾突出行动点，降低决策成本」</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 三套真实界面 X 光透视器 -->
+      <div class="xray-bar">
+        <div class="xray-tabs" id="xray-tabs" role="group" aria-label="切换适用场景">
+          <button type="button" class="xr-btn is-active" data-xr="saas" aria-pressed="true">极简落地页首屏</button>
+          <button type="button" class="xr-btn" data-xr="launch" aria-pressed="false">单品发售海报</button>
+          <button type="button" class="xr-btn" data-xr="auth" aria-pressed="false">注册与引导弹窗</button>
+        </div>
+        <button type="button" class="xr-toggle is-on" id="xr-toggle" aria-pressed="true">透视 Z 轨热区：开</button>
+      </div>
+
+      <div class="xray-grid">
+        <div class="xray-stage">
+          <svg id="xray-svg" viewBox="0 0 640 380" role="img" aria-label="真实界面里的 Z 型扫视 X 光透视图"></svg>
+        </div>
+        <div class="xray-notes" aria-live="polite">
+          <span class="xr-tag" id="xr-tag" lang="en">USE CASE 01</span>
+          <h3 id="xr-title">极简落地页首屏</h3>
+          <p id="xr-summary">页面上只有一个核心行动目标（注册、预约或下载），且整屏独立视觉锚点控制在 4–5 个以内（设计经验值），这时 Z 型最能把「认识你 → 理解价值 → 立刻动手」压缩进一次干脆扫视。</p>
+          <ul class="xr-list" id="xr-list">
+            <li><strong>1 左上：</strong>品牌名 + 一句定位，不做长导航</li>
+            <li><strong>2 右上：</strong>轻入口（定价 / 登录），收住顶部横扫</li>
+            <li><strong>↘ 对角：</strong>斜向产品界面与主标，把眼波送向左下</li>
+            <li><strong>3 左下：</strong>一句硬核证据或关键数据，消除犹豫</li>
+            <li><strong>4 右下：</strong>高反差主行动按钮，一眼落点完成转化</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 05 什么时候别用（之字形长页实证对照 + 三个反例，冷白印纸带） ========== -->
+  <section class="sec sec-paper" id="sec-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div class="sec-titles">
+          <h2>什么时候别用</h2>
+          <p class="sec-en" lang="en">WHEN THE Z-PATTERN BACKFIRES</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">很多设计师把「首屏一个 Z」错当成「整张长网页一路左右 Z 下去」。Nielsen Norman Group（Kim Flaherty, 2017）的眼动实证已经提醒过：<strong>多行左右交错的「之字形（Zigzag）」图文列表，会让读者在每一行重新寻找文字起点，扫读效率反而不如竖向对齐。</strong></p>
+
+      <!-- 交互对比：长页之字形 vs 统一竖轴 -->
+      <div class="zz-lab">
+        <div class="zz-head">
+          <div>
+            <h3>对照实验：四段功能介绍，该交错还是对齐？</h3>
+            <p class="zz-sub" id="zz-sub">当前为「左右交错之字形」：视线在左右两列之间来回折跳，每换一行都要重新定位标题左缘。</p>
+            <div class="zz-stats" id="zz-stats" aria-live="polite">
+              <span class="zz-stat is-bad" id="zz-jumps">横向折返：3 次大跨度跳列</span>
+              <span class="zz-stat" id="zz-axis">标题左缘锚线：2 条错位</span>
+            </div>
+          </div>
+          <div class="zz-switch" id="zz-switch" role="group" aria-label="切换长页排布对比">
+            <button type="button" class="zz-btn is-active" data-zz="zigzag" aria-pressed="true">左右交错「之字」</button>
+            <button type="button" class="zz-btn" data-zz="aligned" aria-pressed="false">统一竖轴对齐</button>
+          </div>
+        </div>
+        <div class="zz-stage">
+          <svg id="zz-svg" viewBox="0 0 760 296" role="img" aria-label="之字形交错排版与竖向对齐排版的眼动跳距对比图"></svg>
+        </div>
+      </div>
+
+      <!-- 另外三个明确禁区 -->
+      <div class="avoid-grid">
+        <article class="avoid-card">
+          <div class="avoid-kicker" lang="en">AVOID 01 · TEXT-HEAVY</div>
+          <h3>长文、博客与文档阅读</h3>
+          <p>文字超过三四段后，读者不会沿对角滑行，而是本能贴着左缘逐行扫描。此时强塞右偏对角图块，只会把行宽切碎、增加换行负担。</p>
+        </article>
+        <article class="avoid-card">
+          <div class="avoid-kicker" lang="en">AVOID 02 · NARROW MOBILE</div>
+          <h3>手机 390px 单栏窄屏</h3>
+          <p>手机宽度摆不开左右两极的对角张力。把桌面 Z 型硬缩成小字双栏会让点击区失守——在窄屏上应把 Z 折成「顶钩 → 视觉证明 → 底部通栏 CTA」的单列纵流。</p>
+        </article>
+        <article class="avoid-card">
+          <div class="avoid-kicker" lang="en">AVOID 03 · DATA &amp; SEARCH</div>
+          <h3>后台表格、比价与高频工具</h3>
+          <p>当用户带着具体任务找订单号、价格或筛选器时，他们要的是稳定的坐标和瞬间定位，而不是被牵着从左上绕一圈才看见操作钮。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 06 同小类五种页面阅读模式速辨（含 4 页直链） ========== -->
+  <section class="sec sec-navy" id="sec-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <div class="sec-titles">
+          <h2>同小类五种模式怎么分</h2>
+          <p class="sec-en" lang="en">FIVE SCANNING MODELS SIDE BY SIDE</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">同属「页面阅读模式」小类的五张海报，各自管的是完全不同的信息密度与阅读任务，别拿同一把尺子量所有页面。</p>
+
+      <div class="sib-list">
+        <div class="sib-row">
+          <div class="sib-id" lang="en">127</div>
+          <svg class="sib-icon" viewBox="0 0 48 48" aria-hidden="true">
+            <rect x="4" y="4" width="40" height="40" fill="none" stroke="rgba(19,192,209,0.3)" stroke-dasharray="3 3"/>
+            <path d="M12 13 H36 M12 23 H28 M12 13 V37" fill="none" stroke="#8fb3c2" stroke-width="3.5" stroke-linecap="round"/>
+          </svg>
+          <div class="sib-info">
+            <h3>F 型扫描模式</h3>
+            <p>文字密集、缺少醒目分层时，读者默认沿顶部横扫两下再贴左缘竖扫的省力回退行为。</p>
+          </div>
+          <a class="sib-link" href="https://layout.xiaoxiaodong.ai/127/play/" target="_blank" rel="noopener">看 127 号 →</a>
+        </div>
+
+        <div class="sib-row is-current">
+          <div class="sib-id" lang="en">128</div>
+          <svg class="sib-icon" viewBox="0 0 48 48" aria-hidden="true">
+            <rect x="4" y="4" width="40" height="40" fill="none" stroke="#13c0d1" stroke-dasharray="3 3"/>
+            <path d="M12 13 H36 L12 35 H36" fill="none" stroke="#13c0d1" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="36" cy="35" r="3.5" fill="#ec3e0b"/>
+          </svg>
+          <div class="sib-info">
+            <h3>Z 型扫描模式 <span class="cur-pill">本页</span></h3>
+            <p>信息稀疏、目标单一的首屏或海报上，靠四点锚位与高对比终点主动牵引转化的设计路径。</p>
+          </div>
+          <span class="sib-here">正在阅读</span>
+        </div>
+
+        <div class="sib-row">
+          <div class="sib-id" lang="en">129</div>
+          <svg class="sib-icon" viewBox="0 0 48 48" aria-hidden="true">
+            <rect x="4" y="4" width="40" height="40" fill="none" stroke="rgba(19,192,209,0.3)" stroke-dasharray="3 3"/>
+            <line x1="24" y1="6" x2="24" y2="42" stroke="rgba(240,241,236,0.22)" stroke-dasharray="2 3"/>
+            <line x1="6" y1="24" x2="42" y2="24" stroke="rgba(240,241,236,0.22)" stroke-dasharray="2 3"/>
+            <line x1="12" y1="12" x2="36" y2="36" stroke="#8fb3c2" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <div class="sib-info">
+            <h3>古腾堡图式</h3>
+            <p>版面字号均匀、没有强图形干预的纯文字整页上，阅读重力天然划出的四个强弱象限。</p>
+          </div>
+          <a class="sib-link" href="https://layout.xiaoxiaodong.ai/129/play/" target="_blank" rel="noopener">看 129 号 →</a>
+        </div>
+
+        <div class="sib-row">
+          <div class="sib-id" lang="en">130</div>
+          <svg class="sib-icon" viewBox="0 0 48 48" aria-hidden="true">
+            <rect x="4" y="4" width="40" height="40" fill="none" stroke="rgba(19,192,209,0.3)" stroke-dasharray="3 3"/>
+            <line x1="11" y1="13" x2="37" y2="13" stroke="#8fb3c2" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="11" y1="24" x2="33" y2="24" stroke="#8fb3c2" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="11" y1="35" x2="35" y2="35" stroke="#8fb3c2" stroke-width="3.5" stroke-linecap="round"/>
+          </svg>
+          <div class="sib-info">
+            <h3>层蛋糕扫描模式</h3>
+            <p>长文章靠大小标题清晰分段后，读者只横向扫标题层、跳过正文层的高效跳跃阅读法。</p>
+          </div>
+          <a class="sib-link" href="https://layout.xiaoxiaodong.ai/130/play/" target="_blank" rel="noopener">看 130 号 →</a>
+        </div>
+
+        <div class="sib-row">
+          <div class="sib-id" lang="en">131</div>
+          <svg class="sib-icon" viewBox="0 0 48 48" aria-hidden="true">
+            <rect x="4" y="4" width="40" height="40" fill="none" stroke="rgba(19,192,209,0.3)" stroke-dasharray="3 3"/>
+            <circle cx="15" cy="14" r="3.5" fill="#8fb3c2"/>
+            <circle cx="33" cy="20" r="3.5" fill="#8fb3c2"/>
+            <circle cx="20" cy="31" r="3.5" fill="#8fb3c2"/>
+            <circle cx="35" cy="35" r="3.5" fill="#8fb3c2"/>
+          </svg>
+          <div class="sib-info">
+            <h3>斑点扫描模式</h3>
+            <p>带着明确目标找数字、价格、粗体词或链接时，视线在整页里离散跳点定位的扫读方式。</p>
+          </div>
+          <a class="sib-link" href="https://layout.xiaoxiaodong.ai/131/play/" target="_blank" rel="noopener">看 131 号 →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 07 小练习：三道单变量四选一实战挑版题 ========== -->
+  <section class="sec sec-abyss" id="sec-07">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div class="sec-titles">
+          <h2>小练习：挑出好版式</h2>
+          <p class="sec-en" lang="en">SINGLE-VARIABLE LAYOUT CRITIQUE</p>
+        </div>
+      </div>
+
+      <div class="quiz-bar">
+        <div class="quiz-steps" id="quiz-steps" role="group" aria-label="切换练习题">
+          <button type="button" class="q-step is-active" data-q="0" aria-pressed="true">第 1 题 · 终点锚位</button>
+          <button type="button" class="q-step" data-q="1" aria-pressed="false">第 2 题 · 中段桥接</button>
+          <button type="button" class="q-step" data-q="2" aria-pressed="false">第 3 题 · 长页承接</button>
+        </div>
+        <div class="quiz-score">
+          <span>已答对 <strong id="q-score">0</strong> / 3</span>
+          <button type="button" class="q-reset" id="q-reset">重做本组</button>
+        </div>
+      </div>
+
+      <div class="quiz-prompt" id="quiz-prompt">
+        <h3 id="q-title">题目 1：单屏发布页其他位置都已定稿，四版只改主行动按钮的落位或对比，选哪版？</h3>
+        <p id="q-sub">A / B / C / D 只差一个变量，点击你选的版面卡片，立即叠画模拟眼动轨迹对照。</p>
+      </div>
+
+      <div class="quiz-cards" id="quiz-cards"></div>
+
+      <div class="quiz-feedback" id="quiz-feedback" aria-live="polite" hidden>
+        <strong id="qf-verdict"></strong>
+        <p id="qf-explain"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 08 原海报与五个关键词 ========== -->
+  <section class="sec sec-navy" id="sec-08">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">08</span>
+        <div class="sec-titles">
+          <h2>原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; FIVE KEYWORDS</p>
+        </div>
+      </div>
+
+      <div class="poster-grid">
+        <figure class="poster-figure">
+          <button type="button" class="poster-trigger" id="poster-trigger" aria-label="点击放大查看 128 号 Z 型扫描模式原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" draggable="false" alt="128 号 Z 型扫描模式原海报">
+            <span class="poster-zoom-hint">点击放大查看 · 支持拖拽与 Esc 关闭</span>
+          </button>
+        </figure>
+
+        <div class="poster-side">
+          <div class="kw-head">
+            <h3>海报上的五个关键词</h3>
+            <p>从左上到右下，刚好构成一条完整的认知—转化闭环。</p>
+          </div>
+          <ol class="kw-list">
+            <li>
+              <span class="kw-idx">01</span>
+              <div class="kw-text"><strong>曝光</strong><em lang="en">EXPOSURE</em></div>
+              <span class="kw-desc">顶部吸引 · 第一眼立住</span>
+            </li>
+            <li>
+              <span class="kw-idx">02</span>
+              <div class="kw-text"><strong>浏览</strong><em lang="en">BROWSE</em></div>
+              <span class="kw-desc">横向浏览 · 顺势拿信息</span>
+            </li>
+            <li>
+              <span class="kw-idx">03</span>
+              <div class="kw-text"><strong>牵引</strong><em lang="en">PULL</em></div>
+              <span class="kw-desc">对角牵引 · 眼波自然下坠</span>
+            </li>
+            <li>
+              <span class="kw-idx">04</span>
+              <div class="kw-text"><strong>聚焦</strong><em lang="en">FOCUS</em></div>
+              <span class="kw-desc">对角落点 · 承接核心卖点</span>
+            </li>
+            <li class="is-action">
+              <span class="kw-idx">05</span>
+              <div class="kw-text"><strong>行动</strong><em lang="en">ACTION</em></div>
+              <span class="kw-desc">终点转化 · 高对比收口</span>
+            </li>
+          </ol>
+
+          <div class="poster-signoff">
+            <strong>引导视线 · 创造价值</strong>
+            <span lang="en">FOLLOW THE Z · DRIVE THE RESULT &gt;&gt;&gt;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ========== 页脚 ========== -->
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <span>在线版：<a href="https://layout.xiaoxiaodong.ai/128/play/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai/128/play/</a></span>
+    <span class="f-dot" aria-hidden="true">·</span>
+    <span>全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai</a></span>
+    <span class="f-dot" aria-hidden="true">·</span>
+    <span>海报 CC BY 4.0</span>
+    <span class="f-dot" aria-hidden="true">·</span>
+    <a href="https://github.com/xiaoxiaodong-ai/350-layout-interactive" target="_blank" rel="noopener">源文件 GitHub</a>
+  </div>
+</footer>
+
+<!-- ========== 原海报放大灯箱（复用 #poster.src，不重复内联图片） ========== -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="128 号原海报放大视图" hidden>
+  <div class="lb-bar">
+    <span class="lb-title">No. 128 · Z 型扫描模式原海报（拖动平移 · 滚轮或按钮缩放 · Esc 关闭）</span>
+    <div class="lb-ctrls">
+      <button type="button" class="lb-btn" id="lb-out" aria-label="缩小">－</button>
+      <span class="lb-scale" id="lb-scale">100%</span>
+      <button type="button" class="lb-btn" id="lb-in" aria-label="放大">＋</button>
+      <button type="button" class="lb-btn" id="lb-reset">复原</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭灯箱">关闭 ×</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lb-viewport">
+    <img id="lb-img" alt="128 号 Z 型扫描模式原海报放大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
