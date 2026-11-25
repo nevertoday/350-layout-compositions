@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F3EB">
+<title>垂直文字排版 · VERTICAL TYPE LAYOUT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap mast-in">
+    <p class="mast-cat"><i class="mast-dot" aria-hidden="true"></i>字体、网格与东亚文字 / 对齐、缩进与文字造型</p>
+    <p class="mast-no"><span lang="en">NO. 192</span> · 垂直文字排版</p>
+  </div>
+</header>
+
+<main>
+  <!-- 开场：右启式宣纸立卷排字台 -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="wrap hero-in">
+      <!-- 顶眉：反常规将示范大标置于右上，呼应「由右向左」阅读起点 -->
+      <div class="hero-ribbon">
+        <div class="hero-lead-col">
+          <p class="hero-motto">自上而下 · 由右向左　秩序清晰 · 节奏优雅</p>
+          <div class="hero-quick" role="group" aria-label="题材与视层">
+            <button type="button" class="pill is-on" data-specimen="shanchuan" aria-pressed="true">山川有声</button>
+            <button type="button" class="pill" data-specimen="tingyu" aria-pressed="false">听雨诗集</button>
+            <button type="button" class="pill pill-ghost is-on" id="btn-guides" aria-pressed="true">网格视线：开</button>
+            <button type="button" class="pill pill-reset" id="btn-reset">复原错版</button>
+          </div>
+        </div>
+
+        <div class="hero-title-col">
+          <div class="hero-seal-box">
+            <span class="seal-num" id="hero-seal-count" lang="en">0 / 4</span>
+            <span class="seal-word" id="hero-seal-status" data-ok="false">待校错版</span>
+          </div>
+          <div class="title-lockup">
+            <!-- 3 列 × 2 行纵列示范大标（高度约 2 行，直观呈现竖列与向下行气） -->
+            <h1 id="page-title" class="vtitle" aria-label="垂直文字排版">
+              <span class="vt-pair" aria-hidden="true"><span>排</span><span>版</span></span>
+              <span class="vt-pair" aria-hidden="true"><span>文</span><span>字</span></span>
+              <span class="vt-pair is-start" aria-hidden="true"><span>垂</span><span>直</span></span>
+            </h1>
+            <p class="title-en" lang="en">VERTICAL TYPE LAYOUT</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主展面：右 69% 宣纸立卷 + 卷轴拉尺 × 左 31% 古籍牌记诊单与控参 -->
+      <div class="hero-desk">
+        <!-- 右翼主舞台（HTML 中置前，确保手机竖屏首屏直接露出宣纸立卷与卷轴拉尺） -->
+        <div class="scroll-wing" id="hero-stage">
+          <div class="scroll-frame">
+            <canvas id="scroll-canvas" aria-label="交互宣纸立卷：展示垂直文字排版的阅读方向、行距、上下字距、单列字数与竖排标点效果"></canvas>
+          </div>
+
+          <!-- 卷轴行距拉尺（主拖动柄 data-perf-drag，支持触屏、鼠标与方向键） -->
+          <div class="roller-bar">
+            <div class="roller-head">
+              <span class="roller-title">行距卷轴 <em lang="en">LEADING</em></span>
+              <span class="roller-val" id="roller-val" lang="en">1.14×（净空 0.14em）</span>
+            </div>
+            <div class="roller-track" id="roller-track" data-perf-drag>
+              <span class="rt-zone rt-err-l" aria-hidden="true">紧·串行</span>
+              <span class="rt-zone rt-sweet" aria-hidden="true">经验舒展带 1.55–2.25×</span>
+              <span class="rt-zone rt-err-r" aria-hidden="true">散</span>
+              <button
+                type="button"
+                class="roller-thumb"
+                id="roller-thumb"
+                role="slider"
+                aria-label="拖动调节竖排行距（列间距）"
+                aria-valuemin="1.08"
+                aria-valuemax="2.50"
+                aria-valuenow="1.14"
+              >
+                <span class="rt-grip" aria-hidden="true">↔</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 左翼：古籍牌记风实况校勘签 + 精简执版控件 -->
+        <aside class="ledger-wing" aria-label="立卷校勘与排字控参">
+          <div class="diag-card" id="diag-card" data-severity="err" aria-live="polite">
+            <div class="diag-top">
+              <span class="diag-tag" id="diag-tag">错态 · 横向串行</span>
+              <span class="diag-note">单真源实算 · 经验带</span>
+            </div>
+            <p class="diag-head" id="diag-head">列间净空压不过上下字距</p>
+            <p class="diag-detail" id="diag-detail">相邻两列之间的横向缝隙比同一列上下两字还近，眼睛会被邻近律拉成横读。</p>
+            <p class="diag-action" id="diag-action">把行距卷轴往右拉开，再收回上下字距。</p>
+
+            <dl class="diag-metrics">
+              <div><dt>列间净空</dt><dd id="m-leading" lang="en">0.14em</dd></div>
+              <div><dt>上下字距</dt><dd id="m-tracking" lang="en">0.40em</dd></div>
+              <div><dt>列缝/字缝</dt><dd id="m-ratio" lang="en">0.4×</dd></div>
+              <div><dt>最长单列</dt><dd id="m-colchars">18 字</dd></div>
+            </dl>
+          </div>
+
+          <ul class="chk-grid" aria-label="四项竖排体检">
+            <li id="chk-dir" data-ok="false"><span class="chk-k">阅读方向</span><span class="chk-v">反·左向右</span></li>
+            <li id="chk-rhythm" data-ok="false"><span class="chk-k">行字节奏</span><span class="chk-v">横向串行</span></li>
+            <li id="chk-len" data-ok="false"><span class="chk-k">单列字数</span><span class="chk-v">18 字·过长</span></li>
+            <li id="chk-punct" data-ok="false"><span class="chk-k">标点混排</span><span class="chk-v">横标·躺数</span></li>
+          </ul>
+
+          <div class="ctrl-deck">
+            <div class="ctrl-row">
+              <span class="ctrl-label">列序方向</span>
+              <div class="seg-group" role="group" aria-label="列序方向">
+                <button type="button" class="seg-btn is-on" data-dir="lr" aria-pressed="true">左→右（错）</button>
+                <button type="button" class="seg-btn" data-dir="rl" aria-pressed="false">由右向左</button>
+              </div>
+            </div>
+
+            <div class="ctrl-row">
+              <span class="ctrl-label">标点数字</span>
+              <div class="seg-group" role="group" aria-label="标点与数字排版">
+                <button type="button" class="seg-btn is-on" data-punct="horiz" aria-pressed="true">横标·躺数</button>
+                <button type="button" class="seg-btn" data-punct="vert" aria-pressed="false">竖标·纵中横</button>
+              </div>
+            </div>
+
+            <div class="ctrl-slider">
+              <label for="ctrl-tracking"><span>上下字距 <em lang="en">Tracking</em></span><output id="out-tracking" for="ctrl-tracking">+0.40em</output></label>
+              <input type="range" id="ctrl-tracking" min="0" max="48" step="2" value="40">
+            </div>
+
+            <div class="ctrl-slider">
+              <label for="ctrl-collimit"><span>单列上限 <em lang="en">Chars / Col</em></span><output id="out-collimit" for="ctrl-collimit">18 字</output></label>
+              <input type="range" id="ctrl-collimit" min="4" max="20" step="1" value="18">
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 为什么先右后左 + 原海报五则要点 -->
+  <section class="sec sec-light" id="sec-01" aria-labelledby="h-01">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">01</span>
+        <div>
+          <h2 id="h-01">为什么先右后左？</h2>
+          <p class="sec-en" lang="en">Why top-to-bottom, right-to-left</p>
+        </div>
+      </header>
+
+      <div class="sec-split reveal">
+        <div class="prose">
+          <p class="lead">汉字是一个个等宽的方块，不像拉丁词那样长短不一，所以沿纵轴往下摞时，重心天然笔直地落在一条中轴线上。</p>
+          <p>至于列与列为什么「由右向左」展开，答案藏在两千年前的材料里。在纸张普及之前，竹木剖成狭长条状，单枚竹简横向只容一字，只能自上而下书写；多枚简编绳成册后，左手托卷、右手抽展（书写时右手自右向左也不会蹭湿墨迹），于是确立了沿用至今的纵行右起秩序。</p>
+          <p>排入现代纸面或屏幕时，竹简的物理边框褪去，化作隐形网格与字面中轴（对比拉丁字母贴着底边对齐的<a href="https://layout.xiaoxiaodong.ai/188/play/" target="_blank" rel="noopener">基线对齐</a>，汉字竖排靠的是每个方格的垂直中心线对齐）。</p>
+        </div>
+
+        <!-- 互动 1：简牍展卷 4 步分步按钮 -->
+        <div class="lab-box bamboo-lab">
+          <div class="step-bar" role="group" aria-label="简牍展卷演变步骤">
+            <button type="button" class="step-btn is-on" data-bamboo-step="0" aria-pressed="true">01 剖竹纵书</button>
+            <button type="button" class="step-btn" data-bamboo-step="1" aria-pressed="false">02 编绳成册</button>
+            <button type="button" class="step-btn" data-bamboo-step="2" aria-pressed="false">03 右起展卷</button>
+            <button type="button" class="step-btn" data-bamboo-step="3" aria-pressed="false">04 隐形网格</button>
+          </div>
+          <div class="bamboo-stage">
+            <svg id="bamboo-svg" viewBox="0 0 560 240" role="img" aria-label="简牍展卷演变图示"></svg>
+          </div>
+          <div class="bamboo-caption" aria-live="polite">
+            <p class="bm-kicker" id="bamboo-cue">单简只容一字宽 → 自上而下</p>
+            <h3 id="bamboo-title">剖竹成简：窄条天然只容纵书</h3>
+            <p id="bamboo-body">纸张普及之前，竹子顺纤维剖成狭长竹片，单简横向只容一字，只能自上而下书写。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 原海报五则核心要点（还原原海报深松绿圆徽语言） -->
+      <div class="points-wrap reveal">
+        <p class="sub-eyebrow">原海报五则要点 · <span lang="en">FIVE PRINCIPLES FROM POSTER 192</span></p>
+        <ol class="points-grid">
+          <li class="pt-card">
+            <span class="pt-medallion" aria-hidden="true">
+              <svg viewBox="0 0 28 28"><path d="M14 6v15M9 16l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <h3>阅读方向</h3>
+            <p class="pt-quote">「自上而下，由右向左，符合汉字传统阅读习惯。」</p>
+            <p class="pt-desc">主标题与「阅读起点」立在最右，把视线从日常横扫的快节奏切入沉静的纵流顺序。</p>
+          </li>
+          <li class="pt-card">
+            <span class="pt-medallion" aria-hidden="true">
+              <svg viewBox="0 0 28 28"><path d="M9 7v14M14 9v10M19 6v16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </span>
+            <h3>节奏与韵律</h3>
+            <p class="pt-quote">「通过字距、行距的控制，形成稳定的视觉节奏。」</p>
+            <p class="pt-desc">纵排成败全在「列内紧、列间松」的差距：列间净空必须明显宽于上下字距，避免横向串行。</p>
+          </li>
+          <li class="pt-card">
+            <span class="pt-medallion" aria-hidden="true">
+              <svg viewBox="0 0 28 28"><path d="M10 6v16M18 6v16M6 10h16M6 18h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <h3>对齐与网格</h3>
+            <p class="pt-quote">「以隐形网格对齐，保持版面整洁与秩序感。」</p>
+            <p class="pt-desc">上沿齐头（天头平齐）、列轴笔直；若列尾出现标点，可借<a href="https://layout.xiaoxiaodong.ai/187/play/" target="_blank" rel="noopener">凸排标点</a>微悬出列底以保边界齐整。</p>
+          </li>
+          <li class="pt-card">
+            <span class="pt-medallion" aria-hidden="true">
+              <svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="6" fill="currentColor"/></svg>
+            </span>
+            <h3>重点与层级</h3>
+            <p class="pt-quote">「通过字号、字重、留白突出主次，明确层级。」</p>
+            <p class="pt-desc">主标列单立一柱，字号放大、两侧加宽留白；副文列轻退其左，最后以一枚朱印或落款收住重量。</p>
+          </li>
+          <li class="pt-card">
+            <span class="pt-medallion" aria-hidden="true">
+              <svg viewBox="0 0 28 28"><path d="M19 8c-6 1-10 5-10 12 6 0 11-4 10-12ZM9 20l5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <h3>传统与现代结合</h3>
+            <p class="pt-quote">「融合书法气质与现代设计，兼具文化感与当代美感。」</p>
+            <p class="pt-desc">无需满纸仿古旧纹：大块纯色几何（如原海报深松绿半圆与赭金圆）配克制宋体竖列，既有东方气韵又利落现代。</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 从竹简到屏幕的两千年 -->
+  <section class="sec sec-cream" id="sec-02" aria-labelledby="h-02">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">02</span>
+        <div>
+          <h2 id="h-02">从竹简到屏幕</h2>
+          <p class="sec-en" lang="en">Where vertical typography comes from</p>
+        </div>
+      </header>
+
+      <div class="stele-layout reveal">
+        <div class="stele-tabs" role="group" aria-label="竖排演进年代">
+          <button type="button" class="stele-btn is-on" data-stele="bamboo" aria-pressed="true">
+            <span class="st-yr" lang="en">商周—秦汉</span>
+            <strong>简牍与帛书</strong>
+          </button>
+          <button type="button" class="stele-btn" data-stele="woodblock" aria-pressed="false">
+            <span class="st-yr" lang="en">唐宋—明清</span>
+            <strong>雕版乌丝栏</strong>
+          </button>
+          <button type="button" class="stele-btn" data-stele="reform1955" aria-pressed="false">
+            <span class="st-yr" lang="en">1955—1956</span>
+            <strong>报刊改横排</strong>
+          </button>
+          <button type="button" class="stele-btn" data-stele="web2019" aria-pressed="false">
+            <span class="st-yr" lang="en">2011—2019</span>
+            <strong>国标与 W3C</strong>
+          </button>
+        </div>
+
+        <div class="stele-stage" aria-live="polite">
+          <div class="stele-copy">
+            <p class="stele-era" id="stele-era">商周—秦汉 · 简牍帛书</p>
+            <h3 id="stele-title">狭长简牍定下两千年行款</h3>
+            <p id="stele-body">1972 年山东临沂银雀山汉墓竹简、1975–1976 年湖北云梦睡虎地秦简、2002 年湖南龙山里耶秦简均呈清晰的纵行右起墨迹。</p>
+            <p class="stele-footnote">1955 年后，大陆主流报刊与科技文献转向<a href="https://layout.xiaoxiaodong.ai/193/play/" target="_blank" rel="noopener">水平文字排版</a>，但竖排在港台图书、日本出版物、展览海报与文化装帧中从未离场。</p>
+          </div>
+          <div class="stele-specimen" id="stele-specimen" data-style="bamboo" data-dir="rl"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 深松绿暗室：行距与字距别叫反 + 二维相位坐标板 -->
+  <section class="sec sec-dark" id="sec-03" aria-labelledby="h-03">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">03</span>
+        <div>
+          <h2 id="h-03">行距与字距别叫反</h2>
+          <p class="sec-en" lang="en">Leading vs. tracking in vertical flow</p>
+        </div>
+      </header>
+
+      <div class="clarify-grid reveal">
+        <article class="clarify-card">
+          <span class="clarify-tag">补一句细账 · 方向</span>
+          <h3>列与列之间才是「行距」</h3>
+          <p>在竖排里，竖着的一列就是一行。因此<strong>列与列之间的横向空隙叫行距（Leading / <code lang="en">line-height</code>）</strong>，同一列里上下两字之间的纵向缝隙才叫<strong>字距（Tracking / <code lang="en">letter-spacing</code>）</strong>。原海报底沿把「字距 Tracking」也画在了相邻两列之间，刚从横排切换过来时极易把两个维度叫反。</p>
+        </article>
+        <article class="clarify-card">
+          <span class="clarify-tag">补一句细账 · 列长</span>
+          <h3>「6–12 字」是海报短卡的经验带</h3>
+          <p>原海报小贴士写着「建议每列字数控制在 6–12 字，以保证阅读舒适度与版面平衡」。这对封面、展签、茶罐和短诗非常贴切；但若是竖排小说或古籍长文，单列常排到 25–40 字，靠更宽的行距与天头地脚留白来稳住扫视，并非所有竖排都卡死在 12 字。</p>
+        </article>
+      </div>
+
+      <!-- 互动 2：二维相位坐标板（点拖二维矩阵看串行临界线） -->
+      <div class="phase-lab reveal" id="phase-lab">
+        <div class="phase-left">
+          <div class="phase-bar">
+            <p class="phase-hint">在坐标图里点击或拖动，或选下方典型点位（焦点后可用方向键移动）</p>
+            <div class="phase-presets" role="group" aria-label="相位图典型点位">
+              <button type="button" class="dk-btn" data-phase-preset="cross">横向串行</button>
+              <button type="button" class="dk-btn" data-phase-preset="sweet">纵流舒展</button>
+              <button type="button" class="dk-btn" data-phase-preset="loose">孤柱散架</button>
+            </div>
+          </div>
+          <canvas id="phase-canvas" tabindex="0" aria-label="二维行距与字距相位图：横轴为行距，纵轴为上下字距，用方向键可微调"></canvas>
+        </div>
+
+        <div class="phase-right">
+          <div class="phase-specimen-box">
+            <p class="phase-sp-label">实时三列诗样 · <span lang="en">LIVE VERTICAL FLOW</span></p>
+            <div class="phase-preview" id="phase-preview" data-zone="cross">
+              <p>静默时光里</p>
+              <p>山川低语篇</p>
+              <p>文序留白意</p>
+            </div>
+          </div>
+          <div class="phase-readout" aria-live="polite">
+            <p class="phase-zone" id="phase-zone" data-zone="cross">横向串行红区</p>
+            <p class="phase-explain" id="phase-explain">列间净空压不过上下字距，眼睛容易横向串读。</p>
+            <dl class="phase-nums">
+              <div><dt>当前行距</dt><dd id="phase-lead" lang="en">1.24×</dd></div>
+              <div><dt>上下字距</dt><dd id="phase-track" lang="en">+0.34em</dd></div>
+              <div><dt>列缝 / 字缝</dt><dd id="phase-ratio" lang="en">0.7×</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 标点、数字与西文怎么安放（原生 CSS 竖排试验盒） -->
+  <section class="sec sec-paper" id="sec-04" aria-labelledby="h-04">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">04</span>
+        <div>
+          <h2 id="h-04">标点、数字与西文</h2>
+          <p class="sec-en" lang="en">Punctuation, digits &amp; mixed scripts</p>
+        </div>
+      </header>
+
+      <p class="lead sec-lead reveal">竖排绝不是把字硬敲回车竖着摞起来。国家标准 GB/T 15834-2011 与 W3C 中文排版需求（CLREQ）里，真正决定竖排显不显专业的，是标点、两位数字与英文短语这三处细节。</p>
+
+      <div class="css-lab reveal">
+        <div class="css-controls">
+          <div class="css-group">
+            <span class="cg-label">① 引号与标点</span>
+            <div class="seg-group" role="group" aria-label="标点样式">
+              <button type="button" class="seg-btn is-on" data-css-punct="horiz" aria-pressed="true">照搬横标 “ ”</button>
+              <button type="button" class="seg-btn" data-css-punct="vert" aria-pressed="false">直排引号 ﹁ ﹂</button>
+            </div>
+          </div>
+
+          <div class="css-group">
+            <span class="cg-label">② 两位日期数字（05 / 20）</span>
+            <div class="seg-group" role="group" aria-label="数字处理">
+              <button type="button" class="seg-btn is-on" data-css-num="sideways" aria-pressed="true">默认侧躺 90°</button>
+              <button type="button" class="seg-btn" data-css-num="tcy" aria-pressed="false">纵中横正立</button>
+              <button type="button" class="seg-btn" data-css-num="han" aria-pressed="false">改写中文数字</button>
+            </div>
+          </div>
+
+          <div class="css-group">
+            <span class="cg-label">③ 英文短语朝向</span>
+            <div class="seg-group" role="group" aria-label="西文朝向">
+              <button type="button" class="seg-btn is-on" data-css-latin="upright" aria-pressed="true">强行正立（upright）</button>
+              <button type="button" class="seg-btn" data-css-latin="mixed" aria-pressed="false">顺转 90°（mixed）</button>
+            </div>
+          </div>
+
+          <p class="css-diag" id="css-live-diag" data-status="warn" aria-live="polite">引号停留在横排弯引号，两位日期侧躺，整段英文被打散成一串字母。</p>
+          <pre class="css-code"><code id="css-live-code" lang="en"></code></pre>
+        </div>
+
+        <!-- 真实浏览器原生 writing-mode: vertical-rl 可选字试验盒 -->
+        <div class="css-stage">
+          <p class="css-stage-note">下方是浏览器原生 <code lang="en">writing-mode: vertical-rl</code> 渲染，可直接用鼠标拖选文字</p>
+          <div class="css-paper">
+            <div class="css-live-box" id="css-live-box" data-latin="upright" data-punct="horiz"></div>
+          </div>
+          <p class="css-tip">小提醒：纵中横（<code lang="en">text-combine-upright: all</code>）适合 2 位数字（如 05、20），3–4 位长数字（如 2026）硬塞进 1em 会被压扁成细丝，宁可顺转 90° 或改写汉字「二〇二六」。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 原海报三套应用拆解 -->
+  <section class="sec sec-cream" id="sec-05" aria-labelledby="h-05">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">05</span>
+        <div>
+          <h2 id="h-05">原海报三套应用</h2>
+          <p class="sec-en" lang="en">Application examples from poster 192</p>
+        </div>
+      </header>
+
+      <div class="app-toolbar reveal">
+        <p class="app-note" id="app-orient-note" aria-live="polite">原海报竖排：三套设计分别借茶罐留白、拱门纵深与细雨垂线，让字列与画面几何同向呼吸。</p>
+        <button type="button" class="action-btn" id="app-orient-toggle" aria-pressed="false">切换为普通横排对比</button>
+      </div>
+
+      <div class="app-deck reveal" id="app-deck" data-orient="vert">
+        <!-- 示例 1：茶之本味 -->
+        <article class="app-card app-tea">
+          <div class="app-art">
+            <span class="tea-moon" aria-hidden="true"></span>
+            <div class="app-type">
+              <p class="at-main">茶之本味</p>
+              <p class="at-sub">回归自然，品味本真</p>
+            </div>
+            <svg class="tea-pot" viewBox="0 0 120 72" aria-hidden="true">
+              <ellipse cx="52" cy="46" rx="28" ry="20" fill="#101A18"/>
+              <rect x="40" y="21" width="24" height="6" rx="3" fill="#101A18"/>
+              <circle cx="52" cy="18" r="4" fill="#101A18"/>
+              <path d="M78 44c12-2 18-10 21-16l-5-2c-4 6-9 10-18 11z" fill="#101A18"/>
+              <path d="M26 36c-12 0-16 14-4 20" fill="none" stroke="#101A18" stroke-width="5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="app-meta">
+            <h3>茶签与器物包装</h3>
+            <p>深松绿底配右上赭金圆月与左下茶壶剪影；主标「茶之本味」居右领读，副句轻退左侧，把中间大片烟青色留给器物呼吸。</p>
+          </div>
+        </article>
+
+        <!-- 示例 2：展览邀请 -->
+        <article class="app-card app-exhibit">
+          <div class="app-art">
+            <div class="app-type">
+              <p class="at-main">展览邀请</p>
+              <p class="at-sub">当代东方美学展</p>
+              <p class="at-date" lang="en"><span>05</span><span>20</span><i></i><span>06</span><span>20</span></p>
+            </div>
+            <div class="exhibit-arch" aria-hidden="true">
+              <svg viewBox="0 0 92 164">
+                <rect width="92" height="164" fill="#B5AFA3"/>
+                <path d="M18 164V76a32 32 0 0 1 64 0v88Z" fill="#ECE6DC"/>
+                <path d="M46 44a32 32 0 0 1 36 32v88H58V80c0-18-5-29-12-36Z" fill="#C7C0B3"/>
+              </svg>
+              <span class="exhibit-dot"></span>
+            </div>
+          </div>
+          <div class="app-meta">
+            <h3>艺文请柬与展卡</h3>
+            <p>右侧建筑拱门自带强烈的垂直线条，左侧竖排标题与纵叠日期（05/20—06/20）顺势呼应，右下角一枚深松绿圆点稳住视觉底角。</p>
+          </div>
+        </article>
+
+        <!-- 示例 3：听雨 · 诗集 -->
+        <article class="app-card app-rain">
+          <div class="app-art">
+            <svg class="rain-bg" viewBox="0 0 220 260" aria-hidden="true">
+              <g stroke="#8E9B95" stroke-width="1" stroke-opacity="0.55">
+                <line x1="22" y1="0" x2="22" y2="112"/><line x1="36" y1="0" x2="36" y2="152"/>
+                <line x1="52" y1="0" x2="52" y2="96"/><line x1="68" y1="0" x2="68" y2="178"/>
+                <line x1="84" y1="0" x2="84" y2="124"/>
+              </g>
+              <path d="M0 260 Q62 218 138 260 Z" fill="#5D6B62"/>
+              <!-- 极简剪影（无五官） -->
+              <circle cx="48" cy="214" r="4" fill="#2A3430"/>
+              <path d="M48 219 L44 236 M48 219 L53 236 M44 226 L56 221" stroke="#2A3430" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <div class="app-type">
+              <p class="at-eyebrow">庚子年春 · 诗集</p>
+              <p class="at-main">听雨</p>
+              <p class="at-sub">一窗听雨、心自澄明</p>
+            </div>
+          </div>
+          <div class="app-meta">
+            <h3>诗集与文学书封</h3>
+            <p>细雨本身是向下的垂线，竖排字列与雨丝同频。用三档字号区分「听雨」「庚子年春」「一窗听雨」，底部极简剪影托起上半页留白。</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 什么时候别用竖排 -->
+  <section class="sec sec-light" id="sec-06" aria-labelledby="h-06">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">06</span>
+        <div>
+          <h2 id="h-06">什么时候别用竖排</h2>
+          <p class="sec-en" lang="en">When to stay horizontal</p>
+        </div>
+      </header>
+
+      <div class="anti-layout reveal">
+        <div class="anti-rules">
+          <p class="lead">竖排擅长制造仪式感、留白节奏与东方气韵，但它不是万能皮肤。以下四种场合请果断回到<a href="https://layout.xiaoxiaodong.ai/193/play/" target="_blank" rel="noopener">水平文字排版</a>或<a href="https://layout.xiaoxiaodong.ai/176/play/" target="_blank" rel="noopener">左对齐右参差</a>：</p>
+          <dl class="anti-list">
+            <div><dt>高频混排代码、网址与西文</dt><dd>连续拉丁单词旋转 90° 超过两三个词就需歪头，强制正立又会撕碎词形，技术文档与报错信息切勿竖排。</dd></div>
+            <div><dt>多位数字与数据对比表</dt><dd>纵中横最多装下两三位数字；价格（¥1,299.00）、财务报表、规格参数需要横排小数点对齐。</dd></div>
+            <div><dt>手机窄屏上的长篇正文</dt><dd>竖屏天生向下滚动，长篇竖排正文只能变成向左无限延伸的横滚条，违背单手上下滑读的交互直觉。</dd></div>
+            <div><dt>快扫导视与高频工具按钮</dt><dd>若想在短文案上做出独特视觉造型，除了竖排，也可以考虑<a href="https://layout.xiaoxiaodong.ai/190/play/" target="_blank" rel="noopener">图形诗排版</a>或<a href="https://layout.xiaoxiaodong.ai/191/play/" target="_blank" rel="noopener">路径文字</a>。</dd></div>
+          </dl>
+        </div>
+
+        <!-- 互动 5：翻车现场实测签 -->
+        <div class="anti-lab">
+          <div class="anti-tabs" role="group" aria-label="不适合竖排的三种场景">
+            <button type="button" class="step-btn is-on" data-anti-tab="code" aria-pressed="true">代码与报错</button>
+            <button type="button" class="step-btn" data-anti-tab="price" aria-pressed="false">价格参数表</button>
+            <button type="button" class="step-btn" data-anti-tab="mobile" aria-pressed="false">窄屏长正文</button>
+          </div>
+          <div class="anti-stage" id="anti-stage" data-mode="vert" data-case="code">
+            <div class="anti-demo anti-demo-code" lang="en">
+              <p>GET /api/v2/layout/192 → 504 Timeout</p>
+              <p>at fetchScroll (client.ts:148:12)</p>
+              <p>retry-after: 3000ms · trace_id=9f4a</p>
+            </div>
+            <div class="anti-demo anti-demo-price">
+              <p>明前龙井 250g · ¥1,299.00</p>
+              <p>白毫银针 250g · ¥1,860.50</p>
+              <p>岩韵肉桂 125g · ¥980.00</p>
+            </div>
+            <div class="anti-demo anti-demo-mobile">
+              <p>手机屏幕宽仅 390 像素，若将两千字长文设为竖排，整篇文章会向左拖出十几个屏幕宽，手指上下滑动时页面纹丝不动，读者只能反复横拖再找下一列起点。</p>
+            </div>
+          </div>
+          <div class="anti-foot">
+            <div>
+              <h3 id="anti-title">代码、路径与报错日志</h3>
+              <p id="anti-why" aria-live="polite">强行竖排后要么整段侧躺 90° 逼人歪头，要么正立拆成无法扫读的单字符柱。</p>
+            </div>
+            <button type="button" class="action-btn" id="anti-flip" aria-pressed="true">当前：强行竖排（点此改回横排）</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 小练习：四份展签，哪张站得稳？ -->
+  <section class="sec sec-cream" id="sec-07" aria-labelledby="h-07">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">07</span>
+        <div>
+          <h2 id="h-07">练一练：四份展签</h2>
+          <p class="sec-en" lang="en">Practice · pick the soundest vertical card</p>
+        </div>
+      </header>
+
+      <p class="lead sec-lead reveal">同一张茶事展签（《春山茶事》），四张样张字体、配色、纸幅完全相同，每张错项只差一个竖排变量。先凭眼力点选你觉得读起来最顺的一张。</p>
+
+      <div class="quiz-grid reveal" role="group" aria-label="四张垂直文字展签样张">
+        <button type="button" class="quiz-card" data-quiz-card="A" aria-pressed="false">
+          <div class="q-art"></div>
+          <div class="q-foot"><span class="q-lbl">样张 甲</span><span class="q-reveal"></span></div>
+        </button>
+        <button type="button" class="quiz-card" data-quiz-card="B" aria-pressed="false">
+          <div class="q-art"></div>
+          <div class="q-foot"><span class="q-lbl">样张 乙</span><span class="q-reveal"></span></div>
+        </button>
+        <button type="button" class="quiz-card" data-quiz-card="C" aria-pressed="false">
+          <div class="q-art"></div>
+          <div class="q-foot"><span class="q-lbl">样张 丙</span><span class="q-reveal"></span></div>
+        </button>
+        <button type="button" class="quiz-card" data-quiz-card="D" aria-pressed="false">
+          <div class="q-art"></div>
+          <div class="q-foot"><span class="q-lbl">样张 丁</span><span class="q-reveal"></span></div>
+        </button>
+      </div>
+
+      <div class="quiz-verdict reveal" id="quiz-verdict" data-state="idle" aria-live="polite">
+        <h3 id="quiz-v-title">请先点选一张展签。</h3>
+        <p id="quiz-v-text">选完后，四张展签上都会浮现阅读方向箭头、行字距桥接线或标点警示圈，方便逐项核对。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 原海报与关键词 -->
+  <section class="sec sec-paper" id="sec-08" aria-labelledby="h-08">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">08</span>
+        <div>
+          <h2 id="h-08">原海报与关键词</h2>
+          <p class="sec-en" lang="en">The original poster &amp; tips</p>
+        </div>
+      </header>
+
+      <div class="poster-layout reveal">
+        <figure class="poster-fig">
+          <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="点击放大查看 192 号原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="192 号垂直文字排版原海报：暖米宣纸底，左侧为「垂直文字排版」大标与五则深松绿圆徽要点；右侧为宣纸立卷，带深松绿半圆、赭金圆月、竖排诗句「山川有声·岁月成诗」、虚线网格与朱红方印；底部为茶之本味、展览邀请、听雨诗集三张应用示例与每列6–12字小贴士。">
+          </button>
+          <figcaption>点击海报放大查看，放大后可拖动平移，点空白处或按 Esc 收起。</figcaption>
+        </figure>
+
+        <div class="poster-side">
+          <div class="kw-block">
+            <h3>海报核心关键词 <span lang="en">Keywords</span></h3>
+            <ul class="kw-list">
+              <li>
+                <span class="kw-mark" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14M10 12h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+                <div>
+                  <strong>行距 <span lang="en">Leading</span></strong>
+                  <p>竖排里指相邻两列之间的横向距离（CSS 中的 <code lang="en">line-height</code>）。需显著宽于上下字距，守住纵列整体感。</p>
+                </div>
+              </li>
+              <li>
+                <span class="kw-mark" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="18" r="1.8" fill="currentColor"/></svg>
+                </span>
+                <div>
+                  <strong>字距 <span lang="en">Tracking</span></strong>
+                  <p>竖排里指同一列上下两字之间的纵向间距（CSS 中的 <code lang="en">letter-spacing</code>）。保持紧凑流畅，防止断成散珠。</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <aside class="tips-card">
+            <p class="tips-head"><i class="mast-dot" aria-hidden="true"></i>原海报小贴士 <span lang="en">TIPS</span></p>
+            <div class="tips-dots" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <blockquote>「建议每列字数控制在 6–12 字，以保证阅读舒适度与版面平衡。」</blockquote>
+            <p class="tips-note">适用于海报、书封、展签与短诗等展示型竖排；长篇竖排书籍则按开本与行距另作折中。</p>
+          </aside>
+
+          <div class="related-block">
+            <h3>同一小类延伸阅读</h3>
+            <p>
+              <a href="https://layout.xiaoxiaodong.ai/193/play/" target="_blank" rel="noopener">193 水平文字排版</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/188/play/" target="_blank" rel="noopener">188 基线对齐</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/187/play/" target="_blank" rel="noopener">187 凸排标点</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/186/play/" target="_blank" rel="noopener">186 首行缩进</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/190/play/" target="_blank" rel="noopener">190 图形诗排版</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/191/play/" target="_blank" rel="noopener">191 路径文字</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p><span lang="en">No. 192</span> 垂直文字排版 · 自上而下，由右向左。</p>
+    <p class="foot-meta"><a href="https://layout.xiaoxiaodong.ai/192/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a> · 海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a> · 源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></p>
+  </div>
+</footer>
+<script type="module" src="main.js"></script>
+</body>
+</html>
