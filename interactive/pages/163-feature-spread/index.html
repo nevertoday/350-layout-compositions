@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>163 特写 跨页 · FEATURE SPREAD</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <!-- 顶部松绿刊头：单行眉标 + 自示范特写大标 + 题材切 + 实况印章 -->
+  <div class="hero-bar wrap">
+    <div class="hero-folio">
+      <span class="folio-series">版式设计原理 · 平面、出版与广告 / 出版功能页面</span>
+      <span class="folio-num" lang="en">NO. 163 · LAYOUT DESIGN PRINCIPLES</span>
+    </div>
+
+    <div class="hero-head">
+      <div class="hero-title-group">
+        <div class="hero-title-lockup">
+          <h1 class="hero-title">特写 跨页</h1>
+          <!-- 自示范微型巨环：随用户推拉倍率实时放大并切出右沿 -->
+          <span class="hero-macro-emblem" aria-hidden="true">
+            <svg id="hero-emblem-svg" viewBox="0 0 64 40" width="64" height="40">
+              <rect x="0" y="0" width="64" height="40" fill="#002523"/>
+              <polygon points="24,40 44,18 64,28 64,40" fill="#F0AF03"/>
+              <circle id="emblem-ring" cx="46" cy="18" r="14" fill="none" stroke="#F1E7D4" stroke-width="6.5"/>
+              <line x1="32" y1="0" x2="32" y2="40" stroke="rgba(241,231,212,0.28)" stroke-dasharray="2 2"/>
+            </svg>
+          </span>
+        </div>
+        <div class="hero-subrow">
+          <span class="hero-en" lang="en">FEATURE SPREAD</span>
+          <svg class="hero-wave" viewBox="0 0 46 10" width="46" height="10" aria-hidden="true">
+            <path d="M1 5 Q5.5 1 10 5 T19 5 T28 5 T37 5 T45 5" fill="none" stroke="#F0AF03" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span class="hero-tagline">对开灯台看样 · 放大、出血、避中缝、简题注</span>
+        </div>
+      </div>
+
+      <div class="hero-head-tools">
+        <div class="story-tabs" role="tablist" aria-label="切换跨页题材">
+          <button type="button" class="story-tab is-active" data-story="poster" role="tab" aria-selected="true">原海报 · 巨环</button>
+          <button type="button" class="story-tab" data-story="bowl" role="tab" aria-selected="false">器物 · 茶碗</button>
+          <button type="button" class="story-tab" data-story="oculus" role="tab" aria-selected="false">建筑 · 天窗</button>
+        </div>
+        <div class="verdict-stamp is-fail" id="hero-verdict-stamp" aria-live="polite">0/3 · 缩框失势</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 核心舞台：100% 满幅实体对开杂志看样灯台（data-perf-drag 绑定横拖缩放） -->
+  <div class="hero-stage-shell wrap">
+    <div class="hero-canvas-wrap">
+      <canvas id="hero-canvas" data-perf-drag aria-label="特写跨页实体对开看样台：在画布上左右横拖调节特写放大倍率，拖动底沿中缝尺平移焦心避开书脊，点击红笔批注直接纠偏" tabindex="0"></canvas>
+      <div class="canvas-cue">
+        <span>↔ 在跨页上左右横拖调放大倍率 · 拖底沿「中缝尺」移焦心避脊 · 点红笔批注直修 · 键盘 ←/→ 与 A/D 微调</span>
+      </div>
+    </div>
+
+    <!-- 紧贴画布下沿的三段松绿编辑台账带：单真源诊单 ｜ 实体看样控台 ｜ 原海报三枚镉金圆徽 -->
+    <div class="hero-desk">
+      <!-- 1. 单真源看样诊单 -->
+      <section class="desk-diag" aria-live="polite">
+        <div class="diag-top">
+          <span class="diag-badge is-fail" id="diag-badge">0/3 · 缩框失势</span>
+          <span class="diag-source" lang="en">SINGLE-SOURCE PROOF</span>
+        </div>
+        <p class="diag-headline" id="diag-headline">主图仅占跨页 24%，被白框锁成了普通插图</p>
+        <p class="diag-body" id="diag-body">当前倍率只有 0.62× 且关闭了出血，主体整块缩在安全框里。</p>
+        <div class="diag-nudge-row">
+          <p class="diag-nudge" id="diag-nudge">向右横拖跨页推近倍率，并切开跨边出血。</p>
+          <button type="button" class="btn-gold" id="btn-quick-fix">放大并切开出血</button>
+        </div>
+        <dl class="diag-metrics">
+          <div><dt>主图占比</dt><dd id="m-coverage">24%</dd></div>
+          <div><dt>出血边</dt><dd id="m-bleed">0 / 4</dd></div>
+          <div><dt>焦心距中缝</dt><dd id="m-spine">0mm</dd></div>
+          <div><dt>节奏评估</dt><dd id="m-grade">平庸插图（示意）</dd></div>
+        </dl>
+      </section>
+
+      <!-- 2. 实体看样控台 -->
+      <section class="desk-controls" aria-label="特写跨页排印参数">
+        <div class="ctrl-sliders">
+          <label class="slider-field" for="ctrl-zoom">
+            <span class="field-head"><span>特写放大倍率</span><output id="val-zoom" for="ctrl-zoom">0.62×</output></span>
+            <input type="range" id="ctrl-zoom" min="0.48" max="2.48" step="0.02" value="0.62">
+          </label>
+          <label class="slider-field" for="ctrl-focus">
+            <span class="field-head"><span>焦心避缝落位</span><output id="val-focus" for="ctrl-focus">正中 0mm</output></span>
+            <input type="range" id="ctrl-focus" min="0.14" max="0.86" step="0.01" value="0.50">
+          </label>
+        </div>
+
+        <div class="ctrl-toggles">
+          <div class="toggle-group">
+            <span class="group-label">边缘裁切</span>
+            <div class="seg-row">
+              <button type="button" class="seg-btn is-active" data-bleed="false">留白装框</button>
+              <button type="button" class="seg-btn" data-bleed="true">跨边出血</button>
+            </div>
+          </div>
+
+          <div class="toggle-group">
+            <span class="group-label">文字负载</span>
+            <div class="seg-row">
+              <button type="button" class="seg-btn is-active" data-text="wall">240字长文</button>
+              <button type="button" class="seg-btn" data-text="concise">精炼题注</button>
+              <button type="button" class="seg-btn" data-text="none">无字纯图</button>
+            </div>
+          </div>
+
+          <div class="toggle-group">
+            <span class="group-label">装订与落位</span>
+            <div class="seg-row">
+              <button type="button" class="seg-btn is-active" data-binding="perfect">胶装 14mm</button>
+              <button type="button" class="seg-btn" data-binding="saddle">骑马钉 4mm</button>
+              <button type="button" class="seg-btn" id="btn-text-place">文字：静区</button>
+              <button type="button" class="seg-btn is-active" id="btn-guides">裁切线：开</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="preset-bar" aria-label="合法解法与试错样本">
+          <button type="button" class="preset-btn is-solve" data-preset="posterRight">原海报右页解</button>
+          <button type="button" class="preset-btn is-solve" data-preset="leftMacro">左页特写解</button>
+          <button type="button" class="preset-btn is-solve" data-preset="fullBleed">跨页双出血解</button>
+          <button type="button" class="preset-btn is-fail-try" data-preset="failSpine">试错：中缝劈焦</button>
+          <button type="button" class="preset-btn is-fail-try" data-preset="failOverzoom">试错：过切失认</button>
+          <button type="button" class="preset-btn is-reset" data-preset="flaw">复原开场</button>
+        </div>
+      </section>
+
+      <!-- 3. 1:1 复刻 163 原海报三枚镉金黄圆徽实时状态 -->
+      <aside class="desk-pillars" aria-label="原海报三大核心要点实况">
+        <div class="pillar-item" id="pillar-focus">
+          <span class="gold-medal" aria-hidden="true">
+            <svg viewBox="0 0 28 28" width="22" height="22">
+              <circle cx="14" cy="14" r="6.5" fill="none" stroke="#013230" stroke-width="2"/>
+              <path d="M14 4V8M14 20V24M4 14H8M20 14H24" stroke="#013230" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <div class="pillar-copy">
+            <div class="pillar-head">
+              <strong>放大焦点</strong>
+              <span class="pillar-status is-fail" id="status-focus">仅占 24%</span>
+            </div>
+            <span class="pillar-en" lang="en">FOCUS</span>
+          </div>
+        </div>
+
+        <div class="pillar-item" id="pillar-crop">
+          <span class="gold-medal" aria-hidden="true">
+            <svg viewBox="0 0 28 28" width="22" height="22">
+              <path d="M9 5V19H23M5 9H19V23" fill="none" stroke="#013230" stroke-width="2.1" stroke-linecap="square"/>
+            </svg>
+          </span>
+          <div class="pillar-copy">
+            <div class="pillar-head">
+              <strong>裁切张力</strong>
+              <span class="pillar-status is-fail" id="status-crop">0 边出血</span>
+            </div>
+            <span class="pillar-en" lang="en">CROP</span>
+          </div>
+        </div>
+
+        <div class="pillar-item" id="pillar-caption">
+          <span class="gold-medal" aria-hidden="true">
+            <svg viewBox="0 0 28 28" width="22" height="22">
+              <rect x="6" y="6" width="16" height="16" fill="none" stroke="#013230" stroke-width="2"/>
+              <path d="M10.5 11H17.5M14 11V18" stroke="#013230" stroke-width="2" stroke-linecap="square"/>
+            </svg>
+          </span>
+          <div class="pillar-copy">
+            <div class="pillar-head">
+              <strong>图文协同</strong>
+              <span class="pillar-status is-fail" id="status-caption">长文 32%</span>
+            </div>
+            <span class="pillar-en" lang="en">CAPTION</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 01 什么是特写跨页（亮奶纸） -->
+  <section class="sec sec-ivory" id="sec-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div>
+          <h2>什么是特写跨页</h2>
+          <p class="sec-en" lang="en">THE ANATOMY OF A FEATURE SPREAD</p>
+        </div>
+      </div>
+
+      <div class="sec01-grid">
+        <div class="prose">
+          <blockquote class="poster-quote">
+            <p>「特写跨页通过放大关键视觉元素，在大面积裁切中建立张力，以图像主导阅读节奏，以简洁文字提供必要信息，实现沉浸式的视觉引导。」</p>
+            <cite>—— 163 原海报总述</cite>
+          </blockquote>
+          <p>普通杂志内页习惯把左右两页当成两个独立容器，各排各的文字栏与配图。特写跨页做的第一件事，是<strong>拆掉单页边界</strong>，把对开两页合并成同一块宽银幕——它往往紧跟在成片密集正文之后，用一次突如其来的视觉大特写拉停读者的翻页速度。</p>
+          <div class="nuance-box">
+            <span class="nuance-tag">多补一句</span>
+            <p>「放大」并不等于把一张平庸远景硬拉满两页。远景硬放大只会暴露空洞与粗糙像素；特写跨页真正靠的是先从故事里挑出一处最有戏剧性的<strong>关键局部</strong>，再把镜头贴近到几乎触手可及的距离。</p>
+          </div>
+          <p class="sibling-note">同属出版功能页面，它与几种邻近版式各司其职：<a href="https://layout.xiaoxiaodong.ai/160/play/" target="_blank" rel="noopener">160 封面版式</a>承担整本刊物的第一门面，<a href="https://layout.xiaoxiaodong.ai/161/play/" target="_blank" rel="noopener">161 章节扉页</a>靠大面积留白降灰切开大章，<a href="https://layout.xiaoxiaodong.ai/162/play/" target="_blank" rel="noopener">162 栏目开启页</a>建立新栏目的阅读方向与入口，而特写跨页则负责在正文行进途中制造最高强度的视觉停留。</p>
+        </div>
+
+        <!-- 独有交互：三跨页翻页节奏条（杂志连续 3 个对开的视觉灰度起伏对比） -->
+        <div class="rhythm-lab">
+          <div class="lab-bar">
+            <span class="lab-label">三跨页连翻节奏实验</span>
+            <div class="pill-switch" role="group" aria-label="杂志连翻节奏模式">
+              <button type="button" class="pill-btn" data-pace="flat">无特写平铺</button>
+              <button type="button" class="pill-btn is-active" data-pace="peak">单跨页爆点</button>
+              <button type="button" class="pill-btn" data-pace="shout">连排三特写</button>
+            </div>
+          </div>
+
+          <div class="spread-strip" id="pace-strip" aria-live="polite">
+            <div class="mini-spread" data-idx="0">
+              <div class="mini-folio">P.40–41 上一跨页</div>
+              <div class="mini-pages" id="pace-p0"></div>
+              <div class="mini-meta" id="pace-m0">密排正文 · 灰率 48%</div>
+            </div>
+            <div class="mini-spread is-highlight" data-idx="1">
+              <div class="mini-folio">P.42–43 本跨页</div>
+              <div class="mini-pages" id="pace-p1"></div>
+              <div class="mini-meta" id="pace-m1">特写跨页 · 视觉峰值</div>
+            </div>
+            <div class="mini-spread" data-idx="2">
+              <div class="mini-folio">P.44–45 下一跨页</div>
+              <div class="mini-pages" id="pace-p2"></div>
+              <div class="mini-meta" id="pace-m2">图文展开 · 灰率 42%</div>
+            </div>
+          </div>
+
+          <svg class="pace-curve" id="pace-curve" viewBox="0 0 540 86" role="img" aria-label="连续三跨页的视觉张力曲线">
+            <line x1="20" y1="68" x2="520" y2="68" stroke="#D4C6AA" stroke-width="1"/>
+            <line x1="20" y1="22" x2="520" y2="22" stroke="#D4C6AA" stroke-dasharray="4 4" stroke-width="1"/>
+            <path id="pace-path" d="M40 58 C120 58, 175 18, 270 18 C365 18, 420 54, 500 54" fill="none" stroke="#013230" stroke-width="3"/>
+            <circle id="pace-dot0" cx="95" cy="56" r="5" fill="#7D5300"/>
+            <circle id="pace-dot1" cx="270" cy="18" r="7" fill="#F0AF03" stroke="#013230" stroke-width="2"/>
+            <circle id="pace-dot2" cx="445" cy="54" r="5" fill="#7D5300"/>
+            <text x="24" y="16" font-size="10.5" fill="#7D5300" font-family="IBM Plex Mono, monospace">VISUAL IMPACT</text>
+          </svg>
+          <p class="lab-note" id="pace-note">前后两页都是高密度图文栏，中间突然切入一张大特写跨页，明暗与尺幅的反差让读者立刻停下来。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 放大与裁切的刻度（暖砂纸） -->
+  <section class="sec sec-sand" id="sec-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div>
+          <h2>放大与裁切的刻度</h2>
+          <p class="sec-en" lang="en">SCALE, CROP &amp; OFF-PAGE IMAGINATION</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">大面积裁切之所以有张力，靠的不是「切得越狠越好」，而是给大脑留下刚刚好的线索去补全画外空间。点选下方四张印样接触表，对比每一档裁切在真实纸面和读者脑海里的差别。</p>
+
+      <!-- 独有交互：摄影师印样接触表（4 格点选 + 实印/画外脑补双窗 SVG） -->
+      <div class="contact-sheet" role="radiogroup" aria-label="四档裁切印样接触表">
+        <button type="button" class="sheet-frame" data-crop="full" role="radio" aria-checked="false">
+          <span class="frame-code" lang="en">01A · 0.65×</span>
+          <svg viewBox="0 0 160 108" aria-hidden="true">
+            <rect width="160" height="108" fill="#F1E7D4"/>
+            <rect x="26" y="14" width="108" height="80" fill="#013230"/>
+            <polygon points="74,94 102,62 134,76 134,94" fill="#F0AF03"/>
+            <circle cx="96" cy="54" r="24" fill="none" stroke="#F1E7D4" stroke-width="11"/>
+            <line x1="80" y1="0" x2="80" y2="108" stroke="rgba(4,36,34,0.22)" stroke-dasharray="3 3"/>
+          </svg>
+          <strong>远景全装</strong>
+          <span>0 边出血 · 像商品配图</span>
+        </button>
+
+        <button type="button" class="sheet-frame" data-crop="tangent" role="radio" aria-checked="false">
+          <span class="frame-code" lang="en">02B · 1.12×</span>
+          <svg viewBox="0 0 160 108" aria-hidden="true">
+            <rect width="160" height="108" fill="#013230"/>
+            <polygon points="62,108 106,60 160,82 160,108" fill="#F0AF03"/>
+            <circle cx="111" cy="53" r="46" fill="none" stroke="#F1E7D4" stroke-width="18"/>
+            <circle cx="157" cy="53" r="5" fill="none" stroke="#A32617" stroke-width="2"/>
+            <line x1="80" y1="0" x2="80" y2="108" stroke="rgba(241,231,212,0.22)" stroke-dasharray="3 3"/>
+          </svg>
+          <strong>擦边发紧</strong>
+          <span>边缘贴线 · 像没裁干净</span>
+        </button>
+
+        <button type="button" class="sheet-frame is-active" data-crop="sweet" role="radio" aria-checked="true">
+          <span class="frame-code" lang="en">03C · 1.72×</span>
+          <svg viewBox="0 0 160 108" aria-hidden="true">
+            <rect width="160" height="108" fill="#013230"/>
+            <polygon points="50,108 104,54 160,84 160,108" fill="#F0AF03"/>
+            <circle cx="122" cy="48" r="64" fill="none" stroke="#F1E7D4" stroke-width="26"/>
+            <line x1="80" y1="0" x2="80" y2="108" stroke="rgba(241,231,212,0.22)" stroke-dasharray="3 3"/>
+          </svg>
+          <strong>干脆破框</strong>
+          <span>3 边出血 · 张力与辨识平衡</span>
+        </button>
+
+        <button type="button" class="sheet-frame" data-crop="extreme" role="radio" aria-checked="false">
+          <span class="frame-code" lang="en">04D · 2.45×</span>
+          <svg viewBox="0 0 160 108" aria-hidden="true">
+            <rect width="160" height="108" fill="#013230"/>
+            <polygon points="10,108 128,44 160,64 160,108" fill="#F0AF03"/>
+            <circle cx="146" cy="50" r="102" fill="none" stroke="#F1E7D4" stroke-width="42"/>
+            <line x1="80" y1="0" x2="80" y2="108" stroke="rgba(241,231,212,0.22)" stroke-dasharray="3 3"/>
+          </svg>
+          <strong>过切失认</strong>
+          <span>轮廓过少 · 塌成抽象色块</span>
+        </button>
+      </div>
+
+      <div class="crop-inspect" id="crop-inspect" aria-live="polite">
+        <div class="crop-diagram-wrap">
+          <svg id="crop-compare-svg" viewBox="0 0 460 210" role="img" aria-label="裁切实印与画外脑补轮廓示意图"></svg>
+        </div>
+        <div class="crop-explain">
+          <span class="crop-badge is-good" id="crop-badge">甜点区 · 3 边出血</span>
+          <h3 id="crop-title">干脆切过三条边，留下标志弧线让读者在画外补全</h3>
+          <p id="crop-desc">主体放大到 1.72×，巨环同时越过顶、右、底三条裁切边，但仍保留约 64% 的完整弧段。眼睛不用费力就能认出它是一枚更庞大的立体圆环，自然向纸外延展想象——这正是 163 原海报本身的构图策略。</p>
+          <ul class="crop-facts" id="crop-facts">
+            <li><strong>出血边数：</strong>3 / 4 条裁切边</li>
+            <li><strong>轮廓留存：</strong>约 64%（一眼可辨识）</li>
+            <li><strong>版面观感：</strong>强迫近感与呼吸静区并存</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 中缝与出血的物理账（深松黛绿暗室） -->
+  <section class="sec sec-dark" id="sec-03">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <div>
+          <h2>中缝与出血的物理账</h2>
+          <p class="sec-en" lang="en">THE PHYSICAL GUTTER &amp; 3MM BLEED</p>
+        </div>
+      </div>
+
+      <div class="sec03-grid">
+        <div class="gutter-stage-box">
+          <canvas id="gutter-canvas" aria-label="实体装订中缝俯视变形与侧面书页拱折剖面模拟"></canvas>
+        </div>
+
+        <div class="gutter-panel">
+          <p>在电脑屏幕上排跨页，你看到的是一块绝对平坦的矩形；可真正印成书摊在手里，两页纸之间有一条会吃掉画面的<strong>物理书脊中缝（Gutter）</strong>。厚刊无线胶装单侧就会弯进约 14mm，如果把关键主体、人像眼睛或跨缝标题正压在中间，成品会被折痕直接劈开。</p>
+
+          <div class="gutter-ctrl-block">
+            <span class="ctrl-title">切换装订工艺（看下方剖面弧度与吞图深槽）</span>
+            <div class="bind-tabs" role="group" aria-label="装订方式">
+              <button type="button" class="bind-btn is-active" data-gbind="perfect">无线胶装 · ±14mm</button>
+              <button type="button" class="bind-btn" data-gbind="sewn">锁线精装 · ±7mm</button>
+              <button type="button" class="bind-btn" data-gbind="saddle">骑马钉 · ±4mm</button>
+            </div>
+          </div>
+
+          <div class="gutter-ctrl-block">
+            <span class="ctrl-title">实测两类高频印刷翻车</span>
+            <div class="bind-tabs">
+              <button type="button" class="bind-btn is-active" id="btn-goffset-center">焦心压正中（翻车）</button>
+              <button type="button" class="bind-btn" id="btn-goffset-safe">焦心右移避缝（安全）</button>
+              <button type="button" class="bind-btn is-active" id="btn-gbleed">3mm 出血：已留</button>
+            </div>
+          </div>
+
+          <div class="gutter-readout" id="gutter-readout" aria-live="polite">
+            <strong id="gutter-verdict">无线胶装（240 页）· 开合角约 124° · 中缝吞图 ±14mm</strong>
+            <p id="gutter-summary">书脊胶层硬，双页呈深 V 拱折，左右各约 14mm 纸面弯进谷底。此时把焦心正压在中缝，俯视读图时核心圆环会被直接咬断错位。</p>
+          </div>
+
+          <p class="bleed-tip">经验值提示：印刷行业通常要求满幅出血图像超出净裁切线 <strong>3mm（约 1/8 英寸）</strong>，防止裁纸刀 1–2mm 机械漂移在纸边切出刺眼白线；正文与关键视觉焦心距书脊经验安全区通常预留 15–28mm（视页数与装订方式而定）。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 文字何时退让（亮奶纸） -->
+  <section class="sec sec-ivory" id="sec-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div>
+          <h2>文字何时退让</h2>
+          <p class="sec-en" lang="en">CAPTION, SILENCE &amp; READING ORDER</p>
+        </div>
+      </div>
+
+      <div class="sec04-grid">
+        <div class="caption-controls">
+          <p>特写跨页里，图像已经替你完成了「抓住注意力」和「定下情绪基调」两件事。文字不必重复描述画面上已经看得一清二楚的细节，而是扮演<strong>退守静区的向导</strong>：大标题抛钩子，一句短导语或图注补上画外事实（时间、地点、工艺、为什么拍它）。</p>
+          <p class="sibling-note">如果整篇专题最锋利的不是画面，而是一句非读不可的金句，那就该把舞台交回给文字——详见 <a href="https://layout.xiaoxiaodong.ai/167/play/" target="_blank" rel="noopener">167 引语主导版式</a>。</p>
+
+          <div class="placement-list" role="radiogroup" aria-label="四种图文落位方案">
+            <button type="button" class="place-opt is-active" data-place="quiet" role="radio" aria-checked="true">
+              <span class="opt-idx" lang="en">A</span>
+              <span><strong>静区锚定 · 留白承字</strong><small>主图偏右出血，大标与短注安放在左页深松静区</small></span>
+            </button>
+            <button type="button" class="place-opt" data-place="overlay" role="radio" aria-checked="false">
+              <span class="opt-idx" lang="en">B</span>
+              <span><strong>暗部反白 · 满幅叠字</strong><small>全跨页满幅深底图像，文字压在最干净的暗角</small></span>
+            </button>
+            <button type="button" class="place-opt" data-place="clash" role="radio" aria-checked="false">
+              <span class="opt-idx" lang="en">C</span>
+              <span><strong>杂底硬叠 · 压在亮环上</strong><small>浅字直接跨在暖奶白高光与暗底交界，对比失守</small></span>
+            </button>
+            <button type="button" class="place-opt" data-place="wall" role="radio" aria-checked="false">
+              <span class="opt-idx" lang="en">D</span>
+              <span><strong>长文围堵 · 挤碎画面</strong><small>左右各排长栏并贴近主图，图像主导节奏失效</small></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="caption-preview-box" aria-live="polite">
+          <div class="caption-svg-wrap">
+            <svg id="caption-svg" viewBox="0 0 520 310" role="img" aria-label="图文落位与视线路径对比图"></svg>
+          </div>
+          <div class="caption-metrics">
+            <div><span>局部实测对比度</span><strong id="cap-contrast">11.8 : 1（高清晰）</strong></div>
+            <div><span>文字区占地</span><strong id="cap-area">12%（克制）</strong></div>
+            <div><span>视线顺序</span><strong id="cap-order">① 特写焦心 → ② 标题 → ③ 短注</strong></div>
+          </div>
+          <p class="caption-verdict" id="cap-verdict">像 163 原海报一样，把整条左页深松静区留给标题与三行导语：眼睛先被右页暖奶白巨环和镉金斜楔吸住，再顺势向左扫过标题与说明，图文各得其所、互不抢戏。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 百年特写跨页史（暖砂纸） -->
+  <section class="sec sec-sand" id="sec-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div>
+          <h2>百年特写跨页史</h2>
+          <p class="sec-en" lang="en">FROM BOXED PLATES TO CINEMATIC SPREADS</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">早期的画报把照片老老实实框在细黑边与四面宽白边里。二十世纪三十年代到七十年代，几代杂志艺术总监接力拆掉边框、跨过中缝，才把特写跨页练成现代出版的经典语法。点击下方卷宗切签查看各时期版式结构：</p>
+
+      <!-- 独有交互：年代卷宗切签 + 历史版式线框图鉴 -->
+      <div class="era-tabs" role="tablist" aria-label="特写跨页历史阶段">
+        <button type="button" class="era-tab is-active" data-era="agha" role="tab" aria-selected="true">
+          <span class="era-year" lang="en">1929–1930</span>
+          <strong>M. F. Agha · Vogue</strong>
+        </button>
+        <button type="button" class="era-tab" data-era="brodovitch" role="tab" aria-selected="false">
+          <span class="era-year" lang="en">1934–1958</span>
+          <strong>Brodovitch · Harper's Bazaar</strong>
+        </button>
+        <button type="button" class="era-tab" data-era="life" role="tab" aria-selected="false">
+          <span class="era-year" lang="en">1936</span>
+          <strong>Life 创刊与摄影报道</strong>
+        </button>
+        <button type="button" class="era-tab" data-era="fleckhaus" role="tab" aria-selected="false">
+          <span class="era-year" lang="en">1959–1971</span>
+          <strong>Willy Fleckhaus · twen</strong>
+        </button>
+        <button type="button" class="era-tab" data-era="books" role="tab" aria-selected="false">
+          <span class="era-year" lang="en">1971 &amp; 1974</span>
+          <strong>Hurlburt 与 Jan White</strong>
+        </button>
+      </div>
+
+      <article class="era-card" id="era-card" aria-live="polite">
+        <div class="era-blueprint">
+          <svg id="era-svg" viewBox="0 0 320 216" role="img" aria-label="历史杂志跨页版式线框示意图"></svg>
+        </div>
+        <div class="era-copy">
+          <div class="era-meta" id="era-meta">1929–1930 · 纽约 · 康泰纳仕（Condé Nast）</div>
+          <h3 id="era-title">把照片从四条白框里解放出来：出血与双页跨页</h3>
+          <p id="era-body">1929 年，出生于俄国、在欧洲受现代主义熏陶的梅赫梅德·费赫米·阿加（Mehemed Fehmy Agha）出任美国版《Vogue》艺术总监，并统管《Vanity Fair》与《House &amp; Garden》的视觉革新。约在 1930 年前后，他率先在美国主流杂志里打破「照片必须加框留白边」的维多利亚旧例，引入满幅出血摄影与横跨对开双页的版面结构。</p>
+          <p class="era-takeaway" id="era-takeaway"><strong>给今天排版的启示：</strong>拆掉白框不是为了省纸，而是让摄影画面直接触碰物理纸边，消除「画中画」的距离感。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- 06 什么时候别用与终审挑错（深松黛绿暗室） -->
+  <section class="sec sec-dark" id="sec-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <div>
+          <h2>什么时候别用与终审</h2>
+          <p class="sec-en" lang="en">WHEN TO AVOID &amp; ART DIRECTOR REVIEW</p>
+        </div>
+      </div>
+
+      <!-- 什么时候别用：四张高对比松绿反例卡 -->
+      <div class="avoid-grid">
+        <article class="avoid-card">
+          <span class="avoid-num" lang="en">DON'T 01</span>
+          <h3>需要快速检索条目的功能页</h3>
+          <p>读者翻目录、查索引或核对多款产品参数时，要的是齐整定位而非局部情绪冲击。这类页面请改用 <a href="https://layout.xiaoxiaodong.ai/164/play/" target="_blank" rel="noopener">164 目录版式</a>、<a href="https://layout.xiaoxiaodong.ai/165/play/" target="_blank" rel="noopener">165 索引版式</a> 或 <a href="https://layout.xiaoxiaodong.ai/166/play/" target="_blank" rel="noopener">166 图录版式</a>。</p>
+        </article>
+        <article class="avoid-card">
+          <span class="avoid-num" lang="en">DON'T 02</span>
+          <h3>低分辨率小图或缺乏肌理的远景</h3>
+          <p>特写跨页会把每一平方厘米的细节推到聚光灯下。像素不够硬拉满对开页只会放大糊块与压缩噪点；没有焦点的平庸远景也撑不起双页尺度。</p>
+        </article>
+        <article class="avoid-card">
+          <span class="avoid-num" lang="en">DON'T 03</span>
+          <h3>纯逻辑论述或必须一口气细读的长文</h3>
+          <p>当稿件核心是严密推理或密集数据，强塞特写大图反而打断阅读连续性；若要突出一句核心金句，更适合用 <a href="https://layout.xiaoxiaodong.ai/167/play/" target="_blank" rel="noopener">167 引语主导版式</a>。</p>
+        </article>
+        <article class="avoid-card">
+          <span class="avoid-num" lang="en">DON'T 04</span>
+          <h3>厚重胶装里无法避开中缝的对称主体</h3>
+          <p>人物正面特写、精密对称建筑立面或单中心图表，在 240 页厚刊胶装里若找不到偏心裁切方案，强跨双页只会把主体正中劈成两半。</p>
+        </article>
+      </div>
+
+      <!-- 编辑部四选一终审练习：标签严格中性，四稿只差一个变量 -->
+      <div class="quiz-box" id="quiz-box">
+        <div class="quiz-head">
+          <div>
+            <span class="quiz-kicker" lang="en">ART DIRECTOR REVIEW · 04 OPTIONS</span>
+            <h3>编辑部终审练习：选出唯一经得起印刷检验的小样</h3>
+            <p>一本 <strong>240 页无线胶装</strong>工艺季刊要做「手工铜壶锤纹」特写跨页。下面四套小样使用同一只铜壶素材、同一套配色与字号，<strong>每套仅在一个排版变量上不同</strong>，请点选最合适付印的一稿：</p>
+          </div>
+          <button type="button" class="btn-outline-cream" id="quiz-reset" hidden>重新审稿</button>
+        </div>
+
+        <div class="quiz-grid" role="group" aria-label="四套特写跨页终审小样">
+          <!-- 方案 A：放大、出血、简字全对，唯独壶嘴焦心正压在 14mm 胶装中缝！ -->
+          <button type="button" class="quiz-opt" data-opt="A">
+            <div class="quiz-opt-head"><span class="opt-letter" lang="en">A</span><span class="opt-tag">居中大特写 · 满幅出血</span></div>
+            <svg viewBox="0 0 220 144" aria-hidden="true">
+              <rect width="220" height="144" fill="#012B29"/>
+              <polygon points="48,144 106,72 220,104 220,144" fill="#F0AF03" opacity="0.9"/>
+              <!-- 铜壶主体放大居中：关键壶嘴焦心（金点）正卡在 x=110 中缝红槽里 -->
+              <circle cx="110" cy="76" r="64" fill="#E6D6B8"/>
+              <circle cx="110" cy="76" r="32" fill="#013230"/>
+              <circle cx="110" cy="76" r="9" fill="#F0AF03"/>
+              <!-- 左页简洁题注 -->
+              <rect x="14" y="18" width="26" height="4" fill="#F0AF03"/>
+              <rect x="14" y="28" width="44" height="10" fill="#F1E7D4"/>
+              <rect x="14" y="44" width="38" height="3" fill="rgba(241,231,212,0.75)"/>
+              <rect x="14" y="51" width="32" height="3" fill="rgba(241,231,212,0.75)"/>
+              <!-- 240页胶装中缝吞图槽 -->
+              <rect x="103" y="0" width="14" height="144" fill="rgba(0,10,9,0.48)"/>
+              <line x1="110" y1="0" x2="110" y2="144" stroke="rgba(241,231,212,0.5)" stroke-dasharray="3 3"/>
+            </svg>
+          </button>
+
+          <!-- 方案 B：正解！偏右大特写 3 边出血 + 焦心安全避脊 + 左页静区简注 -->
+          <button type="button" class="quiz-opt" data-opt="B">
+            <div class="quiz-opt-head"><span class="opt-letter" lang="en">B</span><span class="opt-tag">偏右大特写 · 三边出血</span></div>
+            <svg viewBox="0 0 220 144" aria-hidden="true">
+              <rect width="220" height="144" fill="#012B29"/>
+              <polygon points="82,144 152,72 220,100 220,144" fill="#F0AF03" opacity="0.92"/>
+              <circle cx="164" cy="72" r="68" fill="#E6D6B8"/>
+              <circle cx="164" cy="72" r="33" fill="#013230"/>
+              <circle cx="164" cy="72" r="9" fill="#F0AF03"/>
+              <!-- 左页安静深松区简洁题注 -->
+              <rect x="16" y="24" width="26" height="4" fill="#F0AF03"/>
+              <rect x="16" y="36" width="56" height="12" fill="#F1E7D4"/>
+              <rect x="16" y="54" width="44" height="12" fill="#F1E7D4"/>
+              <rect x="16" y="76" width="3" height="22" fill="#F0AF03"/>
+              <rect x="24" y="78" width="52" height="3.5" fill="rgba(241,231,212,0.8)"/>
+              <rect x="24" y="86" width="46" height="3.5" fill="rgba(241,231,212,0.8)"/>
+              <rect x="24" y="94" width="34" height="3.5" fill="rgba(241,231,212,0.8)"/>
+              <!-- 胶装中缝：完全避开焦心 -->
+              <rect x="103" y="0" width="14" height="144" fill="rgba(0,10,9,0.42)"/>
+              <line x1="110" y1="0" x2="110" y2="144" stroke="rgba(241,231,212,0.45)" stroke-dasharray="3 3"/>
+            </svg>
+          </button>
+
+          <!-- 方案 C：避缝且简注，但整把壶缩在右页白框内（0 边出血，仅占 26%） -->
+          <button type="button" class="quiz-opt" data-opt="C">
+            <div class="quiz-opt-head"><span class="opt-letter" lang="en">C</span><span class="opt-tag">偏右留框 · 全貌展示</span></div>
+            <svg viewBox="0 0 220 144" aria-hidden="true">
+              <rect width="220" height="144" fill="#F1E7D4"/>
+              <!-- 左页简洁文字 -->
+              <rect x="16" y="24" width="26" height="4" fill="#7D5300"/>
+              <rect x="16" y="36" width="56" height="12" fill="#013230"/>
+              <rect x="16" y="54" width="44" height="12" fill="#013230"/>
+              <rect x="16" y="78" width="54" height="3.5" fill="#2E4A47"/>
+              <rect x="16" y="86" width="46" height="3.5" fill="#2E4A47"/>
+              <!-- 右页规矩白框里缩小的整壶 -->
+              <rect x="128" y="24" width="76" height="96" fill="#013230"/>
+              <polygon points="152,120 176,84 204,98 204,120" fill="#F0AF03" opacity="0.9"/>
+              <circle cx="166" cy="70" r="24" fill="#E6D6B8"/>
+              <circle cx="166" cy="70" r="11" fill="#013230"/>
+              <circle cx="166" cy="70" r="4" fill="#F0AF03"/>
+              <!-- 胶装中缝 -->
+              <rect x="103" y="0" width="14" height="144" fill="rgba(4,36,34,0.16)"/>
+              <line x1="110" y1="0" x2="110" y2="144" stroke="rgba(4,36,34,0.4)" stroke-dasharray="3 3"/>
+            </svg>
+          </button>
+
+          <!-- 方案 D：放大、出血、避缝皆对，但双栏长文塞满左页并压到画面底边 -->
+          <button type="button" class="quiz-opt" data-opt="D">
+            <div class="quiz-opt-head"><span class="opt-letter" lang="en">D</span><span class="opt-tag">偏右大特写 · 双栏长评</span></div>
+            <svg viewBox="0 0 220 144" aria-hidden="true">
+              <rect width="220" height="144" fill="#012B29"/>
+              <polygon points="82,144 152,72 220,100 220,144" fill="#F0AF03" opacity="0.92"/>
+              <circle cx="164" cy="72" r="68" fill="#E6D6B8"/>
+              <circle cx="164" cy="72" r="33" fill="#013230"/>
+              <circle cx="164" cy="72" r="9" fill="#F0AF03"/>
+              <!-- 密密麻麻两栏长文把左页与下沿堵死 -->
+              <rect x="10" y="12" width="90" height="122" fill="rgba(1,36,34,0.92)" stroke="rgba(241,231,212,0.35)"/>
+              <rect x="15" y="18" width="52" height="7" fill="#F1E7D4"/>
+              <g fill="rgba(241,231,212,0.68)">
+                <rect x="15" y="31" width="38" height="3"/><rect x="57" y="31" width="38" height="3"/>
+                <rect x="15" y="38" width="36" height="3"/><rect x="57" y="38" width="34" height="3"/>
+                <rect x="15" y="45" width="38" height="3"/><rect x="57" y="45" width="38" height="3"/>
+                <rect x="15" y="52" width="32" height="3"/><rect x="57" y="52" width="36" height="3"/>
+                <rect x="15" y="59" width="38" height="3"/><rect x="57" y="59" width="38" height="3"/>
+                <rect x="15" y="66" width="35" height="3"/><rect x="57" y="66" width="33" height="3"/>
+                <rect x="15" y="73" width="38" height="3"/><rect x="57" y="73" width="38" height="3"/>
+                <rect x="15" y="80" width="36" height="3"/><rect x="57" y="80" width="35" height="3"/>
+                <rect x="15" y="87" width="38" height="3"/><rect x="57" y="87" width="38" height="3"/>
+                <rect x="15" y="94" width="30" height="3"/><rect x="57" y="94" width="37" height="3"/>
+                <rect x="15" y="101" width="38" height="3"/><rect x="57" y="101" width="34" height="3"/>
+                <rect x="15" y="108" width="34" height="3"/><rect x="57" y="108" width="38" height="3"/>
+                <rect x="15" y="115" width="37" height="3"/><rect x="57" y="115" width="32" height="3"/>
+                <rect x="15" y="122" width="28" height="3"/><rect x="57" y="122" width="35" height="3"/>
+              </g>
+              <rect x="103" y="0" width="14" height="144" fill="rgba(0,10,9,0.42)"/>
+              <line x1="110" y1="0" x2="110" y2="144" stroke="rgba(241,231,212,0.45)" stroke-dasharray="3 3"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="quiz-feedback" id="quiz-feedback" aria-live="polite" hidden>
+          <strong id="quiz-fb-title"></strong>
+          <p id="quiz-fb-body"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 原海报与同类索引（亮奶纸） -->
+  <section class="sec sec-ivory" id="sec-07">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div>
+          <h2>原海报与同类索引</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; SIBLING LAYOUTS</p>
+        </div>
+      </div>
+
+      <div class="poster-grid">
+        <figure class="poster-figure">
+          <button type="button" class="poster-trigger" id="poster-open" aria-label="放大查看 163 特写跨页原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="163 特写 跨页原海报：深松黛绿底，左侧堆叠暖奶白大标与三枚镉金黄圆徽，右侧为大幅裁切出界的暖奶白巨环与底角镉金黄斜楔">
+            <span class="poster-zoom-hint">点击放大查看原海报（支持拖动与滚轮）</span>
+          </button>
+          <figcaption>NO. 163 特写 跨页（FEATURE SPREAD）原海报 · 点击看大图，按 Esc 关闭。</figcaption>
+        </figure>
+
+        <div class="poster-meta">
+          <h3>这张海报本身就是一页标准特写跨页</h3>
+          <p>整张海报把视觉重心完全让给右侧那枚越出顶、右、底三条边界的暖奶白巨环，再用底角一块锋利的镉金黄斜楔托住动态平衡；左侧深松黛绿静区安静承托堆叠粗黑大标「特写 / 跨页」、三枚圆徽、竖金引线总述与底角三峰波浪徽。</p>
+
+          <ul class="poster-pillars">
+            <li>
+              <span class="mini-medal" aria-hidden="true">01</span>
+              <div><strong>放大焦点</strong> <span lang="en">FOCUS</span><p>把最具识别度的单一几何局部推到占画面半壁江山。</p></div>
+            </li>
+            <li>
+              <span class="mini-medal" aria-hidden="true">02</span>
+              <div><strong>裁切张力</strong> <span lang="en">CROP</span><p>巨环果断切出三面纸边，用画外未完的弧线撑开宏大尺度。</p></div>
+            </li>
+            <li>
+              <span class="mini-medal" aria-hidden="true">03</span>
+              <div><strong>图文协同</strong> <span lang="en">CAPTION</span><p>所有说明文字克制收拢在深松静区，不和巨环抢第一眼。</p></div>
+            </li>
+          </ul>
+
+          <div class="siblings-box">
+            <h4>同属「出版功能页面」的其余七页</h4>
+            <ul class="sibling-links">
+              <li><a href="https://layout.xiaoxiaodong.ai/160/play/" target="_blank" rel="noopener"><span lang="en">160</span> 封面版式</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/161/play/" target="_blank" rel="noopener"><span lang="en">161</span> 章节扉页</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/162/play/" target="_blank" rel="noopener"><span lang="en">162</span> 栏目开启页</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/164/play/" target="_blank" rel="noopener"><span lang="en">164</span> 目录版式</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/165/play/" target="_blank" rel="noopener"><span lang="en">165</span> 索引版式</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/166/play/" target="_blank" rel="noopener"><span lang="en">166</span> 图录版式</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/167/play/" target="_blank" rel="noopener"><span lang="en">167</span> 引语主导版式</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <p><a href="https://layout.xiaoxiaodong.ai/163/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a></p>
+    <span class="sep" aria-hidden="true">·</span>
+    <p>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a></p>
+    <span class="sep" aria-hidden="true">·</span>
+    <p>源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></p>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱（支持拖动、滚轮缩放、Esc 关闭；img 标 draggable="false"） -->
+<div class="poster-modal" id="poster-modal" hidden role="dialog" aria-modal="true" aria-label="163 特写跨页原海报高清预览">
+  <div class="modal-bar">
+    <span class="modal-title">NO. 163 特写 跨页 · 原海报预览（拖动平移 · 按钮或滚轮缩放）</span>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn" id="poster-zoom-out" aria-label="缩小">－</button>
+      <button type="button" class="modal-btn" id="poster-zoom-reset">100%</button>
+      <button type="button" class="modal-btn" id="poster-zoom-in" aria-label="放大">＋</button>
+      <button type="button" class="modal-btn is-close" id="poster-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="modal-stage" id="poster-modal-stage">
+    <img id="poster-modal-img" alt="163 特写跨页原海报放大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
