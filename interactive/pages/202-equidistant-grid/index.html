@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>202 等距网格 · EQUIDISTANT GRID</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page">
+  <!-- ==================== HERO · 202 瑞士平面标本单页 ==================== -->
+  <section class="hero" aria-label="等距网格交互校样台">
+    <div class="wrap">
+      <!-- 顶部瑞士刊头（无黑眉，暖米原纸直出） -->
+      <header class="masthead">
+        <div class="masthead-left">
+          <div class="masthead-kicker">
+            <span class="kicker-sq" aria-hidden="true"></span>
+            <span class="kicker-cat">字体、网格与东亚文字 / 网格系统</span>
+            <span class="kicker-sep" aria-hidden="true">·</span>
+            <span class="kicker-no" lang="en">NO. 202</span>
+            <span id="hero-mobile-status" class="mobile-status is-err" aria-live="polite">0/4 待校</span>
+          </div>
+          <h1 id="hero-title" class="hero-title">等距网格</h1>
+          <p id="hero-title-en" class="hero-title-en" lang="en">EQUIDISTANT GRID</p>
+        </div>
+
+        <div class="masthead-right">
+          <div class="masthead-bar-row">
+            <span class="poster-vermilion-bar" aria-hidden="true"></span>
+            <span id="hero-status-stamp" class="status-stamp is-err" aria-live="polite">0 / 4 待校准</span>
+          </div>
+          <p class="hero-tagline">用相等的间距 建立秩序与节奏 让信息自然对齐</p>
+          <p class="hero-tagline-en" lang="en">USE EQUAL SPACING TO CREATE ORDER AND RHYTHM</p>
+        </div>
+      </header>
+
+      <hr class="swiss-rule-heavy">
+
+      <!-- 主校样区：左 26% 原理与活体 X×X 卡尺 ＋ 诊单 ｜ 右 74% 4×3 活体校样台 -->
+      <div class="hero-workbench">
+        <!-- 舞台优先排列在语义次序中，桌面通过 grid 置右、移动端自动居顶占首屏 ≥46% -->
+        <div class="stage-pane">
+          <div class="stage-toolbar">
+            <div class="btn-group grp-themes" role="group" aria-label="切换校样题材">
+              <button type="button" class="pill-btn is-active" data-theme="poster" aria-pressed="true">原海报 12 图形</button>
+              <button type="button" class="pill-btn" data-theme="exhibit" aria-pressed="false">展讯卡片墙</button>
+              <button type="button" class="pill-btn" data-theme="mobile" aria-pressed="false">移动应用看板</button>
+            </div>
+            <div class="btn-group grp-presets" role="group" aria-label="切换预设与错态">
+              <button type="button" class="pill-btn is-solve" data-preset="poster">16px 解</button>
+              <button type="button" class="pill-btn is-solve" data-preset="compact">12px 解</button>
+              <button type="button" class="pill-btn is-solve" data-preset="airy">24px 解</button>
+              <button type="button" class="pill-btn is-reset" data-preset="broken">复原错态</button>
+            </div>
+          </div>
+
+          <div class="canvas-frame">
+            <canvas
+              id="hero-canvas"
+              class="hero-canvas"
+              data-perf-drag
+              tabindex="0"
+              role="application"
+              aria-label="等距网格 4×3 校样画布：左右拖动调节列距，上下拖动调节行距，点击偏格或跨列错卡可就地修复，键盘方向键可微调"
+            ></canvas>
+          </div>
+
+          <div id="mobile-diag-strip" class="mobile-diag-strip is-err" aria-hidden="true">
+            <span id="mobile-diag-badge" class="mobile-diag-badge">横竖 3.40×</span>
+            <span id="mobile-diag-head" class="mobile-diag-head">列距 34px ≠ 行距 10px，矩阵裂成了四条各自孤立的竖长带</span>
+          </div>
+
+          <div class="canvas-caption-row">
+            <span class="caption-hint">横拖画布列缝调 gx · 纵拖行缝调 gy · 点红框卡归轨/补缝 · 方向键微调</span>
+            <code id="hero-css-line" class="css-live">row-gap: 10px; column-gap: 34px;</code>
+          </div>
+
+          <!-- 四槽瑞士标尺微控条 -->
+          <div class="control-strip">
+            <div class="ctrl-cell">
+              <div class="ctrl-top">
+                <span class="ctrl-lbl">基础单位 X</span>
+                <button type="button" id="ctrl-lock" class="mini-toggle" aria-pressed="false">X=Y 同步锁：关</button>
+              </div>
+              <div class="base-btns" role="group" aria-label="选择基础间距单位 X">
+                <button type="button" class="base-btn" data-base-x="4" aria-pressed="false">4px</button>
+                <button type="button" class="base-btn is-active" data-base-x="8" aria-pressed="true">8px</button>
+                <button type="button" class="base-btn" data-base-x="12" aria-pressed="false">12px</button>
+                <button type="button" class="base-btn" data-base-x="16" aria-pressed="false">16px</button>
+              </div>
+            </div>
+
+            <div class="ctrl-cell">
+              <div class="ctrl-top">
+                <label class="ctrl-lbl" for="ctrl-gx">列距 gx</label>
+                <span id="val-gx" class="ctrl-val">34px</span>
+              </div>
+              <input id="ctrl-gx" type="range" min="0" max="48" step="1" value="34">
+            </div>
+
+            <div class="ctrl-cell">
+              <div class="ctrl-top">
+                <label class="ctrl-lbl" for="ctrl-gy">行距 gy</label>
+                <span id="val-gy" class="ctrl-val">10px</span>
+              </div>
+              <input id="ctrl-gy" type="range" min="0" max="48" step="1" value="10">
+            </div>
+
+            <div class="ctrl-cell">
+              <div class="ctrl-top">
+                <label class="ctrl-lbl" for="ctrl-pad">卡内距 inner</label>
+                <span id="val-pad" class="ctrl-val">20px</span>
+              </div>
+              <input id="ctrl-pad" type="range" min="4" max="26" step="2" value="20">
+            </div>
+          </div>
+
+          <div class="action-strip">
+            <button type="button" id="ctrl-fix-track" class="act-btn is-primary">一键归轨补缝</button>
+            <button type="button" id="ctrl-span-mode" class="act-btn is-warn">跨列：漏算 1X</button>
+            <button type="button" id="ctrl-guides" class="act-btn is-active" aria-pressed="true">沟道标尺：显</button>
+            <button type="button" class="act-btn" data-preset="test_zero">试错：零缝</button>
+            <button type="button" class="act-btn" data-preset="test_sparse">试错：孤岛</button>
+            <button type="button" class="act-btn" data-preset="test_invert">试错：倒挂</button>
+          </div>
+        </div>
+
+        <!-- 左栏：原海报核心原理 + 活体「间距单位 = X」红方交叉卡尺 + 单真源诊单 -->
+        <aside class="principle-pane" aria-label="核心原理与实时诊断">
+          <div class="principle-head">
+            <span class="sq-bullet" aria-hidden="true"></span>
+            <div>
+              <strong class="principle-zh">核心原理</strong>
+              <span class="principle-en" lang="en">PRINCIPLE</span>
+            </div>
+          </div>
+          <p class="principle-copy">在水平与垂直方向上使用相同的间距单位，构建可重复的网格系统，形成稳定、清晰的视觉秩序。</p>
+
+          <!-- 原海报标志交叉卡尺图：实时随 gx / gy 变形 -->
+          <div class="caliper-box">
+            <svg class="caliper-svg" viewBox="0 0 166 112" role="img" aria-label="间距单位 X 横竖比例交叉标尺">
+              <line id="caliper-v1" x1="48" y1="20" x2="48" y2="104" stroke="#7A736A" stroke-width="1" stroke-dasharray="2 3" />
+              <line id="caliper-v2" x1="88" y1="20" x2="88" y2="104" stroke="#7A736A" stroke-width="1" stroke-dasharray="2 3" />
+              <line id="caliper-h1" x1="10" y1="50" x2="112" y2="50" stroke="#7A736A" stroke-width="1" stroke-dasharray="2 3" />
+              <line id="caliper-h2" x1="10" y1="62" x2="112" y2="62" stroke="#7A736A" stroke-width="1" stroke-dasharray="2 3" />
+              <rect id="caliper-rect" x="48" y="50" width="40" height="12" fill="#B31D1D" />
+              <text id="caliper-gx-lbl" x="68" y="14" text-anchor="middle" font-size="10.5" font-family="DM Mono, monospace" fill="#0B0F0F">gx 34px</text>
+              <text id="caliper-gy-lbl" x="162" y="60" text-anchor="end" font-size="10.5" font-family="DM Mono, monospace" fill="#0B0F0F">gy 10px</text>
+            </svg>
+            <div class="caliper-meta">
+              <p id="caliper-caption" class="caliper-caption">横竖不等：<strong class="is-err">34 × 10px</strong></p>
+              <p class="caliper-en" lang="en">SPACING UNIT = X</p>
+            </div>
+          </div>
+
+          <!-- 单真源白话诊单 -->
+          <div id="diag-card" class="diag-card is-err" aria-live="polite">
+            <div class="diag-top">
+              <span id="diag-badge" class="diag-badge">错态 · 横竖 3.40×</span>
+              <span class="diag-src">实绘坐标单真源</span>
+            </div>
+            <h3 id="diag-head" class="diag-head">列距 34px ≠ 行距 10px</h3>
+            <p id="diag-why" class="diag-why"></p>
+            <p id="diag-action" class="diag-action"></p>
+            <dl class="diag-metrics">
+              <div><dt>列 / 行距</dt><dd id="m-gxgy" class="m-val is-err">34 / 10px</dd></div>
+              <div><dt>倍率基数</dt><dd id="m-scale" class="m-val is-err">4.3X · 离标</dd></div>
+              <div><dt>卡内层级</dt><dd id="m-inner" class="m-val is-err">20px ≥ 外缝</dd></div>
+              <div><dt>轨道对齐</dt><dd id="m-track" class="m-val is-err">偏格+漏缝</dd></div>
+            </dl>
+          </div>
+        </aside>
+      </div>
+
+      <hr class="swiss-rule-heavy">
+
+      <!-- 原海报底沿三栏实况速览带（特点 / 适用场景 / 使用建议） -->
+      <div class="poster-triptych" aria-label="原海报三栏要点实时对照">
+        <div class="triptych-col">
+          <div class="triptych-hd"><span class="sq-bullet" aria-hidden="true"></span><strong>特点</strong> <span lang="en">CHARACTERISTICS</span></div>
+          <ul class="trait-list">
+            <li><span>间距一致，节奏稳定</span><em id="trait-rhythm" class="trait-pill is-err">失衡 3.4×</em></li>
+            <li><span>对齐清晰，结构严谨</span><em id="trait-align" class="trait-pill is-err">偏格+漏缝</em></li>
+            <li><span>可扩展性强，灵活适配</span><em id="trait-scale" class="trait-pill is-err">内外倒挂</em></li>
+            <li><span>降低决策成本，提升效率</span><em id="trait-cost" class="trait-pill is-err">待修 4 项</em></li>
+          </ul>
+        </div>
+
+        <div class="triptych-col">
+          <div class="triptych-hd"><span class="sq-bullet" aria-hidden="true"></span><strong>适用场景</strong> <span lang="en">USE CASES</span></div>
+          <ul class="plain-list">
+            <li><strong>信息卡片 / 图文排版</strong><span lang="en">Cards / Editorial Layouts</span></li>
+            <li><strong>网页布局 / 响应式设计</strong><span lang="en">Web Layouts / Responsive Design</span></li>
+            <li><strong>移动应用 / 界面设计</strong><span lang="en">Mobile Apps / Interface Design</span></li>
+            <li><strong>海报设计 / 展示看板</strong><span lang="en">Posters / Dashboard Display</span></li>
+          </ul>
+        </div>
+
+        <div class="triptych-col">
+          <div class="triptych-hd"><span class="sq-bullet" aria-hidden="true"></span><strong>使用建议</strong> <span lang="en">BEST PRACTICES</span></div>
+          <ol class="advice-list">
+            <li>设定基础间距单位（X），并在全局中统一使用</li>
+            <li>确保行距与列距相等，保持网格的纯净与统一</li>
+            <li>围绕内容建立模块，让结构服务于内容（见 02 节核对）</li>
+            <li>适度留白，避免拥挤，提升信息的可读性</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01 · 一个 X，定住横竖节奏 ==================== -->
+  <section id="sec-01" class="band band-light">
+    <div class="wrap">
+      <div class="sec-header">
+        <span class="sec-num" lang="en">01</span>
+        <div class="sec-titles">
+          <h2>一个 X，定住横竖节奏</h2>
+          <p class="sec-en" lang="en">ONE UNIT X, DUAL-AXIS RHYTHM</p>
+        </div>
+      </div>
+
+      <div class="sec-split">
+        <div class="prose">
+          <p>很多人第一次听「等距网格」，会把它和 <a href="https://layout.xiaoxiaodong.ai/201/play/" target="_blank" rel="noopener">201 方格网格</a> 混为一谈。其实两者锁死的对象不同：方格网格锁的是<strong>格子本身的宽高 1:1</strong>，而等距网格锁的是<strong>水平列缝与垂直行缝共用的间距单位 X</strong>。哪怕你的卡片是 16:9 横卡或 3:4 竖卡，只要横竖沟道严格相等，版面就立刻成立稳定节奏。</p>
+          <p>如果把 <a href="https://layout.xiaoxiaodong.ai/196/play/" target="_blank" rel="noopener">196 模块化网格</a> 允许不同行缝和列缝的自由度收紧到 <code>row-gap = column-gap = X</code>，人眼在横扫与纵览时遇到的停顿时长完全相同，视觉阻力一下子降到最低——这就是原海报说「间距一致，节奏稳定」的真正机制。</p>
+          <p>点旁边解剖镜里的三个状态，再试着打开<strong>「纯留白透视」</strong>把卡片内容藏起来：你会发现眼睛最先读到的其实是沟道切出的白色十字网格。</p>
+        </div>
+
+        <div id="s01-lab" class="specimen-box">
+          <div class="specimen-bar">
+            <div class="btn-group" role="group" aria-label="切换纵横沟道比例">
+              <button type="button" class="pill-btn is-active" data-s01-mode="cols" aria-pressed="true">列缝过宽：变竖条</button>
+              <button type="button" class="pill-btn" data-s01-mode="rows" aria-pressed="false">行缝过宽：变横带</button>
+              <button type="button" class="pill-btn" data-s01-mode="equal" aria-pressed="false">横竖等距：成整阵</button>
+            </div>
+            <button type="button" id="s01-xray" class="pill-btn" aria-pressed="false">纯留白透视：关（显示模块）</button>
+          </div>
+
+          <div id="s01-grid" class="s01-grid" aria-label="双轴沟道对比示意">
+            <div class="s01-cell"><span>01</span></div>
+            <div class="s01-cell"><span>02</span></div>
+            <div class="s01-cell"><span>03</span></div>
+            <div class="s01-cell"><span>04</span></div>
+            <div class="s01-cell"><span>05</span></div>
+            <div class="s01-cell"><span>06</span></div>
+            <div class="s01-cell"><span>07</span></div>
+            <div class="s01-cell"><span>08</span></div>
+            <div class="s01-cell"><span>09</span></div>
+            <div class="s01-cell"><span>10</span></div>
+            <div class="s01-cell"><span>11</span></div>
+            <div class="s01-cell"><span>12</span></div>
+          </div>
+
+          <div class="specimen-foot">
+            <code id="s01-metric" class="mono-stat">列距 32px · 行距 6px · 纵横比 5.33×</code>
+            <p id="s01-readout" class="foot-note"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 · 整倍阶梯与跨缝公式 ==================== -->
+  <section id="sec-02" class="band band-warm">
+    <div class="wrap">
+      <div class="sec-header">
+        <span class="sec-num" lang="en">02</span>
+        <div class="sec-titles">
+          <h2>整倍阶梯与跨缝公式</h2>
+          <p class="sec-en" lang="en">INTEGER MULTIPLES &amp; SPAN MATH</p>
+        </div>
+      </div>
+
+      <div class="sec-split">
+        <div class="prose">
+          <p>「统一使用 X」不等于页面里所有空白都写成同一个死数字。实战里通常选 <code>4px</code> 或 <code>8px</code> 作为基础步长 X，用它的倍数搭出清晰的空间阶梯：内部小元素空 <code>0.5X</code>，卡片内边距给 <code>1X</code>，卡片之间的主沟道给 <code>2X</code>，大分区留 <code>3X</code> 或 <code>4X</code>——每升一级都稳守<strong>内紧于外</strong>。</p>
+          <p>一旦需要重点内容横跨 <code>k</code> 列，宽度绝不是 <code>k × W</code>，而是必须把吞掉的内部沟道一起加回来：<strong>跨列宽 = kW + (k − 1)X</strong>。漏算那一条 X，整张版的右边界就会立刻缺出一截。</p>
+
+          <aside class="editorial-note">
+            <span class="note-tag">海报核对 · 中英有出入</span>
+            <p>原海报「使用建议」第三条中文写了「围绕内容建立模块，让内容服务于结构」，但紧跟其下的英文写的是：</p>
+            <p class="quote-en" lang="en">“Build modules around content, not the other way around”</p>
+            <p>意思是「围绕内容建模块，而不是反过来」。实际排版里英文这句更准确：先摸清文字长度、图片比例与卡片体量，再决定基数 X 与跨列数；让结构替内容兜底，不要硬裁内容去迁就方格。</p>
+          </aside>
+        </div>
+
+        <div id="s02-builder" class="specimen-box">
+          <div class="s02-controls">
+            <div class="s02-ctrl-row">
+              <div class="s02-pair">
+                <span class="ctrl-lbl">基数 X</span>
+                <div class="btn-group" role="group" aria-label="选择阶梯基数">
+                  <button type="button" class="pill-btn" data-s02-base="4" aria-pressed="false">4px</button>
+                  <button type="button" class="pill-btn is-active" data-s02-base="8" aria-pressed="true">8px</button>
+                  <button type="button" class="pill-btn" data-s02-base="10" aria-pressed="false">10px</button>
+                </div>
+              </div>
+              <div class="s02-pair">
+                <span class="ctrl-lbl">沟道倍率</span>
+                <div class="btn-group" role="group" aria-label="选择沟道倍率">
+                  <button type="button" class="pill-btn is-active" data-s02-mult="2" aria-pressed="true">2X</button>
+                  <button type="button" class="pill-btn" data-s02-mult="3" aria-pressed="false">3X</button>
+                </div>
+              </div>
+            </div>
+            <div class="s02-ctrl-row">
+              <button type="button" id="s02-toggle-span" class="pill-btn is-active" aria-pressed="true">跨列卡：已合并 2 列（点此拆分）</button>
+              <button type="button" id="s02-toggle-formula" class="pill-btn" aria-pressed="false">跨缝算法：误算 2W（缺 1X）</button>
+            </div>
+          </div>
+
+          <div id="s02-tokens" class="s02-tokens" aria-label="实时整倍间距阶梯"></div>
+
+          <div id="s02-grid" class="s02-grid">
+            <div id="s02-span-card" class="s02-card is-span-2 is-span-bug">
+              <div class="s02-card-top">
+                <strong>主推展项</strong>
+                <span id="s02-deficit-tag" class="s02-deficit">缺口 −16px</span>
+              </div>
+              <p>宽度随上方跨缝算法实时变化，观察它与下方第二列右缘是否对齐。</p>
+            </div>
+            <div id="s02-partner-card" class="s02-card" hidden>
+              <strong>展项 B</strong>
+              <p>标准 1W 单列模块</p>
+            </div>
+            <div class="s02-card"><strong>展项 C</strong><p>右缘基准列</p></div>
+            <div class="s02-card"><strong>展项 D</strong><p>第一列底卡</p></div>
+            <div class="s02-card is-ref-col"><strong>展项 E</strong><p>第二列右缘参照线</p></div>
+            <div class="s02-card"><strong>展项 F</strong><p>第三列底卡</p></div>
+          </div>
+
+          <p id="s02-formula-out" class="foot-note"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 · 四种常见画法怎么翻车（深墨暗室） ==================== -->
+  <section id="sec-03" class="band band-dark">
+    <div class="wrap">
+      <div class="sec-header is-dark">
+        <span class="sec-num" lang="en">03</span>
+        <div class="sec-titles">
+          <h2>四种常见画法怎么翻车</h2>
+          <p class="sec-en" lang="en">FOUR SPACING TRAPS IN PRACTICE</p>
+        </div>
+      </div>
+
+      <p class="dark-intro">把行距和列距设为同一个数字并不难，真正容易踩坑的往往是「只等距了表面，却丢了层级、模数与肉眼感受」。在暗室里逐一对照下面四宗典型错案，亲手切换错例与修正。</p>
+
+      <div id="s03-room" class="s03-room">
+        <div class="s03-tabs" role="tablist" aria-label="四种翻车错案">
+          <button type="button" class="s03-tab is-active" role="tab" aria-selected="true" data-s03-case="0"><span>01</span> 内外倒挂</button>
+          <button type="button" class="s03-tab" role="tab" aria-selected="false" data-s03-case="1"><span>02</span> 手调零散值</button>
+          <button type="button" class="s03-tab" role="tab" aria-selected="false" data-s03-case="2"><span>03</span> 单调瓷砖墙</button>
+          <button type="button" class="s03-tab" role="tab" aria-selected="false" data-s03-case="3"><span>04</span> 视错觉偏差</button>
+        </div>
+
+        <div class="s03-body">
+          <div class="s03-stage-wrap">
+            <div id="s03-stage" class="s03-stage"></div>
+            <div class="s03-controls">
+              <button type="button" id="s03-fix-toggle" class="s03-btn is-primary" aria-pressed="false">当前：翻车错例（点看修正）</button>
+              <button type="button" id="s03-ruler-toggle" class="s03-btn is-active" aria-pressed="true">红线标尺：开</button>
+            </div>
+          </div>
+
+          <div class="s03-info" aria-live="polite">
+            <span id="s03-badge" class="s03-badge is-err">错例 · INNER ≥ OUTER</span>
+            <h3 id="s03-head" class="s03-head"></h3>
+            <p id="s03-note" class="s03-note"></p>
+            <p class="s03-links">相关专题延伸：若想主动打破均质瓷砖墙、建立强弱主次，可对照 <a href="https://layout.xiaoxiaodong.ai/197/play/" target="_blank" rel="noopener">197 层级网格</a> 与 <a href="https://layout.xiaoxiaodong.ai/200/play/" target="_blank" rel="noopener">200 非对称网格</a>。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 · 从瑞士网格到 8pt 体系 ==================== -->
+  <section id="sec-04" class="band band-light">
+    <div class="wrap">
+      <div class="sec-header">
+        <span class="sec-num" lang="en">04</span>
+        <div class="sec-titles">
+          <h2>从瑞士网格到 8pt 体系</h2>
+          <p class="sec-en" lang="en">ORIGINS: SWISS GRIDS TO 8PT TOKENS</p>
+        </div>
+      </div>
+
+      <div id="s04-history" class="s04-grid">
+        <div class="s04-timeline" role="tablist" aria-label="等距网格演进节点">
+          <button type="button" class="s04-era is-active" role="tab" aria-selected="true" data-s04-era="0">
+            <span class="era-y" lang="en">1964</span>
+            <strong>格斯特纳 · 程序设计法</strong>
+            <span class="era-sub">用统一数学参数生成版面</span>
+          </button>
+          <button type="button" class="s04-era" role="tab" aria-selected="false" data-s04-era="1">
+            <span class="era-y" lang="en">1981</span>
+            <strong>米勒-布罗克曼 · 网格系统</strong>
+            <span class="era-sub">水平与垂直统一沟槽手册</span>
+          </button>
+          <button type="button" class="s04-era" role="tab" aria-selected="false" data-s04-era="2">
+            <span class="era-y" lang="en">2014+</span>
+            <strong>Material 8dp / Carbon 8px</strong>
+            <span class="era-sub">界面设计系统的基准微单元</span>
+          </button>
+          <button type="button" class="s04-era" role="tab" aria-selected="false" data-s04-era="3">
+            <span class="era-y" lang="en">W3C</span>
+            <strong>CSS Grid 与 gap 规范</strong>
+            <span class="era-sub">一行代码原生锁死双轴等距</span>
+          </button>
+        </div>
+
+        <article class="s04-card" aria-live="polite">
+          <div class="s04-card-head">
+            <span id="s04-year" class="s04-year" lang="en">1964</span>
+            <div>
+              <h3 id="s04-who" class="s04-who"></h3>
+              <p id="s04-work" class="s04-work" lang="en"></p>
+            </div>
+          </div>
+          <p id="s04-desc" class="s04-desc"></p>
+          <div class="s04-bp-wrap">
+            <span id="s04-spec-label" class="s04-spec-label" lang="en"></span>
+            <div id="s04-blueprint" class="s04-blueprint"></div>
+          </div>
+          <p class="s04-cross">同一套系统里，文字行高对齐另由 <a href="https://layout.xiaoxiaodong.ai/198/play/" target="_blank" rel="noopener">198 基线网格</a> 管辖；固定像素与多屏换档则分别见 <a href="https://layout.xiaoxiaodong.ai/207/play/" target="_blank" rel="noopener">207 固定网格</a>、<a href="https://layout.xiaoxiaodong.ai/209/play/" target="_blank" rel="noopener">209 响应式网格</a> 与 <a href="https://layout.xiaoxiaodong.ai/205/play/" target="_blank" rel="noopener">205 嵌套网格</a> / <a href="https://layout.xiaoxiaodong.ai/206/play/" target="_blank" rel="noopener">206 子网格</a>。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 · 什么时候用，什么时候别用 ==================== -->
+  <section id="sec-05" class="band band-cream">
+    <div class="wrap">
+      <div class="sec-header">
+        <span class="sec-num" lang="en">05</span>
+        <div class="sec-titles">
+          <h2>什么时候用，什么时候别用</h2>
+          <p class="sec-en" lang="en">WHEN TO USE &amp; WHEN TO SKIP</p>
+        </div>
+      </div>
+
+      <div class="s05-dual">
+        <div class="s05-col">
+          <h3 class="s05-sub is-ok">最适合的四类场合</h3>
+          <ul class="s05-list">
+            <li><strong>信息卡片与图文矩阵</strong>：商品流、课程目录、图鉴标本墙，模块不断增减也能自动守住整齐呼吸。</li>
+            <li><strong>网页与应用看板</strong>：仪表板、多指标统计区与设计系统组件库，一套 X 阶梯直接落进代码变量。</li>
+            <li><strong>高频协作的团队产品</strong>：多个设计师同画几十个页面，共享同一个基数 X 就能消掉大部分间距争议。</li>
+            <li><strong>理性展览海报与信息看板</strong>：需要冷静、可靠、可快速定位信息的公共导视与学术展讯。</li>
+          </ul>
+        </div>
+
+        <div class="s05-col">
+          <h3 class="s05-sub is-err">什么时候别硬套</h3>
+          <ul class="s05-list">
+            <li><strong>长篇连续文学或专著阅读</strong>：段落靠版心与行距流动，套进等距方阵只会切碎语流，应看 <a href="https://layout.xiaoxiaodong.ai/194/play/" target="_blank" rel="noopener">194 手稿网格</a> 或 <a href="https://layout.xiaoxiaodong.ai/195/play/" target="_blank" rel="noopener">195 分栏网格</a>。</li>
+            <li><strong>追求强烈戏剧反差的海报</strong>：等距天生克制中立，要制造爆发力与破格张力应转向 <a href="https://layout.xiaoxiaodong.ai/200/play/" target="_blank" rel="noopener">200 非对称网格</a>、<a href="https://layout.xiaoxiaodong.ai/210/play/" target="_blank" rel="noopener">210 破格网格</a> 或 <a href="https://layout.xiaoxiaodong.ai/211/play/" target="_blank" rel="noopener">211 解构网格</a>。</li>
+            <li><strong>向心汇聚或环形叙事</strong>：以中心向外发散的结构属于 <a href="https://layout.xiaoxiaodong.ai/203/play/" target="_blank" rel="noopener">203 放射网格</a> 与 <a href="https://layout.xiaoxiaodong.ai/204/play/" target="_blank" rel="noopener">204 极坐标网格</a>，不宜压扁成直角等距。</li>
+            <li><strong>超窄屏死守宽像素缝</strong>：360px 手机上还死扛 24px 多列沟道会把内容挤没，必须配合 <a href="https://layout.xiaoxiaodong.ai/208/play/" target="_blank" rel="noopener">208 流体网格</a> 或 <a href="https://layout.xiaoxiaodong.ai/209/play/" target="_blank" rel="noopener">209 响应式网格</a> 降档倍率（复杂双系混排另见 <a href="https://layout.xiaoxiaodong.ai/199/play/" target="_blank" rel="noopener">199 复合网格</a>）。</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 交互：6 个真实项目适配判定器 -->
+      <div id="s05-fit" class="s05-fit">
+        <div class="s05-fit-hd">
+          <strong>拿一个真实项目试测一下：</strong>
+          <div class="s05-briefs" role="group" aria-label="选择测试项目">
+            <button type="button" class="pill-btn is-active" data-s05-brief="0" aria-pressed="true">SaaS 数据看板</button>
+            <button type="button" class="pill-btn" data-s05-brief="1" aria-pressed="false">美术馆展讯目录</button>
+            <button type="button" class="pill-btn" data-s05-brief="2" aria-pressed="false">360px 电商双列流</button>
+            <button type="button" class="pill-btn" data-s05-brief="3" aria-pressed="false">长篇文学专著</button>
+            <button type="button" class="pill-btn" data-s05-brief="4" aria-pressed="false">先锋音乐节海报</button>
+            <button type="button" class="pill-btn" data-s05-brief="5" aria-pressed="false">横竖混杂摄影墙</button>
+          </div>
+        </div>
+
+        <div class="s05-result" aria-live="polite">
+          <div class="s05-res-main">
+            <span id="s05-verdict" class="s05-verdict is-ok">直接用等距网格</span>
+            <h4 id="s05-title" class="s05-title">SaaS 数据看板</h4>
+            <p id="s05-reason" class="s05-reason"></p>
+            <p id="s05-alt" class="s05-alt" hidden></p>
+          </div>
+          <div class="s05-meters" aria-label="项目结构特征（示意）">
+            <div class="s05-mrow"><span>内容同构度（示意）</span><div class="s05-track"><div id="s05-b0" class="s05-fill"></div></div></div>
+            <div class="s05-mrow"><span>模块增删频率（示意）</span><div class="s05-track"><div id="s05-b1" class="s05-fill"></div></div></div>
+            <div class="s05-mrow"><span>反差戏剧张力（示意）</span><div class="s05-track"><div id="s05-b2" class="s05-fill is-warm"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 · 小练习：哪版真等距？ ==================== -->
+  <section id="sec-06" class="band band-light">
+    <div class="wrap">
+      <div class="sec-header">
+        <span class="sec-num" lang="en">06</span>
+        <div class="sec-titles">
+          <h2>小练习：哪版真等距？</h2>
+          <p class="sec-en" lang="en">MINI PRACTICE: SPOT THE TRUE EQUIDISTANT GRID</p>
+        </div>
+      </div>
+
+      <p class="quiz-prompt">下面四版是同一组 5 张展讯卡片（占满 6 格），颜色、字号和外框完全相同，每版只动了一个间距规则。请挑出唯一严格遵守等距网格秩序的那一版：</p>
+
+      <div id="s06-quiz" class="s06-quiz">
+        <div class="quiz-grid">
+          <!-- A: gx=18 gy=8 pad=10 (横竖不等) -->
+          <button type="button" class="quiz-card" data-quiz-opt="A" aria-pressed="false">
+            <span class="quiz-tag">方案 A</span>
+            <div class="q-mini q-opt-a" aria-hidden="true">
+              <div class="qm-item qm-span"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+            </div>
+            <span class="quiz-spec" data-neutral="展讯图样 01 · 凭眼判断" data-reveal="列距 18 · 行距 8 · 内距 10">展讯图样 01 · 凭眼判断</span>
+          </button>
+
+          <!-- B: gx=12 gy=12 pad=16 (内外倒挂) -->
+          <button type="button" class="quiz-card" data-quiz-opt="B" aria-pressed="false">
+            <span class="quiz-tag">方案 B</span>
+            <div class="q-mini q-opt-b" aria-hidden="true">
+              <div class="qm-item qm-span"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+            </div>
+            <span class="quiz-spec" data-neutral="展讯图样 02 · 凭眼判断" data-reveal="列距 12 · 行距 12 · 内距 16">展讯图样 02 · 凭眼判断</span>
+          </button>
+
+          <!-- C: gx=16 gy=16 pad=8 span=2W+16 (正确答案) -->
+          <button type="button" class="quiz-card" data-quiz-opt="C" aria-pressed="false">
+            <span class="quiz-tag">方案 C</span>
+            <div class="q-mini q-opt-c" aria-hidden="true">
+              <div class="qm-item qm-span"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+            </div>
+            <span class="quiz-spec" data-neutral="展讯图样 03 · 凭眼判断" data-reveal="列距 16 · 行距 16 · 内距 8（2W+X）">展讯图样 03 · 凭眼判断</span>
+          </button>
+
+          <!-- D: gx=16 gy=16 pad=8 span=2W (漏算 1X 跨缝) -->
+          <button type="button" class="quiz-card" data-quiz-opt="D" aria-pressed="false">
+            <span class="quiz-tag">方案 D</span>
+            <div class="q-mini q-opt-d" aria-hidden="true">
+              <div class="qm-item qm-span qm-short"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+              <div class="qm-item"><i></i><u></u></div>
+            </div>
+            <span class="quiz-spec" data-neutral="展讯图样 04 · 凭眼判断" data-reveal="列距 16 · 行距 16 · 跨列漏 1X">展讯图样 04 · 凭眼判断</span>
+          </button>
+        </div>
+
+        <div class="quiz-actions">
+          <button type="button" id="s06-ruler" class="pill-btn" aria-pressed="false">打开红线标尺验真</button>
+          <button type="button" id="s06-reset" class="pill-btn" hidden>重选一次</button>
+        </div>
+
+        <div id="s06-feedback" class="s06-feedback" hidden aria-live="polite">
+          <strong id="s06-fb-head"></strong>
+          <p id="s06-fb-body"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 · 原海报与关键词 ==================== -->
+  <section id="sec-07" class="band band-warm">
+    <div class="wrap">
+      <div class="sec-header">
+        <span class="sec-num" lang="en">07</span>
+        <div class="sec-titles">
+          <h2>原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; KEYWORDS</p>
+        </div>
+      </div>
+
+      <div class="poster-layout">
+        <div class="poster-frame-col">
+          <button type="button" id="poster-open" class="poster-btn" aria-label="点击放大查看 202 号等距网格原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="202 等距网格原海报">
+            <span class="poster-zoom-hint">点击放大 · 可拖动细看</span>
+          </button>
+        </div>
+
+        <div class="poster-meta-col">
+          <p class="poster-lead">本页的暖米宣纸底色、浓墨粗横线、朱橘红几何图形、虚线坐标轨与「间距单位 = X」红方交叉图，全部承袭自第 202 号原海报。原海报底沿用三组以 <code>×</code> 连接的短语收束全篇：</p>
+
+          <div class="keyword-ribbon" aria-label="海报关键词">
+            <div class="kw-item">
+              <strong>简洁的结构</strong>
+              <span lang="en">SIMPLE STRUCTURE</span>
+            </div>
+            <span class="kw-x" aria-hidden="true">×</span>
+            <div class="kw-item">
+              <strong>清晰的秩序</strong>
+              <span lang="en">CLEAR ORDER</span>
+            </div>
+            <span class="kw-x" aria-hidden="true">×</span>
+            <div class="kw-item">
+              <strong>有效的沟通</strong>
+              <span lang="en">EFFECTIVE COMMUNICATION</span>
+            </div>
+          </div>
+
+          <div class="poster-notes">
+            <h3>阅读提示</h3>
+            <ul>
+              <li>原海报把 12 种截然不同的几何图形放进同一套 4×3 等距沟道里，恰恰证明了：内容可以千变万化，只要间距标尺统一，视觉依然沉稳。</li>
+              <li>放大原海报细看中区左侧「间距单位 = X」红方与右下角四张「使用建议」小图，它们正是本页开场校样台与 02 节跨缝公式的原型。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 页脚 -->
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <span class="footer-dot" aria-hidden="true"></span>
+    <p>
+      <a href="https://layout.xiaoxiaodong.ai/202/play/" target="_blank" rel="noopener">在线版</a> /
+      全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai</a>
+      · 海报 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
+      · <a href="https://github.com/xiaoxiaodong/350-layout" target="_blank" rel="noopener">源文件 GitHub</a>
+    </p>
+    <span class="footer-dot" aria-hidden="true"></span>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱 -->
+<div id="poster-modal" class="poster-modal" role="dialog" aria-modal="true" aria-label="原海报放大查看" hidden>
+  <div class="modal-bar">
+    <span class="modal-title">202 等距网格 · 原海报（拖动平移，滚轮或按钮缩放，Esc 关闭）</span>
+    <div class="modal-tools">
+      <button type="button" id="poster-zoom-out" class="modal-btn">−</button>
+      <button type="button" id="poster-zoom-reset" class="modal-btn">125%</button>
+      <button type="button" id="poster-zoom-in" class="modal-btn">+</button>
+      <button type="button" id="poster-close" class="modal-btn is-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div id="poster-viewport" class="modal-viewport">
+    <img id="poster-modal-img" src="" alt="202 等距网格原海报放大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
