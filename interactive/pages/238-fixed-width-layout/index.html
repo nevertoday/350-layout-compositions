@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>238 固定宽度布局 · FIXED-WIDTH LAYOUT</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-in">
+      <div class="topbar-left">
+        <span class="topbar-dots" aria-hidden="true"><i class="d1"></i><i class="d2"></i><i class="d3"></i></span>
+        <span class="topbar-cat">网页与 UI / CSS 流、定位与响应</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-no">NO. 238 · FIXED-WIDTH LAYOUT</span>
+        <span class="score-pill" id="topScore" data-state="error">0 / 4 待校容器</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 开场：238 原海报暖米制图单页（双侧毫米标尺 + 居中固定容器制图台 + 五屏同步压测剖面） -->
+    <section class="hero" aria-label="固定宽度布局活体制图台">
+      <div class="hero-sheet">
+        <div class="hero-head">
+          <div class="hero-rail-note" aria-hidden="true">
+            <span id="railLeftNote">← 0px →</span>
+            <span class="hero-rail-line"></span>
+          </div>
+          <div class="hero-title-wrap">
+            <h1 class="hero-title">
+              <span class="title-bracket" aria-hidden="true">├</span>
+              <span>固定宽度布局</span>
+              <span class="title-bracket" id="titleWidthTag">1280px</span>
+              <span class="title-bracket" aria-hidden="true">┤</span>
+            </h1>
+            <div class="hero-sub-row">
+              <span class="hero-en">FIXED-WIDTH LAYOUT</span>
+              <span class="hero-dash" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="hero-rail-note right" aria-hidden="true">
+            <span class="hero-rail-line"></span>
+            <span id="railRightNote">← 160px →</span>
+          </div>
+        </div>
+
+        <div class="stage-bar">
+          <div class="seg-group" role="group" aria-label="题材切换">
+            <button type="button" class="seg-btn" data-scenario="poster" aria-pressed="true">原海报三栏</button>
+            <button type="button" class="seg-btn" data-scenario="article" aria-pressed="false">单栏长文</button>
+            <button type="button" class="seg-btn" data-scenario="landing" aria-pressed="false">产品官网</button>
+          </div>
+          <span class="stage-tip">横拖画布标定容器宽 · 点底排五屏剖面切屏 · 方向键 ← → 微调</span>
+          <div class="seg-group" role="group" aria-label="快捷方案">
+            <button type="button" class="seg-btn" id="preset960">经典 960 解</button>
+            <button type="button" class="seg-btn" id="preset1120">宽版 1120 解</button>
+            <button type="button" class="seg-btn ghost" id="presetBroken">复原 0/4 错态</button>
+          </div>
+        </div>
+
+        <div class="blueprint-stage">
+          <canvas
+            id="heroCanvas"
+            data-perf-drag
+            tabindex="0"
+            role="application"
+            aria-label="固定宽度容器制图画布：左右拖动修改容器宽度，点击底部五块设备剖面切换视口，方向键左右微调"
+          ></canvas>
+        </div>
+
+        <div class="hero-workbench">
+          <div class="diag-box" id="diagBox" data-state="error" aria-live="polite">
+            <div class="diag-top">
+              <span class="diag-badge" id="diagBadge">错态 · 硬宽溢出 (0/4)</span>
+              <span class="diag-source">单真源几何实算 · 经验参考带</span>
+            </div>
+            <h2 class="diag-headline" id="diagHeadline">硬锁 width: 1280px 把手机屏直接切掉 71%</h2>
+            <p class="diag-reason" id="diagReason"></p>
+            <p class="diag-hint" id="diagHint"></p>
+            <div class="diag-metrics">
+              <div class="metric-cell">
+                <span class="metric-k">当前容器实宽</span>
+                <span class="metric-v" id="mBoxW">1280px</span>
+              </div>
+              <div class="metric-cell">
+                <span class="metric-k">当前左右留白</span>
+                <span class="metric-v" id="mMargins">0 / 160px</span>
+              </div>
+              <div class="metric-cell">
+                <span class="metric-k">估算行宽（示意）</span>
+                <span class="metric-v" id="mChars">约 85 字/行</span>
+              </div>
+              <div class="metric-cell">
+                <span class="metric-k">五屏横滚溢出</span>
+                <span class="metric-v bad" id="mOverflow">3 屏溢出</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ctrl-box">
+            <div class="ctrl-row">
+              <label class="ctrl-label" for="widthSlider"><em>①</em>目标宽幅</label>
+              <div class="slider-wrap">
+                <input type="range" id="widthSlider" min="420" max="1380" step="10" value="1280">
+                <span class="slider-val" id="widthVal">1280px</span>
+              </div>
+            </div>
+
+            <div class="ctrl-row">
+              <span class="ctrl-label"><em>②</em>宽度锁法</span>
+              <div class="seg-group" role="group" aria-label="宽度锁法">
+                <button type="button" class="seg-btn danger" data-lock="hard" aria-pressed="true">硬锁 width</button>
+                <button type="button" class="seg-btn" data-lock="max" aria-pressed="false">max-width</button>
+                <button type="button" class="seg-btn" data-lock="min" aria-pressed="false">CSS min()</button>
+              </div>
+            </div>
+
+            <div class="ctrl-row">
+              <span class="ctrl-label"><em>③</em>水平对齐</span>
+              <div class="seg-group" role="group" aria-label="水平对齐">
+                <button type="button" class="seg-btn danger" data-align="left" aria-pressed="true">贴左 margin:0</button>
+                <button type="button" class="seg-btn" data-align="center" aria-pressed="false">居中 auto</button>
+                <button type="button" class="seg-btn danger" data-align="right" aria-pressed="false">贴右</button>
+              </div>
+            </div>
+
+            <div class="ctrl-row">
+              <span class="ctrl-label"><em>④</em>安全护垫</span>
+              <div class="seg-group" role="group" aria-label="内边距安全护垫">
+                <button type="button" class="seg-btn danger" data-gutter="0" aria-pressed="true">0px 贴壁</button>
+                <button type="button" class="seg-btn" data-gutter="24" aria-pressed="false">24px 舒适</button>
+                <button type="button" class="seg-btn" data-gutter="36" aria-pressed="false">36px 宽裕</button>
+                <button type="button" class="seg-btn danger" data-gutter="88" aria-pressed="false">88px 过厚</button>
+              </div>
+            </div>
+
+            <pre class="css-live" id="cssLive"></pre>
+          </div>
+        </div>
+
+        <!-- 1:1 呼应原海报底沿三彩圆实况图例带 -->
+        <div class="poster-legend" aria-label="原海报三大支柱实况">
+          <div class="legend-item">
+            <span class="legend-dot" aria-hidden="true"></span>
+            <div class="legend-txt">
+              <span class="legend-en">FIXED</span>
+              <span class="legend-zh">宽度恒定</span>
+            </div>
+            <span class="legend-tag" id="legFixed" data-ok="false">硬锁溢出</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot orange" aria-hidden="true"></span>
+            <div class="legend-txt">
+              <span class="legend-en">MARGIN</span>
+              <span class="legend-zh">边距稳定</span>
+            </div>
+            <span class="legend-tag" id="legMargin" data-ok="false">偏斜 160px</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" aria-hidden="true"></span>
+            <div class="legend-txt">
+              <span class="legend-en">CONTROL</span>
+              <span class="legend-zh">内容居中</span>
+            </div>
+            <span class="legend-tag" id="legControl" data-ok="false">左贴失衡</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 01 节：海报拆解：三根支柱 -->
+    <section class="sec sec-ivory" id="sec-01">
+      <div class="wrap">
+        <div class="sec-head">
+          <div class="sec-title-group">
+            <span class="sec-num">01</span>
+            <h2 class="sec-h2">海报拆解：三根支柱</h2>
+          </div>
+          <span class="sec-en">Three Structural Pillars</span>
+        </div>
+        <p class="lead-p">
+          原海报把固定宽度布局收束成三句极简的铁律：<strong>宽度恒定</strong>、<strong>边距稳定</strong>、<strong>内容居中</strong>。点击任意一根支柱，下方建筑剖面会展开它对应的 CSS 骨架与真实视觉分工。
+        </p>
+
+        <div class="pillar-grid" role="group" aria-label="切换查看三根支柱解剖">
+          <button type="button" class="pillar-card" data-pillar="fixed" aria-pressed="true">
+            <div class="pillar-icon-row">
+              <span class="pillar-circle" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                  <path d="M5 13H21M5 13L9.5 8.5M5 13L9.5 17.5M21 13L16.5 8.5M21 13L16.5 17.5" stroke="#FAF5EA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="pillar-en-tag">FIXED</span>
+            </div>
+            <h3 class="pillar-title">宽度恒定</h3>
+            <p class="pillar-quote">原海报：内容区域宽度固定，避免阅读路径变化</p>
+            <p class="pillar-body">让主内容区不再随超宽显示器无休止拉长，每一行的起止位置保持可预期。</p>
+          </button>
+
+          <button type="button" class="pillar-card mid" data-pillar="margin" aria-pressed="false">
+            <div class="pillar-icon-row">
+              <span class="pillar-circle" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                  <rect x="4.5" y="4.5" width="17" height="17" stroke="#FAF5EA" stroke-width="1.6" stroke-dasharray="3 2.5"/>
+                  <rect x="8.5" y="8.5" width="9" height="9" stroke="#FAF5EA" stroke-width="2"/>
+                </svg>
+              </span>
+              <span class="pillar-en-tag">MARGIN</span>
+            </div>
+            <h3 class="pillar-title">边距稳定</h3>
+            <p class="pillar-quote">原海报：左右留白一致，保持视觉平衡</p>
+            <p class="pillar-body">桌面宽屏靠外侧均分留白托住画心，窄屏靠内边距护垫挡住文字不贴玻璃。</p>
+          </button>
+
+          <button type="button" class="pillar-card" data-pillar="control" aria-pressed="false">
+            <div class="pillar-icon-row">
+              <span class="pillar-circle" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                  <circle cx="13" cy="13" r="6" stroke="#FAF5EA" stroke-width="1.8"/>
+                  <path d="M13 4V7M13 19V22M4 13H7M19 13H22" stroke="#FAF5EA" stroke-width="1.8" stroke-linecap="round"/>
+                  <circle cx="13" cy="13" r="2.4" fill="#E7561C"/>
+                </svg>
+              </span>
+              <span class="pillar-en-tag">CONTROL</span>
+            </div>
+            <h3 class="pillar-title">内容居中</h3>
+            <p class="pillar-quote">原海报：信息在容器内居中，提升阅读效率</p>
+            <p class="pillar-body">把容器锚在视口正中，眼睛无需斜向偏转；无论切到 1440 还是 2560 屏幕，视觉轴线始终居中。</p>
+          </button>
+        </div>
+
+        <div class="anatomy-panel" id="anatomyPanel" aria-live="polite">
+          <div class="anatomy-svg-box" id="anatomySvg"></div>
+          <div class="anatomy-copy">
+            <h3 id="anatomyTitle"></h3>
+            <p id="anatomyDesc"></p>
+            <pre class="anatomy-code" id="anatomyCode"></pre>
+          </div>
+        </div>
+
+        <div class="caveat-note">
+          <span class="caveat-tag">说多了一点</span>
+          <p>
+            原海报写「内容区域宽度固定」「左右留白一致」，在屏幕宽于容器（如 1440px 显示器看 960px 容器）时完全成立；但如果屏幕比容器还窄（如 375px 手机或分屏窗口），硬把宽度锁死只会触发横向滚动条。现代工程里真正的固定宽度，指的是<strong>「上限固定、下限随屏收缩」</strong>（<code>max-width</code> 搭配安全内边距）。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 节：为什么限宽才好读 -->
+    <section class="sec sec-cream" id="sec-02">
+      <div class="wrap">
+        <div class="sec-head">
+          <div class="sec-title-group">
+            <span class="sec-num">02</span>
+            <h2 class="sec-h2">为什么限宽才好读</h2>
+          </div>
+          <span class="sec-en">Measure &amp; Eye Sweep</span>
+        </div>
+        <p class="lead-p">
+          限制容器宽度不是为了浪费大屏幕，而是为了照顾眼球的回扫精度。字体学家 Robert Bringhurst 在 1992 年出版的《字体排印风格要素》（<em>The Elements of Typographic Style</em>）中给出西文单栏经验行长为每行 45–75 个字符（约 66 字符最稳）；W3C WCAG 2.1 的 1.4.8 条款则建议正文行宽不超过 80 个西文字符或 40 个中日韩汉字。拖动下方标尺，亲眼看同一段真文字在不同宽幅与字号下的折行变化。
+        </p>
+
+        <div class="measure-controls">
+          <div class="measure-slider-block">
+            <div class="measure-slider-head">
+              <label for="measureRange">调节段落容器宽度</label>
+              <strong id="measureWidthOut">680px</strong>
+            </div>
+            <input type="range" id="measureRange" min="280" max="1100" step="20" value="680">
+          </div>
+
+          <div class="seg-group" role="group" aria-label="正文字号">
+            <button type="button" class="seg-btn" data-fsize="14" aria-pressed="false">14px</button>
+            <button type="button" class="seg-btn" data-fsize="16" aria-pressed="true">16px</button>
+            <button type="button" class="seg-btn" data-fsize="18" aria-pressed="false">18px</button>
+            <button type="button" class="seg-btn" data-fsize="20" aria-pressed="false">20px</button>
+          </div>
+
+          <div class="seg-group" role="group" aria-label="语种切换">
+            <button type="button" class="seg-btn" data-lang="zh" aria-pressed="true">中文正文</button>
+            <button type="button" class="seg-btn" data-lang="en" aria-pressed="false">English</button>
+          </div>
+        </div>
+
+        <div class="measure-stage">
+          <div class="measure-ruler" id="measureRuler">← 容器实宽 680px →</div>
+          <div class="measure-box" id="measureBox" data-verdict="good" style="width: 680px;">
+            <h3 class="measure-sample-title" id="measureTitle">眼睛喜欢有节奏的往返</h3>
+            <p class="measure-sample-text" id="measureText"></p>
+          </div>
+          <div class="measure-readout">
+            <div class="measure-stat">
+              <span>容器内净宽</span>
+              <strong id="mrInner">636px</strong>
+            </div>
+            <div class="measure-stat">
+              <span>单行约容纳（示意）</span>
+              <strong id="mrChars">约 40 汉字</strong>
+            </div>
+            <div class="measure-stat">
+              <span>等效字符单位</span>
+              <strong id="mrCh">39.8 em</strong>
+            </div>
+            <div class="measure-stat">
+              <span>回扫舒适档位</span>
+              <strong id="mrGrade">理想阅读带</strong>
+            </div>
+          </div>
+          <div class="measure-verdict-bar" id="measureVerdict" data-verdict="good" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 节：硬锁与护栏的生死线（深海建筑蓝暗室） -->
+    <section class="sec sec-navy" id="sec-03">
+      <div class="wrap">
+        <div class="sec-head">
+          <div class="sec-title-group">
+            <span class="sec-num">03</span>
+            <h2 class="sec-h2">硬锁与护栏的生死线</h2>
+          </div>
+          <span class="sec-en">Width vs. Max-Width &amp; WCAG Reflow</span>
+        </div>
+        <p class="lead-p">
+          在 1440px 显示器上，下面三段 CSS 画出来的居中盒子几乎一模一样；可一旦把页面缩放到 WCAG 2.1 第 1.4.10 条「重排（Reflow）」规定的 320 CSS 像素门槛（等效 1280px 屏幕放大 400%），硬写死的 <code>width</code> 会当场裂开。切换不同写法与缩放档位，在模拟视口里亲手试试会不会出现横向滚动条。
+        </p>
+
+        <div class="reflow-grid">
+          <div class="recipe-list" role="group" aria-label="选择 CSS 容器写法">
+            <button type="button" class="recipe-btn" data-recipe="hard" aria-pressed="true">
+              <div class="recipe-top">
+                <span class="recipe-name">写法一 · 硬锁 width（老派写法）</span>
+                <span class="recipe-tag fail">320px 必溢</span>
+              </div>
+              <span class="recipe-code">.container { width: 960px; margin: 0 auto; }</span>
+            </button>
+
+            <button type="button" class="recipe-btn" data-recipe="max" aria-pressed="false">
+              <div class="recipe-top">
+                <span class="recipe-name">写法二 · max-width + padding（经典安全）</span>
+                <span class="recipe-tag ok">WCAG 通过</span>
+              </div>
+              <span class="recipe-code">.container { width: 100%; max-width: 960px; margin-inline: auto; padding-inline: 24px; }</span>
+            </button>
+
+            <button type="button" class="recipe-btn" data-recipe="min" aria-pressed="false">
+              <div class="recipe-top">
+                <span class="recipe-name">写法三 · CSS min() 单行护栏（现代简写）</span>
+                <span class="recipe-tag ok">WCAG 通过</span>
+              </div>
+              <span class="recipe-code">.container { width: min(960px, 100% - 48px); margin-inline: auto; }</span>
+            </button>
+          </div>
+
+          <div class="reflow-bench">
+            <div class="zoom-bar">
+              <span class="zoom-label">模拟视口 / 缩放档位</span>
+              <div class="zoom-btns" role="group" aria-label="模拟视口缩放">
+                <button type="button" class="zoom-btn" data-zoom="100" aria-pressed="false">100% · 1280px</button>
+                <button type="button" class="zoom-btn" data-zoom="200" aria-pressed="false">200% · 640px</button>
+                <button type="button" class="zoom-btn" data-zoom="400" aria-pressed="true">400% · 320px</button>
+              </div>
+            </div>
+
+            <div class="sim-viewport-frame" id="simFrame">
+              <div class="sim-viewport-bar">
+                <span id="simVpLabel">视口 320px（400% 放大）</span>
+                <span id="simOverflowLabel">横向溢出</span>
+              </div>
+              <div class="sim-scroll-port" id="simScrollPort">
+                <div class="sim-inner-page" id="simInnerPage">
+                  <h3 class="sim-inner-title">固定容器重排实测段落 · 尾部标记 [END]</h3>
+                  <p class="sim-inner-p">
+                    当低视力用户在桌面浏览器按下 400% 缩放，或者普通读者用手机竖屏打开网页时，如果容器仍锁死 960px，文字右侧会被整块裁到视口之外，必须每行来回拖动底部滚动条才能读到句尾标记 [END]。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="reflow-status" id="reflowStatus" data-fail="true" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 节：从表格像素到 960 网格 -->
+    <section class="sec sec-sand" id="sec-04">
+      <div class="wrap">
+        <div class="sec-head">
+          <div class="sec-title-group">
+            <span class="sec-num">04</span>
+            <h2 class="sec-h2">从表格像素到 960 网格</h2>
+          </div>
+          <span class="sec-en">Origin &amp; The 960 Math</span>
+        </div>
+        <p class="lead-p">
+          固定宽度布局脱胎于印刷出版的「版心」传统，在二十多年里走过「表格硬锁 → 整数网格黄金期 → 退居响应式上限容器」的完整演变。
+        </p>
+
+        <div class="timeline-list">
+          <article class="tl-card">
+            <span class="tl-year">1996</span>
+            <h3 class="tl-title">表格定宽与 1px 透明图</h3>
+            <p class="tl-body">David Siegel 出版 <em>Creating Killer Web Sites</em>（Hayden Books），借 HTML 表格定宽与 1×1 透明 GIF 撑杆，把纸媒像素控制搬上网页。</p>
+          </article>
+          <article class="tl-card">
+            <span class="tl-year">2000</span>
+            <h3 class="tl-title">网页之道的反思</h3>
+            <p class="tl-body">John Allsopp 在 <em>A List Apart</em> 发表《A Dao of Web Design》，指出屏幕没有固定纸张尺寸，劝设计师别再执迷锁死画布。</p>
+          </article>
+          <article class="tl-card highlight">
+            <span class="tl-year">2008</span>
+            <h3 class="tl-title">960 Grid System 问世</h3>
+            <p class="tl-body">Nathan Smith 发布 960.gs，瞄准 1024×768 主流屏定下 960px 居中容器，12 列（60px）与 16 列（40px）配 20px 栏沟风靡全球。</p>
+          </article>
+          <article class="tl-card">
+            <span class="tl-year">2010</span>
+            <h3 class="tl-title">响应式打破单一像素</h3>
+            <p class="tl-body">Ethan Marcotte 在 <em>A List Apart</em> 提出 Responsive Web Design；固定宽度不再垄断整页，转为桌面端的最大宽度护栏。</p>
+          </article>
+          <article class="tl-card">
+            <span class="tl-year">2018</span>
+            <h3 class="tl-title">WCAG 2.1 划定重排红线</h3>
+            <p class="tl-body">W3C 正式推荐 WCAG 2.1，新增 1.4.10 Reflow（AA 级），明确 320px 宽度下禁止强制双向滚动，宣告裸写硬定宽退场。</p>
+          </article>
+        </div>
+
+        <div class="divisor-lab">
+          <div class="divisor-top">
+            <h3>为什么当年选的是 960px，而不是整数 1000px？</h3>
+            <div class="seg-group" role="group" aria-label="切换测试容器基数">
+              <button type="button" class="seg-btn" data-base="960" aria-pressed="true">960px（960.gs）</button>
+              <button type="button" class="seg-btn" data-base="1000" aria-pressed="false">1000px（凑整）</button>
+              <button type="button" class="seg-btn" data-base="1200" aria-pressed="false">1200px（现代宽版）</button>
+            </div>
+          </div>
+
+          <div class="divisor-cols-bar" role="group" aria-label="选择等分列数">
+            <button type="button" class="seg-btn" data-cols="2" aria-pressed="false">2 列</button>
+            <button type="button" class="seg-btn" data-cols="3" aria-pressed="false">3 列</button>
+            <button type="button" class="seg-btn" data-cols="4" aria-pressed="false">4 列</button>
+            <button type="button" class="seg-btn" data-cols="5" aria-pressed="false">5 列</button>
+            <button type="button" class="seg-btn" data-cols="6" aria-pressed="false">6 列</button>
+            <button type="button" class="seg-btn" data-cols="8" aria-pressed="false">8 列</button>
+            <button type="button" class="seg-btn" data-cols="12" aria-pressed="true">12 列</button>
+            <button type="button" class="seg-btn" data-cols="16" aria-pressed="false">16 列</button>
+            <button type="button" class="seg-btn" data-cols="7" aria-pressed="false">7 列（试错）</button>
+          </div>
+
+          <div class="divisor-strip-svg" id="divisorSvgBox"></div>
+          <div class="divisor-summary" aria-live="polite">
+            <span class="divisor-formula" id="divisorFormula"></span>
+            <span class="divisor-badge" id="divisorBadge" data-exact="true"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 节：什么时候用，什么时候别用 -->
+    <section class="sec sec-ivory" id="sec-05">
+      <div class="wrap">
+        <div class="sec-head">
+          <div class="sec-title-group">
+            <span class="sec-num">05</span>
+            <h2 class="sec-h2">什么时候用，什么时候别用</h2>
+          </div>
+          <span class="sec-en">When to Use &amp; When to Avoid</span>
+        </div>
+        <p class="lead-p">
+          选布局的本质是问自己：<strong>屏幕变大时，内容变宽对用户有帮助吗？</strong>点击下面 6 类真实产品场景，看该锁上限、该局部破格，还是干脆换别的布局体系。
+        </p>
+
+        <div class="scene-tabs" role="group" aria-label="真实业务场景选型">
+          <button type="button" class="seg-btn" data-usecase="docs" aria-pressed="true">技术文档与博客</button>
+          <button type="button" class="seg-btn" data-usecase="checkout" aria-pressed="false">表单与结账页</button>
+          <button type="button" class="seg-btn" data-usecase="story" aria-pressed="false">品牌故事页</button>
+          <button type="button" class="seg-btn" data-usecase="email" aria-pressed="false">HTML 邮件简报</button>
+          <button type="button" class="seg-btn" data-usecase="sheet" aria-pressed="false">多列表格与后台</button>
+          <button type="button" class="seg-btn" data-usecase="canvas" aria-pressed="false">设计画板与看板</button>
+        </div>
+
+        <div class="scene-verdict-box" id="sceneVerdictBox" aria-live="polite">
+          <div>
+            <span class="scene-flag use" id="scFlag"></span>
+            <h3 id="scTitle"></h3>
+            <p id="scBody"></p>
+            <pre class="anatomy-code" id="scCode"></pre>
+          </div>
+          <div class="scene-diagram" id="scDiagram"></div>
+        </div>
+
+        <div class="when-cols">
+          <div class="when-panel good">
+            <h3>适合用「固定上限居中容器」</h3>
+            <ul>
+              <li><strong>阅读优先的文字页</strong>：博客、新闻报道、帮助文档，用 640–760px 锁住舒适行长。</li>
+              <li><strong>聚焦转化的操作流</strong>：注册登录、订单结账、问卷步骤，收窄视野能显著减少视线漂移。</li>
+              <li><strong>品牌官网与作品集</strong>：用 1040–1240px 居中容器建立秩序，必要时仅让头图或横幅做全宽破格（full-bleed）。</li>
+              <li><strong>固定画幅交付物</strong>：电子请柬、A4 打印预览或传统 600px 邮件客户端模板。</li>
+            </ul>
+          </div>
+          <div class="when-panel avoid">
+            <h3>什么时候别用固定宽度（转向同族布局）</h3>
+            <ul>
+              <li><strong>屏幕越大越需要展示更多列</strong>：20 列表格、K 线行情、视频剪辑轨道——硬锁居中容器只会把一半大屏浪费成死边，改用 <a href="https://layout.xiaoxiaodong.ai/239/play/">239 流体布局</a> 随视口连续舒展。</li>
+              <li><strong>跨设备要彻底重组栏数与导航</strong>：手机单栏、桌面多栏的分段重构交给 <a href="https://layout.xiaoxiaodong.ai/240/play/">240 响应式布局</a>，按固定断点切整套方案则看 <a href="https://layout.xiaoxiaodong.ai/241/play/">241 自适应布局</a>。</li>
+              <li><strong>同一组件既进窄侧栏又进宽主栏</strong>：不能只看整页宽度，应交由 <a href="https://layout.xiaoxiaodong.ai/242/play/">242 容器查询布局</a> 按父盒尺寸自变形。</li>
+              <li><strong>容器内部还要精排多维轨道</strong>：外框定宽之后，内部对齐请配合 <a href="https://layout.xiaoxiaodong.ai/227/play/">227 网格布局</a> 与 <a href="https://layout.xiaoxiaodong.ai/226/play/">226 弹性盒布局</a>。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 节：小练习 -->
+    <section class="sec sec-cream" id="sec-06">
+      <div class="wrap">
+        <div class="sec-head">
+          <div class="sec-title-group">
+            <span class="sec-num">06</span>
+            <h2 class="sec-h2">小练习：选出最稳容器</h2>
+          </div>
+          <span class="sec-en">Practice: Spot the Sound Container</span>
+        </div>
+        <p class="quiz-q">
+          团队要上线一个同时服务桌面（1440px）与手机（375px）读者的中文技术长文专栏（16px 正文）。下面四份样式每次只改动一个关键变量，哪一份最稳妥？
+        </p>
+
+        <div class="quiz-grid" id="quizGrid">
+          <button type="button" class="quiz-opt" data-opt="A" aria-pressed="false">
+            <div class="quiz-opt-head">
+              <span class="quiz-letter">方案 A</span>
+            </div>
+            <div class="quiz-opt-code">width: 720px;
+margin-inline: auto;
+padding-inline: 24px;</div>
+            <div class="quiz-mini-svg" data-qsvg="A"></div>
+          </button>
+
+          <button type="button" class="quiz-opt" data-opt="B" aria-pressed="false">
+            <div class="quiz-opt-head">
+              <span class="quiz-letter">方案 B</span>
+            </div>
+            <div class="quiz-opt-code">width: 100%;
+max-width: 720px;
+margin-inline: auto;
+padding-inline: 24px;</div>
+            <div class="quiz-mini-svg" data-qsvg="B"></div>
+          </button>
+
+          <button type="button" class="quiz-opt" data-opt="C" aria-pressed="false">
+            <div class="quiz-opt-head">
+              <span class="quiz-letter">方案 C</span>
+            </div>
+            <div class="quiz-opt-code">width: 100%;
+max-width: 1360px;
+margin-inline: auto;
+padding-inline: 24px;</div>
+            <div class="quiz-mini-svg" data-qsvg="C"></div>
+          </button>
+
+          <button type="button" class="quiz-opt" data-opt="D" aria-pressed="false">
+            <div class="quiz-opt-head">
+              <span class="quiz-letter">方案 D</span>
+            </div>
+            <div class="quiz-opt-code">width: 100%;
+max-width: 720px;
+margin: 0;
+padding-inline: 24px;</div>
+            <div class="quiz-mini-svg" data-qsvg="D"></div>
+          </button>
+        </div>
+
+        <div class="quiz-feedback" id="quizFeedback" aria-live="polite">
+          <strong>请点击上方 A / B / C / D 任意一份方案作答</strong>
+          <span>四份规则分别把「宽度锁法」「上限宽度」「水平居中」拆开对照，选完立刻看到双屏逐项复盘。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 节：原海报与关键词 -->
+    <section class="sec sec-ivory" id="sec-07">
+      <div class="wrap">
+        <div class="sec-head">
+          <div class="sec-title-group">
+            <span class="sec-num">07</span>
+            <h2 class="sec-h2">原海报与关键词</h2>
+          </div>
+          <span class="sec-en">Original Poster &amp; Keywords</span>
+        </div>
+
+        <div class="poster-layout">
+          <button type="button" class="poster-frame" id="posterOpen" aria-label="点击放大查看 238 固定宽度布局原海报">
+            <img id="poster" src="poster.webp" alt="238 固定宽度布局原海报" draggable="false">
+            <span class="poster-cap">
+              <span>NO. 238 · FIXED-WIDTH LAYOUT</span>
+              <span>点击放大 / 拖拽查看</span>
+            </span>
+          </button>
+
+          <div class="kw-stack">
+            <p class="lead-p" style="margin-bottom: 4px;">
+              原海报用暖米制图纸、深海蓝浏览器框架与朱橘留白标线，把固定宽度最核心的三个动作画进了一张居中剖面里：
+            </p>
+            <div class="kw-item">
+              <span class="kw-dot" aria-hidden="true"></span>
+              <div>
+                <h3>宽度恒定 <span>FIXED</span></h3>
+                <p>对应容器上限 <code>max-width</code>：守住单栏或栅格的舒适行长，不让超宽显示器把文字拉散成难读的长面条。</p>
+              </div>
+            </div>
+            <div class="kw-item">
+              <span class="kw-dot orange" aria-hidden="true"></span>
+              <div>
+                <h3>边距稳定 <span>MARGIN</span></h3>
+                <p>对应左右均分外留白与内边距护垫 <code>padding-inline</code>：大屏两侧平衡呼吸，小屏收紧时依然与屏幕边缘保持安全距离。</p>
+              </div>
+            </div>
+            <div class="kw-item">
+              <span class="kw-dot" aria-hidden="true"></span>
+              <div>
+                <h3>内容居中 <span>CONTROL</span></h3>
+                <p>对应水平居中 <code>margin-inline: auto</code>：视觉轴心牢牢锁在屏幕中央，防止容器偏贴一侧造成重心倾覆。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-in">
+      <a href="https://layout.xiaoxiaodong.ai/238/play/">在线版</a>
+      <span class="footer-sep">·</span>
+      <span>全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/">layout.xiaoxiaodong.ai</a></span>
+      <span class="footer-sep">·</span>
+      <span>海报 CC BY 4.0</span>
+      <span class="footer-sep">·</span>
+      <a href="https://github.com/imxiaoxiaodong/350-layout-compositions">源文件 GitHub</a>
+    </div>
+  </footer>
+
+  <!-- 原海报放大拖拽灯箱 -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="238 固定宽度布局原海报放大视图">
+    <div class="lb-bar">
+      <span>238 固定宽度布局 · 拖拽平移，滚轮或按钮缩放，Esc 关闭</span>
+      <div class="lb-controls">
+        <button type="button" class="lb-btn" id="lbZoomOut">－ 缩小</button>
+        <button type="button" class="lb-btn" id="lbZoomReset">100%</button>
+        <button type="button" class="lb-btn" id="lbZoomIn">＋ 放大</button>
+        <button type="button" class="lb-btn" id="lbClose">关闭 Esc</button>
+      </div>
+    </div>
+    <div class="lb-stage" id="lbStage">
+      <img id="lbImg" alt="238 固定宽度布局原海报放大图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
