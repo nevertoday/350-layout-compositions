@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>156 侧栏版式 · SIDEBAR LAYOUT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar" aria-label="页面索引与状态">
+  <div class="topbar-inner">
+    <div class="crumb">
+      <span class="crumb-dot crumb-dot-orange" aria-hidden="true"></span>
+      <span class="crumb-dot crumb-dot-slate" aria-hidden="true"></span>
+      <span>平面、出版与广告 / 模块、侧栏与图文关系</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-id" lang="en">NO. 156 · SIDEBAR LAYOUT</span>
+      <span class="status-pill is-err" id="topStatusPill" aria-live="polite">0 / 4 · 喧宾夺主</span>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <!-- ============ HERO：156 原海报 68:32 暖纸主展面 × 深普鲁士靛实色侧栏 ============ -->
+  <section class="hero-shell" aria-labelledby="pageTitle">
+    <div class="hero-grid">
+      <div class="hero-rail-bg" aria-hidden="true"></div>
+
+      <!-- 左上 156 原海报倾斜靛蓝与灰蓝装饰条 + 点阵 + 跨界弧日纹 -->
+      <div class="hero-head">
+        <div class="poster-bevel" aria-hidden="true">
+          <span class="bevel-navy"></span>
+          <span class="bevel-slate"></span>
+        </div>
+        <div class="poster-dots poster-dots-tr" aria-hidden="true"></div>
+        <div class="poster-seam-motif" aria-hidden="true">
+          <svg viewBox="0 0 96 140" width="96" height="140" fill="none">
+            <path d="M96 10 A56 56 0 0 0 96 122" stroke="#8EA7C5" stroke-width="22" fill="none"/>
+            <circle cx="68" cy="100" r="24" fill="#D86817"/>
+          </svg>
+        </div>
+
+        <div class="head-top-row">
+          <div class="title-block">
+            <h1 id="pageTitle" class="hero-title">侧栏版式</h1>
+            <p class="hero-en" lang="en">SIDEBAR LAYOUT</p>
+            <div class="title-ratio-bar" aria-hidden="true">
+              <span class="ratio-main-seg" id="titleMainBar"></span>
+              <span class="ratio-side-seg" id="titleSideBar"></span>
+              <span class="ratio-bar-label" id="titleRatioLabel">主 44% : 侧 56%</span>
+            </div>
+          </div>
+
+          <div class="head-actions">
+            <div class="seg-group" role="group" aria-label="切换版面题材">
+              <button type="button" class="btn-tab is-active" data-scenario="poster">原海报</button>
+              <button type="button" class="btn-tab" data-scenario="docs">技术文档</button>
+              <button type="button" class="btn-tab" data-scenario="editorial">深度专栏</button>
+            </div>
+            <div class="preset-group" role="group" aria-label="参考解法与错态复位">
+              <button type="button" class="btn-preset" data-preset="poster">原海报 68:32 解</button>
+              <button type="button" class="btn-preset" data-preset="docs">文档 75:25 解</button>
+              <button type="button" class="btn-preset btn-reset" data-preset="broken">复原 0/4 错态</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="hero-summary">
+          侧栏版式通过将次要信息放置在页面一侧，让主内容获得更大视觉空间和更高阅读优先级，帮助用户在主线信息与辅助信息之间建立清晰层次。
+        </p>
+      </div>
+
+      <!-- 活体分栏裁切台 2D Canvas -->
+      <div class="hero-stage">
+        <div class="stage-toolbar">
+          <span class="stage-hint">横拖中央分割刃裁比例 · 点画布红框纠错 · ← → 微调</span>
+          <div class="stage-toggles">
+            <button type="button" class="btn-mini" id="btnFlipSide" aria-pressed="false">侧栏位：右栏</button>
+            <button type="button" class="btn-mini" id="btnToggleFlow" aria-pressed="false">视线流：关</button>
+            <button type="button" class="btn-mini" id="btnToggleMobileView" aria-pressed="false">390px 实机视角</button>
+          </div>
+        </div>
+        <div class="stage-frame">
+          <canvas id="heroCanvas" class="hero-canvas" data-perf-drag tabindex="0" role="application" aria-label="活体侧栏分栏裁切台：横向拖动中央分割刃调整侧栏宽度，点击红框错位模块归位，可用左右方向键微调比例"></canvas>
+        </div>
+      </div>
+
+      <!-- 四维调律控条（非深色仪表盘，沿用 156 暖纸细线出版账本） -->
+      <div class="hero-controls" aria-label="四维分栏调校">
+        <div class="ctrl-cell">
+          <div class="ctrl-head">
+            <span class="ctrl-num">① 分栏比例</span>
+            <span class="ctrl-val" id="ctrlRatioReadout">主 46% : 侧 54%</span>
+          </div>
+          <div class="range-wrap">
+            <div class="range-sweet" aria-hidden="true"><span>经验带 20%–36%</span></div>
+            <input type="range" id="rangeSidebarPct" min="12" max="66" step="1" value="56" aria-label="侧栏宽度百分比">
+          </div>
+        </div>
+
+        <div class="ctrl-cell">
+          <div class="ctrl-head">
+            <span class="ctrl-num">② 职责与密度</span>
+            <span class="ctrl-val" id="ctrlRoleReadout">核心错置 · 7 块</span>
+          </div>
+          <div class="ctrl-btn-row">
+            <button type="button" class="btn-chip is-warn" id="btnToggleCore">核心归主区</button>
+            <button type="button" class="btn-chip is-warn" id="btnToggleNoise">清掉噪点</button>
+            <button type="button" class="btn-chip" data-items="1">1 组</button>
+            <button type="button" class="btn-chip" data-items="3">3 组</button>
+            <button type="button" class="btn-chip is-active" data-items="4">4 组</button>
+          </div>
+        </div>
+
+        <div class="ctrl-cell">
+          <div class="ctrl-head">
+            <span class="ctrl-num">③ 视觉对比</span>
+            <span class="ctrl-val" id="ctrlContrastReadout">亮橘抢戏</span>
+          </div>
+          <div class="ctrl-btn-row" role="group" aria-label="对比方式">
+            <button type="button" class="btn-chip is-warn is-active" data-contrast="loud">亮橘抢戏</button>
+            <button type="button" class="btn-chip" data-contrast="invisible">同底无界</button>
+            <button type="button" class="btn-chip" data-contrast="navy">深靛分界</button>
+            <button type="button" class="btn-chip" data-contrast="tinted">柔纸细线</button>
+          </div>
+        </div>
+
+        <div class="ctrl-cell">
+          <div class="ctrl-head">
+            <span class="ctrl-num">④ 移动端 390px</span>
+            <span class="ctrl-val" id="ctrlMobileReadout">硬并排挤扁</span>
+          </div>
+          <div class="ctrl-btn-row" role="group" aria-label="移动端适配方式">
+            <button type="button" class="btn-chip is-warn is-active" data-mobile="fixed">硬并排</button>
+            <button type="button" class="btn-chip" data-mobile="hidden">直接隐藏</button>
+            <button type="button" class="btn-chip" data-mobile="drawer">折叠抽屉</button>
+            <button type="button" class="btn-chip" data-mobile="stack">下沉堆叠</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右 32% 深普鲁士靛实色侧栏：上段为 156 原海报五项「侧栏功能」实时监测灯 -->
+      <aside class="hero-rail-top" aria-label="侧栏功能实时监测">
+        <div class="rail-header">
+          <span class="rail-dash" aria-hidden="true"></span>
+          <div class="rail-heading-group">
+            <span class="rail-title">侧栏功能</span>
+            <span class="rail-en" lang="en">SIDEBAR FUNCTIONS</span>
+          </div>
+          <button type="button" class="btn-rail-fold" id="btnRailFold" aria-expanded="false" aria-controls="railFuncList">展开 5 项</button>
+        </div>
+
+        <ul class="rail-func-list" id="railFuncList">
+          <li class="rail-func-item" data-func="main">
+            <span class="func-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+            </span>
+            <div class="func-copy">
+              <div class="func-row">
+                <strong>主内容区</strong>
+                <span class="func-chip is-err" data-chip="main">核心被抢</span>
+              </div>
+              <span class="func-en" lang="en">MAIN CONTENT</span>
+              <p>呈现核心信息，占据主要视觉空间，引导阅读流向。</p>
+            </div>
+          </li>
+
+          <li class="rail-func-item" data-func="notes">
+            <span class="func-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v12H9l-4 4V4z"/><line x1="9" y1="8.5" x2="15" y2="8.5"/><line x1="9" y1="12" x2="13" y2="12"/></svg>
+            </span>
+            <div class="func-copy">
+              <div class="func-row">
+                <strong>侧边注释</strong>
+                <span class="func-chip is-err" data-chip="notes">错塞主图</span>
+              </div>
+              <span class="func-en" lang="en">SIDE NOTES</span>
+              <p>提供补充说明、定义、案例或提示，辅助理解主内容。</p>
+            </div>
+          </li>
+
+          <li class="rail-func-item" data-func="nav">
+            <span class="func-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="6.5" cy="7" r="1.4"/><line x1="11" y1="7" x2="18.5" y2="7"/><circle cx="6.5" cy="12" r="1.4"/><line x1="11" y1="12" x2="18.5" y2="12"/><circle cx="6.5" cy="17" r="1.4"/><line x1="11" y1="17" x2="18.5" y2="17"/></svg>
+            </span>
+            <div class="func-copy">
+              <div class="func-row">
+                <strong>导航指引</strong>
+                <span class="func-chip is-err" data-chip="nav">噪点干扰</span>
+              </div>
+              <span class="func-en" lang="en">NAVIGATION</span>
+              <p>包含目录、链接或章节导航，帮助用户快速定位与跳转。</p>
+            </div>
+          </li>
+
+          <li class="rail-func-item" data-func="contrast">
+            <span class="func-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor"/></svg>
+            </span>
+            <div class="func-copy">
+              <div class="func-row">
+                <strong>对比强化</strong>
+                <span class="func-chip is-err" data-chip="contrast">反压主区</span>
+              </div>
+              <span class="func-en" lang="en">CONTRAST</span>
+              <p>通过色彩与结构对比，区分主次内容，增强信息识别度。</p>
+            </div>
+          </li>
+
+          <li class="rail-func-item" data-func="support">
+            <span class="func-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4.2 4.2 0 0 1 7-2.9A4.2 4.2 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+            </span>
+            <div class="func-copy">
+              <div class="func-row">
+                <strong>信息支持</strong>
+                <span class="func-chip is-err" data-chip="support">390px 挤扁</span>
+              </div>
+              <span class="func-en" lang="en">SUPPORT</span>
+              <p>展示标签、相关资源或行动建议，强化内容的延伸价值。</p>
+            </div>
+          </li>
+        </ul>
+      </aside>
+
+      <!-- 右下原海报撕边便签卡：单真源白话实测诊单（带斜贴橘色纸胶带！） -->
+      <div class="hero-note-wrap">
+        <div class="taped-note-frame">
+          <span class="note-tape" aria-hidden="true"></span>
+          <div class="taped-note is-err" id="diagCard" aria-live="polite">
+            <div class="note-meta">
+              <span class="note-badge is-err" id="diagBadge">错态 · 喧宾夺主 (0/4)</span>
+              <span class="note-source">实绘几何单真源</span>
+            </div>
+            <h2 class="note-title" id="diagTitle">侧栏占了 56%，反过来压扁主内容</h2>
+            <p class="note-why" id="diagWhy">1280px 桌面上主区被挤到只剩 563px（估算每行约 24 字，示意），视线一进页就被半壁江山的侧栏拖走。</p>
+            <p class="note-action" id="diagAction">向左拖动画布中央分割刃，把侧栏收进 20%–36% 经验参考带。</p>
+            <dl class="note-metrics">
+              <div><dt>主 : 侧</dt><dd id="mRatio">44% : 56%</dd></div>
+              <div><dt>主文行宽(示意)</dt><dd id="mCPL">24字·偏窄</dd></div>
+              <div><dt>视觉权力</dt><dd id="mTier">侧栏压主</dd></div>
+              <div><dt>390px 实宽</dt><dd id="mMob">172px·挤</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <!-- 原海报底沿五枚深蓝圆角关键词胶囊 -->
+      <div class="hero-tags" aria-label="海报关键词">
+        <span class="poster-pill">层次清晰</span>
+        <span class="poster-pill">阅读流畅</span>
+        <span class="poster-pill">辅助信息</span>
+        <span class="poster-pill">高效导航</span>
+        <span class="poster-pill">内容聚焦</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 为什么分出一条边道（亮象牙纸） ============ -->
+  <section class="sec sec-ivory" id="sec-01" aria-labelledby="h-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div>
+          <h2 id="h-01">为什么分出一条边道</h2>
+          <p class="sec-en" lang="en">WHY A SIDEBAR WORKS · COGNITIVE OFFLOADING</p>
+        </div>
+      </div>
+
+      <div class="sec-lead-grid">
+        <p class="sec-lead">
+          海报把侧栏版式的价值压成八个字：「<strong>内容优先，层次清晰</strong>」。人眼在连续阅读时最怕频繁跳出主线：正文里每插进一段名词解释、一串标签或一条章节跳转，读者就得打断语流，重新找回刚才读到哪一行。把这些「偶尔要瞄一眼、但绝非句句必看」的信息剥到页面一侧，主栏立刻干净，辅栏也随时待命。
+        </p>
+        <div class="sibling-note">
+          <span class="sibling-kicker">同类版式分工</span>
+          <p>
+            当版面由等权卡片按网格铺开，见 <a href="https://layout.xiaoxiaodong.ai/153/play/" target="_blank" rel="noopener">153 模块化页面</a>；靠强色块与粗沟槽切分区块，见 <a href="https://layout.xiaoxiaodong.ai/154/play/" target="_blank" rel="noopener">154 区块式版式</a>；靠短幅物理纸页打断翻阅节奏，见 <a href="https://layout.xiaoxiaodong.ai/155/play/" target="_blank" rel="noopener">155 插页式版式</a>。156 专解决「一条主干 + 一条并行边道」的长期共读。
+          </p>
+        </div>
+      </div>
+
+      <!-- 交互 1：行内混排 vs 剥离侧栏 实景抽离切换台 -->
+      <div class="extract-lab" id="extractLab" data-mode="mixed">
+        <div class="extract-bar">
+          <div class="seg-group" role="group" aria-label="阅读结构对比模式">
+            <button type="button" class="btn-tab is-active" data-extract="mixed">混排穿插（无侧栏）</button>
+            <button type="button" class="btn-tab" data-extract="split">剥离至侧栏（156 做法）</button>
+            <button type="button" class="btn-tab" data-extract="scan">叠看扫读路径（示意）</button>
+          </div>
+          <span class="extract-stat" id="extractStat">主文被打断 3 次 · 视线反复左右折返</span>
+        </div>
+
+        <div class="extract-stage">
+          <article class="extract-main">
+            <span class="doc-eyebrow">主内容区 · MAIN CONTENT</span>
+            <h3>城市慢行绿道的坡度与遮荫设计</h3>
+            <p class="doc-p">慢行绿道能否被市民日常使用，往往不取决于景观雕塑有多昂贵，而取决于连续三公里内是否保持平缓坡度与稳定树荫。</p>
+            <div class="inline-interrupt" data-interrupt="1">
+              <span class="interrupt-tag">行内插入 · 目录</span>
+              <span>本节索引：一、坡度上限 · 二、树冠遮荫 · 三、夜间照明 · 四、接驳口</span>
+            </div>
+            <p class="doc-p">当纵向坡度控制在 3% 以内时，推婴儿车、骑通勤单车与长者散步都能维持自然步频，不必反复下车推行或停靠喘息。</p>
+            <div class="inline-interrupt" data-interrupt="2">
+              <span class="interrupt-tag">行内插入 · 术语注释</span>
+              <span>纵坡 3% 指每前进 100 米高程抬升 3 米，属于无障碍缓坡的常见工程门槛。</span>
+            </div>
+            <p class="doc-p">树荫覆盖率同样影响体感温度：连续林荫在盛夏午后可显著压低路面辐射热，让绿道从「周末拍照点」变成每天走得通的通勤廊道。</p>
+            <div class="inline-interrupt" data-interrupt="3">
+              <span class="interrupt-tag">行内插入 · 延伸标签</span>
+              <span>相关专题：无障碍缓坡 · 微气候遮荫 · 城市慢行系统 · 社区接驳</span>
+            </div>
+            <div class="scan-overlay" aria-hidden="true">
+              <svg viewBox="0 0 560 270" preserveAspectRatio="none">
+                <path class="scan-path-mixed" d="M24 52 H490 L80 102 H460 L24 148 H495 L90 198 H430 L24 240 H470" fill="none" stroke="#B6241C" stroke-width="3" stroke-dasharray="8 6"/>
+                <path class="scan-path-split" d="M28 54 H440 L28 118 H445 L28 182 H435" fill="none" stroke="#136B52" stroke-width="3.2"/>
+                <path class="scan-path-glance" d="M440 118 Q492 118 530 132" fill="none" stroke="#D86817" stroke-width="2.5" stroke-dasharray="5 5"/>
+              </svg>
+            </div>
+          </article>
+
+          <aside class="extract-rail" aria-label="剥离出的侧栏内容">
+            <span class="rail-mini-head">侧栏边道 · SIDEBAR</span>
+            <div class="rail-mini-card">
+              <strong>导航指引</strong>
+              <p>一、坡度上限 → 二、树冠遮荫 → 三、夜间照明 → 四、接驳口</p>
+            </div>
+            <div class="rail-mini-card">
+              <strong>侧边注释</strong>
+              <p>纵坡 3%：每前进 100 米高程抬升 3 米，常见无障碍缓坡参考线。</p>
+            </div>
+            <div class="rail-mini-card">
+              <strong>延伸支持</strong>
+              <p>无障碍缓坡 · 微气候遮荫 · 社区接驳</p>
+            </div>
+          </aside>
+        </div>
+
+        <p class="extract-caption" id="extractCaption">
+          当前把目录、注释与标签硬插在正文段落之间，读者每读两句就被迫跳出叙事再找回断点；切到「剥离至侧栏」后，三段核心论述瞬间首尾相连，辅助信息静候在右侧边道。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 左栏还是右栏（浅雾灰蓝纸） ============ -->
+  <section class="sec sec-slate" id="sec-02" aria-labelledby="h-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div>
+          <h2 id="h-02">左栏还是右栏</h2>
+          <p class="sec-en" lang="en">LEFT VS RIGHT RAIL · ATTENTION BIAS</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">
+        尼尔森诺曼集团（Nielsen Norman Group）在 2010 年与 2017 年的眼动研究（<em>Horizontal Attention Leans Left</em>）发现，从左向右阅读的桌面用户约把八成注视时间停留在页面左半边，右半边仅分得约两成；其 2021 年针对桌面竖向导航的研究（<em>Left-Side Vertical Navigation on Desktop</em>）进一步指出，高频跨页目录放在左侧更容易扫读定位。反过来，长年累月的右侧广告位也养出了「<strong>右栏盲视</strong>」——凡是贴在最右窄条里的按钮或公告，用户常会下意识过滤掉。
+      </p>
+
+      <!-- 交互 2：三任务 × 左/右/双侧栏 视线分布与盲视检定器 -->
+      <div class="rail-pos-lab">
+        <div class="rail-pos-controls">
+          <div class="pos-group">
+            <span class="pos-label">选一个页面任务</span>
+            <div class="seg-group" role="group" aria-label="选择任务场景">
+              <button type="button" class="btn-tab is-active" data-postask="admin">后台多级导航</button>
+              <button type="button" class="btn-tab" data-postask="article">长文配注释与目录</button>
+              <button type="button" class="btn-tab" data-postask="checkout">核心提交按钮</button>
+            </div>
+          </div>
+          <div class="pos-group">
+            <span class="pos-label">把侧栏放在哪边</span>
+            <div class="seg-group" role="group" aria-label="选择侧栏方位">
+              <button type="button" class="btn-tab is-active" data-posplace="left">左侧栏</button>
+              <button type="button" class="btn-tab" data-posplace="right">右侧栏</button>
+              <button type="button" class="btn-tab" data-posplace="dual">左右双侧栏</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pos-stage-grid">
+          <div class="pos-diagram-box">
+            <svg id="posSvg" viewBox="0 0 640 300" width="640" height="300" role="img" aria-label="左右侧栏与视线注意分布示意图"></svg>
+            <p class="pos-svg-note">注：热区椭圆与视线权重仅作扫读倾向示意，不代表单次眼动实测精度。</p>
+          </div>
+          <div class="pos-verdict" id="posVerdict">
+            <span class="verdict-badge is-ok" id="posBadge">契合左倾扫读</span>
+            <h3 id="posTitle">高频导航放左侧，视线落地就能定位</h3>
+            <p id="posDesc">复杂文档或后台系统里，用户每完成一步就要切频道。把目录锚在左侧，贴合从左到右阅读的起笔位置，无需横穿整块内容就能快速跳转。</p>
+            <div class="pos-rule-box">
+              <strong>经验选边法则</strong>
+              <ul>
+                <li><strong>左侧栏</strong>：全局目录、文档树、筛选器等「先选后看」的导航工具。</li>
+                <li><strong>右侧栏</strong>：术语注释、本页小纲、相关阅读等「边看边瞄」的陪伴信息（如 156 原海报）。</li>
+                <li><strong>慎用双侧栏</strong>：除非屏幕足够宽且中间主栏仍保住 600px 以上，否则三列夹击会让正文沦为窄缝。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <p class="sibling-strip">
+          若注释必须逐行精确钉在对应句子旁，见 <a href="https://layout.xiaoxiaodong.ai/157/play/" target="_blank" rel="noopener">157 边注版式</a>；若文字顺着核心图像轮廓绕行，见 <a href="https://layout.xiaoxiaodong.ai/158/play/" target="_blank" rel="noopener">158 环绕图版式</a>；若模块脱离分栏网格自由悬浮呼吸，见 <a href="https://layout.xiaoxiaodong.ai/159/play/" target="_blank" rel="noopener">159 浮动块版式</a>。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 从宽切口到内在弹性（深普鲁士靛暗室，呼应原海报深蓝！） ============ -->
+  <section class="sec sec-navy" id="sec-03" aria-labelledby="h-03">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <div>
+          <h2 id="h-03">从宽切口到内在弹性</h2>
+          <p class="sec-en" lang="en">WHERE IT CAME FROM · PRINT TO INTRINSIC CSS</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">
+        侧栏并非网页时代凭空冒出来的界面零件。从古典书页预留宽阔外切口（outer margin）安放批注与提要，到现代前端写下无需媒体查询的弹性侧栏原语，跨越几百年的核心追问始终没变：<strong>主栏需要多宽才好读，辅栏什么时候该让路？</strong>
+      </p>
+
+      <ol class="timeline">
+        <li>
+          <span class="tl-year" lang="en">1992</span>
+          <div class="tl-body">
+            <h3>纸书比例里的「有宽度的边白」</h3>
+            <p>加拿大排印学者 Robert Bringhurst 在 <em>The Elements of Typographic Style</em>（Hartley &amp; Marks，1992 年初版）里系统梳理了书页版心与外切口比例：宽阔的外侧边道不仅保护正文行长落入舒适区间，也天然成为提要、图注与参考索引的栖身之处。</p>
+          </div>
+        </li>
+        <li>
+          <span class="tl-year" lang="en">2006</span>
+          <div class="tl-body">
+            <h3>网页「圣杯布局」守住主文优先</h3>
+            <p>2006 年 1 月 30 日，Matthew Levine 在 <em>A List Apart</em> 发表 <em>In Search of the Holy Grail</em>。在缺乏现代栅格的年代，他用负外边距与浮动实现「流动主栏 + 定宽侧栏」，并首次做到在 HTML 源码里让主内容排在侧栏前面——让屏幕阅读器与搜索爬虫先读主角。</p>
+          </div>
+        </li>
+        <li>
+          <span class="tl-year" lang="en">2014</span>
+          <div class="tl-body">
+            <h3>HTML5 确立 <code>&lt;aside&gt;</code> 语义标签</h3>
+            <p>2014 年 10 月 28 日成为 W3C 正式推荐标准的 HTML5（以及持续演进的 WHATWG HTML Living Standard）专门定义了 <code>&lt;aside&gt;</code> 元素：只用于与周边正文「间接相关、可独立看待」的旁支内容，规范原文直接注明「在印刷排印中常呈现为侧栏（sidebars）」。</p>
+          </div>
+        </li>
+        <li>
+          <span class="tl-year" lang="en">2018</span>
+          <div class="tl-body">
+            <h3>WCAG 2.1 划定 320px 重排红线</h3>
+            <p>2018 年发布的 W3C WCAG 2.1 在成功准则 1.4.10（Reflow）中要求：在相当于 320 CSS 像素宽（1280px 桌面放大 400%）的竖向流里，页面不能出现横向滚动条，也不得为了挤进去而直接丢掉信息——这迫使侧栏必须具备安全的退场机制。</p>
+          </div>
+        </li>
+        <li>
+          <span class="tl-year" lang="en">2019</span>
+          <div class="tl-body">
+            <h3><em>Every Layout</em> 提出无断点内在侧栏</h3>
+            <p>2019 年，Heydon Pickering 与 Andy Bell 在 <em>Every Layout</em> 的「The Sidebar」原语中提出不依赖 <code>@media</code> 视口断点的写法：给侧栏设 <code>flex-basis</code>，给主区设 <code>flex-grow: 999</code> 与 <code>min-inline-size</code>；只要容器缩到主区守不住下限，浏览器自己把侧栏折到下方。</p>
+          </div>
+        </li>
+      </ol>
+
+      <!-- 交互 3：Every Layout 内在弹性侧栏容器宽尺（320px–1040px 无媒体查询折行实验） -->
+      <div class="intrinsic-lab">
+        <div class="intrinsic-head">
+          <div>
+            <h3>试试 <em>Every Layout</em> 内在侧栏算法</h3>
+            <p>不写任何 <code>@media</code> 断点：左右拖动下方容器宽度尺，看浏览器如何在精确临界点把并排自动折成上下堆叠。</p>
+          </div>
+          <div class="intrinsic-readout">
+            <span class="mono-tag" id="intWidthTag">容器宽 860px</span>
+            <span class="mono-tag is-pass" id="intStateTag">并排模式 · 主区 67%</span>
+          </div>
+        </div>
+
+        <div class="intrinsic-sliders">
+          <label class="int-field">
+            <span>模拟容器宽：<strong id="intWVal">860px</strong></span>
+            <input type="range" id="intContainerW" min="320" max="1040" step="10" value="860">
+          </label>
+          <div class="int-field">
+            <span>侧栏基准 <code>flex-basis</code></span>
+            <div class="seg-group seg-dark" role="group" aria-label="侧栏基准宽">
+              <button type="button" class="btn-dark-chip" data-basis="200">200px</button>
+              <button type="button" class="btn-dark-chip is-active" data-basis="260">260px</button>
+              <button type="button" class="btn-dark-chip" data-basis="320">320px</button>
+            </div>
+          </div>
+          <div class="int-field">
+            <span>主区底线 <code>min-inline-size</code></span>
+            <div class="seg-group seg-dark" role="group" aria-label="主区最小占比">
+              <button type="button" class="btn-dark-chip" data-minpct="50">50%</button>
+              <button type="button" class="btn-dark-chip is-active" data-minpct="60">60%</button>
+              <button type="button" class="btn-dark-chip" data-minpct="68">68%</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="intrinsic-stage-outer">
+          <div class="intrinsic-ruler" aria-hidden="true">
+            <span>320px (WCAG)</span>
+            <span id="intThresholdMark">临界折行点：≈ 690px</span>
+            <span>1040px</span>
+          </div>
+          <div class="intrinsic-sandbox" id="intSandbox">
+            <div class="int-demo-main" id="intDemoMain">
+              <span class="int-tag">主内容区 · flex-grow: 999</span>
+              <strong id="intMainPxLabel">实宽 584px</strong>
+              <p>只要剩余空间守得住主区底线，两栏保持并行；一旦跌破临界宽，自动退回整行通栏阅读。</p>
+            </div>
+            <div class="int-demo-side" id="intDemoSide">
+              <span class="int-tag">侧栏 · flex-basis</span>
+              <strong id="intSidePxLabel">基准 260px</strong>
+              <p>导航 · 注释 · 延伸标签</p>
+            </div>
+          </div>
+        </div>
+
+        <pre class="code-box" id="intCodeBox"><code>.with-sidebar { display: flex; flex-wrap: wrap; gap: 16px; }
+.with-sidebar &gt; main  { flex-basis: 0; flex-grow: 999; min-inline-size: 60%; }
+.with-sidebar &gt; aside { flex-basis: 260px; flex-grow: 1; } /* 临界宽 ≈ 690px */</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 四条要点与工程现实（暖砂稿纸） ============ -->
+  <section class="sec sec-sand" id="sec-04" aria-labelledby="h-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div>
+          <h2 id="h-04">四条要点与工程现实</h2>
+          <p class="sec-en" lang="en">DESIGN GUIDELINES &amp; PRACTICAL NUANCES</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">
+        156 原海报右下角那张斜贴着橘色胶带的纸条，总结了四条非常管用的「设计要点」。放到真实的大屏显示器与小屏手机里落地时，有两条值得再补上一句工程提醒。
+      </p>
+
+      <div class="tips-grid">
+        <article class="tip-card">
+          <div class="tip-top">
+            <span class="tip-idx">01</span>
+            <span class="tip-nuance">不只是看百分比</span>
+          </div>
+          <h3>「侧栏宽度适中，避免喧宾夺主」</h3>
+          <p>桌面端经验参考带通常在 <strong>20%–36%</strong>（156 原海报约 68% : 32%）。但如果只写死 <code>width: 30%</code>，在 2560px 超宽屏上侧栏会吹胖到 <strong>768px</strong>——比平板还宽！工程里常改用 <code>clamp(240px, 26%, 340px)</code> 既保小桌可读又给超宽封顶。</p>
+        </article>
+
+        <article class="tip-card">
+          <div class="tip-top">
+            <span class="tip-idx">02</span>
+            <span class="tip-nuance is-confirm">原话正中要害</span>
+          </div>
+          <h3>「内容分组清晰，留白舒适」</h3>
+          <p>侧栏天生偏窄，一旦把不同用途的文字、数字与按钮糊在一起，扫描速度立刻归零。像 156 原海报右侧那样用细虚线与图标把 2–4 组信息隔开，每组只放一句短说，留白比塞满更有用。</p>
+        </article>
+
+        <article class="tip-card">
+          <div class="tip-top">
+            <span class="tip-idx">03</span>
+            <span class="tip-nuance is-confirm">对比不等于撞色</span>
+          </div>
+          <h3>「视觉统一，风格与主内容协调」</h3>
+          <p>原海报右栏虽然反色用了深普鲁士靛，但文字、图标圆徽与橘色点缀完全来自左主区的山日配色。好的侧栏对比靠明度差或细线切出边界，而不是贴一块毫不相干的霓虹广告牌。</p>
+        </article>
+
+        <article class="tip-card">
+          <div class="tip-top">
+            <span class="tip-idx">04</span>
+            <span class="tip-nuance">说宽了一点</span>
+          </div>
+          <h3>「移动端可折叠或隐藏，按需呈现」</h3>
+          <p>「折叠按需呈现」很对，但「直接隐藏（<code>display: none</code>）」要极其小心：如果侧栏里放着章节目录、术语定义或筛选项，手机端直接删掉不留入口就会造成信息丢失（触碰 WCAG 1.4.10）。只该彻底隐藏纯装饰模块。</p>
+        </article>
+      </div>
+
+      <!-- 交互 4：超宽屏 clamp 封顶对比 + 长文滚读 sticky 伴行实景窗 -->
+      <div class="reality-grid">
+        <div class="reality-box">
+          <div class="reality-head">
+            <h3>超宽屏压测：纯 <code>30%</code> vs <code>clamp()</code></h3>
+            <div class="seg-group" role="group" aria-label="侧栏宽度策略">
+              <button type="button" class="btn-tab is-active" data-widthrule="pct">纯百分比 30%</button>
+              <button type="button" class="btn-tab" data-widthrule="clamp">封顶 clamp(240,26%,340)</button>
+            </div>
+          </div>
+          <div class="viewport-matrix" id="clampMatrix" aria-live="polite">
+            <div class="vm-row" data-vw="768">
+              <span class="vm-vw">768px 平板</span>
+              <div class="vm-track"><span class="vm-main"></span><span class="vm-side"></span></div>
+              <span class="vm-px">230px</span>
+            </div>
+            <div class="vm-row" data-vw="1280">
+              <span class="vm-vw">1280px 笔电</span>
+              <div class="vm-track"><span class="vm-main"></span><span class="vm-side"></span></div>
+              <span class="vm-px">384px</span>
+            </div>
+            <div class="vm-row" data-vw="1920">
+              <span class="vm-vw">1920px 桌面</span>
+              <div class="vm-track"><span class="vm-main"></span><span class="vm-side"></span></div>
+              <span class="vm-px">576px</span>
+            </div>
+            <div class="vm-row" data-vw="2560">
+              <span class="vm-vw">2560px 超宽</span>
+              <div class="vm-track"><span class="vm-main"></span><span class="vm-side"></span></div>
+              <span class="vm-px">768px</span>
+            </div>
+          </div>
+          <p class="reality-note" id="clampNote">纯写 30% 时，2560px 超宽屏上的侧栏膨胀至 768px，几乎变成一块独立网页；改用 clamp() 后，宽屏下侧栏克制停在 340px 上限。</p>
+        </div>
+
+        <div class="reality-box">
+          <div class="reality-head">
+            <h3>长文滚读：静态空洞 vs <code>sticky</code> 伴行</h3>
+            <div class="seg-group" role="group" aria-label="侧栏跟随策略">
+              <button type="button" class="btn-tab is-active" data-sticky="static">静态顶部（下方留空）</button>
+              <button type="button" class="btn-tab" data-sticky="sticky">sticky 随读伴行</button>
+            </div>
+          </div>
+          <div class="mini-scroll-shell" id="miniScrollShell" data-sticky="static" tabindex="0" aria-label="可滚动长文与侧栏跟随对比视窗">
+            <div class="mini-scroll-main">
+              <p><strong>第一段 · 起步</strong>　当主内容长达两三千字，读者一路往下滑时，顶部的目录很快就会滚出视野之外。</p>
+              <p><strong>第二段 · 中段阅读</strong>　如果侧栏只有短短三百像素且原地不动，右侧从此处开始便会拖出一长条空白死区，版面显得头重脚轻。</p>
+              <p><strong>第三段 · 查词对照</strong>　读者中途想回头看某个章节标题或术语注释，只能放弃当前位置滚回页顶，再费力找回刚读到的段落。</p>
+              <p><strong>第四段 · 尾声收束</strong>　把较短的侧栏设为 <code>position: sticky</code> 后，边栏目录始终安静悬在视野侧方，既消除了长条空洞，也让跳转一步到位。</p>
+            </div>
+            <div class="mini-scroll-side">
+              <div class="mini-sticky-box">
+                <span class="mini-sticky-kicker">本页目录</span>
+                <span>01 起步</span>
+                <span>02 中段阅读</span>
+                <span>03 查词对照</span>
+                <span>04 尾声收束</span>
+              </div>
+            </div>
+          </div>
+          <p class="reality-note" id="stickyNote">向下滚动上方微型视窗试试：静态侧栏滚到中段后右侧全空；切到 <code>sticky</code> 后目录一直安静伴随在旁。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 什么时候别用侧栏（洁净米白纸） ============ -->
+  <section class="sec sec-clean" id="sec-05" aria-labelledby="h-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div>
+          <h2 id="h-05">什么时候别用侧栏</h2>
+          <p class="sec-en" lang="en">WHEN NOT TO USE A SIDEBAR</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">
+        侧栏是一把锋利的层次工具，但绝非每个页面都要硬塞一条边栏。下面四种场景里，撤掉侧栏反而能立刻救回体验——点按任意卡片，对照「硬加侧栏」与「改用专注流」的版面差异。
+      </p>
+
+      <!-- 交互 5：四张反例解剖翻卡 -->
+      <div class="anti-grid">
+        <article class="anti-card" data-anti="immersion" data-state="bad">
+          <div class="anti-top">
+            <span class="anti-tag">反例 01 · 沉浸叙事</span>
+            <button type="button" class="btn-flip" aria-pressed="false">看改用单栏</button>
+          </div>
+          <h3>摄影画册与全出血故事页</h3>
+          <div class="anti-wire" aria-hidden="true">
+            <svg viewBox="0 0 260 116" width="260" height="116"></svg>
+          </div>
+          <p class="anti-desc">常驻深色侧栏像一堵竖墙，硬生生砍掉三成画面呼吸，把全景照片和叙事节奏截成憋屈的方框。</p>
+        </article>
+
+        <article class="anti-card" data-anti="checkout" data-state="bad">
+          <div class="anti-top">
+            <span class="anti-tag">反例 02 · 单步转化</span>
+            <button type="button" class="btn-flip" aria-pressed="false">看改用专注流</button>
+          </div>
+          <h3>结账、注册与长表单填报</h3>
+          <div class="anti-wire" aria-hidden="true">
+            <svg viewBox="0 0 260 116" width="260" height="116"></svg>
+          </div>
+          <p class="anti-desc">表单任务需要线性推进到底。旁边摆满频道导航和推荐商品，等于亲手递给用户一排离开页面的逃生门。</p>
+        </article>
+
+        <article class="anti-card" data-anti="narrow" data-state="bad">
+          <div class="anti-top">
+            <span class="anti-tag">反例 03 · 窄幅短文</span>
+            <button type="button" class="btn-flip" aria-pressed="false">看撤掉边栏</button>
+          </div>
+          <h3>短公告与窄屏移动端主面</h3>
+          <div class="anti-wire" aria-hidden="true">
+            <svg viewBox="0 0 260 116" width="260" height="116"></svg>
+          </div>
+          <p class="anti-desc">正文一共不到两百字，或者屏幕本就不到 600px，硬拆侧栏只会让主文碎成三四字一行，边栏还空荡荡没话可写。</p>
+        </article>
+
+        <article class="anti-card" data-anti="blind" data-state="bad">
+          <div class="anti-top">
+            <span class="anti-tag">反例 04 · 关键动作</span>
+            <button type="button" class="btn-flip" aria-pressed="false">看放回主线</button>
+          </div>
+          <h3>把核心按钮或告警塞进右栏</h3>
+          <div class="anti-wire" aria-hidden="true">
+            <svg viewBox="0 0 260 116" width="260" height="116"></svg>
+          </div>
+          <p class="anti-desc">右栏盲视会让读者自动把右侧小卡片归为广告或补充信息。凡是必须完成的操作与报错提示，都必须留在主阅读轴里。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 小练习：挑出站得住的一版（浅雾灰蓝纸） ============ -->
+  <section class="sec sec-slate" id="sec-06" aria-labelledby="h-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <div>
+          <h2 id="h-06">挑出站得住的一版</h2>
+          <p class="sec-en" lang="en">QUICK QUIZ · ONE VARIABLE ONLY</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">
+        题目：一份 1280px 宽的出版专栏页，主文约 1800 字，右栏放章节目录与 3 条专业词条简注。下面四张方案的配色、对比、字体与侧栏内容量完全一致，<strong>只差主区与侧栏的宽度比例</strong>。哪一版站得住？
+      </p>
+
+      <div class="quiz-grid" role="group" aria-label="四个版式比例选项">
+        <button type="button" class="quiz-card" data-choice="A">
+          <span class="quiz-letter">方案 A</span>
+          <svg class="quiz-svg" viewBox="0 0 240 156" width="240" height="156" aria-hidden="true">
+            <!-- 86% : 14% -->
+            <rect x="4" y="4" width="232" height="148" fill="#F6EBDC" stroke="#8EA7C5" stroke-width="1.5"/>
+            <rect x="203" y="4" width="33" height="148" fill="#061A36"/>
+            <rect x="16" y="18" width="96" height="12" fill="#061A36"/>
+            <rect x="16" y="36" width="174" height="5" fill="#7D8E9F"/>
+            <rect x="16" y="47" width="172" height="5" fill="#7D8E9F"/>
+            <rect x="16" y="58" width="176" height="5" fill="#7D8E9F"/>
+            <rect x="16" y="72" width="174" height="44" fill="#EFE4D5" stroke="#CBBBA3"/>
+            <circle cx="54" cy="90" r="10" fill="#D86817"/>
+            <path d="M16 116 L76 88 L130 116 Z" fill="#8EA7C5"/>
+            <path d="M100 116 L154 82 L190 116 Z" fill="#0C203D"/>
+            <rect x="16" y="126" width="170" height="5" fill="#7D8E9F"/>
+            <rect x="16" y="136" width="154" height="5" fill="#7D8E9F"/>
+            <!-- 极窄右栏里被折碎的词条 -->
+            <rect x="210" y="18" width="18" height="4" fill="#D86817"/>
+            <rect x="210" y="30" width="19" height="4" fill="#C5CDD7"/>
+            <rect x="210" y="37" width="15" height="4" fill="#8EA7C5"/>
+            <rect x="210" y="44" width="17" height="4" fill="#8EA7C5"/>
+            <rect x="210" y="58" width="19" height="4" fill="#C5CDD7"/>
+            <rect x="210" y="65" width="14" height="4" fill="#8EA7C5"/>
+            <rect x="210" y="72" width="18" height="4" fill="#8EA7C5"/>
+            <rect x="210" y="88" width="19" height="4" fill="#C5CDD7"/>
+            <rect x="210" y="95" width="15" height="4" fill="#8EA7C5"/>
+          </svg>
+          <span class="quiz-spec" lang="en">86% : 14%</span>
+        </button>
+
+        <button type="button" class="quiz-card" data-choice="B">
+          <span class="quiz-letter">方案 B</span>
+          <svg class="quiz-svg" viewBox="0 0 240 156" width="240" height="156" aria-hidden="true">
+            <!-- 70% : 30% -->
+            <rect x="4" y="4" width="232" height="148" fill="#F6EBDC" stroke="#8EA7C5" stroke-width="1.5"/>
+            <rect x="166" y="4" width="70" height="148" fill="#061A36"/>
+            <rect x="16" y="18" width="88" height="12" fill="#061A36"/>
+            <rect x="16" y="36" width="134" height="5" fill="#7D8E9F"/>
+            <rect x="16" y="47" width="128" height="5" fill="#7D8E9F"/>
+            <rect x="16" y="58" width="136" height="5" fill="#7D8E9F"/>
+            <rect x="16" y="72" width="136" height="44" fill="#EFE4D5" stroke="#CBBBA3"/>
+            <circle cx="48" cy="90" r="10" fill="#D86817"/>
+            <path d="M16 116 L66 88 L112 116 Z" fill="#8EA7C5"/>
+            <path d="M84 116 L128 84 L152 116 Z" fill="#0C203D"/>
+            <rect x="16" y="126" width="132" height="5" fill="#7D8E9F"/>
+            <rect x="16" y="136" width="110" height="5" fill="#7D8E9F"/>
+            <!-- 舒适展开的右栏 -->
+            <rect x="176" y="18" width="24" height="4" fill="#D86817"/>
+            <circle cx="182" cy="37" r="6" fill="#C5CDD7"/>
+            <rect x="193" y="33" width="32" height="4" fill="#F6EBDC"/>
+            <rect x="193" y="40" width="28" height="3" fill="#8EA7C5"/>
+            <circle cx="182" cy="64" r="6" fill="#C5CDD7"/>
+            <rect x="193" y="60" width="30" height="4" fill="#F6EBDC"/>
+            <rect x="193" y="67" width="34" height="3" fill="#8EA7C5"/>
+            <circle cx="182" cy="91" r="6" fill="#C5CDD7"/>
+            <rect x="193" y="87" width="28" height="4" fill="#F6EBDC"/>
+            <rect x="193" y="94" width="32" height="3" fill="#8EA7C5"/>
+            <rect x="176" y="114" width="50" height="24" fill="#F1E3D5"/>
+          </svg>
+          <span class="quiz-spec" lang="en">70% : 30%</span>
+        </button>
+
+        <button type="button" class="quiz-card" data-choice="C">
+          <span class="quiz-letter">方案 C</span>
+          <svg class="quiz-svg" viewBox="0 0 240 156" width="240" height="156" aria-hidden="true">
+            <!-- 52% : 48% -->
+            <rect x="4" y="4" width="232" height="148" fill="#F6EBDC" stroke="#8EA7C5" stroke-width="1.5"/>
+            <rect x="125" y="4" width="111" height="148" fill="#061A36"/>
+            <rect x="14" y="18" width="76" height="12" fill="#061A36"/>
+            <rect x="14" y="36" width="96" height="5" fill="#7D8E9F"/>
+            <rect x="14" y="47" width="92" height="5" fill="#7D8E9F"/>
+            <rect x="14" y="58" width="95" height="5" fill="#7D8E9F"/>
+            <rect x="14" y="72" width="97" height="44" fill="#EFE4D5" stroke="#CBBBA3"/>
+            <circle cx="38" cy="90" r="9" fill="#D86817"/>
+            <path d="M14 116 L54 90 L86 116 Z" fill="#8EA7C5"/>
+            <path d="M62 116 L94 86 L111 116 Z" fill="#0C203D"/>
+            <rect x="14" y="126" width="94" height="5" fill="#7D8E9F"/>
+            <rect x="14" y="136" width="78" height="5" fill="#7D8E9F"/>
+            <!-- 对半平分、气场反压的深蓝右栏 -->
+            <rect x="137" y="18" width="32" height="4" fill="#D86817"/>
+            <circle cx="145" cy="38" r="7" fill="#C5CDD7"/>
+            <rect x="158" y="33" width="60" height="4" fill="#F6EBDC"/>
+            <rect x="158" y="41" width="54" height="3" fill="#8EA7C5"/>
+            <circle cx="145" cy="66" r="7" fill="#C5CDD7"/>
+            <rect x="158" y="61" width="56" height="4" fill="#F6EBDC"/>
+            <rect x="158" y="69" width="62" height="3" fill="#8EA7C5"/>
+            <circle cx="145" cy="94" r="7" fill="#C5CDD7"/>
+            <rect x="158" y="89" width="52" height="4" fill="#F6EBDC"/>
+            <rect x="158" y="97" width="58" height="3" fill="#8EA7C5"/>
+            <rect x="137" y="114" width="84" height="24" fill="#F1E3D5"/>
+          </svg>
+          <span class="quiz-spec" lang="en">52% : 48%</span>
+        </button>
+
+        <button type="button" class="quiz-card" data-choice="D">
+          <span class="quiz-letter">方案 D</span>
+          <svg class="quiz-svg" viewBox="0 0 240 156" width="240" height="156" aria-hidden="true">
+            <!-- 40% : 60% -->
+            <rect x="4" y="4" width="232" height="148" fill="#F6EBDC" stroke="#8EA7C5" stroke-width="1.5"/>
+            <rect x="97" y="4" width="139" height="148" fill="#061A36"/>
+            <rect x="12" y="18" width="62" height="12" fill="#061A36"/>
+            <rect x="12" y="36" width="72" height="5" fill="#7D8E9F"/>
+            <rect x="12" y="47" width="68" height="5" fill="#7D8E9F"/>
+            <rect x="12" y="58" width="70" height="5" fill="#7D8E9F"/>
+            <rect x="12" y="72" width="72" height="44" fill="#EFE4D5" stroke="#CBBBA3"/>
+            <circle cx="32" cy="90" r="8" fill="#D86817"/>
+            <path d="M12 116 L46 92 L70 116 Z" fill="#8EA7C5"/>
+            <rect x="12" y="126" width="68" height="5" fill="#7D8E9F"/>
+            <rect x="12" y="136" width="58" height="5" fill="#7D8E9F"/>
+            <!-- 喧宾夺主的大右栏 -->
+            <rect x="110" y="18" width="38" height="4" fill="#D86817"/>
+            <circle cx="118" cy="39" r="7" fill="#C5CDD7"/>
+            <rect x="132" y="34" width="82" height="4" fill="#F6EBDC"/>
+            <rect x="132" y="42" width="74" height="3" fill="#8EA7C5"/>
+            <circle cx="118" cy="67" r="7" fill="#C5CDD7"/>
+            <rect x="132" y="62" width="76" height="4" fill="#F6EBDC"/>
+            <rect x="132" y="70" width="86" height="3" fill="#8EA7C5"/>
+            <circle cx="118" cy="95" r="7" fill="#C5CDD7"/>
+            <rect x="132" y="90" width="72" height="4" fill="#F6EBDC"/>
+            <rect x="132" y="98" width="80" height="3" fill="#8EA7C5"/>
+            <rect x="110" y="114" width="110" height="24" fill="#F1E3D5"/>
+          </svg>
+          <span class="quiz-spec" lang="en">40% : 60%</span>
+        </button>
+      </div>
+
+      <div class="quiz-feedback" id="quizFeedback" aria-live="polite">
+        <p class="quiz-prompt">点选上方 A / B / C / D 任意一张缩略版面，查看几何与阅读原理评析。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 07 原海报与关键词（暖燕麦原纸） ============ -->
+  <section class="sec sec-poster" id="sec-07" aria-labelledby="h-07">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div>
+          <h2 id="h-07">原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER · NO. 156</p>
+        </div>
+      </div>
+
+      <div class="poster-showcase">
+        <button type="button" class="poster-trigger" id="posterOpenBtn" aria-label="点击放大查看 156 侧栏版式原海报">
+          <img id="poster" src="poster.webp" width="1086" height="1448" alt="156 侧栏版式原始教学海报" draggable="false">
+          <span class="poster-zoom-hint">点击放大 · 支持拖拽与滚轮缩放</span>
+        </button>
+
+        <div class="poster-meta-col">
+          <div class="poster-quote-card">
+            <span class="quote-badge">原海报核心收束</span>
+            <h3>内容优先，层次清晰</h3>
+            <p>「侧栏承载补充性的信息、导航、提示或标签，从而突出核心内容，提升阅读效率与理解体验。」</p>
+          </div>
+
+          <div class="poster-kw-block">
+            <h4>海报关键词</h4>
+            <div class="poster-kw-list">
+              <span class="kw-pill">层次清晰</span>
+              <span class="kw-pill">阅读流畅</span>
+              <span class="kw-pill">辅助信息</span>
+              <span class="kw-pill">高效导航</span>
+              <span class="kw-pill">内容聚焦</span>
+            </div>
+          </div>
+
+          <div class="poster-siblings">
+            <h4>同属「模块、侧栏与图文关系」的其余 6 页</h4>
+            <ul>
+              <li><a href="https://layout.xiaoxiaodong.ai/153/play/" target="_blank" rel="noopener">153 模块化页面</a> — 等权模块按网格拆装组合</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/154/play/" target="_blank" rel="noopener">154 区块式版式</a> — 用强边界与色块划分信息群</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/155/play/" target="_blank" rel="noopener">155 插页式版式</a> — 用物理夹页制造节奏停顿</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/157/play/" target="_blank" rel="noopener">157 边注版式</a> — 紧贴行句对应的页边注释</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/158/play/" target="_blank" rel="noopener">158 环绕图版式</a> — 文字贴合主图形态绕排</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/159/play/" target="_blank" rel="noopener">159 浮动块版式</a> — 打破固定栅格的自由浮块</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/156/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep" aria-hidden="true">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep" aria-hidden="true">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱（支持滚轮/按钮缩放、拖移、Esc 关闭） -->
+<div class="lightbox" id="posterLightbox" hidden role="dialog" aria-modal="true" aria-label="原海报大图预览">
+  <div class="lb-bar">
+    <span class="lb-title">156 侧栏版式 · 原海报（拖动平移 / 滚轮缩放 / Esc 关闭）</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lbZoomOut" aria-label="缩小">−</button>
+      <span class="lb-scale" id="lbScale">100%</span>
+      <button type="button" class="lb-btn" id="lbZoomIn" aria-label="放大">+</button>
+      <button type="button" class="lb-btn" id="lbReset">还原</button>
+      <button type="button" class="lb-btn lb-close" id="lbClose">关闭 (Esc)</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lbViewport">
+    <img id="lbImg" src="" alt="156 侧栏版式原海报大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
