@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F0B31">
+<title>表格布局 · TABLE LAYOUT — 350 种排版</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <p class="series"><span class="series-dot" aria-hidden="true"></span><span>网页与 UI / CSS 流、定位与响应</span></p>
+    <p class="issue"><span lang="en" class="mono">NO. 230</span><span class="issue-sep" aria-hidden="true">·</span><span>结构清晰 · 信息有序 · 重点突出</span></p>
+  </div>
+</header>
+
+<main>
+  <!-- 开场：承袭 230 原海报的通栏纵轴深梅紫建筑报表骨架 -->
+  <section class="hero" id="hero-stage" aria-labelledby="page-title">
+    <div class="wrap hero-inner">
+      <div class="hero-head">
+        <div class="hero-title-lock">
+          <h1 id="page-title" class="demo-title" aria-label="表格布局">
+            <span aria-hidden="true">表</span><span aria-hidden="true">格</span><span aria-hidden="true">布</span><span class="title-ju" aria-hidden="true">局<svg class="ju-grid" viewBox="0 0 36 28" aria-hidden="true"><rect x="1" y="1" width="34" height="26" fill="#1F0B31" stroke="#FCFAF8" stroke-width="1.6"/><path d="M12.3 1V27M23.7 1V27M1 9.7H35M1 18.3H35" stroke="#FCFAF8" stroke-width="1.4"/></svg></span>
+          </h1>
+          <p class="hero-en" lang="en">TABLE LAYOUT</p>
+        </div>
+        <p class="hero-summary">
+          <span class="rule-dot" aria-hidden="true"></span>
+          <span class="summary-text">用结构组织信息，让数据更清晰</span>
+          <span class="rule-dot" aria-hidden="true"></span>
+        </p>
+      </div>
+
+      <!-- 主角互动：活体表盘排版室 -->
+      <div class="specimen-shell">
+        <div class="specimen-stage-col">
+          <!-- 顶部列宽边界拖尺（标有 data-perf-drag，支持鼠标、触屏与键盘） -->
+          <div class="col-ruler">
+            <div class="col-ruler-meta">
+              <span class="ruler-label">首列宽度标尺 <span class="exp-tag">经验平衡带 25%–44%</span></span>
+              <span class="ruler-val mono" id="col-ruler-val">首列 18%</span>
+            </div>
+            <div class="col-ruler-track" id="col-ruler-track">
+              <div class="col-ruler-band" id="col-ruler-band" aria-hidden="true"><span>舒适区</span></div>
+              <button
+                type="button"
+                id="col-ruler-handle"
+                class="col-ruler-handle"
+                data-perf-drag
+                role="slider"
+                aria-label="拖动调整首列宽度比例"
+                aria-valuemin="14"
+                aria-valuemax="60"
+                aria-valuenow="18"
+              ><span class="handle-bars" aria-hidden="true">‖</span></button>
+            </div>
+          </div>
+
+          <!-- 原海报粉虚线坐标括号 + 原生语义活体表盘 + 2D Canvas 测绘覆盖层 -->
+          <div class="hero-table-wrap" id="hero-table-wrap">
+            <span class="axis-tag axis-col" aria-hidden="true">列 <span lang="en">(COLUMN)</span></span>
+            <span class="axis-tag axis-row" aria-hidden="true">行 <span lang="en">(ROW)</span></span>
+            <table id="hero-table" class="live-table" aria-label="活体表格布局实验表"></table>
+            <canvas id="hero-canvas" class="hero-canvas" aria-hidden="true"></canvas>
+          </div>
+          <p class="stage-tip">拖动上方标尺改首列宽度；点表头「月访问 / 转化率」尝试排序；点任意单元格查看行列坐标。</p>
+        </div>
+
+        <div class="specimen-side-col">
+          <!-- 紧凑操控带：四大核心表格动作 -->
+          <div class="ctrl-deck" role="group" aria-label="表格排版参数">
+            <div class="ctrl-row">
+              <span class="ctrl-name">列宽算法</span>
+              <div class="ctrl-btns">
+                <button type="button" class="pill-btn" data-ctrl="layoutMode:auto" aria-pressed="true">自动 auto</button>
+                <button type="button" class="pill-btn" data-ctrl="layoutMode:fixed" aria-pressed="false">固定 fixed</button>
+              </div>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-name">对齐与字形</span>
+              <div class="ctrl-btns">
+                <button type="button" class="pill-btn" data-ctrl="alignMode:center" aria-pressed="true">全部居中</button>
+                <button type="button" class="pill-btn" data-ctrl="alignMode:left" aria-pressed="false">全部左对齐</button>
+                <button type="button" class="pill-btn" data-ctrl="alignMode:semantic" aria-pressed="false">左文右数</button>
+                <button type="button" class="pill-btn pill-accent" id="btn-tabular" aria-pressed="false">等宽数字：关</button>
+              </div>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-name">表线密度</span>
+              <div class="ctrl-btns">
+                <button type="button" class="pill-btn" data-ctrl="gridMode:cage" aria-pressed="true">重铁笼全框</button>
+                <button type="button" class="pill-btn" data-ctrl="gridMode:none" aria-pressed="false">全无隔线</button>
+                <button type="button" class="pill-btn" data-ctrl="gridMode:minimal" aria-pressed="false">轻横线留白</button>
+              </div>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-name">层次结构</span>
+              <div class="ctrl-btns">
+                <button type="button" class="pill-btn" data-ctrl="structureMode:bad-merge" aria-pressed="true">乱合并数据区</button>
+                <button type="button" class="pill-btn" data-ctrl="structureMode:flat" aria-pressed="false">平铺无层次</button>
+                <button type="button" class="pill-btn" data-ctrl="structureMode:semantic" aria-pressed="false">语义分层+汇总</button>
+                <button type="button" class="pill-btn pill-ghost" id="btn-hero-reset">复原错版</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 原海报同款香槟底实时诊断与 CSS 声明条 -->
+          <div class="diag-card" id="hero-diag" data-state="bad" aria-live="polite">
+            <div class="diag-top">
+              <span class="diag-star" aria-hidden="true">★</span>
+              <span class="diag-badge" id="diag-badge">错态 · 0 / 5</span>
+              <span class="diag-metrics mono"><span id="diag-jitter">数字右缘偏差 Δ0px</span><span aria-hidden="true"> · </span><span id="diag-coord">第 2 行 × 第 2 列</span></span>
+              <span class="diag-score mono" id="diag-score">0 / 5</span>
+            </div>
+            <p class="diag-head" id="diag-head">正文区跨行跨列合并，打断了列顺序与数据对比</p>
+            <p class="diag-reason" id="diag-reason"></p>
+            <p class="diag-hint" id="diag-hint"></p>
+            <pre class="diag-css mono"><code id="diag-css"></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- 原海报底沿五柱竖线分隔实时验收栏（行 / 列 / 单元格 / 对齐 / 结构） -->
+      <ol class="pillars-bar" id="hero-pillars" aria-label="原海报表格五要素实时体检">
+        <li class="pillar-item" data-pillar="row">
+          <svg class="pillar-ico" viewBox="0 0 36 28" aria-hidden="true"><rect x="2" y="3" width="32" height="5" rx="2.5"/><rect x="2" y="11.5" width="32" height="5" rx="2.5"/><rect x="2" y="20" width="32" height="5" rx="2.5"/></svg>
+          <div class="pillar-copy"><strong>行</strong><span class="pillar-state">跨行打断</span></div>
+        </li>
+        <li class="pillar-item" data-pillar="col">
+          <svg class="pillar-ico" viewBox="0 0 36 28" aria-hidden="true"><rect x="6" y="2" width="5" height="24" rx="2.5"/><rect x="15.5" y="2" width="5" height="24" rx="2.5"/><rect x="25" y="2" width="5" height="24" rx="2.5"/></svg>
+          <div class="pillar-copy"><strong>列</strong><span class="pillar-state">跨列断裂</span></div>
+        </li>
+        <li class="pillar-item" data-pillar="cell">
+          <svg class="pillar-ico" viewBox="0 0 36 28" aria-hidden="true"><rect x="6" y="3" width="24" height="22" fill="none" stroke="currentColor" stroke-width="2.6"/></svg>
+          <div class="pillar-copy"><strong>单元格</strong><span class="pillar-state">非原子合并</span></div>
+        </li>
+        <li class="pillar-item" data-pillar="align">
+          <svg class="pillar-ico" viewBox="0 0 36 28" aria-hidden="true"><rect x="4" y="3" width="16" height="4.6" rx="2.3"/><rect x="4" y="11.7" width="28" height="4.6" rx="2.3"/><rect x="4" y="20.4" width="21" height="4.6" rx="2.3"/></svg>
+          <div class="pillar-copy"><strong>对齐</strong><span class="pillar-state">居中偏位</span></div>
+        </li>
+        <li class="pillar-item" data-pillar="structure">
+          <svg class="pillar-ico" viewBox="0 0 36 28" aria-hidden="true"><rect x="4" y="3" width="28" height="22" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M13.3 3V25M22.7 3V25M4 10.3H32M4 17.7H32" stroke="currentColor" stroke-width="2"/></svg>
+          <div class="pillar-copy"><strong>结构</strong><span class="pillar-state">铁笼过载</span></div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 01 · 一张表的五块骨架（暖香槟账本纸） -->
+  <section class="band band-cream" id="sec-01" aria-labelledby="h-01">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no mono" lang="en">01</p>
+        <div>
+          <h2 id="h-01">一张表的五块骨架</h2>
+          <p class="sec-en" lang="en">ANATOMY OF A TABLE</p>
+        </div>
+      </header>
+      <p class="sec-lead">原海报把表格拆成五个词：<strong>行、列、单元格、对齐、结构</strong>。很多人把表格当成「画满格子的框」，其实它是一套二维坐标系统——横轴锁定同一条记录，纵轴锁定同一种属性，两者交汇处才是最小的数据单元。</p>
+
+      <div class="anatomy-lab" id="anatomy-lab">
+        <div class="anat-controls" role="group" aria-label="选择要高亮的表格要素">
+          <button type="button" class="tab-btn is-active" data-layer="row" aria-pressed="true">行 ROW</button>
+          <button type="button" class="tab-btn" data-layer="col" aria-pressed="false">列 COLUMN</button>
+          <button type="button" class="tab-btn" data-layer="cell" aria-pressed="false">单元格 CELL</button>
+          <button type="button" class="tab-btn" data-layer="align" aria-pressed="false">对齐 ALIGN</button>
+          <button type="button" class="tab-btn" data-layer="structure" aria-pressed="false">结构 STRUCTURE</button>
+        </div>
+
+        <div class="anat-grid">
+          <div class="anat-matrix-box">
+            <table class="poster-matrix" aria-label="原海报 5×5 结构解剖示意表">
+              <thead>
+                <tr>
+                  <th scope="col">项目</th>
+                  <th scope="col">第一列</th>
+                  <th scope="col">第二列</th>
+                  <th scope="col">第三列</th>
+                  <th scope="col">第四列</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row" data-mcell="0-0" data-symbol="第一行">第一行</th>
+                  <td data-mcell="0-1" data-symbol="圆形 ●"><span class="sym">●</span></td>
+                  <td data-mcell="0-2" data-symbol="方形 ■"><span class="sym">■</span></td>
+                  <td data-mcell="0-3" data-symbol="三角 ▲"><span class="sym">▲</span></td>
+                  <td data-mcell="0-4" data-symbol="圆形 ●"><span class="sym">●</span></td>
+                </tr>
+                <tr>
+                  <th scope="row" data-mcell="1-0" data-symbol="第二行">第二行</th>
+                  <td data-mcell="1-1" data-symbol="空缺 —"><span class="sym">—</span></td>
+                  <td data-mcell="1-2" data-symbol="圆形 ●"><span class="sym">●</span></td>
+                  <td data-mcell="1-3" data-symbol="方形 ■"><span class="sym">■</span></td>
+                  <td data-mcell="1-4" data-symbol="空缺 —"><span class="sym">—</span></td>
+                </tr>
+                <tr>
+                  <th scope="row" data-mcell="2-0" data-symbol="第三行">第三行</th>
+                  <td data-mcell="2-1" data-symbol="方形 ■"><span class="sym">■</span></td>
+                  <td data-mcell="2-2" data-symbol="重点 ★" class="is-focus-cell"><span class="sym">★</span></td>
+                  <td data-mcell="2-3" data-symbol="方形 ■"><span class="sym">■</span></td>
+                  <td data-mcell="2-4" data-symbol="三角 ▲"><span class="sym">▲</span></td>
+                </tr>
+                <tr>
+                  <th scope="row" data-mcell="3-0" data-symbol="第四行">第四行</th>
+                  <td data-mcell="3-1" data-symbol="三角 ▲"><span class="sym">▲</span></td>
+                  <td data-mcell="3-2" data-symbol="圆形 ●"><span class="sym">●</span></td>
+                  <td data-mcell="3-3" data-symbol="空缺 —"><span class="sym">—</span></td>
+                  <td data-mcell="3-4" data-symbol="方形 ■"><span class="sym">■</span></td>
+                </tr>
+                <tr class="pm-summary">
+                  <th scope="row" data-mcell="4-0" data-symbol="第五行汇总">第五行</th>
+                  <td data-mcell="4-1" data-symbol="单元格焦点 ●" class="pm-cell-frame"><span class="sym">●</span></td>
+                  <td data-mcell="4-2" data-symbol="方形 ■"><span class="sym">■</span></td>
+                  <td data-mcell="4-3" data-symbol="三角 ▲"><span class="sym">▲</span></td>
+                  <td data-mcell="4-4" data-symbol="圆形 ●"><span class="sym">●</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="mini-note">直接点击表内任意格子，也能实时高亮它的整行与整列坐标。</p>
+          </div>
+
+          <div class="anat-inspector" aria-live="polite">
+            <p class="anat-tag mono" id="anat-tag"></p>
+            <blockquote class="anat-quote" id="anat-quote"></blockquote>
+            <p class="anat-explain" id="anat-explain"></p>
+            <div class="anat-sr-box">
+              <span class="sr-label">语义与无障碍价值</span>
+              <p class="anat-sr" id="anat-sr"></p>
+            </div>
+          </div>
+        </div>
+
+        <ul class="five-quotes">
+          <li><strong>行</strong><span>「水平排列的数据集合，表达记录或项目」</span></li>
+          <li><strong>列</strong><span>「垂直排列的字段集合，表达属性或类别」</span></li>
+          <li><strong>单元格</strong><span>「行与列的交集，存放最小数据单元」</span></li>
+          <li><strong>对齐</strong><span>「统一对齐方式，提升可读性与美观」</span></li>
+          <li><strong>结构</strong><span>「清晰的表格结构，让信息一目了然」</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · 左文右数与等宽数字（柔薰衣草白） -->
+  <section class="band band-lilac" id="sec-02" aria-labelledby="h-02">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no mono" lang="en">02</p>
+        <div>
+          <h2 id="h-02">左文右数与等宽数字</h2>
+          <p class="sec-en" lang="en">ALIGNMENT &amp; TABULAR FIGURES</p>
+        </div>
+      </header>
+      <p class="sec-lead">为什么专业报表几乎都遵守「文字左对齐、数字右对齐、表头随列对齐」？因为阅读文字靠左缘起笔，而比较数字靠<strong>个位、千分位和小数点纵向排成一条铅垂线</strong>。一旦开启 CSS 的 <code class="inline-code">font-variant-numeric: tabular-nums</code>，每个数字占宽相同，大小高低从宽度轮廓上一眼便知。</p>
+
+      <div class="align-lab" id="align-lab">
+        <div class="align-bar">
+          <label class="slider-field" for="align-precision">
+            <span>数值精度（Ehrenberg 取整原则）</span>
+            <strong class="mono" id="align-prec-val">原始杂乱小数（0–3 位）</strong>
+            <input type="range" id="align-precision" min="0" max="2" step="1" value="0">
+          </label>
+          <button type="button" class="tab-btn" id="align-sort-btn" aria-pressed="false">按大小排序</button>
+        </div>
+        <div class="align-canvas-wrap">
+          <canvas id="align-canvas" aria-label="居中比例数字与左文右数等宽数字的扫视轨迹对比"></canvas>
+        </div>
+        <p class="lab-readout" id="align-readout" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · 自动还是固定列宽？（深梅紫蓝图暗版） -->
+  <section class="band band-plum" id="sec-03" aria-labelledby="h-03">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no mono" lang="en">03</p>
+        <div>
+          <h2 id="h-03">自动还是固定列宽？</h2>
+          <p class="sec-en" lang="en">AUTO VS FIXED ALGORITHM</p>
+        </div>
+      </header>
+      <p class="sec-lead">W3C CSS 2.1 第 17 章规定了两种表格列宽算法。默认 <code class="inline-code">table-layout: auto</code> 必须先扫完所有单元格内容再反推列宽——只要某一行突然闯入一串长单号或 URL，整张表就会瞬间跳动失形。换成 <code class="inline-code">table-layout: fixed</code> 后，浏览器只看 <code class="inline-code">&lt;col&gt;</code> 与第一行宽度，加载更快，列轨纹丝不动。</p>
+
+      <div class="algo-lab" id="algo-lab">
+        <div class="algo-toolbar">
+          <div class="tool-cluster">
+            <span class="cluster-label">往第 2 行注入脏数据</span>
+            <div class="ctrl-btns">
+              <button type="button" class="pill-btn" data-payload="normal" aria-pressed="false">正常短词</button>
+              <button type="button" class="pill-btn is-active" data-payload="longId" aria-pressed="true">超长无空格单号</button>
+              <button type="button" class="pill-btn" data-payload="longNote" aria-pressed="false">32 字长备注</button>
+              <button type="button" class="pill-btn" data-payload="url" aria-pressed="false">外部回调 URL</button>
+            </div>
+          </div>
+          <div class="tool-cluster">
+            <span class="cluster-label">fixed 溢出处理</span>
+            <div class="ctrl-btns">
+              <button type="button" class="pill-btn is-active" data-ov="wrap" aria-pressed="true">断词折行</button>
+              <button type="button" class="pill-btn" data-ov="ellipsis" aria-pressed="false">单行省略号</button>
+            </div>
+          </div>
+          <div class="tool-cluster">
+            <span class="cluster-label">边框模型 border-collapse</span>
+            <div class="ctrl-btns">
+              <button type="button" class="pill-btn is-active" data-bc="collapse" aria-pressed="true">collapse 合并</button>
+              <button type="button" class="pill-btn" data-bc="separate" aria-pressed="false">separate 独立双线</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="algo-split">
+          <div class="algo-panel">
+            <div class="algo-panel-head">
+              <strong class="mono">table-layout: auto</strong>
+              <span class="mono algo-w" id="algo-auto-w">实测列宽：—</span>
+            </div>
+            <div class="algo-scroll">
+              <table class="demo-tbl tbl-auto" id="algo-table-auto" data-border="collapse">
+                <thead><tr><th scope="col">单号</th><th scope="col">备注</th><th scope="col" class="num">金额</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">ORD-2040</td><td>月度续费</td><td class="num mono">¥460</td></tr>
+                  <tr class="is-injected"><td class="mono" id="algo-auto-id">ORD2026ENTERPRISE998172635401</td><td id="algo-auto-note">标准版续费</td><td class="num mono">¥1,280</td></tr>
+                  <tr><td class="mono">ORD-2042</td><td>增购席位</td><td class="num mono">¥980</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="algo-panel algo-panel-good">
+            <div class="algo-panel-head">
+              <strong class="mono">table-layout: fixed</strong>
+              <span class="mono algo-w" id="algo-fixed-w">实测列宽：—</span>
+            </div>
+            <div class="algo-scroll">
+              <table class="demo-tbl tbl-fixed" id="algo-table-fixed" data-overflow="wrap" data-border="collapse">
+                <colgroup><col style="width:28%"><col style="width:48%"><col style="width:24%"></colgroup>
+                <thead><tr><th scope="col">单号</th><th scope="col">备注</th><th scope="col" class="num">金额</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">ORD-2040</td><td>月度续费</td><td class="num mono">¥460</td></tr>
+                  <tr class="is-injected"><td class="mono" id="algo-fixed-id">ORD2026ENTERPRISE998172635401</td><td id="algo-fixed-note">标准版续费</td><td class="num mono">¥1,280</td></tr>
+                  <tr><td class="mono">ORD-2042</td><td>增购席位</td><td class="num mono">¥980</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <p class="algo-explain" id="algo-explain" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · 格线减法与合并边界（暖香槟米） -->
+  <section class="band band-sand" id="sec-04" aria-labelledby="h-04">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no mono" lang="en">04</p>
+        <div>
+          <h2 id="h-04">格线减法与合并边界</h2>
+          <p class="sec-en" lang="en">DATA-INK &amp; CELL SPANS</p>
+        </div>
+      </header>
+      <p class="sec-lead">Edward Tufte 在 1983 年提出「数据墨水比」：把不传递数据的厚框逐层擦掉，数字自己就会跳出来。至于原海报中心提到的「合并单元格，突出重点信息」——<span class="nuance-tag">补充一句</span>这在<strong>表头分组</strong>或<strong>静态海报摘要</strong>里很有效，但在需要排序、筛选或复制的真实正文数据区里，跨格合并反而会打断列坐标。</p>
+
+      <div class="ink-lab" id="ink-lab">
+        <div class="ink-block">
+          <div class="ink-steps" role="group" aria-label="四步剥离非数据墨水">
+            <button type="button" class="step-btn is-active" data-ink-step="0" aria-pressed="true">01 重框铁笼</button>
+            <button type="button" class="step-btn" data-ink-step="1" aria-pressed="false">02 去掉竖线</button>
+            <button type="button" class="step-btn" data-ink-step="2" aria-pressed="false">03 柔线留白</button>
+            <button type="button" class="step-btn" data-ink-step="3" aria-pressed="false">04 表头汇总</button>
+          </div>
+          <div class="ink-stage">
+            <table class="ink-table" id="ink-table" data-ink-step="0" aria-label="数据墨水减法示范表">
+              <thead>
+                <tr>
+                  <th scope="col">产品线</th>
+                  <th scope="col" class="num">Q1 营收</th>
+                  <th scope="col" class="num">Q2 营收</th>
+                  <th scope="col" class="num">同比</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">桌面端许可</th><td class="num mono">¥184,000</td><td class="num mono">¥216,500</td><td class="num mono">+17.7%</td></tr>
+                <tr><th scope="row">团队协作云</th><td class="num mono">¥92,400</td><td class="num mono">¥128,800</td><td class="num mono">+39.4%</td></tr>
+                <tr><th scope="row">企业定制</th><td class="num mono">¥64,000</td><td class="num mono">¥58,200</td><td class="num mono">-9.1%</td></tr>
+              </tbody>
+              <tfoot>
+                <tr><th scope="row">合计</th><td class="num mono">¥340,400</td><td class="num mono">¥403,500</td><td class="num mono">+18.5%</td></tr>
+              </tfoot>
+            </table>
+          </div>
+          <div class="ink-readout" aria-live="polite">
+            <span class="ink-pill mono" id="ink-ratio">约 46% 非数据墨水（示意）</span>
+            <strong id="ink-summary"></strong>
+            <p id="ink-detail"></p>
+          </div>
+        </div>
+
+        <div class="merge-block" id="merge-compare" data-merge-mode="header">
+          <div class="merge-head">
+            <h3>合并单元格的合法边界</h3>
+            <div class="ctrl-btns">
+              <button type="button" class="tab-btn is-active" data-merge="header" aria-pressed="true">推荐：表头分组</button>
+              <button type="button" class="tab-btn" data-merge="body" aria-pressed="false">慎用：正文跨格</button>
+            </div>
+          </div>
+
+          <div class="merge-view merge-view-header">
+            <table class="merge-mini-tbl">
+              <thead>
+                <tr>
+                  <th scope="col" rowspan="2">城市</th>
+                  <th scope="colgroup" colspan="2" class="th-group">上半年</th>
+                  <th scope="colgroup" colspan="2" class="th-group">下半年</th>
+                </tr>
+                <tr>
+                  <th scope="col" class="num">Q1</th><th scope="col" class="num">Q2</th>
+                  <th scope="col" class="num">Q3</th><th scope="col" class="num">Q4</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">上海</th><td class="num mono">42</td><td class="num mono">48</td><td class="num mono">53</td><td class="num mono">61</td></tr>
+                <tr><th scope="row">成都</th><td class="num mono">27</td><td class="num mono">31</td><td class="num mono">36</td><td class="num mono">40</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="merge-view merge-view-body">
+            <table class="merge-mini-tbl">
+              <thead>
+                <tr><th scope="col">城市</th><th scope="col" class="num">Q1</th><th scope="col" class="num">Q2</th><th scope="col" class="num">Q3</th><th scope="col" class="num">Q4</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">上海</th><td class="num mono">42</td><td colspan="2" rowspan="2" class="bad-span-cell">★ 暑期促销合并区间</td><td class="num mono">61</td></tr>
+                <tr><th scope="row">成都</th><td class="num mono">27</td><td class="num mono">40</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="merge-verdict" id="merge-verdict" data-state="good" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · 窄屏怎么放宽表格？（柔薰衣草白） -->
+  <section class="band band-lilac" id="sec-05" aria-labelledby="h-05">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no mono" lang="en">05</p>
+        <div>
+          <h2 id="h-05">窄屏怎么放宽表格？</h2>
+          <p class="sec-en" lang="en">RESPONSIVE TABLE PATTERNS</p>
+        </div>
+      </header>
+      <p class="sec-lead">多列表格天生是横向展开的，一进 390px 手机屏立刻遇上硬冲突。四种常见响应方案没有万能银弹，选哪一种取决于用户此刻更需要「跨行比同一列」还是「逐条读完整记录」。首列冻结依赖粘性定位，原理详见 <a href="https://layout.xiaoxiaodong.ai/235/play/" target="_blank" rel="noopener">235 粘性定位布局</a>。</p>
+
+      <div class="mobile-lab" id="mobile-lab">
+        <div class="mobile-controls">
+          <div class="ctrl-btns" role="group" aria-label="选择移动端表格适配方案">
+            <button type="button" class="tab-btn" data-strat="squeeze" aria-pressed="false">默认硬挤</button>
+            <button type="button" class="tab-btn is-active" data-strat="sticky" aria-pressed="true">横滚 + 首列冻结</button>
+            <button type="button" class="tab-btn" data-strat="priority" aria-pressed="false">按优先级隐列</button>
+            <button type="button" class="tab-btn" data-strat="cards" aria-pressed="false">逐行堆叠卡片</button>
+          </div>
+          <label class="mobile-slider-wrap" for="mobile-width">
+            <span class="mono" id="mobile-width-val">模拟视口宽 360px</span>
+            <input type="range" id="mobile-width" min="300" max="540" step="10" value="360">
+          </label>
+        </div>
+
+        <div class="mobile-stage-row">
+          <div class="mobile-device" id="mobile-frame" data-strategy="sticky">
+            <div class="device-bar"><span class="mono">PREVIEW</span><span class="device-hint">左右滑动可检视</span></div>
+            <div class="device-scroll">
+              <table class="resp-table" aria-label="移动端响应式表格策略演示">
+                <thead>
+                  <tr>
+                    <th scope="col" class="col-sticky">方案</th>
+                    <th scope="col" class="num">月费</th>
+                    <th scope="col" class="num">存储</th>
+                    <th scope="col" class="num col-sec">席位</th>
+                    <th scope="col" class="col-sec">客服 SLA</th>
+                    <th scope="col" class="num">导出</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row" class="col-sticky" data-label="方案">个人版</th>
+                    <td class="num mono" data-label="月费">¥68</td>
+                    <td class="num mono" data-label="存储">50 GB</td>
+                    <td class="num mono col-sec" data-label="席位">1 人</td>
+                    <td class="col-sec" data-label="客服 SLA">邮件</td>
+                    <td class="num" data-label="导出">PDF</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="col-sticky" data-label="方案">工作室</th>
+                    <td class="num mono" data-label="月费">¥298</td>
+                    <td class="num mono" data-label="存储">500 GB</td>
+                    <td class="num mono col-sec" data-label="席位">10 人</td>
+                    <td class="col-sec" data-label="客服 SLA">4 小时</td>
+                    <td class="num" data-label="导出">全格式</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="col-sticky" data-label="方案">企业版</th>
+                    <td class="num mono" data-label="月费">¥1,280</td>
+                    <td class="num mono" data-label="存储">5 TB</td>
+                    <td class="num mono col-sec" data-label="席位">不限</td>
+                    <td class="col-sec" data-label="客服 SLA">15 分钟</td>
+                    <td class="num" data-label="导出">API</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="mobile-verdict-box" aria-live="polite">
+            <p class="mv-head" id="mobile-verdict"></p>
+            <p class="mv-body" id="mobile-tradeoff"></p>
+            <p class="mv-note">注：若把原生 <code>&lt;table&gt;</code> 强行改成 <code>display: block</code> 做堆叠卡片，部分读屏器会丢失表格语义；需要按组件容器宽窄切换形态时，也可结合 <a href="https://layout.xiaoxiaodong.ai/242/play/" target="_blank" rel="noopener">242 容器查询布局</a> 与 <a href="https://layout.xiaoxiaodong.ai/240/play/" target="_blank" rel="noopener">240 响应式布局</a>。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · 从账本到语义回归（深梅紫编年史暗版） -->
+  <section class="band band-plum" id="sec-06" aria-labelledby="h-06">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no mono" lang="en">06</p>
+        <div>
+          <h2 id="h-06">从账本到语义回归</h2>
+          <p class="sec-en" lang="en">ORIGINS &amp; WEB STANDARDS</p>
+        </div>
+      </header>
+      <p class="sec-lead">网页里的表格走过一条耐人寻味的弯路：它诞生于统计与账本排版的理性传统，在 1990 年代末却被当作整个网页的拼版脚手架，直到 CSS 布局体系成熟，才终于卸下包袱、回到「结构化数据」的本位。</p>
+
+      <div class="history-lab" id="history-lab">
+        <div class="hist-tabs" role="group" aria-label="选择历史时间节点">
+          <button type="button" class="pill-btn" data-hidx="0" aria-pressed="false">1977 · Ehrenberg</button>
+          <button type="button" class="pill-btn" data-hidx="1" aria-pressed="false">1983 · Tufte</button>
+          <button type="button" class="pill-btn is-active" data-hidx="2" aria-pressed="true">1996 · RFC 1942</button>
+          <button type="button" class="pill-btn" data-hidx="3" aria-pressed="false">1998–2011 · CSS 2.1</button>
+          <button type="button" class="pill-btn" data-hidx="4" aria-pressed="false">2003–2004 · 语义回归</button>
+        </div>
+
+        <div class="hist-card" aria-live="polite">
+          <div class="hist-text">
+            <p class="hist-who mono" id="hist-who"></p>
+            <h3 class="hist-work" id="hist-work"></h3>
+            <p class="hist-venue" id="hist-venue"></p>
+            <p class="hist-body" id="hist-body"></p>
+          </div>
+          <div class="hist-code-box">
+            <p class="hist-code-title mono" id="hist-code-title"></p>
+            <pre class="hist-code mono"><code id="hist-code"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · 什么时候用，何时别用（暖香槟账本纸） -->
+  <section class="band band-cream" id="sec-07" aria-labelledby="h-07">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no mono" lang="en">07</p>
+        <div>
+          <h2 id="h-07">什么时候用，何时别用</h2>
+          <p class="sec-en" lang="en">WHEN TO USE &amp; AVOID</p>
+        </div>
+      </header>
+      <p class="sec-lead">判断一张界面该不该用表格布局，只要问一句话：<strong>读者是否同时依赖「所在行」和「所在列」来理解每一个格子？</strong>如果是，用原生 <code class="inline-code">&lt;table&gt;</code>；如果只是想把元素排齐，请交给现代 CSS 布局家族里的专职成员。</p>
+
+      <div class="triage-lab" id="triage-lab">
+        <div class="triage-grid" role="group" aria-label="点选界面场景查看分诊建议">
+          <button type="button" class="triage-card is-active" data-triage="pricing" aria-pressed="true">
+            <strong>SaaS 套餐参数对比</strong>
+            <span>4 档方案 × 12 项功能配额</span>
+          </button>
+          <button type="button" class="triage-card" data-triage="page-shell" aria-pressed="false">
+            <strong>官网整页栅格框架</strong>
+            <span>顶栏 + 侧栏 + 主内容 + 页脚</span>
+          </button>
+          <button type="button" class="triage-card" data-triage="nav-bar" aria-pressed="false">
+            <strong>顶部导航与按钮条</strong>
+            <span>Logo 居左、菜单居中、按钮居右</span>
+          </button>
+          <button type="button" class="triage-card" data-triage="ledger" aria-pressed="false">
+            <strong>财务对账与订单流水</strong>
+            <span>单号、时间、金额、状态核对</span>
+          </button>
+          <button type="button" class="triage-card" data-triage="trend" aria-pressed="false">
+            <strong>365 天气温变化趋势</strong>
+            <span>一眼看季节波峰与异常陡降</span>
+          </button>
+          <button type="button" class="triage-card" data-triage="photo-wall" aria-pressed="false">
+            <strong>不等高摄影作品集</strong>
+            <span>横图竖图错落混排延展</span>
+          </button>
+        </div>
+
+        <div class="triage-panel" aria-live="polite">
+          <div class="triage-panel-top">
+            <span class="triage-badge" id="triage-badge" data-kind="use">适合用表格</span>
+            <strong id="triage-title"></strong>
+          </div>
+          <p id="triage-reason"></p>
+          <p class="triage-link" id="triage-link-wrap" hidden></p>
+        </div>
+      </div>
+
+      <div class="sibling-map">
+        <h3>同小类布局分工速查</h3>
+        <ul>
+          <li>普通文档上下流动与块/行内盒模型，见 <a href="https://layout.xiaoxiaodong.ai/222/play/" target="_blank" rel="noopener">222 普通流布局</a>、<a href="https://layout.xiaoxiaodong.ai/223/play/" target="_blank" rel="noopener">223 块级布局</a> 与 <a href="https://layout.xiaoxiaodong.ai/224/play/" target="_blank" rel="noopener">224 行内布局</a>。</li>
+          <li>一维导航与按钮对齐交给 <a href="https://layout.xiaoxiaodong.ai/226/play/" target="_blank" rel="noopener">226 弹性盒布局</a>；整页二维分区和嵌套穿轨交给 <a href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">227 网格布局</a> 与 <a href="https://layout.xiaoxiaodong.ai/228/play/" target="_blank" rel="noopener">228 子网格布局</a>。</li>
+          <li>连续长文分栏像报纸一样顺流而下，请用 <a href="https://layout.xiaoxiaodong.ai/229/play/" target="_blank" rel="noopener">229 多栏布局</a>；非表格流式拼图交给 <a href="https://layout.xiaoxiaodong.ai/236/play/" target="_blank" rel="noopener">236 瀑布流布局</a>。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 · 小练习：挑出最好读的表（柔薰衣草白） -->
+  <section class="band band-lilac" id="sec-08" aria-labelledby="h-08">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no mono" lang="en">08</p>
+        <div>
+          <h2 id="h-08">小练习：挑出最好读的表</h2>
+          <p class="sec-en" lang="en">PRACTICE · SPOT THE BEST TABLE</p>
+        </div>
+      </header>
+      <p class="sec-lead">下面四张表装的是完全相同的 4 档云服务月度价格与流量配额，每张与理想解<strong>只差一个排版变量</strong>。请选出最适合眼睛快速顺列比价的那一张：</p>
+
+      <div class="quiz-lab" id="quiz-lab">
+        <div class="quiz-grid" id="quiz-grid"></div>
+        <div class="quiz-feedback" id="quiz-feedback" hidden aria-live="polite">
+          <div class="qfb-top">
+            <strong id="quiz-fb-title"></strong>
+            <button type="button" class="tab-btn" id="quiz-retry">重选一次</button>
+          </div>
+          <p id="quiz-fb-text"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 · 原海报与关键词（深梅紫收束 + 原海报底部香槟封签） -->
+  <section class="band band-plum band-poster" id="sec-09" aria-labelledby="h-09">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no mono" lang="en">09</p>
+        <div>
+          <h2 id="h-09">原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; KEYWORDS</p>
+        </div>
+      </header>
+
+      <div class="poster-layout">
+        <div class="poster-frame">
+          <button type="button" class="poster-btn" id="poster-open" aria-label="点击放大查看 230 表格布局原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="表格布局原海报：深梅紫底色上的五列表格结构、香槟色合并单元格与五要素图示" draggable="false">
+            <span class="poster-zoom-hint">点击放大 · 支持拖动与缩放</span>
+          </button>
+        </div>
+
+        <div class="poster-notes">
+          <p class="poster-kicker mono" lang="en">POSTER NO. 230 · TABLE LAYOUT</p>
+          <p class="poster-big-quote">「用结构组织信息，让数据更清晰」</p>
+          <p class="poster-copy">整张原海报以深梅紫为底，把「局」字内框化成 4×3 细白表框，中央立起五列紫晶表头矩阵，用粉色虚线括号标出行、列、单元格与合并焦点，底部用五枚玫瑰粉图标收束表格五要素，再用一枚温暖的香槟药丸封签总结全篇。</p>
+
+          <ul class="kw-list" aria-label="原海报关键词">
+            <li>结构清晰</li>
+            <li>信息有序</li>
+            <li>重点突出</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 忠实还原原海报底沿的香槟药丸封签 + 4×3 紫点阵 -->
+      <div class="poster-seal" aria-label="原海报底沿总结封签">
+        <div class="seal-left">
+          <span class="seal-star-badge" aria-hidden="true">★</span>
+          <span class="seal-kws"><span>结构清晰</span><span>信息有序</span><span>重点突出</span></span>
+        </div>
+        <span class="seal-divider" aria-hidden="true"></span>
+        <p class="seal-tagline">好的表格，让沟通更高效</p>
+        <div class="seal-dots" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+          <i></i><i></i><i></i><i></i>
+          <i></i><i></i><i></i><i></i>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p><span lang="en" class="mono">No. 230</span> 表格布局 · 350 种排版</p>
+    <p class="foot-meta"><a href="https://layout.xiaoxiaodong.ai/230/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a><span class="sep" aria-hidden="true">·</span>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a><span class="sep" aria-hidden="true">·</span>源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></p>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱 -->
+<dialog class="poster-dialog" id="poster-dialog" aria-label="原海报大图预览">
+  <div class="lb-bar">
+    <span class="mono">NO. 230 · 表格布局 原海报（拖动平移 · 滚轮缩放 · Esc 关闭）</span>
+    <div class="lb-actions">
+      <button type="button" class="pill-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+      <button type="button" class="pill-btn mono" id="lb-zoom-reset">100%</button>
+      <button type="button" class="pill-btn" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="pill-btn pill-accent" id="lb-close">关闭</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" alt="表格布局原海报放大视图" draggable="false">
+  </div>
+</dialog>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
