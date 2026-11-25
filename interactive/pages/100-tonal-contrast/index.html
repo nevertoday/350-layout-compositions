@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10110e">
+<title>明暗对比 · TONAL CONTRAST</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap mast-inner">
+    <p class="series"><b>视觉原则与阅读模式 / 层级、比例与对比</b><span lang="en">VISUAL PRINCIPLES · HIERARCHY &amp; CONTRAST</span></p>
+    <p class="issue"><span lang="en" class="num">NO. 100</span><span>明暗有度 · 画面有力</span></p>
+  </div>
+</header>
+
+<main>
+  <!-- 开场：对半纸墨标题 + 立体明暗对比控制台 -->
+  <section class="hero" aria-labelledby="title">
+    <div class="hero-banner">
+      <div class="wrap hero-title-wrap">
+        <h1 id="title" class="split-title" aria-label="明暗对比">
+          <span class="st-light" aria-hidden="true">明暗</span><span class="st-dark" aria-hidden="true">对比</span>
+        </h1>
+        <div class="hero-sub">
+          <p class="title-en" lang="en">TONAL CONTRAST</p>
+          <p class="title-summary">用明与暗塑造视觉力量 <span lang="en">SHAPE VISUAL POWER WITH LIGHT AND DARK</span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap hero-grid">
+      <div class="stage-col">
+        <div class="stage" id="stage">
+          <div class="scene-host" id="scene-host"></div>
+          <i class="axis-line v" id="axis-v" aria-hidden="true"></i>
+          <i class="axis-line h" id="axis-h" aria-hidden="true"></i>
+
+          <!-- 四个快捷定标锚点 -->
+          <button type="button" class="preset-pin" data-preset="flat" style="left:16%;top:50%" title="低反差平光"><span class="sr">切到低反差平光</span></button>
+          <button type="button" class="preset-pin" data-preset="highkey" style="left:52%;top:20%" title="高调通透"><span class="sr">切到高调通透</span></button>
+          <button type="button" class="preset-pin" data-preset="lowkey" style="left:74%;top:80%" title="低调剧场"><span class="sr">切到低调剧场</span></button>
+          <button type="button" class="preset-pin hot" data-preset="poster" style="left:78%;top:50%" title="海报极对比"><span class="sr">切到海报极对比</span></button>
+
+          <!-- 主拖动把手（data-perf-drag） -->
+          <button type="button" class="reticle" id="reticle" data-perf-drag aria-describedby="ro-text">
+            <span class="ret-ring" aria-hidden="true"></span>
+            <span class="ret-core" aria-hidden="true"></span>
+            <span class="sr">明暗对比控制点：左右拖动改变反差，上下拖动改变画面调性</span>
+          </button>
+
+          <p class="hud hud-tl" aria-hidden="true"><span class="hud-k">CONTRAST</span><b id="hud-ratio" class="num">15.5 : 1</b></p>
+          <p class="hud hud-tr" aria-hidden="true"><span id="hud-zone" class="num">Zone 0–X</span></p>
+          <p class="hud hud-bl" aria-hidden="true"><span>← 灰雾</span><span>极反差 →</span></p>
+          <p class="hud hud-br" aria-hidden="true"><span id="hud-key">均衡对半</span></p>
+        </div>
+        <p class="stage-hint">左右拖动<b>朱红准星</b>拉大或收窄明暗反差，上下拖动切换高调与低调；也可用方向键微调，按 <kbd lang="en">Home</kbd> 回到原海报状态。</p>
+      </div>
+
+      <div class="panel-col">
+        <div class="panel">
+          <fieldset class="seg">
+            <legend>演示场景 <span lang="en">Scene</span></legend>
+            <label><input type="radio" name="hero-scene" value="split" checked><span>海报母题</span></label>
+            <label><input type="radio" name="hero-scene" value="chiaroscuro"><span>明暗雕塑</span></label>
+            <label><input type="radio" name="hero-scene" value="editorial"><span>版面样本</span></label>
+          </fieldset>
+
+          <fieldset class="seg">
+            <legend>明度层次 <span lang="en">Gradation</span></legend>
+            <label><input type="radio" name="hero-grad" value="notan" checked><span>二值黑白</span></label>
+            <label><input type="radio" name="hero-grad" value="five"><span>五阶层次</span></label>
+            <label><input type="radio" name="hero-grad" value="smooth"><span>连续明暗</span></label>
+          </fieldset>
+
+          <div class="panel-actions">
+            <button type="button" class="act-btn" id="btn-dot" aria-pressed="true">红点焦点 <span lang="en">Focal Dot</span></button>
+            <button type="button" class="act-btn" id="btn-reset">复位海报 <span lang="en">Reset</span></button>
+          </div>
+
+          <div class="readout" id="readout" aria-live="polite">
+            <p class="ro-head"><b id="ro-title">黑白两极拉开，视觉力量瞬间锁死</b><span class="ro-badge" id="ro-badge" data-status="peak">海报级力量</span></p>
+            <p class="ro-text" id="ro-text"></p>
+            <p class="ro-note" id="ro-note"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <article class="essay">
+    <!-- 01 · 海报五条原则与去色骨架 -->
+    <section class="sec sec-paper" aria-labelledby="s1">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">01</p>
+          <h2 id="s1">海报五维：<br>明度先于色彩</h2>
+          <p class="sec-en" lang="en">Five dimensions · Value before hue</p>
+        </header>
+
+        <div class="sec-body">
+          <p class="lead reveal">在视觉传达里，人眼分辨形体、层级与文字边界，最先依赖的是<strong>明度差（Value / Luminance）</strong>，而不是色相。把一张设计抽掉色彩变成灰度后，它的骨架好不好立刻原形毕露。</p>
+          <p class="reveal">原海报用五条折线指向中央对半圆与阶梯，刚好拆出了明暗对比的五个层面：</p>
+
+          <ol class="callouts reveal">
+            <li>
+              <div class="co-head">
+                <i class="co-dot" aria-hidden="true"></i>
+                <h3>黑白</h3>
+                <span class="co-en" lang="en">BLACK &amp; WHITE</span>
+                <i class="co-elbow" aria-hidden="true"></i>
+              </div>
+              <p class="co-quote">「最纯粹的对比」</p>
+              <p>去掉色相干扰后，黑与白给出最干净的结构判断。版面在黑白草图里立不住，上再讲究的配色也救不回结构（色彩本身的力量见 <a href="https://layout.xiaoxiaodong.ai/101/play/" target="_blank" rel="noopener">101 色彩对比原则</a>）。</p>
+            </li>
+            <li>
+              <div class="co-head">
+                <i class="co-dot" aria-hidden="true"></i>
+                <h3>层次</h3>
+                <span class="co-en" lang="en">GRADATION</span>
+                <i class="co-elbow" aria-hidden="true"></i>
+              </div>
+              <p class="co-quote">「由明到暗的过渡」</p>
+              <p>只有纯黑和纯白会显得扁平僵硬；在两极之间铺出有序灰阶，就能区分主标题、正文、注释和背景，替整个版面建立前后秩序（层级排布专讲见 <a href="https://layout.xiaoxiaodong.ai/095/play/" target="_blank" rel="noopener">095 视觉层级原则</a> 与 <a href="https://layout.xiaoxiaodong.ai/096/play/" target="_blank" rel="noopener">096 主次关系原则</a>）。</p>
+            </li>
+            <li>
+              <div class="co-head">
+                <i class="co-dot" aria-hidden="true"></i>
+                <h3>焦点</h3>
+                <span class="co-en" lang="en">FOCAL POINT</span>
+                <i class="co-elbow" aria-hidden="true"></i>
+              </div>
+              <p class="co-quote">「高对比创造焦点」</p>
+              <p>哪怕面积不大，只要它与紧邻底面的明度跨度是全图最大，视线就会第一时间飞过去——不必永远靠把字放最大硬抢（大小对比另见 <a href="https://layout.xiaoxiaodong.ai/099/play/" target="_blank" rel="noopener">099 尺度对比原则</a>）。</p>
+            </li>
+            <li>
+              <div class="co-head">
+                <i class="co-dot" aria-hidden="true"></i>
+                <h3>反差</h3>
+                <span class="co-en" lang="en">CONTRAST</span>
+                <span class="tag">说多了一点</span>
+                <i class="co-elbow" aria-hidden="true"></i>
+              </div>
+              <p class="co-quote">「对比越强，越有力量」</p>
+              <p>单看局部，反差越大确实冲击越猛；但若整页每个边角、每条线都拉到极黑白，画面就会变成满屏噪音、看久刺眼。其实海报底脚那句<strong>「明暗有度 · 画面有力」</strong>才是完整答案：力量来自<strong>有克制的局部极反差</strong>。</p>
+            </li>
+            <li>
+              <div class="co-head">
+                <i class="co-dot" aria-hidden="true"></i>
+                <h3>识别</h3>
+                <span class="co-en" lang="en">VISIBILITY</span>
+                <i class="co-elbow" aria-hidden="true"></i>
+              </div>
+              <p class="co-quote">「强化信息，提升可读性」</p>
+              <p>户外强光、低端屏幕、黑白打印或视力疲劳时，色相很容易失效，唯有明度差决定信息能不能被一眼认出。</p>
+            </li>
+          </ol>
+
+          <div class="lab reveal">
+            <div class="lab-head">
+              <h3>实验 · 眯眼与去色测试 <span lang="en">Squint &amp; Grayscale Check</span></h3>
+              <p>切到「去色灰度」或「眯眼模糊」，对比两版海报的底层明度骨架。</p>
+            </div>
+            <div class="lab-split">
+              <div class="lab-visual">
+                <svg viewBox="0 0 420 250" id="sq-svg" class="lab-svg" role="img" aria-label="明度撞车与明度拉开两版海报的去色对比图"></svg>
+              </div>
+              <div class="lab-ctrl">
+                <fieldset class="seg seg-col">
+                  <legend>测试样本 <span lang="en">Sample</span></legend>
+                  <label><input type="radio" name="sq-case" value="clash" checked><span>彩色热闹 · 明度撞车</span></label>
+                  <label><input type="radio" name="sq-case" value="clear"><span>克制配色 · 明度拉开</span></label>
+                </fieldset>
+                <fieldset class="seg seg-2col">
+                  <legend>观察滤镜 <span lang="en">Lens</span></legend>
+                  <label><input type="radio" name="sq-lens" value="color" checked><span>原色视图</span></label>
+                  <label><input type="radio" name="sq-lens" value="gray"><span>去色灰度</span></label>
+                  <label><input type="radio" name="sq-lens" value="notan"><span>二值黑白</span></label>
+                  <label><input type="radio" name="sq-lens" value="squint"><span>眯眼模糊</span></label>
+                </fieldset>
+                <p class="lab-read" id="sq-read" aria-live="polite"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 · 历史脉络与同时对比 -->
+    <section class="sec sec-ink" aria-labelledby="s2">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">02</p>
+          <h2 id="s2">它从哪来：<br>四百年明暗标尺</h2>
+          <p class="sec-en" lang="en">From Chiaroscuro to WCAG</p>
+        </header>
+
+        <div class="sec-body">
+          <p class="lead reveal">把明暗当成一门独立结构来研究，并不是屏幕时代才开始的。从文艺复兴油画、日本浓淡构图、暗房曝光标尺到今天的网页无障碍标准，一代代创作者都在回答同一个问题：<strong>怎么精准驾驭光与暗的差值？</strong></p>
+
+          <ol class="timeline reveal" aria-label="明暗对比发展脉络">
+            <li>
+              <span class="yr" lang="en">15–17C</span>
+              <div>
+                <strong>明暗对照法与暗色调主义</strong> <em lang="en">Chiaroscuro &amp; Tenebrism</em>
+                <p>列奥纳多·达·芬奇（<span lang="en">Leonardo da Vinci</span>，如 1481 年《三博士来朝》）用细腻明暗过渡塑造立体体积；巴洛克画家卡拉瓦乔（<span lang="en">Caravaggio</span>）把强聚光与大片黑影推向剧场式的暗色调主义；17 世纪的伦勃朗（<span lang="en">Rembrandt van Rijn</span>）进一步用柔和明暗包裹人物神情与空气感。</p>
+              </div>
+            </li>
+            <li>
+              <span class="yr" lang="en">1839</span>
+              <div>
+                <strong>同时对比定律</strong> <em lang="en">Michel Eugène Chevreul</em>
+                <p>法国化学家谢弗勒尔在巴黎戈布兰挂毯厂研究色纱发灰问题，出版《论色彩同时对比的定律》（<cite lang="en">De la loi du contraste simultané des couleurs</cite>），系统揭示相邻两块颜色会互相推高彼此的明度与色相差异。</p>
+              </div>
+            </li>
+            <li>
+              <span class="yr" lang="en">1899</span>
+              <div>
+                <strong>「浓淡」进入现代构图教学</strong> <em lang="en">Arthur Wesley Dow</em>
+                <p>美国画家兼教育家亚瑟·韦斯利·道出版《构图》（<cite lang="en">Composition</cite>），借日本美术中的「浓淡（<span lang="en">Notan</span>）」，把线、明暗块面与色彩确立为视觉结构的三大基石，让黑白二值结构成为设计基本功。</p>
+              </div>
+            </li>
+            <li>
+              <span class="yr" lang="en">1939–40</span>
+              <div>
+                <strong>区域曝光法</strong> <em lang="en">Ansel Adams &amp; Fred Archer</em>
+                <p>摄影师安塞尔·亚当斯与弗雷德·阿彻在洛杉矶艺术中心学院任教期间创立区域系统（<span lang="en">Zone System</span>），把画面亮度划为 11 级（Zone 0 纯黑 至 Zone X 纯白，Zone V 为 18% 反射率中灰），让明暗控制有了可预判的刻度。</p>
+              </div>
+            </li>
+            <li>
+              <span class="yr" lang="en">1961–63</span>
+              <div>
+                <strong>包豪斯明暗教学体系</strong> <em lang="en">Johannes Itten &amp; Josef Albers</em>
+                <p>伊顿在《色彩艺术》（<cite lang="en">Kunst der Farbe</cite>，1961）将明暗对比列为七大色彩对比之一；阿尔伯斯在《色彩的相互作用》（<cite lang="en">Interaction of Color</cite>，1963）通过实验反复验证：同一块灰放在黑底和白底上，眼睛会读出完全不同的明度。</p>
+              </div>
+            </li>
+            <li>
+              <span class="yr" lang="en">2008–18</span>
+              <div>
+                <strong>数字可读性量化标准</strong> <em lang="en">W3C WCAG 2.0 / 2.1</em>
+                <p>万维网联盟确立相对亮度对比度算法：正文文字 AA 级至少 4.5:1，大号文字与界面组件至少 3:1，AAA 级至少 7:1。</p>
+              </div>
+            </li>
+          </ol>
+
+          <div class="lab lab-dark reveal">
+            <div class="lab-head">
+              <h3>实验 · 谢弗勒尔 / 阿尔伯斯同时对比 <span lang="en">Simultaneous Contrast</span></h3>
+              <p>下面左右两个方块的色值一模一样，为什么眼睛却坚称它们一暗一亮？</p>
+            </div>
+            <div class="lab-split">
+              <div class="lab-visual">
+                <svg viewBox="0 0 480 220" id="sim-svg" class="lab-svg" role="img" aria-label="同时对比错觉实验：左右两块相同灰块位于亮底与暗底上"></svg>
+              </div>
+              <div class="lab-ctrl">
+                <div class="ctrl">
+                  <div class="ctrl-top">
+                    <label for="sim-val">中央灰块明度 <span lang="en">Patch Value</span></label>
+                    <output id="sim-val-out" class="num">50%</output>
+                  </div>
+                  <input type="range" id="sim-val" min="22" max="78" step="1" value="50">
+                </div>
+                <div class="ctrl">
+                  <div class="ctrl-top">
+                    <label for="sim-bg">背景对半反差 <span lang="en">Ground Split</span></label>
+                    <output id="sim-bg-out" class="num">100%</output>
+                  </div>
+                  <input type="range" id="sim-bg" min="10" max="100" step="1" value="100">
+                </div>
+                <button type="button" class="act-btn act-dark" id="sim-bridge" aria-pressed="false">连通验证桥 · 拆穿错觉</button>
+                <p class="lab-read" id="sim-read" aria-live="polite"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 · 十一阶区域与调性 -->
+    <section class="sec sec-paper" aria-labelledby="s3">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">03</p>
+          <h2 id="s3">十一阶明度与<br>四种画面调性</h2>
+          <p class="sec-en" lang="en">11-zone scale · Tonal key &amp; distribution</p>
+        </header>
+
+        <div class="sec-body">
+          <p class="lead reveal">控制明暗不只有「拉满」一种开关。选定画面主要落在哪几个明度区（<strong>调性 Key</strong>），以及亮面积与暗面积各占多少，会直接改写整张作品的情绪温度。</p>
+
+          <div class="lab reveal">
+            <div class="lab-head">
+              <h3>实验 · 画面调性与明暗面积比 <span lang="en">Key &amp; Area Distribution</span></h3>
+              <p>切换四种典型调性，再拖动暗部面积占比，观察下方 11 级明度区如何点亮。</p>
+            </div>
+            <div class="zone-bar-wrap">
+              <div class="zone-strip" id="zone-strip" aria-label="Zone 0 到 Zone X 十一级明度标尺"></div>
+              <div class="zone-caps" aria-hidden="true"><span>Zone 0 · 极暗</span><span>Zone V · 中灰</span><span>Zone X · 极亮</span></div>
+            </div>
+            <div class="lab-split">
+              <div class="lab-visual">
+                <svg viewBox="0 0 480 240" id="key-svg" class="lab-svg" role="img" aria-label="四种画面调性与明暗面积占比实时演示"></svg>
+              </div>
+              <div class="lab-ctrl">
+                <fieldset class="seg seg-2col">
+                  <legend>画面调性 <span lang="en">Tonal Key</span></legend>
+                  <label><input type="radio" name="key-mode" value="full" checked><span>全音域</span></label>
+                  <label><input type="radio" name="key-mode" value="high"><span>高调偏亮</span></label>
+                  <label><input type="radio" name="key-mode" value="low"><span>低调偏暗</span></label>
+                  <label><input type="radio" name="key-mode" value="mid"><span>中调压缩</span></label>
+                </fieldset>
+                <div class="ctrl">
+                  <div class="ctrl-top">
+                    <label for="key-dark">暗部面积占比 <span lang="en">Dark Mass</span></label>
+                    <output id="key-dark-out" class="num">50%</output>
+                  </div>
+                  <input type="range" id="key-dark" min="15" max="85" step="1" value="50">
+                </div>
+                <p class="lab-read" id="key-read" aria-live="polite"></p>
+              </div>
+            </div>
+          </div>
+
+          <aside class="callout-note reveal">
+            <h3>经验值参考：不对称配比更省力 <span lang="en">Heuristic</span></h3>
+            <p>实务里一个常用<strong>经验值</strong>是让亮或暗有一方明显占优（比如大约 70/30 或 80/20，避免机械五五开导致画面两分；关于面积比例与视觉配平，可分别看 <a href="https://layout.xiaoxiaodong.ai/097/play/" target="_blank" rel="noopener">097 平衡原则</a> 与 <a href="https://layout.xiaoxiaodong.ai/098/play/" target="_blank" rel="noopener">098 比例原则</a>）。原海报故意反其道用了 50/50 竖向平分，但它紧接着在正中压上一颗<strong>跨越中轴的反色大圆</strong>和偏心红点，才把左右牢牢焊成一个整体。</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 · 焦点磁铁与对比家族 -->
+    <section class="sec sec-tint" aria-labelledby="s4">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">04</p>
+          <h2 id="s4">局部高对比，<br>才能造出焦点</h2>
+          <p class="sec-en" lang="en">Local contrast wins · Contrast budget</p>
+        </header>
+
+        <div class="sec-body">
+          <p class="lead reveal">海报写着「高对比创造焦点」。背后藏着一条容易忘掉的前提：<strong>对比度是一种有限预算</strong>。只有当周围环境主动降噪，把最高明暗落差留给唯一主角时，小面积元素也能瞬间压倒大面积背景。</p>
+
+          <div class="lab reveal">
+            <div class="lab-head">
+              <h3>实验 · 焦点夺目测试 <span lang="en">Focal Contrast Duel</span></h3>
+              <p>把右侧小圆和左侧大块的反差分别拉高拉低，看看视线落点什么时候稳稳锁定、什么时候彻底失控。</p>
+            </div>
+            <div class="lab-split">
+              <div class="lab-visual">
+                <svg viewBox="0 0 480 240" id="foc-svg" class="lab-svg" role="img" aria-label="焦点局部反差与周围干扰项反差的对比实验"></svg>
+              </div>
+              <div class="lab-ctrl">
+                <div class="ctrl">
+                  <div class="ctrl-top">
+                    <label for="foc-hero">右侧主角反差 <span lang="en">Focal Contrast</span></label>
+                    <output id="foc-hero-out" class="num">92%</output>
+                  </div>
+                  <input type="range" id="foc-hero" min="10" max="100" step="1" value="92">
+                </div>
+                <div class="ctrl">
+                  <div class="ctrl-top">
+                    <label for="foc-noise">左侧环境反差 <span lang="en">Surroundings</span></label>
+                    <output id="foc-noise-out" class="num">22%</output>
+                  </div>
+                  <input type="range" id="foc-noise" min="5" max="100" step="1" value="22">
+                </div>
+                <div class="preset-row">
+                  <button type="button" class="act-btn" id="foc-preset-win">单点胜出</button>
+                  <button type="button" class="act-btn" id="foc-preset-shout">全员喧哗</button>
+                  <button type="button" class="act-btn" id="foc-preset-spot">暗室一束光</button>
+                </div>
+                <p class="lab-read" id="foc-read" aria-live="polite"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="siblings reveal">
+            <h3>明暗对比在「对比家族」里的位置 <span lang="en">Related principles</span></h3>
+            <p>本页专讲明度差带来的力量与秩序；想靠其他维度拉开差异，可以接力看同一小类的其余页面：</p>
+            <ul class="sib-list">
+              <li>靠色相与冷暖冲撞制造情绪，见 <a href="https://layout.xiaoxiaodong.ai/101/play/" target="_blank" rel="noopener">101 色彩对比原则</a>；</li>
+              <li>靠方圆曲直的外形反差区分角色，见 <a href="https://layout.xiaoxiaodong.ai/102/play/" target="_blank" rel="noopener">102 形状对比原则</a>；</li>
+              <li>靠粗糙与光滑的肌理对撞拉出触感，见 <a href="https://layout.xiaoxiaodong.ai/103/play/" target="_blank" rel="noopener">103 质感对比原则</a>；</li>
+              <li>靠动态斜线与稳重静块的节奏差制造张力，见 <a href="https://layout.xiaoxiaodong.ai/104/play/" target="_blank" rel="noopener">104 动静对比原则</a>；</li>
+              <li>把两种元素紧贴并排放大语义对照，见 <a href="https://layout.xiaoxiaodong.ai/105/play/" target="_blank" rel="noopener">105 并置原则</a>；</li>
+              <li>用大片独立空隙把主角单独隔开，见 <a href="https://layout.xiaoxiaodong.ai/106/play/" target="_blank" rel="noopener">106 隔离原则</a>。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 · 识别门槛：WCAG 2.1 实时检验台 -->
+    <section class="sec sec-paper" aria-labelledby="s5">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">05</p>
+          <h2 id="s5">识别门槛：<br>多高才读得清？</h2>
+          <p class="sec-en" lang="en">Visibility · Live WCAG 2.1 bench</p>
+        </header>
+
+        <div class="sec-body">
+          <p class="lead reveal">海报第五条直指<strong>「识别：强化信息，提升可读性」</strong>。在屏幕上，「看得清」不是靠感觉猜——W3C 的 <strong>WCAG 2.1</strong> 给出了明确的相对亮度对比度公式：<span class="formula" lang="en">(L<sub>1</sub> + 0.05) / (L<sub>2</sub> + 0.05)</span>，取值从 <span class="num">1 : 1</span>（完全同色）到 <span class="num">21 : 1</span>（纯黑配纯白）。</p>
+
+          <div class="lab reveal">
+            <div class="lab-head">
+              <h3>实验 · 实时明度对比度检验台 <span lang="en">WCAG 2.1 Luminance Bench</span></h3>
+              <p>调节文字与底面的明度，或点下方常见场景预设，实时检验三档无障碍门槛。</p>
+            </div>
+
+            <div class="wcag-grid">
+              <div class="wcag-card" id="wcag-preview">
+                <p class="wcag-kicker" lang="en">EXHIBITION · NO. 100</p>
+                <p class="wcag-h">用明与暗塑造视觉力量</p>
+                <p class="wcag-p">人眼在辨认细小笔画和界面边界时，首先依赖明度落差。一旦文字发灰、接近底色，哪怕字体再精致，阅读速度也会骤降。</p>
+                <span class="wcag-ui-btn" aria-hidden="true">界面按钮边框 3:1</span>
+              </div>
+
+              <div class="wcag-side">
+                <div class="wcag-meter">
+                  <span class="wm-label" lang="en">CONTRAST RATIO</span>
+                  <b class="wm-num num" id="wcag-ratio">15.54 : 1</b>
+                </div>
+                <div class="wcag-badges">
+                  <span class="w-badge" id="badge-ui" data-pass="true">大字 / 组件 ≥ 3:1 · 通过</span>
+                  <span class="w-badge" id="badge-aa" data-pass="true">正文 AA ≥ 4.5:1 · 通过</span>
+                  <span class="w-badge" id="badge-aaa" data-pass="true">增强 AAA ≥ 7:1 · 通过</span>
+                </div>
+
+                <div class="ctrl">
+                  <div class="ctrl-top">
+                    <label for="wcag-fg">文字明度 <span lang="en">Foreground</span></label>
+                    <output id="wcag-fg-out" class="num">6%</output>
+                  </div>
+                  <input type="range" id="wcag-fg" min="0" max="100" step="1" value="6">
+                </div>
+                <div class="ctrl">
+                  <div class="ctrl-top">
+                    <label for="wcag-bg">底面明度 <span lang="en">Background</span></label>
+                    <output id="wcag-bg-out" class="num">93%</output>
+                  </div>
+                  <input type="range" id="wcag-bg" min="0" max="100" step="1" value="93">
+                </div>
+
+                <div class="preset-row">
+                  <button type="button" class="act-btn wcag-preset" data-preset="poster">海报墨纸</button>
+                  <button type="button" class="act-btn wcag-preset" data-preset="darkmode">柔和暗夜</button>
+                  <button type="button" class="act-btn wcag-preset" data-preset="edge-aa">擦线 AA</button>
+                  <button type="button" class="act-btn wcag-preset" data-preset="pale-fail">发灰浅字</button>
+                  <button type="button" class="act-btn wcag-preset" data-preset="pure-bw">纯黑纯白</button>
+                </div>
+              </div>
+            </div>
+            <p class="lab-read" id="wcag-read" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 · 何时拉满，何时克制（对半纸墨双栏，直接呼应原海报版式） -->
+    <section class="sec sec-duel" aria-labelledby="s6">
+      <div class="duel-grid">
+        <div class="duel-pane duel-light">
+          <div class="duel-inner">
+            <header class="sec-head reveal">
+              <p class="sec-no" lang="en">06</p>
+              <h2 id="s6">什么时候拉强反差</h2>
+              <p class="sec-en" lang="en">When to push tonal contrast</p>
+            </header>
+            <ul class="duel-list reveal">
+              <li>
+                <h3>远距海报与首屏主视觉</h3>
+                <p>路人或刷屏者只给你不到一秒。大块明暗切割在缩略图与远距离下最抗衰减，能第一时间把主题钉进脑子。</p>
+              </li>
+              <li>
+                <h3>核心操作与关键警示信息</h3>
+                <p>主行动按钮、报错提示、核心数据指标需要零犹豫识别，直接给足 7:1 以上的清晰明度差。</p>
+              </li>
+              <li>
+                <h3>建筑光影与单灯雕塑叙事</h3>
+                <p>想让平面画面长出沉重体积、剧场悬念或纪念碑气场时，果断压深暗部、收紧高光。</p>
+              </li>
+              <li>
+                <h3>多媒介复制与弱光/强光环境</h3>
+                <p>户外导视、黑白复印、墨水屏或廉价投影仪会吃掉色相与细节，强明暗骨架是最可靠的保险。</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="duel-pane duel-dark">
+          <div class="duel-inner">
+            <header class="sec-head reveal">
+              <p class="sec-no" lang="en">06 · B</p>
+              <h2>什么时候别把反差拉满</h2>
+              <p class="sec-en" lang="en">When to hold back</p>
+            </header>
+            <ul class="duel-list reveal">
+              <li>
+                <h3>长时间沉浸式正文阅读</h3>
+                <p>在发光屏幕上，纯黑配纯白（21:1）读久了边缘容易泛起眩光；改用暖纸底配深炭灰（约 11:1–16:1）更耐读。</p>
+              </li>
+              <li>
+                <h3>需要空气感与柔和氛围的题材</h3>
+                <p>晨雾风景、织物肌理、轻盈生活方式专题如果硬扯成极端黑白，会吞掉最迷人的中间灰阶（Zone III–VII）。</p>
+              </li>
+              <li>
+                <h3>复杂多层级页面里的次级元素</h3>
+                <p>分割线、日期戳、辅助说明和卡片边框如果全做成纯黑，会和标题抢焦点——把低反差留给配角，主角才站得出来。</p>
+              </li>
+              <li>
+                <h3>大面积纯黑块夹杂细白小字</h3>
+                <p>极细白字压在纯黑底上容易出现晕光发虚（俗称反白吃字），暗底排版通常需要稍加字重、放宽字距并微微提灰底色。</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 · 小练习：四版海报，哪张明暗最成立？ -->
+    <section class="sec sec-paper" aria-labelledby="s7">
+      <div class="wrap">
+        <header class="sec-head wide reveal">
+          <p class="sec-no" lang="en">07</p>
+          <h2 id="s7">练一练：四版展览海报，哪张明暗最有力量？</h2>
+          <p class="sec-en" lang="en">Practice · Pick the clearest value structure</p>
+        </header>
+        <p class="lead reveal practice-lead">同一主题——「光影建筑展」，四张草图都只用原海报同款色系。先凭第一眼挑出明暗秩序最成立的一张，点下去看诊断。</p>
+
+        <div class="quiz-grid reveal" role="group" aria-label="四张明暗对比练习海报">
+          <!-- A: 全灰塌陷 -->
+          <button type="button" class="quiz-opt" data-opt="A" aria-pressed="false">
+            <svg viewBox="0 0 220 290" class="q-svg" aria-hidden="true">
+              <rect width="220" height="290" fill="#a8a298"/>
+              <rect x="110" y="0" width="110" height="290" fill="#8c867c"/>
+              <circle cx="110" cy="164" r="46" fill="#827c72"/>
+              <path d="M110 118 A46 46 0 0 1 110 210 Z" fill="#9e988e"/>
+              <circle cx="128" cy="148" r="9" fill="#9a6b5b"/>
+              <text x="18" y="54" fill="#777168" font-size="24" font-weight="900" font-family='"Noto Sans SC",sans-serif'>光影建筑展</text>
+              <text x="18" y="74" fill="#7b756c" font-size="9" font-family='"Inter",sans-serif'>LIGHT &amp; FORM · 2026</text>
+              <rect x="18" y="236" width="84" height="5" fill="#807a70"/>
+              <rect x="18" y="248" width="64" height="5" fill="#807a70"/>
+              <text x="18" y="274" fill="#767067" font-size="9" font-family='"Inter",sans-serif'>ZONE IV–VI · 1.7:1</text>
+            </svg>
+            <span class="q-foot"><b>A</b><i class="q-badge" aria-hidden="true"></i></span>
+          </button>
+
+          <!-- B: 全员极反差喧哗 -->
+          <button type="button" class="quiz-opt" data-opt="B" aria-pressed="false">
+            <svg viewBox="0 0 220 290" class="q-svg" aria-hidden="true">
+              <rect width="220" height="290" fill="#efe7dc"/>
+              <!-- 满屏刺眼黑白条纹 -->
+              <path d="M0 18H220M0 36H220M0 54H220M0 72H220M0 90H220M0 108H220M0 126H220M0 144H220M0 162H220M0 180H220M0 198H220M0 216H220M0 234H220M0 252H220M0 270H220" stroke="#10110e" stroke-width="9"/>
+              <rect x="12" y="12" width="196" height="266" fill="none" stroke="#10110e" stroke-width="6"/>
+              <rect x="20" y="28" width="180" height="44" fill="#efe7dc" stroke="#10110e" stroke-width="4"/>
+              <text x="28" y="58" fill="#10110e" font-size="22" font-weight="900" font-family='"Noto Sans SC",sans-serif'>光影建筑展</text>
+              <circle cx="110" cy="160" r="44" fill="#10110e" stroke="#efe7dc" stroke-width="5"/>
+              <rect x="24" y="220" width="76" height="42" fill="#10110e" stroke="#efe7dc" stroke-width="4"/>
+              <rect x="120" y="220" width="76" height="42" fill="#efe7dc" stroke="#10110e" stroke-width="4"/>
+              <circle cx="158" cy="241" r="11" fill="#b43d1d"/>
+            </svg>
+            <span class="q-foot"><b>B</b><i class="q-badge" aria-hidden="true"></i></span>
+          </button>
+
+          <!-- C: 最佳：明暗主次分明 -->
+          <button type="button" class="quiz-opt" data-opt="C" aria-pressed="false">
+            <svg viewBox="0 0 220 290" class="q-svg" aria-hidden="true">
+              <rect width="220" height="290" fill="#10110e"/>
+              <!-- 左上小幅暖纸亮区承接主标题与阶梯 -->
+              <rect x="0" y="0" width="136" height="96" fill="#efe7dc"/>
+              <text x="16" y="48" fill="#10110e" font-size="23" font-weight="900" font-family='"Noto Sans SC",sans-serif'>光影建筑展</text>
+              <text x="17" y="72" fill="#545049" font-size="9" font-weight="600" font-family='"Inter",sans-serif'>LIGHT &amp; FORM · 2026</text>
+              <!-- 阶梯灰过渡与跨界亮圆 -->
+              <circle cx="136" cy="166" r="44" fill="#242520"/>
+              <path d="M136 122 A44 44 0 0 1 136 210 Z" fill="#efe7dc"/>
+              <circle cx="155" cy="152" r="9" fill="#b43d1d"/>
+              <rect x="136" y="218" width="18" height="4" fill="#777268"/>
+              <rect x="136" y="228" width="32" height="5" fill="#9c9589"/>
+              <rect x="136" y="240" width="48" height="6" fill="#c7bfb2"/>
+              <rect x="136" y="254" width="66" height="8" fill="#efe7dc"/>
+              <!-- 次要信息安静退居暗底柔和灰 -->
+              <text x="16" y="250" fill="#a8a194" font-size="9" font-family='"Inter",sans-serif'>OCT 12 — NOV 30</text>
+              <text x="16" y="266" fill="#8d867a" font-size="9" font-family='"Noto Sans SC",sans-serif'>当代美术馆 · 东厅</text>
+            </svg>
+            <span class="q-foot"><b>C</b><i class="q-badge" aria-hidden="true"></i></span>
+          </button>
+
+          <!-- D: 重点倒挂（边角抢戏、标题发灰） -->
+          <button type="button" class="quiz-opt" data-opt="D" aria-pressed="false">
+            <svg viewBox="0 0 220 290" class="q-svg" aria-hidden="true">
+              <rect width="220" height="290" fill="#efe7dc"/>
+              <!-- 标题被压成极弱浅灰 -->
+              <text x="18" y="54" fill="#c7bfb3" font-size="24" font-weight="900" font-family='"Noto Sans SC",sans-serif'>光影建筑展</text>
+              <text x="18" y="74" fill="#d1c9bd" font-size="9" font-family='"Inter",sans-serif'>LIGHT &amp; FORM · 2026</text>
+              <circle cx="88" cy="146" r="42" fill="#d9d1c5"/>
+              <!-- 右下角无关装饰块却抢走了最高对比度 -->
+              <rect x="136" y="196" width="70" height="80" fill="#10110e"/>
+              <rect x="150" y="212" width="42" height="48" fill="#efe7dc"/>
+              <rect x="162" y="226" width="18" height="20" fill="#10110e"/>
+              <circle cx="171" cy="236" r="6" fill="#b43d1d"/>
+              <text x="18" y="264" fill="#cbc3b7" font-size="9" font-family='"Noto Sans SC",sans-serif'>当代美术馆 · 东厅</text>
+            </svg>
+            <span class="q-foot"><b>D</b><i class="q-badge" aria-hidden="true"></i></span>
+          </button>
+        </div>
+
+        <div class="verdict" id="quiz-verdict" aria-live="polite">
+          <p class="v-title" id="quiz-title">先凭第一眼直觉挑一张。</p>
+          <p class="v-text" id="quiz-text">四张图用的色盘一致，差距全在明暗分配与对比度预算放在了哪里。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 · 原海报与五个核心维度 -->
+    <section class="sec sec-ink sec-poster" aria-labelledby="s8">
+      <div class="wrap poster-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">08</p>
+          <h2 id="s8">原海报</h2>
+          <p class="sec-en" lang="en">The original poster</p>
+        </header>
+
+        <figure class="poster reveal" id="poster-fig">
+          <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="放大查看原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="100 号明暗对比原海报：左右严格对半分为暖纸白与深炭黑，顶部超大「明暗」「对比」跨轴反色；中央为左黑右白的对半圆，右半圆内嵌一颗朱红焦点圆点，下方左侧为斜向黑影、右侧为透视递增的纸白阶梯；左侧用五条折线标出黑白、层次、焦点、反差、识别五条要点，右下角写着「明暗有度 · 画面有力」。">
+          </button>
+          <figcaption>点按放大，放大后可拖动细看；再点空白处或按 <kbd lang="en">Esc</kbd> 收起。</figcaption>
+        </figure>
+
+        <div class="poster-notes">
+          <p class="poster-tagline reveal">
+            <b>明暗有度 · 画面有力</b>
+            <span lang="en">CONTROL VALUE · STRENGTHEN IMPACT</span>
+          </p>
+          <h3 class="kw-title reveal">海报五项核心词 <span lang="en">Five Anchors</span></h3>
+          <ul class="kw-list">
+            <li class="reveal">
+              <svg viewBox="0 0 36 36" aria-hidden="true"><rect x="2" y="2" width="16" height="32" fill="#efe7dc"/><rect x="18" y="2" width="16" height="32" fill="#10110e" stroke="#efe7dc" stroke-width="1.4"/></svg>
+              <div><b>黑白</b><span lang="en">BLACK &amp; WHITE</span><p>最纯粹的对比</p></div>
+            </li>
+            <li class="reveal">
+              <svg viewBox="0 0 36 36" aria-hidden="true"><rect x="2" y="4" width="32" height="5" fill="#44413c"/><rect x="2" y="12" width="32" height="5" fill="#827c72"/><rect x="2" y="20" width="32" height="5" fill="#bdb5a9"/><rect x="2" y="28" width="32" height="5" fill="#efe7dc"/></svg>
+              <div><b>层次</b><span lang="en">GRADATION</span><p>由明到暗的过渡</p></div>
+            </li>
+            <li class="reveal">
+              <svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="14" fill="none" stroke="#efe7dc" stroke-width="1.5"/><circle cx="22" cy="15" r="5" fill="#d85431"/></svg>
+              <div><b>焦点</b><span lang="en">FOCAL POINT</span><p>高对比创造焦点</p></div>
+            </li>
+            <li class="reveal">
+              <svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="14" fill="#10110e" stroke="#efe7dc" stroke-width="1.5"/><path d="M18 4 A14 14 0 0 1 18 32 Z" fill="#efe7dc"/></svg>
+              <div><b>反差</b><span lang="en">CONTRAST</span><p>对比越强，越有力量（前提是有主次）</p></div>
+            </li>
+            <li class="reveal">
+              <svg viewBox="0 0 36 36" aria-hidden="true"><path d="M3 18C9 9 27 9 33 18C27 27 9 27 3 18Z" fill="none" stroke="#efe7dc" stroke-width="1.6"/><circle cx="18" cy="18" r="4.5" fill="#efe7dc"/></svg>
+              <div><b>识别</b><span lang="en">VISIBILITY</span><p>强化信息，提升可读性</p></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报大图预览">
+  <div class="lb-bar">
+    <button type="button" class="lb-btn" id="lb-zoom" aria-pressed="false">放大 1.8×</button>
+    <button type="button" class="lb-btn" id="lb-close" aria-label="关闭大图">关闭 ×</button>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" draggable="false" alt="明暗对比原海报放大预览">
+  </div>
+  <p class="lb-hint">拖动细看 · 单击图片切换缩放 · 按 Esc 关闭</p>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p><span lang="en" class="num">No. 100</span> 明暗对比 · 350 种排版</p>
+    <p>明暗有度，画面才真正有力。</p>
+    <p class="foot-meta"><a href="https://layout.xiaoxiaodong.ai/100/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a><span class="sep">·</span>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a> · 源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
