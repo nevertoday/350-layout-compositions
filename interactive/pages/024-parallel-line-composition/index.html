@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>024 平行线构图 · PARALLEL-LINE COMPOSITION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="eyebrow-bar">
+    <div class="wrap eyebrow-inner">
+      <div class="eyebrow-cat">
+        <span class="parallel-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>构图逻辑 / 重心、线条与轴线</span>
+      </div>
+      <div class="eyebrow-code" lang="en">NO. 024 · PARALLEL-LINE COMPOSITION</div>
+    </div>
+  </div>
+
+  <div class="wrap hero-shell">
+    <div class="hero-masthead">
+      <div class="hero-title-col">
+        <div class="title-lockup">
+          <h1>平行线构图</h1>
+          <svg class="title-parallel-demo" id="title-parallel-svg" viewBox="0 0 120 26" aria-hidden="true">
+            <line id="td-l1" x1="4" y1="6" x2="116" y2="6" />
+            <line id="td-l2" x1="4" y1="13" x2="116" y2="13" />
+            <line id="td-l3" x1="4" y1="20" x2="116" y2="20" />
+          </svg>
+        </div>
+        <p class="hero-en" lang="en">PARALLEL-LINE COMPOSITION</p>
+        <p class="hero-summary">以平行线为主要的构图方式，通过方向一致的线条建立秩序与韵律，营造平静、稳定与延伸感。</p>
+      </div>
+
+      <div class="hero-meta-col">
+        <div class="hero-emblem-row">
+          <svg class="poster-moon-emblem" viewBox="0 0 116 54" aria-hidden="true">
+            <path d="M4 50 Q 44 26, 66 36 L 114 48" fill="none" stroke="rgba(180,204,59,0.28)" stroke-width="1"/>
+            <path d="M4 44 Q 44 18, 66 30 L 114 42" fill="none" stroke="rgba(180,204,59,0.45)" stroke-width="1"/>
+            <path d="M4 38 Q 44 10, 66 24 L 114 36" fill="none" stroke="rgba(180,204,59,0.68)" stroke-width="1.2"/>
+            <circle cx="94" cy="18" r="14" fill="#B4CC3B"/>
+          </svg>
+          <div class="hero-badge-stack">
+            <span class="score-pill" id="hero-score-pill" aria-live="polite">0 / 4 待校准</span>
+            <button type="button" class="btn-ghost-sm" id="btn-hero-reset">复原错态</button>
+          </div>
+        </div>
+        <div class="scene-tabs" role="group" aria-label="切换原海报静景题材">
+          <button type="button" class="scene-tab is-active" data-scene="pavilion" aria-pressed="true">水岸静屋</button>
+          <button type="button" class="scene-tab" data-scene="sail" aria-pressed="false">帆影海面</button>
+          <button type="button" class="scene-tab" data-scene="corridor" aria-pressed="false">廊道光门</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-workspace">
+      <div class="hero-stage-col">
+        <div class="stage-frame">
+          <canvas id="hero-canvas" tabindex="0" aria-label="平行线构图互动舞台：可拖动破局锚点、上下调疏密、拖动右侧标把归零散角，或用方向键微调"></canvas>
+        </div>
+
+        <div class="comb-rail-wrap">
+          <div class="comb-rail-head">
+            <span class="comb-label">间距疏密梳轨 <small>左右拖动或按 ← → 微调（经验呼吸带 1.25×–2.45×）</small></span>
+            <span class="comb-readout" id="comb-ratio-readout" lang="en">1.00×</span>
+          </div>
+          <div
+            class="comb-track"
+            id="spacing-comb-track"
+            data-perf-drag
+            role="slider"
+            tabindex="0"
+            aria-label="平行线疏密梯度比"
+            aria-valuemin="100"
+            aria-valuemax="380"
+            aria-valuenow="100"
+            aria-valuetext="1.00倍，机械等距"
+          >
+            <div class="comb-zone zone-even" aria-hidden="true"></div>
+            <div class="comb-zone zone-sweet" aria-hidden="true"></div>
+            <div class="comb-zone zone-gap" aria-hidden="true"></div>
+            <div class="comb-ticks" aria-hidden="true"></div>
+            <div class="comb-thumb" id="spacing-comb-thumb" aria-hidden="true"><i></i><i></i></div>
+          </div>
+          <div class="comb-legend" aria-hidden="true">
+            <span class="leg-even">等距 1.0×</span>
+            <span class="leg-sweet">经验呼吸带 1.25×–2.45×</span>
+            <span class="leg-gap">断层 3.8×</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-controls-col">
+        <div class="hero-diagnosis" id="hero-diagnosis" data-level="warn" aria-live="polite">
+          <div class="diag-top">
+            <span class="diag-tag" id="diag-tag">错态 · 散角 +13.0°（0/4）</span>
+            <span class="diag-note">单源实测 · 经验参考带</span>
+          </div>
+          <p class="diag-headline" id="diag-headline">线束以 13.0° 呈扇形向右收拢，平行秩序正在坍塌</p>
+          <p class="diag-body" id="diag-body">只要同组线条之间出现超过 ±1.5° 的偏折差，人眼就会按线性透视去追远处的消失点，画面从安静延伸滑向「汇聚线构图」的纵深压迫感。</p>
+          <p class="diag-hint" id="diag-hint">先把「秩序」栏的组内散角归到 0.0°（靠近 0° 会轻磁吸锁平），也可以直接拖动画布右侧的酸绿校准标把。</p>
+        </div>
+
+        <div class="pillars-grid" aria-label="原海报四项核心要素实检与调律">
+          <!-- 01 重复 -->
+          <article class="pillar-card" id="pillar-repetition" data-ok="false">
+            <div class="pillar-top">
+              <svg class="pillar-glyph" id="glyph-repetition" viewBox="0 0 84 36" aria-hidden="true"></svg>
+              <span class="pillar-state" id="state-repetition">过密炫光</span>
+            </div>
+            <div class="pillar-title-row">
+              <span class="pillar-zh">重复</span>
+              <span class="pillar-en" lang="en">REPETITION</span>
+            </div>
+            <div class="pillar-val" id="val-repetition">32 条 · 高频炫光警示</div>
+            <div class="pillar-ctrl">
+              <div class="stepper-row">
+                <button type="button" class="step-btn" id="btn-lines-minus" aria-label="减少平行线数量">−</button>
+                <input type="range" id="input-lines" min="3" max="36" step="1" value="32" aria-label="平行线数量（3到36条）">
+                <button type="button" class="step-btn" id="btn-lines-plus" aria-label="增加平行线数量">+</button>
+              </div>
+              <div class="ctrl-scale"><span>3 孤线</span><span>9–20 舒适</span><span>36 过密</span></div>
+            </div>
+          </article>
+
+          <!-- 02 间距 -->
+          <article class="pillar-card" id="pillar-spacing" data-ok="false">
+            <div class="pillar-top">
+              <svg class="pillar-glyph" id="glyph-spacing" viewBox="0 0 84 36" aria-hidden="true"></svg>
+              <span class="pillar-state" id="state-spacing">等距栅栏</span>
+            </div>
+            <div class="pillar-title-row">
+              <span class="pillar-zh">间距</span>
+              <span class="pillar-en" lang="en">SPACING</span>
+            </div>
+            <div class="pillar-val" id="val-spacing">1.00× 疏密比</div>
+            <div class="pillar-ctrl">
+              <div class="chip-row" role="group" aria-label="快速切换疏密间距">
+                <button type="button" class="mini-chip is-active" data-grad="0">等距</button>
+                <button type="button" class="mini-chip" data-grad="0.42">渐疏</button>
+                <button type="button" class="mini-chip" data-grad="0.92">断层</button>
+              </div>
+              <div class="ctrl-scale"><span>也可直接拖舞台底沿梳轨</span></div>
+            </div>
+          </article>
+
+          <!-- 03 秩序 -->
+          <article class="pillar-card" id="pillar-order" data-ok="false">
+            <div class="pillar-top">
+              <svg class="pillar-glyph" id="glyph-order" viewBox="0 0 84 36" aria-hidden="true"></svg>
+              <span class="pillar-state" id="state-order">右收 +13.0°</span>
+            </div>
+            <div class="pillar-title-row">
+              <span class="pillar-zh">秩序</span>
+              <span class="pillar-en" lang="en">ORDER</span>
+            </div>
+            <div class="pillar-val" id="val-order">散角 +13.0°</div>
+            <div class="pillar-ctrl">
+              <input type="range" id="input-spread" min="-18" max="18" step="0.5" value="13" aria-label="组内散角（-18度到+18度，0度为平行）">
+              <div class="chip-row" role="group" aria-label="全体线条朝向">
+                <button type="button" class="mini-chip is-active" data-orient="horizontal" aria-pressed="true">水平 0°</button>
+                <button type="button" class="mini-chip" data-orient="vertical" aria-pressed="false">竖向 90°</button>
+                <button type="button" class="mini-chip" data-orient="diagonal" aria-pressed="false">斜向 28°</button>
+              </div>
+            </div>
+          </article>
+
+          <!-- 04 韵律 -->
+          <article class="pillar-card" id="pillar-cadence" data-ok="false">
+            <div class="pillar-top">
+              <svg class="pillar-glyph" id="glyph-cadence" viewBox="0 0 84 36" aria-hidden="true"></svg>
+              <span class="pillar-state" id="state-cadence">空洞墙纸</span>
+            </div>
+            <div class="pillar-title-row">
+              <span class="pillar-zh">韵律</span>
+              <span class="pillar-en" lang="en">CADENCE</span>
+            </div>
+            <div class="pillar-val" id="val-cadence">无破局锚点</div>
+            <div class="pillar-ctrl">
+              <div class="toggle-row">
+                <button type="button" class="toggle-btn" id="btn-anchor-toggle" aria-pressed="false">破局锚点：关</button>
+                <button type="button" class="toggle-btn" id="btn-cadence-toggle" aria-pressed="false">线长律动：关</button>
+              </div>
+              <div class="ctrl-scale"><span>开启锚点后可在画布左右直拖</span></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== SECTION 01 ==================== -->
+  <section class="band band-stone" id="sec-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div>
+          <h2>平行线为何让人静下来</h2>
+          <p class="sec-en" lang="en">GESTALT GROUPING &amp; DIRECTIONAL ENTROPY</p>
+        </div>
+      </div>
+
+      <div class="split-asymmetric">
+        <div class="prose">
+          <p class="lead">把 16 根相同的短线随手撒在纸面上，大脑不得不逐根扫描、逐个命名；只要把它们的方向调成一致，16 个零散对象会瞬间融成 1 片安静的秩序场。</p>
+          <p>德国心理学家马克斯·韦特海默在 1923 年发表的格式塔研究里指出，人眼天生遵循「相似性」与「良好连续性」两条捷径：朝向一致的线条会被自动编成同一视觉组。组内越齐一，脑力负荷越低，画面就越显得沉静、克制与有延伸感。</p>
+          <p>更重要的是，当背景全部退入同向平行场之后，哪怕只出现一个极小的异形或异色锚点，也会在零干扰的秩序背景上立刻跳出——这正是极简摄影和建筑海报偏爱平行线的真正原因。</p>
+        </div>
+
+        <div class="lab-box lab-light">
+          <div class="lab-head">
+            <span class="lab-title">格式塔方向熵实测</span>
+            <span class="lab-badge" id="s1-badge">散乱态 · 16 个独立干扰</span>
+          </div>
+          <canvas id="s1-canvas" class="lab-canvas" aria-label="16条线段从杂乱角度平滑对齐为平行线的对比演示"></canvas>
+          <div class="lab-controls">
+            <label class="range-field" for="s1-align">
+              <span>方向齐平度（从杂乱到严格平行）</span>
+              <strong id="s1-align-val">0% · 标准差 55.8°</strong>
+            </label>
+            <input type="range" id="s1-align" min="0" max="100" step="1" value="0">
+            <div class="lab-readout" id="s1-readout">
+              当前 16 根线段指向各异（角度标准差约 52°），大脑必须分别追踪每条线段，酸绿焦点藏在杂乱交错里很难一眼锁定。向右推动滑尺把它们梳平试试。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 02 ==================== -->
+  <section class="band band-concrete" id="sec-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div>
+          <h2>不止横着画：三种平行与越界</h2>
+          <p class="sec-en" lang="en">HORIZONTAL, VERTICAL, DIAGONAL &amp; BOUNDARIES</p>
+        </div>
+      </div>
+
+      <p class="section-intro">很多人以为平行线构图就是画一排横线，其实「平行」约束的是<strong>线条彼此之间永不相交的关系</strong>，而不是非得水平。改变全体朝向，情绪会从开阔转为庄重或动势；而一旦彼此不再等角，它就会立刻滑进相邻的构图类别。</p>
+
+      <div class="orient-lab">
+        <div class="orient-stage-box">
+          <canvas id="s2-canvas" class="lab-canvas lab-canvas-wide" aria-label="水平、竖向、斜向平行线与透视汇聚、交叉越界对照图"></canvas>
+        </div>
+
+        <div class="orient-panel">
+          <div class="orient-btn-group" role="group" aria-label="切换平行方向与越界状态">
+            <button type="button" class="orient-btn is-active" data-s2="h" aria-pressed="true">水平平行 · 0°</button>
+            <button type="button" class="orient-btn" data-s2="v" aria-pressed="false">竖向平行 · 90°</button>
+            <button type="button" class="orient-btn" data-s2="d" aria-pressed="false">斜向平行 · 32°</button>
+            <button type="button" class="orient-btn is-boundary" data-s2="conv" aria-pressed="false">透视拉裂 → 汇聚线</button>
+            <button type="button" class="orient-btn is-boundary" data-s2="cross" aria-pressed="false">叠入反斜 → 交叉线</button>
+          </div>
+          <div class="orient-explain" id="s2-explain">
+            <h3>水平平行：群组延伸，区别于单条地平线</h3>
+            <p>如果只靠一条海平线把天地稳住，那是 <a href="https://layout.xiaoxiaodong.ai/021/play/" target="_blank" rel="noopener">021 水平构图</a> 的强项；024 平行线构图把多条水平线排成疏密有序的层叠序列，让平静多出一层「节拍与连绵延伸」。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sibling-strip">
+        <div class="sibling-head">
+          <span class="sibling-kicker">同小类辨析 · 重心、线条与轴线</span>
+          <span class="sibling-sub">每种构图都有独立页面，点击可直达对应互动版</span>
+        </div>
+        <div class="sibling-grid">
+          <div class="sib-item"><strong>重心与映照</strong>：<a href="https://layout.xiaoxiaodong.ai/016/play/" target="_blank" rel="noopener">016 居中</a>定稳中枢，<a href="https://layout.xiaoxiaodong.ai/017/play/" target="_blank" rel="noopener">017 偏心</a>借失衡造张力；<a href="https://layout.xiaoxiaodong.ai/018/play/" target="_blank" rel="noopener">018 对称</a>、<a href="https://layout.xiaoxiaodong.ai/019/play/" target="_blank" rel="noopener">019 非对称</a>与<a href="https://layout.xiaoxiaodong.ai/020/play/" target="_blank" rel="noopener">020 镜像</a>专攻左右体量映照。</div>
+          <div class="sib-item"><strong>单一方向线</strong>：<a href="https://layout.xiaoxiaodong.ai/021/play/" target="_blank" rel="noopener">021 水平</a>靠单地平线定静，<a href="https://layout.xiaoxiaodong.ai/022/play/" target="_blank" rel="noopener">022 垂直</a>凭立柱显高重，<a href="https://layout.xiaoxiaodong.ai/023/play/" target="_blank" rel="noopener">023 对角线</a>拉动斜向冲势。</div>
+          <div class="sib-item"><strong>多线关系</strong>：<strong>024 平行线</strong>同向不交求平静秩序；收向一点变 <a href="https://layout.xiaoxiaodong.ai/025/play/" target="_blank" rel="noopener">025 汇聚线</a>，相撞成角变 <a href="https://layout.xiaoxiaodong.ai/026/play/" target="_blank" rel="noopener">026 交叉线</a>。</div>
+          <div class="sib-item"><strong>骨架轴线</strong>：<a href="https://layout.xiaoxiaodong.ai/027/play/" target="_blank" rel="noopener">027 中轴</a>、<a href="https://layout.xiaoxiaodong.ai/028/play/" target="_blank" rel="noopener">028 偏轴</a>、<a href="https://layout.xiaoxiaodong.ai/029/play/" target="_blank" rel="noopener">029 双轴</a>与 <a href="https://layout.xiaoxiaodong.ai/030/play/" target="_blank" rel="noopener">030 十字构图</a>负责用隐形轴线组织全局版面。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 03 ==================== -->
+  <section class="band band-obsidian" id="sec-03">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <div>
+          <h2>从防盗窗到五线谱：间距韵律</h2>
+          <p class="sec-en" lang="en">FROM PRISON BARS TO MUSICAL CADENCE</p>
+        </div>
+      </div>
+
+      <div class="poster-four-quotes">
+        <div class="pq-item">
+          <span class="pq-k">重复 <small lang="en">REPETITION</small></span>
+          <p>「平行线的重复出现，强化整体性与连贯性。」</p>
+        </div>
+        <div class="pq-item">
+          <span class="pq-k">间距 <small lang="en">SPACING</small></span>
+          <p>「间距的变化控制疏密，影响画面的呼吸与节奏。」</p>
+        </div>
+        <div class="pq-item">
+          <span class="pq-k">秩序 <small lang="en">ORDER</small></span>
+          <p>「平行线建立清晰的方向与结构，带来稳定感。」</p>
+        </div>
+        <div class="pq-item">
+          <span class="pq-k">韵律 <small lang="en">CADENCE</small></span>
+          <p>「细微的间距与长度变化，形成流动的视觉韵律。」</p>
+        </div>
+      </div>
+
+      <div class="sequencer-box">
+        <div class="seq-bar-head">
+          <div>
+            <strong class="seq-title">平行音梳编排器</strong>
+            <span class="seq-sub">选一种节拍模板，或<strong>直接点击下方任意一根立柱</strong>切换「隐声 / 细线 / 重拍酸绿」</span>
+          </div>
+          <div class="seq-presets" role="group" aria-label="切换平行线韵律模式">
+            <button type="button" class="seq-btn is-active" data-seq="even" aria-pressed="true">机械等距</button>
+            <button type="button" class="seq-btn" data-seq="grad" aria-pressed="false">渐密渐疏</button>
+            <button type="button" class="seq-btn" data-seq="pair" aria-pressed="false">双拍交替</button>
+            <button type="button" class="seq-btn" data-seq="stave" aria-pressed="false">乐谱错落</button>
+          </div>
+        </div>
+
+        <div class="seq-stage" id="seq-stage" role="group" aria-label="12根可点击编排强弱的平行线音梳"></div>
+
+        <div class="seq-metrics">
+          <div class="seq-metric-chip"><span>有效线条</span><strong id="seq-active-count" lang="en">12 / 12</strong></div>
+          <div class="seq-metric-chip"><span>重拍酸绿</span><strong id="seq-accent-count" lang="en">0</strong></div>
+          <div class="seq-metric-chip"><span>疏密极比</span><strong id="seq-ratio" lang="en">1.00×</strong></div>
+          <p class="seq-verdict" id="seq-verdict">12 根立柱完全等宽、等距、等亮——像住宅楼外的防盗铁栅栏，只有机械重复，没有强弱节拍。试着切换「渐密渐疏」或亲手点暗几根制造休止符。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 04 ==================== -->
+  <section class="band band-white" id="sec-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div>
+          <h2>原海报三示例与破局锚点</h2>
+          <p class="sec-en" lang="en">THREE MOTIFS &amp; THE FOCAL BREAK</p>
+        </div>
+      </div>
+
+      <div class="xray-toolbar">
+        <p class="xray-intro">原海报底栏列了三幅典型应用示例。用旁边的透视开关分别<strong>抽掉平行线</strong>或<strong>抽掉破局锚点</strong>，你就能亲眼看到：没有线，画面空泛无力；没有锚，线条沦为死板壁纸。</p>
+        <div class="xray-switches" role="group" aria-label="透视拆解图层模式">
+          <button type="button" class="xray-btn is-active" data-xray="full" aria-pressed="true">完整构图</button>
+          <button type="button" class="xray-btn" data-xray="lines" aria-pressed="false">只留平行线</button>
+          <button type="button" class="xray-btn" data-xray="anchor" aria-pressed="false">只留破局锚</button>
+        </div>
+      </div>
+
+      <div class="triptych-grid">
+        <article class="motif-card">
+          <canvas id="s4-c1" class="motif-canvas" aria-label="原海报示例一：水平延伸宁静开阔，海面平行线与白色小帆"></canvas>
+          <div class="motif-meta">
+            <h3>水平延伸 · 宁静开阔</h3>
+            <p class="motif-en" lang="en">Horizontal extension · Calm openness</p>
+            <p class="motif-note" id="s4-n1">低对比水平波纹横向铺满下半幅，一叶锐角白帆竖直切开海平线，让宁静有了落脚处。</p>
+          </div>
+        </article>
+
+        <article class="motif-card">
+          <canvas id="s4-c2" class="motif-canvas" aria-label="原海报示例二：建筑秩序稳定结构，平行外墙条纹与三座黑拱"></canvas>
+          <div class="motif-meta">
+            <h3>建筑秩序 · 稳定结构</h3>
+            <p class="motif-en" lang="en">Architectural order · Stable structure</p>
+            <p class="motif-note" id="s4-n2">水平百叶条纹统一整片建筑立面，底部三座深黑拱洞打破平直切片，稳住整栋体量的重心。</p>
+          </div>
+        </article>
+
+        <article class="motif-card">
+          <canvas id="s4-c3" class="motif-canvas" aria-label="原海报示例三：引导视线深入延展，暖灰平行壁面与酸绿光门"></canvas>
+          <div class="motif-meta">
+            <h3>引导视线 · 深入延展</h3>
+            <p class="motif-en" lang="en">Lead the eye · Deep extension</p>
+            <p class="motif-note" id="s4-n3">墙面与地面的平行水平线形成导向槽，把左侧孤立背影自然推向右侧高饱和酸绿门框。</p>
+          </div>
+        </article>
+      </div>
+
+      <aside class="editorial-clarify">
+        <div class="clarify-badge">海报 TIP 补充 · 说简了一点</div>
+        <div class="clarify-body">
+          <p>原海报右下角提示写道：「保持线条方向一致，控制间距，让画面在“平行”的秩序中，自然延伸，平静有力。」</p>
+          <p>实操时要多留一个心眼：<strong>「控制间距」不等于「每条都画成一模一样的等距」</strong>。真正高级的平行构图往往带 1.3×–2.3× 的微幅疏密变化（经验参考），并且几乎总要配一个异形、异向或异色的破局锚点；如果真需要全屏纯等距底纹，则必须把线与底的明暗对比压低，退居次要纹理层。</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 05 ==================== -->
+  <section class="band band-stone" id="sec-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div>
+          <h2>平行线构图从哪来</h2>
+          <p class="sec-en" lang="en">LINEAGE: WOODBLOCK RAIN TO MODERNIST STRIPES</p>
+        </div>
+      </div>
+
+      <div class="lineage-grid">
+        <ol class="timeline-list">
+          <li>
+            <span class="tl-year" lang="en">1857</span>
+            <div>
+              <strong>歌川广重《名所江户百景·大桥安宅骤雨》</strong>
+              <p>大都会艺术博物馆藏。木刻雕版以成束斜向平行雨线贯通桥面与河岸，让细密平行阵不仅代表静谧，也能凝结骤雨倾盆的瞬间张力。</p>
+            </div>
+          </li>
+          <li>
+            <span class="tl-year" lang="en">1923</span>
+            <div>
+              <strong>马克斯·韦特海默《格式塔理论研究 II》</strong>
+              <p>发表于《心理学研究》（<em>Psychologische Forschung</em> 第 4 卷），系统阐明相似性、邻近性与良好连续性，为「同向平行线为何能瞬间建立秩序」提供知觉心理学基础。</p>
+            </div>
+          </li>
+          <li>
+            <span class="tl-year" lang="en">1926</span>
+            <div>
+              <strong>瓦西里·康定斯基《点、线、面》</strong>
+              <p>包豪斯丛书第 9 卷（<em>Punkt und Linie zu Fläche</em>）专章讨论平行直线的重复叠加与间距节奏，把平行线视为平面构成中最纯粹的能量增强手段之一。</p>
+            </div>
+          </li>
+          <li>
+            <span class="tl-year" lang="en">1958</span>
+            <div>
+              <strong>密斯·凡·德·罗与菲利普·约翰逊 · 纽约西格拉姆大厦</strong>
+              <p>建筑外立面挂满通高垂直青铜工字钢肋条，让 38 层玻璃幕墙在城市天际线上立起理性、庄重的垂直平行柱列。</p>
+            </div>
+          </li>
+          <li>
+            <span class="tl-year" lang="en">1964</span>
+            <div>
+              <strong>布里奇特·莱利《Current》</strong>
+              <p>纽约现代艺术博物馆藏，翌年登上 <em>The Responsive Eye</em> 展览图录封面。高反差黑白波状平行线刻意突破平静边界，把条纹推向眩目震颤。</p>
+            </div>
+          </li>
+          <li>
+            <span class="tl-year" lang="en">1972–1973</span>
+            <div>
+              <strong>保罗·兰德 IBM 八条纹标识 &amp; 阿格尼丝·马丁《On a Clear Day》</strong>
+              <p>1972 年保罗·兰德将 IBM 字母切成 8 条水平平行色带传递现代速度感；1973 年阿格尼丝·马丁推出 30 幅灰调丝网版画《On a Clear Day》（MoMA 藏），以轻柔微变的平行线重返极简宁静。</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="irrad-lab">
+          <div class="irrad-head">
+            <span class="lab-title">保罗·兰德 1972 光学溢光实测</span>
+            <span class="irrad-tag">正反色线宽微调</span>
+          </div>
+          <p class="irrad-desc">IBM 官方设计规范记录了保罗·兰德的一个隐蔽细节：亮条纹在深底上会产生视觉「溢光」（发胖），因此在深底反白版里，亮平行条必须比暗缝画得更细，人眼才觉得它们一样粗。</p>
+          <div class="irrad-controls" role="group" aria-label="切换黑白底色与光学补偿">
+            <button type="button" class="irrad-btn is-active" data-polarity="dark" aria-pressed="true">深底亮条（反白）</button>
+            <button type="button" class="irrad-btn" data-polarity="light" aria-pressed="false">浅底深条（正色）</button>
+            <button type="button" class="irrad-btn" id="btn-irrad-comp" aria-pressed="false">开启兰德视觉补偿：关</button>
+          </div>
+          <canvas id="s5-canvas" class="irrad-canvas" aria-label="8条水平平行色带在正反色下等宽与光学补偿后的视觉粗细对比"></canvas>
+          <p class="irrad-readout" id="s5-readout">当前为深底亮条几何 1:1 等宽（亮条 50% / 暗缝 50%）：受亮区溢光影响，多数人会觉得酸绿/亮白条比黑色间隙更粗。点击「开启兰德视觉补偿」对比一下。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 06 ==================== -->
+  <section class="band band-obsidian-warn" id="sec-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <div>
+          <h2>什么时候别用平行线</h2>
+          <p class="sec-en" lang="en">WHEN NOT TO USE: PATTERN GLARE &amp; MOIRE</p>
+        </div>
+      </div>
+
+      <div class="avoid-grid">
+        <div class="glare-lab">
+          <div class="lab-head">
+            <span class="lab-title">Wilkins (1984) 栅格眩晕与莫尔实测</span>
+            <span class="glare-pill" id="s6-risk-pill" data-risk="high">高视觉压力警示</span>
+          </div>
+          <p class="glare-sub">英国视觉神经学者阿诺德·威尔金斯（Arnold Wilkins 等，1984 年发表于《Brain》第 107 卷）发现：<strong>高反差、等宽（约 50% 占空比）且空间频率落在约 3 周/度（cpd）附近的平行条纹</strong>最容易过度刺激初级视觉皮层，诱发色彩闪烁幻觉、眼胀甚至头痛；在手机高分屏缩放时还会叠加莫尔干涉。</p>
+
+          <div class="glare-canvases">
+            <div class="glare-swatch-wrap">
+              <span class="swatch-cap">安全缩窗预览（局部小窗，避免整屏刺眼）</span>
+              <canvas id="s6-swatch" aria-label="平行条纹在不同频率、对比度与占空比下的局部预览"></canvas>
+            </div>
+            <div class="glare-curve-wrap">
+              <span class="swatch-cap">视觉压力示意曲线（峰值约 3 cpd，示意值）</span>
+              <canvas id="s6-curve" aria-label="空间频率与视觉不适示意曲线图"></canvas>
+            </div>
+          </div>
+
+          <div class="glare-controls">
+            <div class="g-ctrl">
+              <label for="s6-freq">条纹频密（示意周/度）<strong id="s6-freq-val" lang="en">3.0 cpd</strong></label>
+              <input type="range" id="s6-freq" min="0.5" max="7.5" step="0.1" value="3.0">
+            </div>
+            <div class="g-ctrl">
+              <label for="s6-contrast">明暗反差 <strong id="s6-contrast-val" lang="en">92%</strong></label>
+              <input type="range" id="s6-contrast" min="12" max="98" step="2" value="92">
+            </div>
+            <div class="g-ctrl">
+              <label for="s6-duty">线宽占空比 <strong id="s6-duty-val" lang="en">50%（等宽）</strong></label>
+              <input type="range" id="s6-duty" min="8" max="50" step="2" value="50">
+            </div>
+          </div>
+
+          <p class="glare-verdict" id="s6-verdict">高反差（92%）+ 等宽占空比（50%）+ 逼近 3.0 cpd 敏感峰：这是最容易看花眼与触发莫尔条纹的危险组合。试着把反差压到 40% 以下、或把线宽收细到 12%–18%（像本页 024 原海报那样细线阔底）。</p>
+        </div>
+
+        <div class="avoid-list">
+          <article class="avoid-card">
+            <span class="avoid-num" lang="en">01</span>
+            <h3>正文底纹与小屏高反差密集条纹</h3>
+            <p>千万别把 1:1 高反差细密平行线垫在长段落文字或手机列表背景后。除了触发栅格眩晕，缩放后的像素栅格还会与条纹相干生成波浪状莫尔条纹。需要规整衬底时，务必把反差降到极轻、线宽压细。</p>
+          </article>
+          <article class="avoid-card">
+            <span class="avoid-num" lang="en">02</span>
+            <h3>需要激烈冲突、对抗或爆发感</h3>
+            <p>平行线的基因是「克制、齐步、平静」。如果要表达戏剧碰撞、对立或撕裂感，强行摆整齐的平行线只会削弱情绪——直接改用 <a href="https://layout.xiaoxiaodong.ai/026/play/" target="_blank" rel="noopener">026 交叉线构图</a> 或 <a href="https://layout.xiaoxiaodong.ai/023/play/" target="_blank" rel="noopener">023 对角线构图</a>。</p>
+          </article>
+          <article class="avoid-card">
+            <span class="avoid-num" lang="en">03</span>
+            <h3>想把视线强行吸向单一深远焦点</h3>
+            <p>平行线把视线横向或平面延展开，缺少单点穿透力。如果拍摄走廊尽头或舞台中心主角需要强烈吸睛纵深，应改用 <a href="https://layout.xiaoxiaodong.ai/025/play/" target="_blank" rel="noopener">025 汇聚线构图</a> 或 <a href="https://layout.xiaoxiaodong.ai/027/play/" target="_blank" rel="noopener">027 中轴构图</a>。</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 07 ==================== -->
+  <section class="band band-stone" id="sec-07">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div>
+          <h2>小练习：只差一个变量</h2>
+          <p class="sec-en" lang="en">SINGLE-VARIABLE VISUAL JUDGMENT</p>
+        </div>
+      </div>
+
+      <div class="quiz-bar">
+        <p class="quiz-prompt" id="quiz-prompt">第 1 题（共 2 题）：以下四幅建筑海报构图里，角度、主体落位与配色完全一致，<strong>只差平行线的数量与间距分布这一个变量</strong>。挑出秩序最稳、呼吸最自然的一版：</p>
+        <div class="quiz-switch" role="group" aria-label="切换练习题目">
+          <button type="button" class="quiz-tab is-active" data-quiz="0" aria-pressed="true">第 1 题 · 疏密与数量</button>
+          <button type="button" class="quiz-tab" data-quiz="1" aria-pressed="false">第 2 题 · 方向与锚点</button>
+        </div>
+      </div>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四个构图候选方案">
+        <button type="button" class="quiz-option" data-opt="0">
+          <canvas class="quiz-canvas" id="q-canvas-0" aria-hidden="true"></canvas>
+          <span class="quiz-opt-label">方案 A</span>
+        </button>
+        <button type="button" class="quiz-option" data-opt="1">
+          <canvas class="quiz-canvas" id="q-canvas-1" aria-hidden="true"></canvas>
+          <span class="quiz-opt-label">方案 B</span>
+        </button>
+        <button type="button" class="quiz-option" data-opt="2">
+          <canvas class="quiz-canvas" id="q-canvas-2" aria-hidden="true"></canvas>
+          <span class="quiz-opt-label">方案 C</span>
+        </button>
+        <button type="button" class="quiz-option" data-opt="3">
+          <canvas class="quiz-canvas" id="q-canvas-3" aria-hidden="true"></canvas>
+          <span class="quiz-opt-label">方案 D</span>
+        </button>
+      </div>
+
+      <div class="quiz-feedback" id="quiz-feedback" aria-live="polite">
+        <p>点选上方任意一幅方案，系统会按本页几何准则拆解四版差异。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 08 ==================== -->
+  <section class="band band-obsidian" id="sec-08">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">08</span>
+        <div>
+          <h2>原海报与核心关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; KEY CONCEPTS</p>
+        </div>
+      </div>
+
+      <div class="poster-spread">
+        <div class="poster-figure">
+          <button type="button" class="poster-trigger" id="poster-open" aria-label="点击放大查看 024 平行线构图原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="024 平行线构图原海报">
+            <span class="poster-zoom-hint">点击放大 · 支持拖拽平移与 Esc 关闭</span>
+          </button>
+        </div>
+
+        <div class="poster-notes">
+          <p class="poster-summary-zh">以平行线为主要的构图方式，通过方向一致的线条建立秩序与韵律，营造平静、稳定与延伸感。</p>
+          <p class="poster-summary-en" lang="en">A composition based on parallel lines, creating order, rhythm and a sense of calm extension.</p>
+
+          <dl class="kw-list">
+            <div>
+              <dt>重复 <span lang="en">REPETITION</span></dt>
+              <dd>平行线的重复出现，强化整体性与连贯性；控制在经验舒适带内才不眩目。</dd>
+            </div>
+            <div>
+              <dt>间距 <span lang="en">SPACING</span></dt>
+              <dd>间距的变化控制疏密，影响画面的呼吸与节奏；脱离 1:1 死等距，也不裂成断层。</dd>
+            </div>
+            <div>
+              <dt>秩序 <span lang="en">ORDER</span></dt>
+              <dd>平行线建立清晰的方向与结构，带来稳定感；横、竖、斜皆须守住彼此齐平。</dd>
+            </div>
+            <div>
+              <dt>韵律 <span lang="en">CADENCE</span></dt>
+              <dd>细微的间距与长度变化形成流动的视觉韵律，再以单一破局锚点兜住视线。</dd>
+            </div>
+          </dl>
+
+          <div class="poster-tip-box">
+            <span class="tip-badge" lang="en">TIP</span>
+            <p>保持线条方向一致，控制间距，让画面在「平行」的秩序中，自然延伸，平静有力。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <span>在线版：<a href="https://layout.xiaoxiaodong.ai/024/play/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai/024/play/</a></span>
+    <span aria-hidden="true">·</span>
+    <span>全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai" target="_blank" rel="noopener">layout.xiaoxiaodong.ai</a></span>
+    <span aria-hidden="true">·</span>
+    <span>海报 CC BY 4.0</span>
+    <span aria-hidden="true">·</span>
+    <span>源文件 <a href="https://github.com/xxd-dev/350-layout-redesign" target="_blank" rel="noopener">GitHub</a></span>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱（支持滚轮/按钮缩放、鼠标/触控拖拽、Esc 关闭） -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报放大预览">
+  <div class="lb-toolbar">
+    <span class="lb-title">024 平行线构图 · 原海报</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+      <span class="lb-scale" id="lb-scale" lang="en">100%</span>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn" id="lb-reset">重置</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lb-viewport">
+    <img id="lb-img" alt="024 平行线构图原海报大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
