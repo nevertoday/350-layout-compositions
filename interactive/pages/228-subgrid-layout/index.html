@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#cce1c5">
+<title>子网格布局 · SUBGRID LAYOUT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="hero-plate">
+  <header class="masthead wrap">
+    <p class="crumb"><span class="dot-pip" aria-hidden="true"></span>网页与 UI / CSS 流、定位与响应</p>
+    <p class="issue"><span lang="en">NO. 228</span><span class="sep" aria-hidden="true">·</span><span>嵌套穿轨，跨层对齐</span></p>
+  </header>
+
+  <section class="hero wrap" aria-labelledby="page-title">
+    <div class="hero-top">
+      <div class="hero-title-block">
+        <div class="title-demo" aria-hidden="true">
+          <i class="td-line l1"></i><i class="td-line l2"></i><i class="td-line l3"></i><i class="td-line l4"></i>
+          <b class="td-dot d1"></b><b class="td-dot d2"></b><b class="td-dot d3"></b><b class="td-dot d4"></b>
+        </div>
+        <h1 id="page-title">子网格布局</h1>
+        <p class="hero-en" lang="en">SUBGRID LAYOUT</p>
+        <p class="hero-summary">让嵌套内容与父网格共享同一套轨道 <span class="sum-en" lang="en">Nested content that shares the same tracks as the parent grid.</span></p>
+      </div>
+
+      <ul class="hero-badges" id="hero-badges" aria-label="子网格四项对齐指标">
+        <li class="hb-item" data-badge="inherit">
+          <span class="hb-icon teal" aria-hidden="true">
+            <svg viewBox="0 0 28 28"><path d="M5 10h18M5 18h18M10 5v18M18 5v18"/><rect x="10" y="10" width="8" height="8" rx="1"/></svg>
+          </span>
+          <span class="hb-text"><strong>继承轨道</strong><em lang="en">INHERIT</em></span>
+          <span class="hb-state" id="bs-inherit">待连</span>
+        </li>
+        <li class="hb-item" data-badge="align">
+          <span class="hb-icon coral" aria-hidden="true">
+            <svg viewBox="0 0 28 28"><path d="M6 8h16M6 14h12M6 20h16"/></svg>
+          </span>
+          <span class="hb-text"><strong>对齐一致</strong><em lang="en">ALIGN</em></span>
+          <span class="hb-state" id="bs-align">错位</span>
+        </li>
+        <li class="hb-item" data-badge="nested">
+          <span class="hb-icon teal" aria-hidden="true">
+            <svg viewBox="0 0 28 28"><rect x="5" y="5" width="18" height="18" rx="2"/><rect x="10" y="10" width="8" height="8" rx="1"/></svg>
+          </span>
+          <span class="hb-text"><strong>嵌套布局</strong><em lang="en">NESTED</em></span>
+          <span class="hb-state" id="bs-nested">断层</span>
+        </li>
+        <li class="hb-item" data-badge="coord">
+          <span class="hb-icon coral" aria-hidden="true">
+            <svg viewBox="0 0 28 28"><path d="M7 11h4V7h6v4h4v6h-4v4h-6v-4H7z"/></svg>
+          </span>
+          <span class="hb-text"><strong>协同排版</strong><em lang="en">COORDINATED</em></span>
+          <span class="hb-state" id="bs-coord">0/4</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="blueprint-sheet">
+      <div class="bench-stage-col">
+        <div class="sheet-bar">
+          <div class="sheet-bar-l">
+            <span class="sheet-tag">父网格 <span lang="en">PARENT GRID</span></span>
+            <code class="formula-pill" id="formula-readout">1fr : 2.2fr : 1fr : 2.2fr</code>
+          </div>
+          <div class="sheet-bar-r">
+            <span class="metric-chip" id="chip-col-drift">列偏 Δ0px</span>
+            <span class="metric-chip" id="chip-row-drift">行偏 Δ0px</span>
+          </div>
+        </div>
+
+        <div class="ratio-rail-wrap">
+          <div class="ratio-rail" id="ratio-rail" data-perf-drag role="slider" tabindex="0" aria-label="拖动调节父网格不对称列轨比例" aria-valuemin="1.0" aria-valuemax="3.0" aria-valuenow="2.2">
+            <div class="rail-track" aria-hidden="true">
+              <span class="rail-tick" style="left:0%">1.0</span>
+              <span class="rail-tick" style="left:25%">1.5</span>
+              <span class="rail-tick" style="left:50%">2.0</span>
+              <span class="rail-tick" style="left:75%">2.5</span>
+              <span class="rail-tick" style="left:100%">3.0</span>
+              <span class="rail-fill" id="rail-fill"></span>
+            </div>
+            <div class="rail-knob" id="rail-knob" aria-hidden="true">
+              <span class="knob-arrows">‹ ›</span>
+              <span class="knob-val" id="knob-val">1 : 2.2fr</span>
+            </div>
+          </div>
+          <p class="rail-hint">左右拖动上方父轨标尺，看子模块列线是紧咬父轨还是当场脱钩（键盘 ← / → 可微调）</p>
+        </div>
+
+        <div class="bench-viewport" id="bench-viewport">
+          <div class="bench-grid" id="bench-grid">
+            <div class="pg-head pg-a1" id="pg-a1">
+              <span class="pg-letter">A</span>
+              <span class="pg-meta">1fr</span>
+            </div>
+            <div class="pg-head pg-a2" id="pg-a2">
+              <span class="pg-title">标题区 <em lang="en">HEADER</em></span>
+              <span class="pg-meta" id="pg-w2">2.2fr</span>
+            </div>
+            <div class="pg-head pg-b1" id="pg-b1">
+              <span class="pg-letter">B</span>
+              <span class="pg-meta">1fr</span>
+            </div>
+            <div class="pg-head pg-b2" id="pg-b2">
+              <span class="pg-title">侧边信息 <em lang="en">SIDEBAR</em></span>
+              <span class="pg-meta" id="pg-w4">2.2fr</span>
+            </div>
+
+            <div class="sub-mod mod-d" id="mod-d">
+              <div class="gc gc-badge" id="d1"><b>D1</b><span>概览</span></div>
+              <div class="gc gc-head" id="d2"><strong id="d2-title">跨季度多维营收概览</strong></div>
+              <div class="gc gc-body" id="d3"><span class="gc-code">D3</span><p id="d3-body">D 标题折成三行，未用行子网格时会把下方正文起点独自顶低。</p></div>
+              <div class="gc gc-foot-l" id="d4"><b>D4</b><span>明细</span></div>
+              <div class="gc gc-foot-r" id="d5"><span>底部对齐基准</span><span class="pill-mini" lang="en">SYNC</span></div>
+            </div>
+
+            <div class="sub-mod mod-e" id="mod-e">
+              <div class="gc gc-badge coral-soft" id="e1"><b>E1</b><span>观点</span></div>
+              <div class="gc gc-head coral-soft" id="e2"><strong id="e2-title">核心观点</strong></div>
+              <div class="gc gc-body coral-soft" id="e3"><span class="gc-code">E3</span><p id="e3-body">E 标题仅占一行，兄弟卡片的横线立刻高低参差。</p></div>
+              <div class="gc gc-foot-l coral-soft" id="e4"><b>E4</b><span>状态</span></div>
+              <div class="gc gc-foot-r coral-soft" id="e5"><span>底部对齐基准</span><span class="pill-mini coral-mini" lang="en">ACTION</span></div>
+            </div>
+          </div>
+          <canvas class="bench-overlay" id="bench-canvas" aria-hidden="true"></canvas>
+        </div>
+
+        <div class="track-legend" aria-hidden="true">
+          <span class="tl-item"><i class="lg-v"></i>列轨道 <em lang="en">COLUMN</em></span>
+          <span class="tl-item"><i class="lg-h"></i>行轨道 <em lang="en">ROW</em></span>
+          <span class="tl-item"><i class="lg-dot"></i>轨道交点 <em lang="en">INTERSECTION</em></span>
+          <span class="tl-item"><i class="lg-err"></i>脱钩错位 <em lang="en">DRIFT</em></span>
+        </div>
+      </div>
+
+      <aside class="bench-console-col" aria-label="子网格轨道控制台与诊断">
+        <div class="diag-card" id="diag-card" data-level="error" aria-live="polite">
+          <div class="diag-top">
+            <span class="diag-pill" id="diag-tag">错态 · 嵌套断层</span>
+            <span class="diag-score" id="diag-score" lang="en">0 / 4</span>
+          </div>
+          <h3 class="diag-h" id="diag-headline">列轨脱钩，兄弟行线高低错开</h3>
+          <p class="diag-body" id="diag-body">父网格定义了不对称列轨，但轨道止步于 D、E 两层包裹壳之外。</p>
+          <p class="diag-tip" id="diag-tip">先切「列轨道 → subgrid」打通纵线。</p>
+          <pre class="diag-css" id="diag-css" lang="en"></pre>
+        </div>
+
+        <div class="ctrl-deck">
+          <div class="ctrl-row">
+            <span class="ctrl-label">列轨道 <code lang="en">columns</code></span>
+            <div class="btn-pair" role="group" aria-label="列轨道模式">
+              <button type="button" class="pill-btn is-active" data-ctrl="colMode" data-val="indep" aria-pressed="true">独立 1fr 1fr</button>
+              <button type="button" class="pill-btn" data-ctrl="colMode" data-val="subgrid" aria-pressed="false">subgrid</button>
+            </div>
+          </div>
+
+          <div class="ctrl-row">
+            <span class="ctrl-label">行轨道 <code lang="en">rows</code></span>
+            <div class="btn-pair" role="group" aria-label="行轨道模式">
+              <button type="button" class="pill-btn is-active" data-ctrl="rowMode" data-val="indep" aria-pressed="true">独立 auto</button>
+              <button type="button" class="pill-btn" data-ctrl="rowMode" data-val="subgrid" aria-pressed="false">subgrid</button>
+            </div>
+          </div>
+
+          <div class="ctrl-row">
+            <span class="ctrl-label">父行跨度 <code lang="en">grid-row</code></span>
+            <div class="btn-trio" role="group" aria-label="父行跨度">
+              <button type="button" class="pill-btn is-active" data-ctrl="rowSpan" data-val="1" aria-pressed="true">span 1</button>
+              <button type="button" class="pill-btn" data-ctrl="rowSpan" data-val="2" aria-pressed="false">span 2</button>
+              <button type="button" class="pill-btn" data-ctrl="rowSpan" data-val="3" aria-pressed="false">span 3</button>
+            </div>
+          </div>
+
+          <div class="ctrl-row">
+            <span class="ctrl-label">子沟槽 <code lang="en">gap</code></span>
+            <div class="btn-pair" role="group" aria-label="子网格沟槽">
+              <button type="button" class="pill-btn is-active" data-ctrl="subGap" data-val="inherit" aria-pressed="true">继承父 12px</button>
+              <button type="button" class="pill-btn" data-ctrl="subGap" data-val="zero" aria-pressed="false">覆写 0px</button>
+            </div>
+          </div>
+
+          <div class="ctrl-row">
+            <span class="ctrl-label">动态注入长文案</span>
+            <div class="btn-trio" role="group" aria-label="动态文案试炼">
+              <button type="button" class="pill-btn" data-ctrl="copyPreset" data-val="balanced" aria-pressed="false">短题</button>
+              <button type="button" class="pill-btn is-active" data-ctrl="copyPreset" data-val="dLong" aria-pressed="true">D 长题</button>
+              <button type="button" class="pill-btn" data-ctrl="copyPreset" data-val="eLong" aria-pressed="false">E 长文</button>
+            </div>
+          </div>
+
+          <div class="ctrl-foot">
+            <button type="button" class="reset-btn" id="hero-reset">复原错态</button>
+            <span class="ctrl-note">不设一键过关，亲手调通 4 项</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<main class="essay">
+  <!-- 01 节：什么是嵌套断层 -->
+  <section class="sec sec-cream" id="sec-01" aria-labelledby="h-01">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">01</p>
+        <div class="sec-titles">
+          <h2 id="h-01">一道嵌套墙，截断父轨道</h2>
+          <p class="sec-en" lang="en">THE NESTING BARRIER</p>
+        </div>
+      </header>
+
+      <div class="split-intro">
+        <div class="prose">
+          <p class="lead">在普通<a href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">网格布局</a>里，父容器画出的列轨与行轨只管到它的<strong>直接子元素</strong>。可真实网页离不开语义包裹——一张文章卡外面套着 <code>&lt;article&gt;</code>，卡片里面再放标题、摘要和底栏按钮。只要多这一层壳，孙级元素就被挡在父网格轨道之外。</p>
+          <blockquote class="poster-quote">
+            <span class="pq-tag">原海报 · 核心思想</span>
+            <p>「子网格不重新定义轨道，而是继承父网格的轨道，从而实现跨层级的严格对齐。」</p>
+            <p class="pq-en" lang="en">Subgrid does not redefine tracks. It inherits the parent grid’s tracks, enabling strict alignment across nested levels.</p>
+          </blockquote>
+          <p class="gentle-note"><span class="gn-tag">补全一步</span>原海报底部的 CSS 速查为了简明，只写了 <code>grid-template-columns: subgrid; grid-template-rows: subgrid;</code>。实际写进页面时，子容器还必须通过 <code>grid-column: span N</code> 或 <code>grid-row: span M</code> 声明跨过几条父轨道，否则它只会领到 1 条轨道。</p>
+        </div>
+
+        <div class="curtain-lab" id="curtain-lab">
+          <div class="lab-toolbar">
+            <span class="lab-kicker">实景对照 · 左右拉剖幕对比错位</span>
+            <div class="seg-mini" role="group" aria-label="文案长度压力">
+              <button type="button" class="mini-btn" data-s1-copy="short" aria-pressed="false">短文</button>
+              <button type="button" class="mini-btn is-active" data-s1-copy="real" aria-pressed="true">真实长短不一</button>
+              <button type="button" class="mini-btn" data-s1-copy="extreme" aria-pressed="false">极端长标题</button>
+            </div>
+          </div>
+
+          <div class="curtain-stage" id="curtain-stage">
+            <div class="curtain-layer layer-sub" aria-label="使用子网格：跨卡齐平">
+              <div class="layer-cap good"><span>✓ 使用子网格（对齐一致）</span><strong id="s1-good-drift">行差 0px</strong></div>
+              <div class="demo-cards is-subgrid" id="s1-cards-good"></div>
+            </div>
+            <div class="curtain-layer layer-raw" id="curtain-raw-layer" aria-label="未使用子网格：边界错位">
+              <div class="layer-cap bad"><span>× 未使用子网格（对齐错位）</span><strong id="s1-bad-drift">行差 24px</strong></div>
+              <div class="demo-cards is-raw" id="s1-cards-bad"></div>
+            </div>
+            <div class="curtain-divider" id="curtain-divider" aria-hidden="true"><span>↔</span></div>
+          </div>
+
+          <div class="curtain-slider-row">
+            <label for="s1-range">剖幕位置</label>
+            <input id="s1-range" type="range" min="10" max="90" value="52">
+            <span class="range-val" id="s1-range-val">52%</span>
+          </div>
+          <p class="lab-readout" id="s1-readout" aria-live="polite">未用子网格时，三张卡各自计算行高，长标题把中间卡的正文起线顶低，水平视觉节奏被打断；拖开剖幕对比底下的子网格，所有标题底线与底栏同步踩在同一条父行轨上。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 节：单轴继承还是双轴锁死 -->
+  <section class="sec sec-sage" id="sec-02" aria-labelledby="h-02">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">02</p>
+        <div class="sec-titles">
+          <h2 id="h-02">单轴继承，还是双轴锁死</h2>
+          <p class="sec-en" lang="en">SINGLE VS. DUAL AXIS</p>
+        </div>
+      </header>
+
+      <p class="sec-lead">很多新手以为 <code>subgrid</code> 必须行和列一起开，其实生产环境里 <strong>单轴继承用得比双轴更频繁</strong>。你可以只继承行、只继承列，或者像原海报中的 D 模块那样两轴全锁——点下面 2×2 轴向开关，直接看真实页面结构怎样变化。</p>
+
+      <div class="axis-layout">
+        <div class="axis-controls">
+          <div class="axis-matrix" role="group" aria-label="子网格轴向组合">
+            <button type="button" class="ax-btn" data-axis="none" aria-pressed="false">
+              <span class="ax-k" lang="en">NONE</span>
+              <strong>双轴独立</strong>
+              <em>行列都各自算</em>
+            </button>
+            <button type="button" class="ax-btn" data-axis="col" aria-pressed="false">
+              <span class="ax-k" lang="en">COLUMNS</span>
+              <strong>仅列 subgrid</strong>
+              <em>纵线贴齐全页</em>
+            </button>
+            <button type="button" class="ax-btn is-active" data-axis="row" aria-pressed="true">
+              <span class="ax-k" lang="en">ROWS</span>
+              <strong>仅行 subgrid</strong>
+              <em>卡片横线齐平</em>
+            </button>
+            <button type="button" class="ax-btn" data-axis="both" aria-pressed="false">
+              <span class="ax-k" lang="en">COL + ROW</span>
+              <strong>双轴 subgrid</strong>
+              <em>二维精密锁定</em>
+            </button>
+          </div>
+
+          <div class="axis-info" id="axis-info" aria-live="polite">
+            <h3 id="ax-title">仅行子网格（卡片组最常用）</h3>
+            <p id="ax-note">电商、文档或作品集卡片组的头号利器：各卡左右宽度各自独立，但跨卡的「标题 / 摘要 / 按钮」三条横线被同一套父行轨锁死齐平。</p>
+            <pre class="code-box" id="ax-code" lang="en"></pre>
+          </div>
+        </div>
+
+        <div class="axis-specimen-card">
+          <div class="spec-head-bar">
+            <span>实测结构：父轨 <code lang="en">1fr 2fr | 1fr 2fr</code></span>
+            <span class="spec-status" id="ax-status">纵线自由 · 横线锁齐</span>
+          </div>
+          <div class="axis-stage" id="axis-stage" data-axis="row">
+            <div class="ax-parent-r a">父列 1（1fr）</div>
+            <div class="ax-parent-r b">父列 2（2fr）</div>
+            <div class="ax-parent-r c">父列 3（1fr）</div>
+            <div class="ax-parent-r d">父列 4（2fr）</div>
+
+            <article class="ax-mod left" id="ax-mod-l">
+              <div class="ax-cell c-tag">L1 标</div>
+              <div class="ax-cell c-title">两行较长专题标题演示横向联动</div>
+              <div class="ax-cell c-body">主体内容区块：看上下边界是否与旁卡齐平。</div>
+              <div class="ax-cell c-foot">底栏操作 →</div>
+            </article>
+
+            <article class="ax-mod right" id="ax-mod-r">
+              <div class="ax-cell c-tag">R1 标</div>
+              <div class="ax-cell c-title">短标题</div>
+              <div class="ax-cell c-body">主体内容区块：观察内列分界与水平行线。</div>
+              <div class="ax-cell c-foot">底栏操作 →</div>
+            </article>
+          </div>
+          <div class="ax-measures" id="ax-measures">
+            <span>列缝差：<strong id="ax-m-col">实测中</strong></span>
+            <span>行起线差：<strong id="ax-m-row">实测中</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 节：反向撑大与沟槽继承（深松绿暗底蓝图版） -->
+  <section class="sec sec-pine" id="sec-03" aria-labelledby="h-03">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">03</p>
+        <div class="sec-titles">
+          <h2 id="h-03">反向撑大，与沟槽继承</h2>
+          <p class="sec-en" lang="en">BIDIRECTIONAL SIZING &amp; GAPS</p>
+        </div>
+      </header>
+
+      <p class="sec-lead">Subgrid 不只是「父管子」的单向命令，更是<strong>双向协商</strong>：孙级元素的真实内容高度与内边距会回传给父网格的 <code>auto</code> 轨道，撑大父轨后再同步拉齐所有兄弟卡片。同时子网格默认沿用父网格的 <code>gap</code>，需要微调内距时也能单独覆写。</p>
+
+      <div class="bidi-lab">
+        <div class="bidi-controls">
+          <div class="bidi-group">
+            <span class="bg-label">给 2 号卡增减标题行数</span>
+            <div class="stepper-row">
+              <button type="button" class="pine-btn" id="s3-minus" aria-label="减少一行标题">− 减一行</button>
+              <span class="step-readout" id="s3-lines-val">2 行</span>
+              <button type="button" class="pine-btn" id="s3-plus" aria-label="增加一行标题">+ 加一行</button>
+            </div>
+          </div>
+
+          <div class="bidi-group">
+            <span class="bg-label">子网格行沟槽 <code lang="en">row-gap</code></span>
+            <div class="pine-seg" role="group" aria-label="子网格行沟槽">
+              <button type="button" class="pine-btn is-active" data-s3-gap="inherit" aria-pressed="true">继承父 14px</button>
+              <button type="button" class="pine-btn" data-s3-gap="6" aria-pressed="false">覆写 6px</button>
+              <button type="button" class="pine-btn" data-s3-gap="0" aria-pressed="false">覆写 0px</button>
+            </div>
+          </div>
+
+          <div class="bidi-group">
+            <span class="bg-label">卡壳内边距 <code lang="en">padding</code></span>
+            <div class="pine-seg" role="group" aria-label="卡片内边距">
+              <button type="button" class="pine-btn is-active" data-s3-pad="12" aria-pressed="true">12px</button>
+              <button type="button" class="pine-btn" data-s3-pad="22" aria-pressed="false">22px（首尾轨吸收）</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bidi-stage-wrap">
+          <div class="bidi-ruler" id="s3-ruler" aria-live="polite">
+            <span>父行轨 1（标题带）：<strong id="s3-r1">-- px</strong></span>
+            <span>父行轨 2（正文带）：<strong id="s3-r2">-- px</strong></span>
+            <span>三卡底线误差：<strong id="s3-diff">0px</strong></span>
+          </div>
+
+          <div class="bidi-grid" id="s3-grid">
+            <article class="bidi-card" id="s3-c1">
+              <h3 class="bc-h">基础套餐</h3>
+              <p class="bc-p">单行短标题，但下方横线会乖乖跟着 2 号卡一起下移。</p>
+              <div class="bc-f"><span>¥ 49 / 月</span><b>选用</b></div>
+            </article>
+            <article class="bidi-card is-driver" id="s3-c2">
+              <h3 class="bc-h" id="s3-c2-title">团队协作版<br>含全套网格规范工具</h3>
+              <p class="bc-p">这张卡的标题变高时，会把高度回传给父网格第 1 条行轨。</p>
+              <div class="bc-f"><span>¥ 129 / 月</span><b>选用</b></div>
+            </article>
+            <article class="bidi-card" id="s3-c3">
+              <h3 class="bc-h">企业定制</h3>
+              <p class="bc-p">右侧卡同样共享父轨，三条水平带始终严丝合缝。</p>
+              <div class="bc-f"><span>联系报价</span><b>选用</b></div>
+            </article>
+          </div>
+          <p class="bidi-explain" id="s3-explain">点击「+ 加一行」或切换 22px 内边距：注意看 1 号卡和 3 号卡的标题底线如何零延迟同步下移——规范里，子网格首尾边缘的 padding 与 border 会被算进首尾父轨道的尺寸里。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 节：从哪来 -->
+  <section class="sec sec-cream" id="sec-04" aria-labelledby="h-04">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">04</p>
+        <div class="sec-titles">
+          <h2 id="h-04">从二级草案到全员基线</h2>
+          <p class="sec-en" lang="en">ORIGIN &amp; TIMELINE</p>
+        </div>
+      </header>
+
+      <p class="sec-lead">Subgrid 并不是凭空多出来的语法糖，而是 2017 年 CSS Grid 一级规范留下的「未完待续」。从 W3C 拆出二级规范到三大渲染引擎全部落地，整整走了六年。</p>
+
+      <div class="timeline-shell">
+        <div class="tl-rail" role="tablist" aria-label="CSS Subgrid 规范演进时间轴">
+          <button type="button" class="tl-node" role="tab" data-tl="0" aria-selected="false"><span class="tl-yr" lang="en">2017</span><span class="tl-sub">Level 1 暂缓</span></button>
+          <button type="button" class="tl-node" role="tab" data-tl="1" aria-selected="false"><span class="tl-yr" lang="en">2018</span><span class="tl-sub">Level 2 首稿</span></button>
+          <button type="button" class="tl-node" role="tab" data-tl="2" aria-selected="false"><span class="tl-yr" lang="en">2019</span><span class="tl-sub">Firefox 71</span></button>
+          <button type="button" class="tl-node" role="tab" data-tl="3" aria-selected="false"><span class="tl-yr" lang="en">2022</span><span class="tl-sub">Safari 16</span></button>
+          <button type="button" class="tl-node is-active" role="tab" data-tl="4" aria-selected="true"><span class="tl-yr" lang="en">2023</span><span class="tl-sub">Baseline 2023</span></button>
+        </div>
+
+        <article class="tl-detail" id="tl-detail" aria-live="polite">
+          <div class="tl-meta">
+            <span class="tl-badge" id="tl-badge">Baseline 2023</span>
+            <time class="tl-date" id="tl-date">2023 年 9 月 12 日</time>
+          </div>
+          <h3 id="tl-title">Chrome 117 / Edge 117 齐步，全员可用</h3>
+          <p id="tl-body"></p>
+          <p class="tl-hack" id="tl-hack"></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 节：什么时候用，什么时候别用 -->
+  <section class="sec sec-sage" id="sec-05" aria-labelledby="h-05">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">05</p>
+        <div class="sec-titles">
+          <h2 id="h-05">什么时候用，什么时候别用</h2>
+          <p class="sec-en" lang="en">WHEN TO USE &amp; WHEN NOT TO</p>
+        </div>
+      </header>
+
+      <div class="use-grid">
+        <div class="use-col good-col">
+          <h3>最适合用子网格</h3>
+          <ul class="use-list">
+            <li><strong>跨卡对齐标题、摘要与底栏</strong>：保留每张卡片的圆角、边框与背景，同时消灭不同文案长度引起的参差感。</li>
+            <li><strong>语义包裹的表单与详情页</strong>：用 <code>&lt;fieldset&gt;</code> 分组字段，仍让所有标签列与输入框列齐整对齐父表单网格。</li>
+            <li><strong>宏观版面与模块协同</strong>：页头、文章引语、数据模块各自成组件，却共用全页同一套垂直列轨。</li>
+          </ul>
+        </div>
+
+        <div class="use-col avoid-col">
+          <h3>什么时候别用</h3>
+          <ul class="use-list">
+            <li><strong>子项数目动态不定时别锁行</strong>：Subgrid 不会自动补隐式轨，条目一多就会压叠在末行；动态流更适合普通<a href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">网格布局</a>或<a href="https://layout.xiaoxiaodong.ai/226/play/" target="_blank" rel="noopener">弹性盒布局</a>。</li>
+            <li><strong>本就需要自然错落或文字分栏</strong>：高低错落的展墙属于<a href="https://layout.xiaoxiaodong.ai/236/play/" target="_blank" rel="noopener">瀑布流布局</a>，长文报刊式连续流属于<a href="https://layout.xiaoxiaodong.ai/229/play/" target="_blank" rel="noopener">多栏布局</a>，常规文档流则回到<a href="https://layout.xiaoxiaodong.ai/222/play/" target="_blank" rel="noopener">普通流布局</a>，强行对齐反而空出大块死白。</li>
+            <li><strong>组件要脱离父页独立自适应</strong>：若卡片需按自身宽度切版式，应交由<a href="https://layout.xiaoxiaodong.ai/242/play/" target="_blank" rel="noopener">容器查询布局</a>自治，而不绑定特定父页的轨道数量。</li>
+            <li><strong>真数据报表请回归表格语义</strong>：行列具有严格数据对应关系时，请直接用<a href="https://layout.xiaoxiaodong.ai/230/play/" target="_blank" rel="noopener">表格布局</a>与 <code>&lt;table&gt;</code>，不要用多层 div 套 subgrid 假装表格。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="trap-lab">
+        <div class="trap-head">
+          <div>
+            <h3>反例直击：误用 subgrid 与 display: contents 的真实后果</h3>
+            <p class="trap-sub">切换三种场景，看 DOM 里到底发生了什么。</p>
+          </div>
+          <div class="trap-tabs" role="group" aria-label="反例诊断场景">
+            <button type="button" class="pill-btn is-active" data-trap="ok" aria-pressed="true">正常 3 项（span 3）</button>
+            <button type="button" class="pill-btn" data-trap="overflow" aria-pressed="false">塞入 5 项溢出！</button>
+            <button type="button" class="pill-btn" data-trap="contents" aria-pressed="false">改用 display: contents</button>
+          </div>
+        </div>
+
+        <div class="trap-stage" id="trap-stage" data-trap="ok">
+          <div class="trap-parent" id="trap-parent">
+            <div class="trap-card" id="trap-card-a">
+              <span class="tc-item i1">01 标题层</span>
+              <span class="tc-item i2">02 正文层</span>
+              <span class="tc-item i3">03 底栏层</span>
+              <span class="tc-item i4 extra">04 新增评论 A</span>
+              <span class="tc-item i5 extra">05 新增评论 B</span>
+            </div>
+            <div class="trap-card" id="trap-card-b">
+              <span class="tc-item i1">01 标题层</span>
+              <span class="tc-item i2">02 正文层</span>
+              <span class="tc-item i3">03 底栏层</span>
+            </div>
+          </div>
+          <p class="trap-verdict" id="trap-verdict" aria-live="polite">正常状态：卡片声明 grid-row: span 3，内部正好 3 项，卡壳边框与底色完好，两卡三层严格对齐。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 节：命名线穿透与 CSS 速查 -->
+  <section class="sec sec-cream" id="sec-06" aria-labelledby="h-06">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">06</p>
+        <div class="sec-titles">
+          <h2 id="h-06">命名线穿透与 CSS 速查</h2>
+          <p class="sec-en" lang="en">NAMED LINES &amp; CHEAT SHEET</p>
+        </div>
+      </header>
+
+      <p class="sec-lead">原海报右下角给了一份简版 <code>CSS 速查</code>。下面补齐了生产必备的跨度与命名线写法——<strong>点选任意一行代码</strong>，在旁边蓝图里看清它究竟锁住了哪一层结构。</p>
+
+      <div class="cheat-split">
+        <div class="cheat-code-list" role="listbox" aria-label="CSS 速查规则列表">
+          <button type="button" class="cl-row is-active" data-cl="parent-cols" aria-selected="true">
+            <span class="cl-num" lang="en">01</span>
+            <code lang="en">.parent { grid-template-columns: [edge-l] 1fr [mid] 2fr [edge-r]; }</code>
+          </button>
+          <button type="button" class="cl-row" data-cl="parent-gap" aria-selected="false">
+            <span class="cl-num" lang="en">02</span>
+            <code lang="en">.parent { gap: 16px; }</code>
+          </button>
+          <button type="button" class="cl-row" data-cl="child-span" aria-selected="false">
+            <span class="cl-num" lang="en">03</span>
+            <code lang="en">.child { grid-column: edge-l / edge-r; grid-row: span 3; }</code>
+          </button>
+          <button type="button" class="cl-row" data-cl="child-subgrid" aria-selected="false">
+            <span class="cl-num" lang="en">04</span>
+            <code lang="en">.child { display: grid; grid-template-columns: subgrid; grid-template-rows: subgrid; }</code>
+          </button>
+          <button type="button" class="cl-row" data-cl="local-name" aria-selected="false">
+            <span class="cl-num" lang="en">05</span>
+            <code lang="en">.child { grid-template-columns: subgrid [card-l] [split] [card-r]; }</code>
+          </button>
+        </div>
+
+        <div class="cheat-visual">
+          <svg class="cheat-svg" id="cheat-svg" viewBox="0 0 460 250" data-hl="parent" role="img" aria-label="父网格与子网格命名线对应蓝图">
+            <rect class="cs-bg" x="10" y="10" width="440" height="230" rx="8"/>
+            <!-- Parent columns -->
+            <g class="cs-parent">
+              <rect class="cs-track t1" x="34" y="42" width="122" height="176" rx="4"/>
+              <rect class="cs-track t2" x="176" y="42" width="250" height="176" rx="4"/>
+              <line class="cs-line" x1="34" y1="30" x2="34" y2="226"/>
+              <line class="cs-line" x1="166" y1="30" x2="166" y2="226"/>
+              <line class="cs-line" x1="426" y1="30" x2="426" y2="226"/>
+              <circle class="cs-dot" cx="34" cy="42" r="4"/>
+              <circle class="cs-dot" cx="166" cy="42" r="4"/>
+              <circle class="cs-dot" cx="426" cy="42" r="4"/>
+              <text class="cs-lbl" x="34" y="24">[edge-l]</text>
+              <text class="cs-lbl" x="166" y="24" text-anchor="middle">[mid]</text>
+              <text class="cs-lbl" x="426" y="24" text-anchor="end">[edge-r]</text>
+            </g>
+            <!-- Gap highlight -->
+            <g class="cs-gap">
+              <rect x="156" y="42" width="20" height="176"/>
+              <text x="166" y="135" text-anchor="middle">16px</text>
+            </g>
+            <!-- Span envelope -->
+            <g class="cs-span">
+              <rect x="26" y="74" width="408" height="138" rx="6"/>
+              <text x="424" y="68" text-anchor="end">span 3 行 × span 2 列</text>
+            </g>
+            <!-- Subgrid inner cells -->
+            <g class="cs-subgrid">
+              <rect x="38" y="82" width="114" height="36" rx="3"/>
+              <rect x="180" y="82" width="242" height="36" rx="3"/>
+              <rect x="38" y="126" width="384" height="36" rx="3"/>
+              <rect x="38" y="170" width="114" height="34" rx="3"/>
+              <rect x="180" y="170" width="242" height="34" rx="3"/>
+            </g>
+            <!-- Local named lines -->
+            <g class="cs-named">
+              <line x1="38" y1="74" x2="38" y2="216"/>
+              <line x1="166" y1="74" x2="166" y2="216"/>
+              <line x1="422" y1="74" x2="422" y2="216"/>
+              <text x="38" y="232">[card-l] / 1</text>
+              <text x="166" y="232" text-anchor="middle">[split] / 2</text>
+              <text x="422" y="232" text-anchor="end">[card-r] / -1</text>
+            </g>
+          </svg>
+          <div class="cheat-explain" id="cheat-explain" aria-live="polite">
+            <h3 id="ce-title">父网格定义轨道与命名线</h3>
+            <p id="ce-desc">全局只需在父容器里算一次列宽比例（1fr 2fr）并给关键线起名；子模块永远不必复制这份数字。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 节：练一练 -->
+  <section class="sec sec-sage" id="sec-07" aria-labelledby="h-07">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">07</p>
+        <div class="sec-titles">
+          <h2 id="h-07">练一练：哪套写法真对齐？</h2>
+          <p class="sec-en" lang="en">PRACTICE · SPOT THE TRUE SUBGRID</p>
+        </div>
+      </header>
+
+      <p class="sec-lead">三张并排产品卡各有「标题 / 简介 / 按钮」三层，中间卡的标题折成了两行。下面四套嵌套方案只差一个关键写法——仔细看外框、标题底线与简介起点，选出既保住完整卡片壳、又让三层基线严格对齐的那一套。</p>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四种嵌套方案">
+        <!-- A: subgrid without span 3 (collapsed) -->
+        <button type="button" class="quiz-opt" data-opt="A" aria-pressed="false">
+          <div class="qo-head"><span class="qo-letter" lang="en">A</span><span class="qo-meta">方案 A</span></div>
+          <div class="qo-stage q-a" aria-hidden="true">
+            <div class="qc"><div class="qt">短标题</div><div class="qb">简介摘要内容</div><div class="qf">查看</div></div>
+            <div class="qc"><div class="qt">折成两行的<br>较长主标题</div><div class="qb">简介摘要内容</div><div class="qf">查看</div></div>
+            <div class="qc"><div class="qt">短标题</div><div class="qb">简介摘要内容</div><div class="qf">查看</div></div>
+          </div>
+          <p class="qo-mark" aria-hidden="true">span 1 坍塌</p>
+        </button>
+
+        <!-- B: independent grid auto 1fr auto (sneaky!) -->
+        <button type="button" class="quiz-opt" data-opt="B" aria-pressed="false">
+          <div class="qo-head"><span class="qo-letter" lang="en">B</span><span class="qo-meta">方案 B</span></div>
+          <div class="qo-stage q-b" aria-hidden="true">
+            <i class="q-guide g-bad"></i>
+            <div class="qc"><div class="qt">短标题</div><div class="qb">简介摘要内容</div><div class="qf">查看</div></div>
+            <div class="qc"><div class="qt">折成两行的<br>较长主标题</div><div class="qb">简介摘要内容</div><div class="qf">查看</div></div>
+            <div class="qc"><div class="qt">短标题</div><div class="qb">简介摘要内容</div><div class="qf">查看</div></div>
+          </div>
+          <p class="qo-mark" aria-hidden="true">正文起线参差</p>
+        </button>
+
+        <!-- C: true subgrid + span 3 -->
+        <button type="button" class="quiz-opt" data-opt="C" aria-pressed="false">
+          <div class="qo-head"><span class="qo-letter" lang="en">C</span><span class="qo-meta">方案 C</span></div>
+          <div class="qo-stage q-c" aria-hidden="true">
+            <i class="q-guide g-ok"></i>
+            <div class="qc"><div class="qt">短标题</div><div class="qb">简介摘要内容</div><div class="qf">查看</div></div>
+            <div class="qc"><div class="qt">折成两行的<br>较长主标题</div><div class="qb">简介摘要内容</div><div class="qf">查看</div></div>
+            <div class="qc"><div class="qt">短标题</div><div class="qb">简介摘要内容</div><div class="qf">查看</div></div>
+          </div>
+          <p class="qo-mark" aria-hidden="true">三线零差 · 外框完整</p>
+        </button>
+
+        <!-- D: display: contents (no card borders/bg) -->
+        <button type="button" class="quiz-opt" data-opt="D" aria-pressed="false">
+          <div class="qo-head"><span class="qo-letter" lang="en">D</span><span class="qo-meta">方案 D</span></div>
+          <div class="qo-stage q-d" aria-hidden="true">
+            <div class="qc"><div class="qt">短标题</div><div class="qb">简介摘要内容</div><div class="qf">查看</div></div>
+            <div class="qc"><div class="qt">折成两行的<br>较长主标题</div><div class="qb">简介摘要内容</div><div class="qf">查看</div></div>
+            <div class="qc"><div class="qt">短标题</div><div class="qb">简介摘要内容</div><div class="qf">查看</div></div>
+          </div>
+          <p class="qo-mark" aria-hidden="true">卡片外壳丢失</p>
+        </button>
+      </div>
+
+      <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+        <p class="qv-title" id="qv-title">先观察四张图里的外框、标题底线与简介起点，选出最合适的一套。</p>
+        <p class="qv-body" id="qv-body">选完后会亮出隐藏的水平基准线，拆解每个方案唯一差在哪个 CSS 属性。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 节：原海报与关键词 -->
+  <section class="sec sec-cream sec-poster" id="sec-08" aria-labelledby="h-08">
+    <div class="wrap poster-layout">
+      <div class="poster-head-col">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">08</p>
+          <div class="sec-titles">
+            <h2 id="h-08">原海报与关键词</h2>
+            <p class="sec-en" lang="en">THE ORIGINAL POSTER</p>
+          </div>
+        </header>
+        <p class="poster-motto">「子网格让复杂布局更可控，层级更清晰，维护更高效。」<span lang="en">Subgrid makes complex layouts more controllable, clearer in hierarchy, and easier to maintain.</span></p>
+
+        <ul class="kw-list">
+          <li>
+            <span class="kw-circle teal" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M5 10h18M5 18h18M10 5v18M18 5v18"/><rect x="10" y="10" width="8" height="8" rx="1"/></svg></span>
+            <div><strong>继承轨道</strong><span lang="en">INHERIT TRACKS</span></div>
+          </li>
+          <li>
+            <span class="kw-circle coral" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M6 8h16M6 14h12M6 20h16"/></svg></span>
+            <div><strong>对齐一致</strong><span lang="en">ALIGNMENT</span></div>
+          </li>
+          <li>
+            <span class="kw-circle teal" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="5" y="5" width="18" height="18" rx="2"/><rect x="10" y="10" width="8" height="8" rx="1"/></svg></span>
+            <div><strong>嵌套布局</strong><span lang="en">NESTED</span></div>
+          </li>
+          <li>
+            <span class="kw-circle coral" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M7 11h4V7h6v4h4v6h-4v4h-6v-4H7z"/></svg></span>
+            <div><strong>协同排版</strong><span lang="en">COORDINATED</span></div>
+          </li>
+        </ul>
+
+        <div class="poster-map">
+          <h3>原海报三段结构导读</h3>
+          <ol>
+            <li><strong>上段 · 父网格全局轨道</strong>：以 <code>1fr 2fr 1fr 2fr</code> 定义 A–E 五大区域，并在右侧用深松绿卡片点明「不重定义轨道、直接继承」的核心思想。</li>
+            <li><strong>中段 · 双子网格实例</strong>：把 D 模块与 C 区域单独展开，展示孙级单元 D1–D6 与 C1–C5 如何直接落入父网格轨道与交点。</li>
+            <li><strong>下段 · 对齐对照与速查</strong>：左下并列绿/珊瑚两图对比开启与未开子网格的边界整齐度，右下给出最小 CSS 速查模板。</li>
+          </ol>
+        </div>
+      </div>
+
+      <figure class="poster-fig">
+        <button type="button" class="poster-btn" id="poster-open" aria-haspopup="dialog" aria-label="放大查看 228 号原海报">
+          <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="228 号子网格布局原海报：浅薄荷鼠尾草底色与奶油制图卡片，上方展示 1fr 2fr 1fr 2fr 父网格与深松绿核心思想卡片，中段为 D 模块与 C 区域子网格示例，底部为使用与未使用子网格对齐对比及 CSS 速查。">
+        </button>
+        <figcaption>点击海报放大查看，放大后可拖动画布，按 Esc 或点右上按钮收起。</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="228 号原海报放大视图" hidden>
+  <div class="lb-bar">
+    <span>No. 228 子网格布局 · 拖动平移，Esc 收起</span>
+    <button type="button" class="lb-close" id="lb-close">关闭 (Esc)</button>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" draggable="false" alt="228 号子网格布局原海报大图">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p class="foot-title"><span lang="en">No. 228</span> 子网格布局 · 350 种排版</p>
+    <p class="foot-links">
+      <a href="https://layout.xiaoxiaodong.ai/228/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep" aria-hidden="true">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep" aria-hidden="true">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
