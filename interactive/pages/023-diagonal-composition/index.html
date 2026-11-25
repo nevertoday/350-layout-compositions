@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>023 对角线构图 · DIAGONAL COMPOSITION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ==================== 极细顶眉条 ==================== -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-left">
+      <span class="topbar-dot" aria-hidden="true"></span>
+      <span class="topbar-cat">构图原理<span class="topbar-sub"> / 重心、线条与轴线</span></span>
+    </div>
+    <div class="topbar-right" lang="en">NO. 023<span class="topbar-en-full"> · DIAGONAL COMPOSITION</span></div>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== 开场首屏：斜轨导引与配重调度台 ==================== -->
+  <section class="hero" aria-label="对角线构图互动调度台">
+    <div class="hero-shell">
+      <!-- 斜切双域刊头带 -->
+      <div class="hero-head">
+        <div class="hero-title-block">
+          <div class="title-row">
+            <h1 class="hero-h1">对角线构图</h1>
+            <div class="title-slash-wrap" aria-hidden="true" title="随斜轨角度联动的示范斜锋线">
+              <span class="title-slash-track"></span>
+              <span class="title-slash-bar" id="title-slash-bar"></span>
+            </div>
+            <span class="hero-badge-mobile" id="hero-badge-mobile">0 / 4 待校准</span>
+          </div>
+          <p class="hero-en" lang="en">DIAGONAL COMPOSITION</p>
+          <p class="hero-summary">利用对角线引导视线，增强画面的动势与张力，传递方向与速度感。</p>
+        </div>
+
+        <div class="hero-wing">
+          <div class="wing-top">
+            <span class="wing-label" lang="en">SCENE PRESET</span>
+            <span class="wing-score" id="hero-score-badge">0 / 4 待校准</span>
+          </div>
+          <div class="scene-tabs" role="group" aria-label="切换构图题材">
+            <button type="button" class="scene-btn is-active" data-scene="train" aria-pressed="true">高速铁道</button>
+            <button type="button" class="scene-btn" data-scene="cyclist" aria-pressed="false">急弯骑行</button>
+            <button type="button" class="scene-btn" data-scene="poster" aria-pressed="false">斜切海报</button>
+          </div>
+          <p class="wing-hint">直接拖动画布上的信号黄箭柄或配重圆锚，也可用下方罗盘轨与方向键微调。</p>
+        </div>
+      </div>
+
+      <!-- 主舞台双域：左斜轨画布与拨轨 × 右深翡翠核心作用立柱 -->
+      <div class="hero-grid">
+        <div class="stage-col">
+          <div class="canvas-frame" id="hero-canvas-frame">
+            <canvas id="hero-canvas" width="960" height="600" tabindex="0" aria-label="对角线构图斜轨导引与配重交互画布，左右方向键调倾角，Shift 加方向键移配重"></canvas>
+            <div class="canvas-hud-top" aria-live="polite">
+              <span class="hud-chip" id="hud-angle">+5° · 伪水平溜斜</span>
+              <span class="hud-chip hud-chip-muted" id="hud-length">轨长 1.00× 框宽</span>
+            </div>
+            <div class="canvas-hud-bottom" aria-hidden="true">
+              <span class="hud-guide-note">拖黄箭柄改斜角 · 拖圆锚调配重</span>
+            </div>
+          </div>
+
+          <!-- 一体底沿：斜角罗盘拨轨（data-perf-drag）+ 节奏梯度 + 复位 -->
+          <div class="deck-bar">
+            <div class="dial-block">
+              <div class="dial-head">
+                <label for="angle-range" class="dial-label">斜轨倾角 <span class="dial-sub">（经验有效带 ±16°–62°）</span></label>
+                <span class="dial-val" id="dial-angle-val">+5°</span>
+              </div>
+              <div class="dial-rail" id="angle-dial-rail" data-perf-drag>
+                <div class="dial-zones" aria-hidden="true">
+                  <span class="dz dz-steep-l"></span>
+                  <span class="dz dz-sweet-l" title="俯冲有效带 -62°~-16°"></span>
+                  <span class="dz dz-flat" title="伪水平禁区"></span>
+                  <span class="dz dz-sweet-r" title="上冲有效带 +16°~+62°"></span>
+                  <span class="dz dz-steep-r"></span>
+                </div>
+                <div class="dial-thumb" id="dial-thumb" aria-hidden="true">
+                  <span class="dial-thumb-grip"></span>
+                </div>
+                <input type="range" id="angle-range" class="dial-native-range" min="-72" max="72" step="1" value="5" aria-label="主斜轨倾角（度）">
+              </div>
+              <div class="dial-ticks" aria-hidden="true">
+                <span>-72°</span>
+                <span>-40° ↘ 俯冲</span>
+                <span>0°</span>
+                <span>+40° ↗ 上冲</span>
+                <span>+72°</span>
+              </div>
+            </div>
+
+            <div class="deck-actions">
+              <div class="ctrl-group" role="group" aria-label="沿线大小与疏密梯度">
+                <span class="ctrl-caption">疏密节奏</span>
+                <div class="seg-btns">
+                  <button type="button" class="seg-btn is-active" data-rhythm="flat" aria-pressed="true">等大均分</button>
+                  <button type="button" class="seg-btn" data-rhythm="reverse" aria-pressed="false">前小后大</button>
+                  <button type="button" class="seg-btn" data-rhythm="graded" aria-pressed="false">近大远小</button>
+                </div>
+              </div>
+              <div class="ctrl-utils">
+                <button type="button" class="util-btn is-on" id="btn-vectors" aria-pressed="true">力线标靶：开</button>
+                <button type="button" class="util-btn" id="btn-reset">复原错态</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：复刻原海报深翡翠绿「核心作用 KEY POINTS」立柱与实时诊断 -->
+        <aside class="kp-col" aria-label="四项构图原则实时检测与诊断">
+          <div class="kp-head">
+            <div class="kp-title-wrap">
+              <span class="kp-pill">核心作用</span>
+              <span class="kp-en" lang="en">KEY POINTS</span>
+            </div>
+            <span class="kp-com-read" id="kp-com-read">质心偏 14%</span>
+          </div>
+
+          <ul class="kp-list" id="kp-list">
+            <li class="kp-item" data-kp="movement">
+              <span class="kp-icon kp-icon-white" aria-hidden="true">
+                <svg viewBox="0 0 28 28" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" stroke-linejoin="miter">
+                  <path d="M7 21L21 7M11 7h10v10"/>
+                </svg>
+              </span>
+              <div class="kp-meta">
+                <div class="kp-row-top">
+                  <span class="kp-zh">动势</span>
+                  <span class="kp-en-sm" lang="en">MOVEMENT</span>
+                  <span class="kp-status" id="kp-status-movement">待调</span>
+                </div>
+                <div class="kp-reading" id="kp-read-movement">+5° · 伪水平溜斜</div>
+              </div>
+            </li>
+
+            <li class="kp-item" data-kp="direction">
+              <span class="kp-icon kp-icon-yellow" aria-hidden="true">
+                <svg viewBox="0 0 28 28" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" stroke-linejoin="miter">
+                  <path d="M5 14h17M15 7l7 7-7 7"/>
+                </svg>
+              </span>
+              <div class="kp-meta">
+                <div class="kp-row-top">
+                  <span class="kp-zh">方向</span>
+                  <span class="kp-en-sm" lang="en">DIRECTION</span>
+                  <span class="kp-status" id="kp-status-direction">待调</span>
+                </div>
+                <div class="kp-reading" id="kp-read-direction">未成斜向通道</div>
+              </div>
+            </li>
+
+            <li class="kp-item" data-kp="tension">
+              <span class="kp-icon kp-icon-white" aria-hidden="true">
+                <svg viewBox="0 0 28 28" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" stroke-linejoin="miter">
+                  <path d="M5 5l6 6M11 6v5H6M23 5l-6 6M17 6v5h5M5 23l6-6M11 22v-5H6M23 23l-6-6M17 22v-5h5"/>
+                </svg>
+              </span>
+              <div class="kp-meta">
+                <div class="kp-row-top">
+                  <span class="kp-zh">张力</span>
+                  <span class="kp-en-sm" lang="en">TENSION</span>
+                  <span class="kp-status" id="kp-status-tension">待调</span>
+                </div>
+                <div class="kp-reading" id="kp-read-tension">等大 1.0× · 平滞</div>
+              </div>
+            </li>
+
+            <li class="kp-item" data-kp="speed">
+              <span class="kp-icon kp-icon-yellow" aria-hidden="true">
+                <svg viewBox="0 0 28 28" width="24" height="24" fill="currentColor">
+                  <path d="M5 7l9 7-9 7V7zm10 0l9 7-9 7V7z"/>
+                </svg>
+              </span>
+              <div class="kp-meta">
+                <div class="kp-row-top">
+                  <span class="kp-zh">速度</span>
+                  <span class="kp-en-sm" lang="en">SPEED</span>
+                  <span class="kp-status" id="kp-status-speed">待调</span>
+                </div>
+                <div class="kp-reading" id="kp-read-speed">质心偏 14% · 偏倾</div>
+              </div>
+            </li>
+          </ul>
+
+          <!-- 原海报风格黄签诊断盒 -->
+          <div class="diag-box is-error" id="diag-box" aria-live="polite">
+            <div class="diag-head">
+              <span class="diag-tag" id="diag-tag">倾角 +5° · 伪水平歪斜</span>
+              <span class="diag-note">实测 · 经验值</span>
+            </div>
+            <h2 class="diag-title" id="diag-title">倾角仅 +5°，看着像手抖拍歪了</h2>
+            <p class="diag-body" id="diag-body">人眼对 0° 水平基准极敏感，倾角落在 ±14° 内时大脑会下意识纠错。拖动下方斜角罗盘轨或画布黄箭，把斜轨扫进 ±16°–62° 经验区间。</p>
+            <p class="diag-tip" id="diag-tip">先转动「斜角罗盘拨轨」至 25°–48°（上冲 ↗）或 -25°–-48°（俯冲 ↘）。</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01 为什么斜线天生显动 ==================== -->
+  <section class="sec sec-porcelain" id="sec-01">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div>
+          <h2>为什么斜线天生显动</h2>
+          <p class="sec-en" lang="en">THE OBLIQUE EFFECT &amp; VISUAL INSTABILITY</p>
+        </div>
+      </div>
+
+      <div class="s01-grid">
+        <div class="s01-copy">
+          <p class="lead">横线躺平在重力上，竖线撑住了重力，只有斜线处在「正在倾倒、还没落稳」的半途——这就是它一进画面就自带速度的根源。</p>
+          <p>心理学家 Stuart Appelle 在 1972 年《Psychological Bulletin》综述了跨人类与多种动物的视觉实验，并将这一规律命名为<strong>「斜线效应」（Oblique Effect）</strong>：大脑初级视皮层处理水平（0°）与垂直（90°）朝向的分辨力最高、最稳妥，而对斜向线条的稳态锚定明显更弱。完形心理学家 Rudolf Arnheim 在《艺术与视知觉》（1954 年初版，1974 年修订）中也指出，画框四周天然围出一个横竖坐标骨架，任何斜线都会和这套正交骨架产生偏离张力，让眼睛感受到一股推着画面向前的活跃势能。</p>
+          <p>几何上还有一个直接红利：按勾股定理，矩形内部的对角线永远比任何一条边更长。在一张 16:9 画框里，对角路径是短边高度的 <strong>2.04 倍</strong>、长边宽度的 <strong>1.15 倍</strong>——相当于在同样大小的相框里，硬生生铺出了一条更长的加速跑道。</p>
+
+          <div class="s01-controls" role="group" aria-label="重力与斜势状态切换">
+            <button type="button" class="chip-btn" data-s01-angle="0" aria-pressed="false">0° 水平静止</button>
+            <button type="button" class="chip-btn" data-s01-angle="90" aria-pressed="false">90° 垂直矗立</button>
+            <button type="button" class="chip-btn is-active" data-s01-angle="35" aria-pressed="true">35° 斜势冲刺</button>
+            <button type="button" class="chip-btn" data-s01-angle="56" aria-pressed="false">56° 陡坡加速</button>
+          </div>
+          <label class="toggle-check">
+            <input type="checkbox" id="s01-pythagoras" checked>
+            <span>叠加勾股路径倍长与重力分量箭头</span>
+          </label>
+        </div>
+
+        <div class="s01-visual">
+          <canvas id="s01-canvas" width="640" height="400" aria-label="斜线效应与重力分力动态演示图"></canvas>
+          <div class="s01-caption" id="s01-readout">35° 倾角：重力沿斜面切出 57% 的加速推力，通道拉长至宽度的 1.22×（相对短边 1.74×）。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 角度与朝向改情绪 ==================== -->
+  <section class="sec sec-mist" id="sec-02">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div>
+          <h2>角度与朝向改情绪</h2>
+          <p class="sec-en" lang="en">ANGLE SPECTRUM &amp; READING DIRECTION</p>
+        </div>
+      </div>
+
+      <blockquote class="poster-quote">
+        <span class="pq-tag">原海报实践要点 01</span>
+        「对角线不一定是 45°，角度变化会带来不同的情绪表达。」
+      </blockquote>
+
+      <p class="sec-intro">把所有斜线都拧死在 45°，就像把所有音乐都定在同一拍速。选好角度带之后，还要决定它往哪边走：左低右高（↗）和左高右下（↘）传递的情绪截然不同。</p>
+
+      <div class="s02-layout">
+        <div class="s02-cards" role="group" aria-label="四种倾角区间情绪剖面">
+          <button type="button" class="angle-card" data-s02-band="pseudo" aria-pressed="false">
+            <span class="ac-deg" lang="en">1°–12°</span>
+            <strong class="ac-name">伪水平歪斜带</strong>
+            <span class="ac-desc">经验雷区：离水平太近，人眼把它当拍歪的地平线。</span>
+          </button>
+          <button type="button" class="angle-card" data-s02-band="gentle" aria-pressed="false">
+            <span class="ac-deg" lang="en">16°–30°</span>
+            <strong class="ac-name">缓坡流动带</strong>
+            <span class="ac-desc">经验区间：从容延伸、温和推进，适合风景长卷与轻快品牌图。</span>
+          </button>
+          <button type="button" class="angle-card is-active" data-s02-band="sprint" aria-pressed="true">
+            <span class="ac-deg" lang="en">31°–48°</span>
+            <strong class="ac-name">黄金冲刺带</strong>
+            <span class="ac-desc">经验区间：速度、纵深与画面张力最均衡，高速交通与运动常用。</span>
+          </button>
+          <button type="button" class="angle-card" data-s02-band="steep" aria-pressed="false">
+            <span class="ac-deg" lang="en">49°–62°</span>
+            <strong class="ac-name">陡坡爆发带</strong>
+            <span class="ac-desc">经验区间：急迫险峻、压迫感强，适合强戏剧冲突与悬疑海报。</span>
+          </button>
+        </div>
+
+        <div class="s02-stage-wrap">
+          <div class="s02-toolbar">
+            <span class="s02-dir-label" id="s02-dir-label">当前方向：左下 → 右上（上冲 ↗）</span>
+            <button type="button" class="mirror-btn" id="s02-mirror-btn" aria-pressed="false">左右镜像翻转 ⇄</button>
+          </div>
+          <canvas id="s02-canvas" width="640" height="380" aria-label="角度区间与左右方向镜像情绪对照画布"></canvas>
+          <div class="s02-note" id="s02-note">
+            <strong id="s02-note-title">38° 左下→右上 · 攀升冲刺</strong>
+            <p id="s02-note-body">对习惯从左到右阅读的读者来说，左下起势、右上突进的斜线常带有前进、爬升与昂扬感；点一下「左右镜像翻转」，感受同一角度翻成左上→右下后瞬间转出的俯冲与下压感。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="nuance-box s02-nuance">
+        <span class="nuance-tag">经验有前提</span>
+        <p>很多构图手册把「左下→右上＝积极上升，左上→右下＝消极坠落」写成绝对法则，其实说满了一点。Heinrich Wölfflin 在 1928 年《画中的左与右》注意到画面镜像会改变体感，而 Sylvie Chokron 与 Marc De Agostini（2000 年，《Cognitive Brain Research》）对比法语（左→右）与希伯来语（右→左）读者后证实，这种审美方向偏好明显受母语阅读方向塑形——理解习惯，才不会被口诀捆住。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 疏密与配重稳住画面 ==================== -->
+  <section class="sec sec-emerald" id="sec-03">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <div>
+          <h2>疏密与配重稳住画面</h2>
+          <p class="sec-en" lang="en">RHYTHM, CONTRAST &amp; COUNTERWEIGHT</p>
+        </div>
+      </div>
+
+      <div class="s03-quotes">
+        <blockquote class="poster-quote-dark">
+          <span class="pq-tag-yellow">原海报实践要点 02</span>
+          「结合大小、疏密、明暗对比，强化对角线的力量。」
+        </blockquote>
+        <blockquote class="poster-quote-dark">
+          <span class="pq-tag-yellow">原海报实践要点 03</span>
+          「注意画面平衡，避免一端过重导致失衡。」
+        </blockquote>
+      </div>
+
+      <div class="s03-grid">
+        <div class="s03-switches">
+          <p class="s03-lead">光画一条斜线还不够：没有大小和间距变化，眼睛只是匀速滑过；没有对侧配重，画面就会一头栽下去。逐项勾选下面三层结构，看原海报底部圆点图解怎样一步步「活」过来：</p>
+
+          <label class="layer-switch">
+            <input type="checkbox" id="s03-scale">
+            <span class="ls-box" aria-hidden="true"></span>
+            <span class="ls-text">
+              <strong>① 大小递减（近大远小）</strong>
+              <small>前段圆块厚重、远端收小，模拟透视缩减并确立起点与终点。</small>
+            </span>
+          </label>
+
+          <label class="layer-switch">
+            <input type="checkbox" id="s03-spacing">
+            <span class="ls-box" aria-hidden="true"></span>
+            <span class="ls-text">
+              <strong>② 间距压缩（由疏到密）</strong>
+              <small>起步跨幅大、越往远方步距越密，眼睛会读出持续加速的节拍。</small>
+            </span>
+          </label>
+
+          <label class="layer-switch">
+            <input type="checkbox" id="s03-counter">
+            <span class="ls-box" aria-hidden="true"></span>
+            <span class="ls-text">
+              <strong>③ 对侧配重（力矩兜底）</strong>
+              <small>在斜线空出的另一侧放一枚克制的标题块或反斜细线，拉回整画质心。</small>
+            </span>
+          </label>
+
+          <div class="s03-meter" id="s03-meter">
+            <div class="s03-meter-row">
+              <span>层级完成度</span>
+              <strong id="s03-score">0 / 3 层 · 均分偏斜</strong>
+            </div>
+            <p id="s03-explain">三层都未开启：四个等大圆对称排在斜线上，质心虽靠中（偏移 1%），却像挂歪的串珠没有纵深加速度；勾上 ① 大小递减立刻看到重量猛向左下偏倾，需要 ③ 对侧配重兜底。</p>
+          </div>
+        </div>
+
+        <div class="s03-canvas-wrap">
+          <canvas id="s03-canvas" width="640" height="440" aria-label="大小递减、疏密压缩与对侧配重三层叠合解剖画布"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 对角线从哪来 ==================== -->
+  <section class="sec sec-white" id="sec-04">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div>
+          <h2>对角线从哪来</h2>
+          <p class="sec-en" lang="en">HISTORICAL LINEAGE OF THE DIAGONAL</p>
+        </div>
+      </div>
+
+      <p class="sec-intro">从 17 世纪巴洛克打破文艺复兴横竖网格，到 20 世纪建构主义主动把镜头拧斜，对角线构图在四百年里一步步从「画中隐线」走成了「现代速度语言」。</p>
+
+      <div class="s04-tabs" role="tablist" aria-label="对角线构图四个历史时期">
+        <button type="button" class="era-tab is-active" role="tab" aria-selected="true" data-era="baroque">
+          <span class="era-yr" lang="en">17th C.</span>
+          <span class="era-name">巴洛克斜纵深</span>
+        </button>
+        <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="gericault">
+          <span class="era-yr" lang="en">1818–1819</span>
+          <span class="era-name">美杜莎之筏</span>
+        </button>
+        <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="hokusai">
+          <span class="era-yr" lang="en">c. 1830–1832</span>
+          <span class="era-name">神奈川冲浪里</span>
+        </button>
+        <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="rodchenko">
+          <span class="era-yr" lang="en">1920s–1930</span>
+          <span class="era-name">建构主义斜拍</span>
+        </button>
+      </div>
+
+      <div class="s04-stage">
+        <div class="s04-diagram-box">
+          <canvas id="s04-canvas" width="600" height="390" aria-label="历史名作对角线构图骨架透视图"></canvas>
+          <label class="toggle-check s04-toggle">
+            <input type="checkbox" id="s04-forces" checked>
+            <span>显示隐藏的主对角力线与反力配重</span>
+          </label>
+        </div>
+
+        <article class="s04-card" id="s04-card">
+          <span class="s04-meta" id="s04-meta">巴洛克转折 · Heinrich Wölfflin《艺术史的基本概念》（1915）</span>
+          <h3 id="s04-title">用「纵深斜入」掀翻文艺复兴平行网格</h3>
+          <p id="s04-body">瑞士艺术史家 Heinrich Wölfflin 在 1915 年名著《艺术史的基本概念》（Kunstgeschichtliche Grundbegriffe）里把文艺复兴与巴洛克的转折概括为「平面与纵深」「封闭与开放」等五组对立概念：文艺复兴偏爱平行于画框的水平与垂直结构，而巴洛克大量把建筑、光束与人物群像扭成深入画后的斜线，强行把观众的视线拽进纵深剧场。</p>
+          <p class="s04-takeaway" id="s04-takeaway">骨架要诀：当你需要告别庄严肃穆、制造空间卷入感，第一刀就是把正面平行排布改成斜向切入。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 和隔壁几条线怎么分 ==================== -->
+  <section class="sec sec-porcelain" id="sec-05">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div>
+          <h2>和隔壁几条线怎么分</h2>
+          <p class="sec-en" lang="en">DISTINGUISHING NEIGHBORING LINE SYSTEMS</p>
+        </div>
+      </div>
+
+      <p class="sec-intro">同属「重心、线条与轴线」家族的几种构图常在实战中混着出现。点选这六张几何图谱，一眼分清谁唱主角：</p>
+
+      <div class="s05-layout">
+        <div class="s05-pills" role="group" aria-label="线条家族五类构图对比">
+          <button type="button" class="fam-btn is-active" data-fam="023" aria-pressed="true">
+            <span class="fam-id" lang="en">023</span>
+            <strong>对角线构图</strong>
+            <small>单主斜势贯通</small>
+          </button>
+          <button type="button" class="fam-btn" data-fam="021" aria-pressed="false">
+            <span class="fam-id" lang="en">021</span>
+            <strong>水平构图</strong>
+            <small>0° 宁静延展</small>
+          </button>
+          <button type="button" class="fam-btn" data-fam="022" aria-pressed="false">
+            <span class="fam-id" lang="en">022</span>
+            <strong>垂直构图</strong>
+            <small>90° 庄重升腾</small>
+          </button>
+          <button type="button" class="fam-btn" data-fam="024" aria-pressed="false">
+            <span class="fam-id" lang="en">024</span>
+            <strong>平行线构图</strong>
+            <small>多线等距韵律</small>
+          </button>
+          <button type="button" class="fam-btn" data-fam="025" aria-pressed="false">
+            <span class="fam-id" lang="en">025</span>
+            <strong>汇聚线构图</strong>
+            <small>多斜线收向灭点</small>
+          </button>
+          <button type="button" class="fam-btn" data-fam="026" aria-pressed="false">
+            <span class="fam-id" lang="en">026</span>
+            <strong>交叉线构图</strong>
+            <small>双斜线正面撞击</small>
+          </button>
+        </div>
+
+        <div class="s05-detail">
+          <canvas id="s05-canvas" width="520" height="300" aria-label="构图线网对比几何图"></canvas>
+          <div class="s05-text">
+            <div class="s05-head-line">
+              <h3 id="s05-title">023 对角线构图（本页主角）</h3>
+              <a id="s05-link" class="fam-link" href="#sec-08">对照原海报 ↓</a>
+            </div>
+            <p id="s05-desc">由一条明确占主导的斜向动线贯穿画框，把静止空间劈开成方向、张力与速度的通道；其余次要线条只负责呼应或兜住平衡，不和主斜线抢权。</p>
+            <div class="nuance-box s05-nuance">
+              <span class="nuance-tag">细看原海报 · 跨界借力</span>
+              <p>仔细看 023 原海报里的铁轨：左侧多条绿白轨道线其实也向右上城市天际线轻微收拢，借了 <a href="https://layout.xiaoxiaodong.ai/025/play/" target="_blank" rel="noopener">025 汇聚线构图</a> 的纵深力；但真正主导全画视觉结构的，仍是那条从左下角劈向右上破框大箭头的整幅信号黄主斜轴。实战中线条构图本就常协同配合，关键是分清主次。</p>
+            </div>
+            <p class="s05-links-row">
+              同族延伸：
+              <a href="https://layout.xiaoxiaodong.ai/021/play/" target="_blank" rel="noopener">021 水平构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/022/play/" target="_blank" rel="noopener">022 垂直构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/024/play/" target="_blank" rel="noopener">024 平行线构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/025/play/" target="_blank" rel="noopener">025 汇聚线构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/026/play/" target="_blank" rel="noopener">026 交叉线构图</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 什么时候别用对角线 ==================== -->
+  <section class="sec sec-tunnel" id="sec-06">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <div>
+          <h2>什么时候别用对角线</h2>
+          <p class="sec-en" lang="en">WHEN TO KEEP THE FRAME LEVEL</p>
+        </div>
+      </div>
+
+      <div class="s06-banner">
+        <span class="nuance-tag-yellow">说多了一点 · 看题材而定</span>
+        <p>原海报底部的标语写着「让视线动起来，让画面更有力量」。这句话对速度、运动、促销与冲击类题材精准无比；但并不是每张画面都需要「动起来」——以下四个场景，强行上对角线反而坏事。点击卡片里的按钮，把翻车现场原地扶正：</p>
+      </div>
+
+      <div class="s06-grid">
+        <article class="misuse-card" data-case="zen">
+          <div class="mc-top">
+            <span class="mc-badge is-bad">翻车现场</span>
+            <button type="button" class="mc-fix-btn" aria-pressed="false">点击纠偏 →</button>
+          </div>
+          <div class="mc-preview" id="mc-svg-zen" aria-hidden="true"></div>
+          <h3>静谧疗愈与庄重题材</h3>
+          <p class="mc-text">茶室、冥想封面、纪念馆海报或企业财报封面需要沉静与可信度。把茶杯桌面拧成 26° 斜坡，观众只会担心茶水要泼出来——这类题材该交给 <a href="https://layout.xiaoxiaodong.ai/021/play/" target="_blank" rel="noopener">021 水平构图</a> 或 <a href="https://layout.xiaoxiaodong.ai/022/play/" target="_blank" rel="noopener">022 垂直构图</a>。</p>
+        </article>
+
+        <article class="misuse-card" data-case="bodytext">
+          <div class="mc-top">
+            <span class="mc-badge is-bad">翻车现场</span>
+            <button type="button" class="mc-fix-btn" aria-pressed="false">点击纠偏 →</button>
+          </div>
+          <div class="mc-preview" id="mc-svg-bodytext" aria-hidden="true"></div>
+          <h3>长文段落与密集数据表</h3>
+          <p class="mc-text">装饰斜条或大标题可以借斜势，但多行正文和表格一旦跟着倾斜旋转，人眼换行扫读会反复丢行。保持文字基线水平，把斜线留给外框切面或视觉配图。</p>
+        </article>
+
+        <article class="misuse-card" data-case="dutch">
+          <div class="mc-top">
+            <span class="mc-badge is-bad">翻车现场</span>
+            <button type="button" class="mc-fix-btn" aria-pressed="false">点击纠偏 →</button>
+          </div>
+          <div class="mc-preview" id="mc-svg-dutch" aria-hidden="true"></div>
+          <h3>无理由硬拧相机（滥用荷兰角）</h3>
+          <p class="mc-text">眼前是一间静静摆着沙发的客厅，没有任何真实斜向运动，却把相机歪 20° 拍成倾斜地面——这不会显得高级，只会让观众下意识歪脖子、产生晕眩与违和感。</p>
+        </article>
+
+        <article class="misuse-card" data-case="corner">
+          <div class="mc-top">
+            <span class="mc-badge is-bad">翻车现场</span>
+            <button type="button" class="mc-fix-btn" aria-pressed="false">点击纠偏 →</button>
+          </div>
+          <div class="mc-preview" id="mc-svg-corner" aria-hidden="true"></div>
+          <h3>斜线直怼死角、视线溜出框</h3>
+          <p class="mc-text">如果主体沿斜线一路顶死到右上角边缘且毫无余白或视觉刹车，眼睛会像顺着滑梯一样直接滑出画面外。终点前留出呼吸空间，并用对侧次要元素把视线稳在框内。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 小练习：挑出稳态斜线 ==================== -->
+  <section class="sec sec-mist" id="sec-07">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div>
+          <h2>练一练：挑出稳态斜线</h2>
+          <p class="sec-en" lang="en">COMPOSITION CHECK · SINGLE-VARIABLE TEST</p>
+        </div>
+      </div>
+
+      <p class="quiz-prompt"><strong>实战场景：</strong>为「城市夜间半程马拉松」设计一张 16:10 预告海报。以下四个方案使用完全相同的跑者剪影、配色与信息量，仅在<strong>对角线倾角、沿线疏密与配重布局</strong>上存在差别——哪一个真正成立？</p>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四选一构图练习方案">
+        <button type="button" class="quiz-opt" data-opt="A" aria-pressed="false">
+          <div class="quiz-thumb" id="quiz-svg-A" aria-hidden="true"></div>
+          <span class="quiz-label">方案 A</span>
+        </button>
+        <button type="button" class="quiz-opt" data-opt="B" aria-pressed="false">
+          <div class="quiz-thumb" id="quiz-svg-B" aria-hidden="true"></div>
+          <span class="quiz-label">方案 B</span>
+        </button>
+        <button type="button" class="quiz-opt" data-opt="C" aria-pressed="false">
+          <div class="quiz-thumb" id="quiz-svg-C" aria-hidden="true"></div>
+          <span class="quiz-label">方案 C</span>
+        </button>
+        <button type="button" class="quiz-opt" data-opt="D" aria-pressed="false">
+          <div class="quiz-thumb" id="quiz-svg-D" aria-hidden="true"></div>
+          <span class="quiz-label">方案 D</span>
+        </button>
+      </div>
+
+      <div class="quiz-feedback" id="quiz-feedback" aria-live="polite">
+        <p class="qf-idle">点选上方任意方案查看逐项构图诊断；选完后也可以继续点其他方案对照它们的差别。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 08 原海报与关键词 ==================== -->
+  <section class="sec sec-porcelain sec-archive" id="sec-08">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">08</span>
+        <div>
+          <h2>原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER ARCHIVE &amp; KEYWORDS</p>
+        </div>
+      </div>
+
+      <div class="archive-grid">
+        <div class="poster-card">
+          <button type="button" class="poster-trigger" id="poster-trigger" aria-label="点击放大查看 023 对角线构图原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="023 对角线构图原海报">
+            <span class="poster-zoom-hint">点击放大查看 · 支持滚轮缩放与拖动</span>
+          </button>
+        </div>
+
+        <div class="archive-meta">
+          <div class="archive-tagline">
+            <span class="at-badge" lang="en">POSTER TAGLINE</span>
+            <p class="at-zh">让视线动起来，让画面更有力量。</p>
+            <p class="at-en" lang="en">LET THE EYE MOVE, LET THE IMAGE BE POWERFUL.</p>
+          </div>
+
+          <h3 class="archive-sub">四个核心关键词</h3>
+          <div class="kw-grid">
+            <div class="kw-item">
+              <strong>动势</strong>
+              <span lang="en">MOVEMENT</span>
+              <p>打破静态，营造动感与活力。</p>
+            </div>
+            <div class="kw-item">
+              <strong>方向</strong>
+              <span lang="en">DIRECTION</span>
+              <p>引导视线流动，明确视觉路径。</p>
+            </div>
+            <div class="kw-item">
+              <strong>张力</strong>
+              <span lang="en">TENSION</span>
+              <p>拉伸画面空间，增强视觉冲击力。</p>
+            </div>
+            <div class="kw-item">
+              <strong>速度</strong>
+              <span lang="en">SPEED</span>
+              <p>强化节奏与节拍，传递速度感。</p>
+            </div>
+          </div>
+
+          <h3 class="archive-sub">原海报三条实践要点</h3>
+          <ol class="tips-list">
+            <li>对角线不一定是 45°，角度变化会带来不同的情绪表达。</li>
+            <li>结合大小、疏密、明暗对比，强化对角线的力量。</li>
+            <li>注意画面平衡，避免一端过重导致失衡。</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ==================== 规范页脚 ==================== -->
+<footer class="site-footer">
+  <div class="footer-stripe" aria-hidden="true"></div>
+  <div class="footer-inner">
+    <p>
+      <a href="https://layout.xiaoxiaodong.ai/023/play/" target="_blank" rel="noopener">在线版</a>
+      <span aria-hidden="true"> / </span>
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="f-sep" aria-hidden="true">·</span>
+      <span>海报 CC BY 4.0</span>
+      <span class="f-sep" aria-hidden="true">·</span>
+      <a href="https://github.com/xxd-dev/350-layout-interactive" target="_blank" rel="noopener">源文件 GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<!-- ==================== 原海报放大灯箱 ==================== -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="023 对角线构图原海报放大视图" hidden>
+  <div class="lb-bar">
+    <span class="lb-title">023 对角线构图 · 原海报（可滚轮缩放、拖动平移，按 Esc 关闭）</span>
+    <div class="lb-ctrls">
+      <button type="button" class="lb-btn" id="lb-out">缩小 −</button>
+      <button type="button" class="lb-btn" id="lb-reset">100%</button>
+      <button type="button" class="lb-btn" id="lb-in">放大 +</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" class="lb-img" alt="023 对角线构图原海报大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
