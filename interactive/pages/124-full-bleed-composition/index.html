@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>124 满幅构图 · FULL-BLEED COMPOSITION</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#sec-01">跳到正文解析</a>
+
+  <!-- ==================== HERO：全宽无外框满幅压印裁刀台 ==================== -->
+  <header class="hero" id="top">
+    <!-- 顶部 100% 边到边自示范刊头：色块直冲视口左右 0px 边缘，标题守在内安全线 -->
+    <div class="hero-ribbon">
+      <div class="bleed-edge bleed-edge-l" aria-hidden="true">
+        <span class="be-orange"></span>
+        <span class="be-pink"></span>
+      </div>
+      <div class="bleed-edge bleed-edge-r" aria-hidden="true">
+        <span class="be-navy"></span>
+        <span class="be-orange"></span>
+      </div>
+      <div class="hero-bar-inner">
+        <div class="hero-brand">
+          <div class="hero-kicker">
+            <span class="dot-seq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            <span class="kicker-cat">视觉原则与阅读模式 / 格式塔与组群</span>
+            <span class="kicker-no">NO. 124</span>
+          </div>
+          <div class="hero-title-row">
+            <h1 class="hero-h1">满幅构图</h1>
+            <span class="hero-en">FULL-BLEED COMPOSITION</span>
+          </div>
+        </div>
+
+        <p class="hero-summary">
+          指画面元素铺满整个版面，直达四边，不留内边距的构图方式，以获得更强的视觉张力与沉浸感。
+        </p>
+
+        <div class="hero-meta-tools">
+          <div class="subject-tabs" role="tablist" aria-label="切换压印题材">
+            <button type="button" class="sub-tab is-active" role="tab" aria-selected="true" data-subject="poster">原海报 · 几何</button>
+            <button type="button" class="sub-tab" role="tab" aria-selected="false" data-subject="spread">画册跨页</button>
+            <button type="button" class="sub-tab" role="tab" aria-selected="false" data-subject="mobile">全面屏出血</button>
+          </div>
+          <span class="status-seal is-bad" id="heroSeal" aria-live="polite">0/4 · 留白退缩</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主舞台与控制台（桌面纵排全宽压印台；横屏手机切左右双栏） -->
+    <div class="hero-workbench">
+      <!-- 100% 边到边深松绿印厂压印画布 -->
+      <div class="press-stage-wrap">
+        <canvas
+          id="pressCanvas"
+          class="press-canvas"
+          data-perf-drag
+          tabindex="0"
+          role="application"
+          aria-label="满幅构图印前压印裁刀台：左右拖动推拉出血毫米数，方向键左右调出血，上下调文字安全内距"
+        ></canvas>
+      </div>
+
+      <!-- 印前检校诊单 + 压印操控双栏 -->
+      <div class="press-console">
+        <div class="console-inner">
+          <!-- 左：单真源白话诊单 -->
+          <div class="diag-panel" id="diagPanel">
+            <div class="diag-head">
+              <span class="diag-badge is-bad" id="diagBadge">0/4 · 留白退缩</span>
+              <span class="diag-source">实绘印张几何单真源</span>
+            </div>
+            <h2 class="diag-title" id="diagTitle">四周退缩 14 mm，有效画面缩水 33%</h2>
+            <p class="diag-body" id="diagBody">现在四条边都没碰到成品边沿，白边把色块关成「普通版面」。同尺幅下画面比四边满幅小了 33%，眼睛先看到纸框，再隔着框往里看，包裹感还没启动。</p>
+            <div class="diag-tip-row">
+              <p class="diag-tip" id="diagHint">向右横拖画布推至 +3 mm 以上，并点亮四边开关让色块全部冲出成品线。</p>
+              <button type="button" class="quick-fix-btn" id="quickFixBtn">推至四边 +3.5 mm 出血</button>
+            </div>
+            <div class="diag-metrics">
+              <div class="metric-cell">
+                <span class="m-label">最小出血</span>
+                <strong class="m-val" id="mBleed">-14.0 mm</strong>
+              </div>
+              <div class="metric-cell">
+                <span class="m-label">四边触达</span>
+                <strong class="m-val" id="mEdges">0 / 4 边</strong>
+              </div>
+              <div class="metric-cell">
+                <span class="m-label">文字内距</span>
+                <strong class="m-val" id="mText">1.5 mm</strong>
+              </div>
+              <div class="metric-cell">
+                <span class="m-label">较留白面积</span>
+                <strong class="m-val" id="mRatio">1.07×</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右：压印机操控台 -->
+          <div class="ctrl-panel">
+            <div class="slider-grid">
+              <label class="ctrl-slider" for="bleedRange">
+                <span class="slider-top">
+                  <span class="slider-name">画面扩张 / 出血量</span>
+                  <strong class="slider-num" id="bleedVal">-14.0 mm</strong>
+                </span>
+                <input id="bleedRange" type="range" min="-20" max="12" step="0.5" value="-14">
+                <span class="slider-scale">
+                  <span>-20mm 留白</span>
+                  <span>0mm 压线陷阱</span>
+                  <span>+3mm 印刷标准</span>
+                  <span>+12mm 过扩</span>
+                </span>
+              </label>
+
+              <label class="ctrl-slider" for="textRange">
+                <span class="slider-top">
+                  <span class="slider-name">文字安全内距</span>
+                  <strong class="slider-num" id="textVal">1.5 mm</strong>
+                </span>
+                <input id="textRange" type="range" min="0" max="18" step="0.5" value="1.5">
+                <span class="slider-scale">
+                  <span>0mm 贴边切字</span>
+                  <span>5–15mm 安全区</span>
+                  <span>18mm 撞主体</span>
+                </span>
+              </label>
+            </div>
+
+            <div class="ctrl-action-row">
+              <div class="edge-group" role="group" aria-label="四边通边开关">
+                <span class="group-lbl">四边通边</span>
+                <button type="button" class="edge-btn is-on" data-edge="top" aria-pressed="true">上边</button>
+                <button type="button" class="edge-btn is-on" data-edge="right" aria-pressed="true">右边</button>
+                <button type="button" class="edge-btn" data-edge="bottom" aria-pressed="false">下边</button>
+                <button type="button" class="edge-btn" data-edge="left" aria-pressed="false">左边</button>
+              </div>
+              <div class="blade-group">
+                <button type="button" class="blade-btn" id="bladeBtn" aria-pressed="false">落刀试裁（刀偏 ±1.2mm）</button>
+                <button type="button" class="guide-btn is-on" id="guideBtn" aria-pressed="true">辅助线：开</button>
+              </div>
+            </div>
+
+            <div class="preset-row" aria-label="合法解与试错预设">
+              <button type="button" class="preset-btn is-good" data-preset="print3">标准印刷 3mm 解</button>
+              <button type="button" class="preset-btn is-good" data-preset="spread5">大幅画册 5mm 解</button>
+              <button type="button" class="preset-btn is-good" data-preset="mobileSafe">全面屏安全解</button>
+              <button type="button" class="preset-btn is-bad" data-preset="errZeroBleed">试错：0mm 漏白</button>
+              <button type="button" class="preset-btn is-bad" data-preset="errTextCut">试错：文字贴边</button>
+              <button type="button" class="preset-btn is-reset" data-preset="reset">复原 0/4 错态</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1:1 复刻 124 原海报底部四符实况带 + 圆角橘勾结语格 -->
+    <div class="poster-foot-strip">
+      <div class="foot-strip-inner">
+        <div class="four-marks" aria-label="满幅构图四要素实时状态">
+          <div class="mark-item">
+            <div class="mark-top">
+              <strong>铺满</strong>
+              <span class="mark-en">FILL</span>
+            </div>
+            <svg class="mark-svg" viewBox="0 0 44 44" aria-hidden="true">
+              <rect x="6" y="6" width="32" height="32" fill="#E34C0B"/>
+            </svg>
+            <span class="mark-live is-bad" id="liveFill">铺满 67%</span>
+          </div>
+          <div class="mark-item">
+            <div class="mark-top">
+              <strong>出血</strong>
+              <span class="mark-en">BLEED</span>
+            </div>
+            <svg class="mark-svg" viewBox="0 0 44 44" aria-hidden="true">
+              <rect x="9" y="9" width="26" height="26" fill="none" stroke="#E34C0B" stroke-width="2.2" stroke-dasharray="4 3"/>
+              <path d="M9 3v12M3 9h12 M35 3v12M29 9h12 M9 29v12M3 35h12 M35 29v12M29 35h12" stroke="#092058" stroke-width="2"/>
+            </svg>
+            <span class="mark-live is-bad" id="liveBleed">-14.0 mm</span>
+          </div>
+          <div class="mark-item">
+            <div class="mark-top">
+              <strong>冲击</strong>
+              <span class="mark-en">IMPACT</span>
+            </div>
+            <svg class="mark-svg" viewBox="0 0 44 44" aria-hidden="true">
+              <polygon points="22,3 26,15 38,9 31,20 42,25 29,27 33,40 22,31 11,40 15,27 2,25 13,20 6,9 18,15" fill="#E34C0B"/>
+            </svg>
+            <span class="mark-live is-bad" id="liveImpact">弱 · 盒装感</span>
+          </div>
+          <div class="mark-item">
+            <div class="mark-top">
+              <strong>沉浸</strong>
+              <span class="mark-en">IMMERSION</span>
+            </div>
+            <svg class="mark-svg" viewBox="0 0 44 44" aria-hidden="true">
+              <circle cx="27" cy="18" r="11" fill="#FD8FAF"/>
+              <circle cx="17" cy="26" r="11" fill="#0A512E"/>
+            </svg>
+            <span class="mark-live is-bad" id="liveImmersion">框外旁观</span>
+          </div>
+        </div>
+
+        <div class="poster-verdict-card">
+          <span class="verdict-check" aria-hidden="true">
+            <svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#E34C0B"/><path d="M8.5 14.5l3.7 3.7 7.5-8.2" fill="none" stroke="#FEF8F1" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <div class="verdict-copy">
+            <p class="verdict-zh">用画面铺满版面，放大视觉张力，营造更强的沉浸体验。</p>
+            <p class="verdict-en">FILL THE PAGE WITH VISUALS TO AMPLIFY IMPACT AND CREATE A MORE IMMERSIVE EXPERIENCE.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 窄屏后置总述条（桌面已在刊头呈现，避免 390 首屏被长段文字挤占） -->
+  <div class="mobile-summary-band">
+    <p class="mobile-summary-text">
+      <span class="orange-bar" aria-hidden="true"></span>
+      指画面元素铺满整个版面，直达四边，不留内边距的构图方式，以获得更强的视觉张力与沉浸感。
+    </p>
+  </div>
+
+  <main class="main-flow">
+    <!-- ==================== 01 拆掉画框，画面才包裹你 ==================== -->
+    <section class="sec sec-ivory" id="sec-01">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div class="sec-titles">
+            <h2>拆掉画框，画面才包裹你</h2>
+            <span class="sec-en">WHY REMOVING MARGINS FLIPS FIGURE INTO ENVIRONMENT</span>
+          </div>
+        </div>
+
+        <div class="split-2col">
+          <div class="prose-col">
+            <blockquote class="poster-quote">
+              <span class="quote-tag">原海报要点</span>
+              「满幅构图：主体与色块铺满版面，直达四边，无内边距。关键元素和色块持续到版面四边，形成强烈的画面包裹感。」
+            </blockquote>
+            <p>同一张纸、同一块屏幕，四周加上一圈白边和把画面直接推到四边，差别绝不只是「大了一圈」。按照格式塔的<a href="https://layout.xiaoxiaodong.ai/119/play/">图底关系原则（119）</a>，一旦四周出现等宽白框，纸面立刻变成「背景（底）」，画面缩成贴在纸上的一张「小物件（图）」——观者站在画框外面看它。</p>
+            <p>把白边彻底拆掉后，物理边界和视觉边界合二为一，画面不再是摆在纸上的物件，而是直接迎面展开的现场环境。几何上也很实在：在一张固定尺寸的卡片上，仅仅去掉四周 14% 的白边，画面实际面积就会跳涨接近 <strong>1.93 倍</strong>。</p>
+            <p>它和相邻的<a href="https://layout.xiaoxiaodong.ai/123/play/">裁切构图（123）</a>常常搭档，但重点不同：裁切构图靠「切掉主体一部分」去引发画外想象，满幅构图靠「取消页面边距、四边通底」来放大体量与包裹感——哪怕画面里是一整片远景山脉或纯净色域，只要四边无留白，依然是纯粹的满幅构图。</p>
+          </div>
+
+          <!-- 01 专属交互：视域卷帘对比器（推拉卷帘 + 边距宽度联算真实几何面积倍增） -->
+          <div class="lab-card">
+            <div class="lab-card-head">
+              <strong>视域卷帘对照台 · 同一张画幅的面积落差</strong>
+              <span class="lab-chip" id="wipeMultiplier">面积放大 1.93×</span>
+            </div>
+
+            <div class="wipe-stage" id="wipeStage" tabindex="0" role="group" aria-label="满幅与留白视域卷帘对照">
+              <!-- 底层：满幅画面 -->
+              <svg class="wipe-svg" viewBox="0 0 480 320" aria-hidden="true">
+                <rect width="480" height="320" fill="#0A512E"/>
+                <circle cx="52" cy="48" r="196" fill="#E34C0B"/>
+                <path d="M0 320 L0 198 A122 122 0 0 1 122 320 Z" fill="#DCCFBA"/>
+                <path d="M312 320 L312 150 L330 130 L330 88 A76 76 0 0 1 482 88 L482 320 Z" fill="#FD8FAF"/>
+                <g fill="#092058">
+                  <polygon points="312,174 480,108 480,126 312,192"/>
+                  <polygon points="312,216 480,150 480,168 312,234"/>
+                  <polygon points="312,258 480,192 480,210 312,276"/>
+                  <polygon points="154,320 480,214 480,320"/>
+                </g>
+                <rect x="14" y="12" width="132" height="28" fill="rgba(16,20,18,0.88)"/>
+                <text x="24" y="30" fill="#FEF8F1" font-size="13.5" font-weight="700">四边满幅 · 100%</text>
+              </svg>
+
+              <!-- 覆盖层：普通留白版面，由 JS 动态按卷帘比例裁切 clip-path -->
+              <div class="wipe-overlay" id="wipeOverlay">
+                <svg class="wipe-svg" viewBox="0 0 480 320" aria-hidden="true">
+                  <rect width="480" height="320" fill="#FEF8F1"/>
+                  <rect x="2" y="2" width="476" height="316" fill="none" stroke="#101412" stroke-width="2"/>
+                  <g id="wipeMarginArt">
+                    <rect x="67" y="45" width="346" height="230" fill="#0A512E"/>
+                    <clipPath id="wipeInnerClip">
+                      <rect id="wipeInnerClipRect" x="67" y="45" width="346" height="230"/>
+                    </clipPath>
+                    <g clip-path="url(#wipeInnerClip)">
+                      <circle cx="105" cy="80" r="141" fill="#E34C0B"/>
+                      <path d="M67 275 L67 187 A88 88 0 0 1 155 275 Z" fill="#DCCFBA"/>
+                      <path d="M292 275 L292 153 L305 138 L305 108 A55 55 0 0 1 415 108 L415 275 Z" fill="#FD8FAF"/>
+                      <g fill="#092058">
+                        <polygon points="292,170 415,122 415,135 292,183"/>
+                        <polygon points="292,200 415,152 415,165 292,213"/>
+                        <polygon points="292,230 415,182 415,195 292,243"/>
+                        <polygon points="178,275 415,198 415,275"/>
+                      </g>
+                    </g>
+                  </g>
+                  <rect x="334" y="10" width="134" height="26" fill="#DCCFBA"/>
+                  <text id="wipeRegText" x="344" y="27" fill="#101412" font-size="12.5" font-weight="700">普通留白 · 52%</text>
+                </svg>
+              </div>
+
+              <!-- 卷帘分隔手柄 -->
+              <div class="wipe-handle" id="wipeHandle" aria-hidden="true">
+                <span class="wipe-knob">↔</span>
+              </div>
+            </div>
+
+            <div class="wipe-controls">
+              <label class="inline-range" for="wipePos">
+                <span>卷帘位置 <strong id="wipePosVal">52%</strong></span>
+                <input id="wipePos" type="range" min="8" max="92" step="1" value="52">
+              </label>
+              <label class="inline-range" for="wipeMargin">
+                <span>对照白边宽度 <strong id="wipeMarginVal">14%</strong></span>
+                <input id="wipeMargin" type="range" min="4" max="24" step="1" value="14">
+              </label>
+            </div>
+            <p class="lab-footnote" id="wipeNote">四周留出 14% 白边后，实际画面面积只剩 51.8%；一旦改为满幅，同一张纸上的有效画面直接放大 1.93 倍。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 02 三道边界：出血、裁切、安全 ==================== -->
+    <section class="sec sec-sand" id="sec-02">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div class="sec-titles">
+            <h2>三道边界：出血、裁切、安全</h2>
+            <span class="sec-en">BLEED ZONE, TRIM LINE &amp; TEXT SAFE MARGIN</span>
+          </div>
+        </div>
+
+        <div class="split-2col">
+          <div class="prose-col">
+            <blockquote class="poster-quote">
+              <span class="quote-tag">原海报要点</span>
+              「出血位：画面向外延伸，超出成品边缘，用于印刷裁切。」
+            </blockquote>
+            <div class="gentle-fix">
+              <span class="fix-pill">说多了一点</span>
+              <p>原海报总述写「不留内边距」，但实战里<strong>无内边距只针对底图、色块与延伸图形</strong>。文字、徽标、页码等关键信息不仅不能贴边，反而必须向内退守安全区——色块越敢往外冲，文字越要往里收。</p>
+            </div>
+            <p>商业印刷并不是把墨刚好印在成品纸上，而是先印在更大的全开纸上，再用重型裁纸刀成摞切出成品。受纸张温湿度伸缩和刀口压纸位移影响，每刀都会产生零点几到一毫米多的机械偏差。根据 Adobe InDesign 等国际印前规范，常规单页与画册必须在四边各外延 <strong>3 mm（英制 0.125 英寸，约 3.175 mm）出血位</strong>，确保裁刀无论怎么微偏，切口都落在纯色油墨里，绝不露出惨白纸边。</p>
+            <p>把三道线记牢，印前就不会返工：<strong>最外圈是出血线（色块必须铺到这）</strong>，<strong>中间是成品裁切线（十字角标对齐处）</strong>，<strong>最内圈是安全线（文字与关键符号不得越过）</strong>。</p>
+          </div>
+
+          <!-- 02 专属交互：印前剖面层叠检视器 + 4 种印刷媒介卡片 -->
+          <div class="lab-card">
+            <div class="lab-card-head">
+              <strong>印前剖面层叠检视器 · 点选层与媒介</strong>
+              <span class="lab-chip" id="specSummaryChip">出血 +3 mm · 安全 ≥ 5 mm</span>
+            </div>
+
+            <div class="zone-toggles" role="group" aria-label="开关印前三道边界">
+              <label class="check-pill"><input type="checkbox" id="chkBleed" checked> <span>① 外延出血区（樱粉虚线）</span></label>
+              <label class="check-pill"><input type="checkbox" id="chkTrim" checked> <span>② 成品裁切线（深蓝角标）</span></label>
+              <label class="check-pill"><input type="checkbox" id="chkSafe" checked> <span>③ 文字安全区（深绿内框）</span></label>
+            </div>
+
+            <div class="blueprint-box">
+              <svg class="blueprint-svg" id="blueprintSvg" viewBox="0 0 460 270" role="img" aria-label="印前三道边界剖面图">
+                <!-- 大纸背景 -->
+                <rect x="10" y="10" width="440" height="250" fill="#FFFDF8" stroke="#C5B9A6" stroke-width="1"/>
+                <!-- 外延出血填充层 -->
+                <g id="bpBleedLayer">
+                  <rect x="44" y="30" width="372" height="210" fill="rgba(253,143,175,0.28)" stroke="#D94A78" stroke-width="2" stroke-dasharray="7 5"/>
+                  <text x="54" y="47" fill="#9E224C" font-size="11.5" font-weight="700" font-family="IBM Plex Mono, Noto Sans SC, monospace">① BLEED 出血区（裁掉部分）</text>
+                </g>
+                <!-- 成品净框 + 十字裁切角标 -->
+                <g id="bpTrimLayer">
+                  <rect x="70" y="54" width="320" height="162" fill="rgba(227,76,11,0.14)" stroke="#092058" stroke-width="2"/>
+                  <!-- 四个十字角标 -->
+                  <path d="M70 36v14M52 54h14 M390 36v14M394 54h14 M70 220v14M52 216h14 M390 220v14M394 216h14" stroke="#092058" stroke-width="2"/>
+                  <text x="80" y="72" fill="#092058" font-size="11.5" font-weight="700" font-family="IBM Plex Mono, Noto Sans SC, monospace">② TRIM 成品裁切线</text>
+                </g>
+                <!-- 文字安全内区 -->
+                <g id="bpSafeLayer">
+                  <rect x="102" y="84" width="256" height="102" fill="rgba(10,81,46,0.13)" stroke="#0A512E" stroke-width="1.8" stroke-dasharray="5 4"/>
+                  <text x="114" y="108" fill="#0A512E" font-size="12" font-weight="700">③ SAFE ZONE 文字与标志安全区</text>
+                  <text x="114" y="132" fill="#101412" font-size="14" font-weight="900">主标题、正文与品牌标识</text>
+                  <text x="114" y="154" fill="#3B443E" font-size="12">始终退守此虚框之内，永不越界挨刀</text>
+                </g>
+                <!-- 毫米标注尺（左右分置，零重叠） -->
+                <line x1="44" y1="248" x2="70" y2="248" stroke="#9E224C" stroke-width="2.2"/>
+                <line x1="44" y1="244" x2="44" y2="252" stroke="#9E224C" stroke-width="1.6"/>
+                <line x1="70" y1="244" x2="70" y2="252" stroke="#9E224C" stroke-width="1.6"/>
+                <text x="16" y="264" fill="#9E224C" font-size="11" font-weight="700" font-family="IBM Plex Mono, Noto Sans SC, monospace">出血 <tspan id="bpBleedNum">+3 mm</tspan></text>
+
+                <line x1="358" y1="248" x2="390" y2="248" stroke="#0A512E" stroke-width="2.2"/>
+                <line x1="358" y1="244" x2="358" y2="252" stroke="#0A512E" stroke-width="1.6"/>
+                <line x1="390" y1="244" x2="390" y2="252" stroke="#0A512E" stroke-width="1.6"/>
+                <text x="336" y="264" fill="#0A512E" font-size="11" font-weight="700" font-family="IBM Plex Mono, Noto Sans SC, monospace">安全内距 <tspan id="bpSafeNum">5 mm</tspan></text>
+              </svg>
+            </div>
+
+            <div class="media-cards" role="tablist" aria-label="印刷媒介出血规格">
+              <button type="button" class="media-card is-active" data-media="card" role="tab" aria-selected="true">
+                <strong>名片 / 卡片</strong>
+                <span>出血 3 mm · 安全 4–5 mm</span>
+              </button>
+              <button type="button" class="media-card" data-media="mag" role="tab" aria-selected="false">
+                <strong>杂志单页 / 折页</strong>
+                <span>出血 3 mm · 安全 6–8 mm</span>
+              </button>
+              <button type="button" class="media-card" data-media="book" role="tab" aria-selected="false">
+                <strong>骑马钉 / 胶装跨页</strong>
+                <span>出血 3 mm · 脊内让 8–12 mm</span>
+              </button>
+              <button type="button" class="media-card" data-media="billboard" role="tab" aria-selected="false">
+                <strong>大型喷绘 / 展板</strong>
+                <span>出血 5–10 mm · 包边另加</span>
+              </button>
+            </div>
+            <p class="lab-footnote" id="mediaNote">名片与宣传卡成品小、成张拼版后连续裁切，3 mm（或 0.125 in）出血与 4–5 mm 内安全距是印刷厂最稳妥的通行底线（行业经验值）。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 03 从铅字花边到冲出纸边（深靛蓝历史暗室） ==================== -->
+    <section class="sec sec-navy" id="sec-03">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">03</span>
+          <div class="sec-titles">
+            <h2>从铅字花边到冲出纸边</h2>
+            <span class="sec-en">HOW MODERNIST MAGAZINES BROKE THE PAGE BORDER</span>
+          </div>
+        </div>
+
+        <div class="history-layout">
+          <div class="era-tabs" role="tablist" aria-label="满幅构图演变时间轴">
+            <button type="button" class="era-tab is-active" data-era="1928" role="tab" aria-selected="true">
+              <span class="era-yr">1928</span>
+              <strong>奇肖尔德《新字体排印》</strong>
+              <span class="era-sub">打破对称花边，让摄影触碰纸边</span>
+            </button>
+            <button type="button" class="era-tab" data-era="1929" role="tab" aria-selected="false">
+              <span class="era-yr">1929</span>
+              <strong>阿加执掌《Vogue》《Vanity Fair》</strong>
+              <span class="era-sub">把出血摄影与跨页引入美国主流杂志</span>
+            </button>
+            <button type="button" class="era-tab" data-era="1934" role="tab" aria-selected="false">
+              <span class="era-yr">1934</span>
+              <strong>布罗多维奇《Harper's Bazaar》</strong>
+              <span class="era-sub">用满幅与大留白交替谱出翻页节奏</span>
+            </button>
+            <button type="button" class="era-tab" data-era="1936" role="tab" aria-selected="false">
+              <span class="era-yr">1936</span>
+              <strong>《LIFE》改版创刊号</strong>
+              <span class="era-sub">纪实影像以大尺幅把纸页变成现场窗口</span>
+            </button>
+            <button type="button" class="era-tab" data-era="modern" role="tab" aria-selected="false">
+              <span class="era-yr">当代</span>
+              <strong>全面屏与无边网页视口</strong>
+              <span class="era-sub">物理边框退场，出血与安全区迁入屏幕</span>
+            </button>
+          </div>
+
+          <!-- 03 专属交互：历史样本微缩展柜 -->
+          <div class="era-stage">
+            <div class="era-specimen-wrap" id="eraSpecimen" aria-live="polite"></div>
+            <div class="era-copy">
+              <span class="era-tag" id="eraTag">1928 · 德国柏林</span>
+              <h3 class="era-heading" id="eraHeading">扬·奇肖尔德《新字体排印》（Die neue Typographie）</h3>
+              <p class="era-text" id="eraText">1928 年在柏林出版的《新字体排印》系统总结了现代主义排版原则：告别 19 世纪居中对称与装饰花边，把摄影视为与文字同等有力的几何色块。画面第一次主动贴近并呼应纸张四边，为印刷满幅构图铺好了理论底座。</p>
+              <p class="era-source" id="eraSource">核实出处：UC Press《The New Typography》出版档案</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 04 屏幕上的出血与安全区 ==================== -->
+    <section class="sec sec-ivory" id="sec-04">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div class="sec-titles">
+            <h2>屏幕上的出血与安全区</h2>
+            <span class="sec-en">DIGITAL FULL-BLEED, NOTCHES &amp; SAFE-AREA-INSET</span>
+          </div>
+        </div>
+
+        <div class="split-2col">
+          <div class="prose-col">
+            <p>很多做网页和移动端的人以为「屏幕没有裁纸刀，就不需要管出血和安全区」。其实全面屏的<strong>圆角玻璃、顶部状态岛、底部手势条以及不同长宽比裁剪</strong>，就是数字时代的新裁纸刀。</p>
+            <p>在移动浏览器里，系统默认会把网页缩进中间的矩形安全区域，避开顶部刘海和圆角。如果你想让照片、视频或深色背景铺满整块物理屏幕，就必须在页面里声明 <code>viewport-fit=cover</code> 让底图「出血」到圆角与状态栏后面，再用 <code>object-fit: cover</code> 保持照片等比铺满不拉伸。</p>
+            <p>紧接着，再用 CSS 环境变量 <code>env(safe-area-inset-top)</code> 与 <code>env(safe-area-inset-bottom)</code> 为标题、返回键和底部按钮加上内距——这与印刷厂「色块推到 +3 mm 出血、文字退守 5 mm 安全区」遵循的是同一条底层纪律。</p>
+          </div>
+
+          <!-- 04 专属交互：多设备全面屏适配台 + 活体 CSS 联动盒 -->
+          <div class="lab-card">
+            <div class="lab-card-head">
+              <strong>多设备满幅适配台 · 实时联动 CSS</strong>
+              <span class="lab-chip" id="devStatusChip">满屏且安全</span>
+            </div>
+
+            <div class="dev-toolbar">
+              <div class="dev-btns" role="tablist" aria-label="选择设备屏幕">
+                <button type="button" class="dev-btn is-active" data-dev="phone" role="tab" aria-selected="true">手机全面屏</button>
+                <button type="button" class="dev-btn" data-dev="tablet" role="tab" aria-selected="false">平板 4:3</button>
+                <button type="button" class="dev-btn" data-dev="desktop" role="tab" aria-selected="false">宽屏 16:9</button>
+              </div>
+              <div class="dev-switches">
+                <button type="button" class="toggle-chip is-on" id="swViewportCover" aria-pressed="true">viewport-fit=cover</button>
+                <button type="button" class="toggle-chip is-on" id="swSafeInset" aria-pressed="true">safe-area-inset</button>
+                <button type="button" class="toggle-chip is-on" id="swObjCover" aria-pressed="true">object-fit: cover</button>
+              </div>
+            </div>
+
+            <div class="dev-preview-grid">
+              <div class="dev-stage">
+                <div class="dev-shell is-phone" id="devShell">
+                  <div class="dev-letterbox" id="devScreen">
+                    <div class="dev-art-layer" id="devArt">
+                      <svg viewBox="0 0 320 220" preserveAspectRatio="xMidYMid slice" id="devArtSvg" aria-hidden="true">
+                        <rect width="320" height="220" fill="#0A512E"/>
+                        <circle cx="42" cy="40" r="130" fill="#E34C0B"/>
+                        <path d="M0 220 L0 138 A82 82 0 0 1 82 220 Z" fill="#DCCFBA"/>
+                        <path d="M210 220 L210 102 L222 86 L222 58 A50 50 0 0 1 322 58 L322 220 Z" fill="#FD8FAF"/>
+                        <g fill="#092058">
+                          <polygon points="210,122 320,76 320,90 210,136"/>
+                          <polygon points="210,154 320,108 320,122 210,168"/>
+                          <polygon points="105,220 320,148 320,220"/>
+                        </g>
+                      </svg>
+                    </div>
+                    <div class="dev-ui-layer" id="devUi">
+                      <div class="dev-topbar">
+                        <span class="dev-nav-pill">← 返回</span>
+                        <span class="dev-nav-pill">NO.124</span>
+                      </div>
+                      <div class="dev-bottom-cta">
+                        <strong>探索完整展厅</strong>
+                      </div>
+                    </div>
+                    <div class="dev-notch" aria-hidden="true"></div>
+                    <div class="dev-homebar" aria-hidden="true"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dev-code-col">
+                <pre class="code-box"><code id="devCssCode"></code></pre>
+                <p class="dev-diag" id="devDiagText"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 05 全出血、局部出血与中缝 ==================== -->
+    <section class="sec sec-mist" id="sec-05">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div class="sec-titles">
+            <h2>全出血、局部出血与中缝</h2>
+            <span class="sec-en">FULL BLEED, PARTIAL BLEED &amp; SPINE GUTTER</span>
+          </div>
+        </div>
+
+        <div class="split-2col">
+          <!-- 05 专属交互：杂志跨页四模式 + 装订中缝吃图透视镜 -->
+          <div class="lab-card">
+            <div class="lab-card-head">
+              <strong>跨页节奏与装订中缝透视台</strong>
+              <span class="lab-chip" id="spreadModeChip">跨页穿脊满幅</span>
+            </div>
+
+            <div class="spread-controls">
+              <div class="spread-mode-btns" role="tablist" aria-label="跨页出血模式">
+                <button type="button" class="sp-btn is-active" data-spread="full" role="tab" aria-selected="true">四边全出血</button>
+                <button type="button" class="sp-btn" data-spread="half" role="tab" aria-selected="false">左满右白（局部出血）</button>
+                <button type="button" class="sp-btn" data-spread="three" role="tab" aria-selected="false">三边出血 + 顶栏呼吸</button>
+                <button type="button" class="sp-btn" data-spread="framed" role="tab" aria-selected="false">全留白对照</button>
+              </div>
+              <button type="button" class="toggle-chip is-on" id="swGutter" aria-pressed="true">装订中缝吃图透视：开</button>
+            </div>
+
+            <div class="spread-stage">
+              <svg class="spread-svg" id="spreadSvg" viewBox="0 0 560 300" role="img" aria-label="杂志跨页与装订中缝示意图">
+                <!-- 书页纸底 -->
+                <rect x="20" y="16" width="520" height="268" fill="#FEF8F1" stroke="#101412" stroke-width="1.6"/>
+                <!-- 动态图像区域 -->
+                <g id="spArtGroup">
+                  <rect id="spArtBg" x="20" y="16" width="520" height="268" fill="#0A512E"/>
+                  <clipPath id="spArtClip"><rect id="spArtClipRect" x="20" y="16" width="520" height="268"/></clipPath>
+                  <g clip-path="url(#spArtClip)">
+                    <circle cx="96" cy="84" r="142" fill="#E34C0B"/>
+                    <path d="M20 284 L20 184 A100 100 0 0 1 120 284 Z" fill="#DCCFBA"/>
+                    <!-- 人物侧影（严格无五官，遵守红线）位于左页安全区，避开中缝！ -->
+                    <path d="M188 284 L188 188 C188 164 202 152 216 152 C230 152 242 164 242 188 L242 284 Z" fill="#092058"/>
+                    <circle cx="215" cy="126" r="22" fill="#092058"/>
+                    <!-- 右页几何建筑拱形 -->
+                    <path d="M368 284 L368 122 A76 76 0 0 1 520 122 L520 284 Z" fill="#FD8FAF"/>
+                    <polygon points="368,162 540,104 540,122 368,180" fill="#092058"/>
+                    <polygon points="368,208 540,150 540,168 368,226" fill="#092058"/>
+                  </g>
+                </g>
+                <!-- 右页留白文字栏（仅在局部出血或全留白模式显示） -->
+                <g id="spTextCol" opacity="0">
+                  <rect x="306" y="42" width="120" height="14" fill="#101412"/>
+                  <rect x="306" y="68" width="194" height="7" fill="#47514C"/>
+                  <rect x="306" y="84" width="182" height="7" fill="#47514C"/>
+                  <rect x="306" y="100" width="190" height="7" fill="#47514C"/>
+                  <rect x="306" y="116" width="144" height="7" fill="#47514C"/>
+                  <rect x="306" y="150" width="194" height="7" fill="#47514C"/>
+                  <rect x="306" y="166" width="176" height="7" fill="#47514C"/>
+                  <rect x="306" y="182" width="158" height="7" fill="#47514C"/>
+                </g>
+                <!-- 顶栏呼吸条（仅三边出血模式显示） -->
+                <g id="spTopBand" opacity="0">
+                  <rect x="20" y="16" width="520" height="44" fill="#FEF8F1"/>
+                  <line x1="20" y1="60" x2="540" y2="60" stroke="#101412" stroke-width="1"/>
+                  <text x="38" y="43" fill="#101412" font-size="13" font-weight="700">ISSUE 08 · 建筑与自然光影</text>
+                  <text x="466" y="43" fill="#B53504" font-size="12" font-weight="700" font-family="IBM Plex Mono, monospace">P.042–043</text>
+                </g>
+                <!-- 书脊中缝折影与 10mm 装订吃图禁区 -->
+                <g id="spGutterOverlay">
+                  <rect x="266" y="16" width="28" height="268" fill="rgba(181, 30, 30, 0.24)"/>
+                  <line x1="280" y1="16" x2="280" y2="284" stroke="#B51E1E" stroke-width="2" stroke-dasharray="5 4"/>
+                  <rect x="210" y="24" width="140" height="22" fill="#9E1B1B"/>
+                  <text x="280" y="39" text-anchor="middle" fill="#FEF8F1" font-size="11" font-weight="700">中缝吃图区（6–10mm）</text>
+                </g>
+              </svg>
+            </div>
+            <p class="lab-footnote" id="spreadNote">四边全出血跨页冲击力最强，但胶装书脊处有 6–10 mm 弧度折进装订沟：主角剪影与标题必须刻意避开中缝，绝不能压在折线上。</p>
+          </div>
+
+          <div class="prose-col">
+            <p>真正成熟的编辑与设计师，不会把「满幅」当成非黑即白的开关。整本画册或长页面里，最常用的其实是三种节奏的切换：</p>
+            <ul class="clean-list">
+              <li><strong>四边全出血（Full Bleed）</strong>：用在封面、开篇首屏、章节转场和情绪主图，一翻开就用最大视场抓住注意力。</li>
+              <li><strong>三边 / 双边局部出血（Partial Bleed）</strong>：让大图直冲左页或底边，对侧留出干净白边承载正文与图注——既保留边缘张力，又给阅读留出喘息，呼应<a href="https://layout.xiaoxiaodong.ai/125/play/">疏密对比原则（125）</a>。</li>
+              <li><strong>胶装跨页避中缝（Gutter Safety）</strong>：跨页满幅时，纸页在装订脊处会自然弯折吃掉 6–10 mm（厚书甚至更多）。背景、天空、色块可以放心穿脊，但<strong>人物头像、产品核心和标题文字</strong>千万别放在正中间。</li>
+            </ul>
+            <p>若你在同一页需要把多段说明清晰归类，也可以先用局部满幅撑起气场，再用<a href="https://layout.xiaoxiaodong.ai/120/play/">共同区域原则（120）</a>把文字与辅助信息稳稳收进一块干净的留白底区里。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 06 什么时候别用满幅构图（深松绿暗室） ==================== -->
+    <section class="sec sec-forest" id="sec-06">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div class="sec-titles">
+            <h2>什么时候别用满幅构图</h2>
+            <span class="sec-en">WHEN FULL-BLEED HURTS READABILITY OR BUDGET</span>
+          </div>
+        </div>
+
+        <div class="anti-grid">
+          <article class="anti-card">
+            <span class="anti-idx">01</span>
+            <h3>连续长文与数据表格</h3>
+            <p>长段落一旦不留页边距，一行字拖得太长、眼睛换行容易串行，而且读者握书的手指或滑屏拇指会直接遮住行首尾字。长文需要稳妥的边距与舒适行宽。</p>
+          </article>
+          <article class="anti-card">
+            <span class="anti-idx">02</span>
+            <h3>多张同级信息并列比较</h3>
+            <p>商品目录、参数对照表或科研图表需要一眼分清「谁跟谁是一组」。强行张张满幅会让相邻卡片粘成一团，不如用<a href="https://layout.xiaoxiaodong.ai/116/play/">邻近性原则（116）</a>与留白缝隙划清边界。</p>
+          </article>
+          <article class="anti-card">
+            <span class="anti-idx">03</span>
+            <h3>普通办公 / 家用打印机直出</h3>
+            <p>常规激光或喷墨打印机需要四周约 4–6 mm 物理走纸咬口（gripper margin），喷头根本够不到纸边。拿满幅文件直接打 A4，只会被迫缩印或切出尴尬白框。</p>
+          </article>
+          <article class="anti-card">
+            <span class="anti-idx">04</span>
+            <h3>连续十几页全是满幅</h3>
+            <p>视觉张力来自反差。如果整本册子、整套幻灯片页页铺满，不出五页观者就会审美疲劳；把满幅留给关键转折页，平时配普通留白页，冲击感才会真正炸出来。</p>
+          </article>
+        </div>
+
+        <!-- 06 专属交互：商业大纸裁切 vs 办公打印机咬口白边实测切换 -->
+        <div class="printer-compare">
+          <div class="printer-top">
+            <div>
+              <strong>实测：为什么办公打印机打不出真满幅？</strong>
+              <p class="printer-sub">同一份满幅 A4 稿件，切换两种输出方式看物理边沿变化。</p>
+            </div>
+            <div class="printer-btns" role="tablist" aria-label="印刷输出方式对比">
+              <button type="button" class="pr-btn is-active" data-printer="commercial" role="tab" aria-selected="true">商业印刷（大纸印后再裁）</button>
+              <button type="button" class="pr-btn" data-printer="office" role="tab" aria-selected="false">办公打印机（A4 物理咬口）</button>
+            </div>
+          </div>
+          <div class="printer-stage" id="printerStage">
+            <div class="pr-visual" id="prVisual">
+              <div class="pr-sheet is-commercial" id="prSheet">
+                <div class="pr-ink-area" id="prInk">
+                  <span class="pr-badge" id="prBadge">先印在 SRA4 大纸（+3mm 出血），再裁切出真满幅 A4</span>
+                </div>
+              </div>
+            </div>
+            <div class="pr-explain">
+              <strong id="prHeading">商业胶印 / 数码快印：成本稍高，四边零白边</strong>
+              <p id="prCopy">印厂会用比成品更大的纸（例如用 SRA4 印 A4），让油墨印满出血位，再用重型裁纸刀把四条边一并切齐——因此需要多算纸张损耗与裁切工费，但成品四边绝对饱满。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 07 小练习：哪版能安全送印 ==================== -->
+    <section class="sec sec-ivory" id="sec-07">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div class="sec-titles">
+            <h2>小练习：哪版能安全送印</h2>
+            <span class="sec-en">PREPRESS SINGLE-VARIABLE CHECK</span>
+          </div>
+        </div>
+
+        <div class="quiz-intro">
+          <p><strong>题目：</strong>要商业印刷一批 A5 展览宣传卡（成品 148×210 mm），采用四边满幅构图并叠印主标题，印厂裁刀机械误差约 ±1 mm。下面四份印前稿中（樱粉虚线为 +3 mm 出血位，深蓝十字为成品裁切角标，内虚框为 5 mm 文字安全区），<strong>哪一份送印最稳妥？</strong></p>
+        </div>
+
+        <div class="quiz-grid" role="radiogroup" aria-label="选择最稳妥的印前稿方案">
+          <!-- 方案 A：单变量错 —— 0mm 零出血（文字安全，四边到达但未进出血区） -->
+          <button type="button" class="quiz-card" data-opt="A">
+            <div class="quiz-card-top">
+              <span class="quiz-letter">方案 A</span>
+              <span class="quiz-meta">A5 印前稿 · 148 × 210 mm</span>
+            </div>
+            <svg class="quiz-svg" viewBox="0 0 220 260" aria-hidden="true">
+              <rect x="8" y="8" width="204" height="244" fill="#FFFDF8" stroke="#D5C8B5"/>
+              <!-- 粉色出血框 (24,24,172,212) -->
+              <rect x="24" y="24" width="172" height="212" fill="none" stroke="#E87A9E" stroke-width="1.6" stroke-dasharray="5 4"/>
+              <!-- 画面只到裁切框 (36,36,148,188) = 0mm 出血 -->
+              <rect x="36" y="36" width="148" height="188" fill="#0A512E"/>
+              <clipPath id="qA"><rect x="36" y="36" width="148" height="188"/></clipPath>
+              <g clip-path="url(#qA)">
+                <circle cx="52" cy="64" r="96" fill="#E34C0B"/>
+                <path d="M132 224 L132 106 A38 38 0 0 1 204 106 L204 224 Z" fill="#FD8FAF"/>
+                <polygon points="82,224 184,162 184,224" fill="#092058"/>
+              </g>
+              <!-- 裁切框与角标 -->
+              <rect x="36" y="36" width="148" height="188" fill="none" stroke="#092058" stroke-width="1.3"/>
+              <path d="M36 18v12M18 36h12 M184 18v12M190 36h12 M36 230v12M18 224h12 M184 230v12M190 224h12" stroke="#092058" stroke-width="1.6"/>
+              <!-- 安全区 + 文字 -->
+              <rect x="48" y="48" width="124" height="164" fill="none" stroke="#FEF8F1" stroke-width="1" stroke-dasharray="3 3"/>
+              <rect x="52" y="52" width="76" height="24" fill="#101412"/>
+              <text x="58" y="68" fill="#FEF8F1" font-size="11" font-weight="700">春季版式展</text>
+            </svg>
+          </button>
+
+          <!-- 方案 B：单变量错 —— 上左右 +3mm 出血，底边留 10mm 白条 -->
+          <button type="button" class="quiz-card" data-opt="B">
+            <div class="quiz-card-top">
+              <span class="quiz-letter">方案 B</span>
+              <span class="quiz-meta">A5 印前稿 · 148 × 210 mm</span>
+            </div>
+            <svg class="quiz-svg" viewBox="0 0 220 260" aria-hidden="true">
+              <rect x="8" y="8" width="204" height="244" fill="#FFFDF8" stroke="#D5C8B5"/>
+              <!-- 画面上左右到 24，底边退缩到 204（留白） -->
+              <rect x="24" y="24" width="172" height="180" fill="#0A512E"/>
+              <clipPath id="qB"><rect x="24" y="24" width="172" height="180"/></clipPath>
+              <g clip-path="url(#qB)">
+                <circle cx="52" cy="64" r="96" fill="#E34C0B"/>
+                <path d="M132 224 L132 106 A38 38 0 0 1 204 106 L204 224 Z" fill="#FD8FAF"/>
+                <polygon points="82,204 196,154 196,204" fill="#092058"/>
+              </g>
+              <rect x="24" y="24" width="172" height="212" fill="none" stroke="#E87A9E" stroke-width="1.6" stroke-dasharray="5 4"/>
+              <rect x="36" y="36" width="148" height="188" fill="none" stroke="#092058" stroke-width="1.3"/>
+              <path d="M36 18v12M18 36h12 M184 18v12M190 36h12 M36 230v12M18 224h12 M184 230v12M190 224h12" stroke="#092058" stroke-width="1.6"/>
+              <rect x="48" y="48" width="124" height="164" fill="none" stroke="#FEF8F1" stroke-width="1" stroke-dasharray="3 3"/>
+              <rect x="52" y="52" width="76" height="24" fill="#101412"/>
+              <text x="58" y="68" fill="#FEF8F1" font-size="11" font-weight="700">春季版式展</text>
+            </svg>
+          </button>
+
+          <!-- 方案 C：正确解 —— 四边均延出 +3mm 至粉色出血虚线，文字退守 8mm 安全区 -->
+          <button type="button" class="quiz-card" data-opt="C">
+            <div class="quiz-card-top">
+              <span class="quiz-letter">方案 C</span>
+              <span class="quiz-meta">A5 印前稿 · 148 × 210 mm</span>
+            </div>
+            <svg class="quiz-svg" viewBox="0 0 220 260" aria-hidden="true">
+              <rect x="8" y="8" width="204" height="244" fill="#FFFDF8" stroke="#D5C8B5"/>
+              <!-- 画面四边铺满至粉色出血线 (24,24,172,212) -->
+              <rect x="24" y="24" width="172" height="212" fill="#0A512E"/>
+              <clipPath id="qC"><rect x="24" y="24" width="172" height="212"/></clipPath>
+              <g clip-path="url(#qC)">
+                <circle cx="52" cy="64" r="96" fill="#E34C0B"/>
+                <path d="M132 236 L132 106 A38 38 0 0 1 204 106 L204 236 Z" fill="#FD8FAF"/>
+                <polygon points="82,236 196,162 196,236" fill="#092058"/>
+              </g>
+              <rect x="24" y="24" width="172" height="212" fill="none" stroke="#E87A9E" stroke-width="1.6" stroke-dasharray="5 4"/>
+              <rect x="36" y="36" width="148" height="188" fill="none" stroke="#092058" stroke-width="1.3"/>
+              <path d="M36 18v12M18 36h12 M184 18v12M190 36h12 M36 230v12M18 224h12 M184 230v12M190 224h12" stroke="#092058" stroke-width="1.6"/>
+              <rect x="48" y="48" width="124" height="164" fill="none" stroke="#FEF8F1" stroke-width="1" stroke-dasharray="3 3"/>
+              <rect x="52" y="52" width="76" height="24" fill="#101412"/>
+              <text x="58" y="68" fill="#FEF8F1" font-size="11" font-weight="700">春季版式展</text>
+            </svg>
+          </button>
+
+          <!-- 方案 D：单变量错 —— 四边 +3mm 出血正确，但文字紧贴裁切线 1.5mm -->
+          <button type="button" class="quiz-card" data-opt="D">
+            <div class="quiz-card-top">
+              <span class="quiz-letter">方案 D</span>
+              <span class="quiz-meta">A5 印前稿 · 148 × 210 mm</span>
+            </div>
+            <svg class="quiz-svg" viewBox="0 0 220 260" aria-hidden="true">
+              <rect x="8" y="8" width="204" height="244" fill="#FFFDF8" stroke="#D5C8B5"/>
+              <rect x="24" y="24" width="172" height="212" fill="#0A512E"/>
+              <clipPath id="qD"><rect x="24" y="24" width="172" height="212"/></clipPath>
+              <g clip-path="url(#qD)">
+                <circle cx="52" cy="64" r="96" fill="#E34C0B"/>
+                <path d="M132 236 L132 106 A38 38 0 0 1 204 106 L204 236 Z" fill="#FD8FAF"/>
+                <polygon points="82,236 196,162 196,236" fill="#092058"/>
+              </g>
+              <rect x="24" y="24" width="172" height="212" fill="none" stroke="#E87A9E" stroke-width="1.6" stroke-dasharray="5 4"/>
+              <rect x="36" y="36" width="148" height="188" fill="none" stroke="#092058" stroke-width="1.3"/>
+              <path d="M36 18v12M18 36h12 M184 18v12M190 36h12 M36 230v12M18 224h12 M184 230v12M190 224h12" stroke="#092058" stroke-width="1.6"/>
+              <rect x="48" y="48" width="124" height="164" fill="none" stroke="#FEF8F1" stroke-width="1" stroke-dasharray="3 3"/>
+              <!-- 文字紧贴裁切线 (37.5, 37.5) -->
+              <rect x="37" y="37" width="76" height="24" fill="#101412"/>
+              <text x="43" y="53" fill="#FEF8F1" font-size="11" font-weight="700">春季版式展</text>
+            </svg>
+          </button>
+        </div>
+
+        <div class="quiz-feedback" id="quizFeedback" aria-live="polite">
+          点选上方四个方案中的一项，查看印前诊断解析。
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 08 原海报与关键词 ==================== -->
+    <section class="sec sec-sand" id="sec-08">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">08</span>
+          <div class="sec-titles">
+            <h2>原海报与关键词</h2>
+            <span class="sec-en">ORIGINAL POSTER &amp; SERIES CROSS-LINKS</span>
+          </div>
+        </div>
+
+        <div class="poster-grid">
+          <div class="poster-col">
+            <button type="button" class="poster-trigger" id="posterOpenBtn" aria-label="点击放大查看 124 满幅构图原海报">
+              <img id="poster" src="poster.webp" alt="124 满幅构图原海报：暖象牙底，展示带粉色出血虚线与十字裁切角标的满幅几何构成对比普通留白版面" draggable="false">
+              <span class="poster-zoom-hint">点击放大查看原海报（支持滚轮缩放、拖拽、Esc 退出）</span>
+            </button>
+          </div>
+
+          <div class="poster-meta-col">
+            <div class="kw-block">
+              <h3>原海报四关键词</h3>
+              <div class="kw-grid">
+                <div class="kw-item">
+                  <strong>铺满</strong>
+                  <span>FILL</span>
+                  <p>底色与主体直达版面四边，拆除画框束缚。</p>
+                </div>
+                <div class="kw-item">
+                  <strong>出血</strong>
+                  <span>BLEED</span>
+                  <p>印前外延 3 mm / 0.125 in，兜住裁刀误差不露白。</p>
+                </div>
+                <div class="kw-item">
+                  <strong>冲击</strong>
+                  <span>IMPACT</span>
+                  <p>同幅面下显著放大有效视域面积与色彩体量。</p>
+                </div>
+                <div class="kw-item">
+                  <strong>沉浸</strong>
+                  <span>IMMERSION</span>
+                  <p>页面边界隐去，观者从旁观者走进画面现场。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="siblings-block">
+              <h3>同一小类：格式塔与组群（115–126）</h3>
+              <p class="siblings-lead">同一小类里每一种构图原则都有独立互动页，按需跳转：</p>
+              <nav class="sibling-links" aria-label="同一小类其他编号">
+                <a href="https://layout.xiaoxiaodong.ai/115/play/">115 相似性原则</a>
+                <a href="https://layout.xiaoxiaodong.ai/116/play/">116 邻近性原则</a>
+                <a href="https://layout.xiaoxiaodong.ai/117/play/">117 连续性原则</a>
+                <a href="https://layout.xiaoxiaodong.ai/118/play/">118 闭合性原则</a>
+                <a href="https://layout.xiaoxiaodong.ai/119/play/">119 图底关系原则</a>
+                <a href="https://layout.xiaoxiaodong.ai/120/play/">120 共同区域原则</a>
+                <a href="https://layout.xiaoxiaodong.ai/121/play/">121 共同命运原则</a>
+                <a href="https://layout.xiaoxiaodong.ai/122/play/">122 简化构图原则</a>
+                <a href="https://layout.xiaoxiaodong.ai/123/play/">123 裁切构图</a>
+                <a href="https://layout.xiaoxiaodong.ai/125/play/">125 疏密对比原则</a>
+                <a href="https://layout.xiaoxiaodong.ai/126/play/">126 群组构图</a>
+              </nav>
+            </div>
+
+            <div class="checklist-block">
+              <h3>送印与上线前四步速查</h3>
+              <ol class="check-steps">
+                <li><strong>看四边延伸</strong>：底图与色块是否全部冲出成品线，印刷品外延 3 mm（大型展板 5–10 mm），杜绝 0 mm 漏白。</li>
+                <li><strong>看文字安全</strong>：主标、页码、徽标是否退守裁切线内 ≥ 5 mm，移动端是否加上 <code>env(safe-area-inset-*)</code>。</li>
+                <li><strong>看跨页中缝</strong>：画册跨页的人像重点与字头是否刻意避开装订脊 6–10 mm 弯折吃图区。</li>
+                <li><strong>看输出条件</strong>：办公打印机无法无边直出；连续多页之间穿插普通留白页，才能保住满幅的张力反差。</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 规范单行页脚 -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span><a href="https://layout.xiaoxiaodong.ai/124/play/">在线版</a> / 全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/">layout.xiaoxiaodong.ai</a></span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>海报 CC BY 4.0</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span><a href="https://github.com/xxd-ai/350-layout-redesign">源文件 GitHub</a></span>
+    </div>
+  </footer>
+
+  <!-- 原海报放大灯箱（支持缩放、拖动、Esc 关闭） -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="124 满幅构图原海报大图预览">
+    <div class="lb-toolbar">
+      <span class="lb-title">NO.124 满幅构图 · 原海报</span>
+      <div class="lb-actions">
+        <button type="button" class="lb-btn" id="lbZoomOut">－ 缩小</button>
+        <button type="button" class="lb-btn" id="lbZoomReset">100%</button>
+        <button type="button" class="lb-btn" id="lbZoomIn">＋ 放大</button>
+        <button type="button" class="lb-btn lb-close" id="lbClose">关闭 (Esc)</button>
+      </div>
+    </div>
+    <div class="lb-stage" id="lbStage">
+      <img id="lbImg" alt="124 满幅构图原海报放大图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
