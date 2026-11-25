@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#11754F">
+<title>自适应 网格原语 · ADAPTIVE GRID PRIMITIVE</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <!-- 开场：1:1 忠实转译 250 原海报「满幅深翠松绿虚线格缝 × 暖米锐角纸片 Bento 矩阵」 -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="hero-shell">
+      <div class="hero-top-meta">
+        <span class="meta-series">网页与 UI / 布局原语 · <span lang="en" class="mono">NO. 250</span></span>
+        <span class="meta-status" id="top-badge" aria-live="polite">0/4 · 写死挤碎</span>
+      </div>
+
+      <!-- Row 1：左 72% 暖米刊头块 × 右 28%「核心思想 CORE IDEA」块 -->
+      <div class="bento-row-1">
+        <header class="tile tile-mast">
+          <div class="mast-head">
+            <div class="mast-title-wrap">
+              <h1 id="page-title" class="mast-h1">自适应<br>网格原语</h1>
+              <div class="mast-live-mark" id="mast-mark" aria-hidden="true"></div>
+            </div>
+            <p class="mast-en" lang="en">ADAPTIVE GRID PRIMITIVE</p>
+          </div>
+          <div class="mast-side">
+            <p class="mast-lead">结构随内容伸缩，对齐始终如一。只定最小列宽与统一间隙，让容器自己决定放几列。</p>
+            <div class="theme-group" role="group" aria-label="切换题材">
+              <button type="button" class="pill-btn is-active" data-theme="poster" aria-pressed="true">原海报几何</button>
+              <button type="button" class="pill-btn" data-theme="catalog" aria-pressed="false">器物图录</button>
+              <button type="button" class="pill-btn" data-theme="notes" aria-pressed="false">版式卡片</button>
+            </div>
+          </div>
+        </header>
+
+        <aside class="tile tile-core" aria-label="核心思想">
+          <div class="tile-cap">
+            <span class="cap-zh">核心思想</span>
+            <span class="cap-en" lang="en">CORE IDEA</span>
+          </div>
+          <div class="core-body">
+            <div class="core-copy">
+              <p class="core-motto">结构随内容伸缩<br>对齐始终如一</p>
+              <p class="core-formula mono" id="core-formula">420px → 4 列 × 105px</p>
+            </div>
+            <!-- 1:1 复刻原海报右上 2×2 虚线网格蓝方+橘圆徽 -->
+            <svg viewBox="0 0 88 88" class="core-glyph" aria-hidden="true">
+              <rect x="6" y="6" width="66" height="66" fill="none" stroke="#171A18" stroke-width="1" stroke-dasharray="4 3"/>
+              <line x1="39" y1="6" x2="39" y2="72" stroke="#171A18" stroke-width="1" stroke-dasharray="4 3"/>
+              <line x1="6" y1="39" x2="72" y2="39" stroke="#171A18" stroke-width="1" stroke-dasharray="4 3"/>
+              <rect id="core-blue" x="6" y="39" width="33" height="33" fill="#1551C1"/>
+              <circle id="core-orange" cx="68" cy="39" r="14" fill="#E64D16"/>
+            </svg>
+          </div>
+          <p class="core-sub" lang="en">STRUCTURE ADAPTS · ALIGNMENT REMAINS</p>
+        </aside>
+      </div>
+
+      <!-- Row 2：左 70%「自适应网格示意」活体拉阔舞台 × 右 30% 通高「响应变化三端缩略 + 单真源诊单」 -->
+      <div class="bento-row-2">
+        <div class="tile tile-stage">
+          <div class="stage-bar">
+            <div class="stage-cap">
+              <span class="cap-zh">自适应网格示意</span>
+              <span class="cap-en" lang="en">ADAPTIVE GRID DEMO</span>
+            </div>
+            <div class="stage-tools">
+              <button type="button" class="mini-toggle is-active" id="btn-baseline" aria-pressed="true">基线透视：开</button>
+              <span class="stage-dim mono" id="stage-dim">视口 420px · 4 列</span>
+            </div>
+          </div>
+
+          <div class="canvas-frame">
+            <canvas
+              id="grid-canvas"
+              class="grid-canvas"
+              data-perf-drag
+              tabindex="0"
+              role="application"
+              aria-label="自适应网格活体画布：左右横拖改变容器宽度，点击模块增减内容长度，方向键微调宽度"
+            ></canvas>
+          </div>
+
+          <!-- 精控装调槽（原生控件：单选、滑杆、预设与试错快钮） -->
+          <div class="controls-dock" aria-label="网格原语参数">
+            <div class="ctrl-row">
+              <span class="ctrl-label">列轨算法</span>
+              <div class="ctrl-seg" role="group" aria-label="列轨算法">
+                <button type="button" class="seg-btn" data-mode="fixed4" aria-pressed="true">写死 4 列</button>
+                <button type="button" class="seg-btn" data-mode="bare-minmax" aria-pressed="false">裸 minmax</button>
+                <button type="button" class="seg-btn" data-mode="auto-fit" aria-pressed="false">auto-fit + 护栏</button>
+                <button type="button" class="seg-btn" data-mode="auto-fill" aria-pressed="false">auto-fill + 护栏</button>
+              </div>
+            </div>
+
+            <div class="ctrl-sliders">
+              <label class="slider-item" for="ctl-min">
+                <span class="slider-head"><span>最小列宽 <span class="mono">--min</span></span><b class="mono" id="val-min">210px</b></span>
+                <input type="range" id="ctl-min" min="110" max="360" step="2" value="210">
+              </label>
+              <label class="slider-item" for="ctl-gap">
+                <span class="slider-head"><span>统一间隙 <span class="mono">gap</span></span><b class="mono" id="val-gap">0px</b></span>
+                <input type="range" id="ctl-gap" min="0" max="44" step="2" value="0">
+              </label>
+              <label class="slider-item" for="ctl-count">
+                <span class="slider-head"><span>模块总数</span><b class="mono" id="val-count">7 块</b></span>
+                <input type="range" id="ctl-count" min="2" max="7" step="1" value="7">
+              </label>
+            </div>
+
+            <div class="ctrl-row ctrl-row-dual">
+              <div class="ctrl-sub">
+                <span class="ctrl-label">模块高度</span>
+                <div class="ctrl-seg" role="group" aria-label="模块高度策略">
+                  <button type="button" class="seg-btn" data-height="fixed" aria-pressed="true">写死 86px</button>
+                  <button type="button" class="seg-btn" data-height="auto" aria-pressed="false">内容等高</button>
+                  <button type="button" class="seg-btn" data-height="baseline" aria-pressed="false">基线对齐</button>
+                </div>
+              </div>
+              <div class="ctrl-sub">
+                <span class="ctrl-label">对齐基准</span>
+                <div class="ctrl-seg" role="group" aria-label="对齐基准">
+                  <button type="button" class="seg-btn" data-align="rogue" aria-pressed="true">各写乱边距</button>
+                  <button type="button" class="seg-btn" data-align="unified" aria-pressed="false">容器统一齐轨</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="preset-bar" role="group" aria-label="多组合法解与试错预设">
+              <button type="button" class="preset-btn is-good" data-preset="classic">原海报弹性解</button>
+              <button type="button" class="preset-btn is-good" data-preset="autofill">目录等宽解</button>
+              <button type="button" class="preset-btn is-good" data-preset="baselineCompact">基线紧凑解</button>
+              <button type="button" class="preset-btn is-good" data-preset="airyDisplay">宽舒展示解</button>
+              <button type="button" class="preset-btn is-bad" data-preset="errOverflow">试错：缺护栏爆框</button>
+              <button type="button" class="preset-btn is-bad" data-preset="errWideGap">试错：巨缝挤爆</button>
+              <button type="button" class="preset-btn is-bad" data-preset="errTwoCards">试错：2卡拉扁</button>
+              <button type="button" class="preset-btn is-reset" data-preset="resetBad">复原 0/4 坏网格</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧通高暖米块：单真源白话诊单 + 桌面/平板/手机三端同步缩略 + 活体 CSS -->
+        <aside class="tile tile-side">
+          <div class="diag-box" id="diag-box" aria-live="polite">
+            <div class="diag-head">
+              <span class="diag-badge" id="diag-badge">0/4 · 写死挤碎</span>
+              <span class="diag-src">CSS Grid 单真源实算</span>
+            </div>
+            <h2 class="diag-title" id="diag-title">写死 4 列轨道，360px 手机端每列被压成 90px 纸条</h2>
+            <p class="diag-body" id="diag-body">用 repeat(4, 1fr) 硬锁列数时，电脑宽屏看着勉强齐整，一旦缩进平板侧栏或手机屏幕，四个模块就被挤得连一句完整标题都折成四五截。</p>
+            <div class="diag-tip" id="diag-tip">
+              <p id="diag-action">把列轨引擎改用「auto-fit」或「auto-fill」，再左右横拖画布看列数自动折算。</p>
+              <button type="button" class="fix-btn" id="diag-fix">改用 auto-fit 自适应</button>
+            </div>
+            <dl class="metrics-grid">
+              <div><dt>当前列宽</dt><dd class="mono" id="m-track">90px (4列)</dd></div>
+              <div><dt>三端最窄/溢</dt><dd class="mono" id="m-worst">90px</dd></div>
+              <div><dt>内容裁切</dt><dd class="mono" id="m-clip">-46px</dd></div>
+              <div><dt>基线错齿</dt><dd class="mono" id="m-drift">23px</dd></div>
+            </dl>
+          </div>
+
+          <!-- 1:1 复刻原海报右侧「响应变化 FLEX」桌面 / 平板 / 手机实时同步缩略预览 -->
+          <div class="flex-triad" aria-label="三端同步实算缩略图">
+            <div class="triad-head">
+              <span class="cap-zh">响应变化</span>
+              <span class="cap-en" lang="en">FLEX · 点切测试宽</span>
+            </div>
+            <div class="triad-list" id="triad-list">
+              <button type="button" class="dev-card" data-device="desktop">
+                <div class="dev-top"><span class="dev-name">桌面 <span lang="en">DESKTOP</span></span><span class="dev-stat mono" id="dev-stat-desktop">4列</span></div>
+                <div class="dev-mini" id="dev-mini-desktop" aria-hidden="true"></div>
+              </button>
+              <button type="button" class="dev-card" data-device="tablet">
+                <div class="dev-top"><span class="dev-name">平板 <span lang="en">TABLET</span></span><span class="dev-stat mono" id="dev-stat-tablet">4列</span></div>
+                <div class="dev-mini" id="dev-mini-tablet" aria-hidden="true"></div>
+              </button>
+              <button type="button" class="dev-card is-current" data-device="mobile">
+                <div class="dev-top"><span class="dev-name">手机 <span lang="en">MOBILE</span></span><span class="dev-stat mono" id="dev-stat-mobile">4列</span></div>
+                <div class="dev-mini" id="dev-mini-mobile" aria-hidden="true"></div>
+              </button>
+            </div>
+          </div>
+
+          <div class="css-box">
+            <div class="css-head">
+              <span>实时生成 CSS</span>
+              <span class="mono" lang="en">LIVE PRIMITIVE</span>
+            </div>
+            <pre class="css-code mono" id="live-css"></pre>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Row 3：四等分原海报支柱实况带（灵活伸缩 | 统一对齐 | 节奏与间距 | 内容驱动） -->
+      <ul class="bento-row-3" id="pillars-row" aria-label="原海报四大支柱实时状态">
+        <li class="tile pillar-card" data-pillar="flexible">
+          <div class="pillar-top">
+            <div><b class="p-zh">灵活伸缩</b><span class="p-en" lang="en">FLEXIBLE</span></div>
+            <span class="p-state mono" id="p-state-flexible">写死 4 列</span>
+          </div>
+          <svg viewBox="0 0 120 34" class="pillar-svg" aria-hidden="true">
+            <rect x="2" y="5" width="26" height="24" fill="none" stroke="#171A18" stroke-dasharray="3 2"/>
+            <rect x="34" y="5" width="22" height="24" fill="none" stroke="#171A18"/>
+            <path d="M64 17 H78 M73 12 L78 17 L73 22" fill="none" stroke="#171A18" stroke-width="1.3"/>
+            <rect x="86" y="5" width="26" height="24" fill="none" stroke="#171A18"/>
+          </svg>
+          <p class="p-quote">模块按需扩展或收缩，不破坏整体秩序</p>
+        </li>
+        <li class="tile pillar-card" data-pillar="consistent">
+          <div class="pillar-top">
+            <div><b class="p-zh">统一对齐</b><span class="p-en" lang="en">CONSISTENT</span></div>
+            <span class="p-state mono" id="p-state-consistent">错齿 23px</span>
+          </div>
+          <svg viewBox="0 0 120 34" class="pillar-svg" aria-hidden="true">
+            <line x1="2" y1="8" x2="88" y2="8" stroke="#171A18" stroke-width="1.4"/>
+            <line x1="2" y1="17" x2="88" y2="17" stroke="#171A18" stroke-width="1.4"/>
+            <line x1="2" y1="27" x2="116" y2="27" stroke="#1551C1" stroke-width="2.2"/>
+          </svg>
+          <p class="p-quote">所有元素遵循共同对齐规则</p>
+        </li>
+        <li class="tile pillar-card" data-pillar="rhythm">
+          <div class="pillar-top">
+            <div><b class="p-zh">节奏与间距</b><span class="p-en" lang="en">RHYTHM</span></div>
+            <span class="p-state mono" id="p-state-rhythm">0px 粘连</span>
+          </div>
+          <svg viewBox="0 0 120 34" class="pillar-svg" aria-hidden="true">
+            <rect x="2" y="5" width="24" height="24" fill="#1551C1"/>
+            <path d="M31 17 H42 M33 14 L30 17 L33 20 M40 14 L43 17 L40 20" fill="none" stroke="#171A18" stroke-width="1.1"/>
+            <rect x="48" y="5" width="24" height="24" fill="#1551C1"/>
+            <path d="M77 17 H88 M79 14 L76 17 L79 20 M86 14 L89 17 L86 20" fill="none" stroke="#171A18" stroke-width="1.1"/>
+            <rect x="94" y="5" width="24" height="24" fill="#1551C1"/>
+          </svg>
+          <p class="p-quote">通过一致的间距与留白建立视觉节奏</p>
+        </li>
+        <li class="tile pillar-card" data-pillar="content">
+          <div class="pillar-top">
+            <div><b class="p-zh">内容驱动</b><span class="p-en" lang="en">CONTENT-DRIVEN</span></div>
+            <span class="p-state mono" id="p-state-content">裁切 -46px</span>
+          </div>
+          <svg viewBox="0 0 120 34" class="pillar-svg" aria-hidden="true">
+            <rect x="14" y="5" width="28" height="24" fill="none" stroke="#171A18" stroke-dasharray="3 2"/>
+            <line x1="42" y1="17" x2="74" y2="17" stroke="#171A18" stroke-dasharray="3 2"/>
+            <rect x="74" y="5" width="28" height="24" fill="#1551C1"/>
+          </svg>
+          <p class="p-quote">结构服务内容，内容决定形态</p>
+        </li>
+      </ul>
+
+      <!-- Row 4：1:1 复刻原海报底沿深翠压脚条 -->
+      <div class="hero-footbar" aria-hidden="true">
+        <svg viewBox="0 0 26 26" class="foot-glyph">
+          <rect x="1" y="1" width="6" height="6" fill="#FAF8F0"/><rect x="10" y="1" width="6" height="6" fill="#FAF8F0"/><rect x="19" y="1" width="6" height="6" fill="#FAF8F0"/>
+          <rect x="1" y="10" width="6" height="6" fill="#FAF8F0"/><rect x="10" y="10" width="6" height="6" fill="#FAF8F0"/><rect x="19" y="10" width="6" height="6" fill="#FAF8F0"/>
+          <rect x="1" y="19" width="6" height="6" fill="#FAF8F0"/><rect x="10" y="19" width="6" height="6" fill="#FAF8F0"/><rect x="19" y="19" width="6" height="6" fill="#FAF8F0"/>
+        </svg>
+        <div class="foot-mid">
+          <span>模块 · 对齐 · 响应</span>
+          <span class="foot-en" lang="en">MODULE · ALIGN · FLEX</span>
+        </div>
+        <svg viewBox="0 0 26 26" class="foot-glyph">
+          <path d="M2 9V2H9M17 2H24V9M24 17V24H17M9 24H2V17" fill="none" stroke="#FAF8F0" stroke-width="2.4"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 正文 01–07 节：在亮米纸、淡绿雾纸、03 深翠暗室、暖米原纸、暖砂纸与 07 深翠展墙间节奏交替 -->
+  <article class="essay">
+    <!-- 01 节 -->
+    <section class="sec sec-light" id="sec-01" aria-labelledby="h-s1">
+      <div class="wrap">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">01</span>
+          <div>
+            <h2 id="h-s1">少写断点，多立规矩</h2>
+            <p class="sec-en" lang="en">CORE PRINCIPLE · STRUCTURE ADAPTS, ALIGNMENT REMAINS</p>
+          </div>
+        </header>
+
+        <div class="s1-grid">
+          <div class="s1-left">
+            <p class="lead">自适应网格原语只干一件事：把「屏幕该排几列」的繁琐猜测交给浏览器，设计师只定好两条底线——<strong>每列最窄不能低于多宽</strong>、<strong>列与行之间留多大缝</strong>。</p>
+            <p>原海报用三张紧挨着的剖面图讲透了这套机制：纵向给每个元素排间距靠<a href="https://layout.xiaoxiaodong.ai/243/play/" target="_blank" rel="noopener">堆栈</a>，单张卡片的边框与护边靠<a href="https://layout.xiaoxiaodong.ai/244/play/" target="_blank" rel="noopener">盒子</a>，而把几十个同级模块铺成能随容器自由折列的二维矩阵，就是自适应网格原语的本职。点击下方原海报三柱，看每一柱怎么协同发力：</p>
+            <div class="s1-tabs" role="group" aria-label="原海报三柱剖面">
+              <button type="button" class="s1-tab is-active" data-s1-tab="module" aria-pressed="true">
+                <span class="s1-tab-en" lang="en">MODULE</span>
+                <b>模块伸缩</b>
+                <small>2×2 → 4×2 扩展</small>
+              </button>
+              <button type="button" class="s1-tab" data-s1-tab="align" aria-pressed="false">
+                <span class="s1-tab-en" lang="en">ALIGN</span>
+                <b>对齐基线</b>
+                <small>A g 共同落脚线</small>
+              </button>
+              <button type="button" class="s1-tab" data-s1-tab="flex" aria-pressed="false">
+                <span class="s1-tab-en" lang="en">FLEX</span>
+                <b>响应变化</b>
+                <small>桌 / 平 / 手三端</small>
+              </button>
+            </div>
+          </div>
+
+          <div class="s1-right">
+            <div class="s1-card">
+              <div id="s1-diagram" class="s1-diagram"></div>
+              <div class="s1-caption">
+                <p class="s1-code mono" id="s1-code">MODULE · CONTENT GROWS</p>
+                <h3 id="s1-title">模块伸缩：内容长高一寸，整排跟着长高一寸</h3>
+                <blockquote class="poster-quote" id="s1-quote">模块可按内容自动扩展，保持网格节奏。</blockquote>
+                <p id="s1-explain"></p>
+                <p class="s1-formula mono" id="s1-formula"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 节 -->
+    <section class="sec sec-mist" id="sec-02" aria-labelledby="h-s2">
+      <div class="wrap">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">02</span>
+          <div>
+            <h2 id="h-s2">一行 CSS 的四道机关</h2>
+            <p class="sec-en" lang="en">THE ALGORITHM · AUTO-FIT VS AUTO-FILL &amp; MIN(100%)</p>
+          </div>
+        </header>
+
+        <p class="lead">自适应网格原语的骨架浓缩在一条声明里：<code class="inline-code">grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr))</code>。下面用真实 CSS Grid 上下同步渲染，把四个零件拆开试一遍——尤其把卡片数量减到 2 张，或关掉 <code class="inline-code">min(100%, …)</code> 护栏再把容器拉窄，立刻看清每个词为什么缺一不可。</p>
+
+        <div class="s2-panel">
+          <div class="s2-controls">
+            <label class="slider-item" for="s2-width">
+              <span class="slider-head"><span>容器宽度</span><b class="mono" id="s2-width-val">680px</b></span>
+              <input type="range" id="s2-width" min="140" max="860" step="10" value="680">
+            </label>
+            <label class="slider-item" for="s2-min">
+              <span class="slider-head"><span>最小列宽下限</span><b class="mono" id="s2-min-val">170px</b></span>
+              <input type="range" id="s2-min" min="120" max="260" step="10" value="170">
+            </label>
+            <div class="s2-stepper">
+              <span class="slider-head"><span>卡片数量</span><b class="mono" id="s2-count-val">2 张</b></span>
+              <div class="stepper-btns">
+                <button type="button" class="step-btn" id="s2-dec" aria-label="减少一张卡片">− 减卡</button>
+                <button type="button" class="step-btn" id="s2-inc" aria-label="增加一张卡片">+ 加卡</button>
+              </div>
+            </div>
+            <div class="s2-guard-wrap">
+              <span class="slider-head"><span>窄屏安全阀</span></span>
+              <button type="button" class="guard-btn" id="s2-guard" aria-pressed="true">min(100%, …) 护栏：开</button>
+            </div>
+          </div>
+
+          <div class="s2-tracks">
+            <div class="s2-track-block">
+              <div class="s2-track-head">
+                <b class="mono">repeat(auto-fit, …)</b>
+                <span class="mono s2-note" id="s2-fit-note">2 列 · 每卡 334px</span>
+              </div>
+              <div class="s2-stage-clip">
+                <div class="s2-container" id="s2-fit-wrap">
+                  <div class="s2-live-grid" id="s2-fit-grid"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="s2-track-block">
+              <div class="s2-track-head">
+                <b class="mono">repeat(auto-fill, …)</b>
+                <span class="mono s2-note" id="s2-fill-note">3 轨 · 每卡 218px</span>
+              </div>
+              <div class="s2-stage-clip">
+                <div class="s2-container" id="s2-fill-wrap">
+                  <div class="s2-live-grid" id="s2-fill-grid"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="s2-verdict" id="s2-verdict" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 节：深翠松绿暗室 -->
+    <section class="sec sec-dark" id="sec-03" aria-labelledby="h-s3">
+      <div class="wrap">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">03</span>
+          <div>
+            <h2 id="h-s3">对齐基线与等高节奏</h2>
+            <p class="sec-en" lang="en">BASELINE &amp; RHYTHM · ALIGN TO BASELINE, BUILD VISUAL ORDER</p>
+          </div>
+        </header>
+
+        <p class="lead">真实产品里，没有两张卡片的文字长度完全一样。海报把「对齐基线」和「内容驱动」放在同一张纸上，正是为了回答一个难题：<strong>卡片内容参差不齐时，怎么守住整排视觉秩序？</strong> 下面三张真实卡片，点上方按钮故意制造长短落差，再切换四种对齐模式，观察贯穿画面的蓝色基线如何被拉平。</p>
+
+        <div class="s3-toolbar">
+          <div class="s3-group" role="group" aria-label="对齐模式">
+            <button type="button" class="dark-btn is-active" data-s3-mode="loose" aria-pressed="true">各自排版</button>
+            <button type="button" class="dark-btn" data-s3-mode="stretch" aria-pressed="false">网格等高</button>
+            <button type="button" class="dark-btn" data-s3-mode="baseline" aria-pressed="false">基线对齐</button>
+            <button type="button" class="dark-btn" data-s3-mode="subgrid" aria-pressed="false">跨卡子网格</button>
+          </div>
+          <div class="s3-group" role="group" aria-label="制造内容参差">
+            <button type="button" class="dark-chip is-active" data-s3-card="tall0" aria-pressed="true">卡 1 高配图</button>
+            <button type="button" class="dark-chip" data-s3-card="long1" aria-pressed="false">卡 2 长标题</button>
+            <button type="button" class="dark-chip is-active" data-s3-card="badge2" aria-pressed="true">卡 3 加眉标</button>
+          </div>
+        </div>
+
+        <div class="s3-stage-wrap">
+          <div class="s3-cards" id="s3-cards" data-mode="loose">
+            <article class="s3-card">
+              <div class="s3-media is-tall" id="s3-media-0">
+                <span class="s3-media-dot"></span>
+              </div>
+              <h3 class="s3-card-title">高配图焦点卡</h3>
+              <p class="s3-card-desc">图区比例变动时，若不固定图框比例（可参考<a href="https://layout.xiaoxiaodong.ai/251/play/" target="_blank" rel="noopener">比例框</a>），整张卡标题就会跟着上下滑动。</p>
+              <div class="s3-card-meta mono">MODULE 01</div>
+            </article>
+
+            <article class="s3-card">
+              <div class="s3-media s3-media-arc">
+                <span class="s3-arc"></span>
+              </div>
+              <h3 class="s3-card-title" id="s3-title-1">模块标题随内容增长</h3>
+              <p class="s3-card-desc">卡片内部标题多出一行时，同排外框自动拉伸；开启子网格后，连底部标签线都能跨卡对齐。</p>
+              <div class="s3-card-meta mono">MODULE 02</div>
+            </article>
+
+            <article class="s3-card">
+              <div class="s3-media s3-media-badge">
+                <span class="s3-kicker" id="s3-badge-2">EDITION · NEW</span>
+                <span class="s3-tri"></span>
+              </div>
+              <h3 class="s3-card-title">带眉标的短卡</h3>
+              <p class="s3-card-desc">多一行眉标就把标题顶低十几像素，靠对齐规则把视线重新收回到同一条水平线上。</p>
+              <div class="s3-card-meta mono">MODULE 03</div>
+            </article>
+          </div>
+          <svg class="s3-overlay" id="s3-overlay" aria-hidden="true"></svg>
+        </div>
+
+        <div class="s3-footer" aria-live="polite">
+          <span class="s3-drift mono" id="s3-drift">标题基线差 0px</span>
+          <p id="s3-readout"></p>
+          <p class="s3-cross">需要把跨卡内部行轨深度锁在一起时，详见<a href="https://layout.xiaoxiaodong.ai/206/play/" target="_blank" rel="noopener">206 子网格</a>。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 节：从哪来 -->
+    <section class="sec sec-cream" id="sec-04" aria-labelledby="h-s4">
+      <div class="wrap">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">04</span>
+          <div>
+            <h2 id="h-s4">从印刷格到内在网格</h2>
+            <p class="sec-en" lang="en">WHERE IT CAME FROM · 1981 – 2019</p>
+          </div>
+        </header>
+
+        <p class="lead">自适应网格原语不是凭空冒出的技巧，它把近四十年的两条线索拧成了一股：一条是瑞士平面设计的模数与基线秩序，另一条是浏览器从「手写断点」走向「自主算轨」的演进。</p>
+
+        <div class="s4-timeline" role="group" aria-label="历史演进时间轴">
+          <button type="button" class="era-btn" data-s4-era="1981" aria-pressed="false">
+            <span class="mono">1981</span><b>瑞士印刷模数</b>
+          </button>
+          <button type="button" class="era-btn" data-s4-era="2010" aria-pressed="false">
+            <span class="mono">2010</span><b>响应式与断点</b>
+          </button>
+          <button type="button" class="era-btn" data-s4-era="2017" aria-pressed="false">
+            <span class="mono">2016–18</span><b>原生 CSS Grid</b>
+          </button>
+          <button type="button" class="era-btn is-active" data-s4-era="2019" aria-pressed="true">
+            <span class="mono">2019</span><b>布局原语定型</b>
+          </button>
+        </div>
+
+        <div class="s4-detail" aria-live="polite">
+          <div class="s4-visual">
+            <div class="s4-diagram" id="s4-diagram"></div>
+            <pre class="s4-code mono" id="s4-code"></pre>
+          </div>
+          <div class="s4-copy">
+            <p class="s4-year mono" id="s4-year">2019</p>
+            <h3 id="s4-person"></h3>
+            <p class="s4-work" id="s4-work"></p>
+            <p id="s4-desc"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 节：什么时候别用它 -->
+    <section class="sec sec-sand" id="sec-05" aria-labelledby="h-s5">
+      <div class="wrap">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">05</span>
+          <div>
+            <h2 id="h-s5">什么时候别用它</h2>
+            <p class="sec-en" lang="en">WHEN NOT TO USE IT · KNOW THE BOUNDARY</p>
+          </div>
+        </header>
+
+        <div class="correction-note">
+          <span class="corr-tag">说多了一点</span>
+          <p>海报写着「内容决定形态」，容易让人误以为自适应网格原语能让每张卡片各自按内容决定不同宽度。其实它只让<strong>列数随容器宽变化、行高随内容伸展</strong>，而同一排里的列宽依然共享同一把等宽轨道尺。遇到下面四种情况，硬套自适应等宽网格反而会把版面搞僵——点击场景切看对比：</p>
+        </div>
+
+        <div class="s5-wrap">
+          <div class="s5-tabs" role="group" aria-label="四种不适用场景">
+            <button type="button" class="s5-tab is-active" data-s5-case="sidebar" aria-pressed="true">01 固定主次双栏</button>
+            <button type="button" class="s5-tab" data-s5-case="orphan" aria-pressed="false">02 三四项要点怕落单</button>
+            <button type="button" class="s5-tab" data-s5-case="chips" aria-pressed="false">03 长短悬殊标签组</button>
+            <button type="button" class="s5-tab" data-s5-case="reel" aria-pressed="false">04 多图画廊控纵长</button>
+          </div>
+
+          <div class="s5-stage" aria-live="polite">
+            <div class="s5-visual" id="s5-visual"></div>
+            <div class="s5-info">
+              <span class="s5-badge is-bad" id="s5-badge">硬套自适应网格</span>
+              <h3 id="s5-title"></h3>
+              <p id="s5-text"></p>
+              <div class="s5-actions">
+                <button type="button" class="s5-toggle" id="s5-toggle" aria-pressed="false">一键换对原语</button>
+                <a class="s5-link" id="s5-link" href="https://layout.xiaoxiaodong.ai/247/play/" target="_blank" rel="noopener">延伸阅读 →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="sibling-note">同属「布局原语」家族的其他成员各司其职：单栏阅读控行长用<a href="https://layout.xiaoxiaodong.ai/245/play/" target="_blank" rel="noopener">居中器</a>，整屏聚焦开篇用<a href="https://layout.xiaoxiaodong.ai/249/play/" target="_blank" rel="noopener">封面原语</a>，弹窗遮罩交给<a href="https://layout.xiaoxiaodong.ai/253/play/" target="_blank" rel="noopener">悬浮层</a>，按钮图标与文字基线咬合看<a href="https://layout.xiaoxiaodong.ai/254/play/" target="_blank" rel="noopener">图标文字组合</a>；需要跨页绝对统一标尺则回到<a href="https://layout.xiaoxiaodong.ai/207/play/" target="_blank" rel="noopener">固定网格</a>。</p>
+      </div>
+    </section>
+
+    <!-- 06 节：小练习 -->
+    <section class="sec sec-light" id="sec-06" aria-labelledby="h-s6">
+      <div class="wrap">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">06</span>
+          <div>
+            <h2 id="h-s6">挑一套扛得住缩屏的网格</h2>
+            <p class="sec-en" lang="en">QUICK CHECK · SPOT THE ROBUST GRID</p>
+          </div>
+        </header>
+
+        <p class="lead"><strong>题目：</strong>把 6 张产品简介卡塞进一块 <strong>580px</strong> 宽的平板侧栏里，单张卡片至少需要 170px 宽才易读，且第 2 张卡标题比其余卡片多出两行。下面四套排布只各自改变了一个条件，哪一套既守住秩序又扛得住继续缩窄？</p>
+
+        <div class="quiz-grid" role="group" aria-label="四套网格方案">
+          <!-- A：写死 4 列，580px 下单列压到 133px -->
+          <button type="button" class="quiz-card" data-quiz-opt="A" aria-pressed="false">
+            <svg viewBox="0 0 260 156" class="quiz-svg" aria-hidden="true">
+              <rect width="260" height="156" fill="#11754F"/>
+              <!-- 4 窄列 -->
+              <g fill="#EEE8D6" stroke="#171A18" stroke-width="0.9">
+                <rect x="8" y="10" width="54" height="72"/><rect x="70" y="10" width="54" height="72"/>
+                <rect x="132" y="10" width="54" height="72"/><rect x="194" y="10" width="54" height="72"/>
+                <rect x="8" y="92" width="54" height="52"/><rect x="70" y="92" width="54" height="52"/>
+              </g>
+              <g fill="#1551C1"><rect x="13" y="15" width="44" height="16"/><rect x="75" y="15" width="44" height="16"/><rect x="137" y="15" width="44" height="16"/><rect x="199" y="15" width="44" height="16"/></g>
+              <g fill="#171A18">
+                <rect x="13" y="38" width="38" height="3"/><rect x="13" y="45" width="32" height="3"/>
+                <rect x="75" y="38" width="42" height="3"/><rect x="75" y="44" width="40" height="3"/><rect x="75" y="50" width="42" height="3"/><rect x="75" y="56" width="36" height="3"/><rect x="75" y="62" width="38" height="3"/><rect x="75" y="68" width="28" height="3"/>
+                <rect x="137" y="38" width="36" height="3"/><rect x="137" y="45" width="30" height="3"/>
+                <rect x="199" y="38" width="38" height="3"/><rect x="199" y="45" width="28" height="3"/>
+              </g>
+              <g class="quiz-reveal">
+                <rect x="8" y="10" width="54" height="72" fill="none" stroke="#FF8A80" stroke-width="2"/>
+                <rect x="10" y="114" width="120" height="22" fill="#A81B12"/>
+                <text x="70" y="128" text-anchor="middle" fill="#FFF" font-family="'DM Mono', monospace" font-size="10">单列仅 133px 过窄</text>
+              </g>
+            </svg>
+            <span class="quiz-lbl"><b>A</b><span class="mono">repeat(4, 1fr)</span></span>
+          </button>
+
+          <!-- B：正解 —— auto-fit + min(100%, 210px) + gap 16px + 内容等高 -->
+          <button type="button" class="quiz-card" data-quiz-opt="B" aria-pressed="false">
+            <svg viewBox="0 0 260 156" class="quiz-svg" aria-hidden="true">
+              <rect width="260" height="156" fill="#11754F"/>
+              <g fill="#EEE8D6" stroke="#171A18" stroke-width="0.9">
+                <rect x="10" y="10" width="114" height="68"/><rect x="136" y="10" width="114" height="68"/>
+                <rect x="10" y="88" width="114" height="58"/><rect x="136" y="88" width="114" height="58"/>
+              </g>
+              <rect x="18" y="18" width="98" height="18" fill="#1551C1"/>
+              <rect x="144" y="18" width="98" height="18" fill="#E64D16"/>
+              <rect x="18" y="96" width="98" height="16" fill="#1551C1"/>
+              <rect x="144" y="96" width="98" height="16" fill="#1551C1"/>
+              <g fill="#171A18">
+                <rect x="18" y="44" width="76" height="4"/><rect x="18" y="53" width="60" height="3"/>
+                <rect x="144" y="44" width="94" height="4"/><rect x="144" y="52" width="90" height="4"/><rect x="144" y="60" width="84" height="3"/><rect x="144" y="67" width="58" height="3"/>
+                <rect x="18" y="120" width="74" height="4"/><rect x="144" y="120" width="78" height="4"/>
+              </g>
+              <g class="quiz-reveal">
+                <line x1="10" y1="48" x2="250" y2="48" stroke="#1551C1" stroke-width="1.6"/>
+                <rect x="70" y="118" width="120" height="22" fill="#0C5E3E"/>
+                <text x="130" y="132" text-anchor="middle" fill="#FFF" font-family="'DM Mono', monospace" font-size="10">2 列 × 282px · 齐平</text>
+              </g>
+            </svg>
+            <span class="quiz-lbl"><b>B</b><span class="mono">auto-fit · min 210</span></span>
+          </button>
+
+          <!-- C：auto-fit 但写死固定高，第 2 张卡被裁切 -->
+          <button type="button" class="quiz-card" data-quiz-opt="C" aria-pressed="false">
+            <svg viewBox="0 0 260 156" class="quiz-svg" aria-hidden="true">
+              <rect width="260" height="156" fill="#11754F"/>
+              <g fill="#EEE8D6" stroke="#171A18" stroke-width="0.9">
+                <rect x="10" y="10" width="114" height="54"/><rect x="136" y="10" width="114" height="54"/>
+                <rect x="10" y="74" width="114" height="54"/><rect x="136" y="74" width="114" height="54"/>
+              </g>
+              <rect x="18" y="16" width="98" height="16" fill="#1551C1"/>
+              <rect x="144" y="16" width="98" height="16" fill="#E64D16"/>
+              <rect x="18" y="80" width="98" height="16" fill="#1551C1"/>
+              <rect x="144" y="80" width="98" height="16" fill="#1551C1"/>
+              <g fill="#171A18">
+                <rect x="18" y="40" width="76" height="4"/><rect x="18" y="48" width="58" height="3"/>
+                <rect x="144" y="40" width="94" height="4"/><rect x="144" y="48" width="90" height="4"/><rect x="144" y="56" width="84" height="4"/>
+                <rect x="18" y="104" width="74" height="4"/><rect x="144" y="104" width="78" height="4"/>
+              </g>
+              <g class="quiz-reveal">
+                <rect x="136" y="54" width="114" height="10" fill="#A81B12"/>
+                <rect x="70" y="118" width="120" height="22" fill="#A81B12"/>
+                <text x="130" y="132" text-anchor="middle" fill="#FFF" font-family="'DM Mono', monospace" font-size="10">定高截断长标题</text>
+              </g>
+            </svg>
+            <span class="quiz-lbl"><b>C</b><span class="mono">auto-fit · h 84px</span></span>
+          </button>
+
+          <!-- D：auto-fit 但 gap: 0 且各自加不等 margin-top 错齿 -->
+          <button type="button" class="quiz-card" data-quiz-opt="D" aria-pressed="false">
+            <svg viewBox="0 0 260 156" class="quiz-svg" aria-hidden="true">
+              <rect width="260" height="156" fill="#11754F"/>
+              <g fill="#EEE8D6" stroke="#171A18" stroke-width="0.9">
+                <rect x="10" y="10" width="120" height="64"/>
+                <rect x="130" y="22" width="120" height="64"/>
+                <rect x="10" y="74" width="120" height="60"/>
+                <rect x="130" y="86" width="120" height="60"/>
+              </g>
+              <rect x="18" y="18" width="104" height="16" fill="#1551C1"/>
+              <rect x="138" y="30" width="104" height="16" fill="#E64D16"/>
+              <rect x="18" y="82" width="104" height="16" fill="#1551C1"/>
+              <rect x="138" y="94" width="104" height="16" fill="#1551C1"/>
+              <g fill="#171A18">
+                <rect x="18" y="42" width="76" height="4"/><rect x="18" y="50" width="58" height="3"/>
+                <rect x="138" y="54" width="94" height="4"/><rect x="138" y="62" width="84" height="4"/><rect x="138" y="70" width="72" height="3"/>
+                <rect x="18" y="106" width="74" height="4"/><rect x="138" y="118" width="78" height="4"/>
+              </g>
+              <g class="quiz-reveal">
+                <path d="M10 46 H130 V58 H250" fill="none" stroke="#FF8A80" stroke-width="2" stroke-dasharray="4 3"/>
+                <rect x="66" y="118" width="128" height="22" fill="#A81B12"/>
+                <text x="130" y="132" text-anchor="middle" fill="#FFF" font-family="'DM Mono', monospace" font-size="10">0px 粘连 + 错齿</text>
+              </g>
+            </svg>
+            <span class="quiz-lbl"><b>D</b><span class="mono">auto-fit · gap 0</span></span>
+          </button>
+        </div>
+
+        <div class="quiz-verdict" id="s6-verdict" aria-live="polite">
+          <div>
+            <p class="qv-title" id="s6-v-title">先凭结构直觉选出一套。</p>
+            <p class="qv-text" id="s6-v-text">四套方案只各自改了一个变量：列轨算法、高度策略或间距对齐。选完以后会亮出隐藏网格尺与逐项解析。</p>
+          </div>
+          <button type="button" class="pill-btn" id="s6-reset" hidden>重选一次</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 节：深翠展墙 —— 原海报与关键词 -->
+    <section class="sec sec-poster" id="sec-07" aria-labelledby="h-s7">
+      <div class="wrap poster-grid">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">07</span>
+          <div>
+            <h2 id="h-s7">原海报与关键词</h2>
+            <p class="sec-en" lang="en">THE ORIGINAL POSTER · NO. 250</p>
+          </div>
+        </header>
+
+        <div class="poster-layout">
+          <figure class="poster-fig">
+            <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="点击放大查看原海报">
+              <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="250 自适应网格原语原海报：深翠松绿虚线格缝底板配暖米锐角模块纸片，包含标题块、核心思想蓝方橘圆图、模块伸缩 2x2 到 4x2、A g 基线蓝线图、桌面平板手机三端网格缩略、中央七枚包豪斯几何网格示意与底部四支柱。">
+            </button>
+            <figcaption>点按放大原海报，支持缩放与拖拽细节；按 Esc 或点击空白处收起。</figcaption>
+          </figure>
+
+          <div class="poster-side">
+            <h3 class="kw-heading">海报三大关键词 <span lang="en">KEYWORDS</span></h3>
+            <ul class="kw-list">
+              <li>
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                  <rect x="4" y="4" width="40" height="40" fill="#EEE8D6"/>
+                  <line x1="24" y1="4" x2="24" y2="44" stroke="#171A18"/><line x1="4" y1="24" x2="44" y2="24" stroke="#171A18"/>
+                  <rect x="5" y="25" width="18" height="18" fill="#1551C1"/>
+                </svg>
+                <div><b>模块</b><span lang="en">MODULE</span><p>最小单元可按内容伸展与复用，始终落在同一套网格节奏里。</p></div>
+              </li>
+              <li>
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                  <rect x="4" y="4" width="40" height="40" fill="#EEE8D6"/>
+                  <line x1="9" y1="15" x2="39" y2="15" stroke="#171A18" stroke-dasharray="3 2"/>
+                  <line x1="9" y1="33" x2="39" y2="33" stroke="#1551C1" stroke-width="2.6"/>
+                  <text x="14" y="32" fill="#171A18" font-family="'Space Grotesk', sans-serif" font-size="18" font-weight="700">Ag</text>
+                </svg>
+                <div><b>对齐</b><span lang="en">ALIGN</span><p>列线与文字基线共同锚定秩序，画面多变也不散架。</p></div>
+              </li>
+              <li>
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                  <rect x="4" y="4" width="40" height="40" fill="#EEE8D6"/>
+                  <rect x="9" y="10" width="13" height="28" fill="#1551C1"/>
+                  <rect x="26" y="10" width="13" height="12" fill="#E64D16"/>
+                  <rect x="26" y="26" width="13" height="12" fill="none" stroke="#171A18" stroke-dasharray="3 2"/>
+                </svg>
+                <div><b>响应</b><span lang="en">FLEX</span><p>桌面、平板、手机无需手写多套壳，由算法按容器宽度自动重排。</p></div>
+              </li>
+            </ul>
+
+            <div class="poster-index">
+              <h4>海报原话摘录</h4>
+              <p>「结构随内容伸缩，对齐始终如一」 · 「模块按需扩展或收缩，不破坏整体秩序」 · 「所有元素遵循共同对齐规则」 · 「通过一致的间距与留白，建立视觉节奏」 · 「结构服务内容，内容决定形态」</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<!-- 原海报放大灯箱 -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报大图预览">
+  <div class="lb-bar">
+    <span class="mono">NO. 250 · ADAPTIVE GRID PRIMITIVE</span>
+    <div class="lb-btns">
+      <button type="button" class="lb-btn" id="lb-out" aria-label="缩小">−</button>
+      <button type="button" class="lb-btn mono" id="lb-reset" aria-label="重置缩放">100%</button>
+      <button type="button" class="lb-btn" id="lb-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" draggable="false" alt="250 自适应网格原语原海报放大视图">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p><span lang="en" class="mono">No. 250</span> 自适应 网格原语 · 350 种排版</p>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/250/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
