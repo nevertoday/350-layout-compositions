@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>仪表盘布局 · DASHBOARD LAYOUT · No. 273</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main>
+  <!-- ==================== HERO：活体五秒巡检舱 ==================== -->
+  <section class="hero" id="hero" data-signal="flood" data-level="err" aria-labelledby="page-title">
+    <div class="hero-inner">
+      <header class="hero-bar">
+        <span class="bar-cat"><i class="dot-cyan" aria-hidden="true"></i>网页与 UI / 内容与产品模式</span>
+        <span class="bar-num" lang="en">NO. 273 · 350 种排版 · 互动版</span>
+      </header>
+
+      <div class="hero-head">
+        <div class="hero-title-wrap">
+          <div class="title-row">
+            <h1 id="page-title">仪表盘布局</h1>
+            <span class="live-badge" id="hero-top-badge" data-level="err" aria-live="polite">0/4 层级倒置</span>
+          </div>
+          <p class="hero-en" lang="en">DASHBOARD LAYOUT</p>
+          <span class="cyan-rule" aria-hidden="true"></span>
+          <p class="hero-summary">通过信息分层与模块化布局，将关键指标可视化呈现，实现快速洞察、实时监控与高效决策。</p>
+        </div>
+
+        <!-- 实时架构诊单（桌面直接嵌在顶眉中央，单屏一眼见诊断与仪表盘） -->
+        <aside class="hero-diag" id="hero-diag" data-level="err" aria-live="polite">
+          <div class="diag-top">
+            <span class="diag-badge" id="diag-badge" data-level="err">0/4 层级倒置</span>
+            <span class="diag-metric" id="diag-density">7 卡 · 首屏超载</span>
+            <span class="diag-metric" id="diag-stops">扫视 15 步（示意）</span>
+          </div>
+          <p class="diag-headline" id="diag-headline"></p>
+          <p class="diag-reason" id="diag-reason"></p>
+          <p class="diag-hint" id="diag-hint"></p>
+        </aside>
+
+        <div class="hero-radar-box" aria-label="实时负载雷达扫描盘">
+          <canvas id="hero-radar-canvas" class="radar-canvas" aria-hidden="true"></canvas>
+          <div class="radar-meta">
+            <span class="radar-k" lang="en">RADAR</span>
+            <span class="radar-sub" id="hero-radar-load">负载 91%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 24h 实时遥测时间轴拨尺（data-perf-drag 挂在滑柄上） -->
+      <div class="scrub-panel" role="region" aria-label="24 小时实时遥测时间轴">
+        <div class="scrub-head">
+          <div class="scrub-now">
+            <span class="scrub-tag" lang="en">24H SCRUB</span>
+            <strong class="scrub-time" id="scrubber-time" lang="en">10:24</strong>
+            <span class="scrub-event" id="scrubber-event" aria-live="polite">此刻事件：服务器负载较高（10:24）</span>
+          </div>
+          <div class="scrub-jumps" role="group" aria-label="快速跳转到告警时刻">
+            <button type="button" class="jump-btn" data-jump-min="487">08:07 磁盘</button>
+            <button type="button" class="jump-btn" data-jump-min="624">10:24 负载</button>
+            <button type="button" class="jump-btn" data-jump-min="1120">18:40 转化</button>
+          </div>
+        </div>
+        <div class="scrub-track" id="scrubber-track">
+          <div class="scrub-rail"></div>
+          <div class="scrub-fill" id="scrubber-fill"></div>
+          <span class="scrub-pin" style="left: 33.8%" title="08:07 磁盘不足"></span>
+          <span class="scrub-pin" style="left: 43.3%" title="10:24 负载较高"></span>
+          <span class="scrub-pin" style="left: 77.8%" title="18:40 转化异动"></span>
+          <button
+            type="button"
+            class="scrub-thumb"
+            id="scrubber-thumb"
+            data-perf-drag
+            role="slider"
+            aria-label="拖动巡检 24 小时遥测时刻"
+            aria-valuemin="0"
+            aria-valuemax="1439"
+            aria-valuenow="624"
+            aria-valuetext="10:24"
+          ><span class="thumb-grip" aria-hidden="true">↔</span></button>
+        </div>
+      </div>
+
+      <!-- 架构调控带 -->
+      <div class="ctrl-strip" role="region" aria-label="仪表盘信息架构调控">
+        <div class="ctrl-group ctrl-kpis">
+          <span class="ctrl-label">指标筛选</span>
+          <div class="kpi-picker" id="kpi-picker" role="group" aria-label="开关仪表盘指标"></div>
+        </div>
+        <div class="ctrl-group ctrl-actions">
+          <button type="button" class="ctrl-btn" id="btn-baseline" aria-pressed="false">对比基准：关（裸数）</button>
+          <div class="seg-inline" role="group" aria-label="信号配色纪律">
+            <button type="button" class="seg-btn is-active" data-signal="flood" aria-pressed="true">均色过载</button>
+            <button type="button" class="seg-btn" data-signal="muted" aria-pressed="false">全灰静默</button>
+            <button type="button" class="seg-btn" data-signal="anomaly" aria-pressed="false">异常聚焦</button>
+          </div>
+          <button type="button" class="ctrl-btn ghost" id="btn-reset">复原错态</button>
+          <button type="button" class="ctrl-btn ghost accent-ok" id="btn-ideal">参考解</button>
+        </div>
+      </div>
+
+      <!-- 活体三层监控舱（可直接点 ↑ / ↓ 重排三层顺序） -->
+      <div class="dash-stack" id="dash-stack">
+        <!-- 层级 C：监控与告警带（开场刻意放在顶行制造层级倒置） -->
+        <section class="dash-tier" id="tier-ops" data-tier="ops" aria-label="实时监控与告警带">
+          <div class="tier-bar">
+            <span class="tier-rank" lang="en">ROW 01</span>
+            <span class="tier-name">实时监控与告警带 <em lang="en">MONITOR &amp; ALERTS</em></span>
+            <div class="tier-moves">
+              <button type="button" class="mv-btn" data-move="up" aria-label="上移实时监控与告警带">↑ 上移</button>
+              <button type="button" class="mv-btn" data-move="down" aria-label="下移实时监控与告警带">↓ 下移</button>
+            </div>
+          </div>
+          <div class="ops-grid">
+            <div class="ops-card ops-gauge">
+              <div class="mod-head">
+                <span>实时监控</span>
+                <span class="mod-en" lang="en">REAL-TIME MONITOR</span>
+              </div>
+              <div class="gauge-wrap">
+                <svg class="gauge-svg" viewBox="0 0 120 74" aria-hidden="true">
+                  <path class="gauge-bg" d="M14 62 A46 46 0 0 1 106 62"/>
+                  <path class="gauge-fg" id="hero-gauge-arc" d="M14 62 A46 46 0 0 1 106 62"/>
+                </svg>
+                <strong class="gauge-num" id="hero-gauge-num">91%</strong>
+                <span class="gauge-cap">系统负载</span>
+              </div>
+              <p class="gauge-state" id="hero-gauge-state">负载越线（警戒 80%）· 磁盘余 18%</p>
+            </div>
+
+            <div class="ops-card ops-tasks">
+              <div class="mod-head">
+                <span>任务进度</span>
+                <span class="mod-en" lang="en">TASK PROGRESS</span>
+              </div>
+              <div class="task-list" id="hero-task-list"></div>
+            </div>
+
+            <div class="ops-card ops-alerts">
+              <div class="mod-head">
+                <span>告警中心</span>
+                <span class="mod-en" lang="en">ALERT CENTER</span>
+              </div>
+              <div class="alert-list" id="hero-alert-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 层级 B：趋势与渠道带 -->
+        <section class="dash-tier" id="tier-trend" data-tier="trend" aria-label="趋势与渠道带">
+          <div class="tier-bar">
+            <span class="tier-rank" lang="en">ROW 02</span>
+            <span class="tier-name">趋势与渠道带 <em lang="en">TREND &amp; CHANNEL</em></span>
+            <div class="tier-moves">
+              <button type="button" class="mv-btn" data-move="up" aria-label="上移趋势与渠道带">↑ 上移</button>
+              <button type="button" class="mv-btn" data-move="down" aria-label="下移趋势与渠道带">↓ 下移</button>
+            </div>
+          </div>
+          <div class="trend-grid">
+            <div class="ops-card trend-main">
+              <div class="mod-head">
+                <div>
+                  <span>趋势分析</span>
+                  <span class="mod-en" lang="en">TREND OVERVIEW</span>
+                </div>
+                <span class="trend-legend" id="hero-trend-sub">全部渠道 · 点渠道图可联动筛选</span>
+              </div>
+              <div class="trend-canvas-wrap">
+                <canvas id="hero-trend-canvas" aria-label="24 小时实时趋势折线图"></canvas>
+              </div>
+            </div>
+
+            <div class="ops-card channel-main">
+              <div class="mod-head">
+                <span>渠道分布</span>
+                <span class="mod-en" lang="en">CHANNEL DISTRIBUTION</span>
+              </div>
+              <div class="channel-body">
+                <svg id="hero-donut-svg" class="donut-svg" viewBox="0 0 112 112" aria-hidden="true"></svg>
+                <div class="channel-list" id="hero-channel-list" role="group" aria-label="按渠道筛选趋势曲线"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 层级 A：核心 KPI 指标带（开场刻意沉底并塞满 7 卡） -->
+        <section class="dash-tier" id="tier-kpi" data-tier="kpi" aria-label="核心指标带">
+          <div class="tier-bar">
+            <span class="tier-rank" lang="en">ROW 03</span>
+            <span class="tier-name">核心指标带 <em lang="en">KPI STRIP</em></span>
+            <div class="tier-moves">
+              <button type="button" class="mv-btn" data-move="up" aria-label="上移核心指标带">↑ 上移</button>
+              <button type="button" class="mv-btn" data-move="down" aria-label="下移核心指标带">↓ 下移</button>
+            </div>
+          </div>
+          <div class="hero-kpi-grid" id="hero-kpi-grid" data-count="7"></div>
+        </section>
+      </div>
+
+      <!-- 底沿：原海报 L 形角框四柱验收条 -->
+      <div class="pillars-bar" role="status" aria-label="原海报四项核心原则验收">
+        <div class="pillar is-bad" id="pillar-overview">
+          <svg class="pillar-ico" viewBox="0 0 36 36" aria-hidden="true"><path d="M4 18C9 10 27 10 32 18C27 26 9 26 4 18Z" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="18" cy="18" r="4.5" fill="currentColor"/></svg>
+          <div>
+            <div class="pillar-head"><strong>总览</strong><span lang="en">OVERVIEW</span></div>
+            <p class="pillar-sub">全局概览 一目了然</p>
+            <span class="pillar-state">告警压顶倒置</span>
+          </div>
+        </div>
+        <div class="pillar is-bad" id="pillar-kpi">
+          <svg class="pillar-ico" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="12" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="18" cy="18" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="18" cy="18" r="2.6" fill="currentColor"/></svg>
+          <div>
+            <div class="pillar-head"><strong>指标</strong><span lang="en">KPI</span></div>
+            <p class="pillar-sub">关键指标 量化衡量</p>
+            <span class="pillar-state">混入 3 个噪音指标</span>
+          </div>
+        </div>
+        <div class="pillar is-bad" id="pillar-monitor">
+          <svg class="pillar-ico" viewBox="0 0 36 36" aria-hidden="true"><rect x="5" y="7" width="26" height="17" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 29h12M18 24v5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <div>
+            <div class="pillar-head"><strong>监控</strong><span lang="en">MONITOR</span></div>
+            <p class="pillar-sub">实时监控 异常预警</p>
+            <span class="pillar-state">均色过载·淹没告警</span>
+          </div>
+        </div>
+        <div class="pillar is-bad" id="pillar-efficiency">
+          <svg class="pillar-ico" viewBox="0 0 36 36" aria-hidden="true"><path d="M20 4L9 20h8l-1 12 11-16h-8l1-12Z" fill="currentColor"/></svg>
+          <div>
+            <div class="pillar-head"><strong>效率</strong><span lang="en">EFFICIENCY</span></div>
+            <p class="pillar-sub">聚焦重点 提升效率</p>
+            <span class="pillar-state">15 步绕读（示意）</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="poster-tagline-row">
+        <span lang="en">OVERVIEW · KPI · MONITOR · EFFICIENCY · FOCUS ON WHAT MATTERS</span>
+        <span class="dot-matrix" aria-hidden="true"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01 节：先看结论，再追原因 ==================== -->
+  <section class="sec sec-paper" id="sec-01" aria-labelledby="h-01">
+    <div class="wrap split-editorial">
+      <div class="sec-copy reveal">
+        <p class="sec-no" lang="en">01</p>
+        <h2 id="h-01">先看结论，再追原因</h2>
+        <p class="sec-en" lang="en">Inverted Pyramid &amp; Visual Hierarchy</p>
+        <blockquote class="poster-quote">
+          <span class="pq-tag">原海报 · 总览 OVERVIEW</span>
+          「全局概览 一目了然」
+        </blockquote>
+        <p>仪表盘不是从头读到尾的文章，而是一张按<strong>认知漏斗</strong>排布的监控图。1996 年，马里兰大学教授 Ben Shneiderman 在信息可视化论文中提出著名的检索咒语：<strong>先总览，再缩放筛选，最后按需展开细节</strong>（Overview first, zoom and filter, then details-on-demand）。</p>
+        <p>落到页面骨架上，这就是 273 号原海报采用的三层倒金字塔：第一行给 3–5 项核心 KPI，两秒回答「大盘是否健康」；第二行放趋势曲线与维度拆解，回答「变化从哪来」；第三行才落到负载、任务进度与具体告警，回答「现在要修哪里」。</p>
+        <div class="callout-note">
+          <span class="callout-tag">温和修正 · 原海报总述</span>
+          <p>原海报提到「实现快速洞察、实时监控与高效决策」。信息设计专家 Stephen Few 在 2004 与 2006 年的著作中特别提醒：仪表盘真正擅长的是<strong>一瞥监控与发现异常</strong>，深度归因与执行决策往往发生在点开异常之后的专业工具里——别强迫单屏仪表盘包办整套工作流。</p>
+        </div>
+      </div>
+
+      <figure class="lab-card reveal">
+        <div class="lab-top">
+          <span class="lab-title">眼动扫视路径对比</span>
+          <span class="lab-stat" id="s01-verdict">3 步直达现场（示意）</span>
+        </div>
+        <div class="lab-controls" role="group" aria-label="切换阅读流模式">
+          <button type="button" class="chip-btn is-active" data-flow="pyramid" aria-pressed="true">倒金字塔</button>
+          <button type="button" class="chip-btn" data-flow="flat" aria-pressed="false">平权九宫格</button>
+          <button type="button" class="chip-btn" data-flow="bottomup" aria-pressed="false">日志压顶</button>
+          <button type="button" class="chip-btn accent" id="s01-step">从第 1 眼重放扫视</button>
+        </div>
+        <svg id="s01-svg" class="lab-svg" viewBox="0 0 540 308" role="img" aria-label="仪表盘眼动扫视路径示意图"></svg>
+        <figcaption id="s01-desc" class="lab-cap" aria-live="polite"></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ==================== 02 节：单屏五秒，少即是快 ==================== -->
+  <section class="sec sec-mist" id="sec-02" aria-labelledby="h-02">
+    <div class="wrap split-editorial is-flip">
+      <div class="sec-copy reveal">
+        <p class="sec-no" lang="en">02</p>
+        <h2 id="h-02">单屏五秒，少即是快</h2>
+        <p class="sec-en" lang="en">Single-Screen Budget &amp; Sparklines</p>
+        <blockquote class="poster-quote">
+          <span class="pq-tag">原海报 · 指标 KPI</span>
+          「关键指标 量化衡量」
+        </blockquote>
+        <p>Stephen Few 在《Information Dashboard Design》（2006）中给出了一道硬边界：仪表盘必须<strong>收束在同一块屏幕内，让人一瞥即懂</strong>。一旦因为塞进太多「也许有用」的指标而迫使用户滚屏或切标签页，上下文割裂，仪表盘就退化成了普通报表。</p>
+        <p>想省空间又保留语境，可以借鉴 273 号原海报顶行四张 KPI 卡的手法：在每个大数字下方贴一条<strong>迷你折线（Sparkline）</strong>和一个涨跌百分比。这种词句级微型走势图由 Edward R. Tufte 在《Beautiful Evidence》（2006）中系统提出，用一行字的高度同时交待「现在是多少、比上期涨了多少、近七天怎么走」。</p>
+        <p>行业经验通常将首屏顶行 KPI 控制在 <strong>3–5 项</strong>（经验值，而非死律）：太少容易漏看业务闭环，超过 6 项就会挤碎版面并把中下层推到首屏折线之外。</p>
+      </div>
+
+      <figure class="lab-card reveal">
+        <div class="lab-top">
+          <label class="lab-title" for="s02-range">首屏指标容积实测</label>
+          <span class="lab-stat" id="s02-count" lang="en">4 张指标卡</span>
+        </div>
+        <div class="range-row">
+          <span class="range-end" lang="en">2</span>
+          <input id="s02-range" class="range-input" type="range" min="2" max="12" step="1" value="4" aria-label="调整首屏指标卡数量">
+          <span class="range-end" lang="en">12</span>
+        </div>
+        <div class="budget-status-row">
+          <span class="budget-pill" id="s02-status" data-zone="sweet">单屏甜区（经验 3–5 张）</span>
+        </div>
+        <div class="sim-screen" id="s02-screen" data-zone="sweet">
+          <div class="sim-inner">
+            <div class="sim-kpis" id="s02-kpis"></div>
+            <div class="sim-mid">
+              <div class="sim-box">趋势分析曲线区</div>
+              <div class="sim-box sim-narrow">渠道分布</div>
+            </div>
+            <div class="sim-bot">
+              <div class="sim-box">实时负载 72%</div>
+              <div class="sim-box">任务进度</div>
+              <div class="sim-box sim-alert">紧急告警中心</div>
+            </div>
+          </div>
+          <div class="sim-fold-line" id="s02-fold-badge">首屏折叠线 · 三层完整收束在一屏内</div>
+        </div>
+        <figcaption id="s02-note" class="lab-cap" aria-live="polite"></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ==================== 03 节：选对图表，读数才准 ==================== -->
+  <section class="sec sec-dark" id="sec-03" aria-labelledby="h-03">
+    <div class="wrap split-editorial">
+      <div class="sec-copy reveal">
+        <p class="sec-no" lang="en">03</p>
+        <h2 id="h-03">选对图表，读数才准</h2>
+        <p class="sec-en" lang="en">Graphical Perception &amp; Chart Selection</p>
+        <p>仪表盘里最常见的浪费，不是字太小，而是<strong>选错了视觉编码</strong>。1984 年，贝尔实验室统计学家 William S. Cleveland 与 Robert McGill 在《美国统计学会会刊》（JASA）发表经典实验，按人眼解码数值的精确度排出梯队：<strong>共基线位置 &gt; 长度 &gt; 角度与斜率 &gt; 面积 &gt; 色彩深浅</strong>。</p>
+        <p>回看 273 号原海报，它很克制地只在左下角放了 1 个「72% 半圆弧表盘」作为整体负荷锚点，任务进度则老老实实用了 4 条对齐横条。但很多仿制品会把整屏贴满五六个汽车表盘或大圆环——大片空心圆弧吞掉首屏空间，却只传达极少数几个值。</p>
+        <p>试试在旁边切换同组 4 个节点的编码方式，并点「遮住数字盲估」：看看拿掉文字标签后，哪一种图表仍能让你一眼比出精准差距。</p>
+      </div>
+
+      <figure class="lab-card is-dark reveal">
+        <div class="lab-top">
+          <span class="lab-title">同源数据四编码实测（85 / 72 / 62 / 40）</span>
+          <button type="button" class="chip-btn is-dark-btn accent" id="s03-blind" aria-pressed="false">遮住数字盲估</button>
+        </div>
+        <div class="lab-controls" role="group" aria-label="切换图表视觉编码">
+          <button type="button" class="chip-btn is-dark-btn is-active" data-enc="bullet" aria-pressed="true">子弹图 / 共基线</button>
+          <button type="button" class="chip-btn is-dark-btn" data-enc="gauge" aria-pressed="false">半圆表盘</button>
+          <button type="button" class="chip-btn is-dark-btn" data-enc="donut" aria-pressed="false">圆环图</button>
+          <button type="button" class="chip-btn is-dark-btn" data-enc="bubble" aria-pressed="false">气泡面积</button>
+        </div>
+        <svg id="s03-svg" class="lab-svg" viewBox="0 0 560 280" role="img" aria-label="四种图表视觉编码对比图"></svg>
+        <div class="enc-meta">
+          <span id="s03-rank" class="enc-tag"></span>
+          <span id="s03-space" class="enc-tag is-mono"></span>
+        </div>
+        <figcaption id="s03-verdict" class="lab-cap" aria-live="polite"></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ==================== 04 节：平时安静，异常才亮 ==================== -->
+  <section class="sec sec-clean" id="sec-04" aria-labelledby="h-04">
+    <div class="wrap split-editorial is-flip">
+      <div class="sec-copy reveal">
+        <p class="sec-no" lang="en">04</p>
+        <h2 id="h-04">平时安静，异常才亮</h2>
+        <p class="sec-en" lang="en">Pre-Attentive Alerting &amp; Signal Discipline</p>
+        <blockquote class="poster-quote">
+          <span class="pq-tag">原海报 · 监控与效率</span>
+          「实时监控 异常预警 · 聚焦重点 提升效率」
+        </blockquote>
+        <p>人眼在读懂文字之前，会在几百毫秒内先被「唯一不同的高饱和色」吸引，心理学称作<strong>前注意加工（Pre-attentive processing）</strong>。仪表盘里的颜色不是装修，而是极其珍贵的警报频道。</p>
+        <div class="callout-note">
+          <span class="callout-tag">细节商榷 · 原海报双色复用</span>
+          <p>仔细看 273 号原海报会发现一个值得留意的取舍：海报为求视觉统一，把同一抹酸橙绿（#ADE62D）同时用在了健康的「新增用户 ↑12.6%」「正常运行」以及右下角告警中心的「服务器负载较高」「磁盘空间不足」图标上。海报作为平面示范很利落，但若直接照搬到生产运维系统，严重故障会和正常态撞色——实战里应把高饱和暖红/琥珀色<strong>专留给越线异常</strong>。</p>
+        </div>
+      </div>
+
+      <figure class="lab-card reveal">
+        <div class="lab-top">
+          <span class="lab-title">6 节点故障注入与配色纪律</span>
+        </div>
+        <div class="fault-bars">
+          <div class="lab-controls" role="group" aria-label="切换配色纪律">
+            <button type="button" class="chip-btn is-active" data-disc="poster_mix" aria-pressed="true">青绿混用</button>
+            <button type="button" class="chip-btn" data-disc="rainbow" aria-pressed="false">每卡一色</button>
+            <button type="button" class="chip-btn" data-disc="exception" aria-pressed="false">静音·仅异常破出</button>
+          </div>
+          <div class="lab-controls" role="group" aria-label="注入运行故障">
+            <button type="button" class="chip-btn subtle" data-fault="calm" aria-pressed="false">全线平稳</button>
+            <button type="button" class="chip-btn subtle is-active" data-fault="disk" aria-pressed="true">注入磁盘告急</button>
+            <button type="button" class="chip-btn subtle" data-fault="cascade" aria-pressed="false">双点高载告警</button>
+          </div>
+        </div>
+        <div class="cluster-grid" id="s04-grid" data-disc="poster_mix"></div>
+        <p class="cluster-meter" id="s04-meter" aria-live="polite"></p>
+        <figcaption id="s04-desc" class="lab-cap"></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ==================== 05 节：从马车挡泥板到驾驶舱 ==================== -->
+  <section class="sec sec-dark-alt" id="sec-05" aria-labelledby="h-05">
+    <div class="wrap">
+      <header class="sec-head-wide reveal">
+        <p class="sec-no" lang="en">05</p>
+        <div>
+          <h2 id="h-05">从马车挡泥板到驾驶舱</h2>
+          <p class="sec-en" lang="en">Origins · 1842 to Modern Single-Screen Dashboards</p>
+        </div>
+      </header>
+
+      <div class="history-shell reveal">
+        <div class="era-tabs" role="group" aria-label="切换仪表盘发展时期">
+          <button type="button" class="era-btn is-active" data-era="1842" aria-pressed="true">
+            <span class="era-y" lang="en">1842</span>
+            <span class="era-t">马车挡泥板与立板</span>
+          </button>
+          <button type="button" class="era-btn" data-era="1979" aria-pressed="false">
+            <span class="era-y" lang="en">1979</span>
+            <span class="era-t">Rockart 与 EIS</span>
+          </button>
+          <button type="button" class="era-btn" data-era="1996" aria-pressed="false">
+            <span class="era-y" lang="en">1996</span>
+            <span class="era-t">Shneiderman 检索咒语</span>
+          </button>
+          <button type="button" class="era-btn" data-era="2006" aria-pressed="false">
+            <span class="era-y" lang="en">2006</span>
+            <span class="era-t">Few 单屏与 Tufte 迷你线</span>
+          </button>
+        </div>
+
+        <div class="era-stage">
+          <svg id="s05-svg" class="era-svg" viewBox="0 0 460 220" role="img" aria-label="仪表盘历史形态演变矢量标本"></svg>
+          <div class="era-copy">
+            <h3 id="s05-title">1842 · 马车挡泥板 → 驾驶舱立板</h3>
+            <p class="era-src" id="s05-source"></p>
+            <p class="era-body" id="s05-body"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 节：三类盘面与何时别用 ==================== -->
+  <section class="sec sec-mist" id="sec-06" aria-labelledby="h-06">
+    <div class="wrap">
+      <header class="sec-head-wide reveal">
+        <p class="sec-no" lang="en">06</p>
+        <div>
+          <h2 id="h-06">三类盘面与何时别用</h2>
+          <p class="sec-en" lang="en">Operational · Analytical · Strategic &amp; When Not to Use</p>
+        </div>
+      </header>
+
+      <div class="type-bench reveal">
+        <div class="type-tabs" role="group" aria-label="切换三类仪表盘">
+          <button type="button" class="chip-btn is-active" data-dtype="operational" aria-pressed="true">运营监控型</button>
+          <button type="button" class="chip-btn" data-dtype="analytical" aria-pressed="false">分析洞察型</button>
+          <button type="button" class="chip-btn" data-dtype="strategic" aria-pressed="false">战略总览型</button>
+        </div>
+        <div class="ratio-bar" aria-label="三层屏幕面积分配示意">
+          <div class="rb-seg rb-kpi" id="s06-bar-kpi">KPI 指标 25%</div>
+          <div class="rb-seg rb-trend" id="s06-bar-trend">趋势分析 30%</div>
+          <div class="rb-seg rb-ops" id="s06-bar-ops">告警现场 45%</div>
+        </div>
+        <dl class="type-specs">
+          <div><dt>更新频率</dt><dd id="s06-cadence"></dd></div>
+          <div><dt>主要读者</dt><dd id="s06-audience"></dd></div>
+          <div><dt>核心问题</dt><dd id="s06-focus"></dd></div>
+          <div><dt>典型误配</dt><dd id="s06-pitfall"></dd></div>
+        </dl>
+      </div>
+
+      <div class="anti-block reveal">
+        <h3 class="sub-h3">什么时候别用仪表盘？</h3>
+        <p class="sub-lead">仪表盘为「高频监测少数关键数值」而生；一旦任务目标转向逐条核对、叙事陈列或流程协作，强套仪表盘只会徒增图表噪音。</p>
+        <ul class="anti-list">
+          <li>
+            <strong>需要逐行核对、排序或批量导出明细</strong>
+            <p>财报对账、订单流水与明细检索靠的是对齐列与精确筛选，应直接改用 <a href="https://layout.xiaoxiaodong.ai/274/play/" target="_blank" rel="noopener">274 数据表格布局</a>。</p>
+          </li>
+          <li>
+            <strong>展示产品卖点、专题入口或静态内容矩阵</strong>
+            <p>没有实时波动指标时硬画假曲线反而失真，模块化叙事更适合 <a href="https://layout.xiaoxiaodong.ai/272/play/" target="_blank" rel="noopener">272 便当盒布局</a> 或 <a href="https://layout.xiaoxiaodong.ai/270/play/" target="_blank" rel="noopener">270 卡片网格布局</a>。</p>
+          </li>
+          <li>
+            <strong>团队核心动作是推进多阶段任务状态</strong>
+            <p>当重点在于把任务从待办拖到完成而非盯数字曲线，请用 <a href="https://layout.xiaoxiaodong.ai/278/play/" target="_blank" rel="noopener">278 看板布局</a>。</p>
+          </li>
+          <li>
+            <strong>内容以连续动态、消息流或事件履历为主</strong>
+            <p>社交更新或审计轨迹按时间先后阅读更自然，应交给 <a href="https://layout.xiaoxiaodong.ai/269/play/" target="_blank" rel="noopener">269 信息流布局</a> 或 <a href="https://layout.xiaoxiaodong.ai/277/play/" target="_blank" rel="noopener">277 时间线布局</a>。</p>
+          </li>
+          <li>
+            <strong>异常判断高度依赖地理坐标与路网分布</strong>
+            <p>物流运力、门店热区与应急调度应以地图画布为主体，参考 <a href="https://layout.xiaoxiaodong.ai/282/play/" target="_blank" rel="noopener">282 地图主导布局</a>。</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 节：练一练 ==================== -->
+  <section class="sec sec-clean" id="sec-07" aria-labelledby="h-07">
+    <div class="wrap">
+      <header class="sec-head-wide reveal">
+        <p class="sec-no" lang="en">07</p>
+        <div>
+          <h2 id="h-07">练一练：哪版最稳？</h2>
+          <p class="sec-en" lang="en">Practice · Pick the Five-Second Dashboard</p>
+        </div>
+      </header>
+      <p class="quiz-prompt reveal">场景：电商大促实时运维大屏，需同时呈现 4 项核心 KPI、24 小时订单趋势、负载与 1 条紧急磁盘告警。下面四套方案只差一个设计变量，选出最适合值班员五秒扫视的一版。</p>
+
+      <div class="quiz-grid reveal" id="s07-choices" role="group" aria-label="四套仪表盘布局方案">
+        <!-- A：层级倒置 -->
+        <button type="button" class="quiz-card" data-choice="A" aria-pressed="false">
+          <div class="quiz-head"><strong lang="en">A</strong><span class="quiz-reveal">点击判断</span></div>
+          <svg viewBox="0 0 240 160" class="quiz-svg" aria-hidden="true">
+            <rect width="240" height="160" rx="6" fill="#121615"/>
+            <!-- 顶行：告警与进度 -->
+            <rect x="10" y="10" width="70" height="36" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="85" y="10" width="70" height="36" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="160" y="10" width="70" height="36" rx="3" fill="#2A1915" stroke="#FF6B4A" stroke-width="1.3"/>
+            <rect x="167" y="19" width="44" height="5" rx="1" fill="#FF6B4A"/>
+            <rect x="167" y="29" width="52" height="4" rx="1" fill="#A0756B"/>
+            <!-- 中行：趋势 -->
+            <rect x="10" y="54" width="145" height="50" rx="3" fill="#1C2221" stroke="#303837"/>
+            <path d="M18 92 L50 76 L88 66 L122 80 L146 62" fill="none" stroke="#3BDAED" stroke-width="1.6"/>
+            <path d="M18 94 L50 84 L88 80 L122 86 L146 76" fill="none" stroke="#626D6B" stroke-width="1" stroke-dasharray="3 2"/>
+            <rect x="161" y="54" width="69" height="50" rx="3" fill="#1C2221" stroke="#303837"/>
+            <circle cx="195" cy="79" r="14" fill="none" stroke="#3BDAED" stroke-width="6" stroke-dasharray="45 60"/>
+            <!-- 底行：4 KPI -->
+            <rect x="10" y="112" width="51" height="38" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="66" y="112" width="51" height="38" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="122" y="112" width="51" height="38" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="178" y="112" width="52" height="38" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="16" y="122" width="28" height="6" rx="1" fill="#E8EEEC"/>
+            <rect x="72" y="122" width="28" height="6" rx="1" fill="#E8EEEC"/>
+            <rect x="128" y="122" width="28" height="6" rx="1" fill="#E8EEEC"/>
+            <rect x="184" y="122" width="28" height="6" rx="1" fill="#E8EEEC"/>
+            <path d="M16 140 L30 136 L48 138" fill="none" stroke="#3BDAED" stroke-width="1.2"/>
+            <path d="M72 140 L86 135 L104 137" fill="none" stroke="#ADE62D" stroke-width="1.2"/>
+            <path d="M128 140 L142 136 L160 134" fill="none" stroke="#3BDAED" stroke-width="1.2"/>
+            <path d="M184 140 L198 135 L216 137" fill="none" stroke="#ADE62D" stroke-width="1.2"/>
+          </svg>
+        </button>
+
+        <!-- B：正确单屏倒金字塔 -->
+        <button type="button" class="quiz-card" data-choice="B" aria-pressed="false">
+          <div class="quiz-head"><strong lang="en">B</strong><span class="quiz-reveal">点击判断</span></div>
+          <svg viewBox="0 0 240 160" class="quiz-svg" aria-hidden="true">
+            <rect width="240" height="160" rx="6" fill="#121615"/>
+            <!-- 顶行：4 KPI 含迷你线 -->
+            <rect x="10" y="10" width="51" height="38" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="66" y="10" width="51" height="38" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="122" y="10" width="51" height="38" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="178" y="10" width="52" height="38" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="16" y="19" width="28" height="6" rx="1" fill="#E8EEEC"/>
+            <rect x="72" y="19" width="28" height="6" rx="1" fill="#E8EEEC"/>
+            <rect x="128" y="19" width="28" height="6" rx="1" fill="#E8EEEC"/>
+            <rect x="184" y="19" width="28" height="6" rx="1" fill="#E8EEEC"/>
+            <path d="M16 38 L30 33 L48 35" fill="none" stroke="#3BDAED" stroke-width="1.2"/>
+            <path d="M72 38 L86 33 L104 35" fill="none" stroke="#ADE62D" stroke-width="1.2"/>
+            <path d="M128 38 L142 34 L160 32" fill="none" stroke="#3BDAED" stroke-width="1.2"/>
+            <path d="M184 38 L198 33 L216 35" fill="none" stroke="#ADE62D" stroke-width="1.2"/>
+            <!-- 中行：趋势 + 渠道 -->
+            <rect x="10" y="56" width="145" height="50" rx="3" fill="#1C2221" stroke="#303837"/>
+            <path d="M18 94 L50 78 L88 68 L122 82 L146 64" fill="none" stroke="#3BDAED" stroke-width="1.6"/>
+            <path d="M18 96 L50 86 L88 82 L122 88 L146 78" fill="none" stroke="#626D6B" stroke-width="1" stroke-dasharray="3 2"/>
+            <rect x="161" y="56" width="69" height="50" rx="3" fill="#1C2221" stroke="#303837"/>
+            <circle cx="195" cy="81" r="14" fill="none" stroke="#3BDAED" stroke-width="6" stroke-dasharray="45 60"/>
+            <!-- 底行：稳态安静 + 仅 1 处异常破出 -->
+            <rect x="10" y="114" width="70" height="36" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="85" y="114" width="70" height="36" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="160" y="114" width="70" height="36" rx="3" fill="#2A1915" stroke="#FF6B4A" stroke-width="1.4"/>
+            <rect x="167" y="123" width="44" height="5" rx="1" fill="#FF6B4A"/>
+            <rect x="167" y="133" width="52" height="4" rx="1" fill="#A0756B"/>
+          </svg>
+        </button>
+
+        <!-- C：全屏同亮抢焦 -->
+        <button type="button" class="quiz-card" data-choice="C" aria-pressed="false">
+          <div class="quiz-head"><strong lang="en">C</strong><span class="quiz-reveal">点击判断</span></div>
+          <svg viewBox="0 0 240 160" class="quiz-svg" aria-hidden="true">
+            <rect width="240" height="160" rx="6" fill="#121615"/>
+            <!-- 顶行 4 张全亮高饱和底 -->
+            <rect x="10" y="10" width="51" height="38" rx="3" fill="#3BDAED" stroke="#3BDAED"/>
+            <rect x="66" y="10" width="51" height="38" rx="3" fill="#ADE62D" stroke="#ADE62D"/>
+            <rect x="122" y="10" width="51" height="38" rx="3" fill="#FF6B4A" stroke="#FF6B4A"/>
+            <rect x="178" y="10" width="52" height="38" rx="3" fill="#ADE62D" stroke="#ADE62D"/>
+            <rect x="16" y="19" width="28" height="6" rx="1" fill="#0D1211"/>
+            <rect x="72" y="19" width="28" height="6" rx="1" fill="#0D1211"/>
+            <rect x="128" y="19" width="28" height="6" rx="1" fill="#0D1211"/>
+            <rect x="184" y="19" width="28" height="6" rx="1" fill="#0D1211"/>
+            <!-- 中行同样满彩 -->
+            <rect x="10" y="56" width="145" height="50" rx="3" fill="#16353B" stroke="#3BDAED" stroke-width="1.3"/>
+            <path d="M18 94 L50 78 L88 68 L122 82 L146 64" fill="none" stroke="#ADE62D" stroke-width="2"/>
+            <rect x="161" y="56" width="69" height="50" rx="3" fill="#2A3A15" stroke="#ADE62D" stroke-width="1.3"/>
+            <circle cx="195" cy="81" r="14" fill="none" stroke="#FF6B4A" stroke-width="6"/>
+            <!-- 底行三块同样全亮 -->
+            <rect x="10" y="114" width="70" height="36" rx="3" fill="#16353B" stroke="#3BDAED"/>
+            <rect x="85" y="114" width="70" height="36" rx="3" fill="#2A3A15" stroke="#ADE62D"/>
+            <rect x="160" y="114" width="70" height="36" rx="3" fill="#2A3A15" stroke="#ADE62D"/>
+            <rect x="167" y="123" width="44" height="5" rx="1" fill="#ADE62D"/>
+          </svg>
+        </button>
+
+        <!-- D：顶行 8 张裸数窄卡挤出告警 -->
+        <button type="button" class="quiz-card" data-choice="D" aria-pressed="false">
+          <div class="quiz-head"><strong lang="en">D</strong><span class="quiz-reveal">点击判断</span></div>
+          <svg viewBox="0 0 240 160" class="quiz-svg" aria-hidden="true">
+            <rect width="240" height="160" rx="6" fill="#121615"/>
+            <!-- 两排共 8 张窄卡，无折线 -->
+            <rect x="10" y="10" width="51" height="34" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="66" y="10" width="51" height="34" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="122" y="10" width="51" height="34" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="178" y="10" width="52" height="34" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="10" y="50" width="51" height="34" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="66" y="50" width="51" height="34" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="122" y="50" width="51" height="34" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="178" y="50" width="52" height="34" rx="3" fill="#1C2221" stroke="#303837"/>
+            <rect x="18" y="24" width="26" height="6" rx="1" fill="#D2DBD9"/>
+            <rect x="74" y="24" width="26" height="6" rx="1" fill="#D2DBD9"/>
+            <rect x="130" y="24" width="26" height="6" rx="1" fill="#D2DBD9"/>
+            <rect x="186" y="24" width="26" height="6" rx="1" fill="#D2DBD9"/>
+            <rect x="18" y="64" width="26" height="6" rx="1" fill="#8B9694"/>
+            <rect x="74" y="64" width="26" height="6" rx="1" fill="#8B9694"/>
+            <rect x="130" y="64" width="26" height="6" rx="1" fill="#8B9694"/>
+            <rect x="186" y="64" width="26" height="6" rx="1" fill="#8B9694"/>
+            <!-- 中行被压扁 -->
+            <rect x="10" y="92" width="220" height="44" rx="3" fill="#1C2221" stroke="#303837"/>
+            <path d="M18 126 L68 112 L130 104 L216 116" fill="none" stroke="#3BDAED" stroke-width="1.4"/>
+            <!-- 告警被首屏截断线切掉一半 -->
+            <line x1="6" y1="142" x2="234" y2="142" stroke="#FF6B4A" stroke-width="1.2" stroke-dasharray="4 3"/>
+            <rect x="160" y="146" width="70" height="14" rx="2" fill="#2A1915" stroke="#FF6B4A"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="quiz-verdict reveal" aria-live="polite">
+        <p class="qv-title" id="s07-vtitle">先按大促值班的第一眼直觉选一版。</p>
+        <p class="qv-body" id="s07-vbody">四版使用同一组业务数据，选完后会揭示每版各自偏离的那一个变量。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 08 节：原海报与关键词 ==================== -->
+  <section class="sec sec-poster" id="sec-08" aria-labelledby="h-08">
+    <div class="wrap poster-grid">
+      <div class="poster-left reveal">
+        <p class="sec-no" lang="en">08</p>
+        <h2 id="h-08">原海报与关键词</h2>
+        <p class="sec-en" lang="en">Original Poster · No. 273</p>
+        <p class="poster-desc">273 号原海报采用深炭黑画布与电青、酸橙绿双色编码，以右上雷达盘锚定监控意象，正文按「KPI 指标 → 趋势与渠道 → 实时负载 / 任务进度 / 告警中心」三层排布，底沿用 L 形角框收束四大要点。</p>
+
+        <ul class="kw-list">
+          <li>
+            <span class="kw-dot is-cyan" aria-hidden="true"></span>
+            <div><strong>总览 <span lang="en">OVERVIEW</span></strong><p>全局概览 一目了然</p></div>
+          </li>
+          <li>
+            <span class="kw-dot is-lime" aria-hidden="true"></span>
+            <div><strong>指标 <span lang="en">KPI</span></strong><p>关键指标 量化衡量</p></div>
+          </li>
+          <li>
+            <span class="kw-dot is-cyan" aria-hidden="true"></span>
+            <div><strong>监控 <span lang="en">MONITOR</span></strong><p>实时监控 异常预警</p></div>
+          </li>
+          <li>
+            <span class="kw-dot is-lime" aria-hidden="true"></span>
+            <div><strong>效率 <span lang="en">EFFICIENCY</span></strong><p>聚焦重点 提升效率</p></div>
+          </li>
+        </ul>
+        <p class="poster-slogan" lang="en">FOCUS ON WHAT MATTERS</p>
+      </div>
+
+      <figure class="poster-figure reveal">
+        <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="放大查看 273 号原海报">
+          <img
+            id="poster"
+            src="poster.webp"
+            draggable="false"
+            width="1086"
+            height="1448"
+            alt="273 号仪表盘布局原海报：深炭黑底色，左上标题与总述、右上电青色雷达圆盘；中段自上而下依次为四张带迷你折线的 KPI 指标卡、趋势分析双折线图与渠道分布圆环图、72% 系统负载半圆表盘、四条任务进度条与告警中心；底部为总览、指标、监控、效率四项要点。"
+          >
+        </button>
+        <figcaption>点击放大海报，可滚轮缩放、拖动细节，按 Esc 收起。</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<!-- 原海报灯箱（复用 #poster.src，不重复内联图片） -->
+<div class="poster-modal" id="poster-modal" role="dialog" aria-modal="true" aria-label="原海报放大查看" hidden>
+  <div class="pm-bar">
+    <span class="pm-title">No. 273 仪表盘布局 · 原海报</span>
+    <div class="pm-tools">
+      <button type="button" class="pm-btn" id="poster-zoom-out" aria-label="缩小">−</button>
+      <button type="button" class="pm-btn" id="poster-zoom-reset">100%</button>
+      <button type="button" class="pm-btn" id="poster-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="pm-btn is-close" id="poster-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="pm-viewport" id="poster-viewport">
+    <img id="poster-modal-img" class="pm-img" draggable="false" alt="273 号仪表盘布局原海报放大图">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p><span lang="en" class="foot-no">No. 273</span> 仪表盘布局 · 350 种排版</p>
+    <p class="foot-note">单屏收束全局，留出安静基线，只让真正的异常跳进眼睛。</p>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/273/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
