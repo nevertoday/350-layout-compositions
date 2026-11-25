@@ -19,6 +19,8 @@ const MODEL = process.env.MODEL || "gemini-4-neon-xhigh";
 const WORKERS = Number(process.env.WORKERS || 8);
 const ATTEMPTS = 4;
 const REVIEWS = 2;
+// Claude 审方案、审成品：用户说省算力，默认关掉；REVIEW=1 再打开。自动检查（build / check / gate）照常
+const REVIEW = process.env.REVIEW === "1";
 const CLAUDE = "/opt/homebrew/bin/claude";
 const AUTHOR_MS = 90 * 60_000;
 const DEPLOY_EVERY = Number(process.env.DEPLOY_EVERY || 20);
@@ -169,6 +171,15 @@ async function makePage(id) {
   // 新页先出方案、过主编这一关再动手：构思上的问题（玩法撞车、答案先给、练习太易）在这里改最便宜
   if (!revisit && !built && !stopped()) {
     const hasPlan = () => pageDir(id) && existsSync(join(ROOT, "pages", pageDir(id), "PLAN.md"));
+    if (!REVIEW) {
+      // 不审方案：被打断前已经审过的，把那次意见交过去；没审过的就让作者自己写 PLAN.md 接着做
+      const reviewed = join(OUT, `${id}-planreview.log`);
+      if (hasPlan() && existsSync(reviewed)) {
+        const { verdict } = await import(`./review.mjs?${Date.now()}`);
+        const v = verdict(readFileSync(reviewed, "utf8"));
+        if (!v.unparsed && v.points.length) retry = { plan: true, tail: v.points.map((p, i) => `${i + 1}. ${p}`).join("\n") };
+      }
+    } else {
     if (!hasPlan()) {
       await roomToRun();
       log(`${id} 先写方案`);
@@ -184,6 +195,7 @@ async function makePage(id) {
       notes.push(...v.points.map((p) => `方案：${p}`));
       retry = { plan: true, tail: v.points.length ? v.points.map((p, i) => `${i + 1}. ${p}`).join("\n") : "（方案通过，没有意见，照方案做）" };
     } else log(`${id} 没写出 PLAN.md，直接做页面`);
+    }
   }
   for (let attempt = 1; attempt <= ATTEMPTS; ) {
     if (stopped()) return;
@@ -216,7 +228,7 @@ async function makePage(id) {
       retry = { review: revisit, reason: revisit ? `这一页是新规矩之前做的，${reason}` : reason, tail: problems.length ? problems.map((p) => `- ${p}`).join("\n") : tail((c ?? b).out) };
       continue;
     }
-    if (reviews < REVIEWS && attempt <= ATTEMPTS) {
+    if (REVIEW && reviews < REVIEWS && attempt <= ATTEMPTS) {
       reviews++;
       const { reviewArgs, verdict } = await import(`./review.mjs?${Date.now()}`);
       // 网络断、超时：隔 1、3、10 分钟再审；都不行才放行，并记进 followup.txt，下次开跑时补审
