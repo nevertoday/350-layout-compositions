@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#020836">
+<title>动静对比 · DYNAMIC VS STATIC</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="hero-top wrap">
+    <p class="hero-kicker">
+      <span class="kicker-dot" aria-hidden="true"></span>
+      <span>视觉原则与阅读模式 / 层级、比例与对比</span>
+      <span class="kicker-no" lang="en">NO. 104 · CONTRAST CREATES FOCUS</span>
+    </p>
+    <div class="hero-mast">
+      <div class="hero-title-group">
+        <h1 class="hero-title" id="hero-title" aria-label="动静对比">
+          <span class="t-dyn" id="title-dyn">动</span><span class="t-stat" id="title-stat">静</span><span class="t-rest">对比</span>
+        </h1>
+        <p class="hero-en" lang="en">DYNAMIC VS STATIC</p>
+      </div>
+      <div class="hero-poetic" aria-label="海报导语">
+        <p>通过动与静的对比</p>
+        <p>产生视觉张力</p>
+        <p>引导注意力</p>
+        <p>建立层次与焦点</p>
+        <span class="poetic-bar" aria-hidden="true"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-workspace wrap">
+    <div class="hero-stage-col">
+      <div class="stage-shell" id="hero-stage">
+        <canvas id="hero-canvas" aria-hidden="true"></canvas>
+        <button
+          type="button"
+          class="orb-handle"
+          id="orb-handle"
+          data-perf-drag
+          aria-label="拖动破格圆球改变斜角与脱离距离，也可按方向键微调"
+          aria-describedby="hero-diag-text"
+        >
+          <span class="orb-ring" aria-hidden="true"></span>
+          <span class="orb-tag" id="orb-tag" lang="en">16°</span>
+        </button>
+      </div>
+      <p class="stage-hint">点击方格或下方九宫开关切换「静 / 动」，拖动右上圆球调整斜角与冲距（聚焦圆球可用方向键微调）。</p>
+    </div>
+
+    <div class="hero-dock" aria-live="polite">
+      <div class="dock-col dock-matrix">
+        <div class="dock-head">
+          <span class="dock-label">3×3 静动矩阵</span>
+          <span class="dock-sub" id="dock-ratio-tag" lang="en">静 3 / 9</span>
+        </div>
+        <div class="mini-grid" id="mini-grid" role="group" aria-label="九宫格静动开关">
+          <button type="button" class="mcell" data-idx="0" aria-pressed="false" aria-label="第 1 格">1</button>
+          <button type="button" class="mcell" data-idx="1" aria-pressed="true" aria-label="第 2 格">2</button>
+          <button type="button" class="mcell" data-idx="2" aria-pressed="true" aria-label="第 3 格">3</button>
+          <button type="button" class="mcell" data-idx="3" aria-pressed="true" aria-label="第 4 格">4</button>
+          <button type="button" class="mcell" data-idx="4" aria-pressed="false" aria-label="第 5 格">5</button>
+          <button type="button" class="mcell" data-idx="5" aria-pressed="true" aria-label="第 6 格">6</button>
+          <button type="button" class="mcell" data-idx="6" aria-pressed="false" aria-label="第 7 格">7</button>
+          <button type="button" class="mcell" data-idx="7" aria-pressed="true" aria-label="第 8 格">8</button>
+          <button type="button" class="mcell" data-idx="8" aria-pressed="true" aria-label="第 9 格">9</button>
+        </div>
+        <div class="dock-actions">
+          <button type="button" class="d-btn" id="btn-reset-chaos">复原错态</button>
+          <button type="button" class="d-btn" id="btn-all-static">全静 9/9</button>
+          <button type="button" class="d-btn" id="btn-pause" aria-pressed="false">暂停流动</button>
+        </div>
+      </div>
+
+      <div class="dock-col dock-checks">
+        <div class="dock-head">
+          <span class="dock-label">三项动静体检</span>
+          <span class="dock-sub">经验值判定</span>
+        </div>
+        <ul class="check-list">
+          <li class="chk" id="chk-ratio">
+            <span class="chk-mark" aria-hidden="true">×</span>
+            <span class="chk-name">静区锚基</span>
+            <output class="chk-val" id="val-ratio">33%（3/9）</output>
+          </li>
+          <li class="chk" id="chk-angle">
+            <span class="chk-mark" aria-hidden="true">×</span>
+            <span class="chk-name">破格仰角</span>
+            <output class="chk-val" id="val-angle">16°（30°–60°）</output>
+          </li>
+          <li class="chk" id="chk-reach">
+            <span class="chk-mark" aria-hidden="true">×</span>
+            <span class="chk-name">脱格冲距</span>
+            <output class="chk-val" id="val-reach">40%（48%–86%）</output>
+          </li>
+        </ul>
+      </div>
+
+      <div class="dock-col dock-diag">
+        <div class="diag-top">
+          <span class="diag-badge" id="hero-badge" data-level="bad">全动失锚 · 0/3</span>
+          <strong class="diag-title" id="hero-diag-title">6/9 块同时乱飞，静格底盘已散架</strong>
+        </div>
+        <p class="diag-text" id="hero-diag-text">静态锚基只剩 33%（经验稳态线为 70%–90%）。当大部分元素都在斜飞，大脑失去了横竖参照，动块互相抢戏，反而谁都不显快。</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 01 -->
+  <section class="sec sec-chalk" id="sec-01" aria-labelledby="h-s1">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">01</span>
+        <div class="sec-titles">
+          <h2 id="h-s1">静，才是动的放大器</h2>
+          <p class="sec-en" lang="en">WHY STATIC AMPLIFIES MOTION</p>
+        </div>
+      </header>
+
+      <div class="split-2">
+        <div class="prose">
+          <p>很多人做「有动感」的版面时，习惯把标题、配图、角标和底纹一起倾斜、加模糊、配动效。结果往往适得其反：当满屏都在动，眼睛失去参照基准，反而什么都抓不住。</p>
+          <p>视觉心理学早就证实了这种不对称。安妮·特雷斯曼与斯蒂芬·戈米坎（Anne Treisman &amp; Stephen Gormican，1988）在《心理学评论》发表的视觉搜索研究指出：在一片竖直静止的线条里，只要有一根倾斜的线，人眼几乎瞬间就能「跳出来」发现它；反过来，在一片倾斜混乱的线条里找唯一一根端正的竖线，大脑却不得不逐个排查，速度慢得多。</p>
+          <p>至于真正的屏幕运动，史蒂文·弗兰科内里与丹尼尔·西蒙斯（Steven L. Franconeri &amp; Daniel J. Simons，2003）在《感知与心理物理学》的实验中发现：平动与迫近的刺激即使与当前任务无关，也会自动劫持注意力。这就是为什么动态元素必须克制——它是用来建立第一眼<a href="https://layout.xiaoxiaodong.ai/095/play/" target="_blank" rel="noopener">视觉层级（No.095）</a>与<a href="https://layout.xiaoxiaodong.ai/096/play/" target="_blank" rel="noopener">主次关系（No.096）</a>的稀缺资源。</p>
+
+          <div class="calibrate">
+            <blockquote class="poster-quote">
+              <p class="pq-head"><b>打破平衡</b></p>
+              <p>偏离 · 突破 · 冲击，制造视觉焦点。</p>
+              <cite>104 号原海报原话</cite>
+            </blockquote>
+            <div class="cal-note">
+              <span class="cal-tag">补一句前提</span>
+              <p>「打破平衡」之所以能制造焦点，前提是画面里<strong>先有一套足够稳的多数秩序</strong>（按平面经验通常占 70%–90%）。没有大面积的静，破格只是另一块杂乱的碎片。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="lab-card lab-chalk">
+          <div class="lab-bar">
+            <div>
+              <h3 class="lab-title">一秒找异类 · 搜索不对称实测</h3>
+              <p class="lab-sub">同色同尺寸的 25 根竖条，亲自测一测哪种底盘让目标跳出来。</p>
+            </div>
+            <div class="seg-group" role="group" aria-label="测试模式">
+              <button type="button" class="seg-btn active" id="search-mode-a" aria-pressed="true">静场找 1 斜</button>
+              <button type="button" class="seg-btn" id="search-mode-b" aria-pressed="false">乱场找 1 正</button>
+            </div>
+          </div>
+
+          <div class="search-stage">
+            <div class="search-grid" id="search-grid" role="group" aria-label="5 乘 5 视觉搜索矩阵"></div>
+          </div>
+
+          <div class="search-foot">
+            <div class="search-metrics">
+              <div class="sm-item">
+                <span class="sm-lbl">静场寻斜耗时</span>
+                <output class="sm-num" id="time-a" lang="en">--</output>
+              </div>
+              <div class="sm-item">
+                <span class="sm-lbl">乱场寻正耗时</span>
+                <output class="sm-num" id="time-b" lang="en">--</output>
+              </div>
+            </div>
+            <button type="button" class="act-btn" id="search-start">换一组重测</button>
+          </div>
+          <p class="lab-readout" id="search-readout" aria-live="polite">当前是「静场找 1 斜」：在 24 根竖直静条里点出唯一倾斜的那一根。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="sec sec-indigo" id="sec-02" aria-labelledby="h-s2">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">02</span>
+        <div class="sec-titles">
+          <h2 id="h-s2">拆开动静的四个零件</h2>
+          <p class="sec-en" lang="en">FOUR STRUCTURAL PARTS</p>
+        </div>
+      </header>
+
+      <div class="anatomy-wrap">
+        <div class="anatomy-board">
+          <div class="anatomy-canvas-box">
+            <canvas id="anatomy-canvas" aria-hidden="true"></canvas>
+          </div>
+          <div class="anatomy-readout" aria-live="polite">
+            <span class="an-badge" id="an-badge" data-kind="good">完整协同 · 4/4</span>
+            <p id="an-text">四层全部在位：3×3 方格托住秩序，破格圆球给出焦点，斜向速度线标明方向，暗场留白拉开动静之间的空间张力。</p>
+          </div>
+        </div>
+
+        <div class="anatomy-switches">
+          <p class="an-intro">原海报把动静对比拆成了四条核心结构。试着逐一关掉其中任意一层，看看整幅画面的张力在哪一步突然泄掉：</p>
+          <ul class="layer-list">
+            <li>
+              <label class="layer-toggle">
+                <input type="checkbox" id="layer-grid" checked>
+                <span class="lt-track" aria-hidden="true"></span>
+                <span class="lt-body">
+                  <strong>01 稳定的结构</strong>
+                  <span class="lt-quote">原海报：「规则 · 均衡 · 秩序，提供视觉支撑」</span>
+                  <span class="lt-desc">3×3 正交方格构成静区基准，让读者一眼感知页面的横竖坐标。</span>
+                </span>
+              </label>
+            </li>
+            <li>
+              <label class="layer-toggle">
+                <input type="checkbox" id="layer-orb" checked>
+                <span class="lt-track" aria-hidden="true"></span>
+                <span class="lt-body">
+                  <strong>02 打破平衡</strong>
+                  <span class="lt-quote">原海报：「偏离 · 突破 · 冲击，制造视觉焦点」</span>
+                  <span class="lt-desc">用圆形破开方格边界，同时借<a href="https://layout.xiaoxiaodong.ai/102/play/" target="_blank" rel="noopener">形状对比（No.102）</a>拉开辨识度。</span>
+                </span>
+              </label>
+            </li>
+            <li>
+              <label class="layer-toggle">
+                <input type="checkbox" id="layer-streaks" checked>
+                <span class="lt-track" aria-hidden="true"></span>
+                <span class="lt-body">
+                  <strong>03 方向与速度</strong>
+                  <span class="lt-quote">原海报：「对角线 · 运动轨迹，传递动感与能量」</span>
+                  <span class="lt-desc">从橘红发射点延伸的锥形光束与速度细线，把「静止的圆」变成「正在冲出的圆」。</span>
+                </span>
+              </label>
+            </li>
+            <li>
+              <label class="layer-toggle">
+                <input type="checkbox" id="layer-space" checked>
+                <span class="lt-track" aria-hidden="true"></span>
+                <span class="lt-body">
+                  <strong>04 空间张力</strong>
+                  <span class="lt-quote">原海报：「动静相斥 · 相生，形成强烈对比」</span>
+                  <span class="lt-desc">圆球甩开静格后留出的深蓝空场，类似<a href="https://layout.xiaoxiaodong.ai/106/play/" target="_blank" rel="noopener">隔离原则（No.106）</a>，让动势有处可去。</span>
+                </span>
+              </label>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="sec sec-mintpaper" id="sec-03" aria-labelledby="h-s3">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">03</span>
+        <div class="sec-titles">
+          <h2 id="h-s3">疏密长短，管着速度与节奏</h2>
+          <p class="sec-en" lang="en">DENSITY, LENGTH &amp; RHYTHM</p>
+        </div>
+      </header>
+
+      <div class="prose-lead">
+        <p>印刷海报和静态幻灯片一动不动，为什么依然能让人看出「快」和「慢」？104 号原海报底栏点破了手法：<strong>「线条长短与密度，加快或减缓节奏」</strong>、<strong>「重复与变化，创造韵律感」</strong>。均匀排列的等宽方块像平稳心跳，而长短递进、间距收紧的斜向线束，会把视线瞬间推快。点击下面八拍切换「静块 / 动斜」，再拉动线束密率，看韵律怎么在单调、爆发与噪点之间切换。</p>
+      </div>
+
+      <div class="rhythm-lab">
+        <div class="rhythm-canvas-box">
+          <canvas id="rhythm-canvas" aria-hidden="true"></canvas>
+        </div>
+
+        <div class="rhythm-controls">
+          <div class="beat-bar">
+            <span class="ctrl-k">八拍静动序列（点按切换）</span>
+            <div class="beats" id="rhythm-beats" role="group" aria-label="八拍静动序列">
+              <button type="button" class="beat" data-beat="0" aria-pressed="false">静</button>
+              <button type="button" class="beat" data-beat="1" aria-pressed="false">静</button>
+              <button type="button" class="beat" data-beat="2" aria-pressed="false">静</button>
+              <button type="button" class="beat" data-beat="3" aria-pressed="false">静</button>
+              <button type="button" class="beat" data-beat="4" aria-pressed="false">静</button>
+              <button type="button" class="beat is-dyn" data-beat="5" aria-pressed="true">动</button>
+              <button type="button" class="beat" data-beat="6" aria-pressed="false">静</button>
+              <button type="button" class="beat" data-beat="7" aria-pressed="false">静</button>
+            </div>
+          </div>
+
+          <div class="density-row">
+            <label class="density-label" for="rhythm-density">
+              <span>线束长短与密率</span>
+              <output id="rhythm-density-val" lang="en">64%</output>
+            </label>
+            <input type="range" id="rhythm-density" min="15" max="100" step="1" value="64">
+            <div class="rhythm-presets" role="group" aria-label="节奏预设">
+              <button type="button" class="pre-btn" data-rpreset="burst">蓄势一破</button>
+              <button type="button" class="pre-btn" data-rpreset="still">全静平拍</button>
+              <button type="button" class="pre-btn" data-rpreset="noise">满拍过载</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="rhythm-readout" aria-live="polite">
+          <div class="rr-pills">
+            <span class="rr-tier" id="rr-tier" data-kind="good">蓄势爆发</span>
+            <span class="rr-stat" id="rr-stat" lang="en">静拍 88% · 连续静 5 拍 · 中速推进</span>
+          </div>
+          <p id="rr-text">先用连续 5 拍静块铺出稳定韵律（静拍占 88%），再由 1 拍斜冲打断——配合中速推进线束，形成清晰的节奏高潮与视觉落点。</p>
+        </div>
+      </div>
+
+      <p class="cross-note">想把静态重心本身搭稳，看<a href="https://layout.xiaoxiaodong.ai/097/play/" target="_blank" rel="noopener">平衡原则（No.097）</a>；想靠大小体量拉开节奏起伏，看<a href="https://layout.xiaoxiaodong.ai/099/play/" target="_blank" rel="noopener">尺度对比原则（No.099）</a>与<a href="https://layout.xiaoxiaodong.ai/098/play/" target="_blank" rel="noopener">比例原则（No.098）</a>。</p>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="sec sec-navy" id="sec-04" aria-labelledby="h-s4">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">04</span>
+        <div class="sec-titles">
+          <h2 id="h-s4">从哪来：百年动静之争</h2>
+          <p class="sec-en" lang="en">ORIGIN · THE DIAGONAL SCHISM</p>
+        </div>
+      </header>
+
+      <div class="history-layout">
+        <div class="history-stage">
+          <div class="plate-frame">
+            <svg id="history-svg" viewBox="0 0 420 340" role="img" aria-label="二十世纪艺术与设计史上的四幅动静构图示意"></svg>
+          </div>
+          <div class="plate-bar">
+            <label class="skel-toggle">
+              <input type="checkbox" id="history-grid-toggle" checked>
+              <span>显露隐藏的正交参照骨架</span>
+            </label>
+            <span class="plate-cap" id="history-plate-cap" lang="en">1924 · ELEMENTARISM</span>
+          </div>
+        </div>
+
+        <div class="history-timeline">
+          <div class="era-tabs" role="tablist" aria-label="四个历史节点">
+            <button type="button" class="era-btn" role="tab" data-era="mondrian" aria-selected="false">
+              <span class="era-yr" lang="en">1920s</span>
+              <span class="era-name">蒙德里安 · 纯粹正交</span>
+            </button>
+            <button type="button" class="era-btn active" role="tab" data-era="doesburg" aria-selected="true">
+              <span class="era-yr" lang="en">1924–30</span>
+              <span class="era-name">杜斯伯格 · 45° 决裂</span>
+            </button>
+            <button type="button" class="era-btn" role="tab" data-era="kandinsky" aria-selected="false">
+              <span class="era-yr" lang="en">1926</span>
+              <span class="era-name">康定斯基 · 点线面张力</span>
+            </button>
+            <button type="button" class="era-btn" role="tab" data-era="arnheim" aria-selected="false">
+              <span class="era-yr" lang="en">1954 / 63</span>
+              <span class="era-name">阿恩海姆与伊顿</span>
+            </button>
+          </div>
+
+          <article class="era-detail" id="era-detail" aria-live="polite">
+            <h3 id="era-title">杜斯伯格把线条斜了 45°，风格派因此决裂</h3>
+            <p id="era-body">荷兰风格派原本恪守皮特·蒙德里安（Piet Mondrian）的「新造型主义」：画布里只许出现水平与垂直线，以换取绝对的静态均衡。1924 年起，同为创始人的特奥·凡·杜斯伯格（Theo van Doesburg）在《反构图 V》（阿姆斯特丹市立博物馆藏）与 1929–30 年的《同时反构图》（纽约现代艺术博物馆 MoMA 藏，馆藏号 588.1967）中把内部结构旋转 45°，提出「要素主义（Elementarism）」，用对角线切开正交方框注入现代动势——蒙德里安视其为背叛，两人就此分道扬镳。</p>
+            <p class="era-source" id="era-source">核实出处：MoMA 藏品档案（Object 588.1967）与 Stedelijk Museum 馆藏记录。</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="sec sec-chalk" id="sec-05" aria-labelledby="h-s5">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">05</span>
+        <div class="sec-titles">
+          <h2 id="h-s5">什么时候用，什么时候别用</h2>
+          <p class="sec-en" lang="en">WHEN TO USE &amp; MOTION LIMITS</p>
+        </div>
+      </header>
+
+      <div class="use-columns">
+        <div class="use-col use-yes">
+          <h3><span class="u-tag yes">适合</span>让信息自带方向与冲劲</h3>
+          <ul>
+            <li><strong>海报与专题主视觉</strong>：文字和日期乖乖守住正交网格，只用一条斜向主体或光束负责第一眼吸引。</li>
+            <li><strong>演示文稿的转折页</strong>：前面十页安静工整，关键突破数据页突然破格斜切，观众立刻抬头。</li>
+            <li><strong>慢门摄影与静物并置</strong>：车流、浪花或衣裙拉出动态模糊，主体建筑或人物保持锐利静止。</li>
+            <li><strong>网页首屏的单点微动</strong>：90% 界面纹丝不动，只在主按钮或关键状态变化上给一次克制的动效反馈。</li>
+          </ul>
+        </div>
+        <div class="use-col use-no">
+          <h3><span class="u-tag no">别用</span>持续阅读与严肃信任场景</h3>
+          <ul>
+            <li><strong>长篇正文、财报与合同</strong>：读者需要稳定的扫视基线，任何持续晃动或大斜切都会打断理解。</li>
+            <li><strong>庄重礼仪与档案文献</strong>：证书、铭牌、讣告与典籍靠的是水平与对称的安定，硬加动势显得轻浮。</li>
+            <li><strong>多处同时自动播放的促销页</strong>：轮播图、闪动红点、底部弹幕一起动，静区坍塌，转化反而下降。</li>
+            <li><strong>关不掉的网页循环动画</strong>：W3C WCAG 2.2 成功标准 2.2.2 明确要求，与正文并排、自动播放超过 5 秒的动效必须能暂停、停止或隐藏。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ui-budget-lab">
+        <div class="uib-head">
+          <div>
+            <h3>网页动效预算诊断器（WCAG 2.2.2 实测）</h3>
+            <p>勾开几项常见网页动效，感受屏幕里同时有 1 处和 3 处元素在动时，中间那段正文还好不好读。</p>
+          </div>
+          <span class="uib-badge" id="uib-badge" data-kind="good">符合 WCAG 2.2.2 · 单一有主次</span>
+        </div>
+
+        <div class="uib-grid">
+          <div class="uib-mock" id="uib-mock" aria-label="迷你网页界面预览">
+            <div class="mock-nav">
+              <span class="mock-brand" lang="en">ARCHIVE.LOG</span>
+              <span class="mock-pill" id="mock-badge">NEW 限时</span>
+            </div>
+            <div class="mock-banner" id="mock-carousel">
+              <div class="mock-track">
+                <span>展讯 01 · 建筑摄影季</span>
+                <span>展讯 02 · 字体工坊开放</span>
+                <span>展讯 03 · 夜间场次加开</span>
+                <span>展讯 01 · 建筑摄影季</span>
+              </div>
+            </div>
+            <div class="mock-article">
+              <h4>年度馆藏开放阅读说明</h4>
+              <p>周二至周日十点开放，阅览室全区保持安静，请将随身设备调至静音后取阅原版图录。</p>
+              <button type="button" class="mock-cta" id="mock-cta">预约入馆 →</button>
+            </div>
+            <div class="mock-ticker" id="mock-ticker">
+              <div class="mock-ticker-inner">公告：本周末加开夜场 · 团体预约提前三日登记 · 馆内禁止闪光灯拍摄 · 本周末加开夜场 ·</div>
+            </div>
+          </div>
+
+          <div class="uib-panel">
+            <p class="uib-stat">安静可读区（示意）：<output id="uib-calm" lang="en">94%</output></p>
+            <div class="uib-checks">
+              <label class="uib-opt"><input type="checkbox" id="ui-cta" checked><span>仅主按钮悬停轻动（单点动势）</span></label>
+              <label class="uib-opt"><input type="checkbox" id="ui-carousel"><span>顶部横幅自动轮播（持续移动）</span></label>
+              <label class="uib-opt"><input type="checkbox" id="ui-badge"><span>右上角标循环脉冲闪烁</span></label>
+              <label class="uib-opt"><input type="checkbox" id="ui-ticker"><span>底部公告栏持续横向滚屏</span></label>
+            </div>
+            <p class="uib-diag" id="uib-diag" aria-live="polite">正文、卡片与导航全部保持静止，只在读者悬停主操作按钮时触发一次轻快反馈：既守住阅读专注，又让关键入口有明快动势。</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="cross-note">若要让画面不靠斜线或运动也产生强反差，可配合同小类的<a href="https://layout.xiaoxiaodong.ai/100/play/" target="_blank" rel="noopener">明暗对比（No.100）</a>、<a href="https://layout.xiaoxiaodong.ai/101/play/" target="_blank" rel="noopener">色彩对比（No.101）</a>、<a href="https://layout.xiaoxiaodong.ai/103/play/" target="_blank" rel="noopener">质感对比（No.103）</a>，或直接用<a href="https://layout.xiaoxiaodong.ai/105/play/" target="_blank" rel="noopener">并置原则（No.105）</a>把静与动紧邻对比。</p>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="sec sec-indigo" id="sec-06" aria-labelledby="h-s6">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">06</span>
+        <div class="sec-titles">
+          <h2 id="h-s6">小练习：四张夜跑海报选一张</h2>
+          <p class="sec-en" lang="en">PRACTICE · SPOT THE TRUE CONTRAST</p>
+        </div>
+      </header>
+
+      <p class="prose-lead">同一场「2026 城市夜跑」海报，字号、配色与信息量完全一致，只改变<strong>动静配比与破格方式</strong>。先凭第一眼直觉挑出既稳得住信息、又立得住冲刺焦点的那一张：</p>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四张夜跑海报选项">
+        <button type="button" class="quiz-card" data-pick="A" aria-pressed="false">
+          <svg class="quiz-svg" viewBox="0 0 210 280" id="q-svg-A" aria-hidden="true"></svg>
+          <span class="quiz-lbl" lang="en">A</span>
+        </button>
+        <button type="button" class="quiz-card" data-pick="B" aria-pressed="false">
+          <svg class="quiz-svg" viewBox="0 0 210 280" id="q-svg-B" aria-hidden="true"></svg>
+          <span class="quiz-lbl" lang="en">B</span>
+        </button>
+        <button type="button" class="quiz-card" data-pick="C" aria-pressed="false">
+          <svg class="quiz-svg" viewBox="0 0 210 280" id="q-svg-C" aria-hidden="true"></svg>
+          <span class="quiz-lbl" lang="en">C</span>
+        </button>
+        <button type="button" class="quiz-card" data-pick="D" aria-pressed="false">
+          <svg class="quiz-svg" viewBox="0 0 210 280" id="q-svg-D" aria-hidden="true"></svg>
+          <span class="quiz-lbl" lang="en">D</span>
+        </button>
+      </div>
+
+      <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+        <strong id="qv-title">点选任意一张海报查看结构线与评语。</strong>
+        <p id="qv-text">选完之后，四张海报上会同时显出静态正交网格与动态倾角辅助线。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section class="sec sec-poster" id="sec-07" aria-labelledby="h-s7">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">07</span>
+        <div class="sec-titles">
+          <h2 id="h-s7">原海报与六个关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; SIX KEYWORDS</p>
+        </div>
+      </header>
+
+      <div class="poster-split">
+        <figure class="poster-figure">
+          <button type="button" class="poster-trigger" id="poster-open" aria-label="放大查看 104 动静对比原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="104 动静对比原海报：深靛夜蓝底面上，左侧是一组 3×3 薄荷青绿方格，左下橘红圆点向右上射出暖象牙锥形光束并推着薄荷大圆球冲出网格，伴随斜向速度线与右下薄荷虚线圆；底部以细竖线排布速度、稳定、张力、方向、节奏、焦点六个关键词。">
+          </button>
+          <figcaption>点击原海报可放大并拖动查看细节，按 Esc 键收起。</figcaption>
+        </figure>
+
+        <div class="poster-meta">
+          <div class="kw-grid">
+            <div class="kw-item">
+              <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M8 30 A14 14 0 0 1 36 30"/><path d="M22 30 L31 19"/><circle cx="22" cy="30" r="2.5"/></svg>
+              <h3>速度 <span lang="en">SPEED</span></h3>
+              <p>线条长短与密度，加快或减缓节奏</p>
+            </div>
+            <div class="kw-item">
+              <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="11" y="11" width="22" height="22"/></svg>
+              <h3>稳定 <span lang="en">STABILITY</span></h3>
+              <p>形状 · 方格 · 水平，建立安定感</p>
+            </div>
+            <div class="kw-item">
+              <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M6 22 H18 M13 17 L18 22 L13 27"/><path d="M38 22 H26 M31 17 L26 22 L31 27"/><path d="M22 10 V34"/></svg>
+              <h3>张力 <span lang="en">TENSION</span></h3>
+              <p>动静冲突，产生视觉能量</p>
+            </div>
+            <div class="kw-item">
+              <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M12 32 L32 12 M18 12 H32 V26"/></svg>
+              <h3>方向 <span lang="en">DIRECTION</span></h3>
+              <p>引导视线，决定视觉路径</p>
+            </div>
+            <div class="kw-item">
+              <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M7 18 Q14.5 11 22 18 T37 18"/><path d="M7 27 Q14.5 20 22 27 T37 27"/></svg>
+              <h3>节奏 <span lang="en">RHYTHM</span></h3>
+              <p>重复与变化，创造韵律感</p>
+            </div>
+            <div class="kw-item">
+              <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="13"/><circle cx="22" cy="22" r="7"/><circle cx="22" cy="22" r="2.2" fill="currentColor"/></svg>
+              <h3>焦点 <span lang="en">FOCUS</span></h3>
+              <p>通过对比突出核心信息</p>
+            </div>
+          </div>
+
+          <div class="poster-maxim">
+            <span class="mx-line" aria-hidden="true"></span>
+            <div class="mx-text">
+              <p class="mx-zh">动静相生 · 对比制胜</p>
+              <p class="mx-en" lang="en">CONTRAST CREATES FOCUS</p>
+            </div>
+            <span class="mx-line" aria-hidden="true"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog id="viewer" class="viewer" aria-label="104 动静对比原海报大图">
+  <div class="viewer-bar">
+    <span class="viewer-title">NO. 104 动静对比 · 原海报</span>
+    <div class="viewer-tools">
+      <button type="button" class="v-btn" id="zoom-out" aria-label="缩小">−</button>
+      <output id="zoom-val" lang="en">100%</output>
+      <button type="button" class="v-btn" id="zoom-in" aria-label="放大">+</button>
+      <button type="button" class="v-btn v-close" id="viewer-close">关闭</button>
+    </div>
+  </div>
+  <div class="viewer-scroll" id="viewer-scroll" tabindex="0" aria-label="可拖动和滚动的海报画布">
+    <img id="viewer-img" draggable="false" alt="104 动静对比原海报大图">
+  </div>
+</dialog>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p class="foot-id"><span lang="en">NO. 104</span> 动静对比 · 350 种排版</p>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/104/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
