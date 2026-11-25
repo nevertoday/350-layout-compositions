@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>248 切换器 · SWITCHER — 350 种排版互动版</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow-bar">
+      <span class="eyebrow-cat"><i class="eyebrow-dot" aria-hidden="true"></i>网页与 UI / 布局原语 · <span class="mono">NO. 248</span></span>
+      <span class="status-pill is-err" id="hero-status-pill" aria-live="polite">0/4 · 故障待修</span>
+    </div>
+
+    <div class="hero-main-grid">
+      <!-- 刊头区（桌面居顶通栏，横屏手机归入右栏） -->
+      <div class="hero-head">
+        <div class="hero-title-group">
+          <div class="hero-title-row">
+            <h1 class="hero-h1">切换器</h1>
+            <span class="hero-en" lang="en">SWITCHER</span>
+          </div>
+          <p class="hero-triad">
+            <span>状态切换</span><span class="sep" aria-hidden="true">·</span>
+            <span>当前高亮</span><span class="sep" aria-hidden="true">·</span>
+            <span>内容联动</span>
+            <span class="triad-en" lang="en">STATE · ACTIVE · RESPONSE</span>
+          </p>
+        </div>
+
+        <div class="hero-aside">
+          <button type="button" class="poster-toggle" id="hero-master-toggle" aria-pressed="false" title="拨动开关：接通或断开内容联动">
+            <span class="poster-toggle-track">
+              <span class="poster-toggle-knob"></span>
+            </span>
+            <span class="poster-toggle-text" id="hero-toggle-label">联动已断</span>
+          </button>
+          <p class="hero-summary desktop-summary">切换器用于在多个选项之间进行切换，当前选项高亮显示，内容区域随之联动更新。</p>
+        </div>
+      </div>
+
+      <!-- 题材切换行 -->
+      <div class="scene-bar" role="group" aria-label="演示题材">
+        <div class="scene-tabs" id="scene-tabs">
+          <button type="button" class="scene-btn is-active" data-scene="poster">原海报 · 四形态</button>
+          <button type="button" class="scene-btn" data-scene="docs">云文档 · 多视图</button>
+          <button type="button" class="scene-btn" data-scene="metrics">数据看板 · 维度</button>
+        </div>
+        <div class="quick-presets">
+          <button type="button" class="preset-chip is-sol" data-preset="poster">原海报经典解</button>
+          <button type="button" class="preset-chip is-sol" data-preset="cobalt">三项反白解</button>
+          <button type="button" class="preset-chip is-sol" data-preset="asyncOverflow">七项溢出+慢载解</button>
+          <button type="button" class="preset-chip is-try" data-preset="badWrap">试错：双排</button>
+          <button type="button" class="preset-chip is-try" data-preset="badLag">试错：假死</button>
+          <button type="button" class="preset-chip is-reset" data-preset="reset">复原 0/4</button>
+        </div>
+      </div>
+
+      <!-- 核心活体切换器 2D Canvas 舞台 -->
+      <div class="stage-shell">
+        <canvas id="hero-canvas" class="hero-canvas" data-perf-drag tabindex="0" aria-label="活体切换器交互画布：可左右拖拽顶部滑轨，点击选项或红标修错，或用方向键切换"></canvas>
+      </div>
+
+      <!-- 下方：单真源诊单 + 原海报 ①②③ 实况与精控槽 -->
+      <div class="hero-dock">
+        <section class="diag-card" aria-live="polite">
+          <div class="diag-top">
+            <span class="diag-badge is-err" id="diag-badge">0/4 · 待修复</span>
+            <span class="diag-source">实绘坐标与 WCAG 单真源</span>
+          </div>
+          <h2 class="diag-title" id="diag-title">正在初始化诊断…</h2>
+          <p class="diag-body" id="diag-body"></p>
+          <div class="diag-next">
+            <span class="diag-next-label">试着改一步</span>
+            <p class="diag-next-text" id="diag-next"></p>
+          </div>
+          <div class="diag-metrics">
+            <div class="metric-cell">
+              <span class="metric-k">高亮色差</span>
+              <strong class="metric-v mono" id="m-delta">--</strong>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-k">单格实宽</span>
+              <strong class="metric-v mono" id="m-slot">--</strong>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-k">排布行数</span>
+              <strong class="metric-v mono" id="m-rows">--</strong>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-k">响应延迟</span>
+              <strong class="metric-v mono" id="m-lat">--</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="controls-panel" aria-label="切换器装调台">
+          <!-- 原海报 ① ② ③ 要点实况栏 -->
+          <div class="pillars-row">
+            <div class="pillar-item" id="pillar-state">
+              <div class="pillar-head">
+                <span class="pillar-num">①</span>
+                <strong>状态切换</strong>
+                <span class="pillar-tag" id="ptag-state">--</span>
+              </div>
+              <p>用户点击不同选项，状态从 A 切换到 B / C / D。</p>
+            </div>
+            <div class="pillar-item" id="pillar-active">
+              <div class="pillar-head">
+                <span class="pillar-num">②</span>
+                <strong>当前高亮</strong>
+                <span class="pillar-tag" id="ptag-active">--</span>
+              </div>
+              <p>当前选项以高亮色突出，提供清晰的焦点反馈。</p>
+            </div>
+            <div class="pillar-item" id="pillar-response">
+              <div class="pillar-head">
+                <span class="pillar-num">③</span>
+                <strong>内容联动</strong>
+                <span class="pillar-tag" id="ptag-response">--</span>
+              </div>
+              <p>选项变化时，内容区域同步更新，保持上下文连贯。</p>
+            </div>
+          </div>
+
+          <!-- 四维参数精控区 -->
+          <div class="ctrl-grid">
+            <div class="ctrl-block">
+              <div class="ctrl-label-row">
+                <label for="ctrl-count">选项总数</label>
+                <span class="mono ctrl-val" id="val-count">8 项</span>
+              </div>
+              <input id="ctrl-count" type="range" min="1" max="8" step="1" value="8">
+              <div class="seg-mini" id="ctrl-overflow" role="group" aria-label="多选项排布方式">
+                <button type="button" data-val="wrap" class="is-on">双排折行</button>
+                <button type="button" data-val="squeeze">硬挤单排</button>
+                <button type="button" data-val="overflow">更多收纳</button>
+              </div>
+            </div>
+
+            <div class="ctrl-block">
+              <div class="ctrl-label-row">
+                <span>高亮方案与尖角</span>
+                <button type="button" class="mini-check" id="ctrl-caret" aria-pressed="false">指向尖角：关</button>
+              </div>
+              <div class="seg-mini" id="ctrl-hl" role="group" aria-label="高亮配色方案">
+                <button type="button" data-val="weak" class="is-on">弱灰</button>
+                <button type="button" data-val="yellow">信号黄</button>
+                <button type="button" data-val="cobalt">电光蓝</button>
+                <button type="button" data-val="ink">深墨</button>
+              </div>
+            </div>
+
+            <div class="ctrl-block">
+              <div class="ctrl-label-row">
+                <span>内容区域联动</span>
+                <span class="ctrl-hint" id="val-act-mode">自动激活</span>
+              </div>
+              <div class="seg-mini" id="ctrl-resp" role="group" aria-label="内容联动状态">
+                <button type="button" data-val="frozen" class="is-on">冻结脱节</button>
+                <button type="button" data-val="mismatch">错位映射</button>
+                <button type="button" data-val="synced">同步联动</button>
+              </div>
+            </div>
+
+            <div class="ctrl-block">
+              <div class="ctrl-label-row">
+                <label for="ctrl-latency">响应延迟</label>
+                <span class="mono ctrl-val" id="val-latency">1400ms</span>
+              </div>
+              <input id="ctrl-latency" type="range" min="60" max="1500" step="20" value="1400">
+              <div class="seg-mini" id="ctrl-micro" role="group" aria-label="微状态反馈与激活模式">
+                <button type="button" data-micro="none" class="is-on">静默缺态</button>
+                <button type="button" data-micro="full">完整六态</button>
+                <button type="button" id="ctrl-activation" class="act-toggle">切手动确认</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- 原海报总述在窄屏时移至舞台下方 -->
+      <p class="hero-summary mobile-summary">切换器用于在多个选项之间进行切换，当前选项高亮显示，内容区域随之联动更新。</p>
+    </div>
+
+    <!-- 1:1 复刻原海报底沿「微型状态标记」6 态活体探针带 -->
+    <div class="micro-strip" role="region" aria-label="原海报微型状态标记活体探针">
+      <div class="micro-strip-title">
+        <strong>微型状态标记</strong>
+        <span>点击任意标记在画布触发实景</span>
+      </div>
+      <div class="micro-items" id="micro-probe-list"></div>
+    </div>
+    <p class="micro-probe-note" id="micro-probe-note">点击上方任意一枚状态标记，观察主控制台怎样给出视觉回音。</p>
+  </div>
+</header>
+
+<main>
+  <!-- 01 三步闭环：切、亮、动 -->
+  <section class="sec sec-light" id="sec-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">01</span>
+        <div class="sec-titles">
+          <h2>三步闭环：切、亮、动</h2>
+          <p class="sec-en" lang="en">STATE · ACTIVE · RESPONSE LOOP</p>
+        </div>
+      </div>
+
+      <p class="lead">原海报底部画了三条最基础的机制：<strong>① 状态切换</strong>、<strong>② 当前高亮</strong>、<strong>③ 内容联动</strong>。三件事缺了任何一件，切换器都会退化成一块让人心虚的装饰条——点了没亮，以为没按到；亮了没动，以为死机了；动了没亮，回头一看忘了自己在哪。</p>
+
+      <div class="loop-lab">
+        <div class="loop-controls">
+          <div class="loop-tabs" id="s1-tabs" role="tablist" aria-label="时序触发选项">
+            <button type="button" role="tab" aria-selected="true" class="is-on" data-tab="0">A · 概览</button>
+            <button type="button" role="tab" aria-selected="false" data-tab="1">B · 明细</button>
+            <button type="button" role="tab" aria-selected="false" data-tab="2">C · 对比</button>
+            <button type="button" role="tab" aria-selected="false" data-tab="3">D · 日志</button>
+          </div>
+          <div class="loop-presets" id="s1-modes" role="group" aria-label="响应节奏模式">
+            <button type="button" class="is-on" data-mode="instant">即时 90ms</button>
+            <button type="button" data-mode="async">慢载 620ms（带加载环）</button>
+            <button type="button" data-mode="stall">卡顿 1400ms（静默无提示）</button>
+          </div>
+        </div>
+
+        <div class="timeline-board" id="s1-board">
+          <div class="tl-step" data-step="state">
+            <div class="tl-badge">① STATE</div>
+            <strong>状态切换</strong>
+            <div class="tl-bar"><span class="tl-fill" id="s1-f1"></span></div>
+            <span class="mono tl-ms" id="s1-m1">0 ms</span>
+          </div>
+          <div class="tl-arrow" aria-hidden="true">→</div>
+          <div class="tl-step" data-step="active">
+            <div class="tl-badge">② ACTIVE</div>
+            <strong>当前高亮</strong>
+            <div class="tl-bar"><span class="tl-fill" id="s1-f2"></span></div>
+            <span class="mono tl-ms" id="s1-m2">16 ms</span>
+          </div>
+          <div class="tl-arrow" aria-hidden="true">→</div>
+          <div class="tl-step" data-step="response">
+            <div class="tl-badge">③ RESPONSE</div>
+            <strong>内容联动</strong>
+            <div class="tl-bar"><span class="tl-fill" id="s1-f3"></span></div>
+            <span class="mono tl-ms" id="s1-m3">90 ms</span>
+          </div>
+        </div>
+
+        <div class="s1-preview" id="s1-preview" aria-live="polite">
+          <div class="s1-preview-head">
+            <strong id="s1-view-title">面板 A · 概览视图</strong>
+            <span class="s1-status-chip" id="s1-status-chip">同步完成 · 90ms</span>
+          </div>
+          <p id="s1-view-desc">90 毫秒落在人眼感知的「即时响应」经验区间（约 100ms 以内）：手指刚离开鼠标，高亮块和下方内容同时到位，用户甚至意识不到中间经过了三次状态交接。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 六枚微状态与键盘规矩 -->
+  <section class="sec sec-mist" id="sec-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">02</span>
+        <div class="sec-titles">
+          <h2>六枚微状态与键盘规矩</h2>
+          <p class="sec-en" lang="en">MICRO-STATES &amp; WAI-ARIA ROVING TABINDEX</p>
+        </div>
+      </div>
+
+      <p class="lead">只画「选中」和「未选中」两种皮肤，鼠标党勉强凑合，但键盘用户、触屏用户和弱网环境立刻露馅。W3C 的 <span class="term">WAI-ARIA Authoring Practices Guide</span> 为标签切换器定下两条核心规矩：用 <strong>Roving Tabindex</strong> 让 <kbd>Tab</kbd> 键只落到当前激活项（再按 <kbd>Tab</kbd> 直接跳进内容区），并用 <kbd>←</kbd> <kbd>→</kbd> / <kbd>Home</kbd> / <kbd>End</kbd> 在选项间游走。</p>
+
+      <div class="a11y-lab">
+        <div class="a11y-left">
+          <div class="a11y-mode-row">
+            <span class="a11y-label">WAI-ARIA 激活策略</span>
+            <div class="seg-light" id="s2-act-mode" role="group" aria-label="激活模式切换">
+              <button type="button" data-act="auto" class="is-on">自动激活（本地数据）</button>
+              <button type="button" data-act="manual">手动激活（慢请求按 Enter）</button>
+            </div>
+          </div>
+
+          <p class="a11y-hint">直接点下方任意一项，或把键盘焦点移进去按 <kbd>←</kbd> <kbd>→</kbd> <kbd>Home</kbd> <kbd>End</kbd>（手动模式下按 <kbd>Enter</kbd> / <kbd>Space</kbd> 确认激活）：</p>
+
+          <div class="aria-tablist" id="s2-tablist" role="tablist" aria-label="无障碍演示标签栏">
+            <button type="button" role="tab" id="s2-t0" aria-selected="true" aria-controls="s2-panel" tabindex="0" class="aria-tab is-active">设计规范</button>
+            <button type="button" role="tab" id="s2-t1" aria-selected="false" aria-controls="s2-panel" tabindex="-1" class="aria-tab">交互键盘</button>
+            <button type="button" role="tab" id="s2-t2" aria-selected="false" aria-controls="s2-panel" tabindex="-1" class="aria-tab">加载反馈</button>
+            <button type="button" role="tab" id="s2-t3" aria-selected="false" aria-controls="s2-panel" tabindex="-1" class="aria-tab">完成回音</button>
+          </div>
+
+          <div class="aria-panel" id="s2-panel" role="tabpanel" aria-labelledby="s2-t0" tabindex="0">
+            <strong id="s2-panel-title">设计规范 · 已激活</strong>
+            <p id="s2-panel-body">本地数据切换无网络开销时，推荐使用自动激活：方向键每移一格，焦点和选中态同步推进，手眼零延迟。</p>
+          </div>
+        </div>
+
+        <div class="a11y-right">
+          <div class="inspector-head">
+            <span>DOM 与 ARIA 实时监视器</span>
+            <span class="mono" id="s2-event-tag">就绪</span>
+          </div>
+          <div class="aria-dump mono" id="s2-dom-dump"></div>
+          <p class="inspector-note" id="s2-rule-note">注意观察只有当前激活项的 <code>tabindex="0"</code>，其余三项都是 <code>-1</code>——这样按一次 Tab 就能跨过整排选项直接进入内容区，不必逐个硬敲 4 遍。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 四种形态：同源不同衣（深钴暗室） -->
+  <section class="sec sec-dark" id="sec-03">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">03</span>
+        <div class="sec-titles">
+          <h2>四种形态：同源不同衣</h2>
+          <p class="sec-en" lang="en">FOUR FACES OF THE SAME SWITCHER</p>
+        </div>
+      </div>
+
+      <p class="lead">原海报正中并排放了四张卡片——<strong>切换器、标签页、视图切换、更多选项</strong>。它们共享同一套「单选互斥 + 联动重绘」底层逻辑，只是按「选项数量、内容体量、操作频率」换了四件不同的外衣。下面用同一份 6 条项目记录，点一点看它们怎么各司其职。</p>
+
+      <div class="morph-bar" id="s3-morph-bar" role="tablist" aria-label="四种切换器形态">
+        <button type="button" role="tab" aria-selected="true" class="morph-btn is-on" data-morph="segmented">
+          <span class="morph-k">01</span><strong>分段切换器</strong><small>2–5 项轻量视图</small>
+        </button>
+        <button type="button" role="tab" aria-selected="false" class="morph-btn" data-morph="tabs">
+          <span class="morph-k">02</span><strong>标签页 Tabs</strong><small>同类分组归档</small>
+        </button>
+        <button type="button" role="tab" aria-selected="false" class="morph-btn" data-morph="view">
+          <span class="morph-k">03</span><strong>视图切换</strong><small>同源数据换排版</small>
+        </button>
+        <button type="button" role="tab" aria-selected="false" class="morph-btn" data-morph="overflow">
+          <span class="morph-k">04</span><strong>更多溢出</strong><small>收拢低频长尾</small>
+        </button>
+      </div>
+
+      <div class="morph-stage" id="s3-stage">
+        <div class="morph-demo" id="s3-demo"></div>
+        <aside class="morph-spec" id="s3-spec"></aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 同名双义：布局原语里的切换器 -->
+  <section class="sec sec-white" id="sec-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">04</span>
+        <div class="sec-titles">
+          <h2>布局原语里的同名切换器</h2>
+          <p class="sec-en" lang="en">THE OTHER SWITCHER · EVERY LAYOUT (2019)</p>
+        </div>
+      </div>
+
+      <div class="callout-gentle">
+        <span class="callout-tag">补足一笔</span>
+        <p>细心的读者会发现，248 号编在「布局原语」小类里，旁边紧挨着 <a href="https://layout.xiaoxiaodong.ai/243/play/" target="_blank" rel="noopener">243 堆栈</a>、<a href="https://layout.xiaoxiaodong.ai/244/play/" target="_blank" rel="noopener">244 盒子</a>、<a href="https://layout.xiaoxiaodong.ai/245/play/" target="_blank" rel="noopener">245 居中器</a>、<a href="https://layout.xiaoxiaodong.ai/246/play/" target="_blank" rel="noopener">246 簇群</a>、<a href="https://layout.xiaoxiaodong.ai/247/play/" target="_blank" rel="noopener">247 侧栏原语</a> 与 <a href="https://layout.xiaoxiaodong.ai/249/play/" target="_blank" rel="noopener">249 封面原语</a>。原海报把 <strong>Switcher</strong> 讲成了「交互态切换组件」，而在前端排版经典著作 <em>Every Layout</em>（Heydon Pickering &amp; Andy Bell，2019）里，同名的 <strong>The Switcher</strong> 原语指的则是另一种结构：<strong>不依赖屏幕媒体查询，当容器宽于阈值时所有子项横排并列，容器一窄过阈值就全体同步切成满宽竖叠——绝不留下「上二下一」的尴尬孤儿行。</strong></p>
+      </div>
+
+      <div class="albatross-lab">
+        <div class="alba-controls">
+          <div class="alba-slider-group">
+            <label for="s4-width">拖动父容器宽度 <span class="mono" id="s4-width-val">580px</span></label>
+            <input id="s4-width" type="range" min="250" max="720" step="4" value="580">
+          </div>
+          <div class="alba-slider-group">
+            <label for="s4-thresh">设定翻转阈值 <span class="mono" id="s4-thresh-val">460px</span></label>
+            <input id="s4-thresh" type="range" min="260" max="580" step="10" value="460">
+          </div>
+          <div class="alba-math mono" id="s4-math"></div>
+        </div>
+
+        <div class="alba-compare">
+          <div class="alba-lane">
+            <div class="alba-lane-head">
+              <strong>普通 <code>flex-wrap: wrap</code>（容易掉出孤儿行）</strong>
+              <span class="alba-state" id="s4-normal-state">横排 3 列</span>
+            </div>
+            <div class="alba-viewport" id="s4-vp-normal">
+              <div class="alba-normal-flex" id="s4-normal-box">
+                <div class="alba-card"><span>卡片 01</span><small>常规最小宽 160px</small></div>
+                <div class="alba-card"><span>卡片 02</span><small>常规最小宽 160px</small></div>
+                <div class="alba-card"><span>卡片 03</span><small>变窄先掉成孤儿</small></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alba-lane is-hero-lane">
+            <div class="alba-lane-head">
+              <strong>Every Layout Switcher 原语（同步整排翻转）</strong>
+              <span class="alba-state is-hl" id="s4-sw-state">横排 3 列</span>
+            </div>
+            <div class="alba-viewport" id="s4-vp-sw">
+              <div class="alba-switcher-flex" id="s4-sw-box">
+                <div class="alba-card is-blue"><span>原语 01</span><small>calc((T - 100%) * 999)</small></div>
+                <div class="alba-card is-blue"><span>原语 02</span><small>大于阈值 → 负值并排</small></div>
+                <div class="alba-card is-blue"><span>原语 03</span><small>小于阈值 → 全体竖叠</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="alba-footnote">如果你的卡片数量超过 4–5 张、需要自动多行折成等宽矩阵而不是「要么一行要么一列」，请交给旁边的 <a href="https://layout.xiaoxiaodong.ai/250/play/" target="_blank" rel="noopener">250 自适应网格原语</a>；需要把整块封面撑满首屏，则交给 <a href="https://layout.xiaoxiaodong.ai/249/play/" target="_blank" rel="noopener">249 封面原语</a>。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 从索引卡到分段控件 -->
+  <section class="sec sec-tint" id="sec-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">05</span>
+        <div class="sec-titles">
+          <h2>从索引卡到分段控件</h2>
+          <p class="sec-en" lang="en">ORIGIN · FROM INDEX CARDS TO SEGMENTED CONTROLS</p>
+        </div>
+      </div>
+
+      <p class="lead">屏幕里的切换器并不是凭空发明的——它把办公室铁皮柜里露出一截的「纸质索引耳」搬进了像素世界，又在四十多年里长出了桌面属性页、移动分段条与无障碍交互规范。</p>
+
+      <div class="history-lab">
+        <div class="era-rail" id="s5-rail" role="tablist" aria-label="切换器演进年代">
+          <button type="button" role="tab" aria-selected="true" class="era-btn is-on" data-era="0"><span class="mono">1982</span><strong>WordVision</strong></button>
+          <button type="button" role="tab" aria-selected="false" class="era-btn" data-era="1"><span class="mono">1985</span><strong>Boeing Calc</strong></button>
+          <button type="button" role="tab" aria-selected="false" class="era-btn" data-era="2"><span class="mono">1995</span><strong>Windows 95</strong></button>
+          <button type="button" role="tab" aria-selected="false" class="era-btn" data-era="3"><span class="mono">1997</span><strong>Mac OS 8</strong></button>
+          <button type="button" role="tab" aria-selected="false" class="era-btn" data-era="4"><span class="mono">2007</span><strong>NN/g &amp; iOS</strong></button>
+          <button type="button" role="tab" aria-selected="false" class="era-btn" data-era="5"><span class="mono">2019</span><strong>Every Layout</strong></button>
+        </div>
+
+        <div class="era-stage" id="s5-stage">
+          <div class="era-specimen" id="s5-specimen" aria-hidden="true"></div>
+          <div class="era-copy">
+            <span class="era-year mono" id="s5-year">1982</span>
+            <h3 id="s5-title">WordVision：早期商用软件的索引耳隐喻</h3>
+            <p id="s5-desc"></p>
+            <p class="era-takeaway" id="s5-takeaway"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 什么时候用，什么时候别用 -->
+  <section class="sec sec-warm" id="sec-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">06</span>
+        <div class="sec-titles">
+          <h2>什么时候用，什么时候别用</h2>
+          <p class="sec-en" lang="en">WHEN TO USE · WHEN TO WALK AWAY</p>
+        </div>
+      </div>
+
+      <p class="lead">切换器最迷人也最危险的地方，在于它「一次只让人看见一面」。这让它极度省空间，但也注定了它<strong>绝不能用来藏需要同时对照的信息</strong>。点选下面六个常见界面需求，检验该不该上切换器。</p>
+
+      <div class="decision-lab">
+        <div class="scenario-list" id="s6-list" role="listbox" aria-label="业务场景诊断">
+          <button type="button" class="sc-item is-on" data-sc="0"><span class="sc-idx mono">A</span><strong>按「日 / 周 / 月」切换营收曲线</strong></button>
+          <button type="button" class="sc-item" data-sc="1"><span class="sc-idx mono">B</span><strong>同时对比两款套餐的逐条价格与权益</strong></button>
+          <button type="button" class="sc-item" data-sc="2"><span class="sc-idx mono">C</span><strong>把商品图库在「网格」与「列表」间互切</strong></button>
+          <button type="button" class="sc-item" data-sc="3"><span class="sc-idx mono">D</span><strong>承载后台 14 个一级业务模块导航</strong></button>
+          <button type="button" class="sc-item" data-sc="4"><span class="sc-idx mono">E</span><strong>按「包邮 + 现货 + 降价」叠加筛选商品</strong></button>
+          <button type="button" class="sc-item" data-sc="5"><span class="sc-idx mono">F</span><strong>在 6 步下单结账流程里推进进度</strong></button>
+        </div>
+
+        <article class="verdict-card" id="s6-verdict" aria-live="polite">
+          <div class="verdict-top">
+            <span class="verdict-pill" id="s6-pill">适合用切换器</span>
+            <span class="verdict-alt" id="s6-alt"></span>
+          </div>
+          <h3 id="s6-title"></h3>
+          <p id="s6-why"></p>
+          <div class="verdict-tip" id="s6-tip"></div>
+        </article>
+      </div>
+
+      <div class="rules-pair">
+        <div class="rule-col is-do">
+          <h3>四条稳妥边界（经验与规范汇总）</h3>
+          <ul>
+            <li><strong>单排 2–5 项</strong>：Apple HIG 与 Material Design 3 均建议移动分段切换器控制在 5 项以内（桌面宽屏最多 5–7 项），再多就收进「更多选项」或换导航。</li>
+            <li><strong>同一上下文、互斥单选</strong>：每个选项必须是同一层级、同一语境下的互斥视图，不混进「删除 / 导出」这类动作按钮。</li>
+            <li><strong>字面简洁等重</strong>：每格控制在 2–4 个汉字，尽量不要在同一个分段条里一边只放图标、另一边又放长词；需要图文混排时请参考 <a href="https://layout.xiaoxiaodong.ai/254/play/" target="_blank" rel="noopener">254 图标文字组合</a>。</li>
+            <li><strong>绝不跨两排堆叠</strong>：一旦换行，上排高亮项会被下排切断，无法和下方内容区形成清晰视觉归属。</li>
+          </ul>
+        </div>
+        <div class="rule-col is-dont">
+          <h3>四种该立刻换掉的信号</h3>
+          <ul>
+            <li><strong>用户需要左右对照</strong>：把要比较的数据藏进两个标签里，等于强迫读者靠脑子背数字。直接并排展示。</li>
+            <li><strong>实质是跨站大导航</strong>：十几项一级页面跳转应交给 <a href="https://layout.xiaoxiaodong.ai/247/play/" target="_blank" rel="noopener">247 侧栏原语</a>，而不是硬塞进顶部切换器。</li>
+            <li><strong>长列横向媒体流</strong>：如果是几十张平等卡片要滑着逛，用 <a href="https://layout.xiaoxiaodong.ai/252/play/" target="_blank" rel="noopener">252 横向卷轴</a>；临时筛选弹层则配 <a href="https://layout.xiaoxiaodong.ai/253/play/" target="_blank" rel="noopener">253 悬浮层</a>。</li>
+            <li><strong>前后有严格步骤依赖</strong>：表单分步填写必须有「上一步 / 下一步」与校验锁，不能让用户靠切换器乱跳。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 小练习：七项怎么放窄屏 -->
+  <section class="sec sec-mist" id="sec-07">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">07</span>
+        <div class="sec-titles">
+          <h2>小练习：七项怎么放进窄屏</h2>
+          <p class="sec-en" lang="en">SINGLE-VARIABLE CHECK</p>
+        </div>
+      </div>
+
+      <p class="lead">假设你在设计一款 375px 宽的移动端数据看板顶部切换器，需要容纳<strong>总览、流量、转化、留存、收入、渠道、报障</strong>共 7 个同级视图（其中前 3 项占日常查看的绝大部分）。下面四个方案的配色、高亮色差、字号与内容面板完全一致，<strong>只差「超出单排容量后的组织方式」这一个变量</strong>——你选哪一个？</p>
+
+      <div class="quiz-grid" id="s7-quiz" role="radiogroup" aria-label="窄屏七项切换器组织方案四选一">
+        <button type="button" class="quiz-card" data-opt="A" aria-pressed="false">
+          <div class="quiz-head"><span class="quiz-letter mono">A</span><strong>方案 A</strong></div>
+          <div class="quiz-wire" aria-hidden="true">
+            <svg viewBox="0 0 260 128" width="260" height="128">
+              <rect x="6" y="6" width="248" height="116" rx="10" fill="#0031ED"/>
+              <rect x="16" y="16" width="228" height="44" rx="7" fill="#EBEBED"/>
+              <rect x="16" y="16" width="57" height="22" rx="4" fill="#FFCA1C"/>
+              <line x1="16" y1="38" x2="244" y2="38" stroke="#CBD2E1" stroke-width="1"/>
+              <text x="44" y="31" text-anchor="middle" font-size="9.5" font-weight="700" fill="#140700">总览</text>
+              <text x="101" y="31" text-anchor="middle" font-size="9.5" fill="#2A3142">流量</text>
+              <text x="158" y="31" text-anchor="middle" font-size="9.5" fill="#2A3142">转化</text>
+              <text x="215" y="31" text-anchor="middle" font-size="9.5" fill="#2A3142">留存</text>
+              <text x="54" y="53" text-anchor="middle" font-size="9.5" fill="#2A3142">收入</text>
+              <text x="130" y="53" text-anchor="middle" font-size="9.5" fill="#2A3142">渠道</text>
+              <text x="206" y="53" text-anchor="middle" font-size="9.5" fill="#2A3142">报障</text>
+              <rect x="16" y="68" width="228" height="44" rx="7" fill="#FEFEFE"/>
+              <rect x="28" y="80" width="96" height="8" rx="3" fill="#0031ED" opacity="0.85"/>
+              <rect x="28" y="94" width="168" height="6" rx="3" fill="#CBD2E1"/>
+            </svg>
+          </div>
+          <p class="quiz-cap">7 项全部平铺可见，拆成上排 4 格 + 下排 3 格的双排切换栏。</p>
+        </button>
+
+        <button type="button" class="quiz-card" data-opt="B" aria-pressed="false">
+          <div class="quiz-head"><span class="quiz-letter mono">B</span><strong>方案 B</strong></div>
+          <div class="quiz-wire" aria-hidden="true">
+            <svg viewBox="0 0 260 128" width="260" height="128">
+              <rect x="6" y="6" width="248" height="116" rx="10" fill="#0031ED"/>
+              <rect x="16" y="18" width="228" height="28" rx="7" fill="#EBEBED"/>
+              <rect x="16" y="18" width="32.5" height="28" rx="5" fill="#FFCA1C"/>
+              <polygon points="32,46 27,46 32,51 37,46" fill="#FFCA1C"/>
+              <text x="32" y="35" text-anchor="middle" font-size="8.5" font-weight="700" fill="#140700">总…</text>
+              <text x="65" y="35" text-anchor="middle" font-size="8.5" fill="#2A3142">流…</text>
+              <text x="97" y="35" text-anchor="middle" font-size="8.5" fill="#2A3142">转…</text>
+              <text x="130" y="35" text-anchor="middle" font-size="8.5" fill="#2A3142">留…</text>
+              <text x="162" y="35" text-anchor="middle" font-size="8.5" fill="#2A3142">收…</text>
+              <text x="195" y="35" text-anchor="middle" font-size="8.5" fill="#2A3142">渠…</text>
+              <text x="227" y="35" text-anchor="middle" font-size="8.5" fill="#2A3142">报…</text>
+              <rect x="16" y="56" width="228" height="56" rx="7" fill="#FEFEFE"/>
+              <rect x="28" y="70" width="96" height="8" rx="3" fill="#0031ED" opacity="0.85"/>
+              <rect x="28" y="84" width="168" height="6" rx="3" fill="#CBD2E1"/>
+            </svg>
+          </div>
+          <p class="quiz-cap">坚持单排不折行，7 项等分全宽，每格只保留首字加省略号。</p>
+        </button>
+
+        <button type="button" class="quiz-card" data-opt="C" aria-pressed="false">
+          <div class="quiz-head"><span class="quiz-letter mono">C</span><strong>方案 C</strong></div>
+          <div class="quiz-wire" aria-hidden="true">
+            <svg viewBox="0 0 260 128" width="260" height="128">
+              <rect x="6" y="6" width="248" height="116" rx="10" fill="#0031ED"/>
+              <rect x="16" y="18" width="228" height="28" rx="7" fill="#EBEBED"/>
+              <rect x="16" y="18" width="57" height="28" rx="6" fill="#FFCA1C"/>
+              <polygon points="44,46 39,46 44,51 49,46" fill="#FFCA1C"/>
+              <text x="44" y="35" text-anchor="middle" font-size="9.5" font-weight="700" fill="#140700">总览</text>
+              <text x="101" y="35" text-anchor="middle" font-size="9.5" fill="#2A3142">流量</text>
+              <text x="158" y="35" text-anchor="middle" font-size="9.5" fill="#2A3142">转化</text>
+              <text x="215" y="35" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0031ED">更多 ▼</text>
+              <rect x="16" y="56" width="228" height="56" rx="7" fill="#FEFEFE"/>
+              <rect x="28" y="70" width="96" height="8" rx="3" fill="#0031ED" opacity="0.85"/>
+              <rect x="28" y="84" width="168" height="6" rx="3" fill="#CBD2E1"/>
+              <rect x="180" y="64" width="54" height="36" rx="5" fill="#F0F3FC" stroke="#0031ED" stroke-width="1" stroke-dasharray="3 2"/>
+              <text x="207" y="85" text-anchor="middle" font-size="8.5" font-weight="700" fill="#0031ED">余 4 项</text>
+            </svg>
+          </div>
+          <p class="quiz-cap">单排常驻 3 项高频视图，其余 4 项收进第 4 格「更多 ▼」并在选中时回显当前名。</p>
+        </button>
+
+        <button type="button" class="quiz-card" data-opt="D" aria-pressed="false">
+          <div class="quiz-head"><span class="quiz-letter mono">D</span><strong>方案 D</strong></div>
+          <div class="quiz-wire" aria-hidden="true">
+            <svg viewBox="0 0 260 128" width="260" height="128">
+              <rect x="6" y="6" width="248" height="116" rx="10" fill="#0031ED"/>
+              <rect x="16" y="18" width="162" height="28" rx="7" fill="rgba(255,255,255,0.14)"/>
+              <text x="28" y="35" font-size="9.5" font-weight="700" fill="#FFFFFF">当前：总览</text>
+              <rect x="188" y="18" width="56" height="28" rx="7" fill="#FFCA1C"/>
+              <text x="216" y="35" text-anchor="middle" font-size="9.5" font-weight="700" fill="#140700">≡ 7 项</text>
+              <rect x="16" y="56" width="228" height="56" rx="7" fill="#FEFEFE"/>
+              <rect x="28" y="70" width="96" height="8" rx="3" fill="#0031ED" opacity="0.85"/>
+              <rect x="28" y="84" width="168" height="6" rx="3" fill="#CBD2E1"/>
+            </svg>
+          </div>
+          <p class="quiz-cap">取消常驻选项条，把全部 7 个视图统一收进右上角一个菜单按钮。</p>
+        </button>
+      </div>
+
+      <div class="quiz-feedback" id="s7-feedback" hidden aria-live="polite">
+        <strong id="s7-fb-title"></strong>
+        <p id="s7-fb-body"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 原海报与关键词（克莱因电光蓝展墙） -->
+  <section class="sec sec-poster" id="sec-08">
+    <div class="wrap">
+      <div class="sec-head is-on-blue">
+        <span class="sec-num">08</span>
+        <div class="sec-titles">
+          <h2>原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER · NO. 248 SWITCHER</p>
+        </div>
+      </div>
+
+      <div class="poster-wall">
+        <figure class="poster-frame">
+          <button type="button" class="poster-open-btn" id="poster-open-btn" aria-label="点击放大查看 248 切换器原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" draggable="false" alt="248 切换器 SWITCHER 原版教学海报">
+            <span class="poster-zoom-hint">点击放大 · 支持拖拽与滚轮缩放</span>
+          </button>
+        </figure>
+
+        <div class="poster-notes">
+          <h3>原海报九组核心关键词</h3>
+          <div class="kw-grid">
+            <div class="kw-chip"><strong>状态切换</strong><span class="mono">STATE</span></div>
+            <div class="kw-chip"><strong>当前高亮</strong><span class="mono">ACTIVE</span></div>
+            <div class="kw-chip"><strong>内容联动</strong><span class="mono">RESPONSE</span></div>
+            <div class="kw-chip"><strong>选中</strong><span class="mono">ACTIVE</span></div>
+            <div class="kw-chip"><strong>未选中</strong><span class="mono">INACTIVE</span></div>
+            <div class="kw-chip"><strong>悬停</strong><span class="mono">HOVER</span></div>
+            <div class="kw-chip"><strong>聚焦</strong><span class="mono">FOCUS</span></div>
+            <div class="kw-chip"><strong>加载中</strong><span class="mono">LOADING</span></div>
+            <div class="kw-chip"><strong>完成</strong><span class="mono">DONE</span></div>
+          </div>
+
+          <div class="poster-obs">
+            <h4>读图笔记：这张海报自己就是一个切换器</h4>
+            <p>整张海报用极高饱和度的国际克莱因电光蓝（<code>#0031ED</code>）做舞台底色，把「选中态」压进明快信号黄（<code>#FFCA1C</code>）与极净纯白卡片（<code>#FEFEFE</code>），把其余三张退进冷银灰（<code>#E5E5E7</code>）。你不用读一个字，就能在 0.3 秒内读懂「谁亮了、谁退了、尖角指着谁」。</p>
+            <p>最下方的六枚微型状态标记虽然只占一条窄带，却是新手最容易漏画、上线后最容易让产品显得「没手感」的细节——把它们全做出来，才算真正完成了切换器。</p>
+          </div>
+
+          <div class="poster-refs">
+            <h4>延伸规范与参考出处</h4>
+            <ul>
+              <li><a href="https://www.w3.org/WAI/ARIA/apg/patterns/tabs/" target="_blank" rel="noopener">W3C WAI-ARIA APG · Tabs Pattern</a>：Roving Tabindex 与自动/手动激活标准</li>
+              <li><a href="https://www.nngroup.com/articles/tabs-used-right/" target="_blank" rel="noopener">NN/g · Tabs, Used Right (2007 / 2024)</a>：Jakob Nielsen 标签页单排与归属铁律</li>
+              <li><a href="https://developer.apple.com/design/human-interface-guidelines/segmented-controls" target="_blank" rel="noopener">Apple HIG · Segmented Controls</a> 与 <a href="https://m3.material.io/components/segmented-buttons/overview" target="_blank" rel="noopener">Material 3 · Segmented Buttons</a>：单排容量边界</li>
+              <li><a href="https://every-layout.dev/layouts/switcher/" target="_blank" rel="noopener">Every Layout · The Switcher (2019)</a>：Heydon Pickering &amp; Andy Bell 无孤行布局原语</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <a href="https://layout.xiaoxiaodong.ai/248/play/" target="_blank" rel="noopener">在线版：248 切换器</a>
+    <span aria-hidden="true">·</span>
+    <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+    <span aria-hidden="true">·</span>
+    <span>海报 CC BY 4.0</span>
+    <span aria-hidden="true">·</span>
+    <a href="https://github.com/xxd-design/350-layout-interactive" target="_blank" rel="noopener">源文件 GitHub</a>
+  </div>
+</footer>
+
+<!-- 全屏原海报放大灯箱（支持缩放、鼠标拖拽、Esc 关闭） -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报放大查看">
+  <div class="lb-toolbar">
+    <span class="lb-title">NO. 248 切换器 SWITCHER</span>
+    <div class="lb-actions">
+      <button type="button" id="lb-zoom-out" aria-label="缩小">－</button>
+      <span class="mono lb-scale" id="lb-scale">100%</span>
+      <button type="button" id="lb-zoom-in" aria-label="放大">＋</button>
+      <button type="button" id="lb-reset">重置</button>
+      <button type="button" id="lb-close" class="lb-close-btn">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lb-viewport">
+    <img id="lb-img" alt="248 切换器原海报放大视图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
