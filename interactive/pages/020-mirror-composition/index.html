@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0D0D0D">
+<title>镜像构图 · Mirror Composition</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap masthead-in">
+    <p class="series">构图逻辑 / 重心、线条与轴线</p>
+    <div class="masthead-right">
+      <div class="specimen-bar" role="group" aria-label="切换开场标本">
+        <button type="button" class="spec-btn" data-specimen="poster" aria-pressed="true">原海报</button>
+        <button type="button" class="spec-btn" data-specimen="water" aria-pressed="false">水景横轴</button>
+        <button type="button" class="spec-btn" data-specimen="logo" aria-pressed="false">品牌字标</button>
+      </div>
+      <p class="issue"><span class="en-tag" lang="en">NO. 020</span></p>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 开场：曜石黑暗房 + 紧压标题区（≤150px）+ 570px 精确 4:3 等比落镜台 + 两侧原海报玫红活注 -->
+  <section class="hero" id="hero" aria-labelledby="page-title">
+    <div class="hero-wrap">
+      <div class="hero-head">
+        <h1 id="page-title" class="hero-title">镜像构图</h1>
+        <!-- 纯装饰性 SVG 淡出倒影，不参与文本对比度统计 -->
+        <div class="title-mirror-echo" aria-hidden="true">
+          <span class="title-mirror-line"></span>
+          <svg class="title-echo-svg" viewBox="0 0 260 20" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="echoFade" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%" stop-color="#E2E2E2" stop-opacity="0.46"/>
+                <stop offset="52%" stop-color="#D84582" stop-opacity="0.18"/>
+                <stop offset="100%" stop-color="#0D0D0D" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <g transform="translate(130, 18) scale(1, -0.66)">
+              <text x="0" y="0" text-anchor="middle" fill="url(#echoFade)" font-family="'Noto Sans SC', sans-serif" font-weight="900" font-size="30" letter-spacing="6">镜像构图</text>
+            </g>
+          </svg>
+        </div>
+        <div class="hero-meta-row">
+          <span class="hero-en" lang="en">MIRROR COMPOSITION</span>
+          <span class="meta-dot" aria-hidden="true">·</span>
+          <p class="hero-kw" lang="en">
+            <span>reflection</span><i>|</i><span>echo</span><i>|</i><span>duality</span><i>|</i><span>rhythm</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- 桌面三栏（左玫红活注 · 中 4:3 等比大画布 · 右玫红活注）；窄屏自动重组但画布严守 4:3 -->
+      <div class="hero-workbench">
+        <aside class="flank flank-left" aria-live="polite">
+          <div class="flank-note">
+            <span class="flank-rule" aria-hidden="true"></span>
+            <p class="flank-kicker" id="left-note-title">对称不等于呆板</p>
+            <p class="flank-copy" id="left-note-body">轴缝为负，主形已切穿镜轴——拖开「▼ 镜像轴」透出呼吸缝。</p>
+            <p class="flank-metric" id="left-note-metric">轴缝 / 同侧层距：<strong id="ro-ratio">-3.0×</strong> <span class="exp-pill">经验值</span></p>
+            <p class="flank-sub">经验舒服带 0.75×–1.6×（按原海报离轴 1.5%–2.5% 校准）</p>
+          </div>
+
+          <div class="element-panel">
+            <p class="panel-label">逐件切换：参与镜像 / 保持正向</p>
+            <div class="element-list" id="element-list" role="group" aria-label="逐元素切换镜像或保持正向"></div>
+          </div>
+        </aside>
+
+        <div class="stage-column">
+          <div class="stage-shell" id="hero-stage">
+            <canvas id="hero-canvas" class="hero-canvas" aria-label="落镜建构台：拖动玫红镜像轴，点击元素切换参与镜像或保持正向，切换真镜像与平移复制对比手性翻转"></canvas>
+            <!-- 主拖柄：带 data-perf-drag，严格跟随逻辑轴位 -->
+            <button
+              type="button"
+              id="axis-handle"
+              class="axis-handle"
+              data-perf-drag
+              aria-label="拖动镜像轴，键盘左右或上下方向键微调"
+              title="拖移镜像轴（方向键可微调）"
+            >
+              <span class="handle-tag" id="handle-label">镜像轴</span>
+              <span class="handle-tri" aria-hidden="true">▼</span>
+            </button>
+          </div>
+        </div>
+
+        <aside class="flank flank-right" aria-live="polite">
+          <div class="flank-note flank-note-right">
+            <span class="flank-rule" aria-hidden="true"></span>
+            <p class="flank-kicker" id="right-note-title">镜像让视觉互相呼应</p>
+            <p class="flank-copy" id="right-note-body">「浅银四分之一圆」撞镜粘连，同时文字签「映 020 →」被照翻出了反字。</p>
+          </div>
+
+          <div class="check-panel">
+            <p class="panel-label">原海报教学要点 · 实时实检</p>
+            <ul class="poster-checks" id="poster-checks">
+              <li data-check="axisClear"><span class="ck-mark" aria-hidden="true">○</span><span>确定镜像轴（无切穿 / 无出框）</span></li>
+              <li data-check="chiralEcho"><span class="ck-mark" aria-hidden="true">○</span><span>寻找形状 / 元素反向对应</span></li>
+              <li data-check="weightBalance"><span class="ck-mark" aria-hidden="true">○</span><span>视觉平衡（文字独立正向）</span></li>
+              <li data-check="seamRhythm"><span class="ck-mark" aria-hidden="true">○</span><span>间距与留白节奏（0.75×–1.6×）</span></li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+
+      <!-- 底部中轴对分诊断与操作带：与上方虚线镜轴一脉相承 -->
+      <div class="hero-dock" aria-live="polite">
+        <div class="dock-left">
+          <div class="dock-head">
+            <span class="status-badge" id="ro-badge" data-tone="danger">切穿主体 · 撞镜</span>
+            <strong class="dock-headline" id="ro-headline">镜轴压进了「浅银四分之一圆」内部</strong>
+          </div>
+          <p class="dock-why" id="ro-why">「浅银四分之一圆」越过镜像轴，原形与镜像在中缝重叠焊成连体怪形。把镜像轴往右拉开，再点文字签改「保持正向」。</p>
+        </div>
+
+        <div class="dock-spine" aria-hidden="true"></div>
+
+        <div class="dock-right">
+          <div class="dock-actions">
+            <div class="mode-switch" role="group" aria-label="切换真镜像翻转或平移复制">
+              <button type="button" class="mode-btn" data-mode="mirror" aria-pressed="true">真镜像翻转</button>
+              <button type="button" class="mode-btn" data-mode="copy" aria-pressed="false">平移复制</button>
+            </div>
+            <div class="util-btns">
+              <button type="button" class="util-btn" id="btn-reset">还原错态</button>
+              <button type="button" class="util-btn util-accent" id="btn-ref">参考摆位</button>
+            </div>
+          </div>
+          <p class="dock-hint">拖顶沿「▼ 镜像轴」或按方向键移轴 · 点画布图形切镜像/正向 · Space 切模式 · R 复原</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 手性翻转 vs 平移复制（炭灰暗底） -->
+  <section class="band band-charcoal" id="s1" aria-labelledby="h-s1">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">01</span>
+        <div class="sec-titles">
+          <h2 id="h-s1">镜像不是复制，是手性翻转</h2>
+          <p class="sec-en" lang="en">CHIRALITY VS. TRANSLATION · REFLECTION LAW</p>
+        </div>
+      </header>
+
+      <div class="split-2">
+        <div class="prose">
+          <p class="lead">020 号原海报用一对对照方框交代了起点：<strong>「镜像前（无呼应）→ 镜像后（有呼应）」</strong>。但很多人上手第一步就容易做歪——把左半边原封不动向右平移一份，以为「两边东西一样」就是镜像。</p>
+          <p>1768 年，哲学家伊曼努尔·康德在《论空间方位区分的终极根据》中用左右手提出「不重合对应体」：两只手内部每段长度都完全相等，却无论怎么平移或平面旋转都叠不到一起，必须经镜面做一次<strong>手性翻转</strong>才能互换。构图里的镜像正是如此——跨过镜像轴，左向右翻、上向下翻，让两侧边缘面对面咬合。</p>
+          <p>视觉心理学实验直接证实了这种面对面锁定的威力。Vicky Bruce 与 Michael Morgan（1975）在 <em>Perception</em> 上对比了人眼觉察「镜像破缺」与「平移重复破缺」的速度：当破缺落在镜轴附近时，受试者识破镜像破缺明显更快；而把破缺挪到外缘，中轴优势就迅速减弱。H. B. Barlow 与 B. C. Reeves（1979）进一步表明，人眼并不逐像素比对整张图，而是靠镜轴邻近区域的局部配对高速抓出镜像秩序。至于更宽泛的轴线静稳原则，详见同小类 <a href="https://layout.xiaoxiaodong.ai/018/play/" target="_blank" rel="noopener">018 对称构图</a>。</p>
+        </div>
+
+        <div class="lab-box" id="lab-spot">
+          <div class="lab-bar">
+            <span class="lab-tag">实验 01 · 近轴破缺盲找</span>
+            <div class="lab-seg" role="group" aria-label="选择破缺位置">
+              <button type="button" class="seg-btn" data-spot-zone="near" aria-pressed="true">近轴破缺</button>
+              <button type="button" class="seg-btn" data-spot-zone="far" aria-pressed="false">远缘破缺</button>
+              <button type="button" class="seg-btn" id="spot-new">换一组</button>
+            </div>
+          </div>
+          <p class="lab-instr">下面两块 6×6 点阵各藏了 <strong>1 处破缺</strong>（右侧某个方点与规则不符）。分别直接点出破缺格子，亲测本机反应时长。</p>
+          <div class="spot-boards">
+            <div class="spot-card">
+              <div class="spot-head">
+                <strong>A · 真镜像板</strong>
+                <span class="spot-time" id="spot-time-mirror">待找出</span>
+              </div>
+              <div class="spot-grid" id="grid-mirror" role="group" aria-label="真镜像点阵：点击右侧与左侧镜像不符的格子"></div>
+            </div>
+            <div class="spot-card">
+              <div class="spot-head">
+                <strong>B · 平移重复板</strong>
+                <span class="spot-time" id="spot-time-repeat">待找出</span>
+              </div>
+              <div class="spot-grid" id="grid-repeat" role="group" aria-label="平移重复点阵：点击右侧与左侧平移不符的格子"></div>
+            </div>
+          </div>
+          <p class="lab-readout" id="spot-readout" aria-live="polite">提示：先在「近轴破缺」下分别点出两块板的破缺点，再切到「远缘破缺」对比中轴优势的衰减。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 拆解原海报四词 + 校准经验比值（浅银纸白底） -->
+  <section class="band band-paper" id="s2" aria-labelledby="h-s2">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">02</span>
+        <div class="sec-titles">
+          <h2 id="h-s2">四个词，拆开原海报骨架</h2>
+          <p class="sec-en" lang="en">REFLECTION · ECHO · DUALITY · RHYTHM</p>
+        </div>
+      </header>
+
+      <div class="split-2">
+        <div class="prose">
+          <p class="lead">020 号原海报在标题下压了四个英文关键词：<strong>reflection（镜射）</strong>、<strong>echo（呼应）</strong>、<strong>duality（对偶）</strong>、<strong>rhythm（节奏）</strong>，右下角再配四条教学要点：确定镜像轴、寻找形状/元素对应关系、保持视觉重量平衡、利用间距与留白增强节奏。</p>
+          <div class="note-gentle">
+            <span class="gentle-tag">说多了一点</span>
+            <p>原海报总述写「以镜像关系建立画面秩序，传递对称之美与内在平衡」。这句话省掉了前提：<strong>镜像不会自动带来高级与平衡</strong>。若两翼紧贴中缝挤成一团，或把文字与箭头照镜翻出反字，画面反而显得僵硬或低级出错。</p>
+          </div>
+          <p>实测 020 号原海报主图会发现一个常被忽略的尺寸关系：左右图形离镜轴的距离其实很小，单侧只有画宽的 <strong>1.5%–2.5%</strong>；真正让它不显得挤的，是左右合起来的<strong>轴缝宽度</strong>正好和同侧上下图形的<strong>层间距</strong>大体相当（约 1.0×）。</p>
+          <p>由此可总结一条<strong>经验规则（经验值，本页开场与第 07 节小练习共用同一判定）</strong>：当<strong>轴缝 / 同侧层间距</strong>落在 <strong>0.75×–1.6×</strong> 区间时，近轴锁定与呼吸节奏最协调；低于 0.75× 易贴缝发闷，高于 1.6× 开始偏松，超过 2.6× 则会裂成两堆孤块。需要打破双侧平衡时，可转看 <a href="https://layout.xiaoxiaodong.ai/019/play/" target="_blank" rel="noopener">019 非对称构图</a> 或单主体的 <a href="https://layout.xiaoxiaodong.ai/016/play/" target="_blank" rel="noopener">016 居中构图</a>。</p>
+        </div>
+
+        <div class="lab-box lab-box-light" id="lab-layers">
+          <div class="lab-bar">
+            <span class="lab-tag">实验 02 · 四层版画显影</span>
+            <button type="button" class="seg-btn seg-btn-light" id="layers-reset">全层叠回</button>
+          </div>
+          <div class="layers-checks" role="group" aria-label="开关原海报四层视觉骨架">
+            <label class="layer-chk"><input type="checkbox" data-layer="reflection" checked><span><strong>Reflection</strong> 镜射</span></label>
+            <label class="layer-chk"><input type="checkbox" data-layer="echo" checked><span><strong>Echo</strong> 呼应</span></label>
+            <label class="layer-chk"><input type="checkbox" data-layer="duality" checked><span><strong>Duality</strong> 对偶</span></label>
+            <label class="layer-chk"><input type="checkbox" data-layer="rhythm" checked><span><strong>Rhythm</strong> 节奏</span></label>
+          </div>
+          <div class="canvas-frame canvas-43">
+            <canvas id="layers-canvas" aria-label="原海报四层骨架显影画布：勾选或取消四层观察结构与轴缝比值变化"></canvas>
+          </div>
+          <p class="lab-readout" id="layers-readout" aria-live="polite">四层全开：镜射定骨、外弧与圆点补呼应、银白与双阶玫红拉开明度对偶，轴缝 / 同侧层间距约为 1.0×（经验舒服带）。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 一实一虚，打破呆板（曜石黑底） -->
+  <section class="band band-obsidian" id="s3" aria-labelledby="h-s3">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">03</span>
+        <div class="sec-titles">
+          <h2 id="h-s3">一实一虚，才不显呆板</h2>
+          <p class="sec-en" lang="en">DUALITY IN PRACTICE · REAL VS. REFLECTED</p>
+        </div>
+      </header>
+
+      <div class="split-2">
+        <div class="prose">
+          <p class="lead">原海报左侧玫红侧注直接点破了镜像构图最怕的毛病：<strong>「对称不等于呆板，镜像中创造和谐与节奏」</strong>。两边一模一样、亮度一模一样、锐度一模一样，很容易像电脑硬贴出来的双份复制品。</p>
+          <p>解决呆板最省力的抓手正是关键词 <strong>duality（对偶）</strong>：结构完全镜像，但让「实像」与「虚像」承担不同分工。在水景与摄影里，是上实下虚——倒影比实景暗一档、略带水平波纹扰动；在品牌图形与海报里，则是正负形互换——左侧白底深形，右侧深底白形。</p>
+          <p>Gordon Baylis 与 Jon Driver（1995）在图底边界归属研究里指出，人眼会把共享边界单侧归属给「图形」一侧；当你把镜像双侧做成一实一虚或正负反相时，轮廓仍然沿中轴锁定，但大脑能清晰分出主次层次，不再在两边之间来回抢焦点。关于水平地平线本身的安定感，可另见 <a href="https://layout.xiaoxiaodong.ai/021/play/" target="_blank" rel="noopener">021 水平构图</a>。</p>
+        </div>
+
+        <div class="lab-box" id="lab-duality">
+          <div class="lab-bar">
+            <span class="lab-tag">实验 03 · 实虚对偶调参台</span>
+            <div class="lab-seg" role="group" aria-label="切换实虚演示模式">
+              <button type="button" class="seg-btn" data-duality-scene="water" aria-pressed="true">水岸倒影</button>
+              <button type="button" class="seg-btn" data-duality-scene="neg" aria-pressed="false">正负徽标</button>
+            </div>
+          </div>
+          <div class="canvas-frame canvas-1610">
+            <canvas id="duality-canvas" aria-label="一实一虚对偶画布：用下方两枚滑块调节倒影亮度衰减与水纹扰动"></canvas>
+          </div>
+          <div class="range-grid">
+            <label class="range-row">
+              <span class="range-meta"><span id="lbl-dim">倒影亮度衰减</span><strong id="val-dim">35%</strong></span>
+              <input type="range" id="rng-dim" min="0" max="90" value="35">
+            </label>
+            <label class="range-row">
+              <span class="range-meta"><span id="lbl-ripple">水纹扰动强度</span><strong id="val-ripple">28%</strong></span>
+              <input type="range" id="rng-ripple" min="0" max="100" value="28">
+            </label>
+          </div>
+          <p class="lab-readout" id="duality-readout" aria-live="polite">一实一虚舒适区：倒影降暗 35% 并带轻微横纹，既一眼认出跨轴对应，又不和上方实体抢主次。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 从哪来（炭灰暗底） -->
+  <section class="band band-charcoal" id="s4" aria-labelledby="h-s4">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">04</span>
+        <div class="sec-titles">
+          <h2 id="h-s4">镜像构图从哪来</h2>
+          <p class="sec-en" lang="en">HISTORICAL COORDINATES · 14C — 1952</p>
+        </div>
+      </header>
+
+      <div class="timeline-tabs" role="tablist" aria-label="选择镜像构图历史坐标">
+        <button type="button" class="era-btn" role="tab" data-era="alhambra" aria-selected="true">14世纪 · 阿尔罕布拉</button>
+        <button type="button" class="era-btn" role="tab" data-era="taj" aria-selected="false">1632 · 泰姬陵</button>
+        <button type="button" class="era-btn" role="tab" data-era="kant" aria-selected="false">1768 · 康德</button>
+        <button type="button" class="era-btn" role="tab" data-era="bresson" aria-selected="false">1932 · 布列松</button>
+        <button type="button" class="era-btn" role="tab" data-era="escher" aria-selected="false">1952 · 埃舍尔</button>
+      </div>
+
+      <div class="history-layout">
+        <div class="history-stage">
+          <div class="canvas-frame canvas-1610">
+            <canvas id="history-canvas" aria-label="历史坐标极简镜像骨架示意图"></canvas>
+          </div>
+        </div>
+
+        <article class="history-card" id="history-card" aria-live="polite">
+          <p class="hist-year" id="hist-year" lang="en">14th Century · 1333–1354</p>
+          <h3 class="hist-title" id="hist-title">格拉纳达阿尔罕布拉宫「桃金娘中庭」</h3>
+          <p class="hist-axis" id="hist-axis">镜轴类型：水平静水池镜像轴</p>
+          <p class="hist-body" id="hist-body">纳斯里德王朝优素福一世时期营建（后由穆罕默德五世续修）。中庭中央长约 34 米、宽约 7.1 米的矩形静水池以水平水面为镜轴，把北侧科马雷斯塔与细密拱廊完整倒映于水中，用零新增体量将建筑秩序纵向翻倍，1984 年作为阿尔罕布拉宫核心部分列入 UNESCO 世界遗产（编号 314）。</p>
+          <p class="hist-source" id="hist-source">核实出处：UNESCO World Heritage Centre, Site No. 314（Alhambra, Generalife and Albayzín, Granada）</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 四大适用场景（浅银纸白底） -->
+  <section class="band band-paper" id="s5" aria-labelledby="h-s5">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">05</span>
+        <div class="sec-titles">
+          <h2 id="h-s5">四大场景，镜轴各有放法</h2>
+          <p class="sec-en" lang="en">FOUR APPLICATIONS · WHERE THE AXIS LIVES</p>
+        </div>
+      </header>
+
+      <div class="split-2">
+        <div class="prose">
+          <p class="lead">原海报右下角给出了镜像构图的四项「适用场景」：<strong>建筑与景观</strong>、<strong>品牌与标志设计</strong>、<strong>版式排版</strong>、<strong>摄影与视觉艺术</strong>。场景不同，镜轴的方向、虚实比例与文字边界也跟着变。</p>
+          <ul class="scene-notes">
+            <li><strong>建筑与景观：</strong>常用水平水面为轴，以水体柔化硬朗石材，放大庄严与静谧感。</li>
+            <li><strong>品牌与标志设计：</strong>常用竖向中轴让抽象图形做手性咬合，而品牌字标独立居中正向排布，绝不跟着翻转。</li>
+            <li><strong>版式排版：</strong>书籍双页摊开时，书脊订口就是天然竖向镜轴——左右页采取<strong>镜像页边距</strong>（内白对内白、外白对外白、页码对称分落外角），摊开瞬间才是一整幅跨页秩序。</li>
+            <li><strong>摄影与视觉艺术：</strong>雨后积水、玻璃幕墙或镜面构筑双界镜像，把画外天空与人物动作一并折进画框。</li>
+          </ul>
+          <p>若画面围绕单一竖脊纵向排布而不要求严格镜像，可参考 <a href="https://layout.xiaoxiaodong.ai/027/play/" target="_blank" rel="noopener">027 中轴构图</a>；同时拥有两条交叉主轴的结构则见 <a href="https://layout.xiaoxiaodong.ai/029/play/" target="_blank" rel="noopener">029 双轴构图</a>。</p>
+        </div>
+
+        <div class="lab-box lab-box-light" id="lab-curtain">
+          <div class="lab-bar">
+            <span class="lab-tag">实验 05 · 中缝对比拉帘</span>
+            <div class="lab-seg" role="group" aria-label="切换四大应用场景">
+              <button type="button" class="seg-btn seg-btn-light" data-scene="arch" aria-pressed="true">建筑景观</button>
+              <button type="button" class="seg-btn seg-btn-light" data-scene="brand" aria-pressed="false">品牌标志</button>
+              <button type="button" class="seg-btn seg-btn-light" data-scene="spread" aria-pressed="false">书籍跨页</button>
+              <button type="button" class="seg-btn seg-btn-light" data-scene="photo" aria-pressed="false">摄影双界</button>
+            </div>
+          </div>
+          <div class="curtain-wrap" id="curtain-wrap">
+            <canvas id="curtain-canvas" aria-label="应用场景对比拉帘：左侧为普通无镜像排法，右侧为建立镜像轴之后"></canvas>
+            <div class="curtain-divider" id="curtain-divider" aria-hidden="true"><span>↔</span></div>
+          </div>
+          <label class="range-row range-row-light">
+            <span class="range-meta"><span>左：普通无镜像</span><strong id="curtain-pct">50%</strong><span>右：建立镜像轴</span></span>
+            <input type="range" id="rng-curtain" min="10" max="90" value="50" aria-label="拖动对比拉帘位置">
+          </label>
+          <p class="lab-readout" id="curtain-readout" aria-live="polite">建筑与景观：拉过水平水面轴后，原本悬浮的拱廊获得倒影托底，上下形成稳定对偶。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 什么时候别硬用镜像（曜石黑底） -->
+  <section class="band band-obsidian" id="s6" aria-labelledby="h-s6">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">06</span>
+        <div class="sec-titles">
+          <h2 id="h-s6">什么时候别硬用镜像</h2>
+          <p class="sec-en" lang="en">WHEN NOT TO MIRROR · FOUR PITFALLS</p>
+        </div>
+      </header>
+
+      <p class="sec-intro">镜像靠的是「停在轴线上来回呼应」，因此凡是依赖<strong>不可翻转的符号</strong>、<strong>自然微差</strong>或<strong>单向推进速度</strong>的画面，硬套镜像反而适得其反。点下面每张病历卡的「查看救法」，现场对照修正做法。</p>
+
+      <div class="pitfall-grid" id="pitfall-grid">
+        <article class="pitfall-card" data-fixed="false">
+          <div class="pitfall-top">
+            <span class="pit-no" lang="en">CASE 01</span>
+            <span class="pit-state">翻车态</span>
+          </div>
+          <h3>含文字、数字与方向箭头</h3>
+          <div class="pit-vis">
+            <svg viewBox="0 0 280 120" aria-hidden="true" class="pit-svg pit-bad">
+              <rect width="280" height="120" fill="#18181A"/>
+              <line x1="140" y1="8" x2="140" y2="112" stroke="#D84582" stroke-width="1.8" stroke-dasharray="6 5"/>
+              <rect x="26" y="34" width="96" height="52" fill="#262626" stroke="#E2E2E2" stroke-width="1.2"/>
+              <text x="74" y="65" text-anchor="middle" fill="#E2E2E2" font-size="16" font-weight="700" font-family="'Syne','Noto Sans SC',sans-serif">EXIT →</text>
+              <g transform="translate(280,0) scale(-1,1)">
+                <rect x="26" y="34" width="96" height="52" fill="#3B1928" stroke="#E8649B" stroke-width="1.4" stroke-dasharray="4 3"/>
+                <text x="74" y="65" text-anchor="middle" fill="#FF89B9" font-size="16" font-weight="700" font-family="'Syne','Noto Sans SC',sans-serif">EXIT →</text>
+              </g>
+            </svg>
+            <svg viewBox="0 0 280 120" aria-hidden="true" class="pit-svg pit-good">
+              <rect width="280" height="120" fill="#18181A"/>
+              <line x1="140" y1="8" x2="140" y2="112" stroke="#D84582" stroke-width="1.8" stroke-dasharray="6 5"/>
+              <path d="M126 70 L70 70 A56 56 0 0 1 126 14 Z" fill="#E2E2E2"/>
+              <path d="M154 70 L210 70 A56 56 0 0 0 154 14 Z" fill="#E2E2E2"/>
+              <rect x="86" y="80" width="108" height="28" fill="#1D1D20" stroke="#E8649B" stroke-width="1.4"/>
+              <text x="140" y="99" text-anchor="middle" fill="#E2E2E2" font-size="14" font-weight="700" font-family="'Syne','Noto Sans SC',sans-serif">EXIT →</text>
+            </svg>
+          </div>
+          <p class="pit-desc" data-bad="文字、数字和导视箭头是单向阅读符号，跟着图形一起镜像会直接出现反字和指向矛盾，也是开场实验最容易踩的坑。" data-good="救法：图形严格跨轴镜像，文字与方向箭头独立保持正向、跨轴居中排布——两条轨道各自成立。">文字、数字和导视箭头是单向阅读符号，跟着图形一起镜像会直接出现反字和指向矛盾，也是开场实验最容易踩的坑。</p>
+          <button type="button" class="pit-btn">查看救法</button>
+        </article>
+
+        <article class="pitfall-card" data-fixed="false">
+          <div class="pitfall-top">
+            <span class="pit-no" lang="en">CASE 02</span>
+            <span class="pit-state">翻车态</span>
+          </div>
+          <h3>自然人像强行中轴对拼</h3>
+          <div class="pit-vis">
+            <!-- 严格仅用抽象头肩轮廓剪影，绝不画五官 -->
+            <svg viewBox="0 0 280 120" aria-hidden="true" class="pit-svg pit-bad">
+              <rect width="280" height="120" fill="#18181A"/>
+              <line x1="140" y1="8" x2="140" y2="112" stroke="#D84582" stroke-width="1.8" stroke-dasharray="6 5"/>
+              <path d="M140 20 C110 20 100 44 106 72 C108 82 116 86 116 94 L82 112 L140 112 Z" fill="#BF2C6C" opacity="0.9"/>
+              <path d="M140 20 C170 20 180 44 174 72 C172 82 164 86 164 94 L198 112 L140 112 Z" fill="#BF2C6C" opacity="0.9"/>
+              <line x1="120" y1="54" x2="160" y2="54" stroke="#E2E2E2" stroke-width="1.2" stroke-dasharray="3 3"/>
+            </svg>
+            <svg viewBox="0 0 280 120" aria-hidden="true" class="pit-svg pit-good">
+              <rect width="280" height="120" fill="#18181A"/>
+              <line x1="140" y1="8" x2="140" y2="112" stroke="#D84582" stroke-width="1.8" stroke-dasharray="6 5"/>
+              <!-- 侧影背影与环境/背景呼应，人物轮廓本身不从正中硬拼 -->
+              <path d="M74 112 L88 86 C86 72 84 48 98 34 C112 22 126 30 126 52 C126 68 116 78 114 88 L128 112 Z" fill="#E2E2E2"/>
+              <path d="M206 112 L192 86 C194 72 196 48 182 34 C168 22 154 30 154 52 C154 68 164 78 166 88 L152 112 Z" fill="#3E3E44"/>
+            </svg>
+          </div>
+          <p class="pit-desc" data-bad="真实人体与光线天然带有细微左右不对称，把人像从正中切半镜像拼接，反而会造出僵硬失真的塑像感。" data-good="救法：让环境架构或双人侧影跨轴呼应，或借实景镜子制造一实一虚，绝不拿单人正面硬切拼接。">真实人体与光线天然带有细微左右不对称，把人像从正中切半镜像拼接，反而会造出僵硬失真的塑像感。</p>
+          <button type="button" class="pit-btn">查看救法</button>
+        </article>
+
+        <article class="pitfall-card" data-fixed="false">
+          <div class="pitfall-top">
+            <span class="pit-no" lang="en">CASE 03</span>
+            <span class="pit-state">翻车态</span>
+          </div>
+          <h3>需要强单向动势的画面</h3>
+          <div class="pit-vis">
+            <svg viewBox="0 0 280 120" aria-hidden="true" class="pit-svg pit-bad">
+              <rect width="280" height="120" fill="#18181A"/>
+              <line x1="140" y1="8" x2="140" y2="112" stroke="#D84582" stroke-width="1.8" stroke-dasharray="6 5"/>
+              <polygon points="122,60 54,32 72,60 54,88" fill="#E2E2E2"/>
+              <polygon points="158,60 226,32 208,60 226,88" fill="#E2E2E2"/>
+            </svg>
+            <svg viewBox="0 0 280 120" aria-hidden="true" class="pit-svg pit-good">
+              <rect width="280" height="120" fill="#18181A"/>
+              <line x1="34" y1="96" x2="246" y2="24" stroke="#D84582" stroke-width="1.6" stroke-dasharray="5 5"/>
+              <polygon points="234,28 164,34 188,52 178,76" fill="#E2E2E2"/>
+              <circle cx="64" cy="84" r="14" fill="#BF2C6C"/>
+            </svg>
+          </div>
+          <p class="pit-desc" data-bad="体育冲刺、流程引导或强叙事镜头需要视线一路向前冲；镜像把左冲与右冲顶在中缝互相抵消，速度感当场刹车。" data-good="救法：改用非对称或斜向引导把重心推向目标方向——见 019 非对称构图 或 023 对角线构图。">体育冲刺、流程引导或强叙事镜头需要视线一路向前冲；镜像把左冲与右冲顶在中缝互相抵消，速度感当场刹车。</p>
+          <button type="button" class="pit-btn">查看救法</button>
+        </article>
+
+        <article class="pitfall-card" data-fixed="false">
+          <div class="pitfall-top">
+            <span class="pit-no" lang="en">CASE 04</span>
+            <span class="pit-state">翻车态</span>
+          </div>
+          <h3>镜轴切穿主体焊成怪形</h3>
+          <div class="pit-vis">
+            <svg viewBox="0 0 280 120" aria-hidden="true" class="pit-svg pit-bad">
+              <rect width="280" height="120" fill="#18181A"/>
+              <path d="M168 92 L92 92 A76 76 0 0 1 168 16 Z" fill="#E2E2E2" opacity="0.88"/>
+              <path d="M112 92 L188 92 A76 76 0 0 0 112 16 Z" fill="#BF2C6C" opacity="0.82"/>
+              <line x1="140" y1="8" x2="140" y2="112" stroke="#FF70AB" stroke-width="2" stroke-dasharray="6 4"/>
+            </svg>
+            <svg viewBox="0 0 280 120" aria-hidden="true" class="pit-svg pit-good">
+              <rect width="280" height="120" fill="#18181A"/>
+              <path d="M130 94 L66 94 A64 64 0 0 1 130 30 Z" fill="#E2E2E2"/>
+              <path d="M150 94 L214 94 A64 64 0 0 0 150 30 Z" fill="#E2E2E2"/>
+              <line x1="140" y1="8" x2="140" y2="112" stroke="#D84582" stroke-width="1.8" stroke-dasharray="6 4"/>
+            </svg>
+          </div>
+          <p class="pit-desc" data-bad="除非刻意设计连体共生符号，否则镜面压进主体内部会让两个轮廓在中缝胡乱咬合，失去清晰边界与呼吸缝。" data-good="救法：先把主体完整退回镜轴一侧，再把轴缝调回同侧层间距的 0.75×–1.6×（经验值）。">除非刻意设计连体共生符号，否则镜面压进主体内部会让两个轮廓在中缝胡乱咬合，失去清晰边界与呼吸缝。</p>
+          <button type="button" class="pit-btn">查看救法</button>
+        </article>
+      </div>
+      <p class="sec-crosslink">需要打破镜像追求动势时，转看 <a href="https://layout.xiaoxiaodong.ai/019/play/" target="_blank" rel="noopener">019 非对称构图</a> 与 <a href="https://layout.xiaoxiaodong.ai/023/play/" target="_blank" rel="noopener">023 对角线构图</a>。</p>
+    </div>
+  </section>
+
+  <!-- 07 小练习：严格单变量盲测（浅银纸白底） -->
+  <section class="band band-paper" id="s7" aria-labelledby="h-s7">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">07</span>
+        <div class="sec-titles">
+          <h2 id="h-s7">练眼力：哪一版呼应成立？</h2>
+          <p class="sec-en" lang="en">SINGLE-VARIABLE CHECK · AXIS SEAM RATIO</p>
+        </div>
+      </header>
+
+      <p class="sec-intro">下面四版 4:3 海报，<strong>手性三形的尺寸与同侧层间距</strong>、<strong>居中竖轴</strong>、<strong>真镜像翻转</strong>以及<strong>正向文字签</strong>全部一致，四版都没有相交碰撞、也都完整留在画框内——唯一改变的只有<strong>轴缝宽度与同侧层间距的比值</strong>。凭眼力选出呼应与节奏最成立的一版：</p>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四选一镜像构图盲测">
+        <button type="button" class="quiz-card" data-opt="A" aria-pressed="false">
+          <div class="quiz-head"><span class="quiz-letter" lang="en">A</span><span class="quiz-tag" data-quiz-tag="A"></span></div>
+          <div class="quiz-canvas-wrap"><canvas data-quiz-canvas="A" aria-label="选项 A 镜像构图微缩预览"></canvas></div>
+        </button>
+        <button type="button" class="quiz-card" data-opt="B" aria-pressed="false">
+          <div class="quiz-head"><span class="quiz-letter" lang="en">B</span><span class="quiz-tag" data-quiz-tag="B"></span></div>
+          <div class="quiz-canvas-wrap"><canvas data-quiz-canvas="B" aria-label="选项 B 镜像构图微缩预览"></canvas></div>
+        </button>
+        <button type="button" class="quiz-card" data-opt="C" aria-pressed="false">
+          <div class="quiz-head"><span class="quiz-letter" lang="en">C</span><span class="quiz-tag" data-quiz-tag="C"></span></div>
+          <div class="quiz-canvas-wrap"><canvas data-quiz-canvas="C" aria-label="选项 C 镜像构图微缩预览"></canvas></div>
+        </button>
+        <button type="button" class="quiz-card" data-opt="D" aria-pressed="false">
+          <div class="quiz-head"><span class="quiz-letter" lang="en">D</span><span class="quiz-tag" data-quiz-tag="D"></span></div>
+          <div class="quiz-canvas-wrap"><canvas data-quiz-canvas="D" aria-label="选项 D 镜像构图微缩预览"></canvas></div>
+        </button>
+      </div>
+
+      <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+        <div class="qv-main">
+          <strong id="qv-title">先凭眼力点选一版（A / B / C / D）。</strong>
+          <p id="qv-body">选定后，四版都会亮出由同一模型实测的「轴缝 / 同侧层间距」比值与判定，并对照第 02 节 0.75×–1.6× 经验规则说明原因。</p>
+        </div>
+        <button type="button" class="util-btn util-light-accent" id="btn-try-hero" hidden>把这一版带入开场工作台</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 原海报与要点速查（曜石黑底） -->
+  <section class="band band-obsidian band-poster" id="s8" aria-labelledby="h-s8">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">08</span>
+        <div class="sec-titles">
+          <h2 id="h-s8">原海报与要点速查</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER · NO. 020</p>
+        </div>
+      </header>
+
+      <div class="poster-layout">
+        <figure class="poster-fig">
+          <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="点击放大查看 020 号镜像构图原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="020 号镜像构图原海报：曜石黑底色上，亮玫红圆、浅银白半圆与深莓红半圆沿竖向玫红虚线镜像轴左右对称，两侧配玫红细外弧与侧注；下方并列镜像前与镜像后深灰对照框，右侧列出教学要点与适用场景，底部为细玫红圆角描边提示框。">
+          </button>
+          <figcaption>点击海报放大查看，放大后支持拖动细看，按 Esc 关闭。</figcaption>
+        </figure>
+
+        <div class="poster-meta">
+          <p class="poster-summary">原海报总述：「以镜像关系建立画面秩序，传递对称之美与内在平衡」</p>
+          <p class="poster-kw-row" lang="en">reflection · echo · duality · rhythm</p>
+
+          <div class="meta-cols">
+            <div>
+              <h3>教学要点</h3>
+              <ul class="meta-list">
+                <li>确定镜像轴</li>
+                <li>寻找形状 / 元素对应关系</li>
+                <li>保持视觉重量平衡</li>
+                <li>利用间距与留白增强节奏</li>
+              </ul>
+            </div>
+            <div>
+              <h3>适用场景</h3>
+              <ul class="meta-list">
+                <li>建筑与景观</li>
+                <li>品牌与标志设计</li>
+                <li>版式排版</li>
+                <li>摄影与视觉艺术</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="poster-tip">
+            <p class="tip-head"><span class="tip-dot" aria-hidden="true"></span><strong>提示 <span lang="en">TIP</span></strong></p>
+            <p>镜像构图的本质是“对应与呼应”，在对称中创造秩序，在秩序中传递美感。</p>
+          </div>
+
+          <div class="siblings">
+            <h3>同小类延伸 · 重心、线条与轴线</h3>
+            <p>
+              <strong>重心与对称：</strong><a href="https://layout.xiaoxiaodong.ai/016/play/" target="_blank" rel="noopener">016 居中构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/017/play/" target="_blank" rel="noopener">017 偏心构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/018/play/" target="_blank" rel="noopener">018 对称构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/019/play/" target="_blank" rel="noopener">019 非对称构图</a>；
+              <strong>线条方向：</strong><a href="https://layout.xiaoxiaodong.ai/021/play/" target="_blank" rel="noopener">021 水平构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/022/play/" target="_blank" rel="noopener">022 垂直构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/023/play/" target="_blank" rel="noopener">023 对角线构图</a>；
+              <strong>多线关系：</strong><a href="https://layout.xiaoxiaodong.ai/024/play/" target="_blank" rel="noopener">024 平行线构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/025/play/" target="_blank" rel="noopener">025 汇聚线构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/026/play/" target="_blank" rel="noopener">026 交叉线构图</a>；
+              <strong>轴线骨架：</strong><a href="https://layout.xiaoxiaodong.ai/027/play/" target="_blank" rel="noopener">027 中轴构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/028/play/" target="_blank" rel="noopener">028 偏轴构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/029/play/" target="_blank" rel="noopener">029 双轴构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/030/play/" target="_blank" rel="noopener">030 十字构图</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p><span class="en-tag" lang="en">NO. 020</span> 镜像构图 · 350 种排版</p>
+    <p class="foot-links">
+      <a href="https://layout.xiaoxiaodong.ai/020/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      · 海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      · 源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱（支持拖动与 Esc 关闭） -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="020 号镜像构图原海报大图">
+  <div class="lb-bar">
+    <span class="lb-hint">拖动细看 · 滚轮或按钮缩放 · 按 Esc 关闭</span>
+    <div class="lb-controls">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+      <button type="button" class="lb-btn" id="lb-zoom-reset">100%</button>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭大图">关闭 ×</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" alt="020 号镜像构图原海报放大视图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
