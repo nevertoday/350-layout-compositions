@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101110">
+<title>三点透视 · THREE-POINT PERSPECTIVE</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap mast-inner">
+    <p class="mast-cat"><span class="dot" aria-hidden="true"></span><span>构图逻辑 / 空间层次与投影</span></p>
+    <p class="mast-id"><span lang="en" class="num">NO. 072</span><span class="sep" aria-hidden="true">·</span><span lang="en">THREE-POINT PERSPECTIVE</span></p>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== 首屏：直接继承 072 原海报暗黑建筑立面三栏骨架 ==================== -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="wrap hero-grid">
+      <!-- 左脊：竖排大字「三／点／透／视」+ VP↑ 汇聚微丝 + 焦距与场景控条 -->
+      <div class="hero-spine">
+        <div class="title-lockup">
+          <div class="title-vp-crest" aria-hidden="true">
+            <span class="crest-dot"></span>
+            <span class="crest-tag" lang="en">VP↑</span>
+          </div>
+          <h1 id="page-title" class="stack-title" aria-label="三点透视">
+            <span aria-hidden="true">三</span><span aria-hidden="true">点</span><span aria-hidden="true">透</span><span aria-hidden="true">视</span>
+          </h1>
+          <div class="title-en-block">
+            <p class="title-en" lang="en">THREE-POINT <br>PERSPECTIVE</p>
+            <i class="lime-bar" aria-hidden="true"></i>
+          </div>
+        </div>
+
+        <p class="hero-summary">三点透视通过三个消失点构建空间，呈现仰视的高度与强烈的视觉张力。</p>
+
+        <div class="spine-controls">
+          <div class="ctrl-block">
+            <div class="ctrl-head">
+              <label for="focal-range">等效焦距<span class="focal-sub"> · 24mm短边</span></label>
+              <output id="focal-out" for="focal-range" class="mono">18 mm</output>
+            </div>
+            <input type="range" id="focal-range" min="8" max="85" step="1" value="18">
+            <div class="scale-ticks" aria-hidden="true"><span>8 示意</span><span>24</span><span>50</span><span>85 长焦</span></div>
+          </div>
+
+          <div class="ctrl-block">
+            <span class="ctrl-label">空间样本 <span lang="en">SCENE</span></span>
+            <div class="btn-row" role="group" aria-label="切换三维建筑样本">
+              <button type="button" class="chip" data-scene="monolith" aria-pressed="true">独塔</button>
+              <button type="button" class="chip" data-scene="cluster" aria-pressed="false">塔群</button>
+              <button type="button" class="chip" data-scene="atrium" aria-pressed="false">天井</button>
+            </div>
+          </div>
+
+          <div class="ctrl-inline">
+            <button type="button" class="chip chip-toggle" id="rays-toggle" aria-pressed="true">消失线：开</button>
+            <button type="button" class="chip chip-ghost" id="hero-reset">还原海报</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 中央主角舞台：实时 3D 玻璃幕墙塔体 + 零重叠透视射线 HUD -->
+      <div class="hero-center">
+        <div
+          id="hero-stage"
+          class="hero-stage"
+          data-perf-drag
+          tabindex="0"
+          role="application"
+          aria-label="三点透视三维建筑取景台：左右拖动绕转建筑偏航角，方向键调节俯仰与偏航，按 R 切到原海报仰视视角"
+        >
+          <p class="stage-telemetry tl mono" aria-hidden="true" id="hud-pitch">PITCH +10° · YAW -8°</p>
+          <p class="stage-telemetry tr mono" aria-hidden="true" id="hud-focal">18mm · VP↑ · 3-PT</p>
+        </div>
+
+        <!-- 移动端（≤600px）首屏横向俯仰倾角条：与右侧竖向倾角仪共用同一 pitch 状态 -->
+        <div class="clino-horiz" id="clino-horiz">
+          <div class="clino-h-head">
+            <label class="ctrl-label" for="pitch-range-mobile">俯仰倾角仪 <span lang="en">PITCH</span></label>
+            <output id="pitch-out-mobile" class="pitch-h-val" for="pitch-range-mobile" data-tone="warn">+10°</output>
+          </div>
+          <div class="clino-h-wrap">
+            <div class="clino-h-track" id="clino-h-track" aria-hidden="true">
+              <div class="clino-h-warn is-down" data-h-warn="down"></div>
+              <div class="clino-h-warn is-up" data-h-warn="up"></div>
+              <div class="clino-h-zero" id="clino-h-zero"></div>
+              <div class="clino-h-knob" id="clino-h-knob" data-tone="warn"><span class="h-knob-tri"></span></div>
+            </div>
+            <input type="range" id="pitch-range-mobile" class="clino-h-range" min="-48" max="52" step="1" value="10" aria-label="相机俯仰角（-48° 俯视到 +52° 仰视）">
+          </div>
+          <div class="clino-h-ticks" aria-hidden="true">
+            <span class="clino-h-tick" data-hpitch="-42">-42°</span>
+            <span class="clino-h-tick is-warn" data-hpitch="-18">-18°</span>
+            <span class="clino-h-tick is-zero" data-hpitch="0">0°</span>
+            <span class="clino-h-tick is-warn" data-hpitch="18">+18°</span>
+            <span class="clino-h-tick" data-hpitch="44">+44°</span>
+          </div>
+        </div>
+
+        <!-- 舞台底沿：四组一键视角 -->
+        <div class="preset-bar" role="group" aria-label="视角预设">
+          <button type="button" class="preset-btn" data-preset="poster" aria-pressed="false">原海报 +44°</button>
+          <button type="button" class="preset-btn" data-preset="heroic" aria-pressed="false">建筑广角 +32°</button>
+          <button type="button" class="preset-btn" data-preset="level" aria-pressed="false">平视两点 0°</button>
+          <button type="button" class="preset-btn" data-preset="abyss" aria-pressed="false">高空俯视 -42°</button>
+        </div>
+
+        <p class="stage-hint">在塔体画布上<b>左右拖动</b>绕转墙角（键盘 ←→ 偏航 / ↑↓ 俯仰 / R 切原海报），拖动<b>俯仰倾角仪</b>冲出琥珀歪楼区、跨越 0° 看第三消失点翻转。</p>
+      </div>
+
+      <!-- 右栏（以原海报标志性的荧光青柠竖细线分隔）：竖向倾角仪 + 三点三角形雷达 + 实时诊断 -->
+      <aside class="hero-rail" aria-label="俯仰倾角仪与实时几何诊断">
+        <div class="clinometer">
+          <div class="clino-head">
+            <span class="ctrl-label">俯仰倾角仪 <span lang="en">PITCH</span></span>
+            <output id="pitch-out" class="pitch-big" for="pitch-range" data-tone="warn">+10°</output>
+          </div>
+          <div class="clino-body">
+            <div class="clino-track" id="clino-track" aria-hidden="true">
+              <div class="clino-warn-band is-up" data-warn="up"></div>
+              <div class="clino-warn-band is-down" data-warn="down"></div>
+              <div class="clino-zero-line" id="clino-zero-line"></div>
+              <span class="clino-tick" data-pitch="44" style="--p:8%">+44° 仰视</span>
+              <span class="clino-tick is-warn" data-pitch="18" style="--p:34%">+18° 歪楼</span>
+              <span class="clino-tick is-zero" data-pitch="0" style="--p:52%">0° 两点</span>
+              <span class="clino-tick is-warn is-minor" data-pitch="-18" style="--p:70%">-18° 歪楼</span>
+              <span class="clino-tick" data-pitch="-42" style="--p:94%">-42° 俯视</span>
+              <div class="clino-knob" id="clino-knob" data-tone="warn"><span class="knob-tri"></span></div>
+            </div>
+            <label class="sr" for="pitch-range">相机俯仰角（-48° 俯视到 +52° 仰视）</label>
+            <input type="range" id="pitch-range" class="pitch-range-native" min="-48" max="52" step="1" value="10">
+          </div>
+        </div>
+
+        <figure class="radar-box">
+          <figcaption class="ctrl-label">三点三角形实时雷达 <span lang="en">VP TRIANGLE</span></figcaption>
+          <svg id="radar-svg" viewBox="0 0 220 136" aria-hidden="true">
+            <line id="radar-hl" x1="8" y1="88" x2="212" y2="88" stroke="#c3e54b" stroke-opacity="0.35" stroke-dasharray="3 3"/>
+            <polygon id="radar-tri" points="28,88 192,88 110,16" fill="rgba(195,229,75,0.08)" stroke="#c3e54b" stroke-width="1" stroke-dasharray="3 3"/>
+            <line id="radar-alt" x1="110" y1="16" x2="110" y2="88" stroke="#c3e54b" stroke-opacity="0.3" stroke-dasharray="2 3"/>
+            <rect id="radar-frame" x="83" y="47" width="54" height="42" fill="rgba(244,245,240,0.05)" stroke="#f4f5f0" stroke-width="1.1"/>
+            <circle cx="110" cy="68" r="2.2" fill="#f4f5f0"/>
+            <circle id="radar-vl" cx="28" cy="88" r="3.6" fill="#c3e54b"/>
+            <circle id="radar-vr" cx="192" cy="88" r="3.6" fill="#c3e54b"/>
+            <circle id="radar-vv" cx="110" cy="16" r="4" fill="#c3e54b"/>
+            <text id="radar-vv-lbl" x="118" y="19" fill="#c3e54b" font-family="DM Mono, Noto Sans SC, monospace" font-size="9">VP↑</text>
+          </svg>
+          <p class="radar-cap mono" id="radar-cap">正立锐角三角 · 垂心 = 画心</p>
+        </figure>
+
+        <div class="diagnosis" aria-live="polite" id="diag-box" data-tone="warn">
+          <p class="diag-badge mono" id="diag-badge">微仰 +10° · 尴尬歪楼区</p>
+          <h2 class="diag-title" id="diag-title">仰角不够干脆，像楼往后倒、相机没端平</h2>
+          <p class="diag-body" id="diag-body">抬头 +10° 落在经验上最易翻车的 2°–18° 微仰区：VP↑ 还悬在画框上方之外，竖线只是轻微内斜，既无震撼气势又显失稳。试着拉过 +30° 唤出冲天仰视，或归 0° 扶直。</p>
+          <p class="diag-meta mono" id="diag-vp">VP↑ 在画外 · 左右点近框边</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ==================== 正文八节 ==================== -->
+  <article class="essay">
+
+    <!-- 01 · 海报核心原理与四条视觉特征 -->
+    <section class="sec sec-alt" aria-labelledby="s1">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">01</p>
+          <h2 id="s1">三向收束的<br>四条特征</h2>
+          <p class="sec-en" lang="en">PRINCIPLE &amp; VISUAL CHARACTER</p>
+        </header>
+
+        <div class="sec-body">
+          <blockquote class="poster-quote reveal">
+            <p>「三点透视由三个消失点决定：左右两点控制水平延伸，上方一点控制垂直收束。」</p>
+            <cite>072 号原海报 · 核心原理 <span lang="en">PRINCIPLE</span></cite>
+          </blockquote>
+
+          <p class="lead reveal">在<a href="https://layout.xiaoxiaodong.ai/069/play/" target="_blank" rel="noopener">线性透视（069）</a>家族里，画面有几个消失点，取决于物体有几组互相垂直的边不再与画幅平行。<a href="https://layout.xiaoxiaodong.ai/070/play/" target="_blank" rel="noopener">一点透视（070）</a>和<a href="https://layout.xiaoxiaodong.ai/071/play/" target="_blank" rel="noopener">两点透视（071）</a>都默认视线水平，垂直棱线始终笔直站立；只有当你把镜头抬头仰望或低头俯瞰，第三组垂直线才开始聚拢，三点透视由此诞生。</p>
+
+          <ol class="feature-grid">
+            <li class="feature-item reveal">
+              <svg class="feat-icon" viewBox="0 0 44 44" aria-hidden="true">
+                <circle cx="22" cy="22" r="20"/>
+                <path d="M22 31V13M16 19l6-6 6 6"/>
+              </svg>
+              <div>
+                <h3>高度感 <span lang="en">HEIGHT</span></h3>
+                <p class="quote-line">垂直线向上收束，强化建筑高度。</p>
+                <p>两侧楼缘越往上越窄，人脑会沿<a href="https://layout.xiaoxiaodong.ai/068/play/" target="_blank" rel="noopener">尺度递减（068）</a>的本能把顶端自动推向极远处，明明只有几厘米高的纸面，却读出几十层楼的拔地而起。</p>
+              </div>
+            </li>
+
+            <li class="feature-item reveal">
+              <svg class="feat-icon" viewBox="0 0 44 44" aria-hidden="true">
+                <circle cx="22" cy="22" r="20"/>
+                <path d="M13 31L19 13M22 31V13M31 31L25 13"/>
+              </svg>
+              <div>
+                <h3>张力感 <span lang="en">DRAMA</span></h3>
+                <p class="quote-line">三向收束产生强烈的视觉拉力。</p>
+                <p>画面里不再有安分的横平竖直，三条方向的斜线同时把视线往尖端拽——静态建筑瞬间有了发射、冲刺般的动势。</p>
+              </div>
+            </li>
+
+            <li class="feature-item reveal">
+              <svg class="feat-icon" viewBox="0 0 44 44" aria-hidden="true">
+                <circle cx="22" cy="22" r="20"/>
+                <path d="M14 19v-5h5M25 14h5v5M30 25v5h-5M19 30h-5v-5"/>
+              </svg>
+              <div>
+                <h3>空间感 <span lang="en">SCALE</span></h3>
+                <p class="quote-line">三维空间被充分展开，更具真实感。</p>
+                <p>左右两面墙体和底部或顶面同时参与纵深压缩，比平面正视多了一维剧烈的体量透视，让观者感觉自己真站在巨物脚下。</p>
+              </div>
+            </li>
+
+            <li class="feature-item reveal">
+              <svg class="feat-icon" viewBox="0 0 44 44" aria-hidden="true">
+                <circle cx="22" cy="22" r="20"/>
+                <path d="M10 22c3.5-5.5 8-8 12-8s8.5 2.5 12 8c-3.5 5.5-8 8-12 8s-8.5-2.5-12-8Z"/>
+                <circle cx="22" cy="22" r="3.2" fill="#c3e54b" stroke="none"/>
+              </svg>
+              <div>
+                <h3>仰视视角 <span lang="en">LOW ANGLE</span></h3>
+                <p class="quote-line">视平线位于物体下方，强化压迫与崇高感。</p>
+                <p>把视平线压低，观众的心理位置就被按在地面；被拍对象凌驾在视平线之上，天然带上威严、宏伟甚至压迫的情绪。</p>
+              </div>
+            </li>
+          </ol>
+
+          <aside class="gentle-note reveal">
+            <p class="note-tag mono">温和补充 · 不止仰视</p>
+            <p>原海报把三点透视集中讲成了「仰视视角（VP↑ 在上）」，这确实是最常见、最具英雄气概的用法；但它其实是三点透视的<strong>一半</strong>。下一节把镜头向下压过 0°，你会立刻看到另一半：天底消失点（VP↓）带来的高空俯视与深渊眩晕。</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 · 仰视 vs 俯视：为什么镜头一仰一俯竖线就会歪？ -->
+    <section class="sec" aria-labelledby="s2">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">02</p>
+          <h2 id="s2">镜头一仰，<br>竖线为何斜</h2>
+          <p class="sec-en" lang="en">ZENITH VP↑ VS NADIR VP↓</p>
+        </header>
+
+        <div class="sec-body">
+          <p class="lead reveal">决定有没有第三消失点的，从来不是「楼有多高」，而是<strong>画幅（相机感光面）是否与墙面平行</strong>。只要镜头俯仰角不为 0°，墙顶和墙底到感光面的投影距离就不再相等，平行的竖线必然在画幅上方或下方交于一点。</p>
+
+          <figure class="lab-card reveal">
+            <div class="lab-bar">
+              <div class="btn-row" role="group" aria-label="俯仰剖面预设">
+                <button type="button" class="chip" data-tilt-preset="-42" aria-pressed="false">高空俯视 -42°</button>
+                <button type="button" class="chip" data-tilt-preset="0" aria-pressed="false">端平两点 0°</button>
+                <button type="button" class="chip" data-tilt-preset="36" aria-pressed="true">仰视摩天 +36°</button>
+              </div>
+              <div class="lab-bar-right">
+                <button type="button" class="chip chip-mini" data-tilt-nudge="-6" aria-label="俯角增加 6 度">-6°</button>
+                <span class="mono lab-readout" id="tilt-deg">+36°</span>
+                <button type="button" class="chip chip-mini" data-tilt-nudge="6" aria-label="仰角增加 6 度">+6°</button>
+              </div>
+            </div>
+
+            <svg id="tilt-svg" class="lab-svg" viewBox="0 0 640 310" role="img" aria-label="相机侧视光学剖面与右侧三点透视成像同步对照图">
+              <!-- 左侧：侧视剖面框 -->
+              <rect x="12" y="14" width="296" height="282" fill="#131513" stroke="#2c302b"/>
+              <line x1="12" y1="42" x2="308" y2="42" stroke="#232722"/>
+              <text x="24" y="32" fill="#a8aea4" font-family="DM Mono, Noto Sans SC, monospace" font-size="10">SIDE SECTION · 拖相机升降调仰俯</text>
+              <!-- 相机升降轨道 -->
+              <line x1="86" y1="84" x2="86" y2="244" stroke="#c3e54b" stroke-opacity="0.28" stroke-dasharray="3 4"/>
+              <circle cx="86" cy="164" r="2.5" fill="#c3e54b" fill-opacity="0.5"/>
+              <text x="24" y="96" fill="#8e958a" font-family="DM Mono, Noto Sans SC, monospace" font-size="9">俯 -48°</text>
+              <text x="24" y="167" fill="#c3e54b" font-family="DM Mono, Noto Sans SC, monospace" font-size="9">平 0°</text>
+              <text x="24" y="240" fill="#8e958a" font-family="DM Mono, Noto Sans SC, monospace" font-size="9">仰 +48°</text>
+              <!-- 摩天楼剖面墙体 -->
+              <rect x="246" y="58" width="38" height="208" fill="#282b28" stroke="#f4f5f0" stroke-width="1.2"/>
+              <line x1="22" y1="266" x2="298" y2="266" stroke="#474d45" stroke-width="1"/>
+              <text x="265" y="160" fill="#b4bab0" text-anchor="middle" font-family="Noto Sans SC, sans-serif" font-size="10">垂直</text>
+              <text x="265" y="174" fill="#b4bab0" text-anchor="middle" font-family="Noto Sans SC, sans-serif" font-size="10">墙面</text>
+              <!-- 光线 -->
+              <path id="tilt-ray-top" d="M 246 58 L 86 218" stroke="#c3e54b" stroke-opacity="0.55" stroke-dasharray="4 4" fill="none"/>
+              <path id="tilt-ray-mid" d="M 246 162 L 86 218" stroke="#f4f5f0" stroke-opacity="0.3" stroke-dasharray="2 4" fill="none"/>
+              <path id="tilt-ray-bot" d="M 246 266 L 86 218" stroke="#c3e54b" stroke-opacity="0.55" stroke-dasharray="4 4" fill="none"/>
+              <!-- 感光面高亮段 -->
+              <line id="tilt-sensor" x1="64" y1="200" x2="80" y2="240" stroke="#c3e54b" stroke-width="3"/>
+              <!-- 相机图示 -->
+              <g id="tilt-cam" transform="translate(86, 218) rotate(-36)">
+                <rect x="-18" y="-11" width="20" height="22" fill="#101110" stroke="#f4f5f0" stroke-width="1.2"/>
+                <polygon points="2,-6 11,-10 11,10 2,6" fill="#2c302b" stroke="#c3e54b" stroke-width="1.1"/>
+              </g>
+              <text x="24" y="286" fill="#c3e54b" font-family="Noto Sans SC, sans-serif" font-size="10">亮绿粗线 = 感光面倾角（可在左侧上下拖相机）</text>
+              <!-- 相机轨道透明交互热区 -->
+              <rect id="tilt-rail-hit" x="20" y="54" width="136" height="214" fill="transparent" class="svg-drag-rail" tabindex="0" role="slider" aria-label="上下拖动调节侧视相机俯仰角" aria-valuemin="-48" aria-valuemax="48" aria-valuenow="36"/>
+
+              <!-- 右侧：实时成像画框 -->
+              <rect x="332" y="14" width="296" height="282" fill="#0d0e0d" stroke="#2c302b"/>
+              <line x1="332" y1="42" x2="628" y2="42" stroke="#232722"/>
+              <text x="344" y="32" fill="#a8aea4" font-family="DM Mono, Noto Sans SC, monospace" font-size="10">PICTURE PLANE · 成像画框</text>
+              <line id="pic-hl" x1="344" y1="230" x2="616" y2="230" stroke="#c3e54b" stroke-opacity="0.34" stroke-dasharray="4 4"/>
+              <path id="pic-rays" d="" stroke="#c3e54b" stroke-opacity="0.6" stroke-dasharray="4 4" fill="none"/>
+              <polygon id="pic-left" points="" fill="#404440" stroke="#f4f5f0" stroke-width="1.1"/>
+              <polygon id="pic-right" points="" fill="#191b1a" stroke="#f4f5f0" stroke-width="1.1"/>
+              <line id="pic-edge" x1="480" y1="90" x2="480" y2="240" stroke="#f4f5f0" stroke-width="1.5"/>
+              <circle id="pic-vp-dot" cx="480" cy="66" r="4" fill="#c3e54b"/>
+              <rect id="pic-vp-bg" x="424" y="52" width="112" height="18" fill="#101110" stroke="#c3e54b" stroke-opacity="0.45"/>
+              <text id="pic-vp-txt" x="480" y="64" fill="#c3e54b" text-anchor="middle" font-family="DM Mono, Noto Sans SC, sans-serif" font-size="10">VP↑ 天顶消失点</text>
+            </svg>
+
+            <figcaption class="lab-caption" aria-live="polite">
+              <strong id="tilt-state">仰视三点 · 崇高与压迫</strong>
+              <p id="tilt-desc">感光面大幅后仰，建筑顶部比底部离感光面远得多，两侧竖线直指天顶消失点 VP↑——把体量和威严推向极点。</p>
+            </figcaption>
+          </figure>
+
+          <p class="reveal">电影史上把这套心理反差用得最彻底的，是 1941 年奥逊·威尔斯（<span lang="en">Orson Welles</span>）与摄影指导格雷格·托兰德（<span lang="en">Gregg Toland</span>）拍摄《公民凯恩》（<cite lang="en">Citizen Kane</cite>）时的做法：传统好莱坞摄影棚为了吊灯和藏话筒根本不盖天花板，他们与美术指导佩里·弗格森（<span lang="en">Perry Ferguson</span>）搭起能透声的平纹细布（<span lang="en">muslin</span>）天顶，还在影棚地板里切出壕沟把沉重的摄影机沉下去仰拍——主角在三向收束的压顶天花板下既显得高大威严，又像被困在自己的野心里。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 · 垂心定理与 60° 视觉锥：为什么消失点不能都挤进画框？ -->
+    <section class="sec sec-alt" aria-labelledby="s3">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">03</p>
+          <h2 id="s3">消失点该放多远</h2>
+          <p class="sec-en" lang="en">THE ORTHOCENTER &amp; 60° CONE</p>
+        </header>
+
+        <div class="sec-body">
+          <p class="lead reveal">射影几何与摄影测量里有一条硬结论：正交长方体的三个消失点在画纸上连成的三角形，<strong>必定是锐角三角形</strong>，而且它三条高线的交点——<strong>垂心（<span lang="en">orthocenter</span>）</strong>——严格等于相机光轴穿透画面的主点（画心）。</p>
+          <p class="reveal">这条定理暴露了实战里最常踩的坑：很多人照着教学海报，把三个消失点全点在纸里面。可是按 35 mm 针孔成像（画框短边 = 24 mm）算下来，只有当整个 3:4 画框落进主点周围 <strong>60° 视觉锥</strong>内（对应等效焦距约 <strong>35 mm 及以上</strong>，经验上左右消失点间距常在画框宽度的 2–4 倍以上）时，建筑转角才自然端正；要想把三枚消失点全挤进纸面，等效焦距得压到约 <strong>8–9 mm</strong>（短边视角超 105°），楼角会像锋利的鸟嘴一样尖出去。</p>
+
+          <figure class="lab-card reveal">
+            <div class="lab-bar">
+              <div class="btn-row" role="group" aria-label="视觉锥典型焦段">
+                <button type="button" class="chip" data-tri-preset data-tri-focal="8" data-tri-pitch="44" aria-pressed="false">海报示意 8mm</button>
+                <button type="button" class="chip" data-tri-preset data-tri-focal="24" data-tri-pitch="36" aria-pressed="true">建筑广角 24mm</button>
+                <button type="button" class="chip" data-tri-preset data-tri-focal="42" data-tri-pitch="36" aria-pressed="false">视觉锥内 42mm</button>
+              </div>
+              <span class="mono lab-readout" id="tri-focal-out">24 mm · 仰角 +36°</span>
+            </div>
+
+            <p class="lab-legend mono">白框 = 3:4 纸面 · 青柠虚线圆 = 60° 视觉锥 · 三条白虚线高线恒交于主点 PP</p>
+
+            <svg id="tri-svg" class="lab-svg" viewBox="0 0 640 360" role="img" aria-label="三点消失点三角形、垂心与60度视觉锥几何画板">
+              <rect x="0" y="0" width="640" height="360" fill="#0d0e0d"/>
+              <!-- 60° 视觉锥圆 -->
+              <circle id="tri-cone" cx="320" cy="180" r="80" fill="rgba(195,229,75,0.05)" stroke="#c3e54b" stroke-opacity="0.4" stroke-dasharray="4 4"/>
+              <!-- 消失点三角形与三条高线 -->
+              <polygon id="tri-poly" points="" fill="rgba(195,229,75,0.04)" stroke="#c3e54b" stroke-width="1.2" stroke-dasharray="5 4"/>
+              <path id="tri-alts" d="" stroke="#f4f5f0" stroke-opacity="0.28" stroke-width="1" stroke-dasharray="2 4" fill="none"/>
+              <!-- 3:4 纸面画框 -->
+              <rect id="tri-frame" x="256" y="95" width="128" height="170" fill="rgba(18,20,18,0.88)" stroke="#f4f5f0" stroke-width="1.6"/>
+              <!-- 画框内同步缩放畸变的楼体 -->
+              <g id="tri-bldg"></g>
+              <!-- 垂心 / 主点标记（带暗底，不与白棱碰撞） -->
+              <circle cx="320" cy="180" r="3.5" fill="#f4f5f0"/>
+              <rect x="328" y="170" width="84" height="18" fill="#101110" fill-opacity="0.9" stroke="#3c423a"/>
+              <text x="333" y="182" fill="#f4f5f0" font-family="DM Mono, Noto Sans SC, sans-serif" font-size="10">PP 垂心/画心</text>
+              <!-- 动态三枚消失点（图内圆点 / 图外贴边标牌） -->
+              <g id="tri-vp-layer"></g>
+            </svg>
+
+            <div class="lab-tri-controls">
+              <div class="lab-slider-row">
+                <label for="tri-spread">等效焦距（拉开左右消失点）</label>
+                <input type="range" id="tri-spread" min="8" max="55" step="1" value="24">
+              </div>
+              <div class="lab-pitch-pills" role="group" aria-label="切换仰视倾角档位">
+                <span class="ctrl-label">仰角档位</span>
+                <div class="btn-row">
+                  <button type="button" class="chip chip-mini" data-tri-pitch-chip="26" aria-pressed="false">+26°</button>
+                  <button type="button" class="chip chip-mini" data-tri-pitch-chip="36" aria-pressed="true">+36°</button>
+                  <button type="button" class="chip chip-mini" data-tri-pitch-chip="44" aria-pressed="false">+44°</button>
+                </div>
+              </div>
+            </div>
+
+            <figcaption class="lab-caption" aria-live="polite">
+              <strong class="mono" id="tri-cone-out">VP← 到 VP→ 间距 2.5× 画框宽</strong>
+              <p id="tri-verdict">白框四角仍略超出 60° 视觉锥，左右消失点已退到画框外，冲击力强且保住建筑结构。</p>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 · 历史溯源：从教堂天顶到摩天大楼 -->
+    <section class="sec" aria-labelledby="s4">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">04</p>
+          <h2 id="s4">从天顶壁画<br>到摩天楼</h2>
+          <p class="sec-en" lang="en">WHERE IT COMES FROM</p>
+        </header>
+
+        <div class="sec-body">
+          <p class="lead reveal">文艺复兴早期的透视大多围绕水平视平线展开，直到建筑冲破天花板、城市长出摩天楼，人类才真正迫切地需要「朝天空与深渊收束的第三个消失点」。</p>
+
+          <ol class="timeline">
+            <li class="tl-item reveal">
+              <span class="tl-year" lang="en">1693</span>
+              <div class="tl-body">
+                <h3>安德烈亚·波佐把仰视穹顶写成施工图谱</h3>
+                <p>意大利耶稣会画家兼建筑师安德烈亚·波佐（<span lang="en">Andrea Pozzo</span>）在罗马出版《画家与建筑师的透视法》（<cite lang="en">Perspectiva pictorum et architectorum</cite>，第一卷 1693 年，第二卷 1700 年），把巴洛克教堂天顶「自下而上」（<span lang="en">di sotto in sù</span>）的垂直收束假建筑画法（<span lang="en">quadratura</span>）分解成铜版图例——他在罗马圣依纳爵堂中殿拱顶画出的立柱一路向头顶天穹聚拢。</p>
+              </div>
+            </li>
+
+            <li class="tl-item reveal">
+              <span class="tl-year" lang="en">1715</span>
+              <div class="tl-body">
+                <h3>布鲁克·泰勒解放「任意方向」的消失点</h3>
+                <p>英国数学家布鲁克·泰勒（<span lang="en">Brook Taylor</span>）发表《线性透视》（<cite lang="en">Linear Perspective</cite>，1719 年增订为 <cite lang="en">New Principles of Linear Perspective</cite>），用严谨几何证明：空间里<strong>任何朝向</strong>的平行线都能映射到画面上对应的消失点，不必局限在水平地平线上。后来约书亚·柯比（<span lang="en">Joshua Kirby</span>，1754）把它改写为面向画家的通俗教材，使倾斜与多点透视真正进入设计室。</p>
+              </div>
+            </li>
+
+            <li class="tl-item reveal">
+              <span class="tl-year" lang="en">1928</span>
+              <div class="tl-body">
+                <h3>罗德琴科向「肚脐眼视角」宣战</h3>
+                <p>苏联构成主义摄影师亚历山大·罗德琴科（<span lang="en">Alexander Rodchenko</span>）在《新左翼艺术阵线》（<cite lang="en">Novyi LEF</cite>）撰文批判把相机端在腰腹高度平拍的惯性视角，主张改从「从上往下、从下往上」的极端倾斜角度重新唤醒观看，并以《电话机旁》（1928）与《集会待发》（1928–1930）把俯仰三点透视推成现代主义视觉宣言。</p>
+              </div>
+            </li>
+
+            <li class="tl-item reveal">
+              <span class="tl-year" lang="en">1929</span>
+              <div class="tl-body">
+                <h3>休·费里斯用炭笔定义摩天楼仰视美学</h3>
+                <p>美国建筑渲染大师休·费里斯（<span lang="en">Hugh Ferriss</span>）出版《明日大都会》（<cite lang="en">The Metropolis of Tomorrow</cite>），在纽约 1916 年区划法催生的阶梯退台摩天楼浪潮里，以浓重黑炭与极端低角度仰视塑造出冷峻巍峨的都会巨像——072 号海报的暗黑玻璃塔体，正站在这一脉审美传统之上。</p>
+              </div>
+            </li>
+
+            <li class="tl-item reveal">
+              <span class="tl-year" lang="en">1962</span>
+              <div class="tl-body">
+                <h3>PC-Nikkor 35mm 问世：为了在需要时「消掉」第三消失点</h3>
+                <p>尼康于 1962 年 7 月推出世界首支 35 mm 单反透视控制移轴镜头 <span lang="en">PC-Nikkor 35mm f/3.5</span>（镜组可偏轴平移 11 mm）。建筑摄影师得以把机身端平、靠镜组平移收入高楼顶部，把不需要的垂直收束彻底抹平——这一发明从反面提醒我们：三点透视是强效戏剧工具，不是拍楼的默认开关。</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 · 绘制步骤：五步画出一栋三点透视建筑 -->
+    <section class="sec sec-alt" aria-labelledby="s5">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">05</p>
+          <h2 id="s5">五步搭起摩天楼</h2>
+          <p class="sec-en" lang="en">FIVE CONSTRUCTION STEPS</p>
+        </header>
+
+        <div class="sec-body">
+          <p class="lead reveal">原海报把三点透视拆成五步施工顺序。点按下面任意一步，看这五条规矩怎样从一根视平线长成整栋玻璃幕墙大楼——再切一下「俯视 VP↓」，验证同一套顺序倒过来照样成立。</p>
+
+          <figure class="lab-card reveal">
+            <div class="lab-bar">
+              <div class="step-pills" role="group" aria-label="选择绘制步骤">
+                <button type="button" class="step-pill" data-step-btn="1" aria-pressed="false">① 视平线</button>
+                <button type="button" class="step-pill" data-step-btn="2" aria-pressed="false">② 左右点</button>
+                <button type="button" class="step-pill" data-step-btn="3" aria-pressed="false">③ 垂直点</button>
+                <button type="button" class="step-pill" data-step-btn="4" aria-pressed="false">④ 引导线</button>
+                <button type="button" class="step-pill" data-step-btn="5" aria-pressed="true">⑤ 明暗体积</button>
+              </div>
+              <div class="btn-row" role="group" aria-label="仰视或俯视施工">
+                <button type="button" class="chip" data-step-dir="up" aria-pressed="true">仰视 VP↑</button>
+                <button type="button" class="chip" data-step-dir="down" aria-pressed="false">俯视 VP↓</button>
+              </div>
+            </div>
+
+            <svg id="step-svg" class="lab-svg" viewBox="0 0 600 360" role="img" aria-label="三点透视五步绘制施工图纸"></svg>
+
+            <div class="step-nav">
+              <div class="step-copy" aria-live="polite">
+                <strong id="step-title">⑤ 补全幕墙网格与明暗体积</strong>
+                <p id="step-body">沿三向射线加密玻璃幕墙窗格，并拉开左亮右暗的明暗对比，三维体量立刻站起来。</p>
+              </div>
+              <div class="btn-row">
+                <button type="button" class="chip" id="step-prev">上一步</button>
+                <button type="button" class="chip" id="step-next">下一步</button>
+              </div>
+            </div>
+          </figure>
+
+          <ol class="poster-steps reveal" aria-label="072 号原海报绘制步骤原句">
+            <li><span class="step-n">①</span><span>确定视平线（HL）位置</span></li>
+            <li><span class="step-n">②</span><span>确定左右消失点（VP← / VP→）</span></li>
+            <li><span class="step-n">③</span><span>确定上方消失点（VP↑）</span></li>
+            <li><span class="step-n">④</span><span>从三个消失点向物体顶点与各边缘引导线</span></li>
+            <li><span class="step-n">⑤</span><span>完善结构与细节，强化明暗与体积</span></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 · 什么时候用，什么时候别用 + 移轴矫正台 -->
+    <section class="sec" aria-labelledby="s6">
+      <div class="wrap sec-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">06</p>
+          <h2 id="s6">什么时候用，<br>何时别用</h2>
+          <p class="sec-en" lang="en">WHEN TO USE — AND WHEN TO AVOID</p>
+        </header>
+
+        <div class="sec-body">
+          <div class="use-split reveal">
+            <div class="use-col use-yes">
+              <h3>适合用三点透视 <span lang="en">USE IT FOR</span></h3>
+              <ul>
+                <li><strong>地标建筑与巨物海报</strong>：摩天楼、大坝、桥梁、火箭发射架，需要把「庞大与崇高」直接砸给观众。</li>
+                <li><strong>漫画分镜与英雄出场</strong>：低角度把人物拔成雕像，高角度俯瞰城市巷战或楼顶对峙，强化危机与悬念。</li>
+                <li><strong>小物件拍出纪念碑感</strong>：把香水瓶、跑鞋、音响放低仰拍，借三点收束赋予日常产品建筑级的雕塑气场。</li>
+                <li><strong>配合前景压出景深</strong>：若再借<a href="https://layout.xiaoxiaodong.ai/066/play/" target="_blank" rel="noopener">前景框架（066）</a>、<a href="https://layout.xiaoxiaodong.ai/065/play/" target="_blank" rel="noopener">前中后景（065）</a>或<a href="https://layout.xiaoxiaodong.ai/067/play/" target="_blank" rel="noopener">重叠空间（067）</a>，压迫感会翻倍。</li>
+              </ul>
+            </div>
+
+            <div class="use-col use-no">
+              <h3>什么时候别用 <span lang="en">AVOID IT WHEN</span></h3>
+              <ul>
+                <li><strong>商业建筑立面与房产交付照</strong>：经验上 2°–18° 的轻微仰拍最糟——既无震撼感，楼身又像要向后倾倒。</li>
+                <li><strong>工程图、产品尺寸页与信息图标</strong>：三条轴同时透视缩放会毁掉真实比例，应改用<a href="https://layout.xiaoxiaodong.ai/075/play/" target="_blank" rel="noopener">等距构图（075）</a>、<a href="https://layout.xiaoxiaodong.ai/076/play/" target="_blank" rel="noopener">轴测构图（076）</a>或<a href="https://layout.xiaoxiaodong.ai/074/play/" target="_blank" rel="noopener">斜投影（074）</a>。</li>
+                <li><strong>日常平和肖像与室内安稳陈列</strong>：端庄、亲切或需要冷静交代空间关系时，退回<a href="https://layout.xiaoxiaodong.ai/071/play/" target="_blank" rel="noopener">两点透视（071）</a>或<a href="https://layout.xiaoxiaodong.ai/073/play/" target="_blank" rel="noopener">平行透视（073）</a>。</li>
+                <li><strong>高密度文字排版版面</strong>：三向斜线会撕裂文字的水平基线，正文极难找到安稳的对齐落脚点。</li>
+              </ul>
+            </div>
+          </div>
+
+          <figure class="lab-card reveal">
+            <div class="lab-bar">
+              <span class="ctrl-label">反例修复 · 模拟 1962 PC-Nikkor 移轴矫正 <span lang="en">KEYSTONE CORRECTION</span></span>
+              <span class="mono lab-readout" id="shift-lens-offset">仰角 +18° · 镜组上移 +0.0 mm</span>
+            </div>
+
+            <p class="lab-legend mono">青柠虚线 = 真实铅垂线 · 向右推滑块模拟镜组平移扶正大楼</p>
+
+            <svg id="shift-svg" class="lab-svg" viewBox="0 0 600 286" role="img" aria-label="普通镜头轻度仰拍歪楼与移轴镜头垂直矫正对照图">
+              <rect x="0" y="0" width="600" height="286" fill="#0d0e0d"/>
+              <line x1="20" y1="258" x2="580" y2="258" stroke="#3c423a" stroke-width="1"/>
+              <path id="shift-guides" d="M 178 18 V 274 M 422 18 V 274" stroke="#c3e54b" stroke-opacity="0.48" stroke-dasharray="4 4" fill="none"/>
+              <polygon id="shift-facade" points="212,38 388,38 422,258 178,258" fill="#2c302d" stroke="#f4f5f0" stroke-width="1.6"/>
+              <path id="shift-grid" d="" stroke="#c4cac0" stroke-opacity="0.38" stroke-width="0.9" fill="none"/>
+            </svg>
+
+            <div class="lab-slider-row">
+              <label for="shift-range">移轴矫正量（0% 仰拍歪楼 → 100% 移轴拉直）</label>
+              <input type="range" id="shift-range" min="0" max="100" step="1" value="0">
+            </div>
+
+            <figcaption class="lab-caption" aria-live="polite">
+              <strong id="shift-mode">未矫正 · 轻微仰拍歪楼（+18°）</strong>
+              <p id="shift-desc">最容易翻车的半吊子三点透视（落在 2°–18° 微仰区）：为了把楼顶收进画框，普通镜头被迫上仰，大楼像要向后倾倒，商业建筑摄影与地产交付照大忌。</p>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 · 练一练：固定 14mm 建筑广角，四个均已仰视的方案只改仰角 -->
+    <section class="sec sec-alt" aria-labelledby="s7">
+      <div class="wrap sec-wide">
+        <header class="sec-head wide reveal">
+          <p class="sec-no" lang="en">07</p>
+          <h2 id="s7">练一练：哪张取景成立</h2>
+          <p class="sec-en" lang="en">PRACTICE · ONE VARIABLE ONLY (CAMERA PITCH)</p>
+        </header>
+
+        <p class="lead reveal">题目：你要为一座新落成的地标音乐厅做揭幕主视觉海报——下面四套方案<strong>都已拉开仰视</strong>（同一支 14 mm 建筑广角镜头、同一机位距离与偏航方向，<strong>只改变相机仰角</strong>），差别只在收束轻重：既要撑出干脆的冲天气势，又要保住建筑上半截体量与清晰可辨的幕墙窗格。细看四座塔的上半截收窄幅度，点选一张；点完后四图同步揭晓仰角、顶底宽度比与 VP↑ 距塔尖的距离。</p>
+
+        <div class="quiz-grid reveal" id="quiz-grid" role="group" aria-label="四套音乐厅海报取景选项">
+          <button type="button" class="quiz-card" data-choice="A" aria-pressed="false">
+            <svg viewBox="0 0 210 260" aria-hidden="true"></svg>
+            <span class="quiz-label"><b>方案 A</b><span class="quiz-reveal-tag mono">未揭晓</span></span>
+          </button>
+
+          <button type="button" class="quiz-card" data-choice="B" aria-pressed="false">
+            <svg viewBox="0 0 210 260" aria-hidden="true"></svg>
+            <span class="quiz-label"><b>方案 B</b><span class="quiz-reveal-tag mono">未揭晓</span></span>
+          </button>
+
+          <button type="button" class="quiz-card" data-choice="C" aria-pressed="false">
+            <svg viewBox="0 0 210 260" aria-hidden="true"></svg>
+            <span class="quiz-label"><b>方案 C</b><span class="quiz-reveal-tag mono">未揭晓</span></span>
+          </button>
+
+          <button type="button" class="quiz-card" data-choice="D" aria-pressed="false">
+            <svg viewBox="0 0 210 260" aria-hidden="true"></svg>
+            <span class="quiz-label"><b>方案 D</b><span class="quiz-reveal-tag mono">未揭晓</span></span>
+          </button>
+        </div>
+
+        <div class="quiz-verdict" id="quiz-verdict" aria-live="polite" data-state="idle">
+          <p class="qv-title" id="quiz-title">四张都已仰拍——细看塔身上半截与幕墙密度，挑一张印成海报。</p>
+          <p class="qv-body" id="quiz-body">点选任意一张后，四张画幅上的青柠消失线、仰角、顶底宽度比与 VP↑ 距塔尖距离会同步揭晓。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 · 原海报与关键词 + 同类导览 -->
+    <section class="sec sec-poster" aria-labelledby="s8">
+      <div class="wrap poster-grid">
+        <header class="sec-head reveal">
+          <p class="sec-no" lang="en">08</p>
+          <h2 id="s8">原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; KEYWORDS</p>
+        </header>
+
+        <figure class="poster-fig reveal">
+          <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="点击放大查看 072 号三点透视原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="072 号三点透视原海报：纯黑底色上左侧竖排白色大字三点透视，中央是一座仰视玻璃幕墙摩天大楼，荧光青柠虚线指向顶部上方消失点及左下右下两枚消失点，右侧列出核心原理、四项视觉特征、五条绘制步骤与五个关键词。">
+          </button>
+          <figcaption>点击放大查看细节，放大后可拖动画幅，再点关闭或按 <kbd>Esc</kbd> 收起。</figcaption>
+        </figure>
+
+        <div class="poster-meta reveal">
+          <h3>海报关键词 <span lang="en">KEYWORDS</span></h3>
+          <ul class="kw-list">
+            <li><b>高度</b><span class="kw-note">原海报印作「高定」</span><span lang="en">HEIGHT</span></li>
+            <li><b>垂直收束</b><span lang="en">CONVERGENCE</span></li>
+            <li><b>张力</b><span lang="en">DRAMA</span></li>
+            <li><b>空间</b><span lang="en">SCALE</span></li>
+            <li><b>仰视</b><span lang="en">LOW ANGLE</span></li>
+          </ul>
+
+          <div class="siblings">
+            <h3>同属「空间层次与投影」的相邻页面</h3>
+            <p>本页只展开垂直方向上的第三消失点；这一小类的其余空间手法各有独立页面，可按需对照：</p>
+            <ul class="sib-links">
+              <li><a href="https://layout.xiaoxiaodong.ai/065/play/" target="_blank" rel="noopener">065 前中后景构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/066/play/" target="_blank" rel="noopener">066 前景框架构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/067/play/" target="_blank" rel="noopener">067 重叠空间构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/068/play/" target="_blank" rel="noopener">068 尺度递减构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/069/play/" target="_blank" rel="noopener">069 线性透视</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/070/play/" target="_blank" rel="noopener">070 一点透视</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/071/play/" target="_blank" rel="noopener">071 两点透视</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/073/play/" target="_blank" rel="noopener">073 平行透视构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/074/play/" target="_blank" rel="noopener">074 斜投影构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/075/play/" target="_blank" rel="noopener">075 等距构图</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/076/play/" target="_blank" rel="noopener">076 轴测构图</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<!-- 原海报放大灯箱（支持拖动、缩放与 Esc 关闭） -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报放大查看">
+  <div class="lb-bar">
+    <span class="mono">NO. 072 · 原海报放大（可拖动画幅）</span>
+    <div class="btn-row">
+      <button type="button" class="chip" id="lb-zoom">放大 1.8×</button>
+      <button type="button" class="chip" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lb-viewport">
+    <img id="lb-img" alt="072 号三点透视原海报大图" draggable="false">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p><span lang="en" class="num">NO. 072</span> 三点透视 · 350 种排版</p>
+    <p class="foot-links">
+      <a href="https://layout.xiaoxiaodong.ai/072/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep" aria-hidden="true">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep" aria-hidden="true">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
