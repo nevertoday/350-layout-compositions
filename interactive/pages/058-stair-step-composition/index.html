@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#E3F1F8">
+<title>058 阶梯构图 · STAIR-STEP COMPOSITION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <p class="series"><span class="series-zh">视觉构图原理</span><span class="sep" aria-hidden="true">/</span><span class="series-sub">阵列、层叠与组群</span></p>
+    <p class="issue"><svg class="star-mark" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0 L9.8 6.2 L16 8 L9.8 9.8 L8 16 L6.2 9.8 L0 8 L6.2 6.2 Z" fill="currentColor"/></svg><span lang="en" class="issue-no">NO. 058</span><span class="issue-tag">让视线自然上升，建立层级与节奏</span></p>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== HERO：四级建筑筑阶台 ==================== -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="wrap hero-shell">
+      <!-- 移动/平板/横屏紧凑抬头（桌面端改由舞台左上开放三角承接） -->
+      <div class="hero-compact-head">
+        <div class="title-block">
+          <h1 id="page-title" class="stair-h1" aria-label="阶梯构图">
+            <span class="sh-c sh-0" aria-hidden="true">阶</span><span class="sh-c sh-1" aria-hidden="true">梯</span><span class="sh-c sh-2" aria-hidden="true">构</span><span class="sh-c sh-3" aria-hidden="true">图</span>
+          </h1>
+          <p class="title-en" lang="en">STAIR-STEP COMPOSITION</p>
+        </div>
+        <p class="compact-summary">通过元素按阶梯式排列，引导视线由低到高或由高到低，自然形成层级与进程感，强化信息的逻辑与重点。</p>
+      </div>
+
+      <!-- 主互动区：舞台 + 底沿双区（横屏手机自动切左右双列） -->
+      <div class="hero-grid">
+        <div class="stage-column">
+          <div class="stage-frame" id="stage-frame">
+            <!-- 桌面端左上开放三角区：示范型阶升大标与原海报总述（不挡画布交互） -->
+            <div class="stage-overlay-head" aria-hidden="true">
+              <p class="stair-h1 desktop-h1">
+                <span class="sh-c sh-0">阶</span><span class="sh-c sh-1">梯</span><span class="sh-c sh-2">构</span><span class="sh-c sh-3">图</span>
+              </p>
+              <p class="title-en" lang="en">STAIR-STEP COMPOSITION</p>
+              <span class="accent-bar"></span>
+              <p class="overlay-summary">通过元素按阶梯式排列，引导视线由低到高或由高到低，自然形成层级与进程感，强化信息的逻辑与重点。</p>
+              <p class="overlay-hint">上下拖每级底沿 ↕ 柄调步高 · 拖下方游标调步宽</p>
+            </div>
+
+            <canvas id="hero-canvas" class="hero-canvas" aria-label="四级等轴建筑阶梯互动舞台"></canvas>
+
+            <!-- 四枚原生可聚焦升降把手，由 model.js 同源定位到各级踏面 -->
+            <div class="handle-layer" id="handle-layer">
+              <button type="button" class="step-handle" data-step="0" aria-label="调节 01 确定起点高度，按上下方向键微调"><span class="sh-no" lang="en">01</span><span class="sh-arrow" aria-hidden="true">↕</span></button>
+              <button type="button" class="step-handle" data-step="1" aria-label="调节 02 逐级推进高度，按上下方向键微调"><span class="sh-no" lang="en">02</span><span class="sh-arrow" aria-hidden="true">↕</span></button>
+              <button type="button" class="step-handle" data-step="2" aria-label="调节 03 强化层级高度，按上下方向键微调"><span class="sh-no" lang="en">03</span><span class="sh-arrow" aria-hidden="true">↕</span></button>
+              <button type="button" class="step-handle" data-step="3" aria-label="调节 04 引导终点高度，按上下方向键微调"><span class="sh-no" lang="en">04</span><span class="sh-arrow" aria-hidden="true">↕</span></button>
+            </div>
+          </div>
+
+          <!-- 建筑踏宽游标轨（含 data-perf-drag，手机横屏贴舞台底沿） -->
+          <div class="tread-bar">
+            <div class="tread-rail" id="tread-rail">
+              <span class="rail-cap rail-min" aria-hidden="true">挤 · 层叠</span>
+              <div class="rail-track" id="rail-track">
+                <div class="rail-safe" id="rail-safe" aria-hidden="true"></div>
+                <button
+                  type="button"
+                  id="tread-thumb"
+                  class="tread-thumb"
+                  data-perf-drag
+                  role="slider"
+                  aria-label="横向步宽（占单块宽度百分比），左右拖动或按左右方向键调整"
+                  aria-valuemin="42"
+                  aria-valuemax="148"
+                  aria-valuenow="94"
+                >
+                  <span class="thumb-grip" aria-hidden="true">←</span>
+                  <span class="thumb-label">步宽 <b id="tread-val" lang="en">94%</b></span>
+                  <span class="thumb-grip" aria-hidden="true">→</span>
+                </button>
+              </div>
+              <span class="rail-cap rail-max" aria-hidden="true">散 · 孤岛</span>
+            </div>
+            <div class="hero-actions">
+              <button type="button" class="btn-ghost" id="btn-flat">试看平排</button>
+              <button type="button" class="btn-ghost" id="btn-reset">复原错阶</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 诊断与徽记区：桌面放底沿左右均衡，横屏手机收在右列 -->
+        <div class="dock-column">
+          <!-- 原海报左下四枚白圆徽记（实时按判定点亮） -->
+          <ul class="poster-badges" id="hero-badges" aria-label="阶梯构图四项视觉特质状态">
+            <li class="pbadge" data-badge="progression">
+              <span class="pbadge-icon" aria-hidden="true">
+                <svg viewBox="0 0 28 28"><rect x="4" y="18" width="4" height="6" rx="0.5"/><rect x="10" y="14" width="4" height="10" rx="0.5"/><rect x="16" y="9" width="4" height="15" rx="0.5"/><rect x="22" y="4" width="4" height="20" rx="0.5"/></svg>
+              </span>
+              <span class="pbadge-zh">进程感</span>
+              <span class="pbadge-en" lang="en">PROGRESSION</span>
+            </li>
+            <li class="pbadge" data-badge="hierarchy">
+              <span class="pbadge-icon" aria-hidden="true">
+                <svg viewBox="0 0 28 28"><rect x="10" y="6" width="8" height="3.5" rx="0.5"/><rect x="7" y="12.5" width="14" height="3.5" rx="0.5"/><rect x="4" y="19" width="20" height="3.5" rx="0.5"/></svg>
+              </span>
+              <span class="pbadge-zh">层级性</span>
+              <span class="pbadge-en" lang="en">HIERARCHY</span>
+            </li>
+            <li class="pbadge" data-badge="direction">
+              <span class="pbadge-icon" aria-hidden="true">
+                <svg viewBox="0 0 28 28"><path d="M7 21L21 7M12 7h9v9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" stroke-linejoin="miter"/></svg>
+              </span>
+              <span class="pbadge-zh">方向感</span>
+              <span class="pbadge-en" lang="en">DIRECTION</span>
+            </li>
+            <li class="pbadge" data-badge="rhythm">
+              <span class="pbadge-icon" aria-hidden="true">
+                <svg viewBox="0 0 28 28"><circle cx="14" cy="5.5" r="2.2"/><circle cx="21" cy="9.5" r="2.2"/><circle cx="21" cy="18.5" r="2.2"/><circle cx="14" cy="22.5" r="2.2"/><circle cx="7" cy="18.5" r="2.2"/><circle cx="7" cy="9.5" r="2.2"/></svg>
+              </span>
+              <span class="pbadge-zh">节奏性</span>
+              <span class="pbadge-en" lang="en">RHYTHM</span>
+            </li>
+          </ul>
+
+          <!-- 原海报右下同款虚线圆角诊断盒 -->
+          <div class="diag-box" id="diag-box" data-severity="err" aria-live="polite">
+            <div class="diag-top">
+              <span class="diag-lamp" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0-3.5 10.85c.55.4.9 1.04.9 1.72V17h5.2v-1.43c0-.68.35-1.32.9-1.72A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.6 20h4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </span>
+              <div class="diag-tags">
+                <span class="diag-tier" id="diag-tier">折返 · 中段下塌</span>
+                <span class="diag-emp">经验值判定</span>
+              </div>
+              <div class="diag-metrics" id="diag-metrics" lang="en">
+                <span id="m-deltas">Δ +4 / -9 / +53</span>
+                <span class="m-sep" aria-hidden="true">·</span>
+                <span id="m-run">步宽 94% 合度</span>
+                <span class="m-sep" aria-hidden="true">·</span>
+                <span id="m-slope">坡角 28° 舒适</span>
+              </div>
+            </div>
+            <p class="diag-headline" id="diag-headline">02 到 03 反向下塌 9 格，攀升被打断</p>
+            <p class="diag-why" id="diag-why">高低顺序和 01–04 逻辑次序打架，视线爬到 02 被绊回头，没法顺着单一斜势直上 04；先把 03 往上拖过 02，再调匀三段步高。</p>
+            <p class="diag-step-note" id="diag-step-note"><b class="sn-no" id="sn-no" lang="en">03</b> <strong id="sn-title">强化层级</strong>：<span id="sn-body">通过大小、位置、色彩区分层级，突出重点，建立视觉秩序。</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 手机竖屏说明补位（放主舞台与诊断盒之后，避免挤占首屏） -->
+      <p class="mobile-after-summary">原海报总述：通过元素按阶梯式排列，引导视线由低到高或由高到低，自然形成层级与进程感，强化信息的逻辑与重点。上下拖动每级踏面 ↕ 调高差，左右拖动步宽游标调间距。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 01 四级台阶，各干什么活 ==================== -->
+  <section class="sec sec-cream" id="sec-01" aria-labelledby="h2-01">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">01</p>
+        <div class="sec-titles">
+          <h2 id="h2-01">四级台阶，各干什么活</h2>
+          <p class="sec-en" lang="en">Four risers, four distinct jobs</p>
+        </div>
+      </header>
+
+      <div class="s1-layout">
+        <div class="s1-prose">
+          <p class="lead">058 号原海报用五个词概括阶梯构图的气质：<b>逐级上升、层级清晰、方向明确、节奏有序、视觉引导</b>。把四张信息卡斜着摆开，不只是「错落好看」，而是给每一级分派了不可互换的结构职责。</p>
+          <p>仔细看原海报，设计师在位置递增之外，还悄悄叠了第二层线索——四枚落于踏面上的深钢蓝几何体从圆（●）到三角（▲）、方（■），最后收束成五角星（★）。位置高差给出先后，形态从简到尖给出重量递增，奶白正面与橘陶立面把每级踏面托得清清楚楚。</p>
+          <p class="s1-tip">点击解剖图里的任意一级查看职责；试着点<b>「拆掉这一级」</b>，亲眼看缺掉中间一阶或终点一阶时，整架阶梯会怎样散架。</p>
+        </div>
+
+        <div class="s1-lab">
+          <div class="s1-svg-wrap">
+            <svg id="s1-svg" class="s1-svg" viewBox="0 0 640 310" role="img" aria-label="四级建筑阶梯解剖示意图">
+              <defs>
+                <pattern id="s1-gap-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  <line x1="0" y1="0" x2="0" y2="8" stroke="#A9360E" stroke-width="1.5" stroke-opacity="0.55"/>
+                </pattern>
+              </defs>
+              <!-- 地面基准线与对角投影 -->
+              <polygon class="s1-shadow" points="168,286 620,118 620,286"/>
+              <line class="s1-ground" x1="22" y1="286" x2="620" y2="286"/>
+              <!-- 虚线连接弧（随拆级动态改变样式） -->
+              <path id="s1-arc-0" class="s1-arc" d="M 118,214 Q 134,166 196,158"/>
+              <path id="s1-arc-1" class="s1-arc" d="M 262,158 Q 278,112 340,104"/>
+              <path id="s1-arc-2" class="s1-arc" d="M 406,104 Q 422,58 484,50"/>
+              <!-- 四级可点选等轴块 -->
+              <g class="s1-step is-active" data-s1="0" tabindex="0" role="button" aria-label="查看 01 确定起点">
+                <rect class="s1-ghost" x="34" y="216" width="132" height="70" rx="2"/>
+                <g class="s1-solid">
+                  <polygon class="s1-tread" points="34,216 48,204 180,204 166,216"/>
+                  <rect class="s1-riser" x="34" y="216" width="32" height="70"/>
+                  <rect class="s1-face" x="66" y="216" width="100" height="70"/>
+                  <circle class="s1-sym" cx="108" cy="192" r="14"/>
+                  <text class="s1-num" x="50" y="246" text-anchor="middle">01</text>
+                  <text class="s1-lbl" x="78" y="244">确定起点</text>
+                  <text class="s1-en" x="78" y="264">STARTING</text>
+                </g>
+              </g>
+              <g class="s1-step" data-s1="1" tabindex="0" role="button" aria-label="查看 02 逐级推进">
+                <rect class="s1-ghost" x="178" y="162" width="132" height="70" rx="2"/>
+                <g class="s1-solid">
+                  <polygon class="s1-tread" points="178,162 192,150 324,150 310,162"/>
+                  <rect class="s1-riser" x="178" y="162" width="32" height="70"/>
+                  <rect class="s1-face" x="210" y="162" width="100" height="70"/>
+                  <polygon class="s1-sym" points="252,126 237,154 267,154"/>
+                  <text class="s1-num" x="194" y="192" text-anchor="middle">02</text>
+                  <text class="s1-lbl" x="222" y="190">逐级推进</text>
+                  <text class="s1-en" x="222" y="210">PROGRESS</text>
+                </g>
+              </g>
+              <g class="s1-step" data-s1="2" tabindex="0" role="button" aria-label="查看 03 强化层级">
+                <rect class="s1-ghost" x="322" y="108" width="132" height="70" rx="2"/>
+                <g class="s1-solid">
+                  <polygon class="s1-tread" points="322,108 336,96 468,96 454,108"/>
+                  <rect class="s1-riser" x="322" y="108" width="32" height="70"/>
+                  <rect class="s1-face" x="354" y="108" width="100" height="70"/>
+                  <rect class="s1-sym" x="383" y="75" width="24" height="24"/>
+                  <text class="s1-num" x="338" y="138" text-anchor="middle">03</text>
+                  <text class="s1-lbl" x="366" y="136">强化层级</text>
+                  <text class="s1-en" x="366" y="156">HIERARCHY</text>
+                </g>
+              </g>
+              <g class="s1-step" data-s1="3" tabindex="0" role="button" aria-label="查看 04 引导终点">
+                <rect class="s1-ghost" x="466" y="54" width="132" height="70" rx="2"/>
+                <g class="s1-solid">
+                  <polygon class="s1-tread" points="466,54 480,42 612,42 598,54"/>
+                  <rect class="s1-riser" x="466" y="54" width="32" height="70"/>
+                  <rect class="s1-face" x="498" y="54" width="100" height="70"/>
+                  <polygon class="s1-sym" points="540,16 544.5,28 557,28 547,35.5 550.5,47 540,40 529.5,47 533,35.5 523,28 535.5,28"/>
+                  <text class="s1-num" x="482" y="84" text-anchor="middle">04</text>
+                  <text class="s1-lbl" x="510" y="82">引导终点</text>
+                  <text class="s1-en" x="510" y="102">DESTINATION</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+
+          <!-- 四级选中与拆级控件 -->
+          <div class="s1-controls" role="group" aria-label="选择或拆掉某一级台阶">
+            <button type="button" class="s1-tab is-active" data-s1-tab="0"><span class="step-no-brown" lang="en">01</span> 确定起点</button>
+            <button type="button" class="s1-tab" data-s1-tab="1"><span class="step-no-brown" lang="en">02</span> 逐级推进</button>
+            <button type="button" class="s1-tab" data-s1-tab="2"><span class="step-no-brown" lang="en">03</span> 强化层级</button>
+            <button type="button" class="s1-tab" data-s1-tab="3"><span class="step-no-brown" lang="en">04</span> 引导终点</button>
+          </div>
+
+          <div class="s1-inspector" id="s1-inspector" aria-live="polite">
+            <div class="s1-insp-head">
+              <div>
+                <p class="s1-insp-tag"><span class="step-no-brown" id="s1-no" lang="en">01</span> <strong id="s1-title">确定起点</strong> <span class="s1-insp-en" id="s1-en" lang="en">STARTING POINT</span></p>
+                <blockquote class="s1-quote" id="s1-quote">「建立视觉起点，吸引注意力，作为信息的开端。」</blockquote>
+              </div>
+              <button type="button" class="btn-terracotta" id="s1-remove-btn" aria-pressed="false">拆掉这一级</button>
+            </div>
+            <p class="s1-explain" id="s1-explain">最底一阶用圆润无角的实心圆 ● 承接第一眼目光，给整架阶梯定下基准线。拆掉它，02 悬在半空，读者不知道斜梯从哪里起步。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 上行爬坡，还是下行落脚 ==================== -->
+  <section class="sec sec-ice" id="sec-02" aria-labelledby="h2-02">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">02</p>
+        <div class="sec-titles">
+          <h2 id="h2-02">上行爬坡，还是下行落脚</h2>
+          <p class="sec-en" lang="en">Ascending drive vs. descending breakdown</p>
+        </div>
+      </header>
+
+      <div class="s2-grid">
+        <div class="s2-stage-col">
+          <div class="s2-canvas-wrap">
+            <canvas id="dir-canvas" class="dir-canvas" aria-label="上行、下行与右起镜像阶梯视线对比画布"></canvas>
+            <span class="sim-chip">路径示意</span>
+          </div>
+          <div class="s2-controls">
+            <div class="seg-group" id="dir-modes" role="group" aria-label="切换阶梯方向模式">
+              <button type="button" class="seg-btn is-active" data-dir="up">由低到高 · 攀升</button>
+              <button type="button" class="seg-btn" data-dir="down">由高到低 · 拆解</button>
+              <button type="button" class="seg-btn" data-dir="rtl">右起阅读镜像</button>
+            </div>
+            <button type="button" class="btn-terracotta" id="btn-launch-eye">放行视线光点</button>
+          </div>
+          <div class="s2-readout" id="dir-readout" aria-live="polite">
+            <p class="s2-ro-title" id="dir-ro-title">左下起步 → 右上落顶（攀升、增长、目标达成）</p>
+            <p class="s2-ro-text" id="dir-ro-text">在左起横排阅读语境下，左下至右上顺着「从前到后」叠加重力对抗的抬升感，天然适合讲成长、升级与最终目标；这也是 058 原海报采用的经典走向。</p>
+          </div>
+        </div>
+
+        <div class="s2-prose">
+          <aside class="gentle-note">
+            <p class="gn-badge">说窄了一点</p>
+            <p>原海报右上副题写着「让视线自然上升」，第 04 阶也写「在最高处形成视觉落点」；但海报总述自己其实更准确——「引导视线<b>由低到高或由高到低</b>」。开场舞台之所以只认由低到高，是因为卡片 04 明写了要在最高处落点；换到总分拆解的文案里，由高到低同样是正宗阶梯构图。</p>
+          </aside>
+          <p>艺术史家沃尔夫林（Heinrich Wölfflin, 1928）最先提醒人们：把同一幅画左右镜像翻转，观感会彻底改变——左起阅读者习惯把左下→右上读成「迎难而上、积蓄力量」，把左上→右下读成「顺势展开、落袋收尾」。</p>
+          <p>心理学家加夫龙（Mercedes Gaffron, 1950）与阿恩海姆（Rudolf Arnheim, 1954/1974）进一步指出，这股对角势能并不只是重力隐喻，也和扫视习惯绑在一起。2000 年 Chokron 与 De Agostini 在 162 名受试者（法语左起阅读与希伯来语右起阅读各半）上的镜像偏好实验证实：左起阅读者偏好向右展开的构图，右起阅读者则偏好向左展开。</p>
+          <p>做版面时不必死守「只能向上爬」：讲<b>成长、突破、目标达成</b>，选左下→右上；讲<b>总纲拆细项、结论推落地、倒计时收束</b>，选左上→右下反而更顺手。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 楼梯怎么进了平面版面 ==================== -->
+  <section class="sec sec-blueprint" id="sec-03" aria-labelledby="h2-03">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">03</p>
+        <div class="sec-titles">
+          <h2 id="h2-03">楼梯怎么进了平面版面</h2>
+          <p class="sec-en" lang="en">From royal stairs to visual gradation</p>
+        </div>
+      </header>
+
+      <p class="lead s3-lead">平面设计里的「阶梯构图」并不是某个人突然发明的模板，而是建筑步距、视知觉连续律、对角心理势能与平面构成渐变原理四条线索汇流的结果。</p>
+
+      <!-- 横向四年代建筑编年标尺 -->
+      <div class="era-ruler" role="tablist" aria-label="阶梯构图理论演进四个时期">
+        <button type="button" class="era-pin is-active" role="tab" aria-selected="true" data-era="0">
+          <span class="era-yr" lang="en">1675–1683</span>
+          <span class="era-who">Blondel · 建筑步距</span>
+        </button>
+        <button type="button" class="era-pin" role="tab" aria-selected="false" data-era="1">
+          <span class="era-yr" lang="en">1923</span>
+          <span class="era-who">Wertheimer · 连续律</span>
+        </button>
+        <button type="button" class="era-pin" role="tab" aria-selected="false" data-era="2">
+          <span class="era-yr" lang="en">1928–1954</span>
+          <span class="era-who">Wölfflin · 阿恩海姆</span>
+        </button>
+        <button type="button" class="era-pin" role="tab" aria-selected="false" data-era="3">
+          <span class="era-yr" lang="en">1972 / 1993</span>
+          <span class="era-who">王无邪 · 平面渐变</span>
+        </button>
+      </div>
+
+      <div class="era-panel" id="era-panel" aria-live="polite">
+        <div class="era-diagram" id="era-diagram" aria-hidden="true"></div>
+        <div class="era-copy">
+          <p class="era-kicker" id="era-kicker" lang="en">1675–1683 · ARCHITECTURAL STEP FORMULA</p>
+          <h3 id="era-title">布隆代尔：踢面与踏面必须互相锁住</h3>
+          <p id="era-body">法国建筑师弗朗索瓦·布隆代尔（François Blondel）在《建筑教程》（1675–1683）第五部第三卷第十四章中提出著名的楼梯步距律：两倍踢面高加一级踏面深等于一个自然平步（2h + g = 24 pouces，法国王尺约合 65 cm）。步高太陡就费力，踏面太浅就落不住脚——平面版面里的步高与踏宽，遵循的正是同一套节拍耦合。</p>
+          <p class="era-source" id="era-source">原典出处：François Blondel, Cours d'architecture (Paris, 1675–1683), Cinquième partie, Livre III, Chap. XIV, pp. 692–693.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 台阶多几级，踏面就挤碎 ==================== -->
+  <section class="sec sec-cream" id="sec-04" aria-labelledby="h2-04">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">04</p>
+        <div class="sec-titles">
+          <h2 id="h2-04">台阶多几级，踏面就挤碎</h2>
+          <p class="sec-en" lang="en">Why 3 to 5 steps hold — and 7 shatter</p>
+        </div>
+      </header>
+
+      <div class="s4-intro">
+        <p class="lead">开场已经试过步高和步宽，但真正最常把阶梯做毁的，其实是<b>塞进太多级</b>。画幅宽度固定时，每多加一级台阶，分给每一级排字的水平踏面就少掉一截。</p>
+        <p>按同一套 <code>STEP_RULES</code> 经验值，常规单屏版面把级数稳在<b> 3–5 级</b>最耐看。一旦硬塞到 7 级，横向退让又不能压盖成 <a href="https://layout.xiaoxiaodong.ai/059/play/" target="_blank" rel="noopener">059 层叠构图</a>（靠前后遮挡造景深），也不像 <a href="https://layout.xiaoxiaodong.ai/060/play/" target="_blank" rel="noopener">060 级联构图</a>（卡片像瀑布叠落展开），每张踏面卡片只能越压越窄，中文瞬间碎成竖条。</p>
+      </div>
+
+      <!-- 仅保留 3 / 4 / 5 / 7 级分段切钮（无 R/T 滑块） -->
+      <div class="s4-toolbar">
+        <div class="seg-group" id="s4-counts" role="group" aria-label="切换阶梯总级数观察踏面文字排版">
+          <button type="button" class="seg-btn" data-count="3">3 级 · 舒展</button>
+          <button type="button" class="seg-btn is-active" data-count="4">4 级 · 基准</button>
+          <button type="button" class="seg-btn" data-count="5">5 级 · 上限</button>
+          <button type="button" class="seg-btn" data-count="7">7 级 · 挤碎</button>
+        </div>
+        <p class="s4-rule-pill" id="s4-rule-pill">经验值 3–5 级 · 同宽画幅真实排字</p>
+      </div>
+
+      <div class="s4-bench" id="s4-bench" data-count="4">
+        <div class="s4-steps" id="s4-steps" aria-live="polite"></div>
+      </div>
+
+      <div class="s4-readout" id="s4-readout" data-status="ok" aria-live="polite">
+        <div class="s4-ro-meta">
+          <span class="s4-ro-tier" id="s4-ro-tier">黄金四阶 · 原海报基准</span>
+          <span class="s4-ro-nums" id="s4-ro-nums" lang="en">4 级 · 实测单面约 180px · 每行约 12 字</span>
+        </div>
+        <p class="s4-ro-text" id="s4-ro-text">落在经验舒适区（3–5 级）正中：每级正面容得下完整标题与两行短说明，高低落差与踏面呼吸刚好平衡。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 五类真实版面怎么借阶梯 ==================== -->
+  <section class="sec sec-ice" id="sec-05" aria-labelledby="h2-05">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">05</p>
+        <div class="sec-titles">
+          <h2 id="h2-05">五类真实版面怎么借阶梯</h2>
+          <p class="sec-en" lang="en">Turning the two empty triangles into assets</p>
+        </div>
+      </header>
+
+      <div class="s5-head-copy">
+        <blockquote class="poster-usage-quote">
+          <span class="puq-label">原海报 · 应用提示</span>
+          <p>「适用于流程展示、时间线、步骤说明、成长过程、目标达成等场景，增强逻辑性与方向感。」</p>
+        </blockquote>
+        <p>搭起斜向阶梯后，画面天然会空出<b>左上与右下两块大三角形负空间</b>。高手的用法不是留着发空，而是像 058 原海报那样——把主标题与引言嵌进左上三角，把结论、提示或行动号召压进右下三角，让留白长出结构。</p>
+      </div>
+
+      <div class="s5-bar">
+        <div class="seg-group" id="s5-scenes" role="group" aria-label="切换真实版面场景">
+          <button type="button" class="seg-btn is-active" data-scene="growth">成长过程</button>
+          <button type="button" class="seg-btn" data-scene="timeline">里程碑时间线</button>
+          <button type="button" class="seg-btn" data-scene="launch">发布会流程</button>
+        </div>
+        <button type="button" class="btn-flip" id="s5-mode-btn" aria-pressed="true">当前：阶梯构图 · 点此切平排对比</button>
+      </div>
+
+      <div class="s5-frame is-stair" id="s5-frame">
+        <div class="s5-tri-tl" id="s5-tri-tl">
+          <p class="s5-kicker" id="s5-kicker" lang="en">GROWTH PATH</p>
+          <h3 id="s5-scene-title">新手插画师一年进阶</h3>
+          <p id="s5-scene-sub">左上三角天然托住标题与引言，视线顺势落到右下第一级台阶。</p>
+        </div>
+
+        <ol class="s5-cards" id="s5-cards"></ol>
+
+        <aside class="s5-tri-br" id="s5-tri-br">
+          <p class="s5-br-tag" id="s5-br-tag">右下三角收口</p>
+          <p class="s5-br-text" id="s5-br-text">目标落点：完成 12 套商业风格样张并建立个人作品集。</p>
+        </aside>
+      </div>
+      <p class="s5-caption" id="s5-caption" aria-live="polite">阶梯态：同样四段话，错开高低后一眼看出从 Q1 起步到 Q4 交付的攀升势能，左上标题与右下收口各占一块三角负空间。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 06 什么时候别硬搭阶梯（深钢蓝蓝图深版） ==================== -->
+  <section class="sec sec-dark" id="sec-06" aria-labelledby="h2-06">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">06</p>
+        <div class="sec-titles">
+          <h2 id="h2-06">什么时候别硬搭阶梯</h2>
+          <p class="sec-en" lang="en">When stair-step lies to the reader</p>
+        </div>
+      </header>
+
+      <p class="lead s6-lead">阶梯构图自带强烈的「先后」与「高低」暗示。只要内容本身没有单向递进关系，硬摆成台阶就不是装饰，而是在误导读者。展开下面四张排雷图纸，对照更稳妥的替代版式。</p>
+
+      <div class="pitfall-grid" id="pitfall-grid">
+        <article class="pitfall-card">
+          <button type="button" class="pitfall-toggle" aria-expanded="true" aria-controls="pf-1">
+            <span class="pf-no" lang="en">NO. 1</span>
+            <span class="pf-title">平权并列项被硬分出高低</span>
+            <span class="pf-state" aria-hidden="true">−</span>
+          </button>
+          <div class="pitfall-body" id="pf-1">
+            <div class="pf-compare">
+              <svg viewBox="0 0 220 96" aria-hidden="true">
+                <text x="12" y="16" class="pf-svg-bad">× 错搭阶梯</text>
+                <rect x="14" y="64" width="22" height="22" class="pf-b-bad"/><rect x="40" y="50" width="22" height="36" class="pf-b-bad"/><rect x="66" y="34" width="22" height="52" class="pf-b-bad"/>
+                <line x1="110" y1="10" x2="110" y2="88" stroke="#4D718E" stroke-dasharray="3 3"/>
+                <text x="124" y="16" class="pf-svg-ok">✓ 等权棋盘</text>
+                <rect x="126" y="28" width="36" height="24" class="pf-b-ok"/><rect x="168" y="28" width="36" height="24" class="pf-b-ok"/>
+                <rect x="126" y="58" width="36" height="24" class="pf-b-ok"/><rect x="168" y="58" width="36" height="24" class="pf-b-ok"/>
+              </svg>
+            </div>
+            <p>四座城市门店、四位并列嘉宾、四项同等参数，本不该分高下。抬高最后一项会制造虚假的「压轴错觉」，直接改用等权网格，见 <a href="https://layout.xiaoxiaodong.ai/057/play/" target="_blank" rel="noopener">057 棋盘构图</a>。</p>
+          </div>
+        </article>
+
+        <article class="pitfall-card">
+          <button type="button" class="pitfall-toggle" aria-expanded="true" aria-controls="pf-2">
+            <span class="pf-no" lang="en">NO. 2</span>
+            <span class="pf-title">流程有条件分叉或多支线</span>
+            <span class="pf-state" aria-hidden="true">−</span>
+          </button>
+          <div class="pitfall-body" id="pf-2">
+            <div class="pf-compare">
+              <svg viewBox="0 0 220 96" aria-hidden="true">
+                <text x="12" y="16" class="pf-svg-bad">× 单线强拉</text>
+                <rect x="14" y="64" width="20" height="22" class="pf-b-bad"/><rect x="38" y="50" width="20" height="36" class="pf-b-bad"/><rect x="62" y="34" width="20" height="52" class="pf-b-bad"/>
+                <line x1="110" y1="10" x2="110" y2="88" stroke="#4D718E" stroke-dasharray="3 3"/>
+                <text x="124" y="16" class="pf-svg-ok">✓ 分支展开</text>
+                <circle cx="136" cy="56" r="8" class="pf-b-ok"/><path d="M144 56 L170 36 M144 56 L170 56 M144 56 L170 76" stroke="#F48C59" stroke-width="2"/>
+                <rect x="172" y="28" width="28" height="14" class="pf-b-ok"/><rect x="172" y="49" width="28" height="14" class="pf-b-ok"/><rect x="172" y="70" width="28" height="14" class="pf-b-ok"/>
+              </svg>
+            </div>
+            <p>阶梯天生只走一条主干。一旦出现「满足 A 走这条、满足 B 走那条」的分流决策，硬塞在单斜梯里会让支线逻辑彻底糊掉，应换用 <a href="https://layout.xiaoxiaodong.ai/063/play/" target="_blank" rel="noopener">063 分支构图</a>。</p>
+          </div>
+        </article>
+
+        <article class="pitfall-card">
+          <button type="button" class="pitfall-toggle" aria-expanded="false" aria-controls="pf-3">
+            <span class="pf-no" lang="en">NO. 3</span>
+            <span class="pf-title">彼此互连、没有起止的网状关系</span>
+            <span class="pf-state" aria-hidden="true">+</span>
+          </button>
+          <div class="pitfall-body" id="pf-3" hidden>
+            <div class="pf-compare">
+              <svg viewBox="0 0 220 96" aria-hidden="true">
+                <text x="12" y="16" class="pf-svg-bad">× 强造起点</text>
+                <rect x="14" y="64" width="20" height="22" class="pf-b-bad"/><rect x="38" y="50" width="20" height="36" class="pf-b-bad"/><rect x="62" y="34" width="20" height="52" class="pf-b-bad"/>
+                <line x1="110" y1="10" x2="110" y2="88" stroke="#4D718E" stroke-dasharray="3 3"/>
+                <text x="124" y="16" class="pf-svg-ok">✓ 节点网络</text>
+                <path d="M140 38 L184 36 L194 70 L146 74 Z M140 38 L194 70 M184 36 L146 74" stroke="#F48C59" stroke-width="1.6" fill="none"/>
+                <circle cx="140" cy="38" r="6" class="pf-b-ok"/><circle cx="184" cy="36" r="6" class="pf-b-ok"/><circle cx="194" cy="70" r="6" class="pf-b-ok"/><circle cx="146" cy="74" r="6" class="pf-b-ok"/>
+              </svg>
+            </div>
+            <p>生态协作、知识图谱、角色互相关联这类多对多关系，不存在唯一 01 起点或 04 终点，应交给 <a href="https://layout.xiaoxiaodong.ai/064/play/" target="_blank" rel="noopener">064 网络构图</a>。</p>
+          </div>
+        </article>
+
+        <article class="pitfall-card">
+          <button type="button" class="pitfall-toggle" aria-expanded="false" aria-controls="pf-4">
+            <span class="pf-no" lang="en">NO. 4</span>
+            <span class="pf-title">窄屏长清单或需要聚散呼吸的松散题材</span>
+            <span class="pf-state" aria-hidden="true">+</span>
+          </button>
+          <div class="pitfall-body" id="pf-4" hidden>
+            <div class="pf-compare">
+              <svg viewBox="0 0 220 96" aria-hidden="true">
+                <text x="12" y="16" class="pf-svg-bad">× 窄屏碎梯</text>
+                <rect x="14" y="72" width="9" height="14" class="pf-b-bad"/><rect x="25" y="64" width="9" height="22" class="pf-b-bad"/><rect x="36" y="56" width="9" height="30" class="pf-b-bad"/><rect x="47" y="48" width="9" height="38" class="pf-b-bad"/><rect x="58" y="40" width="9" height="46" class="pf-b-bad"/><rect x="69" y="32" width="9" height="54" class="pf-b-bad"/>
+                <line x1="110" y1="10" x2="110" y2="88" stroke="#4D718E" stroke-dasharray="3 3"/>
+                <text x="124" y="16" class="pf-svg-ok">✓ 归群或分散</text>
+                <circle cx="142" cy="48" r="7" class="pf-b-ok"/><circle cx="154" cy="58" r="6" class="pf-b-ok"/><circle cx="140" cy="64" r="5" class="pf-b-ok"/>
+                <circle cx="192" cy="36" r="5" class="pf-b-ok"/><circle cx="186" cy="72" r="6" class="pf-b-ok"/>
+              </svg>
+            </div>
+            <p>手机竖屏若硬塞 6 级以上长文字步骤，横向踏面立刻崩碎，宁可折成纵向时间轴；若内容重在归类成团或轻盈散落，则分别看 <a href="https://layout.xiaoxiaodong.ai/061/play/" target="_blank" rel="noopener">061 聚类构图</a> 与 <a href="https://layout.xiaoxiaodong.ai/062/play/" target="_blank" rel="noopener">062 分散构图</a>。</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- 同小类 057–064 一句话速查索引 -->
+      <div class="sibling-box">
+        <h3 class="sibling-title">同小类邻居速查 · 阵列、层叠与组群（057–064）</h3>
+        <ul class="sibling-list">
+          <li><a href="https://layout.xiaoxiaodong.ai/057/play/" target="_blank" rel="noopener"><b lang="en">057</b> 棋盘构图</a><span>均等方格交替排布，强调平权与规整节奏。</span></li>
+          <li class="is-self"><span><b lang="en">058</b> 阶梯构图（本页）</span><span>靠单调步高与清晰踏面建立先后与进程感。</span></li>
+          <li><a href="https://layout.xiaoxiaodong.ai/059/play/" target="_blank" rel="noopener"><b lang="en">059</b> 层叠构图</a><span>靠元素前后压盖遮挡制造景深与主次层次。</span></li>
+          <li><a href="https://layout.xiaoxiaodong.ai/060/play/" target="_blank" rel="noopener"><b lang="en">060</b> 级联构图</a><span>卡片像瀑布斜向叠落展开，侧重连续铺陈与动势。</span></li>
+          <li><a href="https://layout.xiaoxiaodong.ai/061/play/" target="_blank" rel="noopener"><b lang="en">061</b> 聚类构图</a><span>把同类元素收拢成团，靠组群留白拉开信息归属。</span></li>
+          <li><a href="https://layout.xiaoxiaodong.ai/062/play/" target="_blank" rel="noopener"><b lang="en">062</b> 分散构图</a><span>刻意打散间距与秩序，释放轻盈自由的呼吸空间。</span></li>
+          <li><a href="https://layout.xiaoxiaodong.ai/063/play/" target="_blank" rel="noopener"><b lang="en">063</b> 分支构图</a><span>由一根主干向外分杈展开，专讲树状归属与分流。</span></li>
+          <li><a href="https://layout.xiaoxiaodong.ai/064/play/" target="_blank" rel="noopener"><b lang="en">064</b> 网络构图</a><span>多节点自由连线交织，呈现无单一主线的网状关联。</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 小练习：哪组不该上阶梯？ ==================== -->
+  <section class="sec sec-cream" id="sec-07" aria-labelledby="h2-07">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">07</p>
+        <div class="sec-titles">
+          <h2 id="h2-07">小练习：哪组不该上阶梯？</h2>
+          <p class="sec-en" lang="en">Practice · same geometry, spot the mismatched content</p>
+        </div>
+      </header>
+
+      <p class="lead s7-lead">下面四张卡片用的都是<b>几何参数完全锁死</b>的同一套标准等差阶梯（步高、步宽、坡角、编号一模一样），唯一不同的是放上去的四组信息。<b>哪一组内容不该用阶梯构图？</b>（可按键盘 1–4 键作答）</p>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四个选项，选出不适合阶梯构图的一组">
+        <button type="button" class="quiz-card" data-choice="A" aria-pressed="false" aria-label="选项 A">
+          <span class="quiz-head"><span class="quiz-letter" lang="en">A</span></span>
+          <div class="quiz-svg-slot" data-quiz-svg="A" aria-hidden="true"></div>
+        </button>
+        <button type="button" class="quiz-card" data-choice="B" aria-pressed="false" aria-label="选项 B">
+          <span class="quiz-head"><span class="quiz-letter" lang="en">B</span></span>
+          <div class="quiz-svg-slot" data-quiz-svg="B" aria-hidden="true"></div>
+        </button>
+        <button type="button" class="quiz-card" data-choice="C" aria-pressed="false" aria-label="选项 C">
+          <span class="quiz-head"><span class="quiz-letter" lang="en">C</span></span>
+          <div class="quiz-svg-slot" data-quiz-svg="C" aria-hidden="true"></div>
+        </button>
+        <button type="button" class="quiz-card" data-choice="D" aria-pressed="false" aria-label="选项 D">
+          <span class="quiz-head"><span class="quiz-letter" lang="en">D</span></span>
+          <div class="quiz-svg-slot" data-quiz-svg="D" aria-hidden="true"></div>
+        </button>
+      </div>
+
+      <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+        <p class="qv-title" id="qv-title">先读完四组台阶上的文字，再挑出不该上阶梯的那一张。</p>
+        <p class="qv-body" id="qv-body">提示：四张图的阶梯几何完全相同，不用量步高——看清内容本身有没有先后或高低关系。</p>
+        <p class="qv-model" id="qv-model" hidden></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 08 原海报与关键词 ==================== -->
+  <section class="sec sec-ice" id="sec-08" aria-labelledby="h2-08">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">08</p>
+        <div class="sec-titles">
+          <h2 id="h2-08">原海报与关键词</h2>
+          <p class="sec-en" lang="en">Original poster &amp; four pillars</p>
+        </div>
+      </header>
+
+      <div class="poster-layout">
+        <figure class="poster-fig">
+          <button type="button" class="poster-trigger" id="poster-open" aria-expanded="false" aria-label="点击放大查看 058 阶梯构图原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="058 阶梯构图原海报：冰蓝底与冷灰蓝对角阴影上，左上排深巧克力褐大字「阶梯构图」与五条竖排特性，中下至右上攀升四座橘陶立面、杏桃踏面与奶白正面的等轴阶梯块，顶面分别托起深钢蓝圆、三角、方与五角星，右下为虚线应用提示框，左下为进程感、层级性、方向感、节奏性四枚圆徽记。">
+          </button>
+          <figcaption>点击海报可放大细看，支持拖拽平移、滚轮缩放与 Esc 关闭。</figcaption>
+        </figure>
+
+        <div class="poster-side">
+          <h3 class="kw-heading">原海报四个关键词 <span lang="en">KEYWORDS</span></h3>
+          <ul class="kw-list">
+            <li>
+              <span class="kw-ico" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="4" y="18" width="4" height="6" rx="0.5"/><rect x="10" y="14" width="4" height="10" rx="0.5"/><rect x="16" y="9" width="4" height="15" rx="0.5"/><rect x="22" y="4" width="4" height="20" rx="0.5"/></svg></span>
+              <div><strong>进程感</strong><span class="kw-en" lang="en">PROGRESSION</span><p>一眼看见起点到终点的演进脉络，天然具备叙事推进力。</p></div>
+            </li>
+            <li>
+              <span class="kw-ico" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="10" y="6" width="8" height="3.5" rx="0.5"/><rect x="7" y="12.5" width="14" height="3.5" rx="0.5"/><rect x="4" y="19" width="20" height="3.5" rx="0.5"/></svg></span>
+              <div><strong>层级性</strong><span class="kw-en" lang="en">HIERARCHY</span><p>借垂直高度差与渐进形态把主次拉开，不用靠边框硬隔。</p></div>
+            </li>
+            <li>
+              <span class="kw-ico" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M7 21L21 7M12 7h9v9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" stroke-linejoin="miter"/></svg></span>
+              <div><strong>方向感</strong><span class="kw-en" lang="en">DIRECTION</span><p>斜向包络线把视线牢牢锁在单向路径上，直达核心落点。</p></div>
+            </li>
+            <li>
+              <span class="kw-ico" aria-hidden="true"><svg viewBox="0 0 28 28"><circle cx="14" cy="5.5" r="2.2"/><circle cx="21" cy="9.5" r="2.2"/><circle cx="21" cy="18.5" r="2.2"/><circle cx="14" cy="22.5" r="2.2"/><circle cx="7" cy="18.5" r="2.2"/><circle cx="7" cy="9.5" r="2.2"/></svg></span>
+              <div><strong>节奏性</strong><span class="kw-en" lang="en">RHYTHM</span><p>均匀的步高与步宽形成稳定拍子，每级踏面都是呼吸停顿点。</p></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 原海报灯箱看图器 -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报大图查看器">
+  <div class="lb-bar">
+    <p class="lb-info">058 阶梯构图 · 拖动平移，滚轮或按钮缩放，Esc 关闭</p>
+    <div class="lb-tools">
+      <button type="button" class="lb-btn" id="lb-out" aria-label="缩小">−</button>
+      <span class="lb-zoom" id="lb-zoom" lang="en">100%</span>
+      <button type="button" class="lb-btn" id="lb-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn" id="lb-reset">重置</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭大图">关闭 ×</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" alt="058 阶梯构图放大原海报" draggable="false">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p class="foot-line">
+      <a href="https://layout.xiaoxiaodong.ai/058/play/" target="_blank" rel="noopener">在线版</a>
+      <span class="fsep">/</span>
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="fsep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="fsep">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
