@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FDEEEC">
+  <title>207 固定网格 · FIXED GRID</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero-shell">
+    <div class="wrap">
+      <!-- 顶部极细分类眉行（还原 207 原海报左上深紫短杠与清爽瑞士呼吸） -->
+      <div class="meta-bar">
+        <div class="meta-left">
+          <span class="plum-bar" aria-hidden="true"></span>
+          <span class="meta-cat">字体、网格与东亚文字 / 网格系统</span>
+        </div>
+        <div class="meta-right">
+          <span class="meta-no" lang="en">NO. 207</span>
+          <span class="status-pill is-err" id="hero-status-pill" aria-live="polite">0/4 · 尺规碎裂</span>
+        </div>
+      </div>
+
+      <!-- 主对开骨架：承袭 207 原海报「左文右图」非对称双栏 -->
+      <section class="hero-stage" aria-labelledby="page-title">
+        <!-- 1. 刊头区块（手机竖屏压紧单行置顶，桌面落左栏顶部） -->
+        <div class="hero-head">
+          <h1 id="page-title" class="demo-title" aria-label="固定网格">
+            <span class="dt-cell" data-c="C1" aria-hidden="true">固</span>
+            <span class="dt-cell" data-c="C2" aria-hidden="true">定</span>
+            <span class="dt-cell" data-c="C3" aria-hidden="true">网</span>
+            <span class="dt-cell" data-c="C4" aria-hidden="true">格</span>
+          </h1>
+          <div class="title-sub-row">
+            <p class="en-sub" lang="en">FIXED GRID</p>
+            <div class="theme-tabs" role="group" aria-label="切换画布题材">
+              <button type="button" class="tab-btn is-active" data-theme="poster" aria-pressed="true">原海报几何</button>
+              <button type="button" class="tab-btn" data-theme="magazine" aria-pressed="false">杂志内页</button>
+              <button type="button" class="tab-btn" data-theme="web960" aria-pressed="false">960 网页</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. 右侧活体固定网格拼版台（手机竖屏直落第二顺位，稳占首屏 ≥48%） -->
+        <div class="hero-board">
+          <div class="board-frame">
+            <canvas
+              id="grid-canvas"
+              class="grid-canvas"
+              data-perf-drag
+              tabindex="0"
+              role="application"
+              aria-label="固定网格活体拼版台：拖动任意几何模块或朱红焦点圆落入固定列线，键盘方向键可微调，回车吸附到最近格线"
+            ></canvas>
+          </div>
+          <div class="board-bar">
+            <div class="page-switcher" role="group" aria-label="跨页复验：同网格换页内容">
+              <span class="bar-label">跨页复验</span>
+              <button type="button" class="mini-btn is-active" data-page="1" aria-pressed="true">第 1 页</button>
+              <button type="button" class="mini-btn" data-page="2" aria-pressed="false">第 2 页</button>
+              <button type="button" class="mini-btn" data-page="3" aria-pressed="false">第 3 页</button>
+            </div>
+            <div class="preset-row" role="group" aria-label="多组合法解与试错预设">
+              <button type="button" class="mini-btn" data-preset="poster-valid">原海报 6 列解</button>
+              <button type="button" class="mini-btn" data-preset="web960-valid">960·12 列解</button>
+              <button type="button" class="mini-btn" data-preset="book4-valid">4 列书刊解</button>
+              <button type="button" class="mini-btn is-warn" data-preset="err-overflow">试错：窄屏溢出</button>
+              <button type="button" class="mini-btn is-warn" data-preset="err-nogutter">试错：零缝粘连</button>
+              <button type="button" class="mini-btn is-ghost" data-preset="broken">复原 0/4 错态</button>
+            </div>
+          </div>
+          <p class="board-hint">拖动画布内任意模块（或横拖中央朱红圆）对准樱粉列线 · 双击模块瞬吸归格 · 选中后按方向键微调</p>
+        </div>
+
+        <!-- 3. 原海报 1:1 细框单真源「定义与实时诊单盒」（手机竖屏紧贴画布下方首屏可见） -->
+        <div class="hero-diag">
+          <div class="def-box" id="diag-box">
+            <div class="def-badge-col" aria-hidden="true">
+              <div class="def-circle" id="def-circle">
+                <svg viewBox="0 0 48 48" class="def-svg" id="def-svg">
+                  <g class="grid-lines" stroke-width="2.2" fill="none" stroke-linecap="square">
+                    <line id="dg-v1" x1="18" y1="11" x2="18" y2="37"/>
+                    <line id="dg-v2" x1="30" y1="11" x2="30" y2="37"/>
+                    <line id="dg-h1" x1="11" y1="18" x2="37" y2="18"/>
+                    <line id="dg-h2" x1="11" y1="30" x2="37" y2="30"/>
+                  </g>
+                </svg>
+              </div>
+              <span class="def-score" id="diag-score" lang="en">0/4</span>
+            </div>
+            <div class="def-content">
+              <div class="def-top">
+                <span class="def-tag" id="diag-tag">单真源标尺诊单 · 尺规碎裂</span>
+                <span class="def-formula" id="diag-formula" lang="en">740 = 2×18(右38) + 6×95.67 + 5×22</span>
+              </div>
+              <p class="def-headline" id="diag-headline" aria-live="polite">左右边距不等（左 18px / 右 38px），且列宽算出小数 95.67px</p>
+              <p class="def-body" id="diag-body">固定网格的第一要务是先立一把干脆的整数尺：公式 W = 2m + n·c + (n−1)·g 算不出整数列宽时，屏幕渲染容易发虚，设计师与工程师报尺寸也总差 1 像素。</p>
+              <div class="def-action-row">
+                <p class="def-tip" id="diag-tip">先校准对称整数尺，再把偏轨模块吸进樱粉列线。</p>
+                <button type="button" class="fix-btn" id="diag-fix-btn">校准对称整数尺</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. 左栏下段：原海报总述 + 固定尺规精调装配槽 -->
+        <div class="hero-controls">
+          <p class="hero-summary">
+            固定网格是一种预先设定好列、行和间距的版式系统，所有内容在同一套规则下进行对齐与排列，建立稳定、可控的视觉秩序。
+          </p>
+
+          <div class="ctrl-panel" aria-label="固定网格尺规控制">
+            <div class="ctrl-row">
+              <div class="ctrl-group">
+                <span class="ctrl-label">列数 <span lang="en">COLS</span></span>
+                <div class="seg-btns" role="group" aria-label="固定列数">
+                  <button type="button" class="seg-btn" data-cols="4" aria-pressed="false">4</button>
+                  <button type="button" class="seg-btn is-active" data-cols="6" aria-pressed="true">6</button>
+                  <button type="button" class="seg-btn" data-cols="8" aria-pressed="false">8</button>
+                  <button type="button" class="seg-btn" data-cols="12" aria-pressed="false">12</button>
+                </div>
+              </div>
+              <div class="ctrl-group">
+                <span class="ctrl-label">容器总宽 <span lang="en">WIDTH</span></span>
+                <div class="seg-btns" role="group" aria-label="容器固定总宽">
+                  <button type="button" class="seg-btn" data-width="720" aria-pressed="false">720</button>
+                  <button type="button" class="seg-btn is-active" data-width="740" aria-pressed="true">740</button>
+                  <button type="button" class="seg-btn" data-width="960" aria-pressed="false">960</button>
+                  <button type="button" class="seg-btn" data-width="1200" aria-pressed="false">1200</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ctrl-sliders">
+              <label class="slider-field" for="ctrl-gutter">
+                <span class="sf-head"><span>栏距</span><b class="mono" id="val-gutter">22px</b></span>
+                <input type="range" id="ctrl-gutter" min="0" max="64" step="2" value="22">
+              </label>
+              <label class="slider-field" for="ctrl-leading">
+                <span class="sf-head"><span>文本行高</span><b class="mono" id="val-leading">1.15×</b></span>
+                <input type="range" id="ctrl-leading" min="1.10" max="2.00" step="0.05" value="1.15">
+              </label>
+              <label class="slider-field" for="ctrl-viewport">
+                <span class="sf-head"><span>模拟视口</span><b class="mono" id="val-viewport">1024px</b></span>
+                <input type="range" id="ctrl-viewport" min="360" max="1440" step="20" value="1024">
+              </label>
+            </div>
+
+            <div class="ctrl-foot">
+              <div class="toggle-row">
+                <button type="button" class="toggle-btn is-active" id="btn-snap" aria-pressed="true">磁吸格线：开</button>
+                <button type="button" class="toggle-btn is-active" id="btn-baseline" aria-pressed="true">基线细纹：开</button>
+                <button type="button" class="toggle-btn" id="btn-span-toggle">选中块跨列：<span id="val-sel-span">1 列</span></button>
+              </div>
+              <div class="live-metrics" aria-label="实绘读数">
+                <span>落格 <b class="mono" id="met-aligned">3/6</b></span>
+                <span>重心 <b class="mono" id="met-balance">+2.1%</b></span>
+                <span>溢出 <b class="mono" id="met-overflow">0px</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 1:1 复刻原海报中段贯穿细线与「核心优势 KEY BENEFITS」五列实时横带 -->
+      <section class="benefits-strip" aria-label="核心优势实时监测">
+        <div class="benefits-title-col">
+          <h2>核心优势</h2>
+          <p lang="en">KEY BENEFITS</p>
+          <span class="plum-short" aria-hidden="true"></span>
+        </div>
+        <div class="benefit-col" id="ben-stability">
+          <div class="ben-head">
+            <svg viewBox="0 0 32 32" class="ben-ico" aria-hidden="true">
+              <rect x="4" y="4" width="10" height="10" stroke="currentColor" stroke-width="2.2" fill="none"/>
+              <rect x="18" y="4" width="10" height="10" stroke="currentColor" stroke-width="2.2" fill="none"/>
+              <rect x="4" y="18" width="10" height="10" stroke="currentColor" stroke-width="2.2" fill="none"/>
+              <rect x="18" y="18" width="10" height="10" stroke="currentColor" stroke-width="2.2" fill="none"/>
+            </svg>
+            <div>
+              <h3>稳定性</h3>
+              <p class="ben-en" lang="en">STABILITY</p>
+            </div>
+            <span class="ben-badge is-err" id="badge-stability">边距差 20px</span>
+          </div>
+          <p class="ben-desc">版面结构恒定，视觉重心平衡，信息呈现更可靠。</p>
+        </div>
+
+        <div class="benefit-col" id="ben-repeatability">
+          <div class="ben-head">
+            <svg viewBox="0 0 32 32" class="ben-ico" aria-hidden="true">
+              <path d="M25 13a9 9 0 0 0-16.5-2.5M7 19a9 9 0 0 0 16.5 2.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="square"/>
+              <polyline points="22,8 26,13 20,14" stroke="currentColor" stroke-width="2.2" fill="none"/>
+              <polyline points="10,24 6,19 12,18" stroke="currentColor" stroke-width="2.2" fill="none"/>
+            </svg>
+            <div>
+              <h3>可重复性</h3>
+              <p class="ben-en" lang="en">REPEATABILITY</p>
+            </div>
+            <span class="ben-badge is-err" id="badge-repeatability">3/6 落格</span>
+          </div>
+          <p class="ben-desc">模块可复用，内容替换时版式依然保持一致性。</p>
+        </div>
+
+        <div class="benefit-col" id="ben-baseline">
+          <div class="ben-head">
+            <svg viewBox="0 0 32 32" class="ben-ico" aria-hidden="true">
+              <line x1="4" y1="7" x2="28" y2="7" stroke="currentColor" stroke-width="2.2"/>
+              <line x1="4" y1="13" x2="28" y2="13" stroke="currentColor" stroke-width="2.2"/>
+              <line x1="4" y1="19" x2="28" y2="19" stroke="currentColor" stroke-width="2.2"/>
+              <line x1="4" y1="25" x2="22" y2="25" stroke="currentColor" stroke-width="2.2"/>
+            </svg>
+            <div>
+              <h3>基线秩序</h3>
+              <p class="ben-en" lang="en">BASELINE ORDER</p>
+            </div>
+            <span class="ben-badge is-err" id="badge-baseline">过挤 1.15×</span>
+          </div>
+          <p class="ben-desc">基于行高的对齐建立清晰的阅读节奏。</p>
+        </div>
+
+        <div class="benefit-col" id="ben-collaboration">
+          <div class="ben-head">
+            <svg viewBox="0 0 32 32" class="ben-ico" aria-hidden="true">
+              <rect x="4" y="5" width="24" height="22" stroke="currentColor" stroke-width="2.2" fill="none"/>
+              <path d="M9 12v9h6" stroke="currentColor" stroke-width="2.2" fill="none"/>
+              <circle cx="22" cy="21" r="1.8" fill="currentColor"/>
+            </svg>
+            <div>
+              <h3>高效协作</h3>
+              <p class="ben-en" lang="en">COLLABORATION</p>
+            </div>
+            <span class="ben-badge is-err" id="badge-collaboration">尺规非整数</span>
+          </div>
+          <p class="ben-desc">规则明确，降低沟通成本，提升设计与开发效率。</p>
+        </div>
+      </section>
+    </div>
+  </header>
+
+  <main>
+    <!-- 01 · 一套尺子，四条支柱 -->
+    <section class="sec sec-bright" id="sec-01" aria-labelledby="h-01">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">01</p>
+          <h2 id="h-01">一套尺子，<br>四条支柱</h2>
+          <p class="sec-en" lang="en">Four pillars of order</p>
+          <span class="plum-short" aria-hidden="true"></span>
+        </header>
+        <div class="sec-body">
+          <p class="lead">
+            原海报的定义一句话点穿了固定网格的根基：「通过统一的列宽、间距和行高，将版面划分为固定的模块单元，所有元素在模块中定位与组织。」
+          </p>
+          <p>
+            它和只放单栏长文的 <a href="https://layout.xiaoxiaodong.ai/194/play/" target="_blank" rel="noopener">194 手稿网格</a> 不同，也不只是纵向分栏的 <a href="https://layout.xiaoxiaodong.ai/195/play/" target="_blank" rel="noopener">195 分栏网格</a>；它最核心的承诺是「绝对尺规不变」——不管这一页放一篇深度访谈、下一页换三张摄影大图，列线、栏距和页边距都停在同一个毫米或像素坐标上。读者翻页时不需要重新适应页面结构，团队交接时只需报出「占 4 列、栏距 24px」就能精准还原。
+          </p>
+
+          <!-- 01 专属交互：杂志跨页模板复验（换内容不换尺） -->
+          <div class="spread-lab">
+            <div class="spread-bar">
+              <div class="spread-tabs" role="tablist" aria-label="切换同一固定网格下的不同版面">
+                <button type="button" class="tab-btn is-active" role="tab" aria-selected="true" data-spread="0">P.01 专题导读（2+4 列）</button>
+                <button type="button" class="tab-btn" role="tab" aria-selected="false" data-spread="1">P.02 人物专访（1+3+2 列）</button>
+                <button type="button" class="tab-btn" role="tab" aria-selected="false" data-spread="2">P.03 摄影图集（2+2+2 列）</button>
+              </div>
+              <button type="button" class="toggle-btn is-active" id="spread-grid-toggle" aria-pressed="true">透视 6 列固定尺：开</button>
+            </div>
+            <div class="spread-stage" id="spread-stage" data-show-grid="true">
+              <svg viewBox="0 0 720 310" class="spread-svg" id="spread-svg" aria-label="同一套 6 列固定网格承接不同杂志页示意"></svg>
+            </div>
+            <p class="lab-caption" id="spread-caption" aria-live="polite">
+              第 1 页专题导读：左侧 2 列放导语与页码，右侧 4 列放跨栏主图与副栏正文。列宽 92px、栏距 24px、边距 24px 丝毫不改。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 · 从瑞士画板到 960 像素（从哪来 + 960 整除切片矩阵） -->
+    <section class="sec sec-tint" id="sec-02" aria-labelledby="h-02">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">02</p>
+          <h2 id="h-02">从瑞士画板<br>到 960 像素</h2>
+          <p class="sec-en" lang="en">Where it comes from</p>
+          <span class="plum-short" aria-hidden="true"></span>
+        </header>
+        <div class="sec-body">
+          <p class="lead">
+            固定网格并非屏幕时代的发明，它先诞生于纸张开本绝对固定的书籍与印刷世界，在 20 世纪中叶被瑞士平面设计师数学化，又在 2008 年借着 960 像素骨架彻底改变了早期网页开发。
+          </p>
+
+          <ol class="history-list">
+            <li>
+              <span class="yr" lang="en">13C / 1975</span>
+              <div>
+                <strong>古典书籍版心构造</strong>
+                <p>13 世纪法国建筑师维拉尔·德·奥内库尔（Villard de Honnecourt）的手稿已出现几何分格法；字体设计师扬·奇肖尔德（Jan Tschichold）在 1975 年结集的《书的形态》（The Form of the Book）中系统考证了这类在固定纸张开本上以对角线锁定版心与边距的构造规矩。</p>
+              </div>
+            </li>
+            <li>
+              <span class="yr" lang="en">1964</span>
+              <div>
+                <strong>把版式写成「程序」</strong>
+                <p>瑞士设计师卡尔·格斯特纳（Karl Gerstner）由尼格利出版社（Arthur Niggli）出版《设计程序》（Designing Programmes），提出与其为每一页手工想一个答案，不如制定一套固定比例与规则的「程序」来容纳未知图文。</p>
+              </div>
+            </li>
+            <li>
+              <span class="yr" lang="en">1981</span>
+              <div>
+                <strong>网格系统的经典手册</strong>
+                <p>约瑟夫·米勒-布罗克曼（Josef Müller-Brockmann）同样由尼格利出版社推出德英双语名著《平面设计中的网格系统》（Grid Systems in Graphic Design），详述了 8 至 32 格的固定网格构造法，成为全球排版教学与多栏 <a href="https://layout.xiaoxiaodong.ai/196/play/" target="_blank" rel="noopener">196 模块化网格</a> 的共同起点。</p>
+              </div>
+            </li>
+            <li>
+              <span class="yr" lang="en">2008</span>
+              <div>
+                <strong>960 Grid System 统治早期桌面网页</strong>
+                <p>网页设计师内森·史密斯（Nathan Smith）发布 960 Grid System：面向当时主流 1024×768 屏幕，将容器锁死在 960px，提供 12 列（每列 60px）与 16 列（每列 40px）、固定 20px 栏距与左右 10px 边距，让前端工程师第一次摆脱反复手算小数的痛苦。</p>
+              </div>
+            </li>
+            <li>
+              <span class="yr" lang="en">2009–2010</span>
+              <div>
+                <strong>从纯固定走向流体与响应式</strong>
+                <p>随着手机屏幕涌现，伊桑·马科特（Ethan Marcotte）在 A List Apart 先后发表《Fluid Grids》（2009）与《Responsive Web Design》（2010），用相对比例把固定网格升级为跨屏体系；W3C 的 CSS Grid Level 1 则至今仍保留了固定长度轨道（如 px）作为精确控制手段。</p>
+              </div>
+            </li>
+          </ol>
+
+          <!-- 02 专属交互：960 整除魔数计算矩阵 -->
+          <div class="divisor-lab">
+            <div class="div-head">
+              <div>
+                <h3>为什么当年全世界的网页都锁在 960px 或 1200px？</h3>
+                <p>切换总宽、边距与栏距，看固定公式 <code>c = (W − 2m − (n−1)·g) ÷ n</code> 在不同列数下能否切出干净整数。</p>
+              </div>
+              <div class="div-picks">
+                <div class="seg-btns" role="group" aria-label="选择测试总宽">
+                  <button type="button" class="seg-btn is-active" data-dw="960" aria-pressed="true">960px</button>
+                  <button type="button" class="seg-btn" data-dw="1000" aria-pressed="false">1000px</button>
+                  <button type="button" class="seg-btn" data-dw="1200" aria-pressed="false">1200px</button>
+                  <button type="button" class="seg-btn" data-dw="1440" aria-pressed="false">1440px</button>
+                </div>
+                <div class="seg-btns" role="group" aria-label="选择测试栏距与边距组合">
+                  <button type="button" class="seg-btn is-active" data-dg="20,10" aria-pressed="true">缝20 / 边10</button>
+                  <button type="button" class="seg-btn" data-dg="24,24" aria-pressed="false">缝24 / 边24</button>
+                  <button type="button" class="seg-btn" data-dg="16,24" aria-pressed="false">缝16 / 边24</button>
+                </div>
+              </div>
+            </div>
+            <div class="divisor-grid" id="divisor-grid" role="list" aria-label="各列数整除计算结果"></div>
+            <p class="lab-caption" id="divisor-summary" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 · 基线秩序与行高标尺（深桑葚酒紫暗室 · 1:1 呼应原海报左下 Ag 标本） -->
+    <section class="sec sec-dark" id="sec-03" aria-labelledby="h-03">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">03</p>
+          <h2 id="h-03">基线秩序与行高</h2>
+          <p class="sec-en" lang="en">Baseline &amp; leading anatomy</p>
+          <span class="plum-short is-light" aria-hidden="true"></span>
+        </header>
+        <div class="sec-body">
+          <p class="lead">
+            横向对齐靠列线，纵向节奏靠基线。原海报左下专门画出了一张 <strong>Ag</strong> 四线解剖图，提醒我们：只有所有栏里的文字共享同一把行高尺子，左右栏才不会越往下读越错位（专门的垂直节奏系统见 <a href="https://layout.xiaoxiaodong.ai/198/play/" target="_blank" rel="noopener">198 基线网格</a>）。
+          </p>
+
+          <div class="baseline-lab">
+            <!-- 左：原海报 Ag 四线解剖互动图 -->
+            <div class="ag-panel">
+              <svg viewBox="0 0 360 220" class="ag-svg" id="ag-svg" aria-label="Ag 字体四条解剖基准线示意图">
+                <!-- 四条解剖线 -->
+                <line x1="108" y1="42" x2="346" y2="42" class="ag-line"/>
+                <line x1="108" y1="88" x2="346" y2="88" class="ag-line"/>
+                <line x1="108" y1="154" x2="346" y2="154" class="ag-line is-base"/>
+                <line x1="108" y1="190" x2="346" y2="190" class="ag-line"/>
+                <text x="100" y="46" class="ag-lbl" text-anchor="end">CAP HEIGHT</text>
+                <text x="100" y="92" class="ag-lbl" text-anchor="end">X-HEIGHT</text>
+                <text x="100" y="158" class="ag-lbl is-base" text-anchor="end">BASELINE</text>
+                <text x="100" y="194" class="ag-lbl" text-anchor="end">DESCENDER</text>
+                <text x="132" y="154" class="ag-glyph">Ag</text>
+                <!-- 实时行高标尺括号 -->
+                <g id="ag-leading-mark">
+                  <line x1="316" y1="42" x2="316" y2="154" stroke="#FF7A66" stroke-width="2"/>
+                  <line x1="308" y1="42" x2="324" y2="42" stroke="#FF7A66" stroke-width="2"/>
+                  <line x1="308" y1="154" x2="324" y2="154" stroke="#FF7A66" stroke-width="2"/>
+                </g>
+              </svg>
+              <div class="ag-tip-box">
+                <span class="bulb-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.8c.7.6 1 1.2 1 2.2h5c0-1 .3-1.6 1-2.2A6 6 0 0 0 12 3z" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>
+                </span>
+                <div>
+                  <strong>原海报经验值：建议行高 1.4 – 1.6 倍字号</strong>
+                  <p>这是面向中英文正文的通用经验区间，字号越小或行长越宽时可略微上浮。</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右：双栏实绘基线对齐验视器 -->
+            <div class="dual-col-panel">
+              <div class="dual-preview" id="dual-preview">
+                <div class="dual-lines" id="dual-lines" aria-hidden="true"></div>
+                <div class="dual-cols">
+                  <div class="dc-left" id="dc-left">
+                    <h4 id="dc-h4">信息对齐，阅读有序</h4>
+                    <p id="dc-p1">所有文字基于相同基线与行高，形成统一的阅读节奏。当左侧有标题介入时，标题总占位必须等于正文基线步距的整数倍。</p>
+                  </div>
+                  <div class="dc-right" id="dc-right">
+                    <p id="dc-p2">如果左栏标题行高随意写成一个零头像素，右侧正文从第一行起就会和左侧悄悄错开几像素，读到页底时两栏底边就会一高一低，破坏固定网格的秩序感。</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="base-controls">
+                <label class="slider-field is-dark" for="bl-size">
+                  <span class="sf-head"><span>正文字号</span><b class="mono" id="val-bl-size">15px</b></span>
+                  <input type="range" id="bl-size" min="12" max="18" step="1" value="15">
+                </label>
+                <label class="slider-field is-dark" for="bl-ratio">
+                  <span class="sf-head"><span>行高倍率</span><b class="mono" id="val-bl-ratio">1.50×</b></span>
+                  <input type="range" id="bl-ratio" min="1.10" max="2.00" step="0.05" value="1.50">
+                </label>
+                <div class="base-toggle-wrap">
+                  <button type="button" class="toggle-btn is-dark is-active" id="bl-lock-btn" aria-pressed="true">标题行高锁基线倍数：开</button>
+                </div>
+              </div>
+              <p class="base-verdict" id="bl-verdict" aria-live="polite"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 · 典型场景，与一句边界（含温和改正海报说多了一点） -->
+    <section class="sec sec-bright" id="sec-04" aria-labelledby="h-04">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">04</p>
+          <h2 id="h-04">典型场景与边界</h2>
+          <p class="sec-en" lang="en">Typical uses &amp; a caveat</p>
+          <span class="plum-short" aria-hidden="true"></span>
+        </header>
+        <div class="sec-body">
+          <p class="lead">
+            原海报列出了固定网格最常发挥威力的三类作品。点击下面任意一张场景卡，查看该媒介里真正落地的固定尺规参数：
+          </p>
+
+          <div class="use-cards" role="group" aria-label="典型应用场景规格卡">
+            <button type="button" class="use-card is-active" data-use="magazine" aria-pressed="true">
+              <svg viewBox="0 0 120 88" class="use-thumb" aria-hidden="true">
+                <rect x="1" y="1" width="118" height="86" fill="#FFF9F8" stroke="#C9A7B0"/>
+                <rect x="16" y="12" width="88" height="10" fill="#651834"/>
+                <rect x="16" y="28" width="25" height="32" fill="#F4BDC0"/>
+                <rect x="47.5" y="28" width="25" height="32" fill="#F4BDC0"/>
+                <rect x="79" y="28" width="25" height="32" fill="#F4BDC0"/>
+                <path d="M16 68h25M16 74h20M47.5 68h25M47.5 74h18M79 68h25M79 74h22" stroke="#651834" stroke-width="1.8"/>
+              </svg>
+              <h3>杂志 / 书籍内页</h3>
+              <p class="use-en" lang="en">MAGAZINE / BOOK</p>
+              <p class="use-quote">内容排版稳定，提升阅读体验。</p>
+            </button>
+
+            <button type="button" class="use-card" data-use="webui" aria-pressed="false">
+              <svg viewBox="0 0 120 88" class="use-thumb" aria-hidden="true">
+                <rect x="1" y="1" width="118" height="86" fill="#FFF9F8" stroke="#C9A7B0"/>
+                <rect x="26" y="12" width="68" height="20" fill="#651834"/>
+                <rect x="26" y="38" width="31" height="18" fill="#651834"/>
+                <rect x="63" y="38" width="31" height="18" fill="#651834"/>
+                <rect x="26" y="62" width="31" height="14" fill="#651834"/>
+                <rect x="63" y="62" width="31" height="14" fill="#651834"/>
+              </svg>
+              <h3>网站 / APP 界面</h3>
+              <p class="use-en" lang="en">WEBSITE / APP UI</p>
+              <p class="use-quote">模块化布局，利于响应式适配。</p>
+            </button>
+
+            <button type="button" class="use-card" data-use="report" aria-pressed="false">
+              <svg viewBox="0 0 120 88" class="use-thumb" aria-hidden="true">
+                <rect x="1" y="1" width="118" height="86" fill="#FFF9F8" stroke="#C9A7B0"/>
+                <rect x="16" y="14" width="22" height="60" fill="#651834"/>
+                <path d="M48 20h54M48 31h48M48 42h52M48 53h44M48 64h50M48 72h32" stroke="#8D4D64" stroke-width="2"/>
+              </svg>
+              <h3>数据报表 / 演示文稿</h3>
+              <p class="use-en" lang="en">REPORT / PRESENTATION</p>
+              <p class="use-quote">信息层级清晰，便于快速理解。</p>
+            </button>
+          </div>
+
+          <div class="spec-drawer" id="spec-drawer" aria-live="polite">
+            <div class="spec-meta">
+              <span class="spec-badge" id="spec-badge">印刷固定开本</span>
+              <span class="mono" id="spec-formula">A4 (210×297mm) · 6 列 · 栏距 4mm · 基线 12pt</span>
+            </div>
+            <p id="spec-detail"></p>
+          </div>
+
+          <!-- 温和修正原海报说多了一点的地方 -->
+          <aside class="caveat-box" aria-label="对原海报表述的补充校正">
+            <div class="caveat-head">
+              <span class="caveat-pill">说多了一点</span>
+              <h3>固定网格本身，并不自动带来「响应式适配」</h3>
+            </div>
+            <p>
+              原海报在第二张场景卡里写着「网站 / APP 界面：模块化布局，利于响应式适配」。实际工程里，如果只用纯固定像素网格（例如写死 <code>width: 960px</code>），小屏手机根本塞不下、只能横着拖滚动条，超宽显示器又会在两侧空出大片白边。
+            </p>
+            <p>
+              真正支撑现代多端界面的，是把固定网格的<strong>列跨度思维与步距规范</strong>放进断点容器里，在断点之间配合 <a href="https://layout.xiaoxiaodong.ai/208/play/" target="_blank" rel="noopener">208 流体网格</a> 与 <a href="https://layout.xiaoxiaodong.ai/209/play/" target="_blank" rel="noopener">209 响应式网格</a>；局部卡片和复杂组件内部，再借助 <a href="https://layout.xiaoxiaodong.ai/205/play/" target="_blank" rel="noopener">205 嵌套网格</a> 或 <a href="https://layout.xiaoxiaodong.ai/206/play/" target="_blank" rel="noopener">206 子网格</a> 继承全局轨道。
+            </p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 · 什么时候别用固定网格（视口拉伸双轨压力测试） -->
+    <section class="sec sec-tint" id="sec-05" aria-labelledby="h-05">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">05</p>
+          <h2 id="h-05">什么时候别用它</h2>
+          <p class="sec-en" lang="en">When not to use it</p>
+          <span class="plum-short" aria-hidden="true"></span>
+        </header>
+        <div class="sec-body">
+          <p class="lead">
+            固定网格假设「容器画幅是确定不变的」。一旦画幅尺寸无法提前锁死，或者内容本身拒绝规矩切块，死守固定像素尺子就会立刻适得其反。
+          </p>
+
+          <!-- 05 专属交互：设备视口拉伸双轨压力测试台 -->
+          <div class="stress-lab">
+            <div class="stress-head">
+              <div class="seg-btns is-wrap" role="group" aria-label="快捷切换测试设备宽度">
+                <button type="button" class="seg-btn is-active" data-sw="390" aria-pressed="true">手机 390</button>
+                <button type="button" class="seg-btn" data-sw="768" aria-pressed="false">平板 768</button>
+                <button type="button" class="seg-btn" data-sw="1024" aria-pressed="false">笔电 1024</button>
+                <button type="button" class="seg-btn" data-sw="1440" aria-pressed="false">桌面 1440</button>
+                <button type="button" class="seg-btn" data-sw="2200" aria-pressed="false">带鱼 2200</button>
+              </div>
+              <label class="stress-range-wrap" for="stress-range">
+                <span class="nowrap">模拟视口</span>
+                <input type="range" id="stress-range" min="360" max="2200" step="10" value="390">
+                <b class="mono" id="val-stress-w">390px</b>
+              </label>
+            </div>
+
+            <div class="stress-tracks">
+              <div class="stress-track">
+                <div class="st-top">
+                  <strong>A · 纯固定网格（锁定 960px）</strong>
+                  <span class="st-status is-err" id="st-fixed-status">右侧溢出 +570px</span>
+                </div>
+                <div class="st-frame" id="st-fixed-frame">
+                  <div class="st-viewport" id="st-fixed-vp">
+                    <div class="st-content is-fixed" id="st-fixed-content">
+                      <i></i><i></i><i></i><i></i><i></i><i></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="stress-track">
+                <div class="st-top">
+                  <strong>B · 流体比例对照（按百分比伸缩）</strong>
+                  <span class="st-status is-ok" id="st-fluid-status">占宽 92% · 零溢出</span>
+                </div>
+                <div class="st-frame">
+                  <div class="st-viewport" id="st-fluid-vp">
+                    <div class="st-content is-fluid" id="st-fluid-content">
+                      <i></i><i></i><i></i><i></i><i></i><i></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="lab-caption" id="stress-caption" aria-live="polite"></p>
+          </div>
+
+          <dl class="avoid-list">
+            <div>
+              <dt>多端未知尺寸网页</dt>
+              <dd>同一套页面要从 360px 手机横跨到 2560px 大屏时，纯固定宽会两头受罪；改用 <a href="https://layout.xiaoxiaodong.ai/208/play/" target="_blank" rel="noopener">208 流体网格</a> 与 <a href="https://layout.xiaoxiaodong.ai/209/play/" target="_blank" rel="noopener">209 响应式网格</a>。</dd>
+            </div>
+            <div>
+              <dt>情绪张扬的先锋海报</dt>
+              <dd>音乐节、实验展览需要打破呆板节奏制造张力时，可主动转向 <a href="https://layout.xiaoxiaodong.ai/200/play/" target="_blank" rel="noopener">200 非对称网格</a>、<a href="https://layout.xiaoxiaodong.ai/210/play/" target="_blank" rel="noopener">210 破格网格</a> 或 <a href="https://layout.xiaoxiaodong.ai/211/play/" target="_blank" rel="noopener">211 解构网格</a>。</dd>
+            </div>
+            <div>
+              <dt>向心圆盘与雷达图表</dt>
+              <dd>围绕一个中心向外辐射的仪表、星图或唱片封套，硬塞进直角列行只会扭曲结构，应使用 <a href="https://layout.xiaoxiaodong.ai/203/play/" target="_blank" rel="noopener">203 放射网格</a> 或 <a href="https://layout.xiaoxiaodong.ai/204/play/" target="_blank" rel="noopener">204 极坐标网格</a>。</dd>
+            </div>
+            <div>
+              <dt>纯连续文学长篇</dt>
+              <dd>小说和散文最重要的是沉浸流畅的连续行文，过度切割成多列多块反而打断呼吸，单栏稳妥的 <a href="https://layout.xiaoxiaodong.ai/194/play/" target="_blank" rel="noopener">194 手稿网格</a> 往往更合适。</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 · 练一练：四份排稿，哪份守了规？ -->
+    <section class="sec sec-bright" id="sec-06" aria-labelledby="h-06">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">06</p>
+          <h2 id="h-06">练一练：<br>哪份守了规？</h2>
+          <p class="sec-en" lang="en">Practice · spot the true grid</p>
+          <span class="plum-short" aria-hidden="true"></span>
+        </header>
+        <div class="sec-body">
+          <p class="lead">
+            下面四份 6 列建筑刊物草稿内容完全一致，其中三份各自暗藏了<strong>唯一一处</strong>破坏固定网格规则的毛病。凭眼力先挑出唯一守住全部规矩的那一份——选完后会自动显影隐藏的列带、基线与红色误差标记。
+          </p>
+
+          <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四份固定网格排稿对比选择题">
+            <!-- JS 精准渲染四张同构 SVG（保证只差一个变量、选完显影红线） -->
+          </div>
+
+          <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+            <p class="qv-title" id="qv-title">请从 A、B、C、D 中挑出唯一严守固定网格的一份。</p>
+            <p class="qv-body" id="qv-body">提示：细看相邻栏的垂直缝隙、图片右边界有没有压缝，以及左右两栏文字末行是否落在同一条水平基线上。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 · 原海报与关键词（深桑葚酒紫展墙） -->
+    <section class="sec sec-dark sec-poster" id="sec-07" aria-labelledby="h-07">
+      <div class="wrap">
+        <header class="poster-sec-head">
+          <div>
+            <p class="sec-no" lang="en">07</p>
+            <h2 id="h-07">原海报与关键词</h2>
+            <p class="sec-en" lang="en">The original poster &amp; keywords</p>
+          </div>
+          <span class="dot-matrix" aria-hidden="true"></span>
+        </header>
+
+        <div class="poster-wall">
+          <figure class="poster-fig">
+            <button type="button" class="poster-trigger" id="poster-btn" aria-expanded="false" aria-label="点击放大查看 207 固定网格原海报">
+              <img
+                id="poster"
+                src="poster.webp"
+                draggable="false"
+                width="1080"
+                height="1440"
+                alt="207 固定网格原海报：浅樱瓷粉底，左上深桑葚酒紫短杠与黑体大标题固定网格 FIXED GRID，左下细线定义盒，右上为带 MARGIN 和 COLUMN 尺寸标尺的 6 列樱粉网格与六枚深紫及朱红几何块，中段为稳定性、可重复性、基线秩序、高效协作四栏核心优势，下段为 Ag 基线秩序示例与三类典型应用场景。"
+              >
+            </button>
+            <figcaption>点按放大原海报 · 放大后可拖动查看细部，按 Esc 或再点关闭。</figcaption>
+          </figure>
+
+          <div class="poster-side">
+            <blockquote class="poster-tagline">
+              <span class="check-circle" aria-hidden="true">
+                <svg viewBox="0 0 28 28" width="22" height="22"><polyline points="7,14.5 12,19.5 21,9.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square"/></svg>
+              </span>
+              <div>
+                <p class="pt-zh">统一的网格，创造一致的秩序；一致的秩序，成就专业的设计。</p>
+                <p class="pt-en" lang="en">A UNIFIED GRID CREATES CONSISTENT ORDER; CONSISTENT ORDER DELIVERS PROFESSIONAL DESIGN.</p>
+              </div>
+            </blockquote>
+
+            <div class="kw-block">
+              <h3>关键词 <span lang="en">KEYWORDS</span></h3>
+              <ul class="kw-list">
+                <li>
+                  <span class="kw-num" lang="en">01</span>
+                  <div>
+                    <strong>稳定性 <span lang="en">STABILITY</span></strong>
+                    <p>对称边距、整数列宽与平衡重心，让多模块版面立得住。</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="kw-num" lang="en">02</span>
+                  <div>
+                    <strong>可重复性 <span lang="en">REPEATABILITY</span></strong>
+                    <p>同一把网格尺跨页承接不同图文，换内容不换气质。</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="kw-num" lang="en">03</span>
+                  <div>
+                    <strong>基线秩序 <span lang="en">BASELINE ORDER</span></strong>
+                    <p>以 1.4–1.6 倍经验行高锁进统一基线步距，跨栏底边严密对齐。</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="kw-num" lang="en">04</span>
+                  <div>
+                    <strong>高效协作 <span lang="en">COLLABORATION</span></strong>
+                    <p>设计、编辑与研发共享同一组整数像素规范，沟通零歧义。</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-foot">
+    <div class="wrap foot-inner">
+      <p class="foot-id"><span class="mono" lang="en">No. 207</span> 固定网格 · 350 种排版</p>
+      <p class="foot-links">
+        <a href="https://layout.xiaoxiaodong.ai/207/play/" target="_blank" rel="noopener">在线版</a>
+        <span aria-hidden="true"> / </span>
+        <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+        <span class="sep" aria-hidden="true">·</span>
+        海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+        <span class="sep" aria-hidden="true">·</span>
+        源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- 原海报全屏灯箱（支持缩放、拖动、Esc 关闭） -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报大图预览">
+    <div class="lb-bar">
+      <span class="lb-tip">拖动平移 · 点按钮缩放 · 按 Esc 关闭</span>
+      <div class="lb-actions">
+        <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">-</button>
+        <button type="button" class="lb-btn" id="lb-zoom-reset">100%</button>
+        <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+        <button type="button" class="lb-btn is-close" id="lb-close" aria-label="关闭灯箱">关闭 ×</button>
+      </div>
+    </div>
+    <div class="lb-stage" id="lb-stage">
+      <img id="lb-img" alt="207 固定网格原海报放大图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
