@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1A0E40">
+<title>深度调度 · DEPTH STAGING</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <p class="series"><span class="dot-mark" aria-hidden="true"></span><b>影视画面构图</b><span class="sep" aria-hidden="true">/</span><span>场面调度与景深</span></p>
+    <p class="issue"><span lang="en" class="mono">NO. 310</span><span class="issue-tags">前景 · 中景 · 后景</span></p>
+  </div>
+</header>
+
+<main>
+  <!-- 开场：承袭 310 原海报的「左深紫导演台 × 右跨栏通顶深境剧场」骨架 -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="wrap hero-grid">
+      <div class="hero-left">
+        <div class="title-block">
+          <h1 id="page-title" class="depth-title" aria-label="深度调度">
+            <span class="dt-layer dt-back" aria-hidden="true">深度调度</span>
+            <span class="dt-layer dt-front">深度调度</span>
+          </h1>
+          <p class="title-en" lang="en">DEPTH STAGING</p>
+          <p class="hero-summary">用空间层次，讲清故事重点 <span lang="en" class="en-sub">Use depth to guide attention and advance the story.</span></p>
+        </div>
+
+        <div class="ctrl-group">
+          <p class="ctrl-label">导演脚本 <span lang="en">BLOCKING SCRIPT</span></p>
+          <div class="btn-row" role="group" aria-label="切换导演脚本">
+            <button type="button" class="pill-btn" data-script="dialogue" aria-pressed="true">层次对话</button>
+            <button type="button" class="pill-btn" data-script="farToNear" aria-pressed="false">由远及近</button>
+            <button type="button" class="pill-btn" data-script="nearToFar" aria-pressed="false">由近及远</button>
+          </div>
+          <p class="script-brief" id="script-brief">把三人拉开到前、中、后三个景层，且左右留出视线走廊，让观众一眼同时读出三方关系。</p>
+        </div>
+
+        <div class="ctrl-group ctrl-lens">
+          <div class="ctrl-head-row">
+            <p class="ctrl-label">焦段与视线走廊 <span lang="en">LENS &amp; LANE</span></p>
+            <div class="lane-nudge" role="group" aria-label="微调当前角色横向走廊">
+              <span class="mono lane-cur" id="lane-target">A · 9.2m</span>
+              <button type="button" class="mini-btn" id="btn-lane-left" aria-label="向左微调横向走廊">← 左移</button>
+              <button type="button" class="mini-btn" id="btn-lane-right" aria-label="向右微调横向走廊">右移 →</button>
+            </div>
+          </div>
+          <div class="btn-row btn-row-4" role="group" aria-label="切换镜头焦段">
+            <button type="button" class="pill-btn mono" data-focal="24" aria-pressed="false">24mm</button>
+            <button type="button" class="pill-btn mono" data-focal="35" aria-pressed="true">35mm</button>
+            <button type="button" class="pill-btn mono" data-focal="85" aria-pressed="false">85mm</button>
+            <button type="button" class="pill-btn mono" data-focal="135" aria-pressed="false">135mm</button>
+          </div>
+        </div>
+
+        <div class="diag-box" id="diag-box" data-status="flat" aria-live="polite">
+          <div class="diag-top">
+            <span class="diag-badge" id="diag-badge">错态 · 平面挤墙</span>
+            <div class="diag-actions">
+              <button type="button" class="text-btn" id="btn-guides" aria-pressed="true">透视线：开</button>
+              <button type="button" class="text-btn" id="btn-reset">重置</button>
+              <button type="button" class="text-btn" id="btn-ref">参考走位</button>
+            </div>
+          </div>
+          <p class="diag-head" id="diag-head">三人都挤在中景带，画面压成一面平墙</p>
+          <p class="diag-reason" id="diag-reason"></p>
+          <p class="diag-hint" id="diag-hint"></p>
+          <div class="diag-metrics">
+            <div><span class="dm-k">近远身高比</span><b class="mono dm-v" id="m-ratio">1.2×</b></div>
+            <div><span class="dm-k">纵深跨度</span><b class="mono dm-v" id="m-span">2.2m</b></div>
+            <div><span class="dm-k">屏幕遮挡</span><b class="mono dm-v" id="m-overlap">0%</b></div>
+          </div>
+          <ul class="diag-checks" aria-label="三项几何核验">
+            <li id="chk-layers">前中后三层齐备</li>
+            <li id="chk-persp">近远比 ≥ 2.5×</li>
+            <li id="chk-sight">视线走廊无挡死</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="stage-frame" id="stage-host">
+          <!-- Canvas 由 scene-3d.js 或 scene-flat.js 注入于此 -->
+          <div class="stage-callouts" aria-hidden="true">
+            <div class="co-item co-bg">
+              <span class="co-line"></span>
+              <div class="co-text"><b>后景 <span lang="en">BG</span></b><span class="mono" id="co-bg">空缺</span></div>
+            </div>
+            <div class="co-item co-mg">
+              <span class="co-line"></span>
+              <div class="co-text"><b>中景 <span lang="en">MG</span></b><span class="mono" id="co-mg">A · B · C</span></div>
+            </div>
+            <div class="co-item co-fg">
+              <span class="co-line"></span>
+              <div class="co-text"><b>前景 <span lang="en">FG</span></b><span class="mono" id="co-fg">空缺</span></div>
+            </div>
+          </div>
+          <p class="stage-hud mono" aria-hidden="true">16:10 · Z-AXIS STAGING · 直接拖画面调走廊</p>
+        </div>
+
+        <!-- 活体化纵深景片剖面滑轨（复刻 310 原海报左下 DEPTH LAYERS DIAGRAM） -->
+        <div class="depth-rail" id="depth-rail" aria-label="纵深剖面景片滑轨">
+          <div class="rail-header">
+            <span class="rail-title">纵深景片剖面 <span lang="en">DEPTH LAYERS RAIL</span></span>
+            <span class="rail-meta mono"><span id="rail-focal">35mm</span> · <span id="rail-span">跨度 2.2m · 身高比 1.2×</span></span>
+          </div>
+          <div class="rail-body">
+            <div class="rail-eye" aria-hidden="true">
+              <svg viewBox="0 0 42 30" width="36" height="26">
+                <path d="M3 15C9 5 29 5 39 15C29 25 9 25 3 15Z" fill="none" stroke="#8AD6CB" stroke-width="2"/>
+                <circle cx="21" cy="15" r="5" fill="#ECDDCB"/>
+                <circle cx="21" cy="15" r="2" fill="#1A0E40"/>
+              </svg>
+              <span class="mono">镜头</span>
+            </div>
+            <div class="rail-track">
+              <svg class="rail-cone" viewBox="0 0 400 90" preserveAspectRatio="none" aria-hidden="true">
+                <line x1="0" y1="45" x2="400" y2="6" stroke="#8AD6CB" stroke-opacity="0.45" stroke-dasharray="4 4"/>
+                <line x1="0" y1="45" x2="400" y2="84" stroke="#8AD6CB" stroke-opacity="0.45" stroke-dasharray="4 4"/>
+                <line x1="0" y1="45" x2="400" y2="45" stroke="#ECDDCB" stroke-opacity="0.22"/>
+              </svg>
+              <div class="rail-band band-fg" aria-hidden="true"><span>前景</span><em class="mono">≤5.6m</em></div>
+              <div class="rail-band band-mg" aria-hidden="true"><span>中景</span><em class="mono">6.6–14.8m</em></div>
+              <div class="rail-band band-bg" aria-hidden="true"><span>后景</span><em class="mono">≥16.2m</em></div>
+
+              <button type="button" class="rail-handle rh-a" data-actor="A" data-perf-drag
+                role="slider" aria-label="拖动 A 执信者的纵深距离" aria-valuemin="2.8" aria-valuemax="25.5" aria-valuenow="9.2">
+                <span class="rh-id mono">A</span>
+                <span class="rh-name">执信</span>
+                <span class="rh-z mono">9.2m</span>
+              </button>
+              <button type="button" class="rail-handle rh-b" data-actor="B"
+                role="slider" aria-label="拖动 B 中间人的纵深距离" aria-valuemin="2.8" aria-valuemax="25.5" aria-valuenow="10.3">
+                <span class="rh-id mono">B</span>
+                <span class="rh-name">中间</span>
+                <span class="rh-z mono">10.3m</span>
+              </button>
+              <button type="button" class="rail-handle rh-c" data-actor="C"
+                role="slider" aria-label="拖动 C 远岸影的纵深距离" aria-valuemin="2.8" aria-valuemax="25.5" aria-valuenow="11.4">
+                <span class="rh-id mono">C</span>
+                <span class="rh-name">远影</span>
+                <span class="rh-z mono">11.4m</span>
+              </button>
+            </div>
+          </div>
+          <p class="rail-foot">左右拖 A / B / C 推拉纵深，点画面左右挪出走廊；键盘选中滑块后 ← / → 调深、↑ / ↓ 调走廊。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 三层空间，各自干活（浅暖月米纸） -->
+  <section class="sec sec-paper" id="sec-01" aria-labelledby="h-01">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">01</span>
+        <div>
+          <h2 id="h-01">三层空间，各自干活</h2>
+          <p class="sec-en" lang="en">THREE PLANES · THREE NARRATIVE JOBS</p>
+        </div>
+      </header>
+
+      <div class="split-2">
+        <div class="prose">
+          <p class="lead">电影银幕与海报本来都是二维平面，深度调度做的事情，是把故事拆进<strong>前、中、后三个纵深平面</strong>，让位置关系替台词发言。</p>
+          <p>310 号原海报把这门手艺拆成五条基本功：<strong>前中后景</strong>（通过层次划分，强化空间关系）、<strong>视线层级</strong>（建立视觉优先级，引导观众注意力）、<strong>空间透视</strong>（利用透视线与尺寸变化，营造真实深度感）、<strong>叙事推进</strong>（由远及近或由近及远，推动情节发展）和<strong>调度关系</strong>（人物与空间的位置关系，决定信息与情感）。</p>
+          <p>同一小类里另外四种排布各有专攻：若故意取消纵深、把人平行贴在墙面上展开，看 <a href="https://layout.xiaoxiaodong.ai/311/play/" target="_blank" rel="noopener">311 平面调度</a>；靠三点几何汇聚视觉顶点，看 <a href="https://layout.xiaoxiaodong.ai/312/play/" target="_blank" rel="noopener">312 三角调度</a>；沿水平轴拉出宽广阅读流，看 <a href="https://layout.xiaoxiaodong.ai/313/play/" target="_blank" rel="noopener">313 横向调度</a>；专攻叠放多层近景遮挡框景，看 <a href="https://layout.xiaoxiaodong.ai/314/play/" target="_blank" rel="noopener">314 多层前景调度</a>。</p>
+
+          <dl class="tri-list">
+            <div class="tri-fg">
+              <dt>前景 <span lang="en">FOREGROUND</span></dt>
+              <dd><strong>突出主体，引导注意。</strong>离镜头最近、体量最大，往往决定观众第一眼落在哪里，或充当把目光框进画内的暗部锚点。</dd>
+            </div>
+            <div class="tri-mg">
+              <dt>中景 <span lang="en">MIDDLE GROUND</span></dt>
+              <dd><strong>承上启下，传递信息。</strong>连接近景体量与远方环境，是最常发生互动、对峙与走位转折的主战场。</dd>
+            </div>
+            <div class="tri-bg">
+              <dt>后景 <span lang="en">BACKGROUND</span></dt>
+              <dd><strong>交代环境，建立氛围。</strong>用远岸、门外、天际线或一个微小背影告诉观众「这里在哪、暗处还有谁」。</dd>
+            </div>
+          </dl>
+        </div>
+
+        <figure class="lab-card lab-paper-card" id="lab-layers">
+          <div class="lab-bar">
+            <span class="lab-kicker">景片剥离台 · 逐层开关</span>
+            <div class="check-row">
+              <label class="chk-pill"><input type="checkbox" id="toggle-fg" checked><span>前景</span></label>
+              <label class="chk-pill"><input type="checkbox" id="toggle-mg" checked><span>中景</span></label>
+              <label class="chk-pill"><input type="checkbox" id="toggle-bg" checked><span>后景</span></label>
+            </div>
+          </div>
+          <svg class="stack-svg" viewBox="0 0 480 260" data-fg="1" data-mg="1" data-bg="1" role="img" aria-label="三片透视景片剥离示意图">
+            <rect width="480" height="260" fill="#190E3D"/>
+            <!-- 视锥虚线 -->
+            <line x1="444" y1="130" x2="48" y2="28" stroke="#8AD6CB" stroke-opacity="0.45" stroke-dasharray="4 4"/>
+            <line x1="444" y1="130" x2="48" y2="232" stroke="#8AD6CB" stroke-opacity="0.45" stroke-dasharray="4 4"/>
+            <!-- 右侧眼睛 -->
+            <g transform="translate(428 118)">
+              <path d="M2 12C9 3 25 3 34 12C25 21 9 21 2 12Z" fill="none" stroke="#8AD6CB" stroke-width="1.8"/>
+              <circle cx="18" cy="12" r="4.5" fill="#ECDDCB"/>
+            </g>
+            <!-- 后景紫片 -->
+            <g class="plane plane-bg">
+              <polygon points="48,34 134,50 134,210 48,226" fill="#5B4489" fill-opacity="0.86" stroke="#A690CC" stroke-width="1.5"/>
+              <circle cx="82" cy="72" r="10" fill="#EDDACD"/>
+              <path d="M84 180 L84 152 C84 146 92 146 92 152 L92 180 Z" fill="#180F38"/>
+              <circle cx="88" cy="143" r="4.5" fill="#180F38"/>
+              <text x="64" y="244" fill="#C9BBE2" font-size="12" font-family="DM Mono, monospace">后景 BG</text>
+            </g>
+            <!-- 中景深海青片 -->
+            <g class="plane plane-mg">
+              <polygon points="172,30 262,48 262,212 172,230" fill="#1A5872" fill-opacity="0.86" stroke="#71B1BC" stroke-width="1.5"/>
+              <path d="M206 190 L206 130 C206 121 224 121 224 130 L224 190 Z" fill="#0B1936"/>
+              <circle cx="215" cy="113" r="7.5" fill="#0B1936"/>
+              <text x="190" y="244" fill="#8AD6CB" font-size="12" font-family="DM Mono, monospace">中景 MG</text>
+            </g>
+            <!-- 前景亮青片 -->
+            <g class="plane plane-fg">
+              <polygon points="300,24 394,46 394,214 300,236" fill="#167C92" fill-opacity="0.88" stroke="#8AD6CB" stroke-width="1.6"/>
+              <path d="M332 204 L330 112 C330 98 360 98 360 112 L358 204 Z" fill="#04081B"/>
+              <circle cx="345" cy="87" r="11" fill="#04081B"/>
+              <text x="320" y="244" fill="#ECDDCB" font-size="12" font-family="DM Mono, monospace">前景 FG</text>
+            </g>
+          </svg>
+          <figcaption class="lab-cap">
+            <strong id="layer-note-title">三层完整：环境、过渡与主角同时成立</strong>
+            <p id="layer-note-body"></p>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 透视与焦段，撑开纵深（淡雾青灰底） -->
+  <section class="sec sec-mist" id="sec-02" aria-labelledby="h-02">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">02</span>
+        <div>
+          <h2 id="h-02">透视与焦段，撑开纵深</h2>
+          <p class="sec-en" lang="en">PERSPECTIVE RATIO &amp; FOCAL LENGTH</p>
+        </div>
+      </header>
+
+      <div class="split-2 split-wide-lab">
+        <figure class="lab-card lab-dark-card">
+          <div class="lab-bar">
+            <div class="range-wrap">
+              <label for="lens-range" class="mono">焦段 <b id="lens-val">35mm</b></label>
+              <input type="range" id="lens-range" min="20" max="135" step="1" value="35">
+            </div>
+            <label class="chk-pill chk-dark">
+              <input type="checkbox" id="lens-match" checked>
+              <span>保持前景等高（同步退机位）</span>
+            </label>
+          </div>
+          <canvas id="lens-canvas" class="lab-canvas" aria-label="焦段与物距比联动双视图"></canvas>
+          <figcaption class="lab-cap lab-cap-dark">
+            <div class="cap-stats mono">
+              <span>近远身高比 <b id="lens-ratio">6.6×</b></span>
+              <span id="lens-dist">机位退距 0.0m</span>
+            </div>
+            <p id="lens-text"></p>
+          </figcaption>
+        </figure>
+
+        <div class="prose">
+          <p class="lead">很多人以为「广角镜头本身能拉长纵深、长焦镜头本身会压扁空间」——其实只说对了一半。</p>
+          <p>真正决定近大远小倍率的，是<strong>后景物距 ÷ 前景物距</strong>。如果机位纹丝不动，从 24mm 换到 135mm 只是把画面中间裁大，近远人物的比例分毫不差（取消勾选「保持前景等高」马上能验证）。</p>
+          <p>实际拍戏之所以常说「广角显深、长焦压平」，是因为摄影师换成长焦后为了把前景人物完整装进画框，不得不把摄影机往后退十几米：退远之后，前景和后景到镜头的距离比值骤降，18 米的纵深在画面里就塌成了一张平纸。</p>
+          <div class="callout-note">
+            <h3>易混辨析：深度空间 ≠ 深焦摄影</h3>
+            <p>电影学者大卫·波德威尔与克里斯汀·汤普森在《电影艺术》（1979 年首版）中明确区分两者：<strong>深度空间（Deep Space）</strong>属于场面调度，指行动被排在多个景层上；<strong>深焦（Deep Focus）</strong>属于摄影光学，指前中后景同时锐利清晰。即使使用浅景深虚化前景或后景，只要叙事动作跨多层展开，依然属于深度调度。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 三种推进，把戏往前推（午夜紫靛深底） -->
+  <section class="sec sec-night" id="sec-03" aria-labelledby="h-03">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">03</span>
+        <div>
+          <h2 id="h-03">三种推进，把戏往前推</h2>
+          <p class="sec-en" lang="en">BLOCKING STRATEGIES IN MOTION</p>
+        </div>
+      </header>
+
+      <div class="nar-layout" id="lab-narrative">
+        <div class="nar-controls">
+          <div class="btn-row" role="group" aria-label="选择调度策略">
+            <button type="button" class="pill-btn" data-nar="farToNear" aria-pressed="true">由远及近</button>
+            <button type="button" class="pill-btn" data-nar="nearToFar" aria-pressed="false">由近及远</button>
+            <button type="button" class="pill-btn" data-nar="dialogue" aria-pressed="false">层次对话</button>
+          </div>
+          <div class="nar-transport">
+            <button type="button" class="pill-btn pill-accent" id="nar-play" aria-pressed="false">播放走位</button>
+            <input type="range" id="nar-scrub" min="0" max="100" value="22" aria-label="拖动走位时间轴">
+            <span class="mono nar-time" id="nar-time">1.3s / 6.0s</span>
+          </div>
+        </div>
+
+        <canvas id="nar-canvas" class="nar-canvas" aria-label="三种调度策略动态走位与关注度模型示意曲线"></canvas>
+
+        <div class="nar-info">
+          <div class="nar-card">
+            <h3 id="nar-cap-title">由远及近 · 从环境到人物，逐步聚焦核心</h3>
+            <p id="nar-cap-body"></p>
+          </div>
+          <div class="nar-card nar-caveat">
+            <p class="caveat-tag">温和补充 · 海报曲线是模型示意</p>
+            <p>原海报右下的「距离与关注度」曲线假设其他条件相同，用来建立直觉很管用；但在真实片场，<strong>运动、高光、视线指向与声音</strong>都能推翻「越近越吸睛」——如果前景剪影纹丝不动，后景门缝里突然亮起一盏灯或有人奔跑，观众的目光会瞬间越过前景直奔远方。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 视线走廊，别把人挡死（浅暖月米纸） -->
+  <section class="sec sec-paper" id="sec-04" aria-labelledby="h-04">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">04</span>
+        <div>
+          <h2 id="h-04">视线走廊，别把人挡死</h2>
+          <p class="sec-en" lang="en">SIGHTLINES &amp; CLEAN CORRIDORS</p>
+        </div>
+      </header>
+
+      <div class="split-2">
+        <div class="prose">
+          <p class="lead">初学者做深度调度最容易掉进一个坑：前后纵深拉得很开，却把人站成一串「糖葫芦」，前景高大的背影把中后景的关键动作吃得一干二净。</p>
+          <p>真正成熟的调度，是在三维空间里替摄影机<strong>留出一条直通深处的视线走廊</strong>。片场通常用三种轻巧动作化解撞车：</p>
+          <ul class="bullet-list">
+            <li><strong>横向错位半步</strong>：前景偏向一侧，中景落在另一侧，后景嵌进两人之间的缝隙，让每个轮廓背后都有干净背景托底。</li>
+            <li><strong>机位微升俯拍</strong>：在走廊、车厢等无法左右闪开的窄场里，把机位抬高半米，地平线上移，远景人头自然从前景肩线之上探出。</li>
+            <li><strong>建筑框中框</strong>：利用门框、桥拱、廊柱把前景人稳稳压在暗边，借几何开口把远处人物圈成画中画。</li>
+          </ul>
+        </div>
+
+        <figure class="lab-card lab-paper-card" id="lab-sightline">
+          <div class="lab-bar">
+            <div class="btn-row btn-row-wrap" role="group" aria-label="选择实拍修法">
+              <button type="button" class="pill-btn pill-light" data-fix="clash" aria-pressed="true">平拍撞肩</button>
+              <button type="button" class="pill-btn pill-light" data-fix="lateral" aria-pressed="false">横向让位</button>
+              <button type="button" class="pill-btn pill-light" data-fix="elevate" aria-pressed="false">升高机位</button>
+              <button type="button" class="pill-btn pill-light" data-fix="frame" aria-pressed="false">门框套景</button>
+            </div>
+          </div>
+          <svg class="sight-svg" viewBox="0 0 480 270" data-fix="clash" role="img" aria-label="视线走廊四种实拍修法对比图">
+            <rect width="480" height="270" fill="#1C1044"/>
+            <rect y="128" width="480" height="142" fill="#143754" class="s-floor"/>
+            <circle cx="150" cy="64" r="20" fill="#EDDACD"/>
+            <!-- 门框套景结构（仅 frame 态显露） -->
+            <g class="s-arch">
+              <rect x="0" y="0" width="96" height="270" fill="#0B1D34"/>
+              <rect x="336" y="0" width="144" height="270" fill="#0B1D34"/>
+              <rect x="96" y="0" width="240" height="32" fill="#0B1D34"/>
+              <rect x="96" y="32" width="240" height="238" fill="none" stroke="#8AD6CB" stroke-opacity="0.55" stroke-width="1.5"/>
+            </g>
+            <!-- 后景人物 -->
+            <g class="s-bg">
+              <circle cx="240" cy="116" r="8" fill="#5D4888" stroke="#C8BBE0" stroke-width="1.2"/>
+              <path d="M231 126 H249 L247 168 H233 Z" fill="#5D4888" stroke="#C8BBE0" stroke-width="1.2"/>
+            </g>
+            <!-- 中景人物 -->
+            <g class="s-mg">
+              <circle cx="240" cy="108" r="13" fill="#133457" stroke="#71B1BC" stroke-width="1.4"/>
+              <path d="M222 124 H258 L254 202 H226 Z" fill="#133457" stroke="#71B1BC" stroke-width="1.4"/>
+            </g>
+            <!-- 前景人物 -->
+            <g class="s-fg">
+              <circle cx="240" cy="96" r="21" fill="#04081B" stroke="#8AD6CB" stroke-width="1.6"/>
+              <path d="M204 122 H276 L268 270 H212 Z" fill="#04081B" stroke="#8AD6CB" stroke-width="1.6"/>
+            </g>
+            <!-- 撞肩警戒框（仅 clash 态显露） -->
+            <rect class="s-warn" x="196" y="68" width="88" height="144" fill="none" stroke="#F08A6C" stroke-width="2" stroke-dasharray="5 4"/>
+            <!-- 视线走廊引导线 -->
+            <path class="s-corridor" d="M124 238 L224 166 L320 132" fill="none" stroke="#8AD6CB" stroke-width="1.8" stroke-dasharray="5 4"/>
+          </svg>
+          <figcaption class="lab-cap">
+            <strong class="mono" id="fix-meter">重叠 78% · 后景被挡死</strong>
+            <p id="fix-body"></p>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 从火车进站到深焦美学（深海青靛底） -->
+  <section class="sec sec-ocean" id="sec-05" aria-labelledby="h-05">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">05</span>
+        <div>
+          <h2 id="h-05">从火车进站到深焦美学</h2>
+          <p class="sec-en" lang="en">WHERE DEPTH STAGING CAME FROM</p>
+        </div>
+      </header>
+
+      <div class="history-grid" id="lab-history">
+        <div class="era-side">
+          <div class="era-nav" role="group" aria-label="选择电影史节点">
+            <button type="button" class="era-btn" data-era="lumiere" aria-pressed="false">
+              <span class="mono">1895</span><b>卢米埃尔 · 斜进纵深</b>
+            </button>
+            <button type="button" class="era-btn" data-era="silent" aria-pressed="false">
+              <span class="mono">1910s</span><b>费雅德与鲍威尔 · 门廊深景</b>
+            </button>
+            <button type="button" class="era-btn" data-era="kane" aria-pressed="true">
+              <span class="mono">1941</span><b>《公民凯恩》· 深焦高峰</b>
+            </button>
+            <button type="button" class="era-btn" data-era="modern" aria-pressed="false">
+              <span class="mono">1979→</span><b>深度空间 × 浅焦移焦</b>
+            </button>
+          </div>
+          <div class="era-bib">
+            <p class="era-bib-title mono">关键文献 · KEY SOURCES</p>
+            <ul>
+              <li><span class="mono">1958–62</span> 安德烈·巴赞《电影是什么？》</li>
+              <li><span class="mono">1979</span> 波德威尔 &amp; 汤普森《电影艺术》</li>
+              <li><span class="mono">1991</span> 史蒂文·D·卡茨《电影镜头设计》</li>
+              <li><span class="mono">1997 / 2005</span> 波德威尔《电影风格史》《光影塑形》</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="era-stage">
+          <svg class="era-svg" viewBox="0 0 520 220" data-era="kane" role="img" aria-label="电影史经典深度调度构图剖面复现">
+            <rect width="520" height="220" fill="#0B182E"/>
+            <!-- 顶部焦段清晰带指示 -->
+            <rect class="dof-band" x="30" y="18" width="460" height="10" fill="#79B6AD" fill-opacity="0.35"/>
+            <text x="30" y="44" fill="#C8D9E6" font-size="11" font-family="DM Mono, monospace">清晰焦深带 · DEPTH OF FIELD</text>
+            <!-- 四个时期的极简线框构图 -->
+            <g class="era-art art-lumiere">
+              <line x1="40" y1="200" x2="460" y2="80" stroke="#71B1BC" stroke-width="2"/>
+              <line x1="160" y1="200" x2="480" y2="96" stroke="#71B1BC" stroke-width="1.5" stroke-dasharray="5 4"/>
+              <polygon points="150,185 268,142 268,104 150,122" fill="#183256" stroke="#ECDDCB" stroke-width="1.5"/>
+              <polygon points="274,140 356,112 356,88 274,104" fill="#1C3F5C" stroke="#8AD6CB" stroke-width="1.2"/>
+              <polygon points="360,110 416,90 416,76 360,88" fill="#503A7B" stroke="#C8BBE0" stroke-width="1"/>
+              <text x="34" y="205" fill="#8AD6CB" font-size="12" font-family="DM Mono, monospace">斜向对角纵深 · Z-AXIS MOTION</text>
+            </g>
+            <g class="era-art art-silent">
+              <rect x="64" y="64" width="392" height="136" fill="none" stroke="#503A7B" stroke-width="1.5"/>
+              <rect x="148" y="76" width="224" height="114" fill="none" stroke="#1B5972" stroke-width="1.5"/>
+              <rect x="218" y="88" width="84" height="92" fill="#2A1F5A" stroke="#8AD6CB" stroke-width="1.5"/>
+              <circle cx="108" cy="126" r="14" fill="#060B22" stroke="#8AD6CB"/><rect x="92" y="142" width="32" height="58" fill="#060B22" stroke="#8AD6CB"/>
+              <circle cx="330" cy="128" r="10" fill="#143254" stroke="#71B1BC"/><rect x="319" y="140" width="22" height="48" fill="#143254" stroke="#71B1BC"/>
+              <circle cx="260" cy="134" r="6" fill="#ECDDCB"/><rect x="254" y="142" width="12" height="28" fill="#ECDDCB"/>
+            </g>
+            <g class="era-art art-kane">
+              <!-- 雪窗后景 -->
+              <rect x="212" y="70" width="96" height="84" fill="#4E3F7D" stroke="#ECDDCB" stroke-width="1.6"/>
+              <line x1="260" y1="70" x2="260" y2="154" stroke="#ECDDCB" stroke-opacity="0.5"/>
+              <circle cx="242" cy="124" r="5" fill="#070B1E"/><rect x="237" y="130" width="10" height="18" fill="#070B1E"/>
+              <!-- 中景母亲桌前 -->
+              <rect x="318" y="160" width="110" height="40" fill="#183256" stroke="#71B1BC"/>
+              <circle cx="358" cy="116" r="12" fill="#0D2240" stroke="#71B1BC"/><rect x="342" y="130" width="32" height="48" fill="#0D2240" stroke="#71B1BC"/>
+              <!-- 前景大剪影 -->
+              <circle cx="118" cy="108" r="20" fill="#04081B" stroke="#8AD6CB" stroke-width="1.8"/>
+              <path d="M84 132 H152 L144 206 H92 Z" fill="#04081B" stroke="#8AD6CB" stroke-width="1.8"/>
+              <text x="172" y="204" fill="#ECDDCB" font-size="11" font-family="DM Mono, monospace">前 · 中 · 窗外三层同清</text>
+            </g>
+            <g class="era-art art-modern">
+              <circle cx="132" cy="112" r="20" fill="#04081B" stroke="#8AD6CB" stroke-width="2"/>
+              <path d="M98 136 H166 L158 206 H106 Z" fill="#04081B" stroke="#8AD6CB" stroke-width="2"/>
+              <g opacity="0.45">
+                <circle cx="290" cy="126" r="11" fill="#1A4C66" stroke="#71B1BC" stroke-dasharray="3 2"/>
+                <rect x="276" y="139" width="28" height="54" fill="#1A4C66" stroke="#71B1BC" stroke-dasharray="3 2"/>
+                <circle cx="404" cy="134" r="6" fill="#6D5A92"/>
+                <rect x="398" y="142" width="12" height="32" fill="#6D5A92"/>
+              </g>
+              <line x1="176" y1="126" x2="386" y2="136" stroke="#ECDDCB" stroke-dasharray="4 4"/>
+              <text x="214" y="114" fill="#ECDDCB" font-size="11" font-family="DM Mono, monospace">移焦接力 · RACK FOCUS</text>
+            </g>
+          </svg>
+          <div class="era-copy">
+            <h3 id="era-title">1941 · 深度调度 × 深焦摄影巅峰</h3>
+            <p class="mono era-meta" id="era-meta"></p>
+            <p id="era-body"></p>
+          </div>
+        </div>
+      </div>
+
+      <p class="history-footnote">理论谱系参考：安德烈·巴赞在 1950–1955 年写成《电影语言的演进》（收入 1958–1962 年四卷本《电影是什么？》），赞扬让·雷诺阿、威廉·惠勒与奥逊·威尔斯借纵深长镜头保留了时空完整；大卫·波德威尔在《电影风格史》（1997）与《光影塑形》（2005）中将其上溯至默片片场；史蒂文·D·卡茨在《电影镜头设计》（1991）中整理为导演分镜走位语法。</p>
+    </div>
+  </section>
+
+  <!-- 06 什么时候别硬拉纵深（午夜深紫警戒底） -->
+  <section class="sec sec-void" id="sec-06" aria-labelledby="h-06">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">06</span>
+        <div>
+          <h2 id="h-06">什么时候别硬拉纵深</h2>
+          <p class="sec-en" lang="en">WHEN NOT TO STAGE IN DEPTH</p>
+        </div>
+      </header>
+
+      <div class="counter-grid" id="lab-counter">
+        <div class="counter-stage">
+          <div class="btn-row btn-row-wrap" role="group" aria-label="选择不适用深度调度的场景">
+            <button type="button" class="pill-btn" data-case="flat" aria-pressed="true">荒诞对称群像</button>
+            <button type="button" class="pill-btn" data-case="cramped" aria-pressed="false">狭小室内车厢</button>
+            <button type="button" class="pill-btn" data-case="equal" aria-pressed="false">双人平等对口</button>
+            <button type="button" class="pill-btn" data-case="mobile" aria-pressed="false">小屏竖屏卡片</button>
+          </div>
+
+          <svg class="counter-svg" viewBox="0 0 480 240" data-case="flat" data-fixed="false" role="img" aria-label="硬拉纵深与换用合适调度的双态对比">
+            <rect width="480" height="240" fill="#130A2E"/>
+            <rect y="148" width="480" height="92" fill="#172A4A"/>
+            <!-- 场景 1: flat -->
+            <g class="c-scene cs-flat">
+              <g class="c-bad">
+                <circle cx="110" cy="96" r="24" fill="#04081B" stroke="#F08A6C" stroke-width="1.8"/><rect x="76" y="124" width="68" height="116" fill="#04081B" stroke="#F08A6C" stroke-width="1.8"/>
+                <circle cx="240" cy="118" r="11" fill="#1B5972"/><rect x="225" y="132" width="30" height="60" fill="#1B5972"/>
+                <circle cx="364" cy="128" r="6" fill="#7D6A9F"/><rect x="357" y="136" width="14" height="28" fill="#7D6A9F"/>
+              </g>
+              <g class="c-good">
+                <line x1="36" y1="196" x2="444" y2="196" stroke="#8AD6CB" stroke-dasharray="4 4"/>
+                <circle cx="120" cy="110" r="14" fill="#164B63" stroke="#8AD6CB"/><rect x="102" y="128" width="36" height="68" fill="#164B63" stroke="#8AD6CB"/>
+                <circle cx="240" cy="110" r="14" fill="#164B63" stroke="#8AD6CB"/><rect x="222" y="128" width="36" height="68" fill="#164B63" stroke="#8AD6CB"/>
+                <circle cx="360" cy="110" r="14" fill="#164B63" stroke="#8AD6CB"/><rect x="342" y="128" width="36" height="68" fill="#164B63" stroke="#8AD6CB"/>
+              </g>
+            </g>
+            <!-- 场景 2: cramped -->
+            <g class="c-scene cs-cramped">
+              <g class="c-bad">
+                <path d="M20 20 Q240 58 460 20 M20 220 Q240 182 460 220" fill="none" stroke="#F08A6C" stroke-width="2"/>
+                <ellipse cx="98" cy="120" rx="34" ry="52" fill="#05091E" stroke="#F08A6C" stroke-width="2"/>
+                <circle cx="290" cy="126" r="10" fill="#5B4489"/><rect x="278" y="138" width="24" height="44" fill="#5B4489"/>
+                <text x="150" y="70" fill="#F08A6C" font-size="12" font-family="DM Mono, monospace">边缘广角畸变</text>
+              </g>
+              <g class="c-good">
+                <rect x="64" y="24" width="352" height="192" fill="none" stroke="#8AD6CB" stroke-opacity="0.5"/>
+                <path d="M64 216 Q130 120 186 216 Z" fill="#04081B" stroke="#71B1BC"/>
+                <circle cx="288" cy="108" r="22" fill="#15465F" stroke="#8AD6CB" stroke-width="1.6"/>
+                <path d="M254 134 H322 L316 216 H260 Z" fill="#15465F" stroke="#8AD6CB" stroke-width="1.6"/>
+              </g>
+            </g>
+            <!-- 场景 3: equal -->
+            <g class="c-scene cs-equal">
+              <g class="c-bad">
+                <circle cx="136" cy="96" r="24" fill="#04081B" stroke="#F08A6C" stroke-width="1.8"/><rect x="102" y="124" width="68" height="116" fill="#04081B" stroke="#F08A6C" stroke-width="1.8"/>
+                <circle cx="352" cy="126" r="7" fill="#7D6A9F" stroke="#F08A6C"/><rect x="344" y="135" width="16" height="32" fill="#7D6A9F"/>
+              </g>
+              <g class="c-good">
+                <line x1="184" y1="114" x2="296" y2="114" stroke="#8AD6CB" stroke-dasharray="4 4"/>
+                <circle cx="144" cy="112" r="18" fill="#164B63" stroke="#8AD6CB"/><rect x="120" y="134" width="48" height="84" fill="#164B63" stroke="#8AD6CB"/>
+                <circle cx="336" cy="112" r="18" fill="#164B63" stroke="#8AD6CB"/><rect x="312" y="134" width="48" height="84" fill="#164B63" stroke="#8AD6CB"/>
+              </g>
+            </g>
+            <!-- 场景 4: mobile -->
+            <g class="c-scene cs-mobile">
+              <rect x="180" y="14" width="120" height="212" rx="6" fill="#1B1042" stroke="#8AD6CB" stroke-opacity="0.6"/>
+              <g class="c-bad">
+                <circle cx="212" cy="118" r="14" fill="#04081B" stroke="#F08A6C"/><rect x="194" y="134" width="36" height="86" fill="#04081B" stroke="#F08A6C"/>
+                <circle cx="248" cy="134" r="6" fill="#1B5972"/><rect x="242" y="141" width="12" height="28" fill="#1B5972"/>
+                <circle cx="272" cy="142" r="2.2" fill="#F08A6C"/><rect x="270" y="145" width="4" height="8" fill="#F08A6C"/>
+                <text x="190" y="38" fill="#F08A6C" font-size="11" font-family="DM Mono, monospace">后景仅 8px</text>
+              </g>
+              <g class="c-good">
+                <circle cx="220" cy="112" r="17" fill="#05091E" stroke="#8AD6CB"/><rect x="198" y="132" width="44" height="88" fill="#05091E" stroke="#8AD6CB"/>
+                <circle cx="264" cy="124" r="10" fill="#1D5B74" stroke="#71B1BC"/><rect x="252" y="136" width="24" height="54" fill="#1D5B74" stroke="#71B1BC"/>
+                <text x="196" y="38" fill="#8AD6CB" font-size="11" font-family="DM Mono, monospace">两层清晰读清</text>
+              </g>
+            </g>
+          </svg>
+
+          <div class="counter-foot">
+            <span class="counter-tag" id="counter-tag">硬拉纵深 · 破坏荒诞工整感</span>
+            <button type="button" class="pill-btn pill-accent" id="counter-toggle" aria-pressed="false">切到更合适的调度</button>
+          </div>
+          <p class="counter-body" id="counter-body"></p>
+        </div>
+
+        <dl class="avoid-list">
+          <div>
+            <dt>要扁平几何秩序时</dt>
+            <dd>冷幽默对称、群像定格或墙面陈列刻意压平空间，强加透视只会削弱秩序，改用 <a href="https://layout.xiaoxiaodong.ai/311/play/" target="_blank" rel="noopener">311 平面调度</a>。</dd>
+          </div>
+          <div>
+            <dt>物理纵深不足 2 米时</dt>
+            <dd>电梯、小车厢里硬用超广角拉景深，近处脸型与门框都会明显畸变，不如靠 <a href="https://layout.xiaoxiaodong.ai/309/play/" target="_blank" rel="noopener">309 脏单人镜头</a> 借肩线保真实。</dd>
+          </div>
+          <div>
+            <dt>双人戏必须平起平坐时</dt>
+            <dd>一前一后会天然判出视觉主次；如果剧本要两人势均力敌地抛接台词，用 <a href="https://layout.xiaoxiaodong.ai/313/play/" target="_blank" rel="noopener">313 横向调度</a> 更公允。</dd>
+          </div>
+          <div>
+            <dt>手机竖屏小图与高密排版时</dt>
+            <dd>画幅太小会吞掉远景表情与手势；与其硬凑三层，不如守住一主一辅两层清晰关系。</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 练一练：哪帧走位最讲戏（暖月米纸底） -->
+  <section class="sec sec-paper" id="sec-07" aria-labelledby="h-07">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">07</span>
+        <div>
+          <h2 id="h-07">练一练：哪帧走位最讲戏</h2>
+          <p class="sec-en" lang="en">PRACTICE · PICK THE STRONGEST STAGING</p>
+        </div>
+      </header>
+
+      <p class="quiz-prompt">同一场傍晚水桥戏：<strong>执信主角</strong>在近处犹豫，<strong>中间人</strong>在中段观察，<strong>远岸背影</strong>正要离去。四张镜头完全同景同焦段，仅差一个构图变量——凭判断选出最成立的一帧：</p>
+
+      <div class="quiz-wrap" id="lab-practice">
+        <div class="quiz-grid" role="group" aria-label="四套深度调度走位选项">
+          <!-- A: 横向错开但全挤在中景同一平面 -->
+          <button type="button" class="quiz-opt" data-opt="A" aria-pressed="false">
+            <svg viewBox="0 0 320 200" aria-hidden="true">
+              <rect width="320" height="200" fill="#231650"/>
+              <rect y="94" width="320" height="106" fill="#173C5A"/>
+              <circle cx="110" cy="48" r="14" fill="#EDDACD"/>
+              <polygon points="122,94 198,94 282,200 38,200" fill="#1D5C73" fill-opacity="0.6"/>
+              <line class="q-guide" x1="0" y1="146" x2="320" y2="146" stroke="#F08A6C" stroke-dasharray="4 3"/>
+              <!-- 三人同高挤在中景（统一轮廓风格，零泄底） -->
+              <circle cx="96" cy="96" r="8" fill="#0B1B3B" stroke="#71B1BC" stroke-opacity="0.65" stroke-width="0.9"/><rect x="86" y="106" width="20" height="44" fill="#0B1B3B" stroke="#71B1BC" stroke-opacity="0.65" stroke-width="0.9"/>
+              <circle cx="160" cy="97" r="7.5" fill="#102549" stroke="#71B1BC" stroke-opacity="0.65" stroke-width="0.9"/><rect x="150" y="106" width="20" height="42" fill="#102549" stroke="#71B1BC" stroke-opacity="0.65" stroke-width="0.9"/>
+              <circle cx="224" cy="98" r="7" fill="#1C2854" stroke="#71B1BC" stroke-opacity="0.65" stroke-width="0.9"/><rect x="215" y="107" width="18" height="40" fill="#1C2854" stroke="#71B1BC" stroke-opacity="0.65" stroke-width="0.9"/>
+            </svg>
+            <span class="quiz-letter mono">A</span>
+          </button>
+
+          <!-- B: 拉开深度但前景把中景挡死 -->
+          <button type="button" class="quiz-opt" data-opt="B" aria-pressed="false">
+            <svg viewBox="0 0 320 200" aria-hidden="true">
+              <rect width="320" height="200" fill="#231650"/>
+              <rect y="94" width="320" height="106" fill="#173C5A"/>
+              <circle cx="110" cy="48" r="14" fill="#EDDACD"/>
+              <polygon points="122,94 198,94 282,200 38,200" fill="#1D5C73" fill-opacity="0.6"/>
+              <!-- 远岸 -->
+              <circle cx="222" cy="90" r="4" fill="#57437E" stroke="#C8BBE0" stroke-opacity="0.65" stroke-width="0.8"/><rect x="218" y="95" width="8" height="18" fill="#57437E"/>
+              <!-- 中景被前景几乎挡住 -->
+              <circle cx="166" cy="94" r="8.5" fill="#10294B" stroke="#71B1BC" stroke-opacity="0.65" stroke-width="0.9"/><rect x="156" y="104" width="20" height="48" fill="#10294B"/>
+              <!-- 前景正压中轴 -->
+              <circle cx="158" cy="72" r="16" fill="#04071A" stroke="#8AD6CB" stroke-opacity="0.72" stroke-width="1"/><path d="M132 92 H184 L178 198 H138 Z" fill="#04071A" stroke="#8AD6CB" stroke-opacity="0.72" stroke-width="1"/>
+              <rect class="q-guide" x="128" y="56" width="60" height="114" fill="none" stroke="#F08A6C" stroke-width="1.6" stroke-dasharray="4 3"/>
+            </svg>
+            <span class="quiz-letter mono">B</span>
+          </button>
+
+          <!-- C: 正确答案 —— 前中后三层分明 + 视线走廊干净 -->
+          <button type="button" class="quiz-opt" data-opt="C" aria-pressed="false">
+            <svg viewBox="0 0 320 200" aria-hidden="true">
+              <rect width="320" height="200" fill="#231650"/>
+              <rect y="94" width="320" height="106" fill="#173C5A"/>
+              <circle cx="110" cy="48" r="14" fill="#EDDACD"/>
+              <polygon points="122,94 198,94 282,200 38,200" fill="#1D5C73" fill-opacity="0.6"/>
+              <!-- 远岸 -->
+              <circle cx="182" cy="90" r="4" fill="#57437E" stroke="#C8BBE0" stroke-opacity="0.65" stroke-width="0.8"/><rect x="178" y="95" width="8" height="18" fill="#57437E"/>
+              <!-- 中景左中 -->
+              <circle cx="116" cy="94" r="8.5" fill="#10294B" stroke="#71B1BC" stroke-opacity="0.65" stroke-width="0.9"/><rect x="106" y="104" width="20" height="48" fill="#10294B"/>
+              <!-- 前景右前 -->
+              <circle cx="228" cy="72" r="16" fill="#04071A" stroke="#8AD6CB" stroke-opacity="0.72" stroke-width="1"/><path d="M202 92 H254 L248 198 H208 Z" fill="#04071A" stroke="#8AD6CB" stroke-opacity="0.72" stroke-width="1"/>
+              <path class="q-guide" d="M228 150 L116 124 L182 102" fill="none" stroke="#8AD6CB" stroke-width="1.6" stroke-dasharray="4 3"/>
+            </svg>
+            <span class="quiz-letter mono">C</span>
+          </button>
+
+          <!-- D: 双前景挤在近处，中景整层断档 -->
+          <button type="button" class="quiz-opt" data-opt="D" aria-pressed="false">
+            <svg viewBox="0 0 320 200" aria-hidden="true">
+              <rect width="320" height="200" fill="#231650"/>
+              <rect y="94" width="320" height="106" fill="#173C5A"/>
+              <circle cx="110" cy="48" r="14" fill="#EDDACD"/>
+              <polygon points="122,94 198,94 282,200 38,200" fill="#1D5C73" fill-opacity="0.6"/>
+              <!-- 远岸 -->
+              <circle cx="164" cy="90" r="4" fill="#57437E" stroke="#C8BBE0" stroke-opacity="0.65" stroke-width="0.8"/><rect x="160" y="95" width="8" height="18" fill="#57437E"/>
+              <!-- 双前景挤抢 -->
+              <circle cx="98" cy="74" r="15" fill="#060D26" stroke="#8AD6CB" stroke-opacity="0.72" stroke-width="1"/><path d="M74 93 H122 L116 198 H80 Z" fill="#060D26" stroke="#8AD6CB" stroke-opacity="0.72" stroke-width="1"/>
+              <circle cx="226" cy="72" r="16" fill="#04071A" stroke="#8AD6CB" stroke-opacity="0.72" stroke-width="1"/><path d="M200 92 H252 L246 198 H206 Z" fill="#04071A" stroke="#8AD6CB" stroke-opacity="0.72" stroke-width="1"/>
+              <rect class="q-guide" x="118" y="114" width="86" height="32" fill="none" stroke="#F08A6C" stroke-dasharray="4 3"/>
+            </svg>
+            <span class="quiz-letter mono">D</span>
+          </button>
+        </div>
+
+        <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+          <p class="qv-title" id="quiz-title">先凭直觉点选 A / B / C / D。</p>
+          <p class="qv-body" id="quiz-body">选完后会亮出每张构图的景深辅助线与单一差异解析。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 原海报与关键词（午夜紫靛底） -->
+  <section class="sec sec-poster" id="sec-08" aria-labelledby="h-08">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">08</span>
+        <div>
+          <h2 id="h-08">原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; KEYWORDS</p>
+        </div>
+      </header>
+
+      <div class="poster-layout">
+        <figure class="poster-frame">
+          <button type="button" class="poster-trigger" id="poster-open" aria-label="点击放大查看 310 号深度调度原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448"
+              alt="310 号深度调度原海报：午夜紫靛底色，左侧列前中后景、视线层级、空间透视、叙事推进、调度关系五要点，右侧是带 BACKGROUND / MIDDLE GROUND / FOREGROUND 立体字与三名黑色背影的水桥透视景，下方为三片景层视锥示意与三种调度策略参考。">
+          </button>
+          <figcaption>点击海报放大查看，滚轮或鼠标拖拽平移，按 Esc 关闭。</figcaption>
+        </figure>
+
+        <div class="poster-meta">
+          <div class="tips-box">
+            <div class="tips-icon" aria-hidden="true">
+              <svg viewBox="0 0 36 36" width="32" height="32">
+                <circle cx="18" cy="18" r="17" fill="#72B1A6"/>
+                <path d="M18 9a6.5 6.5 0 0 0-4 11.6V23h8v-2.4A6.5 6.5 0 0 0 18 9Zm-3 16.5h6" fill="none" stroke="#1A0E40" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <p class="tips-label mono">TIPS · 原海报结语</p>
+              <p class="tips-zh">空间即信息，层次即秩序。清晰的深度调度，能让画面更有力量。</p>
+              <p class="tips-en" lang="en">Space conveys meaning. Depth brings order. Strong staging creates impact.</p>
+            </div>
+          </div>
+
+          <h3 class="kw-heading">海报三大关键词 <span lang="en">KEYWORDS</span></h3>
+          <ul class="kw-list">
+            <li class="kw-bg">
+              <span class="kw-swatch" aria-hidden="true"></span>
+              <div>
+                <strong>后景 <span lang="en" class="mono">BACKGROUND</span></strong>
+                <p>交代环境 · 建立氛围</p>
+              </div>
+            </li>
+            <li class="kw-mg">
+              <span class="kw-swatch" aria-hidden="true"></span>
+              <div>
+                <strong>中景 <span lang="en" class="mono">MIDDLE GROUND</span></strong>
+                <p>承上启下 · 传递信息</p>
+              </div>
+            </li>
+            <li class="kw-fg">
+              <span class="kw-swatch" aria-hidden="true"></span>
+              <div>
+                <strong>前景 <span lang="en" class="mono">FOREGROUND</span></strong>
+                <p>突出主体 · 引导注意</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog class="zoom-dialog" id="zoom" aria-label="原海报放大查看">
+  <div class="zoom-bar">
+    <span class="mono">NO. 310 深度调度原海报 · <b id="zoom-level">100%</b></span>
+    <div class="zoom-btns">
+      <button type="button" class="mini-btn" id="zoom-out">缩小</button>
+      <button type="button" class="mini-btn" id="zoom-in">放大</button>
+      <button type="button" class="mini-btn" id="zoom-close">关闭 (Esc)</button>
+    </div>
+  </div>
+  <div class="zoom-view" id="zoom-view">
+    <img id="zoom-img" draggable="false" alt="310 号深度调度原海报大图">
+  </div>
+</dialog>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p><span lang="en" class="mono">NO. 310</span> 深度调度 · 350 种排版</p>
+    <p class="foot-links">
+      <a href="https://layout.xiaoxiaodong.ai/310/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
