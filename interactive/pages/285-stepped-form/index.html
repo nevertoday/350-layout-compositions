@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FEF3F0">
+<title>分步表单 · Stepped Form</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main>
+  <!-- ==================== HERO：原海报暖桃粉纸骨架 ==================== -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="wrap">
+      <!-- 开放刊头：零深色顶眉，自示范步骤大标 + 原海报右上梅紫/桃粉几何徽章 -->
+      <header class="masthead">
+        <div class="masthead-left">
+          <p class="eyebrow">
+            <span class="eyebrow-cat">网页与 UI / 内容与产品模式</span>
+            <span class="eyebrow-sep" aria-hidden="true">·</span>
+            <span class="eyebrow-no" lang="en">NO. 285</span>
+            <span class="status-pill bad" id="hero-badge">0 / 4 待整步</span>
+          </p>
+          <div class="title-row">
+            <h1 id="page-title" class="step-title" aria-label="分步表单">
+              <span class="st-ch" data-ch="0" aria-hidden="true"><i class="st-pip">1</i><b>分</b></span>
+              <span class="st-link" aria-hidden="true"></span>
+              <span class="st-ch" data-ch="1" aria-hidden="true"><i class="st-pip">2</i><b>步</b></span>
+              <span class="st-link" aria-hidden="true"></span>
+              <span class="st-ch" data-ch="2" aria-hidden="true"><i class="st-pip">3</i><b>表</b></span>
+              <span class="st-link" aria-hidden="true"></span>
+              <span class="st-ch" data-ch="3" aria-hidden="true"><i class="st-pip">4</i><b>单</b></span>
+            </h1>
+            <p class="title-en" lang="en">STEPPED FORM</p>
+          </div>
+          <p class="hero-summary">将复杂任务拆解为清晰步骤，逐步引导用户完成，降低认知负担，提升填写效率与完成率。</p>
+        </div>
+        <div class="masthead-right" aria-hidden="true">
+          <svg class="poster-emblem" viewBox="0 0 220 132" width="220" height="132">
+            <circle cx="122" cy="14" r="96" fill="none" stroke="#F8DDD5" stroke-width="1.2"/>
+            <circle cx="122" cy="14" r="68" fill="none" stroke="#F8DDD5" stroke-width="1"/>
+            <circle cx="122" cy="48" r="34" fill="#FDC5B6"/>
+            <circle cx="76" cy="74" r="15" fill="#5E1949"/>
+            <g fill="#F7BCAE">
+              <circle cx="174" cy="34" r="2.6"/><circle cx="188" cy="34" r="2.6"/><circle cx="202" cy="34" r="2.6"/>
+              <circle cx="174" cy="48" r="2.6"/><circle cx="188" cy="48" r="2.6"/><circle cx="202" cy="48" r="2.6"/>
+              <circle cx="174" cy="62" r="2.6"/><circle cx="188" cy="62" r="2.6"/><circle cx="202" cy="62" r="2.6"/>
+              <circle cx="174" cy="76" r="2.6"/><circle cx="188" cy="76" r="2.6"/><circle cx="202" cy="76" r="2.6"/>
+            </g>
+          </svg>
+        </div>
+      </header>
+
+      <!-- 通栏纯白步骤里程碑 + 2D 任务切分与认知负荷轨 -->
+      <section class="stepper-card" aria-label="步骤进度与任务切分轨">
+        <div class="stepper-toolbar">
+          <div class="scenario-tabs" role="tablist" aria-label="切换业务流程">
+            <button type="button" class="tab-btn is-active" role="tab" aria-selected="true" data-scenario="poster">原海报 · 账户注册</button>
+            <button type="button" class="tab-btn" role="tab" aria-selected="false" data-scenario="checkout">跨境电商结账</button>
+            <button type="button" class="tab-btn" role="tab" aria-selected="false" data-scenario="enterprise">云服务企业入驻</button>
+          </div>
+          <div class="quick-actions" role="group" aria-label="方案预设与试错">
+            <button type="button" class="qa-btn qa-good" data-preset="poster4">原海报 4 步解</button>
+            <button type="button" class="qa-btn qa-alt" data-preset="compact3">3 步精简解</button>
+            <button type="button" class="qa-btn qa-warn" data-preset="wall1">试错：1 步长墙</button>
+            <button type="button" class="qa-btn qa-warn" data-preset="frag12">试错：12 步碎片</button>
+            <button type="button" class="qa-btn qa-reset" data-preset="broken">复原 0/4 错态</button>
+          </div>
+        </div>
+
+        <!-- 动态进度里程碑（实时反映当前 progressMode 与步骤切分） -->
+        <div class="stepper-rail-host" id="stepper-rail" aria-live="polite"></div>
+
+        <!-- 2D Canvas 任务切分与认知负荷轨（data-perf-drag 主角） -->
+        <div class="slicer-box">
+          <div class="slicer-meta">
+            <span class="slicer-title">任务切分与认知负荷轨 <span class="slicer-sub">12 个字段 · 横拖竖向闸门改步骤边界，点间隙增删切点</span></span>
+            <span class="slicer-legend" aria-hidden="true">
+              <i class="lg lg-0"></i><b id="lg-name-0">账户</b>
+              <i class="lg lg-1"></i><b id="lg-name-1">个人</b>
+              <i class="lg lg-2"></i><b id="lg-name-2">验证</b>
+              <i class="lg lg-3"></i><b id="lg-name-3">提交</b>
+            </span>
+          </div>
+          <canvas id="slicer-canvas" class="slicer-canvas" data-perf-drag tabindex="0" role="slider" aria-label="任务切分与认知负荷轨：左右拖动或按方向键调整步骤切分点" aria-valuemin="1" aria-valuemax="11" aria-valuenow="6"></canvas>
+          <p class="slicer-status sr-only" id="slicer-sr" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <!-- 不对称双卡主舞台：左 31% 暖桃「为什么分步？」+ 白话诊单 × 右 69% 纯白活体分步表单 -->
+      <div class="hero-stage">
+        <!-- 右侧（手机端优先排在前）纯白活体分步表单 + 四维流程控槽 -->
+        <div class="wizard-col">
+          <section class="wizard-card" id="wizard-card" aria-label="活体分步表单试跑区">
+            <div class="wizard-head">
+              <div class="wizard-head-main">
+                <span class="wizard-step-icon" id="wiz-icon" aria-hidden="true"></span>
+                <div>
+                  <h2 class="wizard-step-title" id="wiz-title">账户＋个人混装</h2>
+                  <p class="wizard-step-sub" id="wiz-sub">该步混入了 2 组不同主题字段。</p>
+                </div>
+              </div>
+              <div class="wizard-mini-prog" id="wiz-mini-prog">
+                <span class="mini-prog-label" id="wiz-counter">进度已隐藏</span>
+                <span class="mini-prog-track" aria-hidden="true"><i class="mini-prog-fill" id="wiz-bar-fill"></i></span>
+              </div>
+            </div>
+
+            <!-- 表单字段主体（由 main.js 依 model.js 单真源实时渲染，真可填写/校验） -->
+            <form class="wizard-form" id="wizard-form" novalidate>
+              <div class="wizard-banner" id="wiz-banner" hidden aria-live="polite"></div>
+              <div class="wizard-fields" id="wiz-fields"></div>
+
+              <!-- 末步汇总复核区（启用 review-before-submit 且处于末步时显示） -->
+              <div class="wizard-review" id="wiz-review" hidden></div>
+
+              <!-- 底部上一步/下一步操作行 -->
+              <div class="wizard-actions">
+                <button type="button" class="btn-prev" id="btn-prev">上一步</button>
+                <div class="wizard-actions-right">
+                  <button type="button" class="btn-demo-fix" id="btn-fix-phone" hidden>一键补全示范错填</button>
+                  <button type="submit" class="btn-next" id="btn-next">下一步</button>
+                </div>
+              </div>
+
+              <!-- 原海报底部自动保存提示条 -->
+              <div class="wizard-tip" id="wiz-tip" aria-live="polite">
+                <span class="tip-lamp" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/></svg>
+                </span>
+                <p id="wiz-tip-text">自动保存已关闭：当前退回或切换步骤会清空已填草稿。</p>
+              </div>
+            </form>
+          </section>
+
+          <!-- 四维流程控槽（与 4 项检核单真源一一对应） -->
+          <section class="controls-card" aria-label="分步流程规则调控">
+            <div class="ctrl-row">
+              <div class="ctrl-label">
+                <span class="ctrl-num" lang="en">01</span>
+                <div><b>拆步节奏</b><span class="ctrl-badge" id="chk-chunking">断层 1 处</span></div>
+              </div>
+              <div class="ctrl-btns" role="group" aria-label="快捷步数切分">
+                <button type="button" class="pill-btn" data-cuts-preset="1">1 步长墙</button>
+                <button type="button" class="pill-btn is-bad" data-cuts-preset="2bad">2 步硬劈</button>
+                <button type="button" class="pill-btn" data-cuts-preset="3ok">3 步精简</button>
+                <button type="button" class="pill-btn" data-cuts-preset="4ok">4 步原海报</button>
+                <button type="button" class="pill-btn" data-cuts-preset="5ok">5 步轻量</button>
+                <button type="button" class="pill-btn" data-cuts-preset="12bad">12 步碎片</button>
+              </div>
+            </div>
+
+            <div class="ctrl-row">
+              <div class="ctrl-label">
+                <span class="ctrl-num" lang="en">02</span>
+                <div><b>进度展现</b><span class="ctrl-badge" id="chk-progress">隐身盲走</span></div>
+              </div>
+              <div class="ctrl-btns" role="group" aria-label="进度展现方式" id="grp-progress"></div>
+            </div>
+
+            <div class="ctrl-row">
+              <div class="ctrl-label">
+                <span class="ctrl-num" lang="en">03</span>
+                <div><b>校验指引</b><span class="ctrl-badge" id="chk-guidance">末尾总算账</span></div>
+              </div>
+              <div class="ctrl-btns" role="group" aria-label="校验与指引方式" id="grp-guidance"></div>
+            </div>
+
+            <div class="ctrl-row">
+              <div class="ctrl-label">
+                <span class="ctrl-num" lang="en">04</span>
+                <div><b>退路草稿</b><span class="ctrl-badge" id="chk-control">禁退丢稿</span></div>
+              </div>
+              <div class="ctrl-btns" role="group" aria-label="返回与草稿保全策略" id="grp-control"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- 左侧暖桃卡片：1:1 呼应原海报「为什么分步？」+ 单真源白话诊单 -->
+        <aside class="why-col" aria-label="为什么分步与实时诊断">
+          <div class="why-card">
+            <div class="why-head">
+              <span class="target-mark" aria-hidden="true">
+                <svg viewBox="0 0 48 48" width="44" height="44" fill="none">
+                  <circle cx="22" cy="26" r="15" stroke="#D44E20" stroke-width="2.4"/>
+                  <circle cx="22" cy="26" r="9" stroke="#F47341" stroke-width="2"/>
+                  <circle cx="22" cy="26" r="3.4" fill="#D44E20"/>
+                  <path d="M22 26L39 9M39 9H31M39 9V17" stroke="#5E1949" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <div>
+                <h2 class="why-title">为什么分步？</h2>
+                <p class="why-en" lang="en">Live Flow Diagnosis</p>
+              </div>
+            </div>
+
+            <!-- 单真源白话诊单 -->
+            <div class="diag-box is-bad" id="diag-box" aria-live="polite">
+              <p class="diag-top">
+                <span class="diag-tag" id="diag-tag">错态 · 0 / 4 项就位</span>
+                <span class="diag-src">单真源实算</span>
+              </p>
+              <h3 class="diag-headline" id="diag-headline">切点把「个人信息」硬劈成两半</h3>
+              <p class="diag-body" id="diag-body">现在按 6 / 6 切分，同一组相关字段被拆散进相邻两步，并和别的主题混装在一起。</p>
+              <p class="diag-fix" id="diag-fix">把上方切分轨的竖向闸门横拖到色块交界处，或点「原海报 4 步解」。</p>
+            </div>
+
+            <!-- 四项实算读数 -->
+            <dl class="metric-grid" aria-label="实算流程指标">
+              <div><dt>步数 · 切分</dt><dd id="m-split">2 步 · 6 / 6</dd></div>
+              <div><dt>最重步字段</dt><dd id="m-max">6 项</dd></div>
+              <div><dt>跨主题断层</dt><dd id="m-torn">1 处</dd></div>
+              <div><dt>认知负荷（示意）</dt><dd id="m-load">超载</dd></div>
+            </dl>
+
+            <!-- 原海报三条「为什么分步？」实况映射 -->
+            <ul class="why-list">
+              <li class="why-item">
+                <span class="why-ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 4a3.5 3.5 0 0 0-3.2 4.9A3.5 3.5 0 0 0 5 15.5a3 3 0 0 0 4.5 2.6V4ZM14.5 4a3.5 3.5 0 0 1 3.2 4.9A3.5 3.5 0 0 1 19 15.5a3 3 0 0 1-4.5 2.6V4Z"/></svg>
+                </span>
+                <div class="why-copy">
+                  <div class="why-row"><b>降低认知负担</b><span class="why-pill bad" id="wp-cog">断层 1 处</span></div>
+                  <p>每步只关注少量信息，更易理解与填写。</p>
+                </div>
+              </li>
+              <li class="why-item">
+                <span class="why-ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
+                </span>
+                <div class="why-copy">
+                  <div class="why-row"><b>保持清晰进度</b><span class="why-pill bad" id="wp-prog">终点未知</span></div>
+                  <p>可视化进度让用户对完成路径更有掌控感。</p>
+                </div>
+              </li>
+              <li class="why-item">
+                <span class="why-ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.2 2.4 2.4 4.8-5.2"/></svg>
+                </span>
+                <div class="why-copy">
+                  <div class="why-row"><b>提升完成率</b><span class="why-pill bad" id="wp-comp">缺退路易弃</span></div>
+                  <p>分步引导减少中途放弃，提升表单完成率。</p>
+                </div>
+              </li>
+            </ul>
+
+            <!-- 原海报左下「关键词 KEYWORDS」小卡 -->
+            <div class="kw-mini">
+              <p class="kw-mini-head"><span>关键词</span><span lang="en">KEYWORDS</span></p>
+              <div class="kw-tags" lang="en">
+                <span>PROCESS</span><span>PROGRESS</span><span>GUIDANCE</span><span>REDUCE COMPLEXITY</span><span>COMPLETION</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 正文八节 ==================== -->
+  <article class="essay">
+
+    <!-- 01 为什么分步有效（暖白纸 + 原海报五栏设计要点 + 深梅紫核心原则条 + 温和纠偏 + 三态负荷对照） -->
+    <section class="sec sec-ivory" id="sec-01" aria-labelledby="h-01">
+      <div class="wrap">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">01</span>
+          <div>
+            <h2 id="h-01">为什么分步有效</h2>
+            <p class="sec-en" lang="en">Why chunking lowers friction</p>
+          </div>
+        </header>
+
+        <p class="sec-lead">面对一张 15 个输入框的长表，还没动笔，大脑就已经在估算「这得填多久」。分步表单借用认知心理学里的<strong>组块（Chunking）</strong>与交互设计里的<strong>渐进式披露（Progressive Disclosure）</strong>，把一整堵墙拆成三到五个语义清晰的小站点：眼前只亮出当下这一小步，走完一步就能看见终点又近了一格。</p>
+
+        <!-- 原海报「分步表单设计要点」五栏白卡 -->
+        <div class="poster-points-card">
+          <div class="pp-head">
+            <h3>分步表单设计要点</h3>
+            <span class="pp-bar" aria-hidden="true"></span>
+          </div>
+          <ol class="pp-grid">
+            <li>
+              <span class="pp-ico" aria-hidden="true"><svg viewBox="0 0 28 28" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="16" width="7" height="7" rx="1"/><rect x="11" y="10" width="7" height="7" rx="1"/><rect x="17" y="5" width="7" height="7" rx="1"/></svg></span>
+              <h4>拆解任务</h4>
+              <p class="pp-quote">按逻辑顺序拆分表单内容，每步聚焦核心信息。</p>
+              <span class="pp-en" lang="en">PROCESS</span>
+            </li>
+            <li>
+              <span class="pp-ico" aria-hidden="true"><svg viewBox="0 0 28 28" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="14" r="3"/><circle cx="14" cy="14" r="3"/><circle cx="22" cy="14" r="3"/><path d="M9 14h2M17 14h2"/></svg></span>
+              <h4>可视化进度</h4>
+              <p class="pp-quote">清晰展示当前步骤与总体进度，增强方向感。</p>
+              <span class="pp-en" lang="en">PROGRESS</span>
+            </li>
+            <li>
+              <span class="pp-ico" aria-hidden="true"><svg viewBox="0 0 28 28" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M14 4v20M7 8h11l3 3-3 3H7V8ZM21 15H10l-3 2.5 3 2.5h11v-5Z"/></svg></span>
+              <h4>提供指引</h4>
+              <p class="pp-quote">用标题、说明与提示语，帮助用户理解要填写的内容。</p>
+              <span class="pp-en" lang="en">GUIDANCE</span>
+            </li>
+            <li>
+              <span class="pp-ico" aria-hidden="true"><svg viewBox="0 0 28 28" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="5" width="7" height="7" rx="1.5"/><rect x="16" y="5" width="7" height="7" rx="1.5"/><rect x="5" y="16" width="7" height="7" rx="1.5"/><rect x="16" y="16" width="7" height="7" rx="1.5"/></svg></span>
+              <h4>减少复杂度</h4>
+              <p class="pp-quote">将长表单分段处理，显著降低认知负担。</p>
+              <span class="pp-en" lang="en">REDUCE COMPLEXITY</span>
+            </li>
+            <li>
+              <span class="pp-ico" aria-hidden="true"><svg viewBox="0 0 28 28" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="14" r="9"/><path d="m10 14.2 2.8 2.8 5.4-5.6"/></svg></span>
+              <h4>顺畅完成</h4>
+              <p class="pp-quote">减少干扰，提供保存与返回能力，提升完成率。</p>
+              <span class="pp-en" lang="en">COMPLETION</span>
+            </li>
+          </ol>
+        </div>
+
+        <!-- 原海报底沿深梅紫核心原则色带 -->
+        <div class="principle-ribbon">
+          <span class="pr-star" aria-hidden="true">★</span>
+          <p class="pr-main"><strong>核心原则：</strong>让每一步都简单明确，让每一次前进都更接近完成。</p>
+          <ul class="pr-tags">
+            <li><i aria-hidden="true">✓</i>清晰</li>
+            <li><i aria-hidden="true">✓</i>简洁</li>
+            <li><i aria-hidden="true">✓</i>连贯</li>
+            <li><i aria-hidden="true">✓</i>可控</li>
+          </ul>
+        </div>
+
+        <!-- 温和修正原海报过头之处 -->
+        <aside class="nuance-note">
+          <div class="nuance-head">
+            <span class="nuance-tag">说多了一点</span>
+            <p class="nuance-quote">原海报写「提升填写效率与完成率」——只拆步、不减字段，完成率并不会自动起飞。</p>
+          </div>
+          <p>Baymard 研究院长期的结账可用性实测发现：把同样一堆冗余字段搬进多步向导，和摊在单页上相比，核心阻力仍取决于<strong>总字段数量、意外费用和校验体验</strong>，而不是「分了几页」。更稳妥的顺序永远是<strong>先删掉能不问的字段，再把剩下的复杂任务按语义分步</strong>。</p>
+        </aside>
+
+        <!-- 01 节专属交互：三态视图负荷对照卡片 -->
+        <div class="compare-lab" id="compare-lab">
+          <div class="lab-top">
+            <div>
+              <h3>同一套入驻流程，三种组织方式对照</h3>
+              <p>切换下方视图，对比首屏可见项数与工作记忆压力（档位为经验示意）。</p>
+            </div>
+            <div class="seg-group" role="group" aria-label="选择对比方案" id="cmp-tabs">
+              <button type="button" class="seg-btn is-active" data-cmp="wall" aria-pressed="true">12 项单页摊开</button>
+              <button type="button" class="seg-btn" data-cmp="split4" aria-pressed="false">12 项分 4 步</button>
+              <button type="button" class="seg-btn" data-cmp="trim3" aria-pressed="false">先删 4 项再分 3 步</button>
+            </div>
+          </div>
+          <div class="cmp-stage" id="cmp-stage" aria-live="polite">
+            <div class="cmp-visual" id="cmp-visual"></div>
+            <div class="cmp-readout" id="cmp-readout"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 进度条怎么选（柔桃粉纸 + 视口缩窄实时压测滑轨） -->
+    <section class="sec sec-peach" id="sec-02" aria-labelledby="h-02">
+      <div class="wrap">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">02</span>
+          <div>
+            <h2 id="h-02">进度条怎么选</h2>
+            <p class="sec-en" lang="en">Progress indicator patterns</p>
+          </div>
+        </header>
+
+        <p class="sec-lead">进度条不只是装饰，它是一张「心理地图」：告诉用户已经走了多远、当前在哪一站、后面还剩几步、大概要准备什么材料。但桌面端舒展的 6 步横轨一到 375px 手机屏往往撞车折行，必须随步数与屏宽换形。</p>
+
+        <div class="pattern-grid">
+          <article class="pat-card">
+            <span class="pat-num" lang="en">A</span>
+            <h3>横向编号步骤轨</h3>
+            <p class="pat-fit">适用：3–5 步 · 桌面主场景</p>
+            <p>原海报采用的经典结构。步骤名称、完成态、当前态一目了然，一眼看清全程边界；超过 5 步或屏宽窄于 520px 时需自动降级。</p>
+          </article>
+          <article class="pat-card">
+            <span class="pat-num" lang="en">B</span>
+            <h3>左侧竖向步骤目录</h3>
+            <p class="pat-fit">适用：5–7 步 · 长标题复杂业务</p>
+            <p>步骤标题较长（如税务申报、企业开户）时，竖排留出充足文字宽度，且方便在已完成章节间回看校对。</p>
+          </article>
+          <article class="pat-card">
+            <span class="pat-num" lang="en">C</span>
+            <h3>紧凑步数标 + 细进度条</h3>
+            <p class="pat-fit">适用：手机竖屏 · 任意步数</p>
+            <p>把步骤轨压成「第 2 步，共 4 步 · 个人信息」配一根细条，省出垂直空间给输入框和软键盘，同时保留「下一步将填什么」的小字预告。</p>
+          </article>
+          <article class="pat-card">
+            <span class="pat-num" lang="en">D</span>
+            <h3>单页手风琴展开</h3>
+            <p class="pat-fit">适用：3–4 步 · 希望留同页核对</p>
+            <p>全部步骤留在同一页面顺序展开。Baymard 提醒：<strong>已完成的折叠步绝不能缩成一句空标题</strong>，必须露出已填摘要（如收件人、地址）并附「修改」按钮。</p>
+          </article>
+        </div>
+
+        <!-- 02 节专属交互：视口缩窄测试滑轨 -->
+        <div class="narrow-lab">
+          <div class="narrow-controls">
+            <label for="narrow-range" class="narrow-label">
+              <span>拖动模拟容器宽度</span>
+              <strong id="narrow-px">780px</strong>
+              <span class="narrow-device" id="narrow-device">平板横屏 / 常规卡片</span>
+            </label>
+            <input type="range" id="narrow-range" min="320" max="960" step="10" value="780">
+            <div class="narrow-presets">
+              <button type="button" class="mini-chip" data-nw="340">手机 340px</button>
+              <button type="button" class="mini-chip" data-nw="520">半屏 520px</button>
+              <button type="button" class="mini-chip" data-nw="780">宽卡 780px</button>
+              <button type="button" class="mini-chip" data-nw="940">桌面 940px</button>
+            </div>
+          </div>
+
+          <div class="narrow-stage-wrap">
+            <div class="narrow-frame" id="narrow-frame" style="--frame-w: 780px">
+              <div class="nf-row">
+                <span class="nf-tag">横向 5 步硬排</span>
+                <div class="nf-horiz" id="nf-horiz">
+                  <span class="nf-node done"><i>✓</i><b>账户信息</b></span>
+                  <span class="nf-node active"><i>2</i><b>个人资料</b></span>
+                  <span class="nf-node"><i>3</i><b>企业资质</b></span>
+                  <span class="nf-node"><i>4</i><b>实名核验</b></span>
+                  <span class="nf-node"><i>5</i><b>确认提交</b></span>
+                </div>
+              </div>
+              <div class="nf-row">
+                <span class="nf-tag nf-tag-good">自适应降级轨</span>
+                <div class="nf-adapt" id="nf-adapt"></div>
+              </div>
+            </div>
+          </div>
+          <p class="narrow-verdict" id="narrow-verdict" aria-live="polite">当前宽度 780px：横向 5 步每个节点可分到约 140px，标签舒展不折行，直接用编号步骤轨最直观。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 条件分支与跳步（深梅紫暗室 + 2D Canvas 活体分支路径图） -->
+    <section class="sec sec-plum-dark" id="sec-03" aria-labelledby="h-03">
+      <div class="wrap">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">03</span>
+          <div>
+            <h2 id="h-03">条件分支与跳步</h2>
+            <p class="sec-en" lang="en">Branching &amp; dynamic routing</p>
+          </div>
+        </header>
+
+        <p class="sec-lead">相比单页<a href="https://layout.xiaoxiaodong.ai/284/play/" target="_blank" rel="noopener">284 表单布局</a>，分步表单真正的结构红利在于<strong>按前步答案动态剪枝</strong>。英国政府数字服务部（GOV.UK）的「每页一件事」指南把这叫做路由题：先问清用户是谁、需要什么，再只把与他相关的步骤放进路程，彻底免去满屏「如选企业请填以下 6 项」的无效干扰。</p>
+
+        <div class="branch-shell">
+          <div class="branch-toggles" role="group" aria-label="切换用户条件观察路径剪枝">
+            <div class="bt-group">
+              <span class="bt-label">① 注册身份</span>
+              <div class="bt-pair">
+                <button type="button" class="bt-btn is-on" data-branch-key="entity" data-branch-val="personal">个人用户</button>
+                <button type="button" class="bt-btn" data-branch-key="entity" data-branch-val="company">企业主体</button>
+              </div>
+            </div>
+            <div class="bt-group">
+              <span class="bt-label">② 实名状态</span>
+              <div class="bt-pair">
+                <button type="button" class="bt-btn is-on" data-branch-key="verified" data-branch-val="true">已实名认证</button>
+                <button type="button" class="bt-btn" data-branch-key="verified" data-branch-val="false">未实名</button>
+              </div>
+            </div>
+            <div class="bt-group">
+              <span class="bt-label">③ 纸质发票</span>
+              <div class="bt-pair">
+                <button type="button" class="bt-btn is-on" data-branch-key="needInvoice" data-branch-val="false">不需要</button>
+                <button type="button" class="bt-btn" data-branch-key="needInvoice" data-branch-val="true">需寄送纸票</button>
+              </div>
+            </div>
+          </div>
+
+          <canvas id="branch-canvas" class="branch-canvas" aria-label="条件分支与跳步路径示意图"></canvas>
+
+          <div class="branch-summary" id="branch-summary" aria-live="polite">
+            <p class="bs-main">当前路径实走 <strong>3 步（6 项）</strong>，自动跳过「企业资质」「实名核验」「发票寄送」3 步共 <strong>10 个无关字段</strong>。</p>
+            <p class="bs-tip">提示：当步骤会随分支增减时，如果总步数变化频繁，顶部最好展示「阶段名称」或按新路径即时更新总数，避免进度条突然倒退让用户困惑。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 退路、校验与草稿（浅暖纸 + 四场翻车事故翻牌复盘卡） -->
+    <section class="sec sec-warm" id="sec-04" aria-labelledby="h-04">
+      <div class="wrap">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">04</span>
+          <div>
+            <h2 id="h-04">退路、校验与草稿</h2>
+            <p class="sec-en" lang="en">Validation, back navigation &amp; drafts</p>
+          </div>
+        </header>
+
+        <p class="sec-lead">分步把页面切开了，最怕的不是多点两下「下一步」，而是<strong>一脚踩空失去控制感</strong>——返回后草稿蒸发、最后一步才冒出第一步的报错、或者走到结账页才突然跳出运费。点开下面四张案例卡，对比「翻车现场」和「修复做法」。</p>
+
+        <div class="incident-grid" id="incident-grid">
+          <article class="inc-card" data-state="bad">
+            <div class="inc-top">
+              <span class="inc-no" lang="en">CASE 01</span>
+              <button type="button" class="inc-toggle" aria-pressed="false">看修复做法</button>
+            </div>
+            <h3>点「上一步」草稿被清空</h3>
+            <div class="inc-body inc-bad">
+              <p class="inc-tag bad">翻车现场</p>
+              <p>用户填完第 2 步 5 个字段，想退回第 1 步确认邮箱有没有拼错，再点「下一步」回来时，第 2 步刚写的手机号和简介全变空白。</p>
+            </div>
+            <div class="inc-body inc-fix" hidden>
+              <p class="inc-tag good">修复做法</p>
+              <p>全部步骤共用一份客户端状态与本地草稿存储（<code>sessionStorage</code> / 服务端草稿 ID）；无论前进、后退还是点顶轨跳转，只切换当前步索引，绝不重置已输入值，并在底部亮出「已自动保存」。</p>
+            </div>
+          </article>
+
+          <article class="inc-card" data-state="bad">
+            <div class="inc-top">
+              <span class="inc-no" lang="en">CASE 02</span>
+              <button type="button" class="inc-toggle" aria-pressed="false">看修复做法</button>
+            </div>
+            <h3>前步放行，末步总算账</h3>
+            <div class="inc-body inc-bad">
+              <p class="inc-tag bad">翻车现场</p>
+              <p>第 2 步手机号少写了一位却顺利放行，用户继续填完第 3 步验证码和第 4 步协议，点「提交」才弹出一条模糊红字：「资料有误，请返回检查」。</p>
+            </div>
+            <div class="inc-body inc-fix" hidden>
+              <p class="inc-tag good">修复做法</p>
+              <p>按步骤分域校验（Step-scoped Validation）：字段离焦时给出温和格式提醒，点「下一步」只拦当前步必填与格式错误，并自动把焦点移到第一处错框，绝不把错误留给最后一步。</p>
+            </div>
+          </article>
+
+          <article class="inc-card" data-state="bad">
+            <div class="inc-top">
+              <span class="inc-no" lang="en">CASE 03</span>
+              <button type="button" class="inc-toggle" aria-pressed="false">看修复做法</button>
+            </div>
+            <h3>浏览器后退直接退出整套表单</h3>
+            <div class="inc-body inc-bad">
+              <p class="inc-tag bad">翻车现场</p>
+              <p>所有步骤共用同一个 URL，用户习惯性按手机侧滑返回或浏览器后退键想退回上一步，结果直接退回上一张商品列表页，整段进度丢失。</p>
+            </div>
+            <div class="inc-body inc-fix" hidden>
+              <p class="inc-tag good">修复做法</p>
+              <p>每一步同步写入轻量路由状态（如 <code>?step=2</code> 或 <code>history.pushState</code>），让系统后退键与界面里的「上一步」行为完全一致，且顶部已完成的步骤圆点支持直接点击回改。</p>
+            </div>
+          </article>
+
+          <article class="inc-card" data-state="bad">
+            <div class="inc-top">
+              <span class="inc-no" lang="en">CASE 04</span>
+              <button type="button" class="inc-toggle" aria-pressed="false">看修复做法</button>
+            </div>
+            <h3>无复核页，错字直接不可逆提交</h3>
+            <div class="inc-body inc-bad">
+              <p class="inc-tag bad">翻车现场</p>
+              <p>涉及扣款、合同或实名开户时，前面几步早已翻过视野之外，最后一步只有一个孤零零的「确认支付」按钮，用户心里没底，反复往回翻检查。</p>
+            </div>
+            <div class="inc-body inc-fix" hidden>
+              <p class="inc-tag good">修复做法</p>
+              <p>在不可逆操作前设立「核对与提交」末步：分块只读列出关键信息（邮箱、手机号、含税总额），每一块旁配「修改」直达对应步，改完一键回到末步提交。</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 它从哪来（暖桃砂纸 + 核实演进年表，静态精排不叠多余控件） -->
+    <section class="sec sec-sand" id="sec-05" aria-labelledby="h-05">
+      <div class="wrap">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">05</span>
+          <div>
+            <h2 id="h-05">它从哪来</h2>
+            <p class="sec-en" lang="en">From chunking theory to modern wizards</p>
+          </div>
+        </header>
+
+        <p class="sec-lead">分步表单并不是网页时代凭空发明的样式，它把认知心理学的记忆分块、桌面软件的向导对话，以及二十多年电商与公共服务的表单可用性实证串成了一条线。</p>
+
+        <ol class="timeline">
+          <li>
+            <time class="tl-year" lang="en">1956</time>
+            <div class="tl-card">
+              <h3>乔治·米勒与「组块」原理</h3>
+              <p>心理学家 George A. Miller 在《心理学评论》（<em>Psychological Review</em>）发表《神奇的数字 7±2》，指出人类短时信息处理容量有限，把零散项目按意义重新编组（Chunking）是突破记忆瓶颈的关键方式——这正是分步表单按语义切分字段的认知根基。</p>
+            </div>
+          </li>
+          <li>
+            <time class="tl-year" lang="en">1991</time>
+            <div class="tl-card">
+              <h3>Microsoft Publisher 1.0 推出 PageWizards</h3>
+              <p>1991 年 9 月，微软在 Publisher 1.0 里首创「PageWizards」：针对面对空白版面无从下手的新手，用一连串问答对话框一步步引导完成版式生成。次年该模式迅速扩展到 Excel 4.0、Access 与后来的 Windows 95，「向导（Wizard）」从此成为图形界面的标准交互范式。</p>
+            </div>
+          </li>
+          <li>
+            <time class="tl-year" lang="en">2006</time>
+            <div class="tl-card">
+              <h3>渐进式披露与目标梯度假说</h3>
+              <p>2006 年 12 月，Jakob Nielsen 在 Nielsen Norman Group 系统阐述「渐进式披露（Progressive Disclosure）」，提出把次要与后续选项推迟呈现以降低错率。同年，Ran Kivetz、Oleg Urminsky 与 Yuhuang Zheng 在《市场研究杂志》（<em>Journal of Marketing Research</em>）重证 Clark Hull（1932）的「目标梯度假说」：当人清楚看到自己离终点越来越近，推进动力会随距离缩短而加快。</p>
+            </div>
+          </li>
+          <li>
+            <time class="tl-year" lang="en">2008</time>
+            <div class="tl-card">
+              <h3>网页表单设计的两本奠基书</h3>
+              <p>2008 年 5 月，Luke Wroblewski 出版《Web Form Design: Filling in the Blanks》（Rosenfeld Media），明确拆解多步路径与进度指示；同年 Caroline Jarrett 与 Gerry Gaffney 出版《Forms that Work》（Morgan Kaufmann），提出表单由「关系层—对话层—外观层」构成，让分步不再只靠视觉切框，而以自然对话顺序为核心。</p>
+            </div>
+          </li>
+          <li>
+            <time class="tl-year" lang="en">2010s–今</time>
+            <div class="tl-card">
+              <h3>GOV.UK「每页一件事」与 Baymard 结账实证</h3>
+              <p>英国政府服务手册（GOV.UK Service Manual）将「Start with one thing per page」确立为公共服务表单起点，使条件路由与无障碍读屏都大幅简化；与此同时，Baymard 研究院多年电商结账测试指出，决定成败的是线性清晰、已完成步可回点与精简总字段，而非盲目争论单页或多步。</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 06 何时用，何时别用（暖白纸 + 等高适用/反例双栏 + 四题决策速诊矩阵） -->
+    <section class="sec sec-ivory" id="sec-06" aria-labelledby="h-06">
+      <div class="wrap">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">06</span>
+          <div>
+            <h2 id="h-06">何时用，何时别用</h2>
+            <p class="sec-en" lang="en">When to use — and when to avoid</p>
+          </div>
+        </header>
+
+        <p class="sec-lead">分步表单是一味对症药，不是万能包装纸。任务越长、分支越多、参与者越生疏，分步越显价值；反过来，短表单和熟手高频录入硬上向导，只会把轻快操作拖成繁文缛节。</p>
+
+        <div class="when-grid">
+          <div class="when-col when-yes">
+            <h3><span class="wc-dot yes" aria-hidden="true"></span>适合用分步表单</h3>
+            <ul>
+              <li><strong>复合长流程（约 7–15+ 个字段）</strong>：开户注册、跨境结账、保险核保、在线报税、医疗问诊，天然包含 3–5 个彼此独立的阶段。</li>
+              <li><strong>存在明确前后依赖或条件分支</strong>：第 1 步选个人或企业，直接决定第 2 步需不需要上传营业执照。</li>
+              <li><strong>低频操作或初次上手的新手</strong>：软件初始化、硬件配网、权限申请，缺乏肌肉记忆，需要一步一指引。</li>
+              <li><strong>夹杂外部异步动作</strong>：短信验证码、实名证件拍摄、第三方支付跳转，单独成步可隔离等待与重试风险。</li>
+            </ul>
+          </div>
+
+          <div class="when-col when-no">
+            <h3><span class="wc-dot no" aria-hidden="true"></span>什么时候别用（反例）</h3>
+            <ul>
+              <li><strong>3–6 个字段的短表单</strong>：登录、订阅、意见反馈、简单报名——请直接用单页<a href="https://layout.xiaoxiaodong.ai/284/play/" target="_blank" rel="noopener">284 表单布局</a>，强行拆三步纯属添堵。</li>
+              <li><strong>高频熟手的日常录入与后台配置</strong>：客服录工单、财务录凭证、运营改参数每天操作几十次，需要全局视野与随时直达——改用<a href="https://layout.xiaoxiaodong.ai/287/play/" target="_blank" rel="noopener">287 设置页面布局</a>或配<a href="https://layout.xiaoxiaodong.ai/290/play/" target="_blank" rel="noopener">290 分层导航布局</a>。</li>
+              <li><strong>需要来回横向比对的自由探索任务</strong>：筛选参数同时观察结果，线性强制顺序会割断对照。</li>
+              <li><strong>拿「分步」掩盖冗余字段或暗藏费用</strong>：把 20 个没必要的营销调研题拆成 5 步，或在最后一步才亮出手续费，只会放大反感。</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="sibling-note">顺带区分几个容易混淆的兄弟模式：单页内字段对齐与分组看<a href="https://layout.xiaoxiaodong.ai/284/play/" target="_blank" rel="noopener">284 表单布局</a>；一问一答的聊天采集看<a href="https://layout.xiaoxiaodong.ai/281/play/" target="_blank" rel="noopener">281 对话布局</a>；只做历史事件记录而非填报流转的看<a href="https://layout.xiaoxiaodong.ai/277/play/" target="_blank" rel="noopener">277 时间线布局</a>。</p>
+
+        <!-- 06 节专属交互：四题决策速诊矩阵 -->
+        <div class="decision-box" id="decision-box">
+          <div class="dec-head">
+            <h3>四题速诊：你的表单该不该分步？</h3>
+            <p>按手头项目的真实条件点选四项，旁边即时给出结构选型建议。</p>
+          </div>
+          <div class="dec-layout">
+            <div class="dec-qs">
+              <div class="dec-q">
+                <span class="dec-q-label">① 删去冗余后，还剩多少字段？</span>
+                <div class="dec-opts">
+                  <button type="button" class="dec-btn" data-dec-k="fieldBand" data-dec-v="short">3–6 项</button>
+                  <button type="button" class="dec-btn is-on" data-dec-k="fieldBand" data-dec-v="mid">7–14 项</button>
+                  <button type="button" class="dec-btn" data-dec-k="fieldBand" data-dec-v="long">15 项以上</button>
+                </div>
+              </div>
+              <div class="dec-q">
+                <span class="dec-q-label">② 是否存在条件分支（按前答跳过后项）？</span>
+                <div class="dec-opts">
+                  <button type="button" class="dec-btn" data-dec-k="hasBranch" data-dec-v="no">无分支</button>
+                  <button type="button" class="dec-btn is-on" data-dec-k="hasBranch" data-dec-v="yes">有分支</button>
+                </div>
+              </div>
+              <div class="dec-q">
+                <span class="dec-q-label">③ 主要填表人是偶发新手还是高频熟手？</span>
+                <div class="dec-opts">
+                  <button type="button" class="dec-btn is-on" data-dec-k="freq" data-dec-v="novice">低频新手</button>
+                  <button type="button" class="dec-btn" data-dec-k="freq" data-dec-v="expert">高频熟手</button>
+                </div>
+              </div>
+              <div class="dec-q">
+                <span class="dec-q-label">④ 是否含验证码、证件上传或支付环节？</span>
+                <div class="dec-opts">
+                  <button type="button" class="dec-btn" data-dec-k="hasAsync" data-dec-v="no">纯本地输入</button>
+                  <button type="button" class="dec-btn is-on" data-dec-k="hasAsync" data-dec-v="yes">含异步核验/支付</button>
+                </div>
+              </div>
+            </div>
+            <div class="dec-result tone-best" id="dec-result" aria-live="polite">
+              <span class="dec-badge" id="dec-badge">强烈推荐 285 分步表单</span>
+              <h4 id="dec-verdict">标准 3–5 步分步表单（本页最佳主场）</h4>
+              <p id="dec-why">具备复合信息块、条件分支、异步核验或支付环节，最适合用分步表单按语义切分。</p>
+              <a class="dec-link" id="dec-link" href="#page-title">按本页四项底线落地 →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 练一练（柔桃粉纸 + 单变量四选一练习，标签全中性） -->
+    <section class="sec sec-peach" id="sec-07" aria-labelledby="h-07">
+      <div class="wrap">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">07</span>
+          <div>
+            <h2 id="h-07">练一练：哪种拆法最稳？</h2>
+            <p class="sec-en" lang="en">Practice · pick the cleanest step split</p>
+          </div>
+        </header>
+
+        <p class="sec-lead">线上医院挂号共有 <strong>10 个固定字段</strong>：科室、日期、时段、姓名、证件、手机、医保、症状、费用、支付。以下四套方案的视觉样式、按钮、自动保存与校验机制完全相同，<strong>唯一差别是步骤切分边界</strong>。凭判断选出最稳妥的一套：</p>
+
+        <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四种步骤切分方案"></div>
+
+        <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+          <p class="qv-title" id="qv-title">先凭判断选一套方案。</p>
+          <p class="qv-body" id="qv-body">选定后，四张示意图会同时显出「挂号排班 / 就诊人资料 / 确认结算」三组语义色带，一眼看清谁对齐了边界、谁把同类信息硬劈散了。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 原海报（暖桃粉原纸 + 可放大/拖拽/Esc 关闭的原海报 + 5 个关键词） -->
+    <section class="sec sec-poster" id="sec-08" aria-labelledby="h-08">
+      <div class="wrap poster-grid">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">08</span>
+          <div>
+            <h2 id="h-08">原海报</h2>
+            <p class="sec-en" lang="en">The original poster</p>
+          </div>
+        </header>
+
+        <figure class="poster-fig">
+          <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="点击放大查看 285 分步表单原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="285 分步表单原海报：暖桃粉纸底，深梅紫标题与右上柔桃梅紫双圆点阵；顶部四步进度卡片（账户信息、个人信息、验证信息、完成提交）；左栏暖桃卡片写着为什么分步与关键词，右栏纯白表单呈现第2步个人信息界面与自动保存提示；下方五栏分步表单设计要点白卡与深梅紫核心原则横幅。">
+          </button>
+          <figcaption>点击放大海报；放大后可拖拽平移、缩放查看，再点关闭或按 Esc 收起。</figcaption>
+        </figure>
+
+        <div class="poster-kw">
+          <h3>海报关键词 <span lang="en">KEYWORDS</span></h3>
+          <ul class="poster-kw-list">
+            <li>
+              <span class="pkw-ico" aria-hidden="true"><svg viewBox="0 0 28 28" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="16" width="7" height="7" rx="1"/><rect x="11" y="10" width="7" height="7" rx="1"/><rect x="17" y="5" width="7" height="7" rx="1"/></svg></span>
+              <div><b>拆解任务</b><span lang="en">PROCESS</span></div>
+            </li>
+            <li>
+              <span class="pkw-ico" aria-hidden="true"><svg viewBox="0 0 28 28" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="14" r="3"/><circle cx="14" cy="14" r="3"/><circle cx="22" cy="14" r="3"/><path d="M9 14h2M17 14h2"/></svg></span>
+              <div><b>可视化进度</b><span lang="en">PROGRESS</span></div>
+            </li>
+            <li>
+              <span class="pkw-ico" aria-hidden="true"><svg viewBox="0 0 28 28" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M14 4v20M7 8h11l3 3-3 3H7V8ZM21 15H10l-3 2.5 3 2.5h11v-5Z"/></svg></span>
+              <div><b>提供指引</b><span lang="en">GUIDANCE</span></div>
+            </li>
+            <li>
+              <span class="pkw-ico" aria-hidden="true"><svg viewBox="0 0 28 28" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="5" width="7" height="7" rx="1.5"/><rect x="16" y="5" width="7" height="7" rx="1.5"/><rect x="5" y="16" width="7" height="7" rx="1.5"/><rect x="16" y="16" width="7" height="7" rx="1.5"/></svg></span>
+              <div><b>减少复杂度</b><span lang="en">REDUCE COMPLEXITY</span></div>
+            </li>
+            <li>
+              <span class="pkw-ico" aria-hidden="true"><svg viewBox="0 0 28 28" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="14" r="9"/><path d="m10 14.2 2.8 2.8 5.4-5.6"/></svg></span>
+              <div><b>顺畅完成</b><span lang="en">COMPLETION</span></div>
+            </li>
+          </ul>
+          <p class="poster-caption-note">本页配色（暖桃粉纸、深梅紫、珊瑚橘与柔桃圆）、通栏进度卡、左右不对称双卡与底部核心原则带，均直接取自 285 号原海报的视觉语言。</p>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<!-- 原海报放大灯箱（支持拖拽平移、缩放与 Esc 关闭） -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="285 分步表单原海报大图预览">
+  <div class="lb-bar">
+    <span class="lb-title">285 · 分步表单原海报（拖拽平移）</span>
+    <div class="lb-tools">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+      <span class="lb-scale" id="lb-scale">100%</span>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭预览">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" src="" draggable="false" alt="285 分步表单原海报放大图">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p class="foot-id"><span lang="en" class="foot-num">No. 285</span> 分步表单 · 350 种排版</p>
+    <p class="foot-motto">让每一步都简单明确，让每一次前进都更接近完成。</p>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/285/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep" aria-hidden="true">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep" aria-hidden="true">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
