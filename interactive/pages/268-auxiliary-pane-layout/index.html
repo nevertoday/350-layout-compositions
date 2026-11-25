@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#132760">
+<title>辅助窗格布局 · AUXILIARY PANE LAYOUT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="hero-band">
+  <header class="masthead wrap">
+    <p class="series"><span class="glyph-mark" aria-hidden="true">●</span><b>网页与 UI / 页面框架与导航</b><span lang="en">Web &amp; UI</span></p>
+    <p class="issue"><span lang="en" class="num">No. 268</span><span>主次分明，按需支撑</span></p>
+  </header>
+
+  <section class="hero wrap" aria-labelledby="title">
+    <div class="hero-main">
+      <div class="hero-head">
+        <div class="title-lockup" id="title-demo" data-collapsed="false" style="--t-aux: 30%;">
+          <div class="title-primary">
+            <h1 id="title">辅助窗格布局</h1>
+            <p class="title-en" lang="en">AUXILIARY PANE LAYOUT</p>
+          </div>
+          <div class="title-pane-demo" aria-hidden="true">
+            <span class="tpd-tag" lang="en">MAIN / AUX</span>
+            <span class="tpd-nums num"><b id="title-main-pct">70%</b><em>:</em><b id="title-aux-pct">30%</b></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-wrap">
+        <div class="stage-top" aria-hidden="true">
+          <p class="hud hud-tl"><span id="hud-scen">数据分析</span><span class="hud-sep">·</span><span id="hud-ratio" class="num">70 : 30</span></p>
+          <p class="hud hud-tr"><span class="hud-pill" id="hud-badge" data-status="sweet">主次成立</span></p>
+        </div>
+        <div class="stage" id="hero-stage">
+          <canvas id="hero-canvas" class="stage-canvas" aria-hidden="true"></canvas>
+          <button
+            class="sash"
+            id="hero-sash"
+            type="button"
+            data-perf-drag
+            aria-describedby="ro-text"
+          >
+            <span class="sash-grip" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="sash-hint-tag" aria-hidden="true">← →</span>
+            <span class="sr">拖动分隔线调整辅助窗格宽度</span>
+          </button>
+        </div>
+
+        <div class="stage-bar" role="group" aria-label="工作台快捷操作">
+          <button type="button" class="bp-btn" id="btn-collapse" aria-pressed="false">
+            <svg viewBox="0 0 26 16" class="fold-ico" aria-hidden="true">
+              <rect x="1" y="2" width="9" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M12.5 8h4M14.8 6l1.8 2-1.8 2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="18" y="2" width="7" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 2"/>
+            </svg>
+            <span class="btn-label">折叠窗格</span>
+          </button>
+          <button type="button" class="bp-btn" id="btn-links" aria-pressed="true">关联路径 <span lang="en">Links</span></button>
+          <button type="button" class="bp-btn" id="btn-filter" aria-pressed="false">触发筛选 <span lang="en">Filter</span></button>
+          <button type="button" class="bp-btn" id="btn-sweet">回到 70:30</button>
+        </div>
+        <p class="stage-hint">左右拖动中央<b>分隔手柄</b>（或按方向键）调节比例；直接点画布里的<b>图表卡片</b>或右侧<b>筛选 / 备注 / 关联</b>，看两栏怎样联动。</p>
+      </div>
+    </div>
+
+    <aside class="hero-aux-sheet" aria-label="开场工作台控制与实时诊断">
+      <div class="sheet-head">
+        <svg viewBox="0 0 28 28" class="bullseye" aria-hidden="true">
+          <circle cx="14" cy="14" r="11" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="14" cy="14" r="6" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="14" cy="14" r="2.2" fill="currentColor"/>
+        </svg>
+        <div>
+          <p class="sheet-kicker">交互控制台</p>
+          <p class="sheet-sub" lang="en">AUXILIARY CONTROLLER</p>
+        </div>
+      </div>
+
+      <p class="summary">通过主内容区与辅助窗格的组合，在保证信息聚焦的同时，提供必要的上下文与支撑，帮助理解、过滤与决策。</p>
+
+      <fieldset class="seg" id="scen-seg">
+        <legend>适用场景 <span lang="en">Scenarios</span></legend>
+        <label><input type="radio" name="scenario" value="analysis" checked><span>数据分析</span></label>
+        <label><input type="radio" name="scenario" value="browsing"><span>内容浏览</span></label>
+        <label><input type="radio" name="scenario" value="creation"><span>编辑创作</span></label>
+        <label><input type="radio" name="scenario" value="settings"><span>设置管理</span></label>
+      </fieldset>
+
+      <div class="ctrl">
+        <div class="ctrl-top">
+          <label for="ratio-range">辅助窗格占比 <span lang="en">Pane Ratio</span></label>
+          <output id="ratio-out" class="num">30%</output>
+        </div>
+        <input type="range" id="ratio-range" min="0" max="54" step="1" value="30" aria-describedby="ro-text">
+        <div class="axis-marks" aria-hidden="true">
+          <span>0% 折叠</span>
+          <span>30% 稳妥区</span>
+          <span>54% 对等分屏</span>
+        </div>
+      </div>
+
+      <div class="readout" aria-live="polite">
+        <p class="ro-head"><b id="ro-title">70% 主内容 + 30% 辅助窗格：稳妥区间</b><span class="ro-badge" id="ro-badge" data-status="sweet">主次成立</span></p>
+        <p class="ro-text" id="ro-text"></p>
+        <p class="ro-note" id="ro-note"></p>
+      </div>
+    </aside>
+  </section>
+</div>
+
+<main class="essay">
+  <!-- 01 -->
+  <section class="sec sec-paper" aria-labelledby="s1">
+    <div class="wrap sec-grid">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">01</p>
+        <h2 id="s1">三条原则与<br>四个分工角色</h2>
+        <p class="sec-en" lang="en">Principles &amp; Four Roles</p>
+      </header>
+
+      <div class="sec-body">
+        <blockquote class="quote reveal">
+          「通过主内容区与辅助窗格的组合，在保证信息聚焦的同时，提供必要的上下文与支撑，帮助理解、过滤与决策。」
+          <footer>原海报 · 总述</footer>
+        </blockquote>
+
+        <p class="lead reveal">辅助窗格不是随便在页面边上多加一列。它之所以成立，靠的是海报右侧用一条虚线串联起的三条骨架原则：<strong>主次分明</strong>保证视线先落到主角，<strong>信息互补</strong>确保右栏不重复主区的话，<strong>保持关联</strong>让两边真正对话。</p>
+
+        <ol class="principle-track reveal">
+          <li>
+            <span class="pt-dot" aria-hidden="true"></span>
+            <div class="pt-copy">
+              <h3>主次分明 <span lang="en">HIERARCHY</span></h3>
+              <p class="pt-quote">「主内容占据视觉重心，辅助窗格宽度适中，避免干扰阅读。」</p>
+              <p>去掉辅助窗格，主内容仍能独立成立；反过来，离开主内容，辅助窗格就没有单独存在的意义。</p>
+            </div>
+          </li>
+          <li>
+            <span class="pt-dot" aria-hidden="true"></span>
+            <div class="pt-copy">
+              <h3>信息互补 <span lang="en">COMPLEMENT</span></h3>
+              <p class="pt-quote">「辅助窗格提供筛选、说明、提示或关联，与主内容形成互补。」</p>
+              <p>海报底部把这种分工拆成四个角色：<strong>● 主内容</strong>承载核心任务，<strong>■ 上下文</strong>补充环境与口径，<strong>▲ 支撑</strong>提供筛选与操作，<strong>◆ 关联</strong>把你引向更深一层。</p>
+            </div>
+          </li>
+          <li>
+            <span class="pt-dot" aria-hidden="true"></span>
+            <div class="pt-copy">
+              <h3>保持关联 <span lang="en">CONNECTED</span></h3>
+              <p class="pt-quote">「通过位置相邻与视觉一致，建立清晰的信息关联路径。」</p>
+              <p>主区选中什么，辅助窗格就立刻跟着更新什么；右栏点下筛选，主区也实时响应。一旦断开这种联动，右栏立刻退化成无人问津的杂物栏。</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="lab-card reveal" id="link-lab">
+          <div class="lab-head">
+            <div>
+              <p class="lab-kicker">双向联动实验室</p>
+              <h3>点左侧条目，再点「断开关联试试」</h3>
+            </div>
+            <button type="button" class="btn-outline-ink" id="link-sync-btn" aria-pressed="false">断开关联试试</button>
+          </div>
+
+          <div class="link-board">
+            <div class="link-main">
+              <p class="pane-cap"><span aria-hidden="true">●</span> 主内容区 <span lang="en">MAIN</span></p>
+              <div class="link-cards" id="link-main-list" role="group" aria-label="主内容条目">
+                <button type="button" class="link-card active" data-id="metric-a" aria-pressed="true">
+                  <span class="lc-tag">增长异常</span>
+                  <b>4 月留存率跃升 +11.4%</b>
+                  <span>次月留存由 38.2% 升至 49.6%，移动端贡献主要增量。</span>
+                </button>
+                <button type="button" class="link-card" data-id="metric-b" aria-pressed="false">
+                  <span class="lc-tag">性能告警</span>
+                  <b>报表首屏耗时 3.4 s</b>
+                  <span>明细表加载超过 2,000 行时，宽屏端出现短暂卡顿。</span>
+                </button>
+                <button type="button" class="link-card" data-id="metric-c" aria-pressed="false">
+                  <span class="lc-tag">转化回落</span>
+                  <b>续费页跳出率上升</b>
+                  <span>套餐对比页停留时间拉长，底部确认点击率下降。</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="link-aux">
+              <div class="pane-cap-row">
+                <p class="pane-cap"><span aria-hidden="true">■ ▲ ◆</span> 辅助窗格</p>
+                <span class="sync-badge" id="aux-target-badge" data-synced="true">跟随：增长异常</span>
+              </div>
+
+              <fieldset class="mini-seg" id="link-filter">
+                <legend>筛选左侧主内容</legend>
+                <label><input type="radio" name="lcat" value="all" checked><span>全部</span></label>
+                <label><input type="radio" name="lcat" value="growth"><span>增长/转化</span></label>
+                <label><input type="radio" name="lcat" value="perf"><span>性能</span></label>
+              </fieldset>
+
+              <dl class="aux-roles">
+                <div><dt>■ 上下文 <span lang="en">CONTEXT</span></dt><dd id="aux-context"></dd></div>
+                <div><dt>▲ 支撑 <span lang="en">SUPPORT</span></dt><dd id="aux-support"></dd></div>
+                <div class="dashed-slot"><dt>◆ 关联 <span lang="en">RELATION</span></dt><dd id="aux-relation"></dd></div>
+              </dl>
+            </div>
+          </div>
+
+          <p class="lab-read" id="link-read" aria-live="polite"></p>
+        </div>
+
+        <aside class="siblings-note reveal">
+          <h3>别把它和这几个近亲混在一起</h3>
+          <ul>
+            <li><b>不刻意分主次的两栏</b>见 <a href="https://layout.xiaoxiaodong.ai/256/play/" target="_blank" rel="noopener">256 双列页面</a>，两侧势均力敌、平级对照见 <a href="https://layout.xiaoxiaodong.ai/259/play/" target="_blank" rel="noopener">259 分屏布局</a>。</li>
+            <li><b>管全站跳转的侧栏</b>在左侧常驻导航见 <a href="https://layout.xiaoxiaodong.ai/258/play/" target="_blank" rel="noopener">258 侧边栏页面</a>，左右三栏全局骨架见 <a href="https://layout.xiaoxiaodong.ai/260/play/" target="_blank" rel="noopener">260 圣杯布局</a>。</li>
+            <li><b>最像的邻居是 <a href="https://layout.xiaoxiaodong.ai/267/play/" target="_blank" rel="noopener">267 列表—详情布局</a></b>：267 是「选一条目录，切一条详情」的父子浏览；268 则是「主任务不动，右侧围绕它补上下文与工具」。</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="sec sec-navy" aria-labelledby="s2">
+    <div class="wrap sec-grid">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">02</p>
+        <h2 id="s2">从阻塞弹窗到<br>非模态窗格</h2>
+        <p class="sec-en" lang="en">From Modal Dialogs to Modeless Inspectors</p>
+      </header>
+
+      <div class="sec-body">
+        <p class="lead reveal">今天的右侧检查器、文档评论栏、AI 辅助窗格，背后有一条清晰演进了四十多年的界面主线：<strong>尽量别用弹窗打断主任务，让上下文始终触手可及。</strong></p>
+
+        <ol class="timeline reveal" aria-label="辅助窗格演进时间线">
+          <li>
+            <span class="yr num">1981</span>
+            <div>
+              <b>Xerox Star 8010：属性表（Property Sheets）</b>
+              <p>David Canfield Smith、Charles Irby 等人在 1982 年 4 月《BYTE》发表《Designing the Star User Interface》，记录了 Star 1981 年推出的按需属性表——按下专用键即在旁侧查看和修改对象属性，避免把满屏参数塞进主文档。</p>
+            </div>
+          </li>
+          <li>
+            <span class="yr num">1989</span>
+            <div>
+              <b>NeXTSTEP 1.0：非模态检查器（Inspector）</b>
+              <p>随着 Interface Builder（由 Jean-Marie Hullot 创制）普及，检查器面板成为桌面经典：画布选中哪个组件，检查器就实时切换为它的参数，不必反复关闭弹窗。</p>
+            </div>
+          </li>
+          <li>
+            <span class="yr num">1995</span>
+            <div>
+              <b>Alan Cooper《About Face》：消灭「附加工」</b>
+              <p>Alan Cooper 在初版《About Face》中明确提出「附加工（Excise）」与非模态反馈（Modeless Feedback）——反复点开、拖走、关闭遮挡画面的模态对话框，全都是与用户目标无关的摩擦成本。</p>
+            </div>
+          </li>
+          <li>
+            <span class="yr num">2013</span>
+            <div>
+              <b>NN/g：警惕「右栏盲视（Right-Rail Blindness）」</b>
+              <p>尼尔森诺曼集团（Hoa Loranger）指出，由于网页右栏长期塞满广告和无关推广，用户练出了自动跳过右侧的本能；辅助窗格必须视觉克制、与主内容强联动，才能赢得信任。</p>
+            </div>
+          </li>
+          <li>
+            <span class="yr num">2021+</span>
+            <div>
+              <b>现代设计系统正式定名与标准化</b>
+              <p>Google Material Design 3 将 <strong>Supporting Pane（支撑窗格）</strong>列为三大标准自适应布局之一（规定 840 dp 以上并列、默认宽约 360 dp）；Apple Human Interface Guidelines 则把跟随选区变化的尾侧面板定名为 <strong>Inspector</strong>，与前置导航 Sidebar 清晰分工。</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="modal-lab reveal" id="modal-lab" data-mode="pane">
+          <div class="ml-top">
+            <div>
+              <p class="lab-kicker light">亲手体验「附加工（Excise）」</p>
+              <h3>分别用「辅助窗格」和「模态弹窗」改三次样式</h3>
+            </div>
+            <fieldset class="seg seg-navy" id="ml-mode">
+              <legend>交互方式</legend>
+              <label><input type="radio" name="mlmode" value="pane" checked><span>辅助窗格</span></label>
+              <label><input type="radio" name="mlmode" value="modal"><span>模态弹窗</span></label>
+            </fieldset>
+          </div>
+
+          <div class="ml-workspace">
+            <div class="ml-canvas" id="ml-preview" data-accent="navy" data-density="normal" data-grid="true">
+              <div class="ml-canvas-bar">
+                <span>主画布 · 实时预览</span>
+                <button type="button" class="bp-btn small" id="ml-open-modal" hidden>打开设置弹窗</button>
+              </div>
+              <div class="ml-demo-doc">
+                <div class="ml-doc-head"><i></i><span></span></div>
+                <div class="ml-doc-bars"><i></i><i></i><i></i><i></i></div>
+              </div>
+
+              <!-- 模态弹窗覆盖层（仅在弹窗模式弹出） -->
+              <div class="ml-modal-backdrop" id="ml-modal-layer" hidden>
+                <div class="ml-dialog" role="group" aria-label="模态设置弹窗">
+                  <p class="ml-dlg-title">属性设置（已遮挡主画布）</p>
+                  <div class="ml-ctrl-group">
+                    <span>色板</span>
+                    <div class="ml-btn-row">
+                      <button type="button" data-ml-prop="accent" data-ml-val="navy" aria-pressed="true">深蓝</button>
+                      <button type="button" data-ml-prop="accent" data-ml-val="cobalt" aria-pressed="false">钴蓝</button>
+                    </div>
+                  </div>
+                  <div class="ml-ctrl-group">
+                    <span>密度</span>
+                    <div class="ml-btn-row">
+                      <button type="button" data-ml-prop="density" data-ml-val="normal" aria-pressed="true">舒展</button>
+                      <button type="button" data-ml-prop="density" data-ml-val="compact" aria-pressed="false">紧凑</button>
+                    </div>
+                  </div>
+                  <div class="ml-ctrl-group">
+                    <span>参考线</span>
+                    <div class="ml-btn-row">
+                      <button type="button" data-ml-prop="grid" data-ml-val="true" aria-pressed="true">开启</button>
+                      <button type="button" data-ml-prop="grid" data-ml-val="false" aria-pressed="false">关闭</button>
+                    </div>
+                  </div>
+                  <button type="button" class="ml-close-btn" id="ml-close-modal">关掉弹窗看效果</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ml-pane" aria-label="非模态辅助窗格">
+              <p class="ml-pane-cap">属性检查器 · 实时生效</p>
+              <div class="ml-ctrl-group">
+                <span>色板</span>
+                <div class="ml-btn-row">
+                  <button type="button" data-ml-prop="accent" data-ml-val="navy" aria-pressed="true">深蓝</button>
+                  <button type="button" data-ml-prop="accent" data-ml-val="cobalt" aria-pressed="false">钴蓝</button>
+                </div>
+              </div>
+              <div class="ml-ctrl-group">
+                <span>密度</span>
+                <div class="ml-btn-row">
+                  <button type="button" data-ml-prop="density" data-ml-val="normal" aria-pressed="true">舒展</button>
+                  <button type="button" data-ml-prop="density" data-ml-val="compact" aria-pressed="false">紧凑</button>
+                </div>
+              </div>
+              <div class="ml-ctrl-group">
+                <span>参考线</span>
+                <div class="ml-btn-row">
+                  <button type="button" data-ml-prop="grid" data-ml-val="true" aria-pressed="true">开启</button>
+                  <button type="button" data-ml-prop="grid" data-ml-val="false" aria-pressed="false">关闭</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ml-footer">
+            <p class="ml-counters"><span>有效修改 <b class="num" id="ml-changes">0</b> 次</span><span>开关弹窗附加工 <b class="num" id="ml-excise">0</b> 次</span></p>
+            <p class="ml-read" id="ml-read" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="sec sec-paper" aria-labelledby="s3">
+    <div class="wrap sec-grid">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">03</p>
+        <h2 id="s3">「宽度适中」的真相：<br>别死绑百分比，更要控噪声</h2>
+        <p class="sec-en" lang="en">Fixed Width vs. Fluid Ratio &amp; Visual Weight</p>
+      </header>
+
+      <div class="sec-body">
+        <p class="lead reveal"><span class="tag">说多了一点</span>海报写着「辅助窗格宽度适中，避免干扰阅读」，容易让人只去盯一个固定百分比（比如写死 30%）。在真实响应式界面里，<strong>辅助窗格往往应该用「定宽经验值（如 260–380 px，M3 默认 360 dp）+ 弹性主内容区」</strong>，而不是随屏幕无限等比拉宽。</p>
+        <p class="reveal">另一个常被忽略的坑是<strong>视觉重量</strong>：即使窗格只占 25% 宽，只要里面堆满高饱和徽章、红点和推广横幅，它的视觉引力就会盖过左侧主内容；要么抢走焦点，要么直接诱发右栏盲视。</p>
+
+        <div class="lab-card reveal" id="stress-lab">
+          <div class="stress-controls">
+            <div class="ctrl">
+              <div class="ctrl-top">
+                <label for="stress-vw">模拟视口宽度 <span lang="en">Viewport</span></label>
+                <output id="stress-vw-out" class="num">1440 px</output>
+              </div>
+              <input type="range" id="stress-vw" min="680" max="2200" step="20" value="1440">
+              <div class="axis-marks" aria-hidden="true"><span>680 平板</span><span>1440 笔记本</span><span>2200 超宽屏</span></div>
+            </div>
+
+            <div class="stress-row">
+              <fieldset class="seg" id="stress-mode">
+                <legend>窗格宽度策略</legend>
+                <label><input type="radio" name="smode" value="fixed" checked><span>定宽 ~340px（经验推荐）</span></label>
+                <label><input type="radio" name="smode" value="ratio"><span>死绑比例 32%</span></label>
+              </fieldset>
+              <button type="button" class="btn-outline-ink" id="stress-noise" aria-pressed="false">模拟花哨杂物栏</button>
+            </div>
+          </div>
+
+          <div class="stress-viewport-wrap">
+            <div class="stress-stage" id="stress-stage" style="--vp-w: 80%; --aux-pct: 24%;" data-noisy="false" data-status="good">
+              <div class="st-main">
+                <p class="st-label">主内容区 <b class="num" id="stress-main-px">1100 px (76%)</b></p>
+                <div class="st-chart" aria-hidden="true">
+                  <svg viewBox="0 0 240 68" preserveAspectRatio="none">
+                    <path d="M8 54 L52 38 L94 45 L138 22 L182 28 L232 10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="st-bars" aria-hidden="true"><i></i><i></i><i></i></div>
+              </div>
+              <div class="st-aux">
+                <p class="st-label">辅助窗格 <b class="num" id="stress-aux-px">340 px (24%)</b></p>
+                <div class="st-aux-clean">
+                  <span>筛选条件</span>
+                  <span>口径备注</span>
+                  <span class="dashed">关联报表</span>
+                </div>
+                <div class="st-aux-junk" aria-hidden="true">
+                  <span class="junk-banner">限时活动 99+</span>
+                  <span class="junk-pill">HOT 猜你想看</span>
+                  <span class="junk-pill">新消息 24</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stress-out" aria-live="polite">
+            <span class="stress-badge" id="stress-badge" data-status="good">定宽弹性 · 推荐</span>
+            <p id="stress-verdict"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="sec sec-navy" aria-labelledby="s4">
+    <div class="wrap sec-grid">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">04</p>
+        <h2 id="s4">屏幕变窄时，<br>窗格去哪儿？</h2>
+        <p class="sec-en" lang="en">Responsive Breakpoints &amp; Collapsing</p>
+      </header>
+
+      <div class="sec-body">
+        <blockquote class="quote quote-navy reveal">
+          「TIP：辅助窗格可折叠或隐藏，在需要时出现，让主内容始终保持宽敞。」
+          <footer>原海报 · 底部提示（实体框 → 虚线框）</footer>
+        </blockquote>
+
+        <p class="lead reveal">宽屏上「左右并列」的体验很爽，可一旦窗口缩到平板或手机，死守左右两列只会把两边都挤碎。拖一拖下面的屏宽滑块，看同一个辅助窗格如何按断点优雅变形。</p>
+
+        <div class="bp-lab reveal">
+          <div class="bp-top">
+            <div class="bp-presets" id="bp-presets" role="group" aria-label="常用设备宽度">
+              <button type="button" data-vw="390" aria-pressed="false">手机 <span class="num">390</span></button>
+              <button type="button" data-vw="768" aria-pressed="false">竖平板 <span class="num">768</span></button>
+              <button type="button" data-vw="860" aria-pressed="false">临界 <span class="num">860</span></button>
+              <button type="button" data-vw="1280" aria-pressed="true">桌面 <span class="num">1280</span></button>
+            </div>
+            <div class="bp-right-ctrls">
+              <fieldset class="seg seg-navy" id="bp-behavior">
+                <legend>展开方式</legend>
+                <label><input type="radio" name="bpbehav" value="push" checked><span>推挤 Push</span></label>
+                <label><input type="radio" name="bpbehav" value="overlay"><span>浮层 Overlay</span></label>
+              </fieldset>
+              <button type="button" class="bp-btn" id="bp-toggle" aria-pressed="false">折叠辅助窗格</button>
+            </div>
+          </div>
+
+          <div class="ctrl ctrl-navy">
+            <div class="ctrl-top">
+              <label for="bp-range">拖动模拟屏宽 <span id="bp-tier">桌面宽屏（≥ 1024 px）</span></label>
+              <output id="bp-vw-out" class="num">1280 px</output>
+            </div>
+            <input type="range" id="bp-range" min="360" max="1440" step="10" value="1280">
+            <div class="axis-marks light" aria-hidden="true"><span>360 手机</span><span>600 平板</span><span>840 M3 并列线</span><span>1440 桌面</span></div>
+          </div>
+
+          <div class="bp-stage-shell">
+            <div class="bp-frame" id="bp-frame" data-mode="docked-push" data-tier="expanded-wide" style="--dev-w: 91%;">
+              <div class="bp-topbar" aria-hidden="true">
+                <span class="bp-dots"><i></i><i></i><i></i></span>
+                <span class="bp-title-bar">主工作区</span>
+                <span class="bp-toggle-ico">□→</span>
+              </div>
+              <div class="bp-body">
+                <div class="bp-main">
+                  <div class="bp-main-hero"></div>
+                  <div class="bp-main-grid"><i></i><i></i><i></i></div>
+                </div>
+                <div class="bp-pane" aria-hidden="true">
+                  <span class="bp-sheet-grab"></span>
+                  <b>辅助窗格</b>
+                  <i>筛选</i>
+                  <i>备注</i>
+                  <i class="dashed">关联</i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bp-readout" aria-live="polite">
+            <p class="bp-rhead"><b id="bp-title"></b><span class="hud-pill" id="bp-badge"></span></p>
+            <p id="bp-text"></p>
+            <p class="bp-links-note">小屏退化成纯单列阅读见 <a href="https://layout.xiaoxiaodong.ai/255/play/" target="_blank" rel="noopener">255 单列页面</a>；需要呼出全局侧边菜单见 <a href="https://layout.xiaoxiaodong.ai/263/play/" target="_blank" rel="noopener">263 导航抽屉布局</a>；把主内容与辅助信息切成分页见 <a href="https://layout.xiaoxiaodong.ai/265/play/" target="_blank" rel="noopener">265 标签页布局</a>。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="sec sec-paper" aria-labelledby="s5">
+    <div class="wrap sec-grid">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">05</p>
+        <h2 id="s5">四类典型场景，<br>窗格放什么？</h2>
+        <p class="sec-en" lang="en">Four Scenarios from the Poster</p>
+      </header>
+
+      <div class="sec-body">
+        <p class="lead reveal">海报右侧列出了最常见的四大适用场景。切一下标签，看主内容和辅助窗格在不同任务里怎样各司其职。</p>
+
+        <div class="scen-lab reveal">
+          <div class="scen-tabs" id="scen-tabs" role="tablist" aria-label="四大适用场景">
+            <button type="button" role="tab" aria-selected="true" data-scen="analysis"><b>数据分析</b><span lang="en">DATA ANALYSIS</span></button>
+            <button type="button" role="tab" aria-selected="false" data-scen="browsing"><b>内容浏览</b><span lang="en">CONTENT BROWSING</span></button>
+            <button type="button" role="tab" aria-selected="false" data-scen="creation"><b>编辑创作</b><span lang="en">CONTENT CREATION</span></button>
+            <button type="button" role="tab" aria-selected="false" data-scen="settings"><b>设置管理</b><span lang="en">SETTINGS &amp; CONFIG</span></button>
+          </div>
+
+          <div class="scen-panel">
+            <div class="scen-wire" id="scen-wire" data-scen="analysis" aria-hidden="true">
+              <div class="sw-main">
+                <div class="sw-m-analysis">
+                  <svg viewBox="0 0 200 92"><path d="M10 74 L48 52 L84 60 L126 30 L164 38 L192 16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="126" cy="30" r="4.5" fill="currentColor"/></svg>
+                  <div class="sw-mini-row"><i></i><i></i><i></i></div>
+                </div>
+                <div class="sw-m-browsing">
+                  <div class="sw-h"></div>
+                  <div class="sw-p"></div>
+                  <div class="sw-p hi"></div>
+                  <div class="sw-p"></div>
+                  <div class="sw-p short"></div>
+                </div>
+                <div class="sw-m-creation">
+                  <div class="sw-artboard"><span></span></div>
+                </div>
+                <div class="sw-m-settings">
+                  <div class="sw-row"><span></span><i class="on"></i></div>
+                  <div class="sw-row"><span></span><i class="on"></i></div>
+                  <div class="sw-row"><span></span><i></i></div>
+                </div>
+              </div>
+              <div class="sw-aux">
+                <span>筛选 / 参数</span>
+                <span>上下文备注</span>
+                <span class="dashed">关联入口</span>
+              </div>
+            </div>
+
+            <div class="scen-info" aria-live="polite">
+              <p class="scen-eyebrow" id="scen-en" lang="en">DATA ANALYSIS</p>
+              <h3 id="scen-title">数据分析</h3>
+              <dl class="scen-dl">
+                <div><dt>● 主内容区</dt><dd id="scen-main"></dd></div>
+                <div><dt>■ 辅助窗格</dt><dd id="scen-aux"></dd></div>
+                <div><dt>为何合拍</dt><dd id="scen-why"></dd></div>
+              </dl>
+              <p class="scen-tip"><b>设计细节：</b><span id="scen-tip"></span></p>
+            </div>
+          </div>
+        </div>
+
+        <p class="reveal small-note">窗格窄而纵向长，里面的参数与备注不要一口气全摊开：按组展开收起可结合 <a href="https://layout.xiaoxiaodong.ai/266/play/" target="_blank" rel="noopener">266 手风琴布局</a>，多组辅助工具切换可结合 <a href="https://layout.xiaoxiaodong.ai/265/play/" target="_blank" rel="noopener">265 标签页布局</a>。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="sec sec-tint" aria-labelledby="s6">
+    <div class="wrap sec-grid">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">06</p>
+        <h2 id="s6">什么时候用，<br>什么时候别硬凑</h2>
+        <p class="sec-en" lang="en">When to Use · When to Walk Away</p>
+      </header>
+
+      <div class="sec-body">
+        <div class="when-grid reveal">
+          <div class="when-col good">
+            <h3>适合用辅助窗格 <span lang="en">Use it</span></h3>
+            <ul>
+              <li><b>主任务连续且高频查上下文</b><span>改设计属性、看数据口径、读长文批注——任何跳页或弹窗都会把思绪斩断。</span></li>
+              <li><b>信息天然分主次</b><span>去掉辅栏，主内容仍完整；离开主内容，辅栏没有独立意义。</span></li>
+              <li><b>宽屏余量充足或可折叠</b><span>桌面/横屏平板 ≥ 840 px 可并排，小屏有清晰的底部抽屉降级方案。</span></li>
+              <li><b>多类轻支撑需要稳定落脚点</b><span>筛选、标签、备注、提示、关联都归拢在一处，不再满屏飘浮零散气泡。</span></li>
+            </ul>
+          </div>
+
+          <div class="when-col avoid">
+            <h3>什么时候别用 <span lang="en">Skip it</span></h3>
+            <ul>
+              <li><b>两栏平起平坐、需要对照</b><span>代码 Diff、双语翻译、地图与列表并重，改用 <a href="https://layout.xiaoxiaodong.ai/259/play/" target="_blank" rel="noopener">259 分屏布局</a> 或 <a href="https://layout.xiaoxiaodong.ai/256/play/" target="_blank" rel="noopener">256 双列页面</a>。</span></li>
+              <li><b>纯粹的「列表选一条看详情」</b><span>收件箱、聊天窗口、通讯录属于父子浏览，该用 <a href="https://layout.xiaoxiaodong.ai/267/play/" target="_blank" rel="noopener">267 列表—详情布局</a>。</span></li>
+              <li><b>沉浸阅读、品牌发布页或线性结账</b><span>任何侧边补充都是干扰，老老实实用 <a href="https://layout.xiaoxiaodong.ai/255/play/" target="_blank" rel="noopener">255 单列页面</a> 或 <a href="https://layout.xiaoxiaodong.ai/261/play/" target="_blank" rel="noopener">261 页眉—主体—页脚</a>。</span></li>
+              <li><b>移动优先的轻工具与主导航切换</b><span>手机竖屏没有并列余地，一级切换看 <a href="https://layout.xiaoxiaodong.ai/264/play/" target="_blank" rel="noopener">264 底部导航布局</a> 或 <a href="https://layout.xiaoxiaodong.ai/262/play/" target="_blank" rel="noopener">262 顶部导航布局</a>。</span></li>
+              <li><b>左导航 + 中主区 + 右窗格同时锁死</b><span>桌面三列框架（见 <a href="https://layout.xiaoxiaodong.ai/257/play/" target="_blank" rel="noopener">257 三列页面</a>）若两边都不能折叠，主内容会被夹到窒息。</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section class="sec sec-navy" aria-labelledby="s7">
+    <div class="wrap sec-grid">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">07</p>
+        <h2 id="s7">小练习：<br>哪个方案站得住？</h2>
+        <p class="sec-en" lang="en">Practice · Pick the Working Auxiliary Pane</p>
+      </header>
+
+      <div class="sec-body">
+        <p class="lead reveal">需求：为一张 1280 px 宽屏上的「数据分析看板」配辅助窗格，帮助分析师筛选维度、查看口径并追踪异常。先凭直觉选最稳妥的一张，点下去看诊断。</p>
+
+        <div class="quiz reveal" id="quiz" role="group" aria-label="四个辅助窗格方案选项">
+          <!-- Option A: 50:50 split screen -->
+          <button type="button" class="q-opt" data-opt="A" aria-pressed="false">
+            <svg viewBox="0 0 260 164" class="q-svg" aria-hidden="true">
+              <rect x="4" y="4" width="252" height="156" rx="10" fill="#0e1e4d" stroke="#e8f0db" stroke-width="1.6"/>
+              <!-- 50% narrow main -->
+              <rect x="14" y="16" width="106" height="64" rx="5" fill="#2b3e79"/>
+              <path d="M22 64 L44 50 L68 56 L92 38 L112 42" fill="none" stroke="#e8f0db" stroke-width="2"/>
+              <rect x="14" y="88" width="50" height="58" rx="5" fill="#2b3e79"/>
+              <rect x="70" y="88" width="50" height="58" rx="5" fill="#2b3e79"/>
+              <!-- 50% oversized heavy pane -->
+              <path d="M130 4 H246 Q256 4 256 14 V150 Q256 160 246 160 H130 Z" fill="#e8f0db"/>
+              <rect x="142" y="18" width="102" height="36" rx="4" fill="#132760"/>
+              <rect x="142" y="62" width="102" height="38" rx="4" fill="#132760"/>
+              <rect x="142" y="108" width="102" height="38" rx="4" fill="#2b3e79"/>
+              <g class="q-anno">
+                <line x1="130" y1="6" x2="130" y2="158" stroke="#f0c96e" stroke-width="2" stroke-dasharray="4 3"/>
+                <rect x="42" y="130" width="46" height="18" rx="3" fill="#0e1e4d" stroke="#f0c96e"/>
+                <text x="65" y="142" text-anchor="middle" fill="#f0c96e" font-size="10" font-family="JetBrains Mono, monospace">50%</text>
+                <rect x="168" y="130" width="46" height="18" rx="3" fill="#0e1e4d" stroke="#f0c96e"/>
+                <text x="191" y="142" text-anchor="middle" fill="#f0c96e" font-size="10" font-family="JetBrains Mono, monospace">50%</text>
+              </g>
+            </svg>
+            <span class="q-meta"><b>方案 A</b><i class="q-mark" aria-hidden="true"></i></span>
+          </button>
+
+          <!-- Option B: 72:28 junk rail -->
+          <button type="button" class="q-opt" data-opt="B" aria-pressed="false">
+            <svg viewBox="0 0 260 164" class="q-svg" aria-hidden="true">
+              <rect x="4" y="4" width="252" height="156" rx="10" fill="#0e1e4d" stroke="#e8f0db" stroke-width="1.6"/>
+              <rect x="16" y="16" width="156" height="72" rx="5" fill="#2b3e79"/>
+              <path d="M26 70 L62 52 L98 58 L134 32 L162 28" fill="none" stroke="#e8f0db" stroke-width="2.2"/>
+              <rect x="16" y="96" width="48" height="50" rx="5" fill="#2b3e79"/>
+              <rect x="70" y="96" width="48" height="50" rx="5" fill="#2b3e79"/>
+              <rect x="124" y="96" width="48" height="50" rx="5" fill="#2b3e79"/>
+              <!-- Right rail full of unrelated promo/hot lists -->
+              <path d="M184 4 H246 Q256 4 256 14 V150 Q256 160 246 160 H184 Z" fill="#e8f0db"/>
+              <rect x="192" y="16" width="56" height="24" rx="3" fill="#f0c96e"/>
+              <text x="220" y="31" text-anchor="middle" fill="#132760" font-size="8.5" font-weight="700">公告推广</text>
+              <rect x="192" y="48" width="56" height="44" rx="3" fill="#d5e1c3" stroke="#132760" stroke-width="1"/>
+              <text x="220" y="73" text-anchor="middle" fill="#132760" font-size="8">热榜 Top5</text>
+              <rect x="192" y="100" width="56" height="44" rx="3" fill="#d5e1c3" stroke="#132760" stroke-width="1"/>
+              <text x="220" y="125" text-anchor="middle" fill="#132760" font-size="8">猜你想看</text>
+              <g class="q-anno">
+                <line x1="172" y1="54" x2="190" y2="54" stroke="#f0c96e" stroke-width="2"/>
+                <path d="M178 48 L184 60 M184 48 L178 60" stroke="#f0c96e" stroke-width="2"/>
+              </g>
+            </svg>
+            <span class="q-meta"><b>方案 B</b><i class="q-mark" aria-hidden="true"></i></span>
+          </button>
+
+          <!-- Option C: 72:28 connected + collapsible (CORRECT) -->
+          <button type="button" class="q-opt" data-opt="C" aria-pressed="false">
+            <svg viewBox="0 0 260 164" class="q-svg" aria-hidden="true">
+              <rect x="4" y="4" width="252" height="156" rx="10" fill="#0e1e4d" stroke="#e8f0db" stroke-width="1.6"/>
+              <rect x="16" y="16" width="156" height="72" rx="5" fill="#2b3e79" stroke="#e8f0db" stroke-width="1.1"/>
+              <path d="M26 70 L62 52 L98 58 L134 32 L162 28" fill="none" stroke="#e8f0db" stroke-width="2.2"/>
+              <circle cx="134" cy="32" r="4" fill="#e8f0db"/>
+              <rect x="16" y="96" width="48" height="50" rx="5" fill="#2b3e79"/>
+              <rect x="70" y="96" width="48" height="50" rx="5" fill="#2b3e79"/>
+              <rect x="124" y="96" width="48" height="50" rx="5" fill="#2b3e79"/>
+              <!-- Clean linked auxiliary pane with collapse toggle -->
+              <path d="M184 4 H246 Q256 4 256 14 V150 Q256 160 246 160 H184 Z" fill="#e8f0db"/>
+              <rect x="234" y="12" width="14" height="12" rx="2" fill="none" stroke="#132760" stroke-width="1.3" stroke-dasharray="2 1.5"/>
+              <text x="194" y="21" fill="#132760" font-size="8" font-weight="700">筛选</text>
+              <rect x="192" y="32" width="56" height="24" rx="3" fill="rgba(19,39,96,0.14)"/>
+              <text x="220" y="47" text-anchor="middle" fill="#132760" font-size="8" font-weight="700">口径备注</text>
+              <line x1="192" y1="68" x2="248" y2="68" stroke="#132760" stroke-opacity="0.25"/>
+              <text x="220" y="88" text-anchor="middle" fill="#42537e" font-size="8">指标提示</text>
+              <rect x="192" y="104" width="56" height="36" rx="4" fill="none" stroke="#132760" stroke-dasharray="3 2.5"/>
+              <text x="220" y="125" text-anchor="middle" fill="#132760" font-size="8">关联明细</text>
+              <!-- Subtle connection line -->
+              <path d="M138 32 C164 32, 168 44, 190 44" fill="none" stroke="#e8f0db" stroke-width="1.6" stroke-dasharray="3 2.5"/>
+              <g class="q-anno">
+                <rect x="52" y="130" width="84" height="18" rx="3" fill="#0e1e4d" stroke="#e8f0db"/>
+                <text x="94" y="142" text-anchor="middle" fill="#e8f0db" font-size="9.5" font-family="JetBrains Mono, monospace">72% : 28%</text>
+              </g>
+            </svg>
+            <span class="q-meta"><b>方案 C</b><i class="q-mark" aria-hidden="true"></i></span>
+          </button>
+
+          <!-- Option D: 3-column squeeze -->
+          <button type="button" class="q-opt" data-opt="D" aria-pressed="false">
+            <svg viewBox="0 0 260 164" class="q-svg" aria-hidden="true">
+              <rect x="4" y="4" width="252" height="156" rx="10" fill="#0e1e4d" stroke="#e8f0db" stroke-width="1.6"/>
+              <!-- Locked left nav -->
+              <path d="M14 4 H76 V160 H14 Q4 160 4 150 V14 Q4 4 14 4 Z" fill="#2b3e79"/>
+              <rect x="14" y="20" width="50" height="8" rx="2" fill="#e8f0db" fill-opacity="0.55"/>
+              <rect x="14" y="36" width="44" height="8" rx="2" fill="#e8f0db" fill-opacity="0.35"/>
+              <rect x="14" y="52" width="48" height="8" rx="2" fill="#e8f0db" fill-opacity="0.35"/>
+              <rect x="14" y="68" width="40" height="8" rx="2" fill="#e8f0db" fill-opacity="0.35"/>
+              <!-- Squeezed middle main (42%) -->
+              <rect x="84" y="18" width="92" height="62" rx="4" fill="#2b3e79"/>
+              <path d="M90 64 L112 52 L134 58 L156 38 L170 42" fill="none" stroke="#e8f0db" stroke-width="1.8"/>
+              <rect x="84" y="88" width="92" height="58" rx="4" fill="#2b3e79"/>
+              <!-- Locked right pane -->
+              <path d="M184 4 H246 Q256 4 256 14 V150 Q256 160 246 160 H184 Z" fill="#e8f0db"/>
+              <rect x="192" y="20" width="54" height="16" rx="3" fill="rgba(19,39,96,0.16)"/>
+              <rect x="192" y="44" width="54" height="16" rx="3" fill="rgba(19,39,96,0.12)"/>
+              <rect x="192" y="68" width="54" height="16" rx="3" fill="rgba(19,39,96,0.12)"/>
+              <g class="q-anno">
+                <rect x="94" y="130" width="72" height="18" rx="3" fill="#0e1e4d" stroke="#f0c96e"/>
+                <text x="130" y="142" text-anchor="middle" fill="#f0c96e" font-size="9.5" font-family="JetBrains Mono, monospace">仅剩 42%</text>
+              </g>
+            </svg>
+            <span class="q-meta"><b>方案 D</b><i class="q-mark" aria-hidden="true"></i></span>
+          </button>
+        </div>
+
+        <div class="verdict" id="quiz-verdict" aria-live="polite">
+          <p class="v-title" id="quiz-title">先凭直觉点选一个方案。</p>
+          <p class="v-text" id="quiz-text">四张图都画了左右结构，但只有一张守住了主次重心、关联互补与按需折叠。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section class="sec sec-poster" aria-labelledby="s8">
+    <div class="wrap poster-grid">
+      <header class="sec-head reveal">
+        <p class="sec-no num" lang="en">08</p>
+        <h2 id="s8">原海报与关键词</h2>
+        <p class="sec-en" lang="en">The Original Poster &amp; Keywords</p>
+      </header>
+
+      <figure class="poster reveal" id="poster-fig">
+        <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="放大原海报">
+          <img
+            id="poster"
+            src="poster.webp"
+            draggable="false"
+            width="1086"
+            height="1448"
+            alt="辅助窗格布局原海报：整张海报本身采用左深蓝主内容区配右浅豆绿辅助栏的结构。左侧画有带圆角细框的双窗格蓝图示意与底部星号标尺，列出主内容、上下文、支撑、关联四个几何符号关键词；右侧淡绿区用虚线串联三条布局原则、四个适用场景，底部是可折叠辅助窗格的虚线框提示。"
+          >
+        </button>
+        <figcaption>点按放大，放大后可拖动细看；再点一次或按 Esc 收起。</figcaption>
+      </figure>
+
+      <div class="keywords">
+        <h3 class="kw-title reveal">海报四个关键词 <span lang="en">Keywords</span></h3>
+        <ul class="kw-list">
+          <li class="reveal">
+            <span class="kw-shape" aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="currentColor"/></svg></span>
+            <div>
+              <b>主内容 <span lang="en">MAIN</span></b>
+              <p>聚焦核心信息，承载主要任务。</p>
+            </div>
+          </li>
+          <li class="reveal">
+            <span class="kw-shape" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="6" y="6" width="20" height="20" fill="currentColor"/></svg></span>
+            <div>
+              <b>上下文 <span lang="en">CONTEXT</span></b>
+              <p>提供环境信息，解释与补充。</p>
+            </div>
+          </li>
+          <li class="reveal">
+            <span class="kw-shape" aria-hidden="true"><svg viewBox="0 0 32 32"><polygon points="16,5 28,26 4,26" fill="currentColor"/></svg></span>
+            <div>
+              <b>支撑 <span lang="en">SUPPORT</span></b>
+              <p>辅助操作与参考，提升效率。</p>
+            </div>
+          </li>
+          <li class="reveal">
+            <span class="kw-shape" aria-hidden="true"><svg viewBox="0 0 32 32"><polygon points="16,4 28,16 16,28 4,16" fill="currentColor"/></svg></span>
+            <div>
+              <b>关联 <span lang="en">RELATION</span></b>
+              <p>建立信息联系，引导深入探索。</p>
+            </div>
+          </li>
+        </ul>
+
+        <aside class="poster-tip reveal">
+          <div class="ptip-head">
+            <b lang="en">TIP</b>
+            <span class="ptip-bang" aria-hidden="true">!</span>
+          </div>
+          <p>辅助窗格可折叠或隐藏，在需要时出现，让主内容始终保持宽敞。</p>
+          <div class="ptip-diagram" aria-hidden="true">
+            <span class="box-solid"></span>
+            <span class="box-arrow">→</span>
+            <span class="box-dashed"></span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报大图预览">
+  <div class="lb-bar">
+    <button type="button" class="lb-btn" id="lb-zoom" aria-pressed="false">放大 1.8×</button>
+    <button type="button" class="lb-btn" id="lb-close" aria-label="关闭大图">关闭 ×</button>
+  </div>
+  <div class="lb-stage" id="lb-stage" data-zoomed="false">
+    <img id="lb-img" draggable="false" alt="辅助窗格布局原海报放大预览">
+  </div>
+  <p class="lb-hint">点图片放大 / 还原，放大后可拖动查看细节 · 点空白处或按 Esc 关闭</p>
+</div>
+
+<footer class="foot wrap">
+  <p><span lang="en" class="num">No. 268</span> 辅助窗格布局 · 350 种排版</p>
+  <p>辅助窗格的价值不在于占了多少宽度，而在于让主任务少被打断多少次。</p>
+  <p class="foot-meta"><a href="https://layout.xiaoxiaodong.ai/268/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a><span class="sep">·</span>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a> · 源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></p>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
