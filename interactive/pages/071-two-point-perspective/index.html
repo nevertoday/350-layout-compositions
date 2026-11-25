@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>两点透视 · TWO-POINT PERSPECTIVE</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ==================== 开场：承袭 071 原海报开放制图纸骨架 ==================== -->
+<header class="hero" id="top">
+  <!-- 原海报顶角双色四分之一圆与 3×4 点阵 -->
+  <div class="hero-corner hero-corner--left" aria-hidden="true">
+    <svg viewBox="0 0 120 120" width="120" height="120" focusable="false">
+      <circle cx="0" cy="0" r="118" fill="#0B5D56"/>
+      <g fill="#FAF1E4">
+        <circle cx="24" cy="22" r="2.2"/><circle cx="42" cy="22" r="2.2"/><circle cx="60" cy="22" r="2.2"/>
+        <circle cx="24" cy="38" r="2.2"/><circle cx="42" cy="38" r="2.2"/><circle cx="60" cy="38" r="2.2"/>
+        <circle cx="24" cy="54" r="2.2"/><circle cx="42" cy="54" r="2.2"/><circle cx="60" cy="54" r="2.2"/>
+        <circle cx="24" cy="70" r="2.2"/><circle cx="42" cy="70" r="2.2"/><circle cx="60" cy="70" r="2.2"/>
+      </g>
+    </svg>
+  </div>
+  <div class="hero-corner hero-corner--right" aria-hidden="true">
+    <svg viewBox="0 0 120 120" width="120" height="120" focusable="false">
+      <circle cx="120" cy="0" r="118" fill="#DF5320"/>
+    </svg>
+  </div>
+
+  <div class="hero-shell">
+    <!-- 刊头：原海报居中排版 + 双色联动副标 -->
+    <div class="hero-head">
+      <div class="hero-kicker">
+        <span class="kicker-dot kicker-dot--orange" aria-hidden="true"></span>
+        <span class="kicker-line" aria-hidden="true"></span>
+        <span class="kicker-text">NO. 071 · 理解空间 · 构建真实</span>
+        <span class="kicker-line" aria-hidden="true"></span>
+        <span class="kicker-dot kicker-dot--teal" aria-hidden="true"></span>
+      </div>
+
+      <h1 class="hero-title" id="hero-title">
+        <span class="t-left">两点</span><span class="t-ridge" aria-hidden="true"></span><span class="t-right">透视</span>
+      </h1>
+
+      <div class="hero-subrow">
+        <span class="sub-ray sub-ray--left" id="sub-ray-l" aria-hidden="true"></span>
+        <p class="hero-en" lang="en">TWO-POINT PERSPECTIVE</p>
+        <span class="sub-ray sub-ray--right" id="sub-ray-r" aria-hidden="true"></span>
+      </div>
+
+      <p class="hero-lead">两个消失点决定方向，地平线决定高度，构成立体空间。</p>
+    </div>
+
+    <!-- 主舞台与右/下联控区（844×390 横屏自动切为左右并行） -->
+    <div class="hero-workspace">
+      <div class="stage-column">
+        <!-- 顶部极简图纸工具行 -->
+        <div class="stage-toolbar">
+          <div class="seg-group" role="group" aria-label="建筑题材">
+            <button type="button" class="seg-btn is-active" data-scene="poster" aria-pressed="true">原海报方屋</button>
+            <button type="button" class="seg-btn" data-scene="bookstore" aria-pressed="false">街角书店</button>
+            <button type="button" class="seg-btn" data-scene="twin" aria-pressed="false">双体展馆</button>
+          </div>
+          <div class="stage-actions">
+            <button type="button" class="tool-btn is-on" id="btn-rays" aria-pressed="true">透射线</button>
+            <button type="button" class="tool-btn" id="btn-lock-h" aria-pressed="false">锁齐地平</button>
+            <button type="button" class="tool-btn is-reset" id="btn-reset">复原错态</button>
+          </div>
+        </div>
+
+        <!-- 开放双灭点制图主画布（data-perf-drag 标在中央互动舞台上） -->
+        <div class="drafting-wrap">
+          <canvas id="hero-canvas" class="drafting-canvas" data-perf-drag tabindex="0" aria-label="两点透视双灭点互动制图台：横向拖动建筑前棱旋转转角，拖动左右消失点或上下拖动地平线，可用键盘方向键微调"></canvas>
+        </div>
+
+        <!-- 紧贴底沿的俯视泰勒斯 90° 站位与 60° 视锥实况条 -->
+        <div class="plan-strip">
+          <div class="plan-head">
+            <span class="plan-title">俯视站位图 · 90° 泰勒斯半圆</span>
+            <span class="plan-meta mono" id="plan-meta">SP 距画面 9.4mm · 视场 125°</span>
+          </div>
+          <canvas id="plan-canvas" class="plan-canvas" aria-hidden="true"></canvas>
+        </div>
+
+        <p class="stage-micro">画布直操：横拖建筑前棱转角 · 拖青/橘圆点移双灭点（可拉出画外）· 上下拖青线升降地平线 · 方向键微调</p>
+      </div>
+
+      <!-- 侧/下诊断与快控（在 844×390 横屏占右 42%，在 1440/390 紧接画布下方呈现原海报标志结构） -->
+      <div class="hero-readout-col">
+        <!-- 原海报底沿：橘星实时白话画评 + 预设方案 -->
+        <div class="tip-strip" id="hero-diag" aria-live="polite">
+          <div class="tip-badge-col">
+            <span class="star-disc" id="diag-star" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" focusable="false"><polygon points="12,2.4 14.9,8.4 21.5,9.3 16.7,13.9 17.9,20.5 12,17.3 6.1,20.5 7.3,13.9 2.5,9.3 9.1,8.4" fill="currentColor"/></svg>
+            </span>
+            <span class="tip-label-zh">实时画评</span>
+            <span class="tip-label-en" lang="en">DIAGNOSIS</span>
+          </div>
+          <div class="tip-body-col">
+            <div class="diag-top">
+              <span class="diag-pill is-err" id="diag-pill">错态 · 视平错位 11%</span>
+              <span class="diag-metrics mono" id="diag-metrics">等效 9mm · 左右 47:53 · 前角 104°</span>
+            </div>
+            <p class="diag-headline" id="diag-headline">右消失点比左消失点高出了 11%，地平线被撕成两段</p>
+            <p class="diag-desc" id="diag-desc">只要建筑立在同一块水平地面上，它的两组水平消失点都必须落死在同一条水平视平线上。</p>
+            <p class="diag-hint" id="diag-hint">直接上下拖动橘色「右消失点」，把它压回深青地平虚线上。</p>
+          </div>
+        </div>
+
+        <!-- 紧凑微调与多组正当解速切 -->
+        <div class="hero-controls">
+          <div class="ctrl-sliders">
+            <label class="ctrl-field">
+              <span class="ctrl-head"><span>双灭点跨度（焦距）</span><strong class="mono" id="val-span">52% · 9mm</strong></span>
+              <input type="range" id="rng-span" min="36" max="220" step="1" value="52">
+            </label>
+            <label class="ctrl-field">
+              <span class="ctrl-head"><span>地平线高度</span><strong class="mono" id="val-horizon">42% · 平视</strong></span>
+              <input type="range" id="rng-horizon" min="16" max="82" step="1" value="42">
+            </label>
+            <label class="ctrl-field">
+              <span class="ctrl-head"><span>转角朝向（左:右墙）</span><strong class="mono" id="val-yaw">45° · 47:53</strong></span>
+              <input type="range" id="rng-yaw" min="18" max="72" step="1" value="45">
+            </label>
+          </div>
+          <div class="preset-row" role="group" aria-label="快捷光学解与试错预设">
+            <button type="button" class="preset-btn" data-preset="poster">原海报平视解</button>
+            <button type="button" class="preset-btn" data-preset="bird">俯视屋顶解</button>
+            <button type="button" class="preset-btn" data-preset="worm">仰视纪念碑解</button>
+            <button type="button" class="preset-btn" data-preset="offcanvas">画外远焦解</button>
+            <button type="button" class="preset-btn is-test" data-preset="collapse">试错：单面坍缩</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 原海报最标志的「深青竖脊 + 四栏核心要点实况表」 -->
+    <div class="keypoints-board" aria-label="原海报核心要点实时检核">
+      <div class="kp-spine">
+        <span class="kp-spine-zh">核心要点</span>
+        <span class="kp-spine-en" lang="en">KEY POINTS</span>
+      </div>
+      <div class="kp-grid">
+        <div class="kp-cell" id="kp-horizon">
+          <svg class="kp-icon" viewBox="0 0 80 28" width="80" height="28" aria-hidden="true">
+            <line x1="8" y1="14" x2="72" y2="14" stroke="#0C625C" stroke-width="2.2"/>
+            <circle cx="40" cy="14" r="5.5" fill="#0C625C"/>
+          </svg>
+          <div class="kp-name">地平线 <span class="kp-en" lang="en">HORIZON</span></div>
+          <p class="kp-text">决定视平高度，所有消失点都在同一条水平线上。</p>
+          <span class="kp-status mono" id="kp-st-horizon">错位 11%</span>
+        </div>
+
+        <div class="kp-cell" id="kp-vp">
+          <svg class="kp-icon" viewBox="0 0 80 28" width="80" height="28" aria-hidden="true">
+            <line x1="14" y1="14" x2="66" y2="14" stroke="#161817" stroke-width="1.8" stroke-dasharray="5 4"/>
+            <circle cx="14" cy="14" r="5.5" fill="#0C625C"/>
+            <circle cx="66" cy="14" r="5.5" fill="#DF5320"/>
+          </svg>
+          <div class="kp-name">双消失点 <span class="kp-en" lang="en">VANISHING POINTS</span></div>
+          <p class="kp-text">左右各一个消失点，控制物体在水平面上的延伸方向。</p>
+          <span class="kp-status mono" id="kp-st-vp">过近 9mm</span>
+        </div>
+
+        <div class="kp-cell" id="kp-volume">
+          <svg class="kp-icon" viewBox="0 0 80 28" width="80" height="28" aria-hidden="true">
+            <polygon points="40,3 54,10 40,17 26,10" fill="#FDF9F1" stroke="#161817" stroke-width="1.4"/>
+            <polygon points="26,10 40,17 40,26 26,19" fill="#E49D71" stroke="#161817" stroke-width="1.4"/>
+            <polygon points="40,17 54,10 54,19 40,26" fill="#557D74" stroke="#161817" stroke-width="1.4"/>
+          </svg>
+          <div class="kp-name">体积 <span class="kp-en" lang="en">VOLUME</span></div>
+          <p class="kp-text">通过两组斜线确定物体的宽度与深度，形成体积感。</p>
+          <span class="kp-status mono" id="kp-st-volume">均分 47:53</span>
+        </div>
+
+        <div class="kp-cell" id="kp-direction">
+          <svg class="kp-icon" viewBox="0 0 80 28" width="80" height="28" aria-hidden="true">
+            <path d="M33 14 H16 M22 9 L15 14 L22 19" fill="none" stroke="#0C625C" stroke-width="2.4" stroke-linecap="square"/>
+            <path d="M47 14 H64 M58 9 L65 14 L58 19" fill="none" stroke="#DF5320" stroke-width="2.4" stroke-linecap="square"/>
+          </svg>
+          <div class="kp-name">方向 <span class="kp-en" lang="en">DIRECTION</span></div>
+          <p class="kp-text">两组斜线分别指向两个消失点，建立空间秩序。</p>
+          <span class="kp-status mono" id="kp-st-direction">射线失序</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== 01 为什么两面比一面立体 ==================== -->
+  <section class="band band--paper" id="sec-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">01</span>
+        <div>
+          <h2>为什么两面比一面立体</h2>
+          <p class="sec-en" lang="en">WHY TWO FACES BUILD VOLUME</p>
+        </div>
+      </div>
+
+      <div class="split-2col">
+        <div class="prose-col">
+          <p class="lead-p">正对着一面墙看，你只读到高度和宽度，厚度被藏在了背面——那是 <a href="https://layout.xiaoxiaodong.ai/070/play/">070 一点透视</a> 的正面格局。只要绕着墙角走几步、让转角朝向自己，建筑的两组水平边就会同时朝左、右两边收束，宽、深、高和明暗受光面一次性在纸上摊开。</p>
+          <p>转动角度时还有一个容易被忽略的节奏：<strong>45° 绝对对称反而最平板</strong>。当左右墙面宽度落在 30:70 到 40:60 之间（主面交代门窗细节、次面负责纵深转折），眼睛才有明确的主次落点。</p>
+
+          <div class="gentle-note">
+            <span class="note-tag">说多了一点</span>
+            <p>原海报写着「所有水平线分别向两个消失点延伸」。准确地说，<strong>只有彼此平行的那一组正交物体</strong>才共享同一对消失点。如果在广场上斜着摆第二栋楼，它的水平边会在<strong>同一条地平线上</strong>生出自己的一对新消失点——下面点击「加一座斜转副楼」就能亲眼看到四点共线。</p>
+          </div>
+
+          <div class="inline-controls">
+            <label class="ctrl-field">
+              <span class="ctrl-head"><span>观者绕角转度</span><strong class="mono" id="s1-angle-val">32° · 主次分明</strong></span>
+              <input type="range" id="s1-yaw" min="0" max="90" step="1" value="32">
+            </label>
+            <div class="btn-row">
+              <button type="button" class="chip-btn" data-s1-yaw="0">0° 退回一点</button>
+              <button type="button" class="chip-btn is-active" data-s1-yaw="32">32° 经典主次</button>
+              <button type="button" class="chip-btn" data-s1-yaw="45">45° 均分对称</button>
+              <button type="button" class="chip-btn" id="s1-second-btn" aria-pressed="false">加一座斜转副楼</button>
+            </div>
+            <p class="live-note" id="s1-note">转角 32°：右墙舒展交代立面，左墙急收带出纵深，两组明暗把方盒撑成了真实建筑。</p>
+          </div>
+        </div>
+
+        <div class="visual-col">
+          <canvas id="s1-canvas" class="panel-canvas" aria-label="从 0 度单面旋转到 90 度双面的实时透视对比图"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 地平线决定谁在俯视谁 ==================== -->
+  <section class="band band--bright" id="sec-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">02</span>
+        <div>
+          <h2>地平线决定谁在俯视谁</h2>
+          <p class="sec-en" lang="en">THE HORIZON LINE DEFINES HEIGHT</p>
+        </div>
+      </div>
+
+      <p class="intro-wide">建筑物本身一厘米都没变，你只需把相机或画家的眼睛抬高或放低，整栋楼的性格就会彻底翻盘。记住建筑速写里最好用的一条验真口诀：<strong>站在同一平地、身高相同的行人，无论走得多远，他们的眼睛永远压在地平线上</strong>。</p>
+
+      <div class="elevator-layout">
+        <div class="elev-rail-card">
+          <div class="elev-head">
+            <span class="elev-kicker">相机标高尺</span>
+            <strong class="mono elev-big" id="s2-meters">1.7 m</strong>
+            <span class="elev-tag" id="s2-mode">日常人眼平视</span>
+          </div>
+          <label class="ctrl-field">
+            <span class="ctrl-head"><span>升降视点高度</span><span class="mono">0.3m — 12.0m</span></span>
+            <input type="range" id="s2-eye" min="3" max="120" step="1" value="17">
+          </label>
+          <div class="elev-stops" role="group" aria-label="相机高度预设">
+            <button type="button" class="stop-btn" data-s2-eye="4">0.4m 贴地仰视（建筑高耸）</button>
+            <button type="button" class="stop-btn is-active" data-s2-eye="17">1.7m 人眼平视（行人同眼）</button>
+            <button type="button" class="stop-btn" data-s2-eye="55">5.5m 二楼露台（齐平檐口）</button>
+            <button type="button" class="stop-btn" data-s2-eye="110">11.0m 航拍俯视（屋顶尽收）</button>
+          </div>
+          <p class="live-note" id="s2-note">相机在 1.7m：近处与远处身高 1.7m 的行人都把头顶和眼睛稳稳压在深青地平线上，观者像亲身走在街角。</p>
+          <p class="small-link">注意这里无论升降多少，所有竖线始终垂直——一旦镜头真的昂头或低头，竖线就会向第三个消失点收拢，进入 <a href="https://layout.xiaoxiaodong.ai/072/play/">072 三点透视</a>。</p>
+        </div>
+
+        <div class="visual-col">
+          <canvas id="s2-canvas" class="panel-canvas panel-canvas--tall" aria-label="相机高度变化与同高行人剪影压地平线演示图"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 深松墨暗室：直角与视锥的隐藏锁链 ==================== -->
+  <section class="band band--dark" id="sec-03">
+    <div class="wrap">
+      <div class="sec-head sec-head--dark">
+        <span class="sec-num">03</span>
+        <div>
+          <h2>直角与视锥的隐藏锁链</h2>
+          <p class="sec-en" lang="en">THE 90° THALES SEMICIRCLE &amp; 60° CONE</p>
+        </div>
+      </div>
+
+      <p class="intro-wide intro-wide--dark">为什么很多人画两点透视时，老觉得房子像被门夹尖了？因为左右消失点并不是画纸上随便点出的两颗钉子。从俯视图看，<strong>观者站位点 SP 到左右消失点的两条视线永远垂直成 90°</strong>——换句话说，SP 永远落在一只以「左灭点—右灭点」为直径的<strong>泰勒斯半圆</strong>上（满足 <span class="mono">pL × pR = f²</span>）。</p>
+
+      <div class="dark-lab-grid">
+        <div class="dark-pane">
+          <div class="pane-bar">
+            <span>俯视光学台（泰勒斯 90° 半圆）</span>
+            <span class="mono" id="s3-math">f = 28mm · 建筑占视场 36°</span>
+          </div>
+          <canvas id="s3-plan-canvas" class="dark-canvas" aria-label="俯视泰勒斯半圆与 60 度自然视锥几何关系图"></canvas>
+        </div>
+
+        <div class="dark-pane">
+          <div class="pane-bar">
+            <span>同一瞬间的实算透视结果</span>
+            <span class="mono" id="s3-status">60° 视锥内 · 方正自然</span>
+          </div>
+          <canvas id="s3-view-canvas" class="dark-canvas" aria-label="根据俯视站位实时投影的正方体外观"></canvas>
+        </div>
+      </div>
+
+      <div class="dark-controls">
+        <div class="dark-sliders">
+          <label class="ctrl-field ctrl-field--dark">
+            <span class="ctrl-head"><span>站位退距（等效焦距）</span><strong class="mono" id="s3-f-val">28 mm</strong></span>
+            <input type="range" id="s3-focal" min="9" max="75" step="1" value="28">
+          </label>
+          <label class="ctrl-field ctrl-field--dark">
+            <span class="ctrl-head"><span>沿半圆绕角滑动</span><strong class="mono" id="s3-t-val">36°</strong></span>
+            <input type="range" id="s3-theta" min="18" max="72" step="1" value="36">
+          </label>
+        </div>
+        <div class="dark-presets">
+          <button type="button" class="dark-btn" data-s3="11,44">11mm 广角爆角（画内挤双点）</button>
+          <button type="button" class="dark-btn is-active" data-s3="28,36">28mm 建筑自然（单点出画外）</button>
+          <button type="button" class="dark-btn" data-s3="50,34">50mm 人眼沉稳（双点退画外）</button>
+          <button type="button" class="dark-btn" data-s3="75,35">75mm 长焦压扁（趋近平行）</button>
+        </div>
+        <p class="dark-note" id="s3-note">当焦距拉到 28mm，站位点后退，建筑稳稳缩进经验上的 60° 自然视锥内；右消失点自然退出画框之外，这在建筑渲染里再正常不过。焦距再拉长到 75mm 以上时，两条斜线趋近平行，观感就会靠近 <a href="https://layout.xiaoxiaodong.ai/073/play/">073 平行透视构图</a>。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 五步落笔与透视等分 ==================== -->
+  <section class="band band--sand" id="sec-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">04</span>
+        <div>
+          <h2>五步落笔与透视等分</h2>
+          <p class="sec-en" lang="en">FIVE-STEP CONSTRUCTION &amp; SUBDIVISION</p>
+        </div>
+      </div>
+
+      <p class="intro-wide">071 原海报底部的「练习建议」给了一套极简起稿顺序：「先确定地平线与两个消失点，再画出物体的垂直线，最后连接到消失点，检查比例与方向。」下面按步骤点开看每一步落笔后纸面发生了什么；到第 5 步，还能亲手用<strong>对角线交叉法</strong>把一排门窗或柱距按真实透视等分。</p>
+
+      <div class="steps-shell">
+        <div class="step-tabs" role="tablist" aria-label="两点透视五步画法">
+          <button type="button" class="step-tab is-active" role="tab" aria-selected="true" data-step="1"><span class="mono">01</span>定地平线与双灭点</button>
+          <button type="button" class="step-tab" role="tab" aria-selected="false" data-step="2"><span class="mono">02</span>立最近一条垂直前棱</button>
+          <button type="button" class="step-tab" role="tab" aria-selected="false" data-step="3"><span class="mono">03</span>上下端点连向双灭点</button>
+          <button type="button" class="step-tab" role="tab" aria-selected="false" data-step="4"><span class="mono">04</span>切出左右两侧边界</button>
+          <button type="button" class="step-tab" role="tab" aria-selected="false" data-step="5"><span class="mono">05</span>对角线透视等分门窗</button>
+        </div>
+
+        <div class="steps-stage-grid">
+          <div class="visual-col">
+            <canvas id="s4-canvas" class="panel-canvas" aria-label="五步起稿与对角线透视等分交互步骤图"></canvas>
+          </div>
+          <div class="step-detail-card">
+            <span class="step-badge mono" id="s4-badge">STEP 01 / 05</span>
+            <h3 id="s4-title">先画通宽水平地平线，并把双灭点尽量放宽</h3>
+            <p id="s4-desc">很多初学者第一步就把两个消失点点在画纸左右边距里，结果刚画完前棱就陷入爆角畸变。实战时宁可把其中至少一个消失点贴在桌边胶带上，留出舒展的斜线坡度。</p>
+            <div class="subdiv-box" id="s4-subdiv-box">
+              <div class="ctrl-head">
+                <span>透视等分开间数（X 对角线法）</span>
+                <strong class="mono" id="s4-bays-val">4 间 · 近宽远密</strong>
+              </div>
+              <div class="bay-btns" role="group" aria-label="等分开间数量">
+                <button type="button" class="bay-btn" data-bays="2">2 间</button>
+                <button type="button" class="bay-btn" data-bays="3">3 间</button>
+                <button type="button" class="bay-btn is-active" data-bays="4">4 间</button>
+                <button type="button" class="bay-btn" data-bays="5">5 间</button>
+                <button type="button" class="bay-btn" data-bays="6">6 间</button>
+              </div>
+              <p class="subdiv-tip" id="s4-subdiv-tip">先画大墙面两条对角线找透视中点，再穿过中点向消失点引中位线——每一次借对角线递推，近处开间自动更宽、远处自然收紧，绝不能拿尺子在纸上平分。</p>
+            </div>
+            <div class="step-nav">
+              <button type="button" class="nav-btn" id="s4-prev">← 上一步</button>
+              <button type="button" class="nav-btn is-primary" id="s4-next">下一步 →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 从哪来：从图勒木刻到斜角剧场 ==================== -->
+  <section class="band band--bright" id="sec-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">05</span>
+        <div>
+          <h2>从图勒木刻到斜角剧场</h2>
+          <p class="sec-en" lang="en">ORIGINS · 1505 TO 1719</p>
+        </div>
+      </div>
+
+      <div class="history-grid">
+        <ol class="timeline">
+          <li>
+            <span class="tl-year">1505</span>
+            <div>
+              <h3>让·佩勒兰与首部印刷透视专著</h3>
+              <p>法国图勒大教堂教士让·佩勒兰（Jean Pèlerin，笔名 Viator）出版 <em>De artificiali perspectiva</em>。它比达·芬奇与丢勒的透视手稿更早进入印刷流通，并首次以清晰木刻示范「多主点 / 距点」构图，让画家不必再把建筑死板地正对画面。</p>
+            </div>
+          </li>
+          <li>
+            <span class="tl-year">1600</span>
+            <div>
+              <h3>圭多巴尔多·德尔蒙特证明灭点定理</h3>
+              <p>意大利数学家圭多巴尔多·德尔蒙特（Guidobaldo del Monte）在佩萨罗发表 <em>Perspectivae libri sex</em>，在三维欧氏几何里严格证明：任意一组不平行于画面的平行线，必汇聚于唯一「汇聚点」（<em>punctum concursus</em>），奠定多灭点几何根基。</p>
+            </div>
+          </li>
+          <li>
+            <span class="tl-year">1711</span>
+            <div>
+              <h3>比比耶纳的斜角舞台打破“君王专座”</h3>
+              <p>费迪南多·加利·比比耶纳（Ferdinando Galli Bibiena）在帕尔马出版 <em>L'Architettura civile</em>，系统确立「斜角布景」（<em>scena per angolo</em>）。它把原本藏在正中央的唯一消失点甩到舞台左右两侧，让宫殿柱廊斜向切出舞台，第一次解放了剧场侧翼包厢的观众。</p>
+            </div>
+          </li>
+          <li>
+            <span class="tl-year">1715 / 1719</span>
+            <div>
+              <h3>布鲁克·泰勒建立普适灭点理论</h3>
+              <p>英国数学家布鲁克·泰勒（Brook Taylor）先后发表 <em>Linear Perspective</em>（1715）与修订版 <em>New Principles of Linear Perspective</em>（1719），摒弃零散作图口诀，用公理化几何正式确立现代通用的「灭点」与「灭线」体系。</p>
+            </div>
+          </li>
+        </ol>
+
+        <!-- 互动：巴洛克剧场座次验真器 -->
+        <div class="theater-card">
+          <div class="theater-head">
+            <h3>亲测 1711 年比比耶纳革命：为何侧座不再穿帮？</h3>
+            <p>单点对称舞台只为正中央的公爵包厢校准；换到侧面包厢看，长廊会明显歪斜。切换舞台类型与座位，看剧场纵深怎么变。</p>
+          </div>
+          <div class="theater-bar">
+            <div class="seg-group" role="group" aria-label="舞台透视流派">
+              <button type="button" class="seg-btn" data-t-mode="one" aria-pressed="false">旧式单点舞台</button>
+              <button type="button" class="seg-btn is-active" data-t-mode="two" aria-pressed="true">比比耶纳斜角舞台</button>
+            </div>
+            <div class="seg-group" role="group" aria-label="观众包厢位置">
+              <button type="button" class="seg-btn" data-t-seat="center" aria-pressed="false">中央君王座</button>
+              <button type="button" class="seg-btn is-active" data-t-seat="side" aria-pressed="true">右侧翼包厢</button>
+            </div>
+          </div>
+          <canvas id="s5-canvas" class="panel-canvas panel-canvas--mid" aria-label="单点对称舞台与比比耶纳斜角舞台在中央座和侧座的视角差异"></canvas>
+          <p class="live-note" id="s5-note">比比耶纳斜角舞台 · 右侧翼包厢：双灭点把纵深甩向两侧台口之外，不再强绑单一中心轴，侧座观众看到的依然是宏阔连贯的斜向柱廊。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 什么时候用，何时换法 ==================== -->
+  <section class="band band--paper" id="sec-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">06</span>
+        <div>
+          <h2>什么时候用，何时换法</h2>
+          <p class="sec-en" lang="en">WHEN TO USE &amp; WHEN TO SWITCH</p>
+        </div>
+      </div>
+
+      <p class="intro-wide">两点透视最擅长给静物、建筑与室内空间交代「转角与体量」，但它并不是万能投影。点选下方六种真实工作场景，看该坚持两点透视还是干脆换一种空间系统。</p>
+
+      <div class="use-grid">
+        <div class="use-cards" role="listbox" aria-label="六类设计场景选型">
+          <button type="button" class="use-card is-active" data-use="corner" aria-selected="true">
+            <span class="use-badge is-yes">宜用两点</span>
+            <strong>建筑街角与外观方案</strong>
+            <span>同时亮出主入口立面与侧墙进深</span>
+          </button>
+          <button type="button" class="use-card" data-use="interior" aria-selected="false">
+            <span class="use-badge is-yes">宜用两点</span>
+            <strong>室内客厅与展厅转角</strong>
+            <span>两面墙围合出自然包裹感，不呆板</span>
+          </button>
+          <button type="button" class="use-card" data-use="product" aria-selected="false">
+            <span class="use-badge is-yes">宜用两点</span>
+            <strong>桌拍产品与包装立体图</strong>
+            <span>略偏角摆位，一眼交代正面与侧面厚度</span>
+          </button>
+          <button type="button" class="use-card" data-use="cad" aria-selected="false">
+            <span class="use-badge is-no">慎用 · 换法</span>
+            <strong>工业零件与尺寸比对图</strong>
+            <span>近大远小会干扰跨距离比例直读</span>
+          </button>
+          <button type="button" class="use-card" data-use="ritual" aria-selected="false">
+            <span class="use-badge is-no">慎用 · 换法</span>
+            <strong>仪式感中轴长廊海报</strong>
+            <span>要正面压迫与绝对对称，不应偏转</span>
+          </button>
+          <button type="button" class="use-card" data-use="tower" aria-selected="false">
+            <span class="use-badge is-no">慎用 · 换法</span>
+            <strong>贴脚仰望摩天大楼</strong>
+            <span>强行拉直竖线会削弱冲天压迫感</span>
+          </button>
+        </div>
+
+        <div class="use-detail">
+          <canvas id="s6-canvas" class="panel-canvas panel-canvas--mid" aria-label="所选设计场景的透视对比示意图"></canvas>
+          <div class="use-copy">
+            <span class="use-verdict" id="s6-verdict">推荐使用两点透视</span>
+            <h3 id="s6-title">建筑街角与外观方案</h3>
+            <p id="s6-body">建筑摄影师拍摄住宅和美术馆时，常刻意端平机身（必要时配合移轴镜头），让竖向墙角绝对垂直、左右立面分别朝两个画外灭点收束——既有真实空间感，又不显得楼在往后倒。</p>
+            <p class="use-alt" id="s6-alt">同属线性透视家族：先看总纲 <a href="https://layout.xiaoxiaodong.ai/069/play/">069 线性透视</a>，再按镜头姿态区分单点、两点与三点。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 四张草图，哪张最稳（单变量小练习） ==================== -->
+  <section class="band band--sand" id="sec-07">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">07</span>
+        <div>
+          <h2>四张草图，哪张最稳</h2>
+          <p class="sec-en" lang="en">EYE CHECK · SPOT THE SOUND GEOMETRY</p>
+        </div>
+      </div>
+
+      <p class="intro-wide">下面四张街角展亭草图使用同一套建筑尺寸与光线，只改变了「消失点放置与转角姿态」。先别看辅助线，凭结构直觉挑出光学最扎实的一张——选完后四张图会同时亮出隐藏的双色透视射线复盘。</p>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四张两点透视草图盲测">
+        <button type="button" class="quiz-card" data-choice="A">
+          <canvas class="quiz-canvas" data-quiz="A" aria-label="方案 A 草图"></canvas>
+          <div class="quiz-foot"><strong class="mono">方案 A</strong><span>草图 01</span></div>
+        </button>
+        <button type="button" class="quiz-card" data-choice="B">
+          <canvas class="quiz-canvas" data-quiz="B" aria-label="方案 B 草图"></canvas>
+          <div class="quiz-foot"><strong class="mono">方案 B</strong><span>草图 02</span></div>
+        </button>
+        <button type="button" class="quiz-card" data-choice="C">
+          <canvas class="quiz-canvas" data-quiz="C" aria-label="方案 C 草图"></canvas>
+          <div class="quiz-foot"><strong class="mono">方案 C</strong><span>草图 03</span></div>
+        </button>
+        <button type="button" class="quiz-card" data-choice="D">
+          <canvas class="quiz-canvas" data-quiz="D" aria-label="方案 D 草图"></canvas>
+          <div class="quiz-foot"><strong class="mono">方案 D</strong><span>草图 04</span></div>
+        </button>
+      </div>
+
+      <div class="quiz-result" id="quiz-result" hidden aria-live="polite">
+        <div class="quiz-res-head">
+          <strong id="quiz-res-title"></strong>
+          <button type="button" class="tool-btn" id="quiz-retry">收起射线重测</button>
+        </div>
+        <p id="quiz-res-body"></p>
+        <ul class="quiz-breakdown" id="quiz-breakdown"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 08 原海报与关键词 ==================== -->
+  <section class="band band--bright" id="sec-08">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">08</span>
+        <div>
+          <h2>原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; KEYWORDS</p>
+        </div>
+      </div>
+
+      <div class="poster-layout">
+        <figure class="poster-figure">
+          <button type="button" class="poster-trigger" id="poster-open" aria-label="点击放大查看 071 两点透视原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="071 两点透视原海报">
+            <span class="poster-zoom-hint">点击放大 · 可拖动平移 / Esc 关闭</span>
+          </button>
+        </figure>
+
+        <div class="poster-meta">
+          <p class="poster-quote">「两个消失点决定方向，地平线决定高度，构成立体空间。」</p>
+          <p class="poster-quote-en" lang="en">TWO VANISHING POINTS DEFINE DIRECTION, THE HORIZON LINE DEFINES HEIGHT.</p>
+
+          <dl class="poster-points">
+            <div><dt>地平线 <span lang="en">HORIZON</span></dt><dd>决定视平高度，所有消失点都在同一条水平线上。</dd></div>
+            <div><dt>双消失点 <span lang="en">VANISHING POINTS</span></dt><dd>左右各一个消失点，控制物体在水平面上的延伸方向。</dd></div>
+            <div><dt>体积 <span lang="en">VOLUME</span></dt><dd>通过两组斜线确定物体的宽度与深度，形成体积感。</dd></div>
+            <div><dt>方向 <span lang="en">DIRECTION</span></dt><dd>两组斜线分别指向两个消失点，建立空间秩序。</dd></div>
+          </dl>
+
+          <div class="poster-tip-box">
+            <span class="star-disc star-disc--sm" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="15" height="15" focusable="false"><polygon points="12,2.4 14.9,8.4 21.5,9.3 16.7,13.9 17.9,20.5 12,17.3 6.1,20.5 7.3,13.9 2.5,9.3 9.1,8.4" fill="currentColor"/></svg>
+            </span>
+            <div>
+              <strong>练习建议</strong>
+              <p>先确定地平线与两个消失点，再画出物体的垂直线，最后连接到消失点，检查比例与方向。</p>
+            </div>
+          </div>
+
+          <div class="kw-list" aria-label="关键词">
+            <span class="kw-pill">地平线 <em lang="en">HORIZON</em></span>
+            <span class="kw-pill">双消失点 <em lang="en">VANISHING POINTS</em></span>
+            <span class="kw-pill">体积 <em lang="en">VOLUME</em></span>
+            <span class="kw-pill">方向 <em lang="en">DIRECTION</em></span>
+          </div>
+
+          <p class="sibling-row">同小类延伸：
+            <a href="https://layout.xiaoxiaodong.ai/069/play/">069 线性透视</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/070/play/">070 一点透视</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/072/play/">072 三点透视</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/073/play/">073 平行透视构图</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/075/play/">075 等距构图</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/076/play/">076 轴测构图</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <a href="https://layout.xiaoxiaodong.ai/071/play/">在线版</a>
+    <span aria-hidden="true">/</span>
+    <a href="https://layout.xiaoxiaodong.ai/">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+    <span aria-hidden="true">·</span>
+    <span>海报 CC BY 4.0</span>
+    <span aria-hidden="true">·</span>
+    <a href="https://github.com/xxd-dev/350-layout-interactive">源文件 GitHub</a>
+  </div>
+</footer>
+
+<!-- 原海报放大拖动灯箱 -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="两点透视原海报放大查看器">
+  <div class="lb-bar">
+    <span class="mono">NO. 071 · 原海报（拖动平移 / Esc 关闭）</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">－</button>
+      <span class="mono" id="lb-scale">100%</span>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">＋</button>
+      <button type="button" class="lb-btn" id="lb-reset">重置</button>
+      <button type="button" class="lb-btn is-close" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" alt="071 两点透视原海报放大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
