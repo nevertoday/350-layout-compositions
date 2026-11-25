@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>064 网络构图 · NETWORK COMPOSITION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="crumb">
+      <span class="crumb-dot" aria-hidden="true"></span>
+      <span>构图逻辑 / 阵列、层叠与组群</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-code" lang="en">NO. 064 · NETWORK COMPOSITION</span>
+      <span class="topbar-pill is-warn" id="topScorePill" aria-live="polite">0 / 4 待理网</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== HERO：原海报同构活体环网舞台 + 三栏编辑账簿 ==================== -->
+  <section class="hero" aria-label="网络构图互动实验台">
+    <div class="wrap hero-shell">
+      <div class="hero-stage" id="heroStage">
+        <canvas id="heroCanvas" aria-label="网络构图互动环网画布：拖动外围圆节点解开交叉，点击两节点织入或断开连线"></canvas>
+
+        <!-- 中心深海蓝大圆：直接复刻 064 原海报「标题即核心节点」视觉中心 -->
+        <button type="button" id="heroCoreNode" class="hero-core-node" aria-label="中心枢纽节点：点击可与选中外围节点建立或移除连线">
+          <h1 class="core-title">
+            <span id="coreLine1">网络</span>
+            <span id="coreLine2">构图</span>
+          </h1>
+          <span class="core-en" id="coreEn" lang="en">NETWORK COMPOSITION</span>
+        </button>
+
+        <!-- 7 枚可聚焦、可直拖、可键盘操作的透明圆节点覆盖层（source 含 data-perf-drag） -->
+        <div id="heroHandles" class="hero-handles"></div>
+
+        <!-- 舞台顶中极简状态提示 -->
+        <div class="stage-cue" id="stageCue" aria-live="polite">
+          拖圆解结 · 点两圆织线 · 点线切实虚
+        </div>
+      </div>
+
+      <!-- 复刻 064 原海报中段三栏编辑账簿：左诊单 × 中活体图例调控盘 × 右珊瑚虚线演练框 -->
+      <div class="hero-ledger">
+        <!-- 左栏：实时拓扑诊单（承袭原海报「知识要点」列式与珊瑚短杠） -->
+        <div class="ledger-col ledger-diag" id="diagCard">
+          <div class="col-head">
+            <div>
+              <h2 class="col-title">实时拓扑诊单</h2>
+              <span class="coral-bar" aria-hidden="true"></span>
+            </div>
+            <span class="diag-badge is-warn" id="diagBadge">错态 · 断链孤岛</span>
+          </div>
+          <p class="diag-headline" id="diagHeadline">「数据」断链落单，视线走不到它身上</p>
+          <p class="diag-body" id="diagBody">当前存在断链孤岛，网络退化成了散点与乱叉混合态。</p>
+          <p class="diag-action" id="diagAction">先点「数据」，再点相邻的「渠道」或「反馈」把它织回网络。</p>
+          <dl class="diag-metrics">
+            <div>
+              <dt>实测交叉</dt>
+              <dd id="mCross">0 处</dd>
+            </div>
+            <div>
+              <dt>断中心连通</dt>
+              <dd id="mOuter">0%</dd>
+            </div>
+            <div>
+              <dt>主实 / 次虚</dt>
+              <dd id="mEdges">0 / 0</dd>
+            </div>
+            <div>
+              <dt>画面留白</dt>
+              <dd id="mSpace">0%</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- 中栏：活体图例调控盘（承袭原海报「图例说明」与细竖隔线，每项都可直接点击调控） -->
+        <div class="ledger-col ledger-legend">
+          <div class="col-head">
+            <div>
+              <h2 class="col-title">图例说明 · 点击调控</h2>
+              <span class="coral-bar" aria-hidden="true"></span>
+            </div>
+            <span class="col-hint" lang="en">LIVE LEGEND</span>
+          </div>
+
+          <div class="legend-group">
+            <div class="legend-label-row">
+              <span class="legend-dots" aria-hidden="true">
+                <i class="dot dot-navy"></i>
+                <i class="dot dot-coral"></i>
+                <i class="dot dot-stone"></i>
+              </span>
+              <span class="legend-name">节点体量分级</span>
+              <span class="legend-en" lang="en">CORE / KEY / SUPPORT</span>
+            </div>
+            <div class="seg-row" role="group" aria-label="节点体量级差模式">
+              <button type="button" class="seg-btn" data-scale="flat" aria-pressed="true">平权 1.0×</button>
+              <button type="button" class="seg-btn" data-scale="inverted" aria-pressed="false">体量倒挂</button>
+              <button type="button" class="seg-btn" data-scale="tiered" aria-pressed="false">三级级差</button>
+            </div>
+          </div>
+
+          <div class="legend-group">
+            <div class="legend-label-row">
+              <span class="legend-lines" aria-hidden="true">
+                <i class="line-solid"></i>
+                <i class="line-dashed"></i>
+              </span>
+              <span class="legend-name">连线画笔（点两圆生效）</span>
+              <span class="legend-en" lang="en">CONNECTION / LINKAGE</span>
+            </div>
+            <div class="seg-row" role="group" aria-label="连线编织画笔">
+              <button type="button" class="seg-btn" data-brush="solid" aria-pressed="false">主要实线</button>
+              <button type="button" class="seg-btn" data-brush="dashed" aria-pressed="true">次要虚线</button>
+              <button type="button" class="seg-btn" data-brush="cut" aria-pressed="false">剪断连线</button>
+            </div>
+          </div>
+
+          <div class="legend-group">
+            <div class="legend-label-row">
+              <span class="legend-flow-mark" aria-hidden="true"><i></i></span>
+              <span class="legend-name">信息流向</span>
+              <span class="legend-en" lang="en">FLOW</span>
+            </div>
+            <div class="seg-row">
+              <button type="button" class="seg-btn" id="btnFlowToggle" aria-pressed="true">脉流：开</button>
+              <button type="button" class="seg-btn" id="btnPulseWave">发射一波脉冲</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右栏：珊瑚虚线圆角框（精确复刻 064 原海报右下「适用场景」框气质） -->
+        <div class="ledger-col ledger-scene">
+          <div class="col-head">
+            <div>
+              <h2 class="col-title is-coral">断电验真与题材</h2>
+              <span class="coral-bar" aria-hidden="true"></span>
+            </div>
+            <span class="col-hint" lang="en">STRESS TEST</span>
+          </div>
+
+          <div class="outage-wrap">
+            <button type="button" class="outage-btn" id="btnOutage" aria-pressed="false">
+              <span class="outage-dot" aria-hidden="true"></span>
+              <span id="outageBtnText">模拟中心断电（检去中心化）</span>
+            </button>
+          </div>
+
+          <div class="mini-block">
+            <span class="mini-label">切换题材（共享同一拓扑）</span>
+            <div class="seg-row" role="group" aria-label="切换网络题材">
+              <button type="button" class="seg-btn is-active" data-theme="poster" aria-pressed="true">原海报生态</button>
+              <button type="button" class="seg-btn" data-theme="metro" aria-pressed="false">地铁换乘网</button>
+              <button type="button" class="seg-btn" data-theme="collab" aria-pressed="false">协作知识图</button>
+            </div>
+          </div>
+
+          <div class="mini-block">
+            <span class="mini-label">试看经典错态 / 复原</span>
+            <div class="seg-row seg-wrap" role="group" aria-label="载入典型错态标本">
+              <button type="button" class="seg-btn is-active" data-preset="broken" aria-pressed="true">乱叉孤岛</button>
+              <button type="button" class="seg-btn" data-preset="star" aria-pressed="false">中心星形</button>
+              <button type="button" class="seg-btn" data-preset="hairball" aria-pressed="false">铁丝网</button>
+              <button type="button" class="seg-btn" data-preset="inverted" aria-pressed="false">体量倒挂</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 复刻 064 原海报底沿总述与四枚线性关键词实时验收带 -->
+      <div class="hero-strip">
+        <p class="poster-quote">
+          <span class="quote-dot" aria-hidden="true"></span>
+          <span>网络构图强调“连接”与“关系”，帮助我们从整体视角理解系统，发现隐藏路径，优化信息流。</span>
+        </p>
+        <div class="kw-bar" aria-label="四项网络构图验收状态">
+          <div class="kw-item" id="kw-conn">
+            <svg class="kw-icon" viewBox="0 0 36 36" aria-hidden="true">
+              <path d="M15 21l6-6M13 17l-2.5 2.5a4.2 4.2 0 1 0 6 6L19 23M17 13l2.5-2.5a4.2 4.2 0 1 1 6 6L23 19" fill="none" stroke="#FA6C48" stroke-width="2.6" stroke-linecap="round"/>
+            </svg>
+            <div class="kw-text">
+              <div class="kw-head"><strong>连接</strong><span lang="en">CONNECTION</span></div>
+              <span class="kw-state" id="kwState-conn">孤岛 1 枚</span>
+            </div>
+          </div>
+          <div class="kw-item" id="kw-link">
+            <svg class="kw-icon" viewBox="0 0 36 36" aria-hidden="true">
+              <line x1="18" y1="18" x2="10" y2="23" stroke="#06213E" stroke-width="2.4"/>
+              <line x1="18" y1="18" x2="22" y2="10" stroke="#06213E" stroke-width="2.4"/>
+              <line x1="18" y1="18" x2="26" y2="25" stroke="#06213E" stroke-width="2.4"/>
+              <circle cx="18" cy="18" r="4" fill="#06213E"/>
+              <circle cx="10" cy="23" r="3" fill="#06213E"/>
+              <circle cx="22" cy="10" r="3" fill="#06213E"/>
+              <circle cx="26" cy="25" r="3" fill="#06213E"/>
+            </svg>
+            <div class="kw-text">
+              <div class="kw-head"><strong>关联</strong><span lang="en">LINKAGE</span></div>
+              <span class="kw-state" id="kwState-link">乱叉平权</span>
+            </div>
+          </div>
+          <div class="kw-item" id="kw-sys">
+            <svg class="kw-icon" viewBox="0 0 36 36" aria-hidden="true">
+              <rect x="8" y="8" width="13" height="13" rx="2.5" fill="none" stroke="#FA6C48" stroke-width="2.4"/>
+              <rect x="15" y="15" width="13" height="13" rx="2.5" fill="none" stroke="#FA6C48" stroke-width="2.4"/>
+              <circle cx="19" cy="19" r="2.2" fill="#FA6C48"/>
+            </svg>
+            <div class="kw-text">
+              <div class="kw-head"><strong>系统</strong><span lang="en">SYSTEM</span></div>
+              <span class="kw-state" id="kwState-sys">平权无闭环</span>
+            </div>
+          </div>
+          <div class="kw-item" id="kw-flow">
+            <svg class="kw-icon" viewBox="0 0 36 36" aria-hidden="true">
+              <path d="M7 13c3-3 5 3 8 0s5 3 8 0 4 2 6 0" fill="none" stroke="#06213E" stroke-width="2.3" stroke-linecap="round"/>
+              <path d="M7 19c3-3 5 3 8 0s5 3 8 0 4 2 6 0" fill="none" stroke="#06213E" stroke-width="2.3" stroke-linecap="round"/>
+              <path d="M7 25c3-3 5 3 8 0s5 3 8 0 4 2 6 0" fill="none" stroke="#06213E" stroke-width="2.3" stroke-linecap="round"/>
+            </svg>
+            <div class="kw-text">
+              <div class="kw-head"><strong>流动</strong><span lang="en">FLOW</span></div>
+              <span class="kw-state" id="kwState-flow">回路断裂</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01：一张网怎么立得住（三层透视解剖器） ==================== -->
+  <section class="band band-light" id="sec-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div>
+          <h2>一张网怎么立得住</h2>
+          <p class="sec-en" lang="en">ANATOMY OF A NETWORK</p>
+        </div>
+      </div>
+
+      <div class="split-2">
+        <div class="prose">
+          <p class="lead">064 原海报把网络构图拆成四句要诀——把它们落到纸面上，靠的是<strong>节点体量、连线分级、透气留白</strong>三层咬合。</p>
+          <ul class="poster-points">
+            <li>
+              <i class="dot dot-navy" aria-hidden="true"></i>
+              <div><strong>多点互联</strong>：原海报写「通过多个节点建立连接，呈现复杂关系与多向沟通。」——表格只能表达行列对应，树状图只能表达单向归属；只有网络能同时画出「多对多」的横纵交织。</div>
+            </li>
+            <li>
+              <i class="dot dot-coral" aria-hidden="true"></i>
+              <div><strong>关系可视化</strong>：原海报写「用线条表现关联强度与路径，帮助理解结构与流程。」——实线画主干、虚线画协同，不用堆文字解释，线条粗细和虚实自己就会说话。</div>
+            </li>
+            <li>
+              <i class="dot dot-stone" aria-hidden="true"></i>
+              <div><strong>动态流动</strong>：原海报写「信息在网络中流动，形成反馈与再生，推动系统优化。」——外圈接通成闭环，再加上线上流向点，静态图形才有了「循环生长」的时间感。</div>
+            </li>
+            <li>
+              <i class="dot dot-navy" aria-hidden="true"></i>
+              <div><strong>去中心化</strong>：原海报写「无唯一中心，突出协作与共生，适应复杂变化的系统。」——外围节点彼此连通，而不是全部听命于同一张嘴。</div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="lab-box" id="anatomyLab">
+          <div class="lab-bar" role="group" aria-label="切换网络图层透视">
+            <button type="button" class="seg-btn is-active" data-layer="all" aria-pressed="true">完整三层</button>
+            <button type="button" class="seg-btn" data-layer="nodes" aria-pressed="false">只看节点</button>
+            <button type="button" class="seg-btn" data-layer="edges" aria-pressed="false">只看连线</button>
+            <button type="button" class="seg-btn" data-layer="space" aria-pressed="false">留白与流向</button>
+          </div>
+          <svg id="anatomySvg" class="anatomy-svg" viewBox="0 0 460 300" data-layer="all" aria-label="网络构图三层透视示意图">
+            <rect class="an-space-bg" x="14" y="14" width="432" height="272" rx="6" fill="none" stroke="#FA6C48" stroke-width="1.4" stroke-dasharray="6 5"/>
+            <text class="an-space-label" x="28" y="36" fill="#B83B1C" font-size="11" font-weight="700">经验留白 ≥ 40% · 给节点与标签留出呼吸区</text>
+            <g class="an-edges">
+              <line x1="230" y1="150" x2="112" y2="74" stroke="#06213E" stroke-width="2.4"/>
+              <line x1="230" y1="150" x2="342" y2="72" stroke="#06213E" stroke-width="2.4"/>
+              <line x1="230" y1="150" x2="378" y2="162" stroke="#06213E" stroke-width="2.4"/>
+              <line x1="230" y1="150" x2="114" y2="232" stroke="#06213E" stroke-width="2.2"/>
+              <line x1="230" y1="150" x2="236" y2="254" stroke="#06213E" stroke-width="1.5" stroke-dasharray="6 5"/>
+              <line x1="230" y1="150" x2="338" y2="238" stroke="#06213E" stroke-width="1.5" stroke-dasharray="6 5"/>
+              <line x1="230" y1="150" x2="72" y2="152" stroke="#06213E" stroke-width="2.2"/>
+              <line x1="112" y1="74" x2="342" y2="72" stroke="#06213E" stroke-width="1.5" stroke-dasharray="6 5"/>
+              <line x1="342" y1="72" x2="378" y2="162" stroke="#06213E" stroke-width="1.5" stroke-dasharray="6 5"/>
+              <line x1="378" y1="162" x2="338" y2="238" stroke="#06213E" stroke-width="2.2"/>
+              <line x1="338" y1="238" x2="236" y2="254" stroke="#06213E" stroke-width="1.5" stroke-dasharray="6 5"/>
+              <line x1="236" y1="254" x2="114" y2="232" stroke="#06213E" stroke-width="2.2"/>
+              <line x1="114" y1="232" x2="72" y2="152" stroke="#06213E" stroke-width="1.5" stroke-dasharray="6 5"/>
+              <line x1="72" y1="152" x2="112" y2="74" stroke="#06213E" stroke-width="1.5" stroke-dasharray="6 5"/>
+            </g>
+            <g class="an-flow">
+              <circle cx="228" cy="73" r="5" fill="#FA6C48"/>
+              <circle cx="360" cy="117" r="4.5" fill="#06213E"/>
+              <circle cx="358" cy="200" r="5" fill="#FA6C48"/>
+              <circle cx="287" cy="246" r="4.5" fill="#06213E"/>
+              <circle cx="175" cy="243" r="5" fill="#FA6C48"/>
+              <circle cx="93" cy="192" r="4.5" fill="#06213E"/>
+              <circle cx="92" cy="113" r="5" fill="#FA6C48"/>
+            </g>
+            <g class="an-nodes">
+              <circle cx="230" cy="150" r="36" fill="#06213E"/>
+              <text x="230" y="154" text-anchor="middle" fill="#F6EFE6" font-size="13" font-weight="800">核心枢纽</text>
+              <circle cx="112" cy="74" r="24" fill="#FA6C48"/>
+              <text x="112" y="78" text-anchor="middle" fill="#06213E" font-size="11" font-weight="700">信息源</text>
+              <circle cx="342" cy="72" r="24" fill="#06213E"/>
+              <text x="342" y="76" text-anchor="middle" fill="#F6EFE6" font-size="11" font-weight="700">用户</text>
+              <circle cx="378" cy="162" r="23" fill="#FA6C48"/>
+              <text x="378" y="166" text-anchor="middle" fill="#06213E" font-size="11" font-weight="700">平台</text>
+              <circle cx="338" cy="238" r="23" fill="#FA6C48"/>
+              <text x="338" y="242" text-anchor="middle" fill="#06213E" font-size="11" font-weight="700">反馈</text>
+              <circle cx="236" cy="254" r="19" fill="#C5C4C0"/>
+              <text x="236" y="258" text-anchor="middle" fill="#06213E" font-size="11" font-weight="700">数据</text>
+              <circle cx="114" cy="232" r="23" fill="#06213E"/>
+              <text x="114" y="236" text-anchor="middle" fill="#F6EFE6" font-size="11" font-weight="700">渠道</text>
+              <circle cx="72" cy="152" r="19" fill="#C5C4C0"/>
+              <text x="72" y="156" text-anchor="middle" fill="#06213E" font-size="11" font-weight="700">内容</text>
+            </g>
+            <g class="an-pins" aria-hidden="true">
+              <circle cx="230" cy="150" r="6" fill="#06213E"/>
+              <circle cx="112" cy="74" r="5" fill="#FA6C48"/>
+              <circle cx="342" cy="72" r="5" fill="#06213E"/>
+              <circle cx="378" cy="162" r="5" fill="#FA6C48"/>
+              <circle cx="338" cy="238" r="5" fill="#FA6C48"/>
+              <circle cx="236" cy="254" r="5" fill="#C5C4C0"/>
+              <circle cx="114" cy="232" r="5" fill="#06213E"/>
+              <circle cx="72" cy="152" r="5" fill="#C5C4C0"/>
+            </g>
+          </svg>
+          <div class="lab-note" id="anatomyNote"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02：交叉越多，眼睛越迷路（深海蓝暗版 · Purchase 1997） ==================== -->
+  <section class="band band-navy" id="sec-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div>
+          <h2>交叉越多，眼睛越迷路</h2>
+          <p class="sec-en" lang="en">EDGE CROSSINGS &amp; CURVATURE</p>
+        </div>
+      </div>
+
+      <div class="split-2">
+        <div class="prose prose-dark">
+          <p class="lead">图形学和人机交互研究者海伦·珀彻斯（Helen C. Purchase）在 1997 年国际图绘制会议（GD '97）发表了一项经典的用户实验：她把同样的网络按对称、正交、少弯折、少交叉等规则分别排版，让受试者找路径、判连通。</p>
+          <p>结果非常一边倒：<strong>减少连线交叉，对人眼读懂关系图的帮助远高于其他所有几何美学规则</strong>；弯折和对称只起次要作用，而强行把所有节点锁进横平竖直的方格，甚至没有显出显著优势。</p>
+          <p>原因很朴素——每条连线在人眼里都是一条连续轨道，一遇到硬交叉，视线就必须停下来重新辨认「出岔口之后哪条才是原来的线」。所以整理网络构图的先后次序永远是：<strong>先调换节点位置解开交叉，剩下实在躲不开的再改用微弧错开</strong>，千万别一上来就画成密密麻麻的铁丝网。</p>
+        </div>
+
+        <div class="lab-box lab-dark" id="crossingLab">
+          <div class="lab-bar lab-bar-dark" role="group" aria-label="选择连线排布策略">
+            <button type="button" class="seg-btn seg-dark is-active" data-cross-mode="tangled" aria-pressed="true">杂乱直线</button>
+            <button type="button" class="seg-btn seg-dark" data-cross-mode="curved" aria-pressed="false">微弧绕行</button>
+            <button type="button" class="seg-btn seg-dark" data-cross-mode="untangled" aria-pressed="false">解结重排</button>
+          </div>
+          <div class="range-row">
+            <label for="curveRange">连线微弧曲率（拖动看交叉怎么变）</label>
+            <input type="range" id="curveRange" min="0" max="100" value="0">
+            <span class="mono-val" id="curveVal">0%</span>
+          </div>
+          <div class="canvas-frame-dark">
+            <canvas id="crossingCanvas" aria-label="连线交叉与曲率实验画布，点击任意两枚节点高亮最短路径"></canvas>
+          </div>
+          <p class="canvas-hint-dark">提示：在画布里先后点击任意两枚节点，实时高亮它们之间的最短连通路径。</p>
+          <div class="lab-readout-dark" id="crossingReadout"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03：去中心化，还是多枢纽？（温和校正原海报 + Baran 1964） ==================== -->
+  <section class="band band-sand" id="sec-03">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <div>
+          <h2>去中心化，还是多枢纽？</h2>
+          <p class="sec-en" lang="en">CENTRALIZED VS. DISTRIBUTED</p>
+        </div>
+      </div>
+
+      <div class="callout-refine">
+        <span class="refine-tag">说多了一点</span>
+        <p>064 原海报第四条写「去中心化：无唯一中心，突出协作与共生」——可仔细看海报自己的画面，正中央偏偏放着一枚最大的深海蓝圆盘「网络构图」。这不是画错了，而是<strong>「系统结构」和「视觉抓手」的分工</strong>：真正完全平权、零重心的纯网状铺在海报上，读者 3 秒内会找不到入口；所以平面与信息设计里，常把底层的「多路径互联」和视觉上的「2–3 个大枢纽锚点」结合起来用。</p>
+      </div>
+
+      <p class="baran-intro">1964 年 8 月，兰德公司工程师保罗·巴兰（Paul Baran）在研究报告 RM-3420-PR 中画出了下面这组著名的三联拓扑。<strong>直接点击三张图里的任意圆点让它离线</strong>，亲眼对比三种结构在节点失效后的连通韧性：</p>
+
+      <div class="baran-grid" id="baranLab">
+        <article class="baran-card" data-baran="centralized">
+          <div class="baran-top">
+            <h3>中心化（星形）</h3>
+            <span class="baran-en" lang="en">CENTRALIZED</span>
+          </div>
+          <svg viewBox="0 0 260 190" aria-label="中心化星形网络，点击节点模拟离线"></svg>
+          <div class="baran-stat">主群连通 100% · 1 片区</div>
+          <p class="baran-note"></p>
+        </article>
+
+        <article class="baran-card" data-baran="decentralized">
+          <div class="baran-top">
+            <h3>去中心化（多枢纽）</h3>
+            <span class="baran-en" lang="en">DECENTRALIZED</span>
+          </div>
+          <svg viewBox="0 0 260 190" aria-label="去中心化多枢纽网络，点击节点模拟离线"></svg>
+          <div class="baran-stat">主群连通 100% · 1 片区</div>
+          <p class="baran-note"></p>
+        </article>
+
+        <article class="baran-card" data-baran="distributed">
+          <div class="baran-top">
+            <h3>分布式（网状）</h3>
+            <span class="baran-en" lang="en">DISTRIBUTED</span>
+          </div>
+          <svg viewBox="0 0 260 190" aria-label="分布式网状网络，点击节点模拟离线"></svg>
+          <div class="baran-stat">主群连通 100% · 1 片区</div>
+          <p class="baran-note"></p>
+        </article>
+      </div>
+
+      <div class="baran-foot">
+        <button type="button" class="seg-btn" id="baranReset">全部恢复在线</button>
+        <span class="baran-tip">试试分别打掉三张图正中间的节点，观察连通率落差。</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04：从七桥、地铁到关系网（真实可核实谱系） ==================== -->
+  <section class="band band-paper" id="sec-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div>
+          <h2>从七桥、地铁到关系网</h2>
+          <p class="sec-en" lang="en">ORIGINS &amp; LINEAGE</p>
+        </div>
+      </div>
+
+      <div class="split-2">
+        <div class="era-list" id="historyLab">
+          <div class="era-tabs" role="group" aria-label="切换网络构图历史里程碑">
+            <button type="button" class="era-btn is-active" data-era="euler" aria-pressed="true">
+              <span class="era-year" lang="en">1735 / 1741</span>
+              <strong>莱昂哈德·欧拉 · 哥尼斯堡七桥</strong>
+              <span>首次剥离地理比例，把空间抽象成顶点与连边</span>
+            </button>
+            <button type="button" class="era-btn" data-era="beck" aria-pressed="false">
+              <span class="era-year" lang="en">1931 / 1933</span>
+              <strong>哈里·贝克 · 伦敦地铁线路图</strong>
+              <span>用电路图式的 45° 直线与换乘圆点取代真实地图</span>
+            </button>
+            <button type="button" class="era-btn" data-era="moreno" aria-pressed="false">
+              <span class="era-year" lang="en">1934</span>
+              <strong>莫雷诺与詹宁斯 · 社会关系图</strong>
+              <span>《谁将生存？》首创用圆点连线描绘社群明星与孤立者</span>
+            </button>
+            <button type="button" class="era-btn" data-era="baran" aria-pressed="false">
+              <span class="era-year" lang="en">1964</span>
+              <strong>保罗·巴兰 · 分布式通信三联图</strong>
+              <span>兰德报告 RM-3420-PR 确立中心、多中心、分布式范式</span>
+            </button>
+          </div>
+          <p class="era-footnote">延伸阅读：设计师曼努埃尔·利马（Manuel Lima）在 2011 年《Visual Complexity》（Princeton Architectural Press）中系统梳理了信息视觉如何从几个世纪的「单一树状分类」全面迈向「多维网络互联」。</p>
+        </div>
+
+        <div class="specimen-card">
+          <div class="specimen-stage" id="historySpecimen"></div>
+          <h3 id="historyTitle">1735 / 1741 · 欧拉《关于位置几何问题的解答》（E53）</h3>
+          <p id="historyDesc"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05：用在哪，又该在哪避开（含 057–063 同小类分流链接） ==================== -->
+  <section class="band band-light" id="sec-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div>
+          <h2>用在哪，又该在哪避开</h2>
+          <p class="sec-en" lang="en">WHEN TO USE &amp; WHEN NOT TO</p>
+        </div>
+      </div>
+
+      <div class="split-2">
+        <div class="scene-panel" id="scenarioLab">
+          <div class="col-head">
+            <div>
+              <h3 class="sub-h3">适合画成网的四类题材</h3>
+              <span class="coral-bar" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="seg-row seg-wrap" role="group" aria-label="切换原海报四类适用场景">
+            <button type="button" class="seg-btn is-active" data-scene="social" aria-pressed="true">社交与社群</button>
+            <button type="button" class="seg-btn" data-scene="ia" aria-pressed="false">信息架构</button>
+            <button type="button" class="seg-btn" data-scene="workflow" aria-pressed="false">协同流程</button>
+            <button type="button" class="seg-btn" data-scene="analytics" aria-pressed="false">指标关联</button>
+          </div>
+          <div class="scene-detail" id="scenarioDetail"></div>
+        </div>
+
+        <div class="avoid-panel">
+          <div class="col-head">
+            <div>
+              <h3 class="sub-h3 is-coral">什么时候别用网络构图</h3>
+              <span class="coral-bar" aria-hidden="true"></span>
+            </div>
+          </div>
+          <ul class="avoid-list">
+            <li><strong>讲 1-2-3 严格线性步骤时别用</strong>：网络刻意弱化唯一起点与终点，拿来画新手操作教程或时间线，只会让观众不知道从哪一格开始读。</li>
+            <li><strong>只有 3–4 个元素且几乎两两相关时别用</strong>：节点太少画不出系统感，硬连成三角形或四边形反而显得多余。</li>
+            <li><strong>需要严格上下级汇报或单一分类归属时别用</strong>：父子边界明确、不允许跨级成环的内容，直接用单向树状图更干净。</li>
+          </ul>
+
+          <div class="siblings-box">
+            <h4>同属「阵列、层叠与组群」的其他写法</h4>
+            <ul class="sibling-links">
+              <li>要等距格子对比排布，看 <a href="https://layout.xiaoxiaodong.ai/057/play/" target="_blank" rel="noopener">057 棋盘构图</a>。</li>
+              <li>要逐级抬升的线性节奏，看 <a href="https://layout.xiaoxiaodong.ai/058/play/" target="_blank" rel="noopener">058 阶梯构图</a>。</li>
+              <li>要靠前后叠压拉出景深，看 <a href="https://layout.xiaoxiaodong.ai/059/play/" target="_blank" rel="noopener">059 层叠构图</a>。</li>
+              <li>要顺序触发、瀑布式下滑的因果链，看 <a href="https://layout.xiaoxiaodong.ai/060/play/" target="_blank" rel="noopener">060 级联构图</a>。</li>
+              <li>只按亲疏分堆归类、不画点对点具体路径，看 <a href="https://layout.xiaoxiaodong.ai/061/play/" target="_blank" rel="noopener">061 聚类构图</a>。</li>
+              <li>想让元素自由呼吸、靠色彩隐性呼应而不拉线，看 <a href="https://layout.xiaoxiaodong.ai/062/play/" target="_blank" rel="noopener">062 分散构图</a>。</li>
+              <li>有唯一主干起点、严守父子单向分叉，看 <a href="https://layout.xiaoxiaodong.ai/063/play/" target="_blank" rel="noopener">063 分支构图</a>。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06：选一版能看懂的网（深海蓝暗版 · 单变量练习） ==================== -->
+  <section class="band band-navy" id="sec-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <div>
+          <h2>选一版能看懂的网</h2>
+          <p class="sec-en" lang="en">DESIGN CRITIQUE EXERCISE</p>
+        </div>
+      </div>
+
+      <p class="quiz-prompt">情景：你要为「开源社区协同生态」画一张 8 节点主图，要求读者 3 秒内抓出核心枢纽，同时看清跨组协作与反馈闭环。下面四版用完全相同的节点和配色，只改变了<strong>连线组织与体量级差</strong>——你会交付哪一版？</p>
+
+      <div class="quiz-grid" id="quizGrid"></div>
+      <div class="quiz-feedback" id="quizFeedback" hidden aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ==================== 07：原海报与关键词 ==================== -->
+  <section class="band band-sand" id="sec-07">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div>
+          <h2>原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; KEYWORDS</p>
+        </div>
+      </div>
+
+      <div class="poster-layout">
+        <div class="poster-plate">
+          <button type="button" class="poster-trigger" id="openPosterBtn" aria-label="放大查看 064 网络构图原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="064 网络构图原海报">
+            <span class="poster-zoom-hint">点击放大查看细节（支持拖动与 Esc 关闭）</span>
+          </button>
+        </div>
+
+        <div class="poster-notes">
+          <p class="lead">064 原海报本身就是教科书级的平面网络：暖宣纸留出四成以上净空，深海蓝圆盘做中心视觉锚点，珊瑚橘标关键枢纽，暖石灰退居支持节点，再借实虚线与线上中继小圆点把静态构图激活成循环系统。</p>
+
+          <div class="kw-cards">
+            <div class="kw-card">
+              <span class="kw-card-en" lang="en">CONNECTION</span>
+              <h3>连接</h3>
+              <p>拒绝孤岛，把真正存在互动的节点用清晰边线接通，建立多点沟通通路。</p>
+            </div>
+            <div class="kw-card">
+              <span class="kw-card-en" lang="en">LINKAGE</span>
+              <h3>关联</h3>
+              <p>用实线与虚线、粗与细表达关系强弱，同时克制连线总数与硬交叉。</p>
+            </div>
+            <div class="kw-card">
+              <span class="kw-card-en" lang="en">SYSTEM</span>
+              <h3>系统</h3>
+              <p>体量分三档并保留多路径冗余，让画面既有入口锚点，又不会因单点失效解体。</p>
+            </div>
+            <div class="kw-card">
+              <span class="kw-card-en" lang="en">FLOW</span>
+              <h3>流动</h3>
+              <p>打通外环反馈回路，用流向节点或方向暗示让信息在网内形成再生循环。</p>
+            </div>
+          </div>
+
+          <div class="palette-spec" aria-label="064 原海报实采配色与版式规格">
+            <div class="swatch-row">
+              <span class="swatch"><i style="background:#F6EFE6"></i><b>暖宣纸</b><code>#F6EFE6</code></span>
+              <span class="swatch"><i style="background:#06213E"></i><b>深海蓝</b><code>#06213E</code></span>
+              <span class="swatch"><i style="background:#FA6C48"></i><b>珊瑚橘</b><code>#FA6C48</code></span>
+              <span class="swatch"><i style="background:#C5C4C0"></i><b>暖石灰</b><code>#C5C4C0</code></span>
+            </div>
+            <p class="spec-note">原海报构图配比：1 枚居中深海蓝大圆标题 + 7 枚三级外围圆 + 实虚分工连线与中继流向点，画幅留白逾四成。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <a href="https://layout.xiaoxiaodong.ai/064/play/" target="_blank" rel="noopener">在线版</a>
+    <span aria-hidden="true">·</span>
+    <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+    <span aria-hidden="true">·</span>
+    <span>海报 CC BY 4.0</span>
+    <span aria-hidden="true">·</span>
+    <a href="https://github.com/xiaoxiaodong/350-layout" target="_blank" rel="noopener">源文件 GitHub</a>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱（draggable="false" 防浏览器原生拖图冲突） -->
+<div class="poster-modal" id="posterModal" role="dialog" aria-modal="true" aria-label="064 网络构图原海报大图预览" hidden>
+  <div class="poster-modal-bar">
+    <span>064 网络构图 · 原海报细节（拖动平移 · Esc 关闭）</span>
+    <div class="poster-modal-actions">
+      <button type="button" class="seg-btn seg-dark" id="posterZoomOut" aria-label="缩小">−</button>
+      <button type="button" class="seg-btn seg-dark" id="posterZoomReset" aria-label="重置缩放">100%</button>
+      <button type="button" class="seg-btn seg-dark" id="posterZoomIn" aria-label="放大">+</button>
+      <button type="button" class="seg-btn seg-dark" id="posterModalClose">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="poster-viewport" id="posterViewport">
+    <img id="posterModalImg" src="" alt="064 网络构图原海报高清预览" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
