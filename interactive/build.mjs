@@ -16,7 +16,7 @@ export const DIST = join(ROOT, "dist");
 const FONT_CACHE = join(ROOT, ".cache/fonts");
 const SUBSET_CACHE = join(ROOT, ".cache/subsets");
 const PAGE_CACHE = join(ROOT, ".build/cache");
-const POSTERS = process.env.POSTER_DIR || "/Users/admin/Desktop/js/350-layout-redesign/site/public/p";
+const POSTERS = process.env.POSTER_DIR || join(ROOT, "../site/public/p"); // 网站构建时从 git 里生成（site: npm run images）
 const ZIP = "350-layout-interactive.zip";
 const FONTS = JSON.parse(readFileSync(join(ROOT, "fonts.json"), "utf8"));
 
