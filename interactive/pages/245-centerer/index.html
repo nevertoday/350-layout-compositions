@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>245 居中器 · CENTERER — 350 种排版互动版</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <!-- 原海报四角珊瑚定位角标（┌• ┐• └• ┘•） -->
+  <span class="corner-mark corner-tl" aria-hidden="true"></span>
+  <span class="corner-mark corner-tr" aria-hidden="true"></span>
+  <span class="corner-mark corner-bl" aria-hidden="true"></span>
+  <span class="corner-mark corner-br" aria-hidden="true"></span>
+
+  <div class="hero-shell">
+    <!-- 顶部微导航与实况徽标 -->
+    <div class="hero-meta">
+      <div class="meta-left">
+        <span class="meta-dots" aria-hidden="true">
+          <i class="dot-coral"></i>
+          <i class="dot-forest"></i>
+          <i class="dot-peach"></i>
+        </span>
+        <span class="meta-cat">网页与 UI / 布局原语</span>
+      </div>
+      <div class="meta-right">
+        <span class="meta-id" lang="en">NO. 245 · CENTERER</span>
+        <span class="status-pill" id="hero-status-pill" role="status" aria-live="polite">0 / 4 待校准</span>
+      </div>
+    </div>
+
+    <!-- 主布局区：桌面轴对称纵排；手机横屏切为左画布右诊单并行 -->
+    <div class="hero-grid">
+      <!-- 自示范居中刊头：顶沿 Y 轴虚线贯入，左右 X 轴标尺随居中器行宽联动 -->
+      <div class="hero-masthead">
+        <div class="y-plumb" aria-hidden="true">
+          <span class="y-plumb-line"></span>
+          <span class="y-plumb-dot"></span>
+        </div>
+
+        <div class="title-axis-wrap">
+          <span class="title-wing title-wing-l" aria-hidden="true"><i id="title-wing-l-val">auto</i></span>
+          <div class="title-core" id="title-demo-core">
+            <h1>居中器</h1>
+            <p class="hero-en" lang="en">CENTERER</p>
+            <span class="title-salmon-bar" aria-hidden="true"></span>
+          </div>
+          <span class="title-wing title-wing-r" aria-hidden="true"><i id="title-wing-r-val">auto</i></span>
+        </div>
+
+        <p class="hero-lead">用可读行宽上限、对称自动余白与安全护边，把内容从宽屏到手机稳稳锚在视觉焦点。拖动画布边墙，把下面这只失控的居中器校回正轨。</p>
+
+        <!-- 紧凑题材切换条（三套真实 UI 场景） -->
+        <div class="scene-bar" role="group" aria-label="切换演示题材">
+          <button type="button" class="scene-btn is-active" data-scene="poster" aria-pressed="true">原海报靶盒</button>
+          <button type="button" class="scene-btn" data-scene="article" aria-pressed="false">长文专栏</button>
+          <button type="button" class="scene-btn" data-scene="dialog" aria-pressed="false">居中弹窗</button>
+        </div>
+      </div>
+
+      <!-- 满宽对称十字轴视口伸缩舞台（主角玩具，data-perf-drag 绑定于此） -->
+      <div class="stage-wrap">
+        <canvas
+          id="axial-stage"
+          class="axial-canvas"
+          data-perf-drag
+          tabindex="0"
+          role="application"
+          aria-label="居中器视口伸缩校准台：左右拖动或按左右方向键改变模拟视口宽度，按上下方向键改变视口高度，点击画布红标快捷纠错"
+        ></canvas>
+        <p class="stage-hint">左右横拖画布边墙改视口宽（320–1320px）· 拖底沿绿柄改窗高 · 点画布红标纠错 · 方向键微调</p>
+      </div>
+
+      <!-- 承袭 245 原海报底带的三栏实况控区（水平居中 ALIGN | 垂直居中 CENTER | 对齐焦点 FOCUS） -->
+      <div class="triad-band">
+        <!-- 中栏（移动端首屏优先直见诊单首句，通过 CSS order 保证桌面居中、手机优先）：垂直居中 CENTER + 单真源诊单 -->
+        <section class="triad-col triad-center" aria-label="单真源实时诊断与纵轴控制">
+          <div class="triad-head">
+            <span class="triad-dot dot-forest" aria-hidden="true"></span>
+            <div class="triad-titles">
+              <strong class="triad-zh">垂直居中</strong>
+              <span class="triad-bar bar-forest" aria-hidden="true"></span>
+              <span class="triad-en" lang="en">CENTER</span>
+            </div>
+            <span class="triad-tag" id="tag-center">吞顶</span>
+          </div>
+
+          <div class="diag-card" id="diag-card">
+            <div class="diag-top">
+              <span class="diag-badge" id="diag-badge">错态 (0/4)</span>
+              <span class="diag-source">单真源几何实算</span>
+            </div>
+            <p class="diag-title" id="diag-title"></p>
+            <p class="diag-body" id="diag-body"></p>
+            <p class="diag-next" id="diag-next"></p>
+          </div>
+
+          <div class="ctrl-group">
+            <span class="ctrl-label">纵轴溢出策略（矮窗 268px 实测）</span>
+            <div class="chip-row" role="group" aria-label="纵轴溢出策略">
+              <button type="button" class="chip-btn" data-ymode="unsafe-center">裸 center（吞顶）</button>
+              <button type="button" class="chip-btn" data-ymode="safe-center">safe center</button>
+              <button type="button" class="chip-btn" data-ymode="optical-lift">光学微抬 46%</button>
+            </div>
+          </div>
+
+          <div class="ctrl-row-compact">
+            <label class="range-label" for="ctrl-vph">
+              <span>模拟窗高</span>
+              <output id="out-vph">268px</output>
+            </label>
+            <input id="ctrl-vph" type="range" min="210" max="440" step="2" value="268">
+          </div>
+        </section>
+
+        <!-- 左栏：水平居中 ALIGN（行宽上限、内护边、水平策略与盒模型） -->
+        <section class="triad-col triad-align" aria-label="水平居中参数控制">
+          <div class="triad-head">
+            <span class="triad-dot dot-coral" aria-hidden="true"></span>
+            <div class="triad-titles">
+              <strong class="triad-zh">水平居中</strong>
+              <span class="triad-bar bar-coral" aria-hidden="true"></span>
+              <span class="triad-en" lang="en">ALIGN</span>
+            </div>
+            <span class="triad-tag" id="tag-align">无上限</span>
+          </div>
+
+          <div class="ctrl-group">
+            <label class="range-label" for="ctrl-max">
+              <span>最大行宽 <code lang="en">max-inline-size</code></span>
+              <output id="out-max">无上限</output>
+            </label>
+            <input id="ctrl-max" type="range" min="0" max="1040" step="16" value="0">
+            <div class="range-marks" aria-hidden="true">
+              <span>无上限</span><span>320px</span><span>608px</span><span>1040px</span>
+            </div>
+          </div>
+
+          <div class="ctrl-group">
+            <label class="range-label" for="ctrl-gutter">
+              <span>内护边 <code lang="en">padding-inline</code></span>
+              <output id="out-gutter">0px</output>
+            </label>
+            <input id="ctrl-gutter" type="range" min="0" max="64" step="4" value="0">
+            <div class="range-marks" aria-hidden="true">
+              <span>0 贴壁</span><span>16px</span><span>32px</span><span>64px</span>
+            </div>
+          </div>
+
+          <div class="ctrl-group">
+            <span class="ctrl-label">水平居中与正文对齐</span>
+            <div class="chip-row" role="group" aria-label="水平居中与正文对齐策略">
+              <button type="button" class="chip-btn" data-xmode="auto-left">块居中 · 文左齐</button>
+              <button type="button" class="chip-btn" data-xmode="auto-text-center">正文误居中</button>
+              <button type="button" class="chip-btn" data-xmode="fixed-margin">写死边距</button>
+            </div>
+          </div>
+
+          <div class="ctrl-group">
+            <span class="ctrl-label">算宽口径 <code lang="en">box-sizing</code></span>
+            <div class="chip-row" role="group" aria-label="盒模型算宽口径">
+              <button type="button" class="chip-btn" data-bs="content-box">content-box（护边外加）</button>
+              <button type="button" class="chip-btn" data-bs="border-box">border-box（护边内扣）</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 右栏：对齐焦点 FOCUS（实算 CSS、视口快切与多组合法解） -->
+        <section class="triad-col triad-focus" aria-label="对齐焦点与实算代码">
+          <div class="triad-head">
+            <span class="triad-dot dot-peach" aria-hidden="true"></span>
+            <div class="triad-titles">
+              <strong class="triad-zh">对齐焦点</strong>
+              <span class="triad-bar bar-peach" aria-hidden="true"></span>
+              <span class="triad-en" lang="en">FOCUS</span>
+            </div>
+            <span class="triad-tag" id="tag-focus">焦点发散</span>
+          </div>
+
+          <pre class="css-box" aria-label="当前参数实时生成的 CSS"><code id="live-css" lang="en"></code></pre>
+
+          <div class="ctrl-group">
+            <span class="ctrl-label">一键实测常见屏幕宽</span>
+            <div class="chip-row" role="group" aria-label="快速切换模拟视口宽度">
+              <button type="button" class="chip-btn vp-btn" data-vpw="1280">桌面 1280</button>
+              <button type="button" class="chip-btn vp-btn" data-vpw="768">平板 768</button>
+              <button type="button" class="chip-btn vp-btn" data-vpw="360">手机 360</button>
+            </div>
+          </div>
+
+          <div class="ctrl-group">
+            <span class="ctrl-label">多组合法解与常见踩坑</span>
+            <div class="preset-grid">
+              <button type="button" class="preset-btn is-good" data-preset="reading">标准阅读解</button>
+              <button type="button" class="preset-btn is-good" data-preset="compact">紧凑卡片解</button>
+              <button type="button" class="preset-btn is-good" data-preset="wide">宽版图文解</button>
+              <button type="button" class="preset-btn is-warn" data-preset="pitfallFixed">试错：定边距</button>
+              <button type="button" class="preset-btn is-warn" data-preset="pitfallUnsafe">试错：矮窗吞顶</button>
+              <button type="button" class="preset-btn is-reset" data-preset="reset">复原 0/4 错态</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 01 · 海报三要素与温和补正 -->
+  <section class="band band-paper" id="sec-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div class="sec-titles">
+          <h2>海报三要素与分清两件事</h2>
+          <p class="sec-en" lang="en">Align, Center, Focus — Box Centering Is Not Text Centering</p>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="prose-col">
+          <p>245 号原海报把居中器浓缩成三个直截了当的词：<strong>「水平居中（ALIGN）」</strong>、<strong>「垂直居中（CENTER）」</strong>与<strong>「对齐焦点（FOCUS）」</strong>——中央一只深松绿方框把柔粉圆稳稳扣在 X、Y 两条虚线交点上，一眼就能读懂「把重点收进视线正中」的意图。</p>
+
+          <div class="gentle-note">
+            <span class="note-pill">说多了一点</span>
+            <p>原海报画的是一枚纯几何对称靶心，X 轴与 Y 轴都恰好落在 50%。落到真实网页里要分清两件常被混为一谈的事：<strong>第一，长文页面需要的是「整块版心水平居中、段落文字仍保持左对齐」</strong>，把整篇正文写成 <code lang="en">text-align: center</code> 只会让每行左起点参差不齐；<strong>第二，垂直居中不能盲目钉死正中</strong>，一旦窗口比内容矮，裸居中会把顶部标题推到滚不上去的负坐标里。</p>
+          </div>
+
+          <p>换句话说，网页里的居中器像一根「隐形轨道」：宽屏上它替你截住过长的行宽，让两侧自动余白把读者视线轻轻拢回中间；窄屏上它退回幕后，靠 <code lang="en">padding-inline</code> 护边替你挡住硬边撞字。它负责横向收束，至于内部块与块之间的纵向间距，通常交给套在里面的<a href="https://layout.xiaoxiaodong.ai/243/play/" target="_blank" rel="noopener"> 243 堆栈</a>去管。</p>
+        </div>
+
+        <div class="demo-panel" aria-label="块体居中与文字居中对照体验">
+          <div class="panel-top">
+            <span class="panel-title">对照体验：点切三种长文排法，用眼睛扫一遍左侧行首</span>
+            <div class="seg-tabs" role="group" aria-label="切换长文排法">
+              <button type="button" class="seg-btn" data-s1="full">满宽无约束</button>
+              <button type="button" class="seg-btn" data-s1="textcenter">块居中 · 文居中</button>
+              <button type="button" class="seg-btn is-active" data-s1="boxcenter">块居中 · 文左齐</button>
+            </div>
+          </div>
+
+          <div class="s1-stage is-boxcenter" id="s1-stage">
+            <div class="s1-col" id="s1-col">
+              <div class="s1-rail" aria-hidden="true"></div>
+              <h3 class="s1-art-title">为什么舒适行宽比塞满屏幕更省眼</h3>
+              <p class="s1-art-p">当人眼从一行末尾扫回下一行开头时，大脑需要借助整齐的左侧垂线定位锚点。行宽一超过舒适带，眼球回扫的距离被拉长，常常跳过一行或重读同一行。</p>
+              <p class="s1-art-p">如果把长段文字强行居中对齐，每一行的起点都在左右漂移，左缘变成高低不平的锯齿，阅读速度明显变慢；短标题或按钮可以居中，连续正文则交给块体居中器即可。</p>
+            </div>
+          </div>
+
+          <div class="s1-metrics" id="s1-metrics">
+            <div class="metric-item">
+              <span class="metric-k">当前形态</span>
+              <strong class="metric-v" id="s1-mode-val">块居中 · 文左齐</strong>
+            </div>
+            <div class="metric-item">
+              <span class="metric-k">左侧阅读锚线</span>
+              <strong class="metric-v" id="s1-rail-val">笔直单一垂线</strong>
+            </div>
+            <div class="metric-item">
+              <span class="metric-k">眼睛感受</span>
+              <strong class="metric-v" id="s1-feel-val">换行回扫最轻松</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · 从哪来：五代 CSS 居中演进 -->
+  <section class="band band-sage" id="sec-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div class="sec-titles">
+          <h2>五代居中怎么走到今天</h2>
+          <p class="sec-en" lang="en">Origins: From Bringhurst (1992) &amp; CSS1 (1996) to Baseline 2024</p>
+        </div>
+      </div>
+
+      <p class="sec-intro">「居中器」并非凭空冒出的 UI 术语。它一头连着活字与书籍排版的行长传统，另一头记录着网页布局标准近三十年从手写技巧进化为声明式原语的路线。点击下方年代，切换各代的真实 CSS 配方与历史局限。</p>
+
+      <div class="era-stepper" role="tablist" aria-label="CSS 居中演进五代">
+        <button type="button" class="era-btn is-active" role="tab" aria-selected="true" data-era="1996">
+          <span class="era-yr" lang="en">1992 / 1996</span>
+          <span class="era-name">行长与 CSS1 auto</span>
+        </button>
+        <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="2012">
+          <span class="era-yr" lang="en">2012</span>
+          <span class="era-name">Flexbox 双轴居中</span>
+        </button>
+        <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="2017">
+          <span class="era-yr" lang="en">2017</span>
+          <span class="era-name">Grid 一行定心</span>
+        </button>
+        <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="2019">
+          <span class="era-yr" lang="en">2019</span>
+          <span class="era-name">Every Layout 原语</span>
+        </button>
+        <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="2024">
+          <span class="era-yr" lang="en">2024</span>
+          <span class="era-name">块级 align-content</span>
+        </button>
+      </div>
+
+      <div class="era-stage">
+        <div class="era-info">
+          <div class="era-meta-row">
+            <span class="era-pill" id="era-pill">W3C CSS1 · 1996</span>
+            <span class="era-cite" id="era-cite">Robert Bringhurst (1992) · W3C REC-CSS1 (1996)</span>
+          </div>
+          <h3 id="era-heading">排印行长遇上 margin-left / right: auto</h3>
+          <p id="era-desc"></p>
+          <div class="era-tradeoff">
+            <div>
+              <span class="trade-k">解决了什么</span>
+              <p id="era-solved"></p>
+            </div>
+            <div>
+              <span class="trade-k">遗留短板</span>
+              <p id="era-limit"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="era-code-col">
+          <div class="era-live-frame" id="era-live-frame" aria-label="该年代居中配方的真实渲染标本">
+            <div class="era-specimen" id="era-specimen">
+              <strong>居中标本盒</strong>
+              <span id="era-spec-note">水平自动余白 · 纵轴未参与</span>
+            </div>
+          </div>
+          <pre class="era-code"><code id="era-code" lang="en"></code></pre>
+        </div>
+      </div>
+
+      <p class="ic-footnote">小知识：W3C CSS Values Level 4 除了用拉丁数字 <code lang="en">0</code> 宽定义的 <code lang="en">ch</code>（西文经验舒适行长 45–75ch，Bringhurst 1992 认为 66 字符为理想值），还专门为东亚汉字加入了以「水」字宽度定义的 <code lang="en">ic</code> 单位——中文正文用 <code lang="en">max-inline-size: 36ic</code>（经验值约 28–42 汉字）比写死像素更贴合字体变化。</p>
+    </div>
+  </section>
+
+  <!-- 03 · 暗室实验：溢出吞顶与光学偏移（深松绿暗室） -->
+  <section class="band band-dark" id="sec-03">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <div class="sec-titles">
+          <h2>溢出吞顶与光学偏移</h2>
+          <p class="sec-en" lang="en">Darkroom Lab: Overflow Data Loss &amp; Optical Centroid</p>
+        </div>
+      </div>
+
+      <p class="sec-intro">把 X、Y 坐标都算到精确的 50.0%，有时依然会在真实设备里翻车。下面两台深松绿暗室夹具，分别揭开「滚不回去的负坐标吞顶」和「算对几何却看起来偏了的光学中心」。</p>
+
+      <div class="dark-grid">
+        <!-- 左实验台：矮屏溢出可滚夹具 -->
+        <article class="dark-bench">
+          <div class="bench-head">
+            <span class="bench-tag">实验 A · 纵轴溢出夹具</span>
+            <h3>试着向上滚：unsafe center 如何吞掉顶栏</h3>
+          </div>
+
+          <div class="bench-controls">
+            <div class="dark-seg" role="group" aria-label="切换安全或裸居中">
+              <button type="button" class="dark-btn is-active" data-lab-safe="unsafe">裸 center（默认）</button>
+              <button type="button" class="dark-btn" data-lab-safe="safe">safe center</button>
+            </div>
+            <div class="dark-seg" role="group" aria-label="切换窗口高度">
+              <button type="button" class="dark-btn" data-lab-h="310">高窗 310px</button>
+              <button type="button" class="dark-btn is-active" data-lab-h="164">矮窗 164px</button>
+            </div>
+          </div>
+
+          <!-- 真实可滚动迷你视口（使用 overflow:auto，让读者亲手滚并验证 scrollTop=0 时顶部已不可及） -->
+          <div class="scroll-rig-shell">
+            <div class="scroll-rig-bar">
+              <span id="lab-rig-dim" lang="en">viewport: 164px · content: 274px</span>
+              <span class="rig-status" id="lab-rig-status">顶边被吞 -55px</span>
+            </div>
+            <div class="scroll-rig is-unsafe" id="lab-scroll-rig" tabindex="0" aria-label="可上下滚动的矮窗模拟视口">
+              <div class="rig-modal" id="lab-rig-modal">
+                <div class="rig-modal-head">
+                  <strong>① 顶部标题：确认删除项目？</strong>
+                  <span lang="en">×</span>
+                </div>
+                <p>② 风险摘要：删除后将永久清空全部历史快照与外部引用链接，无法撤销。</p>
+                <p>③ 影响范围：关联的 3 个协作页面与静态导出版将同步失效，建议先归档备份。</p>
+                <p>④ 滚动验证：在矮窗 164px 下试着把滚动条拉到最顶——裸 center 会让第 ① 行彻底消失在负坐标里。</p>
+                <div class="rig-modal-foot">
+                  <span class="rig-chip">取消</span>
+                  <span class="rig-chip is-primary">确认删除</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="bench-note" id="lab-safe-note">当前窗口 176px 矮于弹窗 236px：裸 center 把溢出平分上下两端，第 ① 行顶部标题被推出负坐标约 30px，拉到最顶仍被切掉。切到 safe center 后，系统自动回退到 start 顶对齐，全部内容顺畅可滚。</p>
+        </article>
+
+        <!-- 右实验台：光学中心校准台 -->
+        <article class="dark-bench">
+          <div class="bench-head">
+            <span class="bench-tag">实验 B · 光学质心校准</span>
+            <h3>数学 50% 不等于人眼觉得正中</h3>
+          </div>
+
+          <div class="bench-controls">
+            <div class="dark-seg" role="group" aria-label="切换光学测试图形">
+              <button type="button" class="dark-btn is-active" data-opt-shape="play">播放三角 ▶</button>
+              <button type="button" class="dark-btn" data-opt-shape="badge">图标按钮</button>
+              <button type="button" class="dark-btn" data-opt-shape="card">高屏弹窗</button>
+            </div>
+          </div>
+
+          <div class="opt-stage-wrap">
+            <svg id="opt-svg" class="opt-svg" viewBox="0 0 360 210" role="img" aria-label="光学居中与几何中心对比图"></svg>
+          </div>
+
+          <div class="opt-nudge-bar">
+            <button type="button" class="dark-btn" id="opt-minus">← 偏移 -2%</button>
+            <span class="opt-readout" id="opt-readout">当前手调：0%（几何中心）</span>
+            <button type="button" class="dark-btn" id="opt-plus">偏移 +2% →</button>
+            <button type="button" class="dark-btn is-accent" id="opt-reveal" aria-pressed="false">揭晓参考线</button>
+          </div>
+          <p class="bench-note" id="opt-note">外接矩形把等边三角放在正中时，左侧底边视觉重量远大于右侧尖角，肉眼总觉得偏左。先凭直觉点按微调，再点「揭晓参考线」对比真实面积质心位置。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · content-box 与套娃陷阱 -->
+  <section class="band band-blush" id="sec-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div class="sec-titles">
+          <h2>反直觉的 content-box 与套娃坑</h2>
+          <p class="sec-en" lang="en">Why Centerer Prefers content-box &amp; Nested Gutter Shrinkage</p>
+        </div>
+      </div>
+
+      <div class="two-col s4-grid">
+        <!-- 左：content-box vs border-box 护边算宽尺 -->
+        <article class="card-plate">
+          <h3>为什么 Every Layout 的居中器偏偏用 content-box？</h3>
+          <p>日常写组件大多默认全局 <code lang="en">border-box</code>（详见<a href="https://layout.xiaoxiaodong.ai/244/play/" target="_blank" rel="noopener"> 244 盒子</a>），但 <em>Every Layout</em> 的 Centerer 刻意改回 <code lang="en">box-sizing: content-box</code>——因为你写 <code lang="en">max-inline-size: 600px; padding-inline: 32px</code> 时，本意是让<strong>正文芯宽保底 600px</strong>；若用 <code lang="en">border-box</code>，两侧护边会从 600px 里硬生生扣走 64px，正文悄无声息缩成 536px。</p>
+
+          <div class="s4-toggle-row" role="group" aria-label="切换居中器算宽模型">
+            <button type="button" class="chip-btn is-active" data-s4-box="content-box">content-box（保住 600px 芯宽）</button>
+            <button type="button" class="chip-btn" data-s4-box="border-box">border-box（护边扣掉 64px）</button>
+          </div>
+
+          <div class="s4-ruler" id="s4-ruler" aria-live="polite">
+            <div class="s4-bar-outer" id="s4-bar-outer">
+              <span class="s4-pad">32px</span>
+              <span class="s4-core" id="s4-core">正文芯宽 600px（≈ 38 汉字）</span>
+              <span class="s4-pad">32px</span>
+            </div>
+            <p class="s4-caption" id="s4-box-caption">总占宽 664px = 32px 左护边 + 600px 完整行宽 + 32px 右护边；到了 390px 手机上它仍会随父槽自动收缩，不会撑爆。</p>
+          </div>
+        </article>
+
+        <!-- 右：移动端三层嵌套套娃开关矩阵 -->
+        <article class="card-plate">
+          <h3>移动端「套娃居中器」：三层护边吃掉三分之一屏</h3>
+          <p>页眉套一层居中器、主体又套一层、文章卡片里再套一层——大屏上看不出异常，一到 390px 手机，每层 <code lang="en">20px</code> 内护边逐级叠加，正文被挤成细长面条。勾选下方层级，亲眼看芯宽缩水：</p>
+
+          <div class="nest-checks">
+            <label class="check-pill"><input type="checkbox" id="nest-l1" checked> 第 1 层：页面外壳（护边 20px）</label>
+            <label class="check-pill"><input type="checkbox" id="nest-l2" checked> 第 2 层：栏目容器（再叠 20px）</label>
+            <label class="check-pill"><input type="checkbox" id="nest-l3" checked> 第 3 层：卡片内壳（再叠 20px）</label>
+            <label class="check-pill is-rescue"><input type="checkbox" id="nest-dedupe"> 开启治理：仅最外层保留护边</label>
+          </div>
+
+          <div class="phone-sim" id="phone-sim">
+            <div class="phone-head">
+              <span>模拟 390px 手机屏</span>
+              <strong id="nest-readout">有效芯宽 270px（损耗 120px）</strong>
+            </div>
+            <div class="phone-track">
+              <div class="phone-layer l1" id="vis-l1">
+                <div class="phone-layer l2" id="vis-l2">
+                  <div class="phone-layer l3" id="vis-l3">
+                    <div class="phone-text-core" id="vis-core">
+                      <strong>手机端正文区</strong>
+                      <span>每多套一层无条件护边，可用阅读宽就少 40px。</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="s4-caption" id="nest-note">三层叠加共吃掉 120px（占 390px 屏宽 31%），每行只剩约 16 个汉字。勾选「开启治理」或只把水平护边留给单层外壳即可立刻恢复饱满版心。</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · 什么时候用，什么时候别用 -->
+  <section class="band band-paper" id="sec-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div class="sec-titles">
+          <h2>什么时候用，什么时候别用</h2>
+          <p class="sec-en" lang="en">When Centerer Shines — and Four Places to Skip It</p>
+        </div>
+      </div>
+
+      <div class="usage-grid">
+        <div class="usage-col usage-yes">
+          <div class="usage-head">
+            <span class="usage-dot dot-forest" aria-hidden="true"></span>
+            <h3>放心交给居中器的 4 种场景</h3>
+          </div>
+          <ul class="usage-list">
+            <li>
+              <strong>长文博客、帮助文档与说明页</strong>
+              <p>用 <code lang="en">max-inline-size: 36ic–42ic</code> 锁住单行舒适字数，内部再套<a href="https://layout.xiaoxiaodong.ai/243/play/" target="_blank" rel="noopener"> 243 堆栈</a>排布段落与插图，读半小时不累眼。</p>
+            </li>
+            <li>
+              <strong>登录、表单、支付确认与空状态页</strong>
+              <p>页面只有一个明确主任务时，用居中器把操作卡拢在视野正中，减少多余眼球扫描；整屏垂直铺底则可配合<a href="https://layout.xiaoxiaodong.ai/249/play/" target="_blank" rel="noopener"> 249 封面原语</a>完成。</p>
+            </li>
+            <li>
+              <strong>落地页单栏宣言与品牌故事</strong>
+              <p>大屏左右留出大面积对称呼吸白，形成庄重、安静的焦点仪式感；需要宽幅配图时，只需给插图开一条全幅突破轨即可。</p>
+            </li>
+            <li>
+              <strong>阅读模态框与系统通知浮层</strong>
+              <p>配 <code lang="en">safe center</code> 同时完成横纵双轴定位，宽屏稳居中心、横屏手机自动靠顶可滚动，零吞字风险。</p>
+            </li>
+          </ul>
+        </div>
+
+        <div class="usage-col usage-no">
+          <div class="usage-head">
+            <span class="usage-dot dot-coral" aria-hidden="true"></span>
+            <h3>什么时候别用（4 大反模式）</h3>
+          </div>
+          <ul class="usage-list">
+            <li>
+              <strong>后台仪表盘、IDE 与多栏工作台</strong>
+              <p>把复杂操作台硬塞进 720px 窄居中器，会白白浪费桌面一半屏幕，迫使卡片挤成一列；请改用<a href="https://layout.xiaoxiaodong.ai/247/play/" target="_blank" rel="noopener"> 247 侧栏原语</a>或<a href="https://layout.xiaoxiaodong.ai/250/play/" target="_blank" rel="noopener"> 250 自适应网格原语</a>。</p>
+            </li>
+            <li>
+              <strong>宽数据表格、对比矩阵与大段源码</strong>
+              <p>列数多、横向信息密度高的内容被居中器强夹后，只能嵌套难用的局部横滚条；应使用更宽容器或允许表格突破阅读轨。</p>
+            </li>
+            <li>
+              <strong>把长段落全部写成 <code lang="en">text-align: center</code></strong>
+              <p>超过三行的连续正文居中排布会让每行左起点来回跳动。经验做法：居中对齐只留给 1–3 行短标题、引语或按钮。</p>
+            </li>
+            <li>
+              <strong>在已经居中的父壳里无脑再套居中器</strong>
+              <p>大屏看似无害，小屏每层 <code lang="en">padding-inline</code> 叠加缩水，很快把移动正文挤成窄条。</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · 实战小练习 -->
+  <section class="band band-sand" id="sec-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <div class="sec-titles">
+          <h2>小练习：挑出稳健的居中器</h2>
+          <p class="sec-en" lang="en">Quick Check: One Variable Separates Resilient from Fragile</p>
+        </div>
+      </div>
+
+      <div class="quiz-box">
+        <p class="quiz-prompt"><strong>题目：</strong>一篇 16px 中文技术长文要同时兼容 1440px 桌面屏与 390px 手机屏，四套居中器都保持正文左对齐且用 <code lang="en">margin-inline: auto</code>，<strong>只在「宽约束与内护边写法」上不同</strong>。选出两端都不会出毛病的唯一方案：</p>
+
+        <div class="quiz-grid" role="group" aria-label="四个居中器选项">
+          <button type="button" class="quiz-card" data-choice="A">
+            <span class="quiz-letter" lang="en">方案 A</span>
+            <pre class="quiz-code"><code lang="en">max-inline-size: none;
+padding-inline: 24px;
+margin-inline: auto;</code></pre>
+          </button>
+
+          <button type="button" class="quiz-card" data-choice="B">
+            <span class="quiz-letter" lang="en">方案 B</span>
+            <pre class="quiz-code"><code lang="en">max-inline-size: 38ic;
+padding-inline: 0;
+margin-inline: auto;</code></pre>
+          </button>
+
+          <button type="button" class="quiz-card" data-choice="C">
+            <span class="quiz-letter" lang="en">方案 C</span>
+            <pre class="quiz-code"><code lang="en">max-inline-size: 38ic;
+padding-inline: 24px;
+margin-inline: auto;</code></pre>
+          </button>
+
+          <button type="button" class="quiz-card" data-choice="D">
+            <span class="quiz-letter" lang="en">方案 D</span>
+            <pre class="quiz-code"><code lang="en">width: 608px;
+padding-inline: 24px;
+margin-inline: auto;</code></pre>
+          </button>
+        </div>
+
+        <div class="quiz-feedback" id="quiz-feedback" hidden>
+          <p class="quiz-verdict" id="quiz-verdict"></p>
+          <p class="quiz-explain" id="quiz-explain"></p>
+          <div class="quiz-reveal-strip" id="quiz-reveal-strip"></div>
+          <button type="button" class="chip-btn" id="quiz-retry">重选一次</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · 原海报与关键词 -->
+  <section class="band band-blush band-poster" id="sec-07">
+    <span class="corner-mark corner-bl" aria-hidden="true"></span>
+    <span class="corner-mark corner-br" aria-hidden="true"></span>
+
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div class="sec-titles">
+          <h2>原海报与关键词</h2>
+          <p class="sec-en" lang="en">Original Poster &amp; Sibling Layout Primitives</p>
+        </div>
+      </div>
+
+      <div class="poster-layout">
+        <div class="poster-frame-col">
+          <button type="button" class="poster-trigger" id="poster-open" aria-label="点击放大查看 245 居中器原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" draggable="false" alt="245 居中器 CENTERER 原海报：腮红暖纸底、四角珊瑚定位角标、深松绿方框套柔粉圆心与 X/Y 虚线标尺">
+            <span class="poster-zoom-tip">点击放大查看 · 支持拖拽平移与 Esc 关闭</span>
+          </button>
+        </div>
+
+        <div class="poster-meta-col">
+          <h3>原海报关键词</h3>
+          <div class="kw-triad">
+            <div class="kw-card">
+              <span class="kw-dot dot-coral" aria-hidden="true"></span>
+              <strong>水平居中</strong>
+              <span class="kw-bar bar-coral" aria-hidden="true"></span>
+              <span class="kw-en" lang="en">ALIGN</span>
+              <p>用行宽上限与 <code lang="en">margin-inline: auto</code> 均分左右余白，再用内护边守住手机屏壁。</p>
+            </div>
+            <div class="kw-card">
+              <span class="kw-dot dot-forest" aria-hidden="true"></span>
+              <strong>垂直居中</strong>
+              <span class="kw-bar bar-forest" aria-hidden="true"></span>
+              <span class="kw-en" lang="en">CENTER</span>
+              <p>借助 <code lang="en">safe center</code> 在宽裕视口定心、在矮屏自动保顶，绝不丢失顶部可滚区域。</p>
+            </div>
+            <div class="kw-card">
+              <span class="kw-dot dot-peach" aria-hidden="true"></span>
+              <strong>对齐焦点</strong>
+              <span class="kw-bar bar-peach" aria-hidden="true"></span>
+              <span class="kw-en" lang="en">FOCUS</span>
+              <p>分清块居中与正文左对齐，对不对称图形和高屏弹窗适度按光学重心微调。</p>
+            </div>
+          </div>
+
+          <div class="siblings-block">
+            <h4>同小类：网页与 UI / 布局原语</h4>
+            <p class="siblings-intro">布局原语各管一件事，常像积木一样互相嵌套：</p>
+            <nav class="sibling-links" aria-label="同小类其他布局原语">
+              <a href="https://layout.xiaoxiaodong.ai/243/play/" target="_blank" rel="noopener">243 堆栈</a>
+              <a href="https://layout.xiaoxiaodong.ai/244/play/" target="_blank" rel="noopener">244 盒子</a>
+              <span class="is-current" aria-current="page">245 居中器</span>
+              <a href="https://layout.xiaoxiaodong.ai/246/play/" target="_blank" rel="noopener">246 簇群</a>
+              <a href="https://layout.xiaoxiaodong.ai/247/play/" target="_blank" rel="noopener">247 侧栏原语</a>
+              <a href="https://layout.xiaoxiaodong.ai/248/play/" target="_blank" rel="noopener">248 切换器</a>
+              <a href="https://layout.xiaoxiaodong.ai/249/play/" target="_blank" rel="noopener">249 封面原语</a>
+              <a href="https://layout.xiaoxiaodong.ai/250/play/" target="_blank" rel="noopener">250 自适应网格原语</a>
+              <a href="https://layout.xiaoxiaodong.ai/251/play/" target="_blank" rel="noopener">251 比例框</a>
+              <a href="https://layout.xiaoxiaodong.ai/252/play/" target="_blank" rel="noopener">252 横向卷轴</a>
+              <a href="https://layout.xiaoxiaodong.ai/253/play/" target="_blank" rel="noopener">253 悬浮层</a>
+              <a href="https://layout.xiaoxiaodong.ai/254/play/" target="_blank" rel="noopener">254 图标文字组合</a>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <span><a href="https://layout.xiaoxiaodong.ai/245/play/" target="_blank" rel="noopener">在线版</a> / 全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai</a></span>
+    <span aria-hidden="true">·</span>
+    <span>海报 CC BY 4.0</span>
+    <span aria-hidden="true">·</span>
+    <a href="https://github.com/xxd-ai/350-layout-interactive" target="_blank" rel="noopener">源文件 GitHub</a>
+  </div>
+</footer>
+
+<!-- 原海报缩放灯箱（JS 直接复用 #poster.src，不二次内联图片） -->
+<div class="lightbox" id="poster-lightbox" hidden role="dialog" aria-modal="true" aria-label="245 居中器原海报放大查看">
+  <div class="lb-toolbar">
+    <span class="lb-title">245 居中器 · CENTERER 原海报</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-out" aria-label="缩小">−</button>
+      <button type="button" class="lb-btn" id="lb-reset">100%</button>
+      <button type="button" class="lb-btn" id="lb-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn is-close" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lb-viewport">
+    <img id="lb-img" alt="245 居中器原海报大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
