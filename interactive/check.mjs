@@ -148,7 +148,7 @@ const layoutLint = (b) =>
       if (parseFloat(cs.fontSize) < 10) out.tiny.push(name(el) + " " + cs.fontSize);
       const fg = rgb(cs.webkitTextFillColor || cs.color), bg = backdrop(el);
       if (a < 0.45) out.contrast.push(name(el) + " 透明度 " + a.toFixed(2));
-      else if (fg && bg && (fg[3] ?? 1) > 0.5) { // 镂空、描边字跳过 const L1 = lum(fg), L2 = lum(bg); const ratio = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05); if (ratio < (parseFloat(cs.fontSize) >= 24 ? 2 : 3)) out.contrast.push(name(el) + " 对比度 " + ratio.toFixed(1)); }
+      else if (fg && bg && (fg[3] ?? 1) > 0.5) { /* 镂空、描边字跳过 */ const L1 = lum(fg), L2 = lum(bg); const ratio = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05); if (ratio < (parseFloat(cs.fontSize) >= 24 ? 2 : 3)) out.contrast.push(name(el) + " 对比度 " + ratio.toFixed(1)); }
     }
     return out;
   })()`);
