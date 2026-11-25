@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#140E32">
+<title>流根布局 · FLOW-ROOT LAYOUT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <p class="mh-cat"><span class="mh-dot" aria-hidden="true"></span><span>网页与 UI / CSS 流、定位与响应</span></p>
+    <p class="mh-id"><span lang="en">NO. 225</span><span class="mh-sub">独立块格式化上下文</span></p>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== HERO：225 海报尖角框 + 流根印章交互台 ==================== -->
+  <section class="hero" id="top" aria-labelledby="title">
+    <div class="wrap hero-inner">
+      <!-- 原海报标志性玫瑰粉圆角尖角框 ∨ -->
+      <div class="poster-crest">
+        <div class="crest-box">
+          <div class="crest-row">
+            <h1 id="title" class="hero-title">流根布局</h1>
+            <p class="hero-en" lang="en">FLOW-ROOT LAYOUT</p>
+          </div>
+          <p class="hero-summary">
+            <svg class="wave-ico" viewBox="0 0 38 10" aria-hidden="true"><path d="M2 6 Q 10 1, 19 6 T 36 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span>创建独立的排版上下文，隔离内部流动</span>
+            <svg class="wave-ico" viewBox="0 0 38 10" aria-hidden="true"><path d="M2 6 Q 10 1, 19 6 T 36 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </p>
+        </div>
+        <div class="crest-notch" aria-hidden="true">
+          <svg viewBox="0 0 42 16" width="42" height="16"><path d="M1 0 L21 14 L41 0" fill="#140E32" stroke="#E27AA5" stroke-width="2.2" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <!-- 主互动区：1440 左粉标注 — 中央真实评论流 — 右青标注；844×390 左58%舞台 右42%托盘诊断 -->
+      <div class="hero-arena" id="hero-arena">
+        <!-- 桌面左翼：两条玫瑰粉虚线圆点实测标注 -->
+        <aside class="wing wing-left" aria-label="左侧实测读数">
+          <div class="callout callout-pink" id="co-leak">
+            <div class="co-head">
+              <span class="co-title">浮动漏出</span>
+              <span class="co-line" aria-hidden="true"><i></i><b></b></span>
+            </div>
+            <output class="co-val" id="m-leak-val" lang="en">+28px</output>
+            <p class="co-sub" id="m-leak-sub">头像刺穿 .comment 底边</p>
+            <p class="co-stamp-pos" id="m-stamps-label">当前印章：未盖</p>
+          </div>
+
+          <div class="callout callout-pink" id="co-stair">
+            <div class="co-head">
+              <span class="co-title">阶梯错位</span>
+              <span class="co-line" aria-hidden="true"><i></i><b></b></span>
+            </div>
+            <output class="co-val" id="m-stair-val" lang="en">+108px</output>
+            <p class="co-sub" id="m-stair-sub">3 张头像逐级向右顶偏</p>
+          </div>
+        </aside>
+
+        <!-- 中央主舱：真实 DOM 评论流 + 2D Canvas X-Ray 标注层 -->
+        <div class="stage-col">
+          <div class="stage-frame" id="hero-stage-frame">
+            <div class="feed-baseline" aria-hidden="true">
+              <span>容器顶部基准线 · 0px</span>
+              <span lang="en" id="hero-base-tag">FLOW CONTEXT</span>
+            </div>
+            <!-- .feed-shell 为稳定测量外框（flow-root），里面的 .feed 才是测试对象 -->
+            <div class="feed-shell" id="hero-feed-shell">
+              <div class="feed" id="hero-feed" data-sel=".feed">
+                <!-- 3 张共用类 .comment 的浮动头像评论卡 -->
+                <article class="comment" data-sel=".comment" data-idx="0">
+                  <div class="avatar av-1" data-sel=".avatar" aria-hidden="true">
+                    <svg viewBox="0 0 40 54"><circle cx="20" cy="21" r="12" fill="#63C2C8"/><rect x="8" y="38" width="24" height="8" rx="4" fill="#63C2C8" opacity="0.55"/></svg>
+                  </div>
+                  <p class="c-body" data-sel="p"><strong>林澈</strong>：首段自带上外边距，头像又高过这行短评，底边直接漏了。</p>
+                </article>
+
+                <article class="comment" data-sel=".comment" data-idx="1">
+                  <div class="avatar av-2" data-sel=".avatar" aria-hidden="true">
+                    <svg viewBox="0 0 40 54"><polygon points="20,9 32,33 8,33" fill="#E27AA5"/><rect x="8" y="38" width="24" height="8" rx="4" fill="#E27AA5" opacity="0.55"/></svg>
+                  </div>
+                  <p class="c-body" data-sel="p"><strong>周宁</strong>：我的头像撞上了楼上探出的边角，只好往右让一格。</p>
+                </article>
+
+                <article class="comment" data-sel=".comment" data-idx="2">
+                  <div class="avatar av-3" data-sel=".avatar" aria-hidden="true">
+                    <svg viewBox="0 0 40 54"><rect x="9" y="10" width="22" height="22" rx="4" fill="#63C2C8"/><circle cx="20" cy="42" r="5" fill="#E27AA5"/></svg>
+                  </div>
+                  <p class="c-body" data-sel="p"><strong>沈默</strong>：再往右错一级，底部还顺势刺进下面的公告块。</p>
+                </article>
+
+                <!-- 公告块 .notice：左浮插图需要跨两段自然绕排 -->
+                <section class="notice" id="hero-notice" data-sel=".notice">
+                  <div class="notice-fig" id="hero-notice-fig" aria-hidden="true">
+                    <svg viewBox="0 0 56 64">
+                      <rect x="4" y="4" width="48" height="56" rx="6" fill="#140E32" stroke="#E27AA5" stroke-width="2"/>
+                      <polygon points="28,14 40,34 16,34" fill="#E27AA5"/>
+                      <circle cx="22" cy="46" r="6" fill="#63C2C8"/>
+                      <rect x="32" y="40" width="12" height="12" rx="2" fill="#63C2C8"/>
+                    </svg>
+                    <span lang="en">FIG</span>
+                  </div>
+                  <p class="notice-p" id="hero-notice-p1" data-sel="p"><strong>编辑部公告</strong>：左侧插图左浮动，首段靠右交代活动时间。</p>
+                  <p class="notice-p" id="hero-notice-p2" data-sel="p">第二段紧接在下方，上半截继续顺着插图右边流动，走过插图底沿后自然折回全宽左缘并向右侧铺满整行，不该在图下留下生硬空白洞。</p>
+                </section>
+
+                <!-- 页脚 .feed-foot -->
+                <footer class="feed-foot" id="hero-feed-foot">
+                  <span>评论流页脚 · 共 3 条讨论与 1 则公告</span>
+                  <span lang="en">.feed-foot</span>
+                </footer>
+              </div>
+              <canvas class="hero-xray" id="hero-xray" aria-hidden="true"></canvas>
+            </div>
+
+            <!-- 窄屏/横屏紧凑四路实测带（1440 隐藏，改用左右翼标注） -->
+            <div class="mini-metrics" aria-label="四项实时读数">
+              <div class="mm-cell"><span class="mm-k">漏出</span><output class="mm-v" id="mb-leak" lang="en">+28px</output></div>
+              <div class="mm-cell"><span class="mm-k">阶梯</span><output class="mm-v" id="mb-stair" lang="en">+108px</output></div>
+              <div class="mm-cell"><span class="mm-k">顶穿</span><output class="mm-v" id="mb-top" lang="en">+16px</output></div>
+              <div class="mm-cell"><span class="mm-k">绕排</span><output class="mm-v" id="mb-wrap">完好</output></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 桌面右翼：两条青绿虚线圆点实测标注 -->
+        <aside class="wing wing-right" aria-label="右侧实测读数">
+          <div class="callout callout-cyan" id="co-top">
+            <div class="co-head">
+              <span class="co-line" aria-hidden="true"><b></b><i></i></span>
+              <span class="co-title">顶距穿透</span>
+            </div>
+            <output class="co-val" id="m-top-val" lang="en">+16px</output>
+            <p class="co-sub" id="m-top-sub">首段顶距把整栏向下拽塌</p>
+          </div>
+
+          <div class="callout callout-cyan" id="co-wrap">
+            <div class="co-head">
+              <span class="co-line" aria-hidden="true"><b></b><i></i></span>
+              <span class="co-title">公告绕排</span>
+            </div>
+            <output class="co-val" id="m-wrap-val">跨两段完好</output>
+            <p class="co-sub" id="m-wrap-sub">第二段顺着插图下方折回满宽</p>
+          </div>
+        </aside>
+
+        <!-- 印章托盘 + 选择器盖章槽 + 原海报双圆点粉框实时代码条 + 一行诊断 -->
+        <div class="hero-dock" id="hero-dock">
+          <div class="stamp-tray" aria-label="流根印章托盘">
+            <div class="tray-head">
+              <span class="tray-title">流根印章 <em id="stamp-count" lang="en">2 / 2 可用</em></span>
+              <span class="tray-tip">拖印章到评论流任意块，或直接点选下方选择器按类盖章</span>
+            </div>
+            <div class="tray-chips">
+              <button type="button" class="stamp-chip" id="stamp-chip-0" data-stamp-idx="0" data-perf-drag aria-label="流根印章 1：可拖到评论流中盖章">
+                <span class="sc-seal" aria-hidden="true">印 01</span>
+                <span class="sc-txt" lang="en">flow-root</span>
+              </button>
+              <button type="button" class="stamp-chip" id="stamp-chip-1" data-stamp-idx="1" aria-label="流根印章 2：可拖到评论流中盖章">
+                <span class="sc-seal" aria-hidden="true">印 02</span>
+                <span class="sc-txt" lang="en">flow-root</span>
+              </button>
+              <button type="button" class="btn-reset" id="hero-reset-btn">收回全部</button>
+            </div>
+          </div>
+
+          <div class="sel-rack" role="group" aria-label="按类选择器盖章或摘章">
+            <button type="button" class="sel-btn" data-sel=".feed" aria-pressed="false">
+              <code lang="en">.feed</code><span>外壳</span>
+            </button>
+            <button type="button" class="sel-btn" data-sel=".comment" aria-pressed="false">
+              <code lang="en">.comment</code><span>评论卡 ×3</span>
+            </button>
+            <button type="button" class="sel-btn" data-sel=".avatar" aria-pressed="false">
+              <code lang="en">.avatar</code><span>头像 ×3</span>
+            </button>
+            <button type="button" class="sel-btn" data-sel="p" aria-pressed="false">
+              <code lang="en">p</code><span>段落 ×5</span>
+            </button>
+            <button type="button" class="sel-btn" data-sel=".notice" aria-pressed="false">
+              <code lang="en">.notice</code><span>公告块</span>
+            </button>
+          </div>
+
+          <!-- 原海报底部同款双圆点玫瑰粉框实时代码条 -->
+          <div class="code-capsule-row">
+            <span class="cc-dot" aria-hidden="true"></span>
+            <span class="cc-line" aria-hidden="true"></span>
+            <code class="cc-box" id="hero-code-line" lang="en">/* 尚未盖章：全员默认 display: block */</code>
+            <span class="cc-line" aria-hidden="true"></span>
+            <span class="cc-dot" aria-hidden="true"></span>
+          </div>
+
+          <!-- 实时白话诊断带 -->
+          <div class="hero-diag" id="hero-diag" data-tone="bad" aria-live="polite">
+            <div class="hd-top">
+              <span class="hd-badge" id="hero-diag-badge">初始故障</span>
+              <p class="hd-title" id="hero-diag-title">三张卡撞成阶梯，顶沿被首段拽塌</p>
+            </div>
+            <p class="hd-text" id="hero-diag-text">全员 display: block 共享同一条流，拖一枚流根印章盖到真正该隔离的类选择器上试试。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 拖拽悬浮印章影子 -->
+      <div class="drag-ghost" id="hero-drag-ghost" hidden aria-hidden="true">
+        <span class="dg-ring" lang="en">flow-root</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01：原海报三特性解剖台 ==================== -->
+  <section class="sec sec-plum" id="s1" aria-labelledby="h1">
+    <div class="wrap sec-split">
+      <header class="sec-head sticky-head">
+        <p class="sec-no" lang="en">01</p>
+        <h2 id="h1">一座自给自足的小容器</h2>
+        <p class="sec-en" lang="en">CORE PRINCIPLES</p>
+        <p class="sec-lead">给块级容器写上 display: flow-root，不是换一套网格系统，而是在 <a href="https://layout.xiaoxiaodong.ai/222/play/" target="_blank" rel="noopener">222 普通流布局</a> 里划出一块独立的块格式化上下文（BFC）：里面照常排块与浮动，但一切流动到此为止，不漏出去，也不让外面钻进来。</p>
+        <aside class="gentle-note">
+          <span class="gn-tag">温和补充</span>
+          <p>原海报第三条题为「清除影响」，指对外界呈现的干净结果；机制上 flow-root 并非在后续受害元素上打 clear: both，而是从源头把 <a href="https://layout.xiaoxiaodong.ai/223/play/" target="_blank" rel="noopener">223 块级布局</a> 容器封成独立流根。而且它内部依然是普通流，要做等高对齐或二维轨道应交给 <a href="https://layout.xiaoxiaodong.ai/226/play/" target="_blank" rel="noopener">226 弹性盒布局</a> 或 <a href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">227 网格布局</a>。</p>
+        </aside>
+      </header>
+
+      <div class="sec-body">
+        <!-- 原海报三大核心特性徽标切签 -->
+        <div class="pillar-tabs" role="tablist" aria-label="原海报三大核心特性">
+          <button type="button" class="p1-tab is-active" role="tab" aria-selected="true" data-pillar="self">
+            <svg class="p1-ico" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M10 20V10H20M44 10H54V20M54 44V54H44M20 54H10V44" fill="none" stroke="#63C2C8" stroke-width="3" stroke-linecap="round"/>
+              <rect x="20" y="20" width="24" height="24" rx="2" fill="#63C2C8"/>
+            </svg>
+            <b>独立上下文</b>
+            <em lang="en">SELF-CONTAINED</em>
+            <span>创建独立的排版上下文</span>
+          </button>
+
+          <button type="button" class="p1-tab" role="tab" aria-selected="false" data-pillar="contain">
+            <svg class="p1-ico" viewBox="0 0 64 64" aria-hidden="true">
+              <circle cx="32" cy="32" r="24" fill="none" stroke="#63C2C8" stroke-width="2.5" stroke-dasharray="6 5"/>
+              <polygon points="34,15 44,31 24,31" fill="#E27AA5"/>
+              <circle cx="22" cy="38" r="6.5" fill="#63C2C8"/>
+              <rect x="31" y="34" width="12" height="12" rx="1.5" fill="#63C2C8"/>
+            </svg>
+            <b>包含</b>
+            <em lang="en">CONTAIN</em>
+            <span>内部浮动与内容被完整包含</span>
+          </button>
+
+          <button type="button" class="p1-tab" role="tab" aria-selected="false" data-pillar="clear">
+            <svg class="p1-ico" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M12 16L24 28M24 16L12 28" stroke="#E27AA5" stroke-width="3.6" stroke-linecap="round"/>
+              <path d="M30 22H54M12 36H54M12 48H54" stroke="#63C2C8" stroke-width="3.2" stroke-linecap="round"/>
+            </svg>
+            <b>清除影响</b>
+            <em lang="en">CLEAR</em>
+            <span>清除浮动影响，保护外部布局</span>
+          </button>
+        </div>
+
+        <!-- 实时微剖面演示舱 -->
+        <div class="s1-lab">
+          <div class="s1-bar">
+            <span class="s1-badge" id="s1-mode-badge" lang="en">display: block</span>
+            <button type="button" class="btn-action" id="s1-toggle-btn" aria-pressed="false">切换为 display: flow-root</button>
+          </div>
+          <div class="s1-demo-host" id="s1-demo-host"></div>
+          <div class="s1-readout" aria-live="polite">
+            <p class="s1-rt" id="s1-readout-title">尚未隔离：容器与外围共用一条流</p>
+            <p class="s1-rx" id="s1-readout-text">点击上方按钮对比开启 display: flow-root 前后的真实盒边界变化。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02：顶距穿透与侧浮避让（连续卡尺对照） ==================== -->
+  <section class="sec sec-indigo" id="s2" aria-labelledby="h2">
+    <div class="wrap">
+      <header class="sec-head-wide">
+        <div>
+          <p class="sec-no" lang="en">02</p>
+          <h2 id="h2">顶距穿透与侧浮避让</h2>
+          <p class="sec-en" lang="en">MARGIN CONTAINMENT &amp; FLOAT EXCLUSION</p>
+        </div>
+        <p class="sec-lead">原海报重点画了「包住内部浮动」，其实独立 BFC 还自带两项同样高频的真实能力：拦住首子外边距不再穿出父框，以及在 <a href="https://layout.xiaoxiaodong.ai/231/play/" target="_blank" rel="noopener">231 浮动布局</a> 侧图旁站成规整的矩形独立列。</p>
+      </header>
+
+      <div class="s2-controls">
+        <div class="seg-tabs" role="tablist" aria-label="选择 BFC 行为演示">
+          <button type="button" class="s2-tab is-active" role="tab" aria-selected="true" data-scene="margin">场景 A：顶距防穿透</button>
+          <button type="button" class="s2-tab" role="tab" aria-selected="false" data-scene="beside">场景 B：避让外部浮动</button>
+        </div>
+        <div class="caliper-wrap">
+          <label for="s2-range" id="s2-range-label">首段 margin-top</label>
+          <input type="range" id="s2-range" min="0" max="48" step="2" value="28">
+          <output id="s2-range-val" lang="en">28px</output>
+        </div>
+      </div>
+
+      <!-- 场景 A：并排真实对比顶距穿透 -->
+      <div class="s2-pair" id="s2-stage-margin">
+        <div class="s2-col">
+          <div class="s2-col-hd">
+            <code lang="en">display: block</code>
+            <output class="s2-stat bad" id="s2-m-block" lang="en">穿顶 +28px</output>
+          </div>
+          <div class="s2-track-shell" id="s2-mshell-block">
+            <div class="s2-box s2-box-block" id="s2-mbox-block">
+              <p class="s2-first-p" id="s2-mp-block">首段设了可调的 margin-top，但普通块没有边界阻隔，整块青框被一起拽离顶线。</p>
+              <p class="s2-sub-p">第二段紧随其后，卡顶内部反倒贴死在 0px。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="s2-col">
+          <div class="s2-col-hd">
+            <code lang="en">display: flow-root</code>
+            <output class="s2-stat ok" id="s2-m-fr" lang="en">锁在盒内 28px</output>
+          </div>
+          <div class="s2-track-shell" id="s2-mshell-fr">
+            <div class="s2-box s2-box-fr" id="s2-mbox-fr">
+              <p class="s2-first-p" id="s2-mp-fr">同样的 margin-top 被流根稳稳关在容器内部，青框上沿始终纹丝不动贴紧顶线。</p>
+              <p class="s2-sub-p">父框与外部环境互不拖拽，组件外沿尺寸彻底可控。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 场景 B：并排真实对比侧浮避让（媒体对象） -->
+      <div class="s2-pair" id="s2-stage-beside" hidden>
+        <div class="s2-col">
+          <div class="s2-col-hd">
+            <code lang="en">正文块 display: block</code>
+            <output class="s2-stat warn" id="s2-b-block">文字钻进图底绕排</output>
+          </div>
+          <div class="s2-beside-host">
+            <div class="s2-side-float" id="s2-bf-block" aria-hidden="true"><span lang="en">FLOAT</span></div>
+            <div class="s2-beside-text" id="s2-bt-block">普通块盒允许与外部浮动重叠：前两行虽然让出了左侧粉色头像，可一旦评论文字变长超过头像底部，后面的句子就会顺势拐进头像正下方折成 L 形，在多条讨论连续排列时左缘参差不齐，读起来很难一眼扫出正文起点。</div>
+          </div>
+        </div>
+
+        <div class="s2-col">
+          <div class="s2-col-hd">
+            <code lang="en">正文块 display: flow-root</code>
+            <output class="s2-stat ok" id="s2-b-fr">独立矩形列 · 零拐脚</output>
+          </div>
+          <div class="s2-beside-host">
+            <div class="s2-side-float" id="s2-bf-fr" aria-hidden="true"><span lang="en">FLOAT</span></div>
+            <div class="s2-beside-text is-fr" id="s2-bt-fr">给正文容器加一行 display: flow-root，它成为独立 BFC 块盒，自动让开浮动头像的整条竖带；文字写到第四、第五行也依然笔直对齐同一条竖线，这就是 Nicole Sullivan 在 2010 年总结的经典媒体对象模式。</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="s2-readout" id="s2-readout" aria-live="polite">拖动上方卡尺调节数值，对比普通块与流根在浏览器真实渲染引擎里的像素差异。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 03：从补丁时代到流根标准（暖奶油纸 · 历史考古） ==================== -->
+  <section class="sec sec-cream" id="s3" aria-labelledby="h3">
+    <div class="wrap">
+      <header class="sec-head-wide">
+        <div>
+          <p class="sec-no" lang="en">03</p>
+          <h2 id="h3">从补丁时代到流根标准</h2>
+          <p class="sec-en" lang="en">WHERE IT COMES FROM · 1998–2020</p>
+        </div>
+        <p class="sec-lead">浏览器早在 1998 年的 CSS2 就写明了块格式化上下文，却整整隔了 17 年才在工作草案里给出一个没有副作用的正规开关。点按年代印章，看清这行代码走过的弯路。</p>
+      </header>
+
+      <div class="era-strip" role="tablist" aria-label="流根布局演进年份">
+        <button type="button" class="era-btn is-active" role="tab" aria-selected="true" data-era="1998"><span lang="en">1998</span><em>CSS2 定义</em></button>
+        <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="2004"><span lang="en">2004</span><em>伪元素清浮</em></button>
+        <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="2010"><span lang="en">2010</span><em>媒体对象</em></button>
+        <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="2011"><span lang="en">2011</span><em>微 Clearfix</em></button>
+        <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="2015"><span lang="en">2015</span><em>草案创词</em></button>
+        <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="2017"><span lang="en">2017+</span><em>全线落地</em></button>
+      </div>
+
+      <div class="era-dossier">
+        <div class="era-info">
+          <div class="era-meta-row">
+            <span class="era-yr" id="s3-era-year" lang="en">1998-05-12</span>
+            <span class="era-src" id="s3-era-meta">W3C CSS2 §9.4.1</span>
+          </div>
+          <h3 class="era-title" id="s3-era-title">首次正式定义块格式化上下文（BFC）</h3>
+          <p class="era-note" id="s3-era-note">W3C 在 CSS2 正式推荐标准里写出了 Block formatting contexts 的概念，规定浮动、绝对定位、非 visible 的 overflow 等情形会触发新 BFC，但没有为普通流盒提供专门开关。</p>
+          <p class="era-flaw" id="s3-era-flaw"><strong>当时痛点</strong>：想要隔离浮动，只能往 HTML 里硬塞空的 &lt;div style="clear: both"&gt;，结构与表现混为一谈。</p>
+        </div>
+        <div class="era-code-panel">
+          <div class="era-code-hd">
+            <span>历史写法标本</span>
+            <output id="s3-era-lines" lang="en">需改 HTML 结构</output>
+          </div>
+          <pre class="era-pre"><code id="s3-era-code" lang="en">&lt;div class="box"&gt;
+  &lt;img class="left" ...&gt;
+  &lt;p&gt;正文...&lt;/p&gt;
+  &lt;div style="clear: both"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04：老偏方为什么总留后遗症（五方案活体体检 + 2×2 双值拼装 + 矩阵） ==================== -->
+  <section class="sec sec-plum" id="s4" aria-labelledby="h4">
+    <div class="wrap">
+      <header class="sec-head-wide">
+        <div>
+          <p class="sec-no" lang="en">04</p>
+          <h2 id="h4">老偏方为什么总留后遗症</h2>
+          <p class="sec-en" lang="en">LEGACY HACKS VS TWO-VALUE DISPLAY</p>
+        </div>
+        <p class="sec-lead">过去清浮动靠四种偏方凑合：每一种要么裁掉 <a href="https://layout.xiaoxiaodong.ai/233/play/" target="_blank" rel="noopener">233 绝对定位布局</a> 的探出角标、要么防不住顶距穿透、要么像 <a href="https://layout.xiaoxiaodong.ai/224/play/" target="_blank" rel="noopener">224 行内布局</a> 一样缩窄宽度。在这里把五种写法放进同一台真实体检舱里逐项量清楚。</p>
+      </header>
+
+      <!-- 上半：五方案活体体检舱（.card 显式设 position: relative，实裁绝对定位气泡，配浮动高度卡尺） -->
+      <div class="s4-chamber">
+        <div class="s4-toolbar">
+          <div class="s4-modes" role="group" aria-label="切换五种清浮动 CSS 写法">
+            <button type="button" class="s4-mode-btn is-active" data-mode="block" aria-pressed="true"><code lang="en">display: block</code></button>
+            <button type="button" class="s4-mode-btn" data-mode="overflow" aria-pressed="false"><code lang="en">overflow: hidden</code></button>
+            <button type="button" class="s4-mode-btn" data-mode="clearfix" aria-pressed="false"><code lang="en">::after clear</code></button>
+            <button type="button" class="s4-mode-btn" data-mode="inline-block" aria-pressed="false"><code lang="en">inline-block</code></button>
+            <button type="button" class="s4-mode-btn" data-mode="flow-root" aria-pressed="false"><code lang="en">display: flow-root</code></button>
+          </div>
+          <div class="s4-slider-row">
+            <label for="s4-float-h">调节左侧浮动块高度</label>
+            <input type="range" id="s4-float-h" min="40" max="152" step="2" value="124">
+            <output id="s4-float-h-val" lang="en">124px</output>
+          </div>
+        </div>
+
+        <div class="s4-stage-grid">
+          <div class="s4-preview-col">
+            <div class="s4-ref-bar" id="s4-ruler-ref">
+              <span>容器满栏参考宽 · 100%</span>
+              <span lang="en">.card { position: relative; }</span>
+            </div>
+            <div class="s4-card-shell" id="s4-card-shell">
+              <div class="s4-card mode-block" id="s4-card">
+                <span class="s4-badge" id="s4-badge">新消息</span>
+                <div class="s4-float" id="s4-float" aria-hidden="true">
+                  <span lang="en">FLOAT</span>
+                  <small id="s4-float-h-tag" lang="en">124px</small>
+                </div>
+                <p class="s4-body" id="s4-body">这段正文自带 18px 顶距，右上角有一枚向外探出 12px 的绝对定位角标。把浮动高度拖矮或切五种写法，看真实破绽。</p>
+              </div>
+              <div class="s4-sibling" id="s4-sibling">
+                <span class="s4-sib-dot" aria-hidden="true"></span>
+                <p>紧挨在 .card 下方的兄弟区块：一旦上方浮动漏出底边，这一行文字就会当场被顶歪。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="s4-readout-col">
+            <div class="s4-quad">
+              <div class="sq-item"><span>浮动漏出</span><output id="s4-r-leak" lang="en">+48px</output></div>
+              <div class="sq-item"><span>顶距穿透</span><output id="s4-r-top" lang="en">+18px</output></div>
+              <div class="sq-item"><span>气泡裁切</span><output id="s4-r-clip" lang="en">0px</output></div>
+              <div class="sq-item"><span>容器外宽</span><output id="s4-r-width" lang="en">100%</output></div>
+            </div>
+            <div class="s4-verdict" id="s4-verdict" data-tone="bad" aria-live="polite">
+              <span class="s4-v-badge" id="s4-verdict-badge">浮动刺穿</span>
+              <p class="s4-v-text" id="s4-verdict-text">实测浮动高超过正文高，底边漏出撞歪下方兄弟盒。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 下半：2×2 Display L3 双值语法拼装台 + 五方案体检矩阵 -->
+      <div class="s4-bottom-grid">
+        <div class="combo-panel">
+          <h3 class="sub-h3">Display L3 双值语法拼装器</h3>
+          <p class="sub-p">W3C 把 display 拆成「外显示 × 内显示」两把钥匙，自由组合看它对应哪种经典短写：</p>
+          <div class="combo-axes">
+            <div class="combo-axis" role="group" aria-label="外显示类型">
+              <span class="ax-lbl">外部怎么参与流</span>
+              <div class="ax-btns">
+                <button type="button" class="s4-outer-btn is-active" data-outer="block" aria-pressed="true"><code lang="en">block</code> 占满整行</button>
+                <button type="button" class="s4-outer-btn" data-outer="inline" aria-pressed="false"><code lang="en">inline</code> 随行收缩</button>
+              </div>
+            </div>
+            <div class="combo-axis" role="group" aria-label="内显示类型">
+              <span class="ax-lbl">内部怎么排子元素</span>
+              <div class="ax-btns">
+                <button type="button" class="s4-inner-btn" data-inner="flow" aria-pressed="false"><code lang="en">flow</code> 共享普通流</button>
+                <button type="button" class="s4-inner-btn is-active" data-inner="flow-root" aria-pressed="true"><code lang="en">flow-root</code> 独立 BFC</button>
+              </div>
+            </div>
+          </div>
+          <div class="combo-out" aria-live="polite">
+            <div class="combo-eq">
+              <code lang="en" id="s4-combo-long">display: block flow-root;</code>
+              <span aria-hidden="true">≡</span>
+              <code class="eq-hi" lang="en" id="s4-combo-short">display: flow-root;</code>
+            </div>
+            <p id="s4-combo-desc">对外保持块级满宽，对内建立全新的块格式化上下文——这正是 flow-root 零副作用的规范本质。</p>
+          </div>
+        </div>
+
+        <div class="matrix-panel">
+          <h3 class="sub-h3">五方案体检矩阵（点击任一行同步上舱实测）</h3>
+          <div class="matrix-wrap">
+            <table class="check-matrix">
+              <thead>
+                <tr>
+                  <th>CSS 写法</th>
+                  <th>包浮动</th>
+                  <th>锁顶距</th>
+                  <th>不裁气泡</th>
+                  <th>占满宽</th>
+                </tr>
+              </thead>
+              <tbody id="s4-matrix-body">
+                <tr data-mode="block" class="is-active" tabindex="0">
+                  <td><code lang="en">display: block</code></td>
+                  <td class="mx-no">漏出</td>
+                  <td class="mx-no">穿透</td>
+                  <td class="mx-ok">完整</td>
+                  <td class="mx-ok">满宽</td>
+                </tr>
+                <tr data-mode="overflow" tabindex="0">
+                  <td><code lang="en">overflow: hidden</code></td>
+                  <td class="mx-ok">包住</td>
+                  <td class="mx-ok">锁住</td>
+                  <td class="mx-no">裁切</td>
+                  <td class="mx-ok">满宽</td>
+                </tr>
+                <tr data-mode="clearfix" tabindex="0">
+                  <td><code lang="en">::after clear</code></td>
+                  <td class="mx-ok">包住</td>
+                  <td class="mx-no">穿透</td>
+                  <td class="mx-ok">完整</td>
+                  <td class="mx-ok">满宽</td>
+                </tr>
+                <tr data-mode="inline-block" tabindex="0">
+                  <td><code lang="en">display: inline-block</code></td>
+                  <td class="mx-ok">包住</td>
+                  <td class="mx-ok">锁住</td>
+                  <td class="mx-ok">完整</td>
+                  <td class="mx-no">缩窄</td>
+                </tr>
+                <tr data-mode="flow-root" tabindex="0">
+                  <td><code lang="en">display: flow-root</code></td>
+                  <td class="mx-ok">包住</td>
+                  <td class="mx-ok">锁住</td>
+                  <td class="mx-ok">完整</td>
+                  <td class="mx-ok">满宽</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05：实战里的三个高频用法（三联独立拨片卡） ==================== -->
+  <section class="sec sec-indigo" id="s5" aria-labelledby="h5">
+    <div class="wrap">
+      <header class="sec-head-wide">
+        <div>
+          <p class="sec-no" lang="en">05</p>
+          <h2 id="h5">实战里的三个高频用法</h2>
+          <p class="sec-en" lang="en">WHEN FLOW-ROOT STILL SHINES</p>
+        </div>
+        <div class="s5-hd-right">
+          <p class="sec-lead">有了 <a href="https://layout.xiaoxiaodong.ai/226/play/" target="_blank" rel="noopener">226 弹性盒布局</a> 和 <a href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">227 网格布局</a> 以后，涉及自然文字绕排、轻量单列隔离或去掉脏补丁时，flow-root 往往比改整套容器模型更省事。</p>
+          <label class="xray-toggle"><input type="checkbox" id="s5-xray-check"><span>显示容器边界透视框</span></label>
+        </div>
+      </header>
+
+      <div class="s5-trio" id="s5-trio">
+        <!-- 用法 1：杂志图文绕排段 -->
+        <article class="use-card">
+          <div class="uc-head">
+            <div>
+              <h3>01 杂志首图绕排</h3>
+              <span class="uc-sub">既要文绕图，又不漏进下一节</span>
+            </div>
+            <button type="button" class="s5-switch" data-card="mag" aria-pressed="false"><code lang="en">block</code></button>
+          </div>
+          <div class="uc-stage">
+            <div class="uc-mag-article" id="s5-card-mag">
+              <div class="uc-mag-fig" aria-hidden="true"><span>图</span></div>
+              <p>编者按：文字顺着插图绕排，但正文较短时插图会伸出本节底边。</p>
+            </div>
+            <div class="uc-mag-next">下一节小标：应当稳稳落在本节下方，而不是被上一节的插图挤歪。</div>
+          </div>
+          <p class="uc-stat" id="s5-stat-mag">当前 block：插图探出底边，挤歪了下一节标题。</p>
+        </article>
+
+        <!-- 用法 2：评论媒体对象 -->
+        <article class="use-card">
+          <div class="uc-head">
+            <div>
+              <h3>02 轻量媒体对象</h3>
+              <span class="uc-sub">左侧浮动头像 + 右侧独立正文列</span>
+            </div>
+            <button type="button" class="s5-switch" data-card="media" aria-pressed="false"><code lang="en">block</code></button>
+          </div>
+          <div class="uc-stage">
+            <div class="uc-media-wrap">
+              <div class="uc-media-av" aria-hidden="true"><span>头</span></div>
+              <div class="uc-media-body" id="s5-card-media">
+                <strong>阿南 · 3 分钟前</strong>
+                <p>当评论内容稍微写长一点、换到第三行和第四行时，如果不给右侧正文列设流根，超出来的文字就会拐进圆形头像的正下方，破坏整条评论区的垂直齐整感。</p>
+              </div>
+            </div>
+          </div>
+          <p class="uc-stat" id="s5-stat-media">当前 block：长正文折回头像下方，右侧不再整齐。</p>
+        </article>
+
+        <!-- 用法 3：防穿顶公告横幅 -->
+        <article class="use-card">
+          <div class="uc-head">
+            <div>
+              <h3>03 独立背景横幅</h3>
+              <span class="uc-sub">替代 padding: 1px 的脏补丁</span>
+            </div>
+            <button type="button" class="s5-switch" data-card="banner" aria-pressed="false"><code lang="en">block</code></button>
+          </div>
+          <div class="uc-stage">
+            <div class="uc-banner-frame">
+              <div class="uc-banner-box" id="s5-card-banner">
+                <p class="uc-banner-p">系统维护通知：首段 h4 / p 自带 margin-top: 18px，切开流根看顶沿是否穿出紫框。</p>
+              </div>
+            </div>
+          </div>
+          <p class="uc-stat" id="s5-stat-banner">当前 block：内部上边距穿出横幅顶边，上方露出一条空缝。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06：什么时候别用流根（暖奶油纸 · 四场景反例对照簿） ==================== -->
+  <section class="sec sec-cream" id="s6" aria-labelledby="h6">
+    <div class="wrap">
+      <header class="sec-head-wide">
+        <div>
+          <p class="sec-no" lang="en">06</p>
+          <h2 id="h6">什么时候别用流根</h2>
+          <p class="sec-en" lang="en">WHEN NOT TO USE FLOW-ROOT</p>
+        </div>
+        <p class="sec-lead">flow-root 只管「隔离开内部普通流」。碰到对齐分布、刻意跨段绕排或分节标题自然合并外边距时，硬套流根反倒帮倒忙；而碰上吸顶定位，背锅的其实不是它。</p>
+      </header>
+
+      <div class="s6-tabs" role="tablist" aria-label="四类边界与误用场景">
+        <button type="button" class="s6-tab is-active" role="tab" aria-selected="true" data-case="grid">① 多列对齐与等高</button>
+        <button type="button" class="s6-tab" role="tab" aria-selected="false" data-case="wrap">② 跨多段文字绕排</button>
+        <button type="button" class="s6-tab" role="tab" aria-selected="false" data-case="section-top">③ 分节外壳节顶多空白</button>
+        <button type="button" class="s6-tab" role="tab" aria-selected="false" data-case="sticky">④ 粘性吸顶避坑对照</button>
+      </div>
+
+      <div class="s6-board">
+        <div class="s6-copy">
+          <h3 id="s6-title">要做等高卡片或多列对齐，别用浮动加 flow-root 硬拼</h3>
+          <p id="s6-why">flow-root 只能把浮动包起来，既不能让两列自动等高，也没法一行代码做居中对齐或均匀间距。</p>
+          <p class="s6-instead" id="s6-instead"><strong>更稳做法</strong>：单轴对齐交给 <a href="https://layout.xiaoxiaodong.ai/226/play/" target="_blank" rel="noopener">226 弹性盒布局</a>，二维轨道交给 <a href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">227 网格布局</a>，报刊流式分栏交给 <a href="https://layout.xiaoxiaodong.ai/229/play/" target="_blank" rel="noopener">229 多栏布局</a>。</p>
+          <p class="s6-measure" id="s6-measure-note"></p>
+        </div>
+
+        <div class="s6-stage" id="s6-stage">
+          <!-- 4 个真实 DOM 场景按切换显隐 -->
+          <div class="s6-case" data-case-panel="grid">
+            <div class="s6-pair">
+              <div class="s6-card-demo">
+                <span class="s6-tag bad">浮动 + flow-root（高低参差）</span>
+                <div class="s6-grid-bad">
+                  <div class="s6-gb-item">短卡片</div>
+                  <div class="s6-gb-item">多两行文案的卡片高度自然拉长，旁边卡片拉不齐底边。</div>
+                </div>
+              </div>
+              <div class="s6-card-demo">
+                <span class="s6-tag ok">改用 Grid / Flex（天然等高）</span>
+                <div class="s6-grid-good">
+                  <div class="s6-gg-item">短卡片</div>
+                  <div class="s6-gg-item">多两行文案的卡片拉长整行轨道，左右底边自动严丝合缝对齐。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="s6-case" data-case-panel="wrap" hidden>
+            <div class="s6-pair">
+              <div class="s6-card-demo">
+                <span class="s6-tag bad">给段落误加 flow-root（截断留洞）</span>
+                <div class="s6-wrap-demo is-broken">
+                  <div class="s6-w-fig" aria-hidden="true"><span>首图</span></div>
+                  <p>第一段文字顺着左侧首图展开，交代导语。</p>
+                  <p>第二段被加了流根，被迫整块让开左侧，插图底下白白留出一个大空洞。</p>
+                </div>
+              </div>
+              <div class="s6-card-demo">
+                <span class="s6-tag ok">保持段落普通流（顺滑绕排）</span>
+                <div class="s6-wrap-demo">
+                  <div class="s6-w-fig" aria-hidden="true"><span>首图</span></div>
+                  <p>第一段文字顺着左侧首图展开，交代导语。</p>
+                  <p>第二段保持普通流，上半绕在插图右侧，走过底沿立刻自然铺回整行全宽。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="s6-case" data-case-panel="section-top" hidden>
+            <div class="s6-pair">
+              <div class="s6-card-demo">
+                <span class="s6-tag ok">外壳默认 block（与标题顶距自然合并）</span>
+                <div class="s6-sec-arena">
+                  <div class="s6-prev-bar">上一节底边</div>
+                  <div class="s6-sec-shell is-block" id="s6-sec-block">
+                    <h4 class="s6-sec-h" id="s6-sech-block">小节标题（margin-top: 20px）</h4>
+                    <p>外壳 margin-top 24px 与标题 margin-top 20px 合并为 24px，节顶内部紧贴无多余空带。</p>
+                  </div>
+                </div>
+              </div>
+              <div class="s6-card-demo">
+                <span class="s6-tag bad">外壳硬加 flow-root（节顶多出 20px 空白）</span>
+                <div class="s6-sec-arena">
+                  <div class="s6-prev-bar">上一节底边</div>
+                  <div class="s6-sec-shell is-fr" id="s6-sec-fr">
+                    <h4 class="s6-sec-h" id="s6-sech-fr">小节标题（margin-top: 20px）</h4>
+                    <p>外壳自身仍与上方合并，但锁住了标题的 20px 不再外合，节框顶内平白多出一截空白。</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="s6-case" data-case-panel="sticky" hidden>
+            <div class="s6-pair">
+              <div class="s6-card-demo">
+                <span class="s6-tag bad">父级用 overflow: hidden（吸顶直接失效）</span>
+                <div class="s6-scroll-box" id="s6-scroll-ov" tabindex="0" aria-label="可滚动区域：overflow hidden 对照">
+                  <div class="s6-sticky-parent is-ov">
+                    <div class="s6-sticky-head">尝试吸顶的节标（滚一滚看）</div>
+                    <p>因为父盒设了 overflow: hidden，浏览器把它当成滚动裁切祖先，内部 position: sticky 根本挂不住。</p>
+                    <p>继续向下滚动，上面的标题已经跟着内容一起滚出视野，吸顶完全失效。</p>
+                    <p>这是很多同学踩过的大坑——并不是所有 BFC 都会破坏吸顶，罪魁祸首是 overflow 属性。</p>
+                    <p>再滚到底部看看对照区：右侧只把 overflow: hidden 换成 display: flow-root。</p>
+                  </div>
+                </div>
+              </div>
+              <div class="s6-card-demo">
+                <span class="s6-tag ok">父级改 display: flow-root（吸顶稳稳生效）</span>
+                <div class="s6-scroll-box" id="s6-scroll-fr" tabindex="0" aria-label="可滚动区域：display flow-root 对照">
+                  <div class="s6-sticky-parent is-fr">
+                    <div class="s6-sticky-head">吸顶稳稳挂住（滚一滚看）</div>
+                    <p>display: flow-root 只建立独立 BFC，不会创建滚动容器，所以 <a href="https://layout.xiaoxiaodong.ai/235/play/" target="_blank" rel="noopener">235 粘性定位布局</a> 照常生效。</p>
+                    <p>继续向下滚动，青绿标题条牢牢吸在可视区顶沿，一路伴随长文到底。</p>
+                    <p>把旧项目里的 overflow: hidden 替换成 flow-root，常能顺手修好失灵的吸顶目录。</p>
+                    <p>滚动到底部，吸顶条依然安稳停在最上方。</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07：小练习（外边距精准预测题 + 同源 DOM 实测揭晓） ==================== -->
+  <section class="sec sec-plum" id="s7" aria-labelledby="h7">
+    <div class="wrap">
+      <header class="sec-head-wide">
+        <div>
+          <p class="sec-no" lang="en">07</p>
+          <h2 id="h7">小练习：外边距算得准吗？</h2>
+          <p class="sec-en" lang="en">PRACTICE · PREDICT THE EXACT PIXELS</p>
+        </div>
+        <p class="sec-lead">检验是否真正吃透了 BFC 外边距合并的边界：同一普通流容器里上下紧挨着两张 .card，无 border、无 padding，样式只有下面两行——先凭理解算出两个距离，再让浏览器现场实测揭晓。</p>
+      </header>
+
+      <div class="quiz-layout">
+        <div class="quiz-prompt-card">
+          <p class="qp-kicker">已知样式（两张相邻 .card，无 border / padding）</p>
+          <pre class="qp-code"><code lang="en">.card {
+  display: flow-root;
+  margin: 32px 0;
+}
+.card p:first-child {
+  margin-top: 24px;
+}</code></pre>
+          <p class="qp-question">请问真实渲染后，<strong>① 两张 .card 外沿之间</strong> 与 <strong>② 卡顶到首段 p 上沿</strong> 分别是多少像素？</p>
+
+          <div class="quiz-opts" role="group" aria-label="外边距预测四个选项">
+            <button type="button" class="quiz-opt" data-choice="A" aria-pressed="false">
+              <span class="qo-letter" lang="en">A</span>
+              <span class="qo-nums">两卡之间 <b lang="en">64px</b> · 卡顶到首段 <b lang="en">24px</b></span>
+            </button>
+            <button type="button" class="quiz-opt" data-choice="B" aria-pressed="false">
+              <span class="qo-letter" lang="en">B</span>
+              <span class="qo-nums">两卡之间 <b lang="en">32px</b> · 卡顶到首段 <b lang="en">24px</b></span>
+            </button>
+            <button type="button" class="quiz-opt" data-choice="C" aria-pressed="false">
+              <span class="qo-letter" lang="en">C</span>
+              <span class="qo-nums">两卡之间 <b lang="en">32px</b> · 卡顶到首段 <b lang="en">0px</b></span>
+            </button>
+            <button type="button" class="quiz-opt" data-choice="D" aria-pressed="false">
+              <span class="qo-letter" lang="en">D</span>
+              <span class="qo-nums">两卡之间 <b lang="en">56px</b> · 卡顶到首段 <b lang="en">0px</b></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="quiz-reveal-card" id="q-result" aria-live="polite">
+          <div class="qr-placeholder" id="q-placeholder">
+            <svg class="qr-diagram" viewBox="0 0 320 190" aria-hidden="true">
+              <rect x="24" y="14" width="212" height="58" rx="6" fill="#131A33" stroke="#63C2C8" stroke-width="2"/>
+              <rect x="38" y="34" width="184" height="24" rx="4" fill="rgba(99,194,200,0.22)"/>
+              <text x="130" y="50" text-anchor="middle" fill="#F3EFE4" font-size="11" font-family="Noto Sans SC, sans-serif">卡片 1 首段 p</text>
+              <line x1="252" y1="14" x2="252" y2="34" stroke="#63C2C8" stroke-width="1.8"/>
+              <line x1="246" y1="14" x2="258" y2="14" stroke="#63C2C8" stroke-width="1.5"/>
+              <line x1="246" y1="34" x2="258" y2="34" stroke="#63C2C8" stroke-width="1.5"/>
+              <text x="264" y="28" fill="#63C2C8" font-size="11" font-family="IBM Plex Mono, monospace">② ?px</text>
+
+              <line x1="252" y1="72" x2="252" y2="116" stroke="#E27AA5" stroke-width="1.8" stroke-dasharray="4 3"/>
+              <line x1="246" y1="72" x2="258" y2="72" stroke="#E27AA5" stroke-width="1.5"/>
+              <line x1="246" y1="116" x2="258" y2="116" stroke="#E27AA5" stroke-width="1.5"/>
+              <text x="264" y="98" fill="#E27AA5" font-size="11" font-family="IBM Plex Mono, monospace">① ?px</text>
+
+              <rect x="24" y="116" width="212" height="58" rx="6" fill="#131A33" stroke="#63C2C8" stroke-width="2"/>
+              <rect x="38" y="136" width="184" height="24" rx="4" fill="rgba(99,194,200,0.22)"/>
+              <text x="130" y="152" text-anchor="middle" fill="#F3EFE4" font-size="11" font-family="Noto Sans SC, sans-serif">卡片 2 首段 p</text>
+            </svg>
+            <p class="qr-wait-title">先选出你的预测（A–D）</p>
+            <p class="qr-wait-text">示意草图仅标出 ① 两卡外沿之间 与 ② 卡顶到首段 两处测量部位；作答后立刻用真实 DOM 与共用函数现场量出准确像素。</p>
+          </div>
+
+          <div class="qr-live" id="q-reveal-box" hidden>
+            <div class="qr-head">
+              <span class="qr-badge" id="q-verdict-badge">实测揭晓</span>
+              <div class="qr-actions">
+                <button type="button" class="btn-mini" id="q-toggle-block" aria-pressed="false">切 display: block 对照</button>
+                <button type="button" class="btn-mini" id="q-reset">重选</button>
+              </div>
+            </div>
+            <p class="qr-title" id="q-verdict-title"></p>
+            <p class="qr-text" id="q-verdict-text"></p>
+
+            <!-- 真实 DOM 实测舞台 -->
+            <div class="q-live-host" id="q-live-host">
+              <div class="q-card" id="q-card-1">
+                <p class="q-first-p" id="q-p-1">卡片 1 首段（margin-top: 24px）</p>
+              </div>
+              <div class="q-card" id="q-card-2">
+                <p class="q-first-p">卡片 2 首段（margin-top: 24px）</p>
+              </div>
+            </div>
+
+            <div class="q-measures">
+              <div class="qm-chip"><span>实测① 两卡外沿之间</span><output id="q-measure-between" lang="en">32px</output></div>
+              <div class="qm-chip"><span>实测② 卡顶到首段</span><output id="q-measure-inside" lang="en">24px</output></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 08：原海报与关键词 ==================== -->
+  <section class="sec sec-indigo" id="s8" aria-labelledby="h8">
+    <div class="wrap poster-section">
+      <div class="poster-info">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">08</p>
+          <h2 id="h8">原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; KEYWORDS</p>
+        </header>
+        <p class="sec-lead">点按一旁的 225 号原海报可以放大、拖动并细看配色、点阵与标注解剖；下方收录原海报四枚核心关键词与同一小类的相关页面索引。</p>
+
+        <ul class="kw-grid" aria-label="原海报四个关键词">
+          <li class="kw-card">
+            <span class="kw-dot cyan" aria-hidden="true"></span>
+            <div><b>流根容器</b><em lang="en">FLOW-ROOT LAYOUT</em><p>以单行声明开启独立块格式化上下文的普通流容器。</p></div>
+          </li>
+          <li class="kw-card">
+            <span class="kw-dot pink" aria-hidden="true"></span>
+            <div><b>浮动元素</b><em lang="en">FLOAT ELEMENT</em><p>脱离普通流但仍受所属流根边界完整收纳的浮动子项。</p></div>
+          </li>
+          <li class="kw-card">
+            <span class="kw-dot cyan" aria-hidden="true"></span>
+            <div><b>内容区域</b><em lang="en">CONTENT AREA</em><p>在独立流根内部顺畅流动、不被外部浮动搅乱的正文区。</p></div>
+          </li>
+          <li class="kw-card">
+            <span class="kw-dot pink" aria-hidden="true"></span>
+            <div><b>清除影响</b><em lang="en">CLEAR EFFECT</em><p>从源头封住浮动与外边距，让相邻外部区块稳如泰山。</p></div>
+          </li>
+        </ul>
+
+        <div class="sibling-links">
+          <h3>同小类速览 · CSS 流、定位与响应</h3>
+          <p class="sl-list">
+            <a href="https://layout.xiaoxiaodong.ai/222/play/" target="_blank" rel="noopener">222 普通流</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/223/play/" target="_blank" rel="noopener">223 块级</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/224/play/" target="_blank" rel="noopener">224 行内</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/226/play/" target="_blank" rel="noopener">226 弹性盒</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/227/play/" target="_blank" rel="noopener">227 网格</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/228/play/" target="_blank" rel="noopener">228 子网格</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/229/play/" target="_blank" rel="noopener">229 多栏</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/230/play/" target="_blank" rel="noopener">230 表格</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/231/play/" target="_blank" rel="noopener">231 浮动</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/232/play/" target="_blank" rel="noopener">232 相对定位</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/233/play/" target="_blank" rel="noopener">233 绝对定位</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/234/play/" target="_blank" rel="noopener">234 固定定位</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/235/play/" target="_blank" rel="noopener">235 粘性定位</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/236/play/" target="_blank" rel="noopener">236 瀑布流</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/237/play/" target="_blank" rel="noopener">237 覆盖</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/238/play/" target="_blank" rel="noopener">238 固定宽度</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/239/play/" target="_blank" rel="noopener">239 流体</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/240/play/" target="_blank" rel="noopener">240 响应式</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/241/play/" target="_blank" rel="noopener">241 自适应</a> ·
+            <a href="https://layout.xiaoxiaodong.ai/242/play/" target="_blank" rel="noopener">242 容器查询</a>
+          </p>
+        </div>
+      </div>
+
+      <figure class="poster-frame">
+        <button type="button" class="poster-btn" id="poster-btn" aria-label="点按放大查看 225 号流根布局原海报">
+          <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="225 号流根布局原海报：深靛紫底色上顶玫瑰粉尖角框大标，中央为青绿点阵流根容器与下方玫瑰粉外部兄弟盒，两侧虚线标注流根容器、浮动元素、内容区域与清除影响，下方列三大核心特性图标及 .container { display: flow-root; } 代码框。">
+        </button>
+        <figcaption>点按放大原海报 · 支持缩放、拖动平移与 Esc 关闭</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<!-- 原海报放大查看器 -->
+<dialog id="viewer" aria-label="原海报大图查看器">
+  <div class="viewer-bar">
+    <span class="viewer-title"><em lang="en">NO. 225</em> 流根布局 · 原海报</span>
+    <div class="viewer-tools">
+      <button type="button" class="v-btn" id="zoom-out" aria-label="缩小">−</button>
+      <output id="zoom-val" lang="en">100%</output>
+      <button type="button" class="v-btn" id="zoom-in" aria-label="放大">+</button>
+      <button type="button" class="v-btn" id="zoom-reset">复原</button>
+      <button type="button" class="v-btn v-close" id="viewer-close">关闭</button>
+    </div>
+  </div>
+  <div class="viewer-scroll" id="viewer-scroll" tabindex="0" aria-label="拖动平移查看原海报">
+    <img id="viewer-img" draggable="false" alt="225 号流根布局原海报大图">
+  </div>
+</dialog>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p class="foot-brand"><span class="foot-no" lang="en">NO. 225</span> 流根布局 · 350 种排版</p>
+    <p class="foot-links">
+      <a href="https://layout.xiaoxiaodong.ai/225/play/" target="_blank" rel="noopener">在线版</a>
+      <span class="sep">/</span>
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      <span>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a></span>
+      <span class="sep">·</span>
+      <span>源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></span>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
