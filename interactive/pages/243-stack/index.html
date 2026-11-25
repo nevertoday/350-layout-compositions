@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>243 · 堆栈 STACK — 350 种排版互动版</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top-brow">
+    <div class="wrap brow-inner">
+      <div class="brow-left">
+        <span class="brow-dots" aria-hidden="true">
+          <i class="dot-pink"></i>
+          <i class="dot-dark"></i>
+          <i class="dot-cream"></i>
+        </span>
+        <span class="brow-cat">网页与 UI / 布局原语</span>
+      </div>
+      <div class="brow-right">
+        <span class="brow-num">NO. 243 · STACK</span>
+        <span class="brow-status" id="brow-status" data-tone="err">0 / 4 待理顺</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- =================================================================
+         HERO · 243 原海报深橄榄绿活体垂直堆栈装调台
+         ================================================================= -->
+    <section class="hero" aria-label="堆栈交互实验台">
+      <div class="wrap hero-grid">
+        <!-- 左柱：自示范刊头 + 横向 2D 游标尺 + 原海报三色圆角叠影活体堆栈 -->
+        <div class="hero-stage-col">
+          <div class="masthead">
+            <div class="masthead-title-stack" id="masthead-stack">
+              <h1 class="hero-h1">堆栈</h1>
+              <p class="hero-en">STACK</p>
+              <span class="hero-pink-bar" aria-hidden="true"></span>
+            </div>
+            <div class="masthead-side">
+              <div class="poster-emblem" aria-hidden="true">
+                <svg viewBox="0 0 116 86" width="116" height="86" fill="none">
+                  <rect x="24" y="18" width="44" height="38" fill="#F1E3CB"/>
+                  <rect x="24" y="56" width="44" height="22" fill="#0F0F0F"/>
+                  <circle cx="24" cy="22" r="19" fill="#F59CA4"/>
+                  <g fill="#F3E6CF" opacity="0.86">
+                    <circle cx="78" cy="22" r="1.7"/><circle cx="86" cy="22" r="1.7"/><circle cx="94" cy="22" r="1.7"/><circle cx="102" cy="22" r="1.7"/><circle cx="110" cy="22" r="1.7"/>
+                    <circle cx="78" cy="31" r="1.7"/><circle cx="86" cy="31" r="1.7"/><circle cx="94" cy="31" r="1.7"/><circle cx="102" cy="31" r="1.7"/><circle cx="110" cy="31" r="1.7"/>
+                    <circle cx="78" cy="40" r="1.7"/><circle cx="86" cy="40" r="1.7"/><circle cx="94" cy="40" r="1.7"/><circle cx="102" cy="40" r="1.7"/><circle cx="110" cy="40" r="1.7"/>
+                    <circle cx="78" cy="49" r="1.7"/><circle cx="86" cy="49" r="1.7"/><circle cx="94" cy="49" r="1.7"/><circle cx="102" cy="49" r="1.7"/><circle cx="110" cy="49" r="1.7"/>
+                    <circle cx="78" cy="58" r="1.7"/><circle cx="86" cy="58" r="1.7"/><circle cx="94" cy="58" r="1.7"/><circle cx="102" cy="58" r="1.7"/><circle cx="110" cy="58" r="1.7"/>
+                    <circle cx="78" cy="67" r="1.7"/><circle cx="86" cy="67" r="1.7"/><circle cx="94" cy="67" r="1.7"/><circle cx="102" cy="67" r="1.7"/><circle cx="110" cy="67" r="1.7"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="theme-tabs" role="group" aria-label="切换堆栈题材">
+                <button type="button" class="tab-btn is-active" data-theme="poster" aria-pressed="true">原海报三段</button>
+                <button type="button" class="tab-btn" data-theme="form" aria-pressed="false">注册表单栈</button>
+                <button type="button" class="tab-btn" data-theme="article" aria-pressed="false">文章阅读流</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2D 横向间距与边距 X 光游标尺（data-perf-drag） -->
+          <div class="caliper-wrap">
+            <div class="caliper-head">
+              <span class="caliper-hint">横拖游标尺调基准间距 · 方向键 ←/→ 微调</span>
+              <span class="caliper-readout" id="caliper-readout">gap 4px · 经验带 12–32px</span>
+            </div>
+            <canvas
+              id="gap-caliper"
+              class="gap-caliper"
+              data-perf-drag
+              tabindex="0"
+              role="slider"
+              aria-label="堆栈垂直间距游标尺"
+              aria-valuemin="0"
+              aria-valuemax="48"
+              aria-valuenow="4"
+            ></canvas>
+          </div>
+
+          <!-- 活体原海报三色圆角叠影堆栈舞台 -->
+          <div class="stack-stage" id="stack-stage">
+            <div class="leak-bar leak-top" id="leak-top" hidden>
+              <span id="leak-top-text">顶块 margin-top 漏出容器顶边 +18px</span>
+            </div>
+            <div class="stack-frame" id="stack-frame">
+              <div class="stack-list" id="stack-list" aria-live="polite"></div>
+              <div class="clip-curtain" id="clip-curtain" hidden aria-hidden="true">
+                <span class="clip-label" id="clip-label">height: 216px 写死截断 · 裁掉 42px</span>
+              </div>
+            </div>
+            <div class="leak-bar leak-bottom" id="leak-bottom" hidden>
+              <span id="leak-bottom-text">底块 margin-bottom 拖出多余尾白 +26px</span>
+            </div>
+          </div>
+
+          <!-- 堆栈模块增删与快控条 -->
+          <div class="stage-actions">
+            <button type="button" class="act-btn act-add" id="btn-add-block">+ 插入模块</button>
+            <button type="button" class="act-btn" id="btn-fix-order">理顺顺序</button>
+            <button type="button" class="act-btn act-mobile-only" id="btn-quick-gap">切父容器 gap</button>
+            <button type="button" class="act-btn act-mobile-only" id="btn-quick-auto">切自然流</button>
+            <button type="button" class="act-btn act-ghost" id="btn-reset-broken">复原 0/4 错态</button>
+          </div>
+        </div>
+
+        <!-- 右柱：三彩圆支柱实况列 + 暖奶油偏移影单真源诊单 + 工程控槽 -->
+        <div class="hero-panel-col">
+          <!-- 原海报三彩圆支柱实况带 -->
+          <div class="poster-pillars" aria-label="堆栈三大核心原则实时检测">
+            <div class="pillar-item">
+              <span class="pillar-dot dot-pink" aria-hidden="true"></span>
+              <div class="pillar-copy">
+                <div class="pillar-top">
+                  <strong>垂直叠放</strong>
+                  <span class="pillar-tag" id="pillar-vertical" data-ok="false">缝差 24px</span>
+                </div>
+                <span class="pillar-desc">层级清晰有序</span>
+                <span class="pillar-en en-pink">VERTICAL</span>
+              </div>
+            </div>
+            <div class="pillar-item">
+              <span class="pillar-dot dot-dark" aria-hidden="true"></span>
+              <div class="pillar-copy">
+                <div class="pillar-top">
+                  <strong>顺序明确</strong>
+                  <span class="pillar-tag" id="pillar-order" data-ok="false">头尾倒置</span>
+                </div>
+                <span class="pillar-desc">信息按序呈现</span>
+                <span class="pillar-en en-olive">ORDER</span>
+              </div>
+            </div>
+            <div class="pillar-item">
+              <span class="pillar-dot dot-cream" aria-hidden="true"></span>
+              <div class="pillar-copy">
+                <div class="pillar-top">
+                  <strong>易于扩展</strong>
+                  <span class="pillar-tag" id="pillar-spacing" data-ok="false">漏边 44px</span>
+                </div>
+                <span class="pillar-desc">模块灵活增删</span>
+                <span class="pillar-en en-pink">SPACING</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 暖奶油纸带硬切偏移影的实时单真源诊单 -->
+          <article class="diag-slab" aria-live="polite">
+            <div class="diag-head">
+              <span class="diag-badge" id="diag-badge" data-tone="err">错态 · 子项漏边 (0/4)</span>
+              <span class="diag-src">单真源几何实算</span>
+            </div>
+            <h2 class="diag-title" id="diag-title">外边距写死在子项里：顶漏 18px、底拖 26px</h2>
+            <p class="diag-body" id="diag-body"></p>
+            <div class="diag-next">
+              <span class="diag-next-label">试着改一步</span>
+              <p id="diag-next-text"></p>
+            </div>
+            <div class="diag-metrics">
+              <div class="metric-cell">
+                <span class="metric-k">缝隙一致度</span>
+                <strong class="metric-v" id="m-seam">差 24px</strong>
+              </div>
+              <div class="metric-cell">
+                <span class="metric-k">顶底漏边</span>
+                <strong class="metric-v" id="m-leak">44px</strong>
+              </div>
+              <div class="metric-cell">
+                <span class="metric-k">当前模块 / 高度</span>
+                <strong class="metric-v" id="m-size">3 块 · 裁切</strong>
+              </div>
+            </div>
+            <pre class="css-preview"><code id="live-css"></code></pre>
+          </article>
+
+          <!-- 工程控槽 -->
+          <div class="ctrl-slab">
+            <div class="ctrl-group">
+              <div class="ctrl-label">
+                <span>① 间距归属</span>
+                <small>谁来管相邻缝隙</small>
+              </div>
+              <div class="ctrl-row" role="group" aria-label="间距归属方式">
+                <button type="button" class="ctrl-btn" data-owner="child-margin" aria-pressed="true">子项乱写 margin</button>
+                <button type="button" class="ctrl-btn" data-owner="owl" aria-pressed="false">父容器 * + *</button>
+                <button type="button" class="ctrl-btn" data-owner="gap" aria-pressed="false">父容器 flex + gap</button>
+                <button type="button" class="ctrl-btn ctrl-warn" data-owner="negative" aria-pressed="false">试错：负边距</button>
+              </div>
+            </div>
+
+            <div class="ctrl-group">
+              <div class="ctrl-label">
+                <span>② 容器高度与末项推底</span>
+                <small>决定增删模块会不会被裁切</small>
+              </div>
+              <div class="ctrl-row" role="group" aria-label="容器高度与推底策略">
+                <button type="button" class="ctrl-btn" data-height="fixed" aria-pressed="true">写死定高裁切</button>
+                <button type="button" class="ctrl-btn" data-height="auto" aria-pressed="false">自然流 auto</button>
+                <button type="button" class="ctrl-btn" id="btn-split-last" aria-pressed="false">末项推底 auto：关</button>
+              </div>
+            </div>
+
+            <div class="ctrl-group ctrl-presets">
+              <div class="ctrl-label">
+                <span>③ 观察多组正当解</span>
+                <small>不只一种唯一答案</small>
+              </div>
+              <div class="ctrl-row">
+                <button type="button" class="preset-btn" data-preset="poster">海报标准解 22px</button>
+                <button type="button" class="preset-btn" data-preset="compact">紧凑猫头鹰 16px</button>
+                <button type="button" class="preset-btn" data-preset="split">末项推底解 20px</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 原海报底沿几何压脚带 -->
+      <div class="wrap hero-ornament" aria-hidden="true">
+        <div class="orn-left">
+          <svg viewBox="0 0 88 34" width="88" height="34" fill="none">
+            <circle cx="5" cy="7" r="2.6" fill="#F3E6CF"/><circle cx="15" cy="7" r="2.6" fill="#F3E6CF"/>
+            <circle cx="5" cy="17" r="2.6" fill="#F3E6CF"/><circle cx="15" cy="17" r="2.6" fill="#F3E6CF"/>
+            <circle cx="5" cy="27" r="2.6" fill="#F3E6CF"/><circle cx="15" cy="27" r="2.6" fill="#F3E6CF"/>
+            <path d="M36 32 V4 A28 28 0 0 1 64 32 Z" fill="#F3959F"/>
+          </svg>
+        </div>
+        <div class="orn-lines">
+          <span style="width: 100%"></span>
+          <span style="width: 100%"></span>
+          <span style="width: 68%"></span>
+        </div>
+        <div class="orn-bars">
+          <i class="bar-cream"></i>
+          <i class="bar-pink"></i>
+          <i class="bar-black"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         01 · 间距该归父容器管（暖奶油亮纸）
+         ================================================================= -->
+    <section class="sec sec-cream" id="sec-01">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div class="sec-titles">
+            <h2>间距该归父容器管</h2>
+            <p class="sec-en">PARENT OWNS THE SPACE</p>
+          </div>
+        </div>
+
+        <div class="sec-lead-grid">
+          <p class="lead-p">
+            原海报用三句话概括了堆栈：「<strong>垂直叠放</strong>，层级清晰有序」「<strong>顺序明确</strong>，信息按序呈现」「<strong>易于扩展</strong>，模块灵活增删」。注意第三条底下的英文小标签并不是 EXTEND，而是 <strong>SPACING（间距）</strong>——这恰好点破了堆栈之所以能自由增删模块的真正秘密。
+          </p>
+          <p class="lead-p">
+            如果每个按钮、段落、卡片都自己背着一段写死的 <code>margin-bottom</code>，一旦需求变化要删除最后一块、在顶部临时插一条公告，或者上下调换顺序，外边距就会漏出容器底边、互相粘连撞车。堆栈做的第一件事，就是把子元素自身的外边距全部清零，把「相邻两块隔多远」的权力唯一交给外层父容器。
+          </p>
+        </div>
+
+        <div class="diff-lab">
+          <div class="diff-toolbar" role="group" aria-label="选择真实页面维护动作">
+            <span class="toolbar-k">试一次真实维护改动：</span>
+            <button type="button" class="diff-btn is-active" data-mut="baseline" aria-pressed="true">初始三块</button>
+            <button type="button" class="diff-btn" data-mut="remove-last" aria-pressed="false">删掉最后一块</button>
+            <button type="button" class="diff-btn" data-mut="insert-banner" aria-pressed="false">顶部插入公告条</button>
+            <button type="button" class="diff-btn" data-mut="swap-order" aria-pressed="false">上下调换模块</button>
+          </div>
+
+          <div class="diff-compare">
+            <div class="diff-col diff-bad">
+              <div class="diff-col-head">
+                <span class="diff-chip chip-err">旧写法 · 子项自带 margin-bottom</span>
+                <strong id="diff-left-title">看起来差不多，但底部多出 20px 死白</strong>
+              </div>
+              <div class="diff-canvas" id="diff-left-box"></div>
+            </div>
+            <div class="diff-col diff-good">
+              <div class="diff-col-head">
+                <span class="diff-chip chip-ok">堆栈原语 · 父容器 gap: 20px</span>
+                <strong id="diff-right-title">父容器 gap: 20px，只在相邻两块之间加空隙</strong>
+              </div>
+              <div class="diff-canvas" id="diff-right-box"></div>
+            </div>
+          </div>
+
+          <p class="diff-summary" id="diff-summary"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         02 · 用嵌套拉开主次（淡橄榄米纸）
+         ================================================================= -->
+    <section class="sec sec-olive-paper" id="sec-02">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div class="sec-titles">
+            <h2>用嵌套拉开主次</h2>
+            <p class="sec-en">NESTED RHYTHM</p>
+          </div>
+        </div>
+
+        <p class="lead-p lead-wide">
+          许多人第一次用堆栈，会把页面上所有元素一股脑塞进同一个大容器、设同一个 <code>gap: 20px</code>，结果标题离自己正文的距离和离下一段操作按钮的距离一模一样，画面顿时失去亲疏感。堆栈的正确用法是<strong>大堆栈套小堆栈</strong>：外层给大节拍分隔不同板块，内层给小节拍把「标题 + 说明」牢牢捆成一组；至于单块自身的内边距与描边交给<a class="inline-link" href="https://layout.xiaoxiaodong.ai/244/play/">244 盒子</a>，整列阅读宽度的收束交给<a class="inline-link" href="https://layout.xiaoxiaodong.ai/245/play/">245 居中器</a>。
+        </p>
+
+        <div class="nest-grid">
+          <div class="nest-controls">
+            <div class="slider-card">
+              <div class="slider-row">
+                <label for="sl-outer">外层区块距（区分板块）</label>
+                <output id="out-outer" for="sl-outer">28px</output>
+              </div>
+              <input type="range" id="sl-outer" min="8" max="48" step="2" value="28">
+
+              <div class="slider-row">
+                <label for="sl-inner">内层组件距（捆绑标题与正文）</label>
+                <output id="out-inner" for="sl-inner">10px</output>
+              </div>
+              <input type="range" id="sl-inner" min="4" max="28" step="2" value="10">
+
+              <div class="nest-quick">
+                <button type="button" class="mini-btn" data-nest="16,16">试错：1:1 糊墙</button>
+                <button type="button" class="mini-btn" data-nest="28,10">清晰：2.8:1</button>
+                <button type="button" class="mini-btn" data-nest="12,24">试错：内外倒挂</button>
+              </div>
+            </div>
+
+            <div class="nest-verdict" id="nest-verdict" data-tone="ok">
+              <div class="nest-verdict-top">
+                <strong id="nest-title">外疏内紧 · 层级清晰</strong>
+                <span class="nest-ratio" id="nest-ratio">2.8×</span>
+              </div>
+              <p id="nest-detail"></p>
+            </div>
+          </div>
+
+          <div class="nest-visuals">
+            <canvas id="nesting-canvas" class="nesting-canvas" aria-label="内外双层堆栈间距剖面示意图"></canvas>
+            <div class="nest-live-card" id="nest-live-card">
+              <div class="nl-group">
+                <h4>账户安全验证</h4>
+                <p>开启两步校验后，新设备登录需要输入一次性动态口令。</p>
+              </div>
+              <div class="nl-group">
+                <h4>每周摘要通知</h4>
+                <p>系统会在周一上午汇总异常登录记录并发送至你的绑定邮箱。</p>
+              </div>
+              <div class="nl-footer">
+                <span class="nl-btn-fake">保存偏好设置</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         03 · 外边距塌陷暗室（深橄榄暗室）
+         ================================================================= -->
+    <section class="sec sec-darkroom" id="sec-03">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">03</span>
+          <div class="sec-titles">
+            <h2>外边距塌陷暗室</h2>
+            <p class="sec-en">MARGIN COLLAPSE X-RAY</p>
+          </div>
+        </div>
+
+        <p class="lead-p lead-wide">
+          在普通块级文档流里，两个相邻元素的下外边距和上外边距不会简单相加，而是取较大值合并（即 CSS 外边距塌陷）；如果父容器没有边框或内边距挡住，第一个子元素的 <code>margin-top</code> 甚至会直接穿透容器顶部。下面切换四种真实 CSS 写法，看盒模型在 X 光下究竟发生了什么。
+        </p>
+
+        <div class="xray-tabs" role="tablist" aria-label="切换 CSS 堆栈实现机制">
+          <button type="button" class="xray-tab is-active" role="tab" aria-selected="true" data-cmode="block-margin">① 块级双写 margin</button>
+          <button type="button" class="xray-tab" role="tab" aria-selected="false" data-cmode="owl">② 猫头鹰 * + *</button>
+          <button type="button" class="xray-tab" role="tab" aria-selected="false" data-cmode="flex-gap">③ Flex + gap</button>
+          <button type="button" class="xray-tab" role="tab" aria-selected="false" data-cmode="flex-split">④ Flex + 末项推底</button>
+        </div>
+
+        <div class="xray-grid">
+          <div class="xray-stage">
+            <div class="xray-leak" id="xray-top-leak">父子塌陷顶漏：+20px 穿透容器外</div>
+            <div class="xray-box" id="xray-box">
+              <div class="xray-slab slab-cream"><strong>头部</strong><span>Item A</span></div>
+              <div class="xray-seam" id="xray-seam-1"><span>max(24px, 16px) = 24px</span></div>
+              <div class="xray-slab slab-pink"><strong>内容</strong><span>Item B</span></div>
+              <div class="xray-seam" id="xray-seam-2"><span>max(24px, 12px) = 24px</span></div>
+              <div class="xray-slab slab-olive"><strong>操作区</strong><span>Item C</span></div>
+            </div>
+            <div class="xray-leak" id="xray-bot-leak">父子塌陷底漏：+20px 穿透容器外</div>
+          </div>
+
+          <div class="xray-info">
+            <div class="xray-info-head">
+              <span class="xray-badge" id="xray-badge" data-tone="err">触发塌陷与顶漏</span>
+              <span class="xray-tag">盒模型实算</span>
+            </div>
+            <pre class="xray-code"><code id="xray-code"></code></pre>
+            <p class="xray-explain" id="xray-explain"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         04 · 堆栈原语从哪来（暖奶油原纸）
+         ================================================================= -->
+    <section class="sec sec-warm-origin" id="sec-04">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div class="sec-titles">
+            <h2>堆栈原语从哪来</h2>
+            <p class="sec-en">ORIGIN &amp; LINEAGE</p>
+          </div>
+        </div>
+
+        <p class="lead-p lead-wide">
+          「把垂直间距收归父容器」并非某个框架一时兴起的发明，而是网页、移动客户端与设计工具在二十多年里不约而同汇聚出的同一条公理。点击下方任意年代卡，查看这一演进脉络中的关键转折。
+        </p>
+
+        <div class="timeline-rail" id="timeline-rail" role="tablist" aria-label="堆栈演进年代"></div>
+        <article class="timeline-detail" id="timeline-detail" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         05 · 什么时候别用堆栈（淡粉暖纸）
+         ================================================================= -->
+    <section class="sec sec-blush" id="sec-05">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div class="sec-titles">
+            <h2>什么时候别用堆栈</h2>
+            <p class="sec-en">WHEN NOT TO STACK</p>
+          </div>
+        </div>
+
+        <div class="gentle-note">
+          <span class="gentle-tag">原海报说多了一点</span>
+          <p>
+            原海报把「头部、内容、操作区」画成三块等宽等高的大横条，容易让人以为堆栈只用来码三张大卡片。实际上小到标签与输入框、大到整页章节，凡是单一纵轴流都是堆栈；反过来，一旦超过约 5–7 个同等权重的宽卡在桌面端硬堆成一根超长单列，用户的滚轮疲劳就会盖过「秩序清晰」的好处——此时就该换用其他布局原语。
+          </p>
+        </div>
+
+        <div class="scenario-grid" id="scenario-grid"></div>
+
+        <div class="sibling-box">
+          <h3>布局原语家族速查：什么时候交给隔壁原语</h3>
+          <ul class="sibling-list">
+            <li>需要给单块本身加内边距、描边或背景边界 → <a href="https://layout.xiaoxiaodong.ai/244/play/">244 盒子</a></li>
+            <li>堆栈拉太宽、每行字数过长需要收束居中 → <a href="https://layout.xiaoxiaodong.ai/245/play/">245 居中器</a></li>
+            <li>按钮组、筛选标签沿横轴自然聚拢并自动换行 → <a href="https://layout.xiaoxiaodong.ai/246/play/">246 簇群</a></li>
+            <li>宽屏主次双区并排、窄屏自动折落成上下 → <a href="https://layout.xiaoxiaodong.ai/247/play/">247 侧栏原语</a></li>
+            <li>等权多块在阈值处整体从横排切为竖排 → <a href="https://layout.xiaoxiaodong.ai/248/play/">248 切换器</a></li>
+            <li>让主视觉居中占满首屏、顶底附带辅助信息 → <a href="https://layout.xiaoxiaodong.ai/249/play/">249 封面原语</a></li>
+            <li>大量同类卡片在宽屏自动按列铺开对比 → <a href="https://layout.xiaoxiaodong.ai/250/play/">250 自适应网格原语</a></li>
+            <li>图片、视频需要锁死 16:9 或 4:3 画幅防变形 → <a href="https://layout.xiaoxiaodong.ai/251/play/">251 比例框</a></li>
+            <li>同一类长列表需要保留横向滑动浏览轨道 → <a href="https://layout.xiaoxiaodong.ai/252/play/">252 横向卷轴</a></li>
+            <li>提示条、角标或弹窗要叠在底层内容之上 → <a href="https://layout.xiaoxiaodong.ai/253/play/">253 悬浮层</a></li>
+            <li>小图标与紧随文字在行内按基线稳稳对齐 → <a href="https://layout.xiaoxiaodong.ai/254/play/">254 图标文字组合</a></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         06 · 挑出稳固的堆栈（小练习 · 暖奶油亮纸）
+         ================================================================= -->
+    <section class="sec sec-cream" id="sec-06">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div class="sec-titles">
+            <h2>挑出稳固的堆栈</h2>
+            <p class="sec-en">PRACTICE</p>
+          </div>
+        </div>
+
+        <p class="lead-p lead-wide">
+          假设你要做一个弹窗通知卡（外框四周统一 <code>padding: 20px</code>），里面包含「通知标题、两段说明、确认按钮」。下面四套方案的字号、配色、边框完全一致，<strong>只差间距归属与嵌套层级这一项变量</strong>。哪一份在今后随时增删段落时上下齐平、层级最清楚？
+        </p>
+
+        <div class="quiz-grid" id="quiz-grid"></div>
+        <div class="quiz-feedback" id="quiz-feedback" aria-live="polite" hidden></div>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         07 · 原海报与设计语法（深橄榄森绿收官展墙）
+         ================================================================= -->
+    <section class="sec sec-poster-wall" id="sec-07">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div class="sec-titles">
+            <h2>原海报与语法拆解</h2>
+            <p class="sec-en">ORIGINAL POSTER</p>
+          </div>
+        </div>
+
+        <div class="poster-layout">
+          <div class="poster-frame-wrap">
+            <button type="button" class="poster-zoom-btn" id="open-lightbox" aria-label="放大查看 243 原海报">
+              <img id="poster" src="poster.webp" alt="243 堆栈 STACK 排版教学原海报" draggable="false">
+              <span class="poster-zoom-hint">点开大图 · 可缩放拖拽</span>
+            </button>
+          </div>
+
+          <div class="poster-notes">
+            <h3>这张海报本身就是一个标准堆栈</h3>
+            <p>
+              从上到下细看 243 号原海报的骨架：顶层大标「堆栈 STACK」与几何徽章 → 中层三彩圆支柱（垂直叠放 / 顺序明确 / 易于扩展） → 核心三张带偏移硬影的圆角横卡（暖奶油「头部」、珊瑚粉「内容」、苔藓绿「操作区」） → 底沿三层叠色横杠收尾。整张海报不靠花哨分栏，只凭一根清晰的垂直脊柱、稳定的模块间距和冷暖分明的三大色块，就让读者在两秒内读完从概念到实操的完整路径。
+            </p>
+
+            <div class="poster-quote-list">
+              <div class="pq-item">
+                <span class="pq-dot dot-pink"></span>
+                <div>
+                  <strong>垂直叠放 · VERTICAL</strong>
+                  <p>层级清晰有序</p>
+                </div>
+              </div>
+              <div class="pq-item">
+                <span class="pq-dot dot-dark"></span>
+                <div>
+                  <strong>顺序明确 · ORDER</strong>
+                  <p>信息按序呈现</p>
+                </div>
+              </div>
+              <div class="pq-item">
+                <span class="pq-dot dot-cream"></span>
+                <div>
+                  <strong>易于扩展 · SPACING</strong>
+                  <p>模块灵活增删</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="poster-tags" aria-label="原海报核心关键词">
+              <span>头部 · 概括主题</span>
+              <span>内容 · 层层递进</span>
+              <span>操作区 · 执行操作</span>
+              <span>VERTICAL</span>
+              <span>ORDER</span>
+              <span>SPACING</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <a href="https://layout.xiaoxiaodong.ai/243/play/">在线版</a>
+      <span aria-hidden="true">/</span>
+      <a href="https://layout.xiaoxiaodong.ai/">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span aria-hidden="true">·</span>
+      <span>海报 CC BY 4.0</span>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/xxd-dev/350-layout-interactive">源文件 GitHub</a>
+    </div>
+  </footer>
+
+  <!-- 原海报灯箱（可放大、拖拽、Esc 关闭） -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报放大查看">
+    <div class="lb-bar">
+      <span class="lb-title">NO. 243 · 堆栈 STACK 原海报</span>
+      <div class="lb-ctrls">
+        <button type="button" class="lb-btn" id="lb-out" aria-label="缩小">−</button>
+        <span class="lb-scale" id="lb-scale">100%</span>
+        <button type="button" class="lb-btn" id="lb-in" aria-label="放大">+</button>
+        <button type="button" class="lb-btn" id="lb-reset">重置</button>
+        <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭灯箱">关闭 Esc</button>
+      </div>
+    </div>
+    <div class="lb-viewport" id="lb-viewport">
+      <img id="lb-img" alt="243 堆栈原海报放大图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
