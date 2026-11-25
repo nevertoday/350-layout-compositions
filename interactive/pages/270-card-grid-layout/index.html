@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>卡片网格布局 · CARD GRID LAYOUT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <!-- ==================== HERO：270 原海报活体编排台 ==================== -->
+  <section class="hero" id="hero" aria-labelledby="hero-title">
+    <div class="wrap hero-inner">
+      <div class="topbar">
+        <span class="tb-cat"><span class="tb-dot" aria-hidden="true"></span>网页与 UI / 内容与产品模式</span>
+        <span class="tb-no" lang="en">NO. 270 · 350 种排版 · 互动版</span>
+      </div>
+
+      <div class="hero-top">
+        <div class="hero-title-col">
+          <h1 id="hero-title">卡片网格布局</h1>
+          <p class="hero-en" lang="en">CARD GRID LAYOUT</p>
+          <span class="hero-rule" aria-hidden="true"></span>
+          <p class="hero-summary">将信息拆分为独立卡片，按网格排列，提升内容的清晰度与可读性。</p>
+        </div>
+
+        <!-- 原海报右上「布局要点」活体 3×3 制图卡片 -->
+        <aside class="blueprint-card" aria-label="布局要点实时诊断">
+          <div class="bp-canvas-wrap">
+            <canvas id="bp-canvas" width="196" height="148" aria-label="实时网格结构与扫读路径示意"></canvas>
+          </div>
+          <div class="bp-checks-wrap">
+            <div class="bp-head">
+              <span class="bp-title">布局要点</span>
+              <span class="bp-score" id="bp-score" lang="en">0 / 4</span>
+            </div>
+            <ul class="bp-list" id="bp-list">
+              <li data-check="sizeGap"><span class="bp-mark" aria-hidden="true">×</span><span>统一尺寸与间距</span></li>
+              <li data-check="hierarchy"><span class="bp-mark" aria-hidden="true">×</span><span>建立清晰层级</span></li>
+              <li data-check="relation"><span class="bp-mark" aria-hidden="true">×</span><span>增强信息关联</span></li>
+              <li data-check="scan"><span class="bp-mark" aria-hidden="true">×</span><span>提升扫描效率</span></li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+
+      <div class="hero-workspace">
+        <!-- 制图标尺控制轨 -->
+        <div class="hero-rail" role="region" aria-label="卡片网格控制轨">
+          <div class="rail-group rail-cols" role="group" aria-label="网格列数">
+            <span class="rail-label">列数</span>
+            <div class="seg-row" id="col-btns">
+              <button type="button" class="rail-btn" data-cols="1">1列</button>
+              <button type="button" class="rail-btn" data-cols="2">2列</button>
+              <button type="button" class="rail-btn" data-cols="3">3列</button>
+              <button type="button" class="rail-btn hide-sm" data-cols="4">4列</button>
+              <button type="button" class="rail-btn hide-sm" data-cols="5">5列</button>
+            </div>
+          </div>
+
+          <div class="rail-group rail-caliper">
+            <div class="caliper-meta">
+              <span class="rail-label">外距卡尺</span>
+              <span class="caliper-val" id="gutter-readout" lang="en">4 px</span>
+            </div>
+            <div
+              class="caliper-hit"
+              id="gutter-caliper"
+              data-perf-drag
+              role="slider"
+              tabindex="0"
+              aria-label="左右拖动调节卡片外距"
+              aria-valuemin="2"
+              aria-valuemax="44"
+              aria-valuenow="4"
+            >
+              <canvas id="caliper-canvas" aria-hidden="true"></canvas>
+            </div>
+          </div>
+
+          <div class="rail-group rail-align" role="group" aria-label="行内对齐方式">
+            <span class="rail-label">对齐</span>
+            <div class="seg-row" id="align-btns">
+              <button type="button" class="rail-btn is-on" data-align="raw">自由散排</button>
+              <button type="button" class="rail-btn" data-align="stretch">外框等高</button>
+              <button type="button" class="rail-btn" data-align="subgrid">Subgrid锁齐</button>
+            </div>
+          </div>
+
+          <div class="rail-group rail-tools">
+            <button type="button" class="rail-btn rail-ghost is-on" id="guides-btn" aria-pressed="true">对齐线</button>
+            <button type="button" class="rail-btn rail-ghost" id="reset-btn">复原错版</button>
+          </div>
+        </div>
+
+        <!-- 活体实体卡片网格舞台 -->
+        <div class="grid-stage" id="grid-stage">
+          <div class="card-grid" id="card-grid" data-align="raw" aria-label="活体书展卡片网格"></div>
+          <canvas class="scan-overlay" id="scan-overlay" aria-hidden="true"></canvas>
+        </div>
+
+        <!-- 底部原海报风格细线诊断条 -->
+        <div class="hero-diag" id="hero-diag" data-tone="warn" aria-live="polite">
+          <div class="diag-stats">
+            <span class="diag-pill" id="diag-badge">挤墙·过密</span>
+            <span class="diag-kv">单卡宽 <b id="m-width" lang="en">--</b></span>
+            <span class="diag-kv">外/内距 <b id="m-ratio" lang="en">--</b></span>
+            <span class="diag-kv">基线差 <b id="m-jitter" lang="en">--</b></span>
+            <span class="diag-kv">亮黄焦点 <b id="m-spot" lang="en">--</b></span>
+          </div>
+          <div class="diag-copy">
+            <p class="diag-title" id="diag-title"></p>
+            <p class="diag-why" id="diag-why"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01 为什么框住才好读 ==================== -->
+  <section class="sec sec-cream" id="sec-01" aria-labelledby="h-01">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">01</span>
+        <div>
+          <h2 id="h-01">为什么框住才好读</h2>
+          <p class="sec-en" lang="en">Why Cards Work · Law of Common Region</p>
+        </div>
+      </header>
+
+      <div class="two-col">
+        <div class="prose">
+          <p class="lead">一张列表条目通常只有一行字，而一张商品卡或展览卡同时装着图片、标题、标签、价格和按钮五种不同形态的信息。如果不画定边界，眼睛就得在几屏碎块里费力猜「哪个价格配哪张图」。</p>
+          <p>1992 年，视觉心理学家 Stephen E. Palmer 在 <em>Cognitive Psychology</em> 期刊提出格式塔「共同区域律」（Common Region）：凡是落在同一个封闭区域内的元素，都会被大脑优先归为一个整体，它的分组效力甚至压过「距离更近」。卡片网格的第一个动作，正是用色块、描边或阴影造出独立容器，把异构内容锁成一张可一眼拿走的信息单元。</p>
+          <p>但容器不是画上就灵——<strong>卡外沟壑必须大于卡内元素间距</strong>。一旦外距被挤得比卡内行距还窄，接近律就会反过来拆台，邻卡边界在视觉上粘连成墙。试试切换旁边的四种容器态，并悬停或点击任意一条内容，看眼睛如何判断归属。</p>
+        </div>
+
+        <div class="widget-box widget-region">
+          <div class="widget-bar" role="group" aria-label="边界模式切换" id="region-modes">
+            <button type="button" class="pill-btn" data-mode="bare">无框裸排</button>
+            <button type="button" class="pill-btn is-on" data-mode="filled">色块包裹</button>
+            <button type="button" class="pill-btn" data-mode="outlined">细线描边</button>
+            <button type="button" class="pill-btn" data-mode="cramped">外距&lt;内距反例</button>
+          </div>
+
+          <div class="region-stage" id="region-stage" data-mode="filled">
+            <button type="button" class="rg-item" data-rg="0" aria-pressed="false">
+              <span class="rg-thumb rg-t1" aria-hidden="true"></span>
+              <span class="rg-name">陶瓷杯具展</span>
+              <span class="rg-meta">3F 东厅 · 免费</span>
+            </button>
+            <button type="button" class="rg-item" data-rg="1" aria-pressed="false">
+              <span class="rg-thumb rg-t2" aria-hidden="true"></span>
+              <span class="rg-name">独立书志市集</span>
+              <span class="rg-meta">1F 中庭 · 周末</span>
+            </button>
+            <button type="button" class="rg-item" data-rg="2" aria-pressed="false">
+              <span class="rg-thumb rg-t3" aria-hidden="true"></span>
+              <span class="rg-name">木版印刷体验</span>
+              <span class="rg-meta">2F 工坊 · 需预约</span>
+            </button>
+            <button type="button" class="rg-item" data-rg="3" aria-pressed="false">
+              <span class="rg-thumb rg-t4" aria-hidden="true"></span>
+              <span class="rg-name">建筑模型档案</span>
+              <span class="rg-meta">4F 展廊 · 常设</span>
+            </button>
+          </div>
+          <p class="widget-caption" id="region-caption" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 原海报八条原则 ==================== -->
+  <section class="sec sec-blueprint" id="sec-02" aria-labelledby="h-02">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">02</span>
+        <div>
+          <h2 id="h-02">原海报八条原则</h2>
+          <p class="sec-en" lang="en">Eight Principles from Poster No. 270</p>
+        </div>
+      </header>
+
+      <p class="lead wide-lead">270 号原海报把卡片网格的规矩浓缩成 4×2 共八张方卡——其中唯独 03 号「扫读」反转成亮黄色。点选下面任意一张微缩卡，查看海报原话、实操边界，还可以一键切到「破功态」看违背这一条会怎样。</p>
+
+      <div class="principles-layout">
+        <div class="p-matrix-col">
+          <div class="p-matrix" id="p-matrix" role="listbox" aria-label="八条原海报原则"></div>
+          <p class="p-matrix-foot">点选 01–08 任一卡片查看原海报原话与正反例；原海报唯独将 03 号「扫读」涂成亮黄作为焦点示范。</p>
+        </div>
+
+        <div class="p-detail" id="p-detail" aria-live="polite">
+          <div class="p-detail-head">
+            <span class="p-detail-badge" id="pd-no" lang="en">03</span>
+            <div>
+              <h3 id="pd-title">扫读 <span class="pd-en" id="pd-en" lang="en">SCAN</span></h3>
+              <span class="caveat-tag" id="pd-caveat" hidden>说多了一点</span>
+            </div>
+            <div class="p-flip-group" role="group" aria-label="正反例切换">
+              <button type="button" class="pill-btn is-on" id="pd-good">看正例</button>
+              <button type="button" class="pill-btn" id="pd-bad">看破功态</button>
+            </div>
+          </div>
+
+          <blockquote class="p-quote" id="pd-quote"></blockquote>
+          <p class="p-explain" id="pd-explain"></p>
+
+          <div class="p-demo-stage" id="pd-demo" data-state="good"></div>
+          <p class="p-demo-note" id="pd-note"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 一行对齐的真难题 ==================== -->
+  <section class="sec sec-cobalt" id="sec-03" aria-labelledby="h-03">
+    <div class="wrap">
+      <header class="sec-head on-dark">
+        <span class="sec-no" lang="en">03</span>
+        <div>
+          <h2 id="h-03">一行对齐的真难题</h2>
+          <p class="sec-en" lang="en">Cross-Card Alignment &amp; CSS Subgrid</p>
+        </div>
+      </header>
+
+      <div class="subgrid-intro">
+        <p class="lead on-dark">设计稿里的卡片总是严丝合缝，因为每条标题都刚好 6 个字。一上线接真实数据，第一张标题 1 行、第二张 3 行、第三张还多出一行标签——哪怕外框设成等高，同行里的摘要和按钮照样高低起伏。</p>
+        <p class="on-dark-muted">2023 年 9 月起全浏览器支持的 CSS Subgrid（<code>grid-template-rows: subgrid</code>）让同一行的所有卡片共享父网格的行轨：不管哪张卡标题折成几行，同排卡片都会一起给它让出同一条行高，让下方摘要和按钮自动落回同一条水平基准线。亲手给下面任意卡片「加长文案」，再拖动激光水平尺测一遍。</p>
+      </div>
+
+      <div class="subgrid-lab">
+        <div class="subgrid-controls">
+          <div class="seg-row" role="group" aria-label="子网格对齐模式" id="sg-mode-btns">
+            <button type="button" class="rail-btn is-on" data-sg="normal">普通 Grid（各自排）</button>
+            <button type="button" class="rail-btn" data-sg="stretch">仅外框等高</button>
+            <button type="button" class="rail-btn" data-sg="subgrid">Subgrid 共享行轨</button>
+          </div>
+          <div class="sg-stress-btns">
+            <button type="button" class="rail-btn rail-ghost" id="sg-long-title">给 02 卡加长标题</button>
+            <button type="button" class="rail-btn rail-ghost" id="sg-add-tag">给 03 卡加标签</button>
+            <button type="button" class="rail-btn rail-ghost" id="sg-reset">恢复匀称文案</button>
+          </div>
+        </div>
+
+        <div class="sg-stage-wrap">
+          <div class="sg-cards" id="sg-cards" data-sg="normal">
+            <article class="sg-card" data-sg-card="0">
+              <div class="sg-media sg-m1" aria-hidden="true"><span>4 : 3</span></div>
+              <h3 class="sg-title" id="sg-t0">活字网格入门</h3>
+              <p class="sg-body" id="sg-b0">简明介绍网格栏数与留白。</p>
+              <div class="sg-foot"><span>¥68</span><span class="sg-cta">试读</span></div>
+            </article>
+            <article class="sg-card sg-card-spot" data-sg-card="1">
+              <div class="sg-media sg-m2" aria-hidden="true"><span>4 : 3</span></div>
+              <h3 class="sg-title" id="sg-t1">现代平面排印系统与多栏网格实战研究</h3>
+              <p class="sg-body" id="sg-b1">完整拆解二十组书刊与网页跨设备网格结构，附真实数据压力测试案例。</p>
+              <div class="sg-foot"><span>¥128</span><span class="sg-cta">试读</span></div>
+            </article>
+            <article class="sg-card" data-sg-card="2">
+              <div class="sg-media sg-m3" aria-hidden="true"><span>4 : 3</span></div>
+              <h3 class="sg-title" id="sg-t2">纸张与色彩指南</h3>
+              <p class="sg-body" id="sg-b2">对比暖米白、冷蓝图纸与高饱和钴蓝在界面里的对比度规律。</p>
+              <div class="sg-foot"><span>¥86</span><span class="sg-cta">试读</span></div>
+            </article>
+          </div>
+          <div class="sg-laser" id="sg-laser" aria-hidden="true">
+            <span class="sg-laser-tag" id="sg-laser-tag">基线测量尺</span>
+          </div>
+        </div>
+
+        <div class="sg-ruler-row">
+          <label for="sg-ruler-range" class="sg-ruler-label">拖动水平激光尺扫查对齐</label>
+          <input type="range" id="sg-ruler-range" min="15" max="94" value="54">
+          <span class="sg-diff-readout" id="sg-diff-readout" aria-live="polite"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 从卡片盒到网页网格 ==================== -->
+  <section class="sec sec-sand" id="sec-04" aria-labelledby="h-04">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">04</span>
+        <div>
+          <h2 id="h-04">从卡片盒到网格</h2>
+          <p class="sec-en" lang="en">Where Card Grids Came From</p>
+        </div>
+      </header>
+
+      <p class="lead wide-lead">卡片并不是网页发明的新词——从图书馆索引卡到菜谱卡，人类早已习惯把一条独立信息写在一张固定尺寸的硬纸片上。把它变成现代屏幕里的二维网格，走过了五个关键节点。</p>
+
+      <div class="era-tabs" id="era-tabs" role="tablist" aria-label="历史演进阶段"></div>
+
+      <div class="era-stage" id="era-stage" role="tabpanel" aria-live="polite">
+        <div class="era-artifact" id="era-artifact" aria-hidden="true"></div>
+        <div class="era-copy">
+          <p class="era-meta"><span class="era-year" id="era-year" lang="en">1987</span><span class="era-who" id="era-who"></span></p>
+          <h3 class="era-title" id="era-title"></h3>
+          <p class="era-summary" id="era-summary"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 好用与别用的时候 ==================== -->
+  <section class="sec sec-cream" id="sec-05" aria-labelledby="h-05">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">05</span>
+        <div>
+          <h2 id="h-05">好用与别用的时候</h2>
+          <p class="sec-en" lang="en">When to Use — and When Not to Use</p>
+        </div>
+      </header>
+
+      <p class="lead wide-lead">卡片网格最容易犯的毛病，就是「什么都往卡片里装」。卡片框本身要占边白、拉长视线路径；一旦内容更看重数值比对、时间先后或原始画幅，硬套卡片反而添堵。挑一个真实业务场景，看看该留还是该换。</p>
+
+      <div class="triage-tabs" id="triage-tabs" role="tablist" aria-label="业务场景分诊"></div>
+
+      <div class="triage-panel" id="triage-panel" aria-live="polite">
+        <div class="triage-visual" id="triage-visual"></div>
+        <div class="triage-info">
+          <div class="triage-head">
+            <span class="triage-verdict" id="tr-verdict"></span>
+            <span class="triage-alt" id="tr-alt"></span>
+          </div>
+          <p class="triage-reason" id="tr-reason"></p>
+          <dl class="triage-costs">
+            <div><dt>用卡片网格</dt><dd id="tr-cost-grid"></dd></div>
+            <div><dt>对照方案</dt><dd id="tr-cost-alt"></dd></div>
+          </dl>
+        </div>
+      </div>
+
+      <div class="sibling-box">
+        <h3 class="sibling-heading">同小类容易混淆的邻居（各有一页，不在此重讲）</h3>
+        <ul class="sibling-list">
+          <li><strong>按时间连续刷新</strong> → <a href="https://layout.xiaoxiaodong.ai/269/play/" target="_blank" rel="noopener">269 信息流布局</a> / <a href="https://layout.xiaoxiaodong.ai/277/play/" target="_blank" rel="noopener">277 时间线布局</a></li>
+          <li><strong>纵横比悬殊的图片墙</strong> → <a href="https://layout.xiaoxiaodong.ai/271/play/" target="_blank" rel="noopener">271 瀑布流页面</a> / <a href="https://layout.xiaoxiaodong.ai/275/play/" target="_blank" rel="noopener">275 画廊布局</a></li>
+          <li><strong>主次体量悬殊的拼块</strong> → <a href="https://layout.xiaoxiaodong.ai/272/play/" target="_blank" rel="noopener">272 便当盒布局</a> / <a href="https://layout.xiaoxiaodong.ai/273/play/" target="_blank" rel="noopener">273 仪表盘布局</a></li>
+          <li><strong>多列密集数值比对</strong> → <a href="https://layout.xiaoxiaodong.ai/274/play/" target="_blank" rel="noopener">274 数据表格布局</a></li>
+          <li><strong>按阶段拖转的任务卡</strong> → <a href="https://layout.xiaoxiaodong.ai/278/play/" target="_blank" rel="noopener">278 看板布局</a></li>
+          <li><strong>纯文字快扫结果与条目</strong> → <a href="https://layout.xiaoxiaodong.ai/286/play/" target="_blank" rel="noopener">286 搜索结果布局</a> / <a href="https://layout.xiaoxiaodong.ai/288/play/" target="_blank" rel="noopener">288 媒体对象布局</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 密度、宽度与孤卡 ==================== -->
+  <section class="sec sec-marigold-tint" id="sec-06" aria-labelledby="h-06">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">06</span>
+        <div>
+          <h2 id="h-06">密度、宽度与孤卡</h2>
+          <p class="sec-en" lang="en">Density, Card Width &amp; Orphan Cards</p>
+        </div>
+      </header>
+
+      <div class="two-col density-grid">
+        <div class="prose">
+          <p class="lead">卡片网格跨屏适配时，比死记「手机 1 列、桌面 4 列」更靠谱的办法，是先定<strong>单卡可读宽度下限</strong>。</p>
+          <p>按界面设计常见经验值，带图文的通用卡片在桌面端通常落在 <strong>240–360px</strong> 区间最舒展，移动端双列图卡一般不低于 <strong>160–180px</strong>。写进 CSS 里就是一行 <code>grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))</code>——容器够宽就自动长出新列，不够就收紧，绝不把卡片压碎。</p>
+          <p>另一个常被忽略的细节是<strong>卡片总数与末行孤卡</strong>：6 张、12 张能同时被 2、3、4 整除，切屏几乎不留缺口；而 5 张或 7 张排进 3 列时，最底下一行会孤零零挂出 1 张卡片，让视觉收尾显得没写完。拉动容器宽度并切换卡片数量看看变化。</p>
+        </div>
+
+        <div class="density-sim">
+          <div class="density-controls">
+            <div class="d-slider-row">
+              <label for="d-width">容器宽度 <b id="d-width-val" lang="en">960 px</b></label>
+              <input type="range" id="d-width" min="320" max="1280" step="10" value="960">
+            </div>
+            <div class="d-count-row" role="group" aria-label="卡片数量" id="d-count-btns">
+              <span class="d-label">卡片数</span>
+              <button type="button" class="pill-btn" data-n="5">5张</button>
+              <button type="button" class="pill-btn is-on" data-n="6">6张</button>
+              <button type="button" class="pill-btn" data-n="7">7张</button>
+              <button type="button" class="pill-btn" data-n="8">8张</button>
+              <button type="button" class="pill-btn" data-n="12">12张</button>
+            </div>
+          </div>
+          <canvas id="density-canvas" width="600" height="270" aria-label="自适应列数与孤卡分布画布"></canvas>
+          <p class="widget-caption" id="density-readout" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 练一练：选最稳网格 ==================== -->
+  <section class="sec sec-cream" id="sec-07" aria-labelledby="h-07">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">07</span>
+        <div>
+          <h2 id="h-07">练一练：选最稳网格</h2>
+          <p class="sec-en" lang="en">Practice · Pick the Best Card Grid</p>
+        </div>
+      </header>
+
+      <p class="lead wide-lead">同一组 6 张「独立书店导览」卡片排进 960px 宽的桌面区域，全部采用 3 列排布。下面四套方案每次只动了一个结构变量——先凭第一眼扫读体验选出最稳的一套，选完后所有方案会显出诊断标尺。</p>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四套卡片网格方案">
+        <!-- 由 main.js 渲染四套高保真 SVG 方案，保证视觉结构精确对应单一变量差异 -->
+      </div>
+
+      <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+        <p class="qv-title" id="qv-title">先凭直觉点选一套方案（A / B / C / D）。</p>
+        <p class="qv-text" id="qv-text">四个选项列数完全相同、内容完全相同，每个错项只改坏了本页讲过的一条规矩。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 08 原海报与关键词 ==================== -->
+  <section class="sec sec-cobalt sec-poster" id="sec-08" aria-labelledby="h-08">
+    <div class="wrap">
+      <header class="sec-head on-dark">
+        <span class="sec-no" lang="en">08</span>
+        <div>
+          <h2 id="h-08">原海报与关键词</h2>
+          <p class="sec-en" lang="en">Original Poster &amp; Design Principles</p>
+        </div>
+      </header>
+
+      <div class="poster-layout">
+        <figure class="poster-fig">
+          <button type="button" class="poster-trigger" id="poster-open" aria-label="点击放大查看 270 原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="270 卡片网格布局原海报：克莱因蓝底面上方是标题与奶油白3×3布局要点卡片，中间4×2八张圆角米白卡片展示模块、一致、扫读（亮黄强调）、组合、对齐、留白、层级、延展，底部列出四条设计原则与总述。">
+          </button>
+          <figcaption>点击原海报放大查看细节；放大后可拖拽平移，按 Esc 收起。</figcaption>
+        </figure>
+
+        <div class="poster-side">
+          <p class="poster-tagline"><span class="tri-mark" aria-hidden="true">▶</span>卡片网格让复杂信息变得有序、可读、可组合。</p>
+          <p class="poster-sub">有序呈现 · 高效沟通 · 智能设计</p>
+
+          <h3 class="kw-heading">卡片网格 · 设计原则</h3>
+          <ul class="kw-grid">
+            <li class="kw-card">
+              <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="4" width="14" height="14" rx="2"/><rect x="22" y="4" width="14" height="14" rx="2"/><rect x="4" y="22" width="14" height="14" rx="2"/><rect x="22" y="22" width="14" height="14" rx="2"/></svg>
+              <div><b>结构清晰</b><span lang="en">CLEAR STRUCTURE</span></div>
+            </li>
+            <li class="kw-card">
+              <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 20C9 10 31 10 37 20C31 30 9 30 3 20Z" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="20" cy="20" r="6"/></svg>
+              <div><b>快速扫读</b><span lang="en">FAST SCANNING</span></div>
+            </li>
+            <li class="kw-card">
+              <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 10h9a3 3 0 1 1 6 0h9v9a3 3 0 1 1 0 6v9H8v-9a3 3 0 1 0 0-6z"/></svg>
+              <div><b>灵活组合</b><span lang="en">FLEXIBLE COMBINATION</span></div>
+            </li>
+            <li class="kw-card">
+              <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M18 6H8v26h24V22M24 6h10v10M34 6L18 22" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="square"/></svg>
+              <div><b>易于扩展</b><span lang="en">EASY TO EXTEND</span></div>
+            </li>
+          </ul>
+
+          <div class="poster-notes">
+            <h3>270 原海报自带的四重示范</h3>
+            <ul>
+              <li><strong>克莱因蓝底 × 暖米白卡：</strong>高对比底面省去了多余阴影，边界一眼分明。</li>
+              <li><strong>4×2 均等模数：</strong>八条原则装进同尺寸圆角卡，扫完 01 号即懂全页结构。</li>
+              <li><strong>03 号唯一亮黄焦点：</strong>八分之一的克制高亮，直接示范「层级来自稀缺」。</li>
+              <li><strong>右上 3×3 制图格与 08 号虚线槽：</strong>把对齐基准与未来延展一并画进了海报。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap foot-inner">
+    <p class="foot-title"><span lang="en">No. 270</span> 卡片网格布局 · 350 种排版</p>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/270/play/" target="_blank" rel="noopener">在线版</a>
+      <span class="sep">/</span>
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱 -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报大图预览">
+  <div class="lb-bar">
+    <span class="lb-hint">拖动平移 · 点按缩放 · Esc 关闭</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+      <button type="button" class="lb-btn" id="lb-zoom-reset">100%</button>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭预览">关闭</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" alt="270 卡片网格布局原海报大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
