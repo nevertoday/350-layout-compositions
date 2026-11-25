@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FABD19">
+<title>非对称构图 · ASYMMETRICAL COMPOSITION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap masthead-in">
+    <p class="series">构图逻辑 / 重心、线条与轴线</p>
+    <div class="mast-right">
+      <div class="scenario-tabs" role="tablist" aria-label="选择构图命题">
+        <button type="button" class="sc-tab" role="tab" aria-selected="true" data-scenario="poster">原海报</button>
+        <button type="button" class="sc-tab" role="tab" aria-selected="false" data-scenario="magazine">杂志跨页</button>
+        <button type="button" class="sc-tab" role="tab" aria-selected="false" data-scenario="exhibition">展讯海报</button>
+      </div>
+      <div class="mast-actions">
+        <button type="button" class="mast-btn" id="btn-solution">参考解</button>
+        <button type="button" class="mast-btn mast-btn-ghost" id="btn-reset">重置</button>
+      </div>
+      <p class="issue"><span class="mono-mark" lang="en">NO. 019</span></p>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 开场：019 原海报活体通栏构图画板 + 底部原海报三段诊断带与并排料盒 -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="wrap hero-shell">
+      <div class="hero-workspace">
+        <!-- 主体通栏画板：示范大标题直接压在画板左上角充当配重 -->
+        <div class="board-wrap" id="hero-stage">
+          <canvas id="hero-canvas" class="hero-canvas" aria-label="非对称构图配重画板：拖动已放零件或从料盒添减异形零件，观察视觉重量、五项对比与 45 度动线的实时变化"></canvas>
+
+          <!-- 左上压角示范标题块：真实参与 model.js 左上配重 -->
+          <div class="board-title-weight" aria-hidden="false">
+            <h1 id="page-title" class="hero-title">非对称构图</h1>
+            <p class="hero-en" lang="en">ASYMMETRICAL COMPOSITION</p>
+            <span class="hero-rule" aria-hidden="true"></span>
+            <p class="hero-summary">通过不均衡的元素配置，在视觉上达到平衡与张力。</p>
+          </div>
+
+          <!-- 右上画板微提示：键盘与操作指引 -->
+          <p class="board-hint" id="board-hint">拖往左缘调力臂 · 拖右下角柄调大小 · 双击撤回</p>
+
+          <!-- 可聚焦拖动把手（贴合当前选中的可摆零件，供键盘方向键与 perf 拖动使用） -->
+          <button
+            type="button"
+            id="piece-handle"
+            class="piece-handle"
+            data-perf-drag
+            aria-label="拖动当前选中的构图零件，或按方向键微调位置、按加减号调大小、按 Delete 撤回"
+            title="拖动零件调整位置与力臂（方向键微调 / +/- 调大小 / Delete 撤回）"
+          >
+            <span class="ph-corners" aria-hidden="true"></span>
+            <span class="sr">当前选中零件拖动把手</span>
+          </button>
+
+          <!-- 选中零件右下角缩放柄：让「大小对比」成为真实手势动作 -->
+          <button
+            type="button"
+            id="piece-scale-handle"
+            class="piece-scale-handle"
+            aria-label="缩放当前选中零件大小，拖动或按方向键放大缩小"
+            title="拖动缩放零件大小（让大小对比真实起效）"
+          >
+            <svg viewBox="0 0 14 14" aria-hidden="true">
+              <path d="M2.5 2.5L11.5 11.5M11.5 6V11.5H6M2.5 8V2.5H8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/>
+            </svg>
+          </button>
+
+          <!-- 横屏紧凑底沿状态条（仅 844x390 横屏模式显示） -->
+          <div class="land-bar" aria-live="polite">
+            <span class="land-tier" id="land-tier">重度右沉</span>
+            <span class="land-meta" id="land-meta">对比 2/5 · 点料盒或拖零件配平</span>
+          </div>
+        </div>
+
+        <!-- 画板下方通栏：原海报三段诊断带 ‖ 并排异形零件料盒 -->
+        <div class="hero-dock">
+          <!-- 原海报底部三段带（重量对比 / 对比关系五线点亮 / 构图小法则三勾） -->
+          <div class="diag-band" aria-live="polite">
+            <!-- 通栏核心结论行（直说哪几种对比在抵消红圆） -->
+            <div class="diag-why" id="diag-why-box" data-tone="warn">
+              <div class="diag-why-head">
+                <span class="diag-tier-badge" id="diag-tier-badge">重度右沉</span>
+                <strong class="diag-title" id="diag-title">右侧明显压沉，画面向右上方歪倒</strong>
+                <span class="diag-model-note">模型示意</span>
+              </div>
+              <p class="diag-desc" id="diag-desc">目前点亮了「大小、色彩、形状」（3/5 项），但零件还停在中轴附近或体量偏轻，压不住右上朱红主圆与右下群青大三角。把零件往左缘拖远拉长力臂，或拖选中件右下角缩放柄微调体量。</p>
+              <p class="diag-mirror-link" id="diag-mirror-link" hidden>
+                想看镜像相等的构图规律，见 <a href="https://layout.xiaoxiaodong.ai/018/play/" target="_blank" rel="noopener">018 对称构图 →</a>
+              </p>
+            </div>
+
+            <!-- 原海报三栏：完全呼应 019.webp 底部排版 -->
+            <div class="diag-cols">
+              <!-- 栏 1：重量对比示例 -->
+              <div class="diag-col diag-col-weight">
+                <p class="poster-plate">重量对比示例</p>
+                <div class="weight-box">
+                  <div class="weight-side">
+                    <span class="w-swatch w-swatch-left" aria-hidden="true"></span>
+                    <span class="w-cap">左侧配重</span>
+                    <span class="w-dots" id="diag-left-dots" aria-label="左侧视觉重量">●●</span>
+                  </div>
+                  <span class="w-op" id="diag-op" aria-hidden="true">&lt;</span>
+                  <div class="weight-side">
+                    <span class="w-swatch w-swatch-right" aria-hidden="true"></span>
+                    <span class="w-cap">右侧主块</span>
+                    <span class="w-dots" id="diag-right-dots" aria-label="右侧视觉重量">●●●●●</span>
+                  </div>
+                </div>
+                <p class="weight-foot">视觉重量 ≠ 物理重量 · 五档示意</p>
+              </div>
+
+              <!-- 栏 2：对比关系五线实时点亮 -->
+              <div class="diag-col diag-col-contrast">
+                <div class="col-head-row">
+                  <p class="poster-plate">对比关系</p>
+                  <span class="contrast-count" id="diag-contrast-count">3 / 5</span>
+                </div>
+                <ul class="contrast-lines" id="diag-contrast-list">
+                  <li data-cid="size" data-on="true"><b>大小对比</b><span class="c-line" aria-hidden="true"></span><em>大与小</em></li>
+                  <li data-cid="color" data-on="true"><b>色彩对比</b><span class="c-line" aria-hidden="true"></span><em>暖与冷</em></li>
+                  <li data-cid="shape" data-on="true"><b>形状对比</b><span class="c-line" aria-hidden="true"></span><em>圆与角</em></li>
+                  <li data-cid="position" data-on="false"><b>位置对比</b><span class="c-line" aria-hidden="true"></span><em>偏与中</em></li>
+                  <li data-cid="density" data-on="false"><b>疏密对比</b><span class="c-line" aria-hidden="true"></span><em>密与疏</em></li>
+                </ul>
+              </div>
+
+              <!-- 栏 3：构图小法则三勾实时检验 -->
+              <div class="diag-col diag-col-rules">
+                <p class="poster-plate">构图小法则</p>
+                <ul class="rule-checks" id="diag-rules-list">
+                  <li data-rid="subject" data-on="true">
+                    <span class="r-badge" aria-hidden="true">✓</span>
+                    <div><b>明确视觉主体</b><span>主红圆不被等大块抢戏</span></div>
+                  </li>
+                  <li data-rid="space" data-on="true">
+                    <span class="r-badge" aria-hidden="true">✓</span>
+                    <div><b>合理运用留白</b><span>画面保留充足呼吸空间</span></div>
+                  </li>
+                  <li data-rid="flow" data-on="false">
+                    <span class="r-badge" aria-hidden="true">✓</span>
+                    <div><b>建立视觉动线</b><span>持平且斜向点线接稳</span></div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 并排异形零件料盒（2×3 磁贴；红大圆只叫「红大圆」） -->
+          <div class="tray-panel" aria-label="异形零件料盒">
+            <div class="tray-head">
+              <p class="poster-plate">零件料盒</p>
+              <span class="tray-tip">点选落中轴 · 拖往左缘配平且 ≥ 3 项对比</span>
+            </div>
+            <div class="tray-grid" id="tray-grid">
+              <button type="button" class="tray-tile" data-piece="headline-group" aria-pressed="false">
+                <svg class="tile-ico" viewBox="0 0 36 28" aria-hidden="true">
+                  <rect x="3" y="4" width="30" height="7" fill="currentColor"/>
+                  <rect x="3" y="14" width="21" height="4" fill="currentColor"/>
+                  <rect x="3" y="21" width="14" height="3" fill="currentColor"/>
+                </svg>
+                <span class="tile-name">粗黑字群</span>
+                <span class="tile-sub">墨黑 · 密排</span>
+              </button>
+
+              <button type="button" class="tray-tile" data-piece="blue-wedge" aria-pressed="false">
+                <svg class="tile-ico" viewBox="0 0 36 28" aria-hidden="true">
+                  <polygon points="4,25 32,25 32,3" fill="#022D90"/>
+                </svg>
+                <span class="tile-name">群青斜角</span>
+                <span class="tile-sub">冷色 · 锐角</span>
+              </button>
+
+              <button type="button" class="tray-tile" data-piece="dot-matrix" aria-pressed="false">
+                <svg class="tile-ico" viewBox="0 0 36 28" aria-hidden="true">
+                  <circle cx="8" cy="6" r="2.2" fill="currentColor"/><circle cx="15" cy="6" r="2.2" fill="currentColor"/><circle cx="22" cy="6" r="2.2" fill="currentColor"/><circle cx="29" cy="6" r="2.2" fill="currentColor"/>
+                  <circle cx="8" cy="14" r="2.2" fill="currentColor"/><circle cx="15" cy="14" r="2.2" fill="currentColor"/><circle cx="22" cy="14" r="2.2" fill="currentColor"/><circle cx="29" cy="14" r="2.2" fill="currentColor"/>
+                  <circle cx="8" cy="22" r="2.2" fill="currentColor"/><circle cx="15" cy="22" r="2.2" fill="currentColor"/><circle cx="22" cy="22" r="2.2" fill="currentColor"/><circle cx="29" cy="22" r="2.2" fill="currentColor"/>
+                </svg>
+                <span class="tile-name">密集点阵</span>
+                <span class="tile-sub">墨黑 · 高密</span>
+              </button>
+
+              <button type="button" class="tray-tile" data-piece="three-points" aria-pressed="false">
+                <svg class="tile-ico" viewBox="0 0 36 28" aria-hidden="true">
+                  <circle cx="8" cy="6" r="3" fill="currentColor"/><rect x="14" y="4.5" width="18" height="3" fill="currentColor"/>
+                  <circle cx="8" cy="14" r="3" fill="currentColor"/><rect x="14" y="12.5" width="15" height="3" fill="currentColor"/>
+                  <circle cx="8" cy="22" r="3" fill="currentColor"/><rect x="14" y="20.5" width="17" height="3" fill="currentColor"/>
+                </svg>
+                <span class="tile-name">要点三圆</span>
+                <span class="tile-sub">墨黑 · 列群</span>
+              </button>
+
+              <button type="button" class="tray-tile" data-piece="blue-dot" aria-pressed="true">
+                <svg class="tile-ico" viewBox="0 0 36 28" aria-hidden="true">
+                  <circle cx="18" cy="14" r="6" fill="#022D90"/>
+                </svg>
+                <span class="tile-name">冷蓝小圆</span>
+                <span class="tile-sub">冷色 · 小体量</span>
+              </button>
+
+              <button type="button" class="tray-tile" data-piece="red-giant" aria-pressed="false">
+                <svg class="tile-ico" viewBox="0 0 36 28" aria-hidden="true">
+                  <circle cx="18" cy="14" r="11" fill="#E63514"/>
+                </svg>
+                <span class="tile-name">红大圆</span>
+                <span class="tile-sub">暖红 · 大体量</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 原海报最底沿金句条 -->
+      <div class="hero-motto">
+        <div class="motto-left">
+          <svg class="motto-eye" viewBox="0 0 32 20" aria-hidden="true">
+            <path d="M2 10C6.5 3.5 11.5 1.5 16 1.5C20.5 1.5 25.5 3.5 30 10C25.5 16.5 20.5 18.5 16 18.5C11.5 18.5 6.5 16.5 2 10Z" fill="#0B0A08"/>
+            <circle cx="16" cy="10" r="4.5" fill="#FABD19"/>
+            <circle cx="16" cy="10" r="2.1" fill="#0B0A08"/>
+          </svg>
+          <p><strong>非对称 ≠ 随意摆放</strong><span>平衡感来自对比与节奏的控制</span></p>
+        </div>
+        <div class="motto-mark" aria-hidden="true">
+          <span class="mm-hollow"></span><span class="mm-solid"></span>
+          <span class="mm-hollow"></span><span class="mm-solid"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 视觉重量不是称出来的（暖米纸底） -->
+  <section class="band band-paper" id="sec-1" aria-labelledby="h-s1">
+    <div class="wrap split-asym">
+      <div class="col-copy sticky-copy">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">01</span>
+          <div>
+            <h2 id="h-s1">视觉重量不是称出来的</h2>
+            <p class="sec-en" lang="en">VISUAL WEIGHT VS. PHYSICAL AREA</p>
+          </div>
+        </header>
+        <blockquote class="poster-quote">
+          <strong>不等形 · 达平衡</strong> —— 大小、重量不同的元素，在视觉上取得平衡。<em>「视觉重量 ≠ 物理重量」</em>
+        </blockquote>
+        <p>把两个图形放上秤，物理面积一样，眼睛感受到的分量却往往天差地别。深墨色比浅灰更沉，暖红比冷蓝更向前冲，带棱角的图形比圆轮廓更抓眼，密排点阵又比一块平涂更有抓力。非对称构图正是利用这些隐形砝码，让小块也能托住大块。</p>
+        <div class="caveat-box">
+          <span class="caveat-tag">说多了一点 · 模型边界</span>
+          <p>把画面比作物理杠杆只是教学脚手架。McManus、Stöver 与 Kim（2011）实证检验过阿恩海姆与罗斯的物理重心假说：在宏观摄影语料里，画面重心确实比随机对照更贴近横、纵或对角线主轴；但落到严格的单图对照与圆盘实验时，单纯套用力学重心公式并不足以稳定预测人的平衡判断。因此本页所有 <code>●●●●●</code> 刻点与平衡档都标明「模型示意」，帮你建立手感，而不是替代眼睛。</p>
+        </div>
+      </div>
+
+      <div class="col-lab">
+        <div class="lab-card lab-card-paper">
+          <div class="lab-head">
+            <span class="poster-plate">等面积属性翻转器</span>
+            <span class="lab-meta" id="s1-tier">视觉持平 · 模型示意</span>
+          </div>
+
+          <div class="flip-stage">
+            <svg id="s1-svg" class="flip-svg" viewBox="0 0 560 276" role="img" aria-label="左右等面积图形视觉重量对照天平">
+              <!-- 支点与杠杆由 labs.js 按 model.js 实时更新 -->
+              <rect x="0" y="0" width="560" height="276" fill="#FABD19"/>
+              <line x1="280" y1="14" x2="280" y2="234" stroke="#0B0A08" stroke-width="1" stroke-dasharray="4 5" opacity="0.35"/>
+              <g id="s1-beam-group">
+                <line id="s1-beam" x1="88" y1="210" x2="472" y2="210" stroke="#0B0A08" stroke-width="5"/>
+                <g id="s1-left-pan" transform="translate(152, 138)">
+                  <text x="0" y="-76" text-anchor="middle" fill="#0B0A08" font-size="20" font-weight="800">固定基准块</text>
+                  <circle cx="0" cy="0" r="46" fill="#9E9785" stroke="#0B0A08" stroke-width="2"/>
+                </g>
+                <g id="s1-right-pan" transform="translate(408, 138)">
+                  <text x="0" y="-76" text-anchor="middle" fill="#0B0A08" font-size="20" font-weight="800">等面积实验块</text>
+                  <g id="s1-right-shape"></g>
+                </g>
+              </g>
+              <polygon points="280,212 260,250 300,250" fill="#0B0A08"/>
+              <line x1="226" y1="250" x2="334" y2="250" stroke="#0B0A08" stroke-width="3"/>
+            </svg>
+          </div>
+
+          <div class="s1-dots-bar">
+            <div class="s1-dot-cell">
+              <span>左侧基准（面积恒定）</span>
+              <strong id="s1-left-dots">●●</strong>
+            </div>
+            <div class="s1-dot-cell">
+              <span>右侧实验块（面积相同）</span>
+              <strong id="s1-right-dots">●●</strong>
+            </div>
+          </div>
+
+          <div class="flip-switches" role="group" aria-label="右侧图形单属性开关">
+            <button type="button" class="flip-btn" data-flag="deep" aria-pressed="false">
+              <span class="fb-dot"></span><b>压深明度</b><em>浅灰 → 深色</em>
+            </button>
+            <button type="button" class="flip-btn" data-flag="warm" aria-pressed="false">
+              <span class="fb-dot"></span><b>转暖前进</b><em>冷调 → 暖红</em>
+            </button>
+            <button type="button" class="flip-btn" data-flag="angular" aria-pressed="false">
+              <span class="fb-dot"></span><b>改锐角廓</b><em>圆形 → 三角</em>
+            </button>
+            <button type="button" class="flip-btn" data-flag="dense" aria-pressed="false">
+              <span class="fb-dot"></span><b>加密集纹</b><em>平涂 → 点阵</em>
+            </button>
+          </div>
+
+          <p class="lab-readout" id="s1-summary" aria-live="polite">左右面积、色温、明度、形状、疏密全部相同，视觉重量完全持平。逐项点开上面四枚属性开关，看面积不变时重量怎样攀升。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 五组对比，拆开看才不乱（深群青底） -->
+  <section class="band band-navy" id="sec-2" aria-labelledby="h-s2">
+    <div class="wrap">
+      <header class="sec-head sec-head-wide">
+        <span class="sec-no" lang="en">02</span>
+        <div>
+          <h2 id="h-s2">五组对比，拆开看才不乱</h2>
+          <p class="sec-en" lang="en">FIVE AXES OF ASYMMETRICAL CONTRAST</p>
+        </div>
+        <p class="sec-lead">原海报把非对称里的反差拆成五条线：大小、色彩、形状、位置、疏密。把它们逐条拆开拉动，才看得出每一维怎样制造张力。</p>
+      </header>
+
+      <div class="contrast-workbench">
+        <div class="cw-tabs" role="tablist" aria-label="选择原海报五组对比维度">
+          <button type="button" class="cw-tab" role="tab" aria-selected="true" data-dim="size">
+            <b>大小对比</b><span class="cw-line" aria-hidden="true"></span><em>大与小</em>
+          </button>
+          <button type="button" class="cw-tab" role="tab" aria-selected="false" data-dim="color">
+            <b>色彩对比</b><span class="cw-line" aria-hidden="true"></span><em>暖与冷</em>
+          </button>
+          <button type="button" class="cw-tab" role="tab" aria-selected="false" data-dim="shape">
+            <b>形状对比</b><span class="cw-line" aria-hidden="true"></span><em>圆与角</em>
+          </button>
+          <button type="button" class="cw-tab" role="tab" aria-selected="false" data-dim="position">
+            <b>位置对比</b><span class="cw-line" aria-hidden="true"></span><em>偏与中</em>
+          </button>
+          <button type="button" class="cw-tab" role="tab" aria-selected="false" data-dim="density">
+            <b>疏密对比</b><span class="cw-line" aria-hidden="true"></span><em>密与疏</em>
+          </button>
+        </div>
+
+        <div class="cw-stage-panel">
+          <svg id="s2-svg" class="cw-svg" viewBox="0 0 600 280" role="img" aria-label="五组对比单轴演示图"></svg>
+
+          <div class="cw-slider-row">
+            <label for="s2-slider" class="cw-slider-label">拉开反差力度</label>
+            <input type="range" id="s2-slider" min="0" max="100" value="78" step="1">
+            <span class="cw-level" id="s2-level">清脆反差</span>
+          </div>
+        </div>
+
+        <div class="cw-explain" aria-live="polite">
+          <p class="cw-explain-tag">为什么这样拉有效</p>
+          <strong id="s2-title">大小对比（大与小）：主次一眼拉开，不必靠居中抢戏</strong>
+          <p id="s2-desc">反差拉小到相近体量时，两块互相争抢注意力；把主圆做大、辅块做精，再辅以远端位置，眼睛立刻知道先看哪、再落哪。</p>
+          <p class="cw-link-note">专门研究把单一重心推离画心、借边缘留白制造倾斜势能的做法，见 <a href="https://layout.xiaoxiaodong.ai/017/play/" target="_blank" rel="noopener">017 偏心构图 →</a>。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 动势与留白，替眼睛修路（包豪斯铬黄底） -->
+  <section class="band band-yellow" id="sec-3" aria-labelledby="h-s3">
+    <div class="wrap split-asym split-asym-flip">
+      <div class="col-lab">
+        <div class="lab-card lab-card-inkframe">
+          <div class="lab-head">
+            <span class="poster-plate">视线动线与破坏开关</span>
+            <button type="button" class="btn-solid-ink" id="s3-replay">重播动线</button>
+          </div>
+
+          <div class="flow-stage-wrap">
+            <canvas id="s3-canvas" class="flow-canvas" aria-label="非对称构图 45 度动线与破坏实验画布"></canvas>
+          </div>
+
+          <div class="breaker-row" role="group" aria-label="打开败笔开关观察动线变化">
+            <button type="button" class="breaker-btn" data-break="fill" aria-pressed="false">
+              <span class="bk-box" aria-hidden="true"></span><span>塞满留白</span>
+            </button>
+            <button type="button" class="breaker-btn" data-break="nodots" aria-pressed="false">
+              <span class="bk-box" aria-hidden="true"></span><span>拿掉点线导向</span>
+            </button>
+            <button type="button" class="breaker-btn" data-break="rival" aria-pressed="false">
+              <span class="bk-box" aria-hidden="true"></span><span>添等大抢戏块</span>
+            </button>
+          </div>
+
+          <p class="lab-readout" id="s3-readout" aria-live="polite">三条法则全部完好：视线先被右上朱红大圆抓住，再顺着 45° 黑色点线斜切穿过干净留白，稳稳落进左下冷蓝小圆与文字群。</p>
+        </div>
+      </div>
+
+      <div class="col-copy sticky-copy">
+        <header class="sec-head">
+          <span class="sec-no" lang="en">03</span>
+          <div>
+            <h2 id="h-s3">动势与留白，替眼睛修路</h2>
+            <p class="sec-en" lang="en">FLOW, WHITESPACE &amp; THREE RULES</p>
+          </div>
+        </header>
+        <blockquote class="poster-quote">
+          <strong>动势引导 · 聚焦重点</strong> —— 利用方向与留白，引导视线聚焦主体。
+        </blockquote>
+        <p>对称画面像一扇端正的大门，让人站在中间停下来；非对称画面却像一条斜向铺开的坡道。原海报里右上红圆和左下蓝圆之间的那串 45° 黑色点线，并不是装饰品——它和周围大片干净的铬黄留白一起，把眼睛从第一焦点牵引到次级信息。</p>
+        <div class="s3-rule-card">
+          <p class="poster-plate">三条构图小法则 · 实时对照</p>
+          <ul class="s3-rule-mirror" id="s3-rule-mirror">
+            <li data-rule="subject" data-ok="true">
+              <span class="s3-pill">完好</span>
+              <div><b>明确视觉主体</b><span>打开「添等大抢戏块」会让视线在两圆间来回弹跳</span></div>
+            </li>
+            <li data-rule="space" data-ok="true">
+              <span class="s3-pill">完好</span>
+              <div><b>合理运用留白</b><span>打开「塞满留白」会吞没呼吸感，让主次迅速发糊</span></div>
+            </li>
+            <li data-rule="flow" data-ok="true">
+              <span class="s3-pill">完好</span>
+              <div><b>建立视觉动线</b><span>打开「拿掉点线导向」会切断主圆与次级区的斜向牵引</span></div>
+            </li>
+          </ul>
+        </div>
+        <p class="s3-links-box">如果专门靠斜向主线制造强冲力，可看 <a href="https://layout.xiaoxiaodong.ai/023/play/" target="_blank" rel="noopener">023 对角线构图</a>；如果是用一根偏移的中线串起所有图文，则看 <a href="https://layout.xiaoxiaodong.ai/028/play/" target="_blank" rel="noopener">028 偏轴构图</a>。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 留白偏置与新排版（暖米纸底；并列两条传统） -->
+  <section class="band band-paper" id="sec-4" aria-labelledby="h-s4">
+    <div class="wrap">
+      <header class="sec-head sec-head-wide">
+        <span class="sec-no" lang="en">04</span>
+        <div>
+          <h2 id="h-s4">留白偏置与新排版</h2>
+          <p class="sec-en" lang="en">TWO PARALLEL TRADITIONS OF ASYMMETRY</p>
+        </div>
+        <p class="sec-lead">非对称平衡并非单一渊源，而是东西方在不同媒介与时代下各自生长出的两条视觉传统：一边是东亚绘画里的留白偏置，一边是 20 世纪欧洲现代主义的动态平衡与新排版。</p>
+      </header>
+
+      <div class="history-grid">
+        <div class="hist-tabs" role="tablist" aria-label="选择历史坐标">
+          <button type="button" class="hist-card" role="tab" aria-selected="true" data-era="tohaku">
+            <span class="hist-badge">东亚留白传统</span>
+            <span class="hist-year" lang="en">16C</span>
+            <strong>长谷川等伯《松林图屏风》</strong>
+            <em>水墨浓淡与大片素纸留白</em>
+          </button>
+
+          <button type="button" class="hist-card" role="tab" aria-selected="false" data-era="destijl">
+            <span class="hist-badge">欧洲现代主义</span>
+            <span class="hist-year" lang="en">1917</span>
+            <strong>风格派《De Stijl》</strong>
+            <em>三原色与不等分格线的动态平衡</em>
+          </button>
+
+          <button type="button" class="hist-card" role="tab" aria-selected="false" data-era="tschichold">
+            <span class="hist-badge">欧洲现代主义</span>
+            <span class="hist-year" lang="en">1928</span>
+            <strong>契肖尔德《新排版学》</strong>
+            <em>把非对称写成实用排版方法</em>
+          </button>
+
+          <button type="button" class="hist-card" role="tab" aria-selected="false" data-era="arnheim">
+            <span class="hist-badge">视知觉心理学</span>
+            <span class="hist-year" lang="en">1954</span>
+            <strong>阿恩海姆《艺术与视知觉》</strong>
+            <em>系统阐释视觉重量与平衡</em>
+          </button>
+        </div>
+
+        <div class="hist-panel" aria-live="polite">
+          <div class="hist-diagram-wrap">
+            <svg id="s4-svg" class="hist-svg" viewBox="0 0 560 300" role="img" aria-label="历史代表性非对称构图骨架示意"></svg>
+          </div>
+          <div class="hist-detail">
+            <span class="hist-tradition" id="s4-tradition">东亚留白偏置传统</span>
+            <h3 id="s4-title">16 世纪 · 长谷川等伯《松林图屏风》</h3>
+            <p id="s4-body">日本安土桃山时代画家长谷川等伯（1539–1610）的六曲一双国宝屏风（现藏东京国立博物馆），放弃满铺景物，用浓淡错落的墨松群偏置局部，留出大片雾气般的素纸空间。它与欧洲包豪斯并无师承关系，却独立印证了「留白本身就是配重」的视觉直觉。</p>
+            <p class="hist-src" id="s4-src">出处核实：东京国立博物馆藏品档案（ColID A10471）</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 非对称不是随便摆放（印刷炭黑底） -->
+  <section class="band band-ink" id="sec-5" aria-labelledby="h-s5">
+    <div class="wrap">
+      <header class="sec-head sec-head-wide">
+        <span class="sec-no" lang="en">05</span>
+        <div>
+          <h2 id="h-s5">非对称不是随便摆放</h2>
+          <p class="sec-en" lang="en">CONTROLLED TENSION VS. CARELESS DRIFT</p>
+        </div>
+        <p class="sec-lead">原海报底句写得直白：<em>「非对称 ≠ 随意摆放 · 平衡感来自对比与节奏的控制。」</em>看起来随意的好版面，背后都藏着严格的对齐边、主次差和远端配重。</p>
+      </header>
+
+      <div class="rescue-shell">
+        <div class="rescue-controls">
+          <div class="rescue-presets" role="group" aria-label="切换翻车样张">
+            <button type="button" class="rs-preset" data-case="poster" aria-pressed="true">样张 A · 展讯海报坠边</button>
+            <button type="button" class="rs-preset" data-case="card" aria-pressed="false">样张 B · 专题卡假对称</button>
+          </div>
+
+          <div class="rescue-steps">
+            <p class="rs-kicker">逐步勾选三道隐形校尺，把乱版救回来：</p>
+            <label class="rs-check">
+              <input type="checkbox" id="rs-step-1">
+              <span><b>第一步 · 拉开主次体量</b><em>不再让所有元素一般大、互相抢戏</em></span>
+            </label>
+            <label class="rs-check">
+              <input type="checkbox" id="rs-step-2">
+              <span><b>第二步 · 锁进隐形对齐边</b><em>取消零散错位，给文字和图形同一条参考边</em></span>
+            </label>
+            <label class="rs-check">
+              <input type="checkbox" id="rs-step-3">
+              <span><b>第三步 · 清出留白并远端补重</b><em>把次要信息收拢到对侧远角，托住主视觉</em></span>
+            </label>
+          </div>
+
+          <div class="rescue-readout" id="s5-readout" aria-live="polite">
+            <strong>当前状态：三病并发（坠边 + 无对齐 + 满铺失焦）</strong>
+            <p>所有模块堆在右半边且大小相近、左缘参差不齐——这不是洒脱的非对称，而是失控的散落。按顺序打开三道校尺，观察秩序如何一步步回来。</p>
+          </div>
+        </div>
+
+        <div class="rescue-stage">
+          <svg id="s5-svg" class="rescue-svg" viewBox="0 0 540 360" role="img" aria-label="翻车版式三步校尺急救演示"></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 什么时候用，什么时候别用（暖米纸底） -->
+  <section class="band band-paper" id="sec-6" aria-labelledby="h-s6">
+    <div class="wrap">
+      <header class="sec-head sec-head-wide">
+        <span class="sec-no" lang="en">06</span>
+        <div>
+          <h2 id="h-s6">什么时候用，什么时候别用</h2>
+          <p class="sec-en" lang="en">WHEN IT WORKS &amp; WHEN TO STEP BACK</p>
+        </div>
+        <p class="sec-lead">没有哪种构图通吃所有媒介。1946 年一场著名的瑞士排版论战，正好把「非对称与对称各该守在哪」摆到了台面上。</p>
+      </header>
+
+      <div class="when-grid">
+        <div class="when-lists">
+          <div class="when-box when-yes">
+            <p class="poster-plate">适合用非对称</p>
+            <ul>
+              <li><b>海报、展讯与专题头图</b>：需要在 1 秒内抓住注意力并带出强方向感。</li>
+              <li><b>杂志跨页与编辑专题</b>：图文体量天然悬殊，用不均等留白反而显得透气现代。</li>
+              <li><b>需要主次急缓的促销或导览页</b>：先抛主视觉再导流向说明与行动信息。</li>
+            </ul>
+          </div>
+          <div class="when-box when-no">
+            <p class="poster-plate plate-red">什么时候别用</p>
+            <ul>
+              <li><b>长篇文学正文与严肃法律文本</b>：读者要稳定匀速读上千字，频繁跳动的重心会制造疲劳，宜回到端正的 <a href="https://layout.xiaoxiaodong.ai/018/play/" target="_blank" rel="noopener">018 对称构图</a>。</li>
+              <li><b>证书、铭牌、典礼邀请与庄重徽标</b>：这类场合追求权威与安静稳定，直接用 <a href="https://layout.xiaoxiaodong.ai/016/play/" target="_blank" rel="noopener">016 居中构图</a> 更贴切。</li>
+              <li><b>高密度表单与数据录入界面</b>：对齐和可预测的扫描节奏优先于视觉张力。</li>
+            </ul>
+          </div>
+          <div class="debate-note">
+            <h3>1946 年的比尔—契肖尔德论战</h3>
+            <p>扬·契肖尔德虽在 1928 年写下《新排版学》力推非对称，但早在 1930 年代移居巴塞尔后，他便逐步转向古典对称书籍排版，并于 1945 年在苏黎世演讲中公开阐明立场。1946 年 4 月，马克斯·比尔在《瑞士印刷通讯》发表《论排版》（Über Typografie）猛烈批评他背离现代主义；6 月，契肖尔德以《信仰与现实》（Glaube und Wirklichkeit）回应，反驳把新排版僵化成唯一教条，认为古典文学书籍与商业宣传印刷品面对的阅读情境截然不同。</p>
+            <p>这场交锋<strong>并未定出「海报一律归非对称、书籍一律归对称」的铁律</strong>——比尔的立场后来深刻影响了战后瑞士国际主义风格，而契肖尔德在企鹅丛书的古典实践同样成为典范。它留给后人最有价值的提醒是：先问读者要怎么读，再决定要稳定还是张力。</p>
+          </div>
+        </div>
+
+        <div class="curtain-lab">
+          <div class="curtain-tabs" role="tablist" aria-label="选择对比场景">
+            <button type="button" class="ct-tab" role="tab" aria-selected="true" data-scene="festival">音乐节海报</button>
+            <button type="button" class="ct-tab" role="tab" aria-selected="false" data-scene="novel">长篇小说内页</button>
+            <button type="button" class="ct-tab" role="tab" aria-selected="false" data-scene="cert">荣誉证书</button>
+            <button type="button" class="ct-tab" role="tab" aria-selected="false" data-scene="launch">新品专题页</button>
+          </div>
+
+          <div class="curtain-stage" id="s6-stage">
+            <div class="curtain-layer curtain-sym" id="s6-sym-layer"></div>
+            <div class="curtain-layer curtain-asym" id="s6-asym-layer"></div>
+            <div class="curtain-divider" id="s6-divider" aria-hidden="true">
+              <span class="cd-knob">↔</span>
+            </div>
+            <span class="curtain-badge badge-left">非对称版</span>
+            <span class="curtain-badge badge-right">对称版</span>
+          </div>
+
+          <div class="curtain-slider-row">
+            <label for="s6-range">拖动中缝拉帘比对</label>
+            <input type="range" id="s6-range" min="8" max="92" value="56" step="1">
+          </div>
+
+          <div class="curtain-verdict" id="s6-verdict" aria-live="polite">
+            <strong>音乐节海报：非对称更能打出脉冲感</strong>
+            <p>大号斜置主视觉配左下演出阵容，一秒抢眼且留出呼吸空间；对称居中排法虽然工整，却容易显得像学术讲座通告。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 练眼力：哪一版真正配平？（包豪斯铬黄底；严格单一变量，全由 model.js 算出） -->
+  <section class="band band-yellow" id="sec-7" aria-labelledby="h-s7">
+    <div class="wrap">
+      <header class="sec-head sec-head-wide">
+        <span class="sec-no" lang="en">07</span>
+        <div>
+          <h2 id="h-s7">练眼力：哪一版真正配平？</h2>
+          <p class="sec-en" lang="en">SINGLE-VARIABLE BALANCE CHECK</p>
+        </div>
+        <p class="sec-lead">下面四版 3:4 展览海报，左上粗黑标题、右上朱红主圆，以及左下冷群青辅块的颜色、形状和中心位置<strong>完全一致</strong>——唯一改变的只有<strong>左下群青辅块的面积大小</strong>。凭眼力挑出刚好配平的那一版。</p>
+      </header>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四版展览海报单变量盲测">
+        <!-- 四张按钮由 labs.js 按 model.js 实时生成，确保 SVG 尺寸、答案与权重表完全同源 -->
+      </div>
+
+      <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+        <div class="qv-head">
+          <strong id="qv-title">先凭直觉点选 A / B / C / D 中的一版。</strong>
+          <button type="button" class="mast-btn" id="quiz-retry" hidden>重新选择</button>
+        </div>
+        <p id="qv-desc">选完后会用开场同一套视觉重量模型亮出四版的左右重量刻点与平衡档位，帮你核对每一档为什么太轻、刚好或太重。</p>
+        <div class="qv-breakdown" id="qv-breakdown" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 原海报与要点速查（深群青底） -->
+  <section class="band band-navy band-poster" id="sec-8" aria-labelledby="h-s8">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">08</span>
+        <div>
+          <h2 id="h-s8">原海报与要点速查</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER · NO. 019</p>
+        </div>
+      </header>
+
+      <div class="poster-layout">
+        <figure class="poster-fig">
+          <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="打开 019 号非对称构图高清原图灯箱">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="019 号非对称构图原海报：明快铬黄底色上，左上为黑色大标题非对称构图与三项要点圆标，右上大号朱砂红圆通过 45 度黑色点线呼应偏左下冷蓝小圆与右下群青大斜角；底部三栏依次列出重量对比示例、五组对比关系与三条构图小法则，最底沿写着非对称不等于随意摆放。">
+          </button>
+          <figcaption>点击放大原海报，放大后可拖动细看，按 Esc 或点击关闭收起。</figcaption>
+        </figure>
+
+        <div class="poster-meta">
+          <div class="meta-block">
+            <h3>三大核心要点 <span lang="en">KEY PRINCIPLES</span></h3>
+            <ul class="meta-list">
+              <li><b>不等形 · 达平衡</b><span>大小、重量不同的元素，在视觉上取得平衡</span></li>
+              <li><b>对比强 · 有张力</b><span>大小、色彩、形状对比，增强画面吸引力</span></li>
+              <li><b>动势引导 · 聚焦重点</b><span>利用方向与留白，引导视线聚焦主体</span></li>
+            </ul>
+          </div>
+
+          <div class="meta-block">
+            <h3>五组对比关系 <span lang="en">FIVE CONTRASTS</span></h3>
+            <ul class="meta-list meta-list-compact">
+              <li><b>大小对比 · 大与小</b><span>主次体量拉开，一眼定主角</span></li>
+              <li><b>色彩对比 · 暖与冷</b><span>暖色前进抓眼，冷色沉稳拉住</span></li>
+              <li><b>形状对比 · 圆与角</b><span>圆润焦点配锐利折角，生出张力</span></li>
+              <li><b>位置对比 · 偏与中</b><span>远角小块借力臂托住偏置重块</span></li>
+              <li><b>疏密对比 · 密与疏</b><span>紧凑高密单元对冲大片空白</span></li>
+            </ul>
+          </div>
+
+          <div class="meta-block">
+            <h3>构图小法则 <span lang="en">RULES OF THUMB</span></h3>
+            <ol class="meta-steps">
+              <li><b>明确视觉主体</b><span>让主要元素更突出</span></li>
+              <li><b>合理运用留白</b><span>留白是空间，也是呼吸感</span></li>
+              <li><b>建立视觉动线</b><span>引导视线，自然聚焦</span></li>
+            </ol>
+          </div>
+
+          <div class="meta-block siblings">
+            <h3>同小类互参 · 与非对称相邻的 14 种构图 <span lang="en">RELATED IN THIS GROUP</span></h3>
+            <ul class="sibling-list">
+              <li>
+                <b>稳态与反差参照</b>
+                <span>追求端正凝定看 <a href="https://layout.xiaoxiaodong.ai/016/play/" target="_blank" rel="noopener">016 居中构图</a>、左右等重看 <a href="https://layout.xiaoxiaodong.ai/018/play/" target="_blank" rel="noopener">018 对称构图</a>、彻底倒影复刻看 <a href="https://layout.xiaoxiaodong.ai/020/play/" target="_blank" rel="noopener">020 镜像构图</a>；单把重心推离画心则看 <a href="https://layout.xiaoxiaodong.ai/017/play/" target="_blank" rel="noopener">017 偏心构图</a>。</span>
+              </li>
+              <li>
+                <b>单一方向势能</b>
+                <span>舒展平稳走 <a href="https://layout.xiaoxiaodong.ai/021/play/" target="_blank" rel="noopener">021 水平构图</a>，挺拔拉伸走 <a href="https://layout.xiaoxiaodong.ai/022/play/" target="_blank" rel="noopener">022 垂直构图</a>，斜切提速走 <a href="https://layout.xiaoxiaodong.ai/023/play/" target="_blank" rel="noopener">023 对角线构图</a>。</span>
+              </li>
+              <li>
+                <b>多条线索组织</b>
+                <span>同向排比韵律见 <a href="https://layout.xiaoxiaodong.ai/024/play/" target="_blank" rel="noopener">024 平行线构图</a>，纵深引流焦点见 <a href="https://layout.xiaoxiaodong.ai/025/play/" target="_blank" rel="noopener">025 汇聚线构图</a>，碰撞制造焦点见 <a href="https://layout.xiaoxiaodong.ai/026/play/" target="_blank" rel="noopener">026 交叉线构图</a>。</span>
+              </li>
+              <li>
+                <b>隐形轴线支架</b>
+                <span>正中串列用 <a href="https://layout.xiaoxiaodong.ai/027/play/" target="_blank" rel="noopener">027 中轴构图</a>，偏移单轴用 <a href="https://layout.xiaoxiaodong.ai/028/play/" target="_blank" rel="noopener">028 偏轴构图</a>，双列呼应用 <a href="https://layout.xiaoxiaodong.ai/029/play/" target="_blank" rel="noopener">029 双轴构图</a>，纵横定标用 <a href="https://layout.xiaoxiaodong.ai/030/play/" target="_blank" rel="noopener">030 十字构图</a>。</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p><span class="mono-mark" lang="en">NO. 019</span> 非对称构图 · 350 种排版</p>
+    <p class="foot-links">
+      <a href="https://layout.xiaoxiaodong.ai/019/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      · 海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      · 源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<!-- 原海报放大拖动灯箱 -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报大图预览">
+  <div class="lb-bar">
+    <span class="lb-tip">拖动细看 · 滚轮或按钮缩放 · 按 Esc 关闭</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+      <button type="button" class="lb-btn" id="lb-zoom-reset" aria-label="复原尺寸">100%</button>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭大图">关闭 ×</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lb-viewport">
+    <img id="lb-img" alt="019 号非对称构图原海报大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
