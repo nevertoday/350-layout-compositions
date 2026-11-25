@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FCEAC9">
+<title>斜投影构图 · OBLIQUE PROJECTION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <!-- ==================== 首屏：074 原海报同款倾斜刊头 + 三栏开放制图台 + 三徽标海报卡 ==================== -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="hero-inner">
+      <header class="poster-head">
+        <div class="slant-title-group">
+          <div class="head-meta">
+            <span class="meta-cat">构图逻辑 / 空间层次与投影</span>
+            <span class="meta-num" lang="en">NO. 074</span>
+          </div>
+          <h1 id="page-title" class="tilted-h1">斜投影构图</h1>
+          <div class="tilted-sub-row">
+            <p class="tilted-en" lang="en">OBLIQUE PROJECTION</p>
+            <svg class="red-dart" viewBox="0 0 180 20" aria-hidden="true">
+              <polygon points="0,12 152,5 152,14" fill="#F55935"/>
+              <polygon points="158,2 178,10 158,18" fill="#F55935"/>
+            </svg>
+          </div>
+        </div>
+        <div class="head-tagline">
+          <p class="tagline-zh">用斜向延展<br>表现空间与深度</p>
+          <p class="tagline-en" lang="en">USE SLANT TO EXPRESS SPACE AND DEPTH</p>
+          <p class="hero-pill" id="hero-status-pill" data-sev="err" aria-live="polite">错态 · 正面歪斜 (0/3)</p>
+        </div>
+      </header>
+
+      <!-- 中段：左注（正面基准） + 中央开放制图台（data-perf-drag） + 右注（斜向延展与单真源诊单） -->
+      <div class="draft-spread">
+        <aside class="margin-left">
+          <div class="poster-quote-block">
+            <i class="red-dash" aria-hidden="true"></i>
+            <p class="poster-summary">斜投影是一种将物体的一个面保持真实形状，其余方向沿斜线延展的空间表达方法。</p>
+          </div>
+
+          <div class="callout-block">
+            <p class="callout-title"><span class="dot-v" aria-hidden="true"></span>正面真实 <span lang="en" class="en-tag">FRONT FACE</span></p>
+            <p class="callout-desc">正面保持真实比例与形状，作为视觉基准面。</p>
+          </div>
+
+          <div class="ctrl-group">
+            <p class="ctrl-label">换一种正面题材</p>
+            <div class="subject-row" role="group" aria-label="选择正面题材">
+              <button type="button" class="chip" data-subject="poster" aria-pressed="true">原海报方块</button>
+              <button type="button" class="chip" data-subject="radio" aria-pressed="false">真圆收音机</button>
+              <button type="button" class="chip" data-subject="shelf" aria-pressed="false">立面书架</button>
+            </div>
+          </div>
+
+          <div class="ctrl-group quick-fix-group">
+            <p class="ctrl-label">逐项校准（也可直接在画布点拖）</p>
+            <button type="button" class="action-btn" id="btn-fix-front" data-need="true">扳正正面 → 90°</button>
+            <button type="button" class="action-btn" id="btn-fix-parallel" data-need="true">对齐副体 → 平行</button>
+          </div>
+        </aside>
+
+        <div class="canvas-stage">
+          <canvas
+            id="hero-canvas"
+            class="hero-canvas"
+            data-perf-drag
+            tabindex="0"
+            role="application"
+            aria-label="斜向拉深制图台：拖动后角橙圆改变斜角与进深，拖动红点扳正正面或对齐副体，方向键可微调"
+          ></canvas>
+        </div>
+
+        <aside class="margin-right">
+          <div class="diag-card" id="hero-diag" data-sev="err" aria-live="polite">
+            <div class="diag-top">
+              <span class="diag-badge" id="diag-badge">错态 · 正面歪斜 (0/3)</span>
+              <span class="diag-src">顶点单真源实算</span>
+            </div>
+            <h2 class="diag-title" id="diag-title">正面内角被切歪成 76.0°，基准面不再真实</h2>
+            <p class="diag-body" id="diag-body">斜投影的第一条铁律是正面与画纸完全平行、四角守住 90°。</p>
+            <p class="diag-hint" id="diag-hint">拖动正面左上角圆柄（或点画布「扳正正面」），把朱红正面拉回 90.0°。</p>
+          </div>
+
+          <dl class="readout-grid" aria-label="实时几何读数">
+            <div class="ro-cell"><dt>正面内角</dt><dd id="ro-corner" class="mono" data-ok="false">76.0°</dd></div>
+            <div class="ro-cell"><dt>斜向延展角 α</dt><dd id="ro-angle" class="mono" data-ok="false">18°</dd></div>
+            <div class="ro-cell"><dt>进深比 k</dt><dd id="ro-depth" class="mono" data-ok="false">1.35×</dd></div>
+            <div class="ro-cell"><dt>多体平行差</dt><dd id="ro-parallel" class="mono" data-ok="false">偏 38°</dd></div>
+          </dl>
+
+          <div class="slider-stack">
+            <label class="range-row">
+              <span>斜角 α（5°–175°）</span>
+              <input type="range" id="ctrl-angle" min="5" max="175" step="1" value="18">
+            </label>
+            <label class="range-row">
+              <span>进深系数 k（0.1–1.5×）</span>
+              <input type="range" id="ctrl-depth" min="10" max="150" step="2" value="135">
+            </label>
+          </div>
+
+          <div class="preset-row" role="group" aria-label="几何方案对比">
+            <button type="button" class="preset-btn" data-preset="cabinet45">橱柜 45°·0.5×</button>
+            <button type="button" class="preset-btn" data-preset="cabinet30">展侧 30°·0.58×</button>
+            <button type="button" class="preset-btn" data-preset="cabinet135">左上 135°·0.5×</button>
+            <button type="button" class="preset-btn" data-preset="cavalier45">骑士 1:1</button>
+            <button type="button" class="preset-btn is-reset" data-preset="broken">复原 0/3 错态</button>
+          </div>
+        </aside>
+      </div>
+
+      <!-- 底沿：1:1 承袭 074 原海报三枚浓松绿圆徽细框海报卡（同步实时几何自检状态） -->
+      <ol class="poster-trio" aria-label="斜投影三项核心实况">
+        <li class="trio-card">
+          <div class="trio-head">
+            <span class="medallion" aria-hidden="true">
+              <svg viewBox="0 0 28 28"><rect x="6" y="10" width="11" height="11" fill="none" stroke="#FCEAC9" stroke-width="1.8"/><path d="M6 10l5-4h11v11l-5 4M17 10l5-4" fill="none" stroke="#FCEAC9" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </span>
+            <div>
+              <h3>结构表达 <span lang="en">STRUCTURE</span></h3>
+              <span class="trio-stat" id="card-stat-front" data-ok="false">歪斜 76°</span>
+            </div>
+          </div>
+          <i class="red-dash" aria-hidden="true"></i>
+          <p>先确定正面，再按斜向延展出深度，构成完整结构。</p>
+        </li>
+        <li class="trio-card">
+          <div class="trio-head">
+            <span class="medallion" aria-hidden="true">
+              <svg viewBox="0 0 28 28"><path d="M8 20L20 8M12 8h8v8" fill="none" stroke="#FCEAC9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <div>
+              <h3>方向性 <span lang="en">DIRECTION</span></h3>
+              <span class="trio-stat" id="card-stat-dir" data-ok="false">错角 38°</span>
+            </div>
+          </div>
+          <i class="red-dash" aria-hidden="true"></i>
+          <p>斜向线通常保持平行，方向一致，形成稳定的空间秩序。</p>
+        </li>
+        <li class="trio-card">
+          <div class="trio-head">
+            <span class="medallion" aria-hidden="true">
+              <svg viewBox="0 0 28 28"><path d="M4.5 14c2.8-4.5 6-6.5 9.5-6.5s6.7 2 9.5 6.5c-2.8 4.5-6 6.5-9.5 6.5S7.3 18.5 4.5 14z" fill="none" stroke="#FCEAC9" stroke-width="1.8"/><circle cx="14" cy="14" r="3" fill="#FCEAC9"/></svg>
+            </span>
+            <div>
+              <h3>视觉效果 <span lang="en">VISUAL EFFECT</span></h3>
+              <span class="trio-stat" id="card-stat-visual" data-ok="false">18° · 1.35×</span>
+            </div>
+          </div>
+          <i class="red-dash" aria-hidden="true"></i>
+          <p>在二维平面上呈现三维体量，清晰、简洁、富有空间感。</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ==================== 正文 01–08 节 ==================== -->
+  <article class="essay">
+    <!-- 01 -->
+    <section class="sec sec-light" id="sec-01" aria-labelledby="s1">
+      <div class="wrap split-sec">
+        <header class="sec-head sticky-head">
+          <p class="sec-no" lang="en">01</p>
+          <h2 id="s1">先定正面，再拉斜深</h2>
+          <p class="sec-en" lang="en">Structure &amp; Direction</p>
+          <ul class="usage-bullets">
+            <li>正面保持真实，作为视觉基准。</li>
+            <li>深度沿斜线延展，方向一致。</li>
+            <li>强化结构与空间，提升画面表现力。</li>
+          </ul>
+        </header>
+        <div class="sec-body">
+          <p class="lead">斜投影能一口气把平面排版变成三维体块，靠的不是复杂的光学计算，而是极简的两步分工：先画一个一毫不差的正面，再把所有深度沿着互相平行的斜线向后拉出。</p>
+          <p>相比 <a href="https://layout.xiaoxiaodong.ai/069/play/" target="_blank" rel="noopener">069 线性透视</a> 与 <a href="https://layout.xiaoxiaodong.ai/073/play/" target="_blank" rel="noopener">073 平行透视构图</a> 里向远方不断收拢的消失点，斜投影把「投射线」设成一束永远平行的斜光——物体无论放得多靠后，正面大小都分毫不缩，正圆也永远是正圆。</p>
+
+          <aside class="gentle-note">
+            <span class="note-tag">补一句关键</span>
+            <p>原海报在斜角旁标了「约 45° / ABOUT 45°」。其实 45° 只是顺手画图的习惯角，并不是硬规矩：30°、45°、60° 甚至向左上方延展（135°）都同样成立。真正决定斜投影成败的，是<strong>同一张画面里所有斜线必须严格平行</strong>，以及下一节要讲的<strong>进深缩放比 k</strong>。</p>
+          </aside>
+
+          <figure class="lab-box">
+            <div class="lab-toolbar">
+              <div class="btn-strip" role="group" aria-label="三步建造跳转">
+                <button type="button" class="mini-btn" data-step-jump="1" aria-pressed="false">1. 确定正面</button>
+                <button type="button" class="mini-btn" data-step-jump="2" aria-pressed="false">2. 延展深度</button>
+                <button type="button" class="mini-btn" data-step-jump="3" aria-pressed="true">3. 形成结构</button>
+              </div>
+              <button type="button" class="mini-btn accent" id="steps-circle-toggle" aria-pressed="false">叠入正面真圆检视</button>
+            </div>
+            <canvas id="steps-canvas" class="lab-canvas ratio-16-9" aria-label="三步建造斜投影演示画布"></canvas>
+            <div class="scrubber-bar">
+              <label for="steps-range">建造进度</label>
+              <input type="range" id="steps-range" min="0" max="100" step="1" value="100">
+            </div>
+            <figcaption id="steps-caption" aria-live="polite">第三步连出与正面完全全等的背面边缘，空间成形。</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 -->
+    <section class="sec sec-cream" id="sec-02" aria-labelledby="s2">
+      <div class="wrap split-sec">
+        <header class="sec-head sticky-head">
+          <p class="sec-no" lang="en">02</p>
+          <h2 id="s2">骑士与橱柜：<br>进深缩一半</h2>
+          <p class="sec-en" lang="en">Cavalier vs. Cabinet</p>
+          <p class="head-note">国际制图标准 ISO 5456-3:1996 把最常用的两种斜投影分成 1:1 骑士投影与 1:2 橱柜投影。</p>
+        </header>
+        <div class="sec-body">
+          <p class="lead">按真实尺寸画一个立方体，把斜向进深也画成 1:1（称为<strong>骑士投影 Cavalier</strong>），眼睛却会一口咬定它「太长了，像块长方砖」。</p>
+          <p>原因出在我们的视觉习惯：在真实世界里，背离视线的边会因为透视和倾斜而变短；斜投影取消了近大远小，如果再把斜边画成全长，大脑就会把多余的长度错读成额外深度。于是 19 世纪家具制图师干脆把进深砍去一半（<code>k = 0.50</code>，投射线与画面约成 63.4°），这就是<strong>橱柜投影（Cabinet）</strong>——尺寸不再直接 1:1，体量反而一下子顺眼了。</p>
+          <p>除了把竖直立面摆正的<strong>立面斜投影</strong>，建筑师（如程大锦《建筑画法》中所分）还常用<strong>平面斜投影</strong>：让建筑的 90° 平面图正对画纸，再垂直拉出墙高，鸟瞰空间一目了然。</p>
+
+          <figure class="lab-box">
+            <div class="lab-toolbar">
+              <div class="btn-strip" role="group" aria-label="立面斜与平面斜切换">
+                <button type="button" class="mini-btn" data-oblique-kind="elevation" aria-pressed="true">立面斜投影（骑士 vs 橱柜）</button>
+                <button type="button" class="mini-btn" data-oblique-kind="plan" aria-pressed="false">平面斜投影（等高 vs 缩高）</button>
+              </div>
+            </div>
+            <canvas id="compare-canvas" class="lab-canvas ratio-16-9 cursor-ew" aria-label="骑士投影与橱柜投影横向拉帘对比画布"></canvas>
+            <div class="scrubber-bar">
+              <label for="compare-split">拉动中缝对比</label>
+              <input type="range" id="compare-split" min="8" max="92" step="1" value="50">
+            </div>
+            <figcaption id="compare-caption" aria-live="polite">立面斜投影（Elevation Oblique）：保持正面立面 90° 真形。左半是 1:1 骑士投影，四格进深拉得像长条；右半按 ISO 5456-3 缩半成 0.50× 橱柜投影，才像真正的正方体。</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 -->
+    <section class="sec sec-apricot" id="sec-03" aria-labelledby="s3">
+      <div class="wrap split-sec">
+        <header class="sec-head sticky-head">
+          <p class="sec-no" lang="en">03</p>
+          <h2 id="s3">同一块体，换套投影看</h2>
+          <p class="sec-en" lang="en">Oblique vs. Siblings</p>
+          <p class="head-note">同小类里还有前中后景、透视与轴测等兄弟页，各自擅场，这里只点明分工。</p>
+        </header>
+        <div class="sec-body">
+          <p class="lead">把同一块画着正圆的立方体放进四种投影体系，你会立刻明白为什么斜投影总被拿来做正面展示：它是唯一既不汇聚、又保住正面真圆与 90° 直角的立体画法。</p>
+          <p>若要三面均等、适合机械总装或沙盘，转向 <a href="https://layout.xiaoxiaodong.ai/075/play/" target="_blank" rel="noopener">075 等距构图</a> 或更广义的 <a href="https://layout.xiaoxiaodong.ai/076/play/" target="_blank" rel="noopener">076 轴测构图</a>；若要真实镜头的近大远小与街道沉浸感，改用 <a href="https://layout.xiaoxiaodong.ai/070/play/" target="_blank" rel="noopener">070 一点透视</a>、<a href="https://layout.xiaoxiaodong.ai/071/play/" target="_blank" rel="noopener">071 两点透视</a> 或仰俯宏伟的 <a href="https://layout.xiaoxiaodong.ai/072/play/" target="_blank" rel="noopener">072 三点透视</a>；而画面层次还可结合 <a href="https://layout.xiaoxiaodong.ai/065/play/" target="_blank" rel="noopener">065 前中后景</a>、<a href="https://layout.xiaoxiaodong.ai/066/play/" target="_blank" rel="noopener">066 前景框架</a>、<a href="https://layout.xiaoxiaodong.ai/067/play/" target="_blank" rel="noopener">067 重叠空间</a> 与 <a href="https://layout.xiaoxiaodong.ai/068/play/" target="_blank" rel="noopener">068 尺度递减</a> 来叠搭。</p>
+
+          <figure class="lab-box">
+            <div class="lab-toolbar">
+              <div class="btn-strip" role="group" aria-label="切换四种投影">
+                <button type="button" class="mini-btn" data-proj-mode="oblique" aria-pressed="true">074 斜投影</button>
+                <button type="button" class="mini-btn" data-proj-mode="isometric" aria-pressed="false">075 等距</button>
+                <button type="button" class="mini-btn" data-proj-mode="onepoint" aria-pressed="false">070 一点透视</button>
+                <button type="button" class="mini-btn" data-proj-mode="twopoint" aria-pressed="false">071 两点透视</button>
+              </div>
+            </div>
+            <canvas id="morph-canvas" class="lab-canvas ratio-16-9" aria-label="四种空间投影同体变形对比画布"></canvas>
+            <dl class="morph-table">
+              <div><dt>正面内角</dt><dd id="m-corner">90.0°（真直角）</dd></div>
+              <div><dt>正面圆形</dt><dd id="m-circle">1.00 : 1（真圆）</dd></div>
+              <div><dt>纵深射线</dt><dd id="m-rays">严格平行 · 无消失点</dd></div>
+              <div><dt>量尺特性</dt><dd id="m-meas">正面全尺寸直接可量</dd></div>
+            </dl>
+            <figcaption id="m-summary" aria-live="polite">正面完全正对画纸，直角和正圆一毫不差。</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 -->
+    <section class="sec sec-light" id="sec-04" aria-labelledby="s4">
+      <div class="wrap split-sec">
+        <header class="sec-head sticky-head">
+          <p class="sec-no" lang="en">04</p>
+          <h2 id="s4">从古卷、堡垒<br>到波尔克定理</h2>
+          <p class="sec-en" lang="en">Where It Comes From</p>
+          <p class="head-note">东西方工匠、要塞工程师与数学家走过不同路径，却都在「平行斜线」里找到清晰度。</p>
+        </header>
+        <div class="sec-body">
+          <p class="lead">在单点透视统治欧洲绘画之前，平行斜向投影就已经是长卷绘画与军事工兵的实用语言；直到 19 世纪中叶，数学家才为它补上了严谨的定理根基。</p>
+
+          <div class="era-box">
+            <div class="era-tabs" role="tablist" aria-label="斜投影历史四个节点">
+              <button type="button" role="tab" class="era-tab" data-era="song" aria-selected="true">北宋 · 界画长卷</button>
+              <button type="button" role="tab" class="era-tab" data-era="fort" aria-selected="false">18 世纪 · 骑士堡</button>
+              <button type="button" role="tab" class="era-tab" data-era="pohlke" aria-selected="false">1853 · 波尔克定理</button>
+              <button type="button" role="tab" class="era-tab" data-era="modern" aria-selected="false">1923–1996 · 标准</button>
+            </div>
+
+            <div class="era-panel" data-era-panel="song">
+              <div class="era-grid">
+                <svg class="era-svg" viewBox="0 0 320 190" aria-hidden="true">
+                  <rect width="320" height="190" fill="#FCEAC9"/>
+                  <path d="M18 148H302" stroke="#0A2E20" stroke-width="1.2" stroke-dasharray="4 4"/>
+                  <!-- 长卷屋宇平行斜线示意 -->
+                  <polygon points="44,132 108,132 108,82 44,82" fill="#F55935" stroke="#0A2E20" stroke-width="2"/>
+                  <polygon points="44,82 108,82 146,52 82,52" fill="#A9B391" stroke="#0A2E20" stroke-width="2"/>
+                  <polygon points="108,132 146,102 146,52 108,82" fill="#939E7B" stroke="#0A2E20" stroke-width="2"/>
+                  <polygon points="168,132 238,132 238,90 168,90" fill="#F55935" stroke="#0A2E20" stroke-width="2"/>
+                  <polygon points="168,90 238,90 276,60 206,60" fill="#A9B391" stroke="#0A2E20" stroke-width="2"/>
+                  <polygon points="238,132 276,102 276,60 238,90" fill="#939E7B" stroke="#0A2E20" stroke-width="2"/>
+                  <path d="M108 82L162 39M238 90L292 47" stroke="#B53112" stroke-width="1.5" stroke-dasharray="4 3"/>
+                  <text x="16" y="24" fill="#0A2E20" font-size="11" font-weight="700">横展 528 cm · 平行斜线不拉裂卷面</text>
+                </svg>
+                <div class="era-copy">
+                  <h3>北宋《清明上河图》与界画平行斜线</h3>
+                  <p>北宋张择端《清明上河图》（故宫博物院藏，纵 24.8 厘米、横 528 厘米）采用中国传统「界画」尺规作画，沿街楼阁、城门与桥梁多以平行斜向退深，没有固定单点消失点。</p>
+                  <p>长卷需要边展边读：如果全卷锁死在一个消失点，画到几米之外建筑就会严重扭曲；平行斜线让观者无论停在哪一尺，屋檐与街面都保持平稳可辨。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="era-panel" data-era-panel="fort" hidden>
+              <div class="era-grid">
+                <svg class="era-svg" viewBox="0 0 320 190" aria-hidden="true">
+                  <rect width="320" height="190" fill="#FCEAC9"/>
+                  <polygon points="56,142 184,142 184,96 56,96" fill="#F55935" stroke="#0A2E20" stroke-width="2"/>
+                  <polygon points="56,96 184,96 246,42 118,42" fill="#A9B391" stroke="#0A2E20" stroke-width="2"/>
+                  <polygon points="184,142 246,88 246,42 184,96" fill="#939E7B" stroke="#0A2E20" stroke-width="2"/>
+                  <line x1="56" y1="158" x2="184" y2="158" stroke="#0A2E20" stroke-width="1.5"/>
+                  <line x1="194" y1="148" x2="256" y2="94" stroke="#B53112" stroke-width="1.8"/>
+                  <text x="108" y="174" fill="#0A2E20" font-size="11" font-weight="700">1:1</text>
+                  <text x="232" y="136" fill="#B53112" font-size="11" font-weight="700">1:1 实量</text>
+                  <text x="16" y="24" fill="#0A2E20" font-size="11" font-weight="700">18c 法军筑垒 · Cavalier 高台视点</text>
+                </svg>
+                <div class="era-copy">
+                  <h3>18 世纪法军要塞与「骑士投影」得名</h3>
+                  <p>「骑士投影（Cavalier projection）」并非指骑马画画，而是取自欧洲筑垒术语 <em>cavalier</em>——筑在城墙内侧、高出主城垣的架炮高台。18 世纪法国军事工程师常以这种高视点画要塞图。</p>
+                  <p>正墙尺寸和 45° 斜退城墙厚度全部维持 1:1，指挥官拿分规直接往图上一卡就能读出射界与墙厚；随后 19 世纪家具作坊为消除拉长错觉，把斜深缩半成「橱柜投影（Cabinet）」。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="era-panel" data-era-panel="pohlke" hidden>
+              <div class="era-grid">
+                <svg class="era-svg" viewBox="0 0 320 190" aria-hidden="true">
+                  <rect width="320" height="190" fill="#FCEAC9"/>
+                  <circle cx="136" cy="126" r="4" fill="#0A2E20"/>
+                  <path d="M136 126L238 126M136 126L136 42M136 126L196 74" stroke="#0A2E20" stroke-width="2.4" stroke-linecap="round"/>
+                  <path d="M136 126L196 74" stroke="#F55935" stroke-width="3" stroke-linecap="round"/>
+                  <text x="242" y="130" fill="#0A2E20" font-size="12" font-weight="700">X</text>
+                  <text x="132" y="34" fill="#0A2E20" font-size="12" font-weight="700">Y</text>
+                  <text x="202" y="72" fill="#B53112" font-size="12" font-weight="700">Z (任意角度与缩放)</text>
+                  <text x="16" y="24" fill="#0A2E20" font-size="11" font-weight="700">1853 波尔克提出 · 1864 施瓦茨首证</text>
+                </svg>
+                <div class="era-copy">
+                  <h3>蒙日奠基与 1853 年波尔克定理</h3>
+                  <p>法国数学家加斯帕尔·蒙日（Gaspard Monge，1746–1818）在 1795 年巴黎讲义与 1799 年《画法几何》（<em>Géométrie descriptive</em>）中把投影制图正式建成独立数学学科。</p>
+                  <p>1853 年，柏林画家兼几何教师卡尔·波尔克（Karl Wilhelm Pohlke）提出（1860 年刊于 <em>Darstellende Geometrie</em>），并由赫尔曼·施瓦茨（Hermann Amandus Schwarz）在 1864 年首次严密证明的<strong>波尔克定理</strong>指出：平面上从同一点出发、不共线的任意三条线段，都一定对应某个立方体三条等长正交棱的平行（斜或正）投影——它从数学上保证了任何斜角和缩深比都是合法的空间投影。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="era-panel" data-era-panel="modern" hidden>
+              <div class="era-grid">
+                <svg class="era-svg" viewBox="0 0 320 190" aria-hidden="true">
+                  <rect width="320" height="190" fill="#FCEAC9"/>
+                  <rect x="20" y="34" width="280" height="134" fill="none" stroke="#0A2E20" stroke-width="1.5"/>
+                  <polygon points="58,136 122,136 122,72 58,72" fill="#F55935" stroke="#0A2E20" stroke-width="2"/>
+                  <polygon points="58,72 122,72 146,48 82,48" fill="#A9B391" stroke="#0A2E20" stroke-width="2"/>
+                  <polygon points="122,136 146,112 146,48 122,72" fill="#939E7B" stroke="#0A2E20" stroke-width="2"/>
+                  <line x1="176" y1="68" x2="278" y2="68" stroke="#0A2E20" stroke-width="1.4"/>
+                  <text x="176" y="60" fill="#0A2E20" font-size="11" font-weight="700">ISO 5456-3:1996</text>
+                  <text x="176" y="88" fill="#354C3E" font-size="11">Cavalier  45° · 1 : 1</text>
+                  <text x="176" y="108" fill="#B53112" font-size="11" font-weight="700">Cabinet   45° · 1 : 2</text>
+                  <text x="176" y="128" fill="#354C3E" font-size="11">Planometric  平面真形</text>
+                  <text x="16" y="24" fill="#0A2E20" font-size="11" font-weight="700">1920s 现代主义 → 1975 建筑画法 → 1996 ISO</text>
+                </svg>
+                <div class="era-copy">
+                  <h3>从 1923 年先锋建筑到 ISO 5456-3:1996</h3>
+                  <p>1919–1923 年，俄国构成主义者李西茨基（El Lissitzky）的 <em>Proun</em> 系列与风格派杜斯伯格、范·埃斯特伦（1923 年巴黎展）把工程斜投影和平面斜带进现代艺术与海报，刻意摆脱单一固定视点。</p>
+                  <p>1975 年程大锦（Francis D. K. Ching）首版《建筑画法》（<em>Architectural Graphics</em>）系统普及了立面斜与平面斜的画法；1996 年国际标准 <strong>ISO 5456-3:1996</strong> 则正式将骑士、橱柜与平面斜投影纳入全球通用制图规范。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 -->
+    <section class="sec sec-cream" id="sec-05" aria-labelledby="s5">
+      <div class="wrap split-sec">
+        <header class="sec-head sticky-head">
+          <p class="sec-no" lang="en">05</p>
+          <h2 id="s5">网页里的斜投影：<br>CSS 切变</h2>
+          <p class="sec-en" lang="en">Oblique on the Web</p>
+          <p class="head-note">无需 3D 引擎，两块 CSS <code>skew()</code> 侧面就能让平面卡片立出硬朗的印刷体量。</p>
+        </header>
+        <div class="sec-body">
+          <p class="lead">斜投影天生适合网页与界面排版：正面保留 <code>transform: none</code>，中文小字与图标维持像素级锐利；只有顶面与侧面两个色块用 CSS <code>skewX()</code> 和 <code>skewY()</code> 沿同一斜角切出厚度。</p>
+          <p>在真实产品里，这种做法常见于复古杂志风按钮、实体书脊卡片、数据柱体与印刷感展览专题页——所有卡片共享同一个 <code>skew</code> 角度，页面就自带稳定的空间秩序。</p>
+
+          <figure class="lab-box css-lab">
+            <div class="lab-toolbar">
+              <div class="btn-strip" role="group" aria-label="选择挤出象限">
+                <button type="button" class="mini-btn" data-css-dir="tr" aria-pressed="true">右上 ↗</button>
+                <button type="button" class="mini-btn" data-css-dir="tl" aria-pressed="false">左上 ↖</button>
+                <button type="button" class="mini-btn" data-css-dir="br" aria-pressed="false">右下 ↘</button>
+                <button type="button" class="mini-btn" data-css-dir="bl" aria-pressed="false">左下 ↙</button>
+              </div>
+            </div>
+
+            <div class="css-stage">
+              <div class="css-card-wrap" id="css-card-wrap">
+                <div class="css-slab css-slab-top" id="css-slab-top" aria-hidden="true"></div>
+                <div class="css-slab css-slab-side" id="css-slab-side" aria-hidden="true"></div>
+                <div class="css-card-front">
+                  <span class="css-card-kicker" lang="en">FRONT FACE · 0°</span>
+                  <h3>斜投影展签</h3>
+                  <p>正面的每一行字都保持横平竖直、可直接点选复制，立体厚度全由顶侧两片 2D 切变块承托。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="css-controls">
+              <label class="range-row">
+                <span>挤出厚度 <strong id="css-depth-val" class="mono">26px</strong></span>
+                <input type="range" id="css-depth" min="8" max="46" step="1" value="26">
+              </label>
+              <label class="range-row">
+                <span>斜向角度 <strong id="css-angle-val" class="mono">45°</strong></span>
+                <input type="range" id="css-angle" min="25" max="65" step="1" value="45">
+              </label>
+            </div>
+            <pre class="css-code"><code id="css-code-out"></code></pre>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06：浓松绿暗室重拍节 · 什么时候别用 -->
+    <section class="sec sec-darkroom" id="sec-06" aria-labelledby="s6">
+      <div class="wrap">
+        <header class="sec-head wide-head">
+          <p class="sec-no" lang="en">06</p>
+          <h2 id="s6">什么时候别用斜投影</h2>
+          <p class="sec-en" lang="en">When Not to Use It</p>
+          <p class="lead">斜投影靠「放弃近大远小」换取正面保真。一旦你的画面真正需要的是镜头纵深、三面平等或长距透视，硬套斜投影立刻会显得僵硬甚至反常。</p>
+        </header>
+
+        <div class="anti-grid">
+          <article class="anti-card" data-state="bad">
+            <div class="anti-svg-wrap">
+              <svg class="anti-svg state-bad" viewBox="0 0 260 140" aria-hidden="true">
+                <rect width="260" height="140" fill="#133326"/>
+                <!-- 远近同大的街道，远处显膨大，全部落在顶部标题线下方 -->
+                <rect x="24" y="84" width="42" height="44" fill="#F55935" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="66,128 118,86 118,42 66,84" fill="#939E7B" stroke="#FCEAC9" stroke-width="1.5"/>
+                <rect x="130" y="64" width="42" height="44" fill="#F55935" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="172,108 224,66 224,26 172,64" fill="#939E7B" stroke="#FCEAC9" stroke-width="1.5"/>
+                <text x="12" y="18" fill="#FF867C" font-size="11" font-weight="700">翻车：远楼不缩，反而显得头重脚轻</text>
+              </svg>
+              <svg class="anti-svg state-fix" viewBox="0 0 260 140" aria-hidden="true">
+                <rect width="260" height="140" fill="#133326"/>
+                <line x1="10" y1="74" x2="250" y2="74" stroke="#7FE0AD" stroke-width="1" stroke-dasharray="4 3"/>
+                <circle cx="195" cy="74" r="4" fill="#FF7A59"/>
+                <polygon points="24,126 84,104 84,48 24,26" fill="#939E7B" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="94,100 134,88 134,62 94,50" fill="#F55935" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="142,86 168,80 168,69 142,63" fill="#A9B391" stroke="#FCEAC9" stroke-width="1.5"/>
+                <text x="12" y="18" fill="#7FE0AD" font-size="11" font-weight="700">改法：改用透视汇聚，纵深自然退远</text>
+              </svg>
+            </div>
+            <h3>宏大街道与真实镜头感</h3>
+            <p class="anti-bad-txt">斜投影没有近大远小，长街尽头的建筑和眼前一样大，大脑会错觉远处建筑「越往后越膨胀」。</p>
+            <p class="anti-fix-txt">需要强烈临场纵深时，改用 <a href="https://layout.xiaoxiaodong.ai/070/play/" target="_blank" rel="noopener">070 一点透视</a>、<a href="https://layout.xiaoxiaodong.ai/071/play/" target="_blank" rel="noopener">071 两点透视</a> 或 <a href="https://layout.xiaoxiaodong.ai/072/play/" target="_blank" rel="noopener">072 三点透视</a>。</p>
+            <button type="button" class="flip-btn" data-flip-card aria-pressed="false">查看对口改法 →</button>
+          </article>
+
+          <article class="anti-card" data-state="bad">
+            <div class="anti-svg-wrap">
+              <svg class="anti-svg state-bad" viewBox="0 0 260 140" aria-hidden="true">
+                <rect width="260" height="140" fill="#133326"/>
+                <polygon points="56,118 148,118 148,48 56,48" fill="#F55935" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="56,48 148,48 174,26 82,26" fill="#A9B391" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="148,118 174,96 174,26 148,48" fill="#939E7B" stroke="#FCEAC9" stroke-width="1.5"/>
+                <text x="102" y="88" fill="#0A2E20" font-size="11" font-weight="700" text-anchor="middle">正面独大</text>
+                <text x="12" y="18" fill="#FF867C" font-size="11" font-weight="700">翻车：侧面孔槽被压成窄缝</text>
+              </svg>
+              <svg class="anti-svg state-fix" viewBox="0 0 260 140" aria-hidden="true">
+                <rect width="260" height="140" fill="#133326"/>
+                <polygon points="130,24 184,54 130,84 76,54" fill="#A9B391" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="76,54 130,84 130,126 76,96" fill="#F55935" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="184,54 130,84 130,126 184,96" fill="#939E7B" stroke="#FCEAC9" stroke-width="1.5"/>
+                <text x="12" y="18" fill="#7FE0AD" font-size="11" font-weight="700">改法：等距三面均分 30° 视野</text>
+              </svg>
+            </div>
+            <h3>三面同等重要的工业件</h3>
+            <p class="anti-bad-txt">斜投影天然偏心正面，顶面和侧面都会被缩半压缩；如果侧面同样装满按钮、接口或复杂开槽，信息会挤糊在一起。</p>
+            <p class="anti-fix-txt">三面同样需要清晰展示时，换 <a href="https://layout.xiaoxiaodong.ai/075/play/" target="_blank" rel="noopener">075 等距构图</a> 或 <a href="https://layout.xiaoxiaodong.ai/076/play/" target="_blank" rel="noopener">076 轴测构图</a>，让三个面平分画面权重。</p>
+            <button type="button" class="flip-btn" data-flip-card aria-pressed="false">查看对口改法 →</button>
+          </article>
+
+          <article class="anti-card" data-state="bad">
+            <div class="anti-svg-wrap">
+              <svg class="anti-svg state-bad" viewBox="0 0 260 140" aria-hidden="true">
+                <rect width="260" height="140" fill="#133326"/>
+                <polygon points="22,126 74,126 74,80 22,80" fill="#F55935" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="22,80 74,80 218,34 166,34" fill="#A9B391" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="74,126 218,80 218,34 74,80" fill="#939E7B" stroke="#FCEAC9" stroke-width="1.5"/>
+                <text x="12" y="18" fill="#FF867C" font-size="11" font-weight="700">翻车：把长边当进深，拖成超长管子</text>
+              </svg>
+              <svg class="anti-svg state-fix" viewBox="0 0 260 140" aria-hidden="true">
+                <rect width="260" height="140" fill="#133326"/>
+                <polygon points="34,116 178,116 178,68 34,68" fill="#F55935" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="34,68 178,68 206,42 62,42" fill="#A9B391" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="178,116 206,90 206,42 178,68" fill="#939E7B" stroke="#FCEAC9" stroke-width="1.5"/>
+                <text x="12" y="18" fill="#7FE0AD" font-size="11" font-weight="700">改法：长面摆正面，短边做斜深</text>
+              </svg>
+            </div>
+            <h3>把最长边朝后硬拉进深</h3>
+            <p class="anti-bad-txt">斜向延展会放大视觉长度，如果把列车的车厢、长条展台等长边朝后推，哪怕用了 0.5× 橱柜缩深依然显得笨重拖沓。</p>
+            <p class="anti-fix-txt">制图经验口诀：永远把<strong>最复杂、最长的那面摆在正面</strong>，只让较短的厚度沿斜线向后退。</p>
+            <button type="button" class="flip-btn" data-flip-card aria-pressed="false">查看对口改法 →</button>
+          </article>
+
+          <article class="anti-card" data-state="bad">
+            <div class="anti-svg-wrap">
+              <svg class="anti-svg state-bad" viewBox="0 0 260 140" aria-hidden="true">
+                <rect width="260" height="140" fill="#133326"/>
+                <polygon points="30,116 86,116 86,62 30,62" fill="#F55935" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="30,62 86,62 114,38 58,38" fill="#A9B391" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="86,116 114,92 114,38 86,62" fill="#939E7B" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="168,116 224,116 224,62 168,62" fill="#F55935" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="168,62 224,62 196,38 140,38" fill="#A9B391" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="168,116 140,92 140,38 168,62" fill="#939E7B" stroke="#FCEAC9" stroke-width="1.5"/>
+                <text x="12" y="18" fill="#FF867C" font-size="11" font-weight="700">翻车：左右块各拉各的斜角，撞成一团</text>
+              </svg>
+              <svg class="anti-svg state-fix" viewBox="0 0 260 140" aria-hidden="true">
+                <rect width="260" height="140" fill="#133326"/>
+                <polygon points="30,116 86,116 86,62 30,62" fill="#F55935" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="30,62 86,62 112,38 56,38" fill="#A9B391" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="86,116 112,92 112,38 86,62" fill="#939E7B" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="146,116 202,116 202,62 146,62" fill="#F55935" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="146,62 202,62 228,38 172,38" fill="#A9B391" stroke="#FCEAC9" stroke-width="1.5"/>
+                <polygon points="202,116 228,92 228,38 202,62" fill="#939E7B" stroke="#FCEAC9" stroke-width="1.5"/>
+                <text x="12" y="18" fill="#7FE0AD" font-size="11" font-weight="700">改法：全页锁死同一平行向量，秩序立现</text>
+              </svg>
+            </div>
+            <h3>多元素各画各的斜向角</h3>
+            <p class="anti-bad-txt">斜投影的安定感完全寄托在「全场平行」上。只要左侧图标往右上斜、右侧卡片往左上斜，版面就会立刻撕成两套空间。</p>
+            <p class="anti-fix-txt">排整套海报或信息图前，先定死全页唯一一组 <code>(α, k)</code> 向量，所有体块无一例外共用同一斜率。</p>
+            <button type="button" class="flip-btn" data-flip-card aria-pressed="false">查看对口改法 →</button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07：单变量小练习 -->
+    <section class="sec sec-light" id="sec-07" aria-labelledby="s7">
+      <div class="wrap">
+        <header class="sec-head wide-head">
+          <p class="sec-no" lang="en">07</p>
+          <h2 id="s7">小练习：哪组方块才合规？</h2>
+          <p class="sec-en" lang="en">Practice · Spot the Valid Set</p>
+          <p class="lead">下面四张版面的三块朱红正面完全相同，只在斜向延展的深度线条上各差一个变量。凭眼睛先挑出最合规的一组，选完后会显出检验虚线。</p>
+        </header>
+
+        <div class="quiz-grid" role="group" aria-label="四组斜投影方案">
+          <button type="button" class="quiz-opt" data-quiz-opt="A" aria-pressed="false">
+            <span class="quiz-letter" lang="en">A</span>
+            <canvas class="quiz-canvas" aria-hidden="true"></canvas>
+          </button>
+          <button type="button" class="quiz-opt" data-quiz-opt="B" aria-pressed="false">
+            <span class="quiz-letter" lang="en">B</span>
+            <canvas class="quiz-canvas" aria-hidden="true"></canvas>
+          </button>
+          <button type="button" class="quiz-opt" data-quiz-opt="C" aria-pressed="false">
+            <span class="quiz-letter" lang="en">C</span>
+            <canvas class="quiz-canvas" aria-hidden="true"></canvas>
+          </button>
+          <button type="button" class="quiz-opt" data-quiz-opt="D" aria-pressed="false">
+            <span class="quiz-letter" lang="en">D</span>
+            <canvas class="quiz-canvas" aria-hidden="true"></canvas>
+          </button>
+        </div>
+
+        <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+          <h3 id="quiz-title">先凭直觉点选 A / B / C / D 中的一组。</h3>
+          <p id="quiz-body">选定后，四幅图会同时画出实测延长虚线，拆解每组斜向秩序是对是错。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08：原海报、快速记忆与关键词 -->
+    <section class="sec sec-cream sec-poster" id="sec-08" aria-labelledby="s8">
+      <div class="wrap poster-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">08</p>
+          <h2 id="s8">原海报与关键词</h2>
+          <p class="sec-en" lang="en">Original Poster &amp; Keywords</p>
+        </header>
+
+        <figure class="poster-frame">
+          <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="点击放大 074 斜投影构图原海报">
+            <img
+              id="poster"
+              src="poster.webp"
+              draggable="false"
+              width="1086"
+              height="1448"
+              alt="074 斜投影构图原海报：暖米纸底上倾斜的浓松绿标题「斜投影构图 OBLIQUE PROJECTION」配朱红锥箭与标语；中央是朱红正面、鼠尾草灰绿顶侧面的约 45° 斜投影方块，带白色十字虚线与红点引注；下方为结构表达、方向性、视觉效果三张细框圆徽卡，最底为要点总结与快速记忆链。"
+            >
+          </button>
+          <figcaption>点击海报放大细节，放大后可拖动查看，按 Esc 收起。</figcaption>
+        </figure>
+
+        <div class="poster-side">
+          <div class="quick-memory">
+            <h3>快速记忆 <span lang="en">QUICK MEMORY</span></h3>
+            <ol class="memory-chain">
+              <li><strong>正面真实</strong><span lang="en">FRONT FACE</span></li>
+              <li class="arrow" aria-hidden="true">→</li>
+              <li><strong>斜向延展</strong><span lang="en">SLANT / DEPTH</span></li>
+              <li class="arrow" aria-hidden="true">→</li>
+              <li><strong>空间成形</strong><span lang="en">SPACE FORMS</span></li>
+            </ol>
+          </div>
+
+          <div class="kw-panel">
+            <h3>要点总结 <span lang="en">KEY POINTS</span></h3>
+            <ul>
+              <li>正面保持真实，作为视觉基准。</li>
+              <li>深度沿斜线延展，方向一致。</li>
+              <li>强化结构与空间，提升画面表现力。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p class="foot-brand"><span lang="en" class="mono">NO. 074</span> 斜投影构图 · 350 种排版</p>
+    <p class="foot-links">
+      <a href="https://layout.xiaoxiaodong.ai/074/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱 -->
+<div class="lightbox" id="poster-modal" hidden role="dialog" aria-modal="true" aria-label="原海报大图预览">
+  <div class="lightbox-bar">
+    <span>074 · 斜投影构图 原海报</span>
+    <div class="lightbox-actions">
+      <button type="button" class="mini-btn" id="lightbox-zoom">放大细节</button>
+      <button type="button" class="mini-btn accent" id="lightbox-close">关闭 (Esc)</button>
+    </div>
+  </div>
+  <div class="lightbox-stage" id="lightbox-stage" data-zoomed="false">
+    <img id="lightbox-img" src="poster.webp" draggable="false" alt="斜投影构图原海报大图">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
