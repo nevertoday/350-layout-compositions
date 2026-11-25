@@ -6,7 +6,7 @@
 //   - 每提交 DEPLOY_EVERY 页、以及全部做完时，跑 tools/release.mjs 上线。
 // 记录：.build/batch/run.log（一行一件事），results.jsonl，每页作者的输出 <编号>-<第几次>.log。
 import { spawn, execFileSync } from "node:child_process";
-import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -141,13 +141,16 @@ function maybeRelease(force = false) {
 const hasConcept = (id) => { try { return !!JSON.parse(readFileSync(join(ROOT, "pages", pageDir(id), "page.json"), "utf8")).concept; } catch { return false; } };
 // 每个编号同一时间只有一个作者：.build/batch/lock/<编号>（开跑时清掉上一轮留下的）
 const LOCKS = join(OUT, "lock");
+const FOLLOWUP = join(OUT, "followup.txt"); // 审稿没审成就提交了的编号，下次开跑先补审
 async function page(id) {
   try { mkdirSync(join(LOCKS, id), { recursive: false }); } catch { return; }
   try { await makePage(id); } finally { rmSync(join(LOCKS, id), { recursive: true, force: true }); }
 }
 async function makePage(id) {
   const revisit = committed(id);
-  if (revisit && hasConcept(id)) return;
+  const followup = existsSync(FOLLOWUP) && readFileSync(FOLLOWUP, "utf8").split("\n").includes(id);
+  if (revisit && hasConcept(id) && !followup) return;
+  if (followup) writeFileSync(FOLLOWUP, readFileSync(FOLLOWUP, "utf8").split("\n").filter((x) => x && x !== id).map((x) => x + "\n").join(""));
   let retry = null, reviews = 0, flaky = 0, skipAuthor = revisit, lastPoints = [];
   // 上一轮批量被打断时做到一半的页：接着做，不从零开始
   if (!revisit && pageDir(id)) {
@@ -210,9 +213,15 @@ async function makePage(id) {
     if (reviews < REVIEWS && attempt <= ATTEMPTS) {
       reviews++;
       const { reviewArgs, verdict } = await import(`./review.mjs?${Date.now()}`);
-      const r = await run(CLAUDE, reviewArgs(id, { round: reviews, previous: lastPoints }), { ms: 20 * 60_000, file: join(OUT, `${id}-review-${reviews}.log`) });
-      const v = r.code === 0 ? verdict(r.out) : { pass: true, points: [], failed: true };
-      if (v.failed || v.unparsed) log(`${id} 审稿没出结果（${r.timedOut ? "超时" : `退出码 ${r.code}`}），当作放行`);
+      // 网络断、超时：隔 1、3、10 分钟再审；都不行才放行，并记进 followup.txt，下次开跑时补审
+      let r, v;
+      for (const wait of [0, 1, 3, 10]) {
+        if (wait) { log(`${id} 审稿没出结果（${r.timedOut ? "超时" : `退出码 ${r.code}`}），${wait} 分钟后再审`); await sleep(wait * 60_000); }
+        r = await run(CLAUDE, reviewArgs(id, { round: reviews, previous: lastPoints }), { ms: 20 * 60_000, file: join(OUT, `${id}-review-${reviews}.log`) });
+        v = r.code === 0 ? verdict(r.out) : { pass: true, points: [], failed: true };
+        if (!v.failed && !v.unparsed) break;
+      }
+      if (v.failed || v.unparsed) { log(`${id} ⚠ 审稿四次都没出结果，先放行，记进 followup.txt 等补审`); appendFileSync(FOLLOWUP, id + "\n"); }
       notes.push(...v.points.map((p) => `第 ${reviews} 轮：${p}`));
       lastPoints = v.points;
       if (!v.pass) {
