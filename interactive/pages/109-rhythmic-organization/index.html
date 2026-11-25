@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>109 节奏组织 · RHYTHMIC ORGANIZATION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="topbar-crumb">
+      <span class="topbar-dot" aria-hidden="true"></span>
+      <span>视觉原则与阅读模式 / 重复、图案与节奏</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-id" lang="en">NO. 109 · RHYTHMIC ORGANIZATION</span>
+      <span id="top-score" class="status-stamp" data-tone="error" aria-live="polite">0 / 4 · 待调律</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== 开场：全幅 16 拍斜轴活体视觉乐谱 ==================== -->
+  <section class="hero" aria-label="109 节奏组织互动开场">
+    <div class="wrap hero-wrap">
+      <!-- 开放无框刊头：左示范大标与总述 × 右斜杠四词实况带与扫拍开关 -->
+      <div class="hero-top">
+        <div class="hero-title-area">
+          <div class="hero-title-block">
+            <h1 id="hero-title" class="hero-h1" data-rhythm="flat">
+              <span class="t-ch">节</span><span class="t-ch">奏</span><span class="t-ch">组</span><span class="t-ch">织</span>
+            </h1>
+            <div class="hero-title-bars" aria-hidden="true">
+              <span data-title-bar="0"></span>
+              <span data-title-bar="1"></span>
+              <span data-title-bar="2"></span>
+              <span data-title-bar="3"></span>
+            </div>
+            <p class="hero-en" lang="en">RHYTHMIC ORGANIZATION</p>
+          </div>
+          <p class="hero-summary">节奏来源于有序的重复，以及间隔变化的控制。点击或上下拖动斜轴蓝柱雕刻重音，拉动底沿调速轨控制疏密。</p>
+        </div>
+
+        <div class="hero-meta-area">
+          <div class="pillars-strip" role="list" aria-label="原海报四项核心状态">
+            <div class="pillar-cell" role="listitem" data-pillar="interval" data-ok="false">
+              <div class="pillar-top">
+                <span class="pillar-zh">间隔</span>
+                <span class="pillar-en" lang="en">INTERVAL</span>
+              </div>
+              <span id="pillar-interval" class="pillar-val">等距 1.00×</span>
+            </div>
+            <div class="pillar-cell" role="listitem" data-pillar="accent" data-ok="false">
+              <div class="pillar-top">
+                <span class="pillar-zh">重音</span>
+                <span class="pillar-en" lang="en">ACCENT</span>
+              </div>
+              <span id="pillar-accent" class="pillar-val">0 处重音</span>
+            </div>
+            <div class="pillar-cell" role="listitem" data-pillar="tempo" data-ok="false">
+              <div class="pillar-top">
+                <span class="pillar-zh">速度</span>
+                <span class="pillar-en" lang="en">TEMPO</span>
+              </div>
+              <span id="pillar-tempo" class="pillar-val">平速 1.0×</span>
+            </div>
+            <div class="pillar-cell" role="listitem" data-pillar="continuity" data-ok="false">
+              <div class="pillar-top">
+                <span class="pillar-zh">连贯</span>
+                <span class="pillar-en" lang="en">CONTINUITY</span>
+              </div>
+              <span id="pillar-continuity" class="pillar-val">僵直无句</span>
+            </div>
+          </div>
+          <div class="hero-meta-actions">
+            <span class="hero-action-hint">16 拍 30° 斜轴脉冲乐谱 · 点击或拖柱雕拍</span>
+            <button id="btn-play" type="button" class="btn-dark is-active" aria-pressed="true">视线扫拍：开</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 中段：全幅无外框斜轴画布 + 底沿全宽间隔疏密调速轨 -->
+      <div class="hero-stage">
+        <div class="stage-canvas-wrap">
+          <canvas id="hero-canvas" tabindex="0" role="application" aria-label="16 拍斜轴节奏乐谱画布。点击柱子切换强弱，鼠标上下拖动直雕柱高，左右方向键选拍，上下方向键改强弱，空格启停扫拍。"></canvas>
+        </div>
+
+        <div class="rail-dock">
+          <div class="rail-head">
+            <div class="rail-label">间隔疏密调速轨 <span lang="en">INTERVAL TENSION · 经验参考 1.45×–3.15×</span></div>
+            <div id="tension-readout" class="rail-readout" data-state="warn">跨比 1.00× · 等距 1.00×</div>
+          </div>
+          <div
+            id="tension-rail"
+            class="rail-track"
+            data-perf-drag
+            data-state="warn"
+            role="slider"
+            tabindex="0"
+            aria-label="间隔疏密调速轨，向右拉开疏密对比，过右会拉出断层"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+          >
+            <div class="rail-sweet" aria-hidden="true"></div>
+            <div id="tension-fill" class="rail-fill" aria-hidden="true"></div>
+            <div id="tension-thumb" class="rail-thumb" aria-hidden="true">↔</div>
+          </div>
+          <div class="rail-ticks" aria-hidden="true">
+            <span>1.0× 死板等距</span>
+            <span>呼吸甜区 1.5×–3.1×</span>
+            <span>4.0×+ 断层粘连</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底段三栏：实测诊单 + 原海报双钴蓝框活体原理舱 -->
+      <div class="hero-deck" aria-label="节奏诊断与原海报双原理编排舱">
+        <div id="diag-box" class="diag-box" data-tone="error" aria-live="polite">
+          <div class="diag-top">
+            <span id="diag-badge" class="diag-badge">错态 · 等距平拍 (0 / 4)</span>
+            <span class="diag-note-tag">单源实测 · 经验参考</span>
+          </div>
+          <h2 id="diag-head" class="diag-head">16 拍齐平且间距 1.00× 等距，眼皮开始发钝</h2>
+          <p id="diag-body" class="diag-body">现在画面只有机械重复：每根柱高差几乎为零、相邻间距 1:1 锁死，视线以恒定速度平扫过去，既找不到该停下来的重音焦点，也没有快慢起伏。</p>
+          <p id="diag-hint" class="diag-hint">先向右拖动舞台底沿的「间隔疏密调速轨」拉开疏密（经验参考 1.45×–3.15×），再在画布上点击 3–4 根柱拔高成冰青/钴蓝重音。</p>
+          <div class="diag-metrics">
+            <div class="metric-item"><span class="metric-k">间隔跨比</span><span id="m-interval" class="metric-v">1.00×</span></div>
+            <div class="metric-item"><span class="metric-k">重音占比</span><span id="m-accent" class="metric-v">0 处 (0%)</span></div>
+            <div class="metric-item"><span class="metric-k">视线速度差</span><span id="m-tempo" class="metric-v">1.00×</span></div>
+            <div class="metric-item"><span class="metric-k">最大断距比</span><span id="m-break" class="metric-v">1.00×</span></div>
+          </div>
+        </div>
+
+        <div class="principle-frame">
+          <div class="pf-head">
+            <svg id="poster-icon-accent" class="pf-icon" viewBox="0 0 68 68" width="52" height="52" aria-hidden="true"></svg>
+            <div class="pf-titles">
+              <span class="pf-title">01 · 重音塑造层次</span>
+              <span class="pf-en" lang="en">ACCENT CREATES HIERARCHY</span>
+            </div>
+          </div>
+          <div class="stepper-row">
+            <button id="beat-prev" type="button" class="btn-dark" aria-label="选中上一拍">← 上一拍</button>
+            <span id="sel-beat-label" class="sel-label">拍 #04 · 中拍</span>
+            <button id="beat-next" type="button" class="btn-dark" aria-label="选中下一拍">下一拍 →</button>
+          </div>
+          <div class="btn-grid-4" role="group" aria-label="设置选中拍位强弱">
+            <button type="button" class="btn-dark" data-set-level="0" aria-pressed="false">休止</button>
+            <button type="button" class="btn-dark" data-set-level="1" aria-pressed="false">弱拍</button>
+            <button type="button" class="btn-dark is-active" data-set-level="2" aria-pressed="true">中拍</button>
+            <button type="button" class="btn-dark" data-set-level="3" aria-pressed="false">重音</button>
+          </div>
+          <div class="btn-grid-3" role="group" aria-label="批量起手强弱排布">
+            <button type="button" class="btn-dark btn-ghost" data-accent-pattern="even">全平无重</button>
+            <button type="button" class="btn-dark btn-ghost" data-accent-pattern="fourBeat">四拍强落</button>
+            <button type="button" class="btn-dark btn-ghost" data-accent-pattern="waltz">三拍轻扬</button>
+          </div>
+        </div>
+
+        <div class="principle-frame">
+          <div class="pf-head">
+            <svg id="poster-icon-interval" class="pf-icon" viewBox="0 0 68 68" width="52" height="52" aria-hidden="true"></svg>
+            <div class="pf-titles">
+              <span class="pf-title">02 · 间隔决定节奏速度</span>
+              <span class="pf-en" lang="en">INTERVAL DRIVES TEMPO</span>
+            </div>
+          </div>
+          <div class="btn-grid-4" role="group" aria-label="切换间隔波形">
+            <button type="button" class="btn-dark" data-curve="flat" aria-pressed="false">等距 1:1</button>
+            <button type="button" class="btn-dark is-active" data-curve="breath" aria-pressed="true">疏密呼吸</button>
+            <button type="button" class="btn-dark" data-curve="accel" aria-pressed="false">渐密推进</button>
+            <button type="button" class="btn-dark" data-curve="fractured" aria-pressed="false">断层撕裂</button>
+          </div>
+          <div class="btn-grid-4" role="group" aria-label="快速验证常见翻车错态">
+            <button type="button" class="btn-dark btn-warn-outline" data-tryout="shout">全员高呼</button>
+            <button type="button" class="btn-dark btn-warn-outline" data-tryout="fracture">间隔断层</button>
+            <button type="button" class="btn-dark btn-warn-outline" data-tryout="chaos">无序散乱</button>
+            <button type="button" class="btn-dark btn-ghost" data-tryout="flat">复原错态</button>
+          </div>
+          <p class="pf-foot">选好波形后，拉动调速轨即可验证「疏→密→断」边界。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01｜为什么平铺不是节奏 ==================== -->
+  <section class="band band-light" id="sec-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <h2 class="sec-h2">为什么平铺不是节奏</h2>
+        <span class="sec-en" lang="en">WHY EVENNESS IS NOT RHYTHM</span>
+      </div>
+      <div class="lead-grid">
+        <div class="prose">
+          <div class="quote-box">
+            <p class="quote-zh">「节奏来源于有序的重复，以及间隔变化的控制。」</p>
+            <p class="quote-en" lang="en">RHYTHM EMERGES FROM ORDERED REPETITION AND THE CONTROL OF INTERVAL VARIATIONS.</p>
+          </div>
+          <p>很多新手以为，只要把同一套卡片整齐码成一排，版面就有了节奏。其实那只是机械平铺——重复负责把零散元素拧成一家人（这是 <a class="inline-link" href="https://layout.xiaoxiaodong.ai/107/play/" target="_blank" rel="noopener">107 重复原则</a> 的主场；如果往二维平面做对称无缝平铺，则属于 <a class="inline-link" href="https://layout.xiaoxiaodong.ai/108/play/" target="_blank" rel="noopener">108 图案组织</a>）。</p>
+          <p>真正的节奏组织站在两个极端的中间：一边是「完全等高、完全等距」的催眠墙纸，大脑因为找不到轻重变化而迅速钝化；另一边是「高矮和缝隙毫无章法」的散乱杂讯，眼睛预测不到下一拍什么时候出现。只有把<strong>有序重复</strong>当底盘，再用<strong>受控的疏密与重音</strong>造出呼吸起伏，静置在纸面上的图形才会生出时间感。</p>
+        </div>
+
+        <div class="lab-card">
+          <div class="lab-toolbar">
+            <span>三态显影对照 · 上方折线为示意视线速度</span>
+            <div class="btn-row" role="group" aria-label="选择右侧对照模式">
+              <button type="button" class="btn-dark is-active" data-compare-mode="rhythm" aria-pressed="true">对照：节奏组织</button>
+              <button type="button" class="btn-dark" data-compare-mode="chaos" aria-pressed="false">对照：失序散乱</button>
+            </div>
+          </div>
+          <div class="compare-canvas-wrap">
+            <canvas id="compare-canvas" aria-label="左为机械均分、右为节奏组织或失序散乱的对照画布"></canvas>
+          </div>
+          <div class="lab-range-row">
+            <label for="compare-split">显影拉幕</label>
+            <input id="compare-split" type="range" min="10" max="90" value="50">
+            <span id="compare-split-val" lang="en">50%</span>
+          </div>
+          <p id="compare-caption" class="lab-caption">节奏组织 · 重复 + 疏密重音 — 窄缝区视线轻快滑过、遇冰青重音与宽缝主动减速停顿，速度曲线出现规律起伏（示意）。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02｜间隔决定节奏速度 ==================== -->
+  <section class="band band-dark" id="sec-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <h2 class="sec-h2">间隔决定节奏速度</h2>
+        <span class="sec-en" lang="en">INTERVAL DRIVES TEMPO</span>
+      </div>
+      <div class="lead-grid">
+        <div class="prose">
+          <div class="quote-box">
+            <p class="quote-zh">「间隔的疏密变化控制视觉节奏，引导视线的流动与停顿。」</p>
+            <p class="quote-en" lang="en">INTERVAL DRIVES TEMPO · CHANGES IN INTERVALS CONTROL THE PACE OF RHYTHM.</p>
+          </div>
+          <p>在音乐里，音符之间的休止决定了乐句怎么断气；在平面和网页里，元素之间的空隙就是视觉休止符。按照 1923 年韦特海默提出的格式塔邻近律，靠得近的模块会自动粘成一口气读完的短句（<strong>密 = 急促加速</strong>），拉宽空隙则会迫使目光慢下来换气（<strong>疏 = 停顿分句</strong>）。</p>
+          <p>原海报左下角写了一句极凝练的口诀——<strong>「疏 → 密 → 疏 → 强」</strong>。但留白也有安全红线：一旦某处空隙远超常规呼吸带，邻近律就会彻底崩断，读者会把同一组内容误读成两个毫不相干的板块。如果希望间距沿单一方向连续过渡或阶梯递增，可以另看 <a class="inline-link" href="https://layout.xiaoxiaodong.ai/110/play/" target="_blank" rel="noopener">110 渐变组织</a> 与 <a class="inline-link" href="https://layout.xiaoxiaodong.ai/112/play/" target="_blank" rel="noopener">112 渐进节奏组织</a>。</p>
+        </div>
+
+        <div class="gap-board-box">
+          <div class="lab-toolbar gap-toolbar">
+            <span>直接点击拍位之间的 8 枚间隔铰链（窄 22 / 中 36 / 宽 60 / 断 108px）</span>
+            <div class="btn-row" role="group" aria-label="快捷切换间距切句样式">
+              <button type="button" class="btn-dark btn-ghost" data-gap-preset="even">全中缝</button>
+              <button type="button" class="btn-dark is-active" data-gap-preset="breath">疏密呼吸</button>
+              <button type="button" class="btn-dark btn-ghost" data-gap-preset="accel">由疏入密</button>
+              <button type="button" class="btn-dark btn-warn-outline" data-gap-preset="broken">拉出断层</button>
+            </div>
+          </div>
+          <div class="gap-board-scroll">
+            <div id="gap-board" class="gap-board" role="group" aria-label="9 拍间隔切句实验板"></div>
+          </div>
+          <div class="gap-stats">
+            <span>当前视觉分句：<strong id="gap-pattern" class="gap-stat-pill">3 + 2 + 4</strong></span>
+            <span>实测最宽/最窄比：<strong id="gap-ratio" class="gap-stat-pill">2.7×</strong></span>
+          </div>
+          <p id="gap-verdict" class="gap-verdict" data-tone="ok">窄缝（22px）连读 + 2 处宽缝（60px）换气，9 拍自然切分成「3 + 2 + 4」的清晰乐句（实测跨比 2.7×，落入呼吸甜区），流动与停顿并存。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03｜重音塑造阅读层次 ==================== -->
+  <section class="band band-mist" id="sec-03">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <h2 class="sec-h2">重音塑造阅读层次</h2>
+        <span class="sec-en" lang="en">ACCENT CREATES HIERARCHY</span>
+      </div>
+      <div class="lead-grid">
+        <div class="prose">
+          <div class="quote-box">
+            <p class="quote-zh">「通过对比大小、粗细与间距，强化视觉重点，形成节奏起伏。」</p>
+            <p class="quote-en" lang="en">ACCENT CREATES HIERARCHY · USE CONTRAST IN SIZE, WEIGHT, AND SPACING.</p>
+          </div>
+          <p>仅有疏密而没有重音，视线虽然会忽快忽慢，却不知道该把精力停在哪个核心信息上。在视觉排版里，重音不必每次都靠把字号放大三倍——你可以选择<strong>高度体量</strong>、<strong>粗细字重</strong>、<strong>高亮冰青色</strong>，甚至仅仅靠<strong>两侧留白孤立</strong>来托出一个强拍。</p>
+          <p>更重要的是守住<strong>重音预算</strong>（经验参考：强拍通常占总单元的 15%–35%）。只要版面上超过一半的模块都在加粗、放大或高饱和发光，重音就会通货膨胀，全员高呼的结果是大家重新归于平庸。若想专门练习两种视觉状态一强一弱来回切换，请看 <a class="inline-link" href="https://layout.xiaoxiaodong.ai/111/play/" target="_blank" rel="noopener">111 交替节奏组织</a>。</p>
+        </div>
+
+        <div class="accent-lab">
+          <div class="accent-controls">
+            <div class="ctrl-cluster">
+              <span class="ctrl-label">1. 选择重音表达通道</span>
+              <div class="btn-row accent-ch-row" role="group" aria-label="选择重音视觉通道">
+                <button type="button" class="btn-light is-active" data-accent-channel="size" aria-pressed="true">高度体量</button>
+                <button type="button" class="btn-light" data-accent-channel="weight" aria-pressed="false">粗细字重</button>
+                <button type="button" class="btn-light" data-accent-channel="color" aria-pressed="false">高亮冰青</button>
+                <button type="button" class="btn-light" data-accent-channel="space" aria-pressed="false">留白孤立</button>
+              </div>
+            </div>
+            <div class="ctrl-cluster">
+              <span class="ctrl-label">2. 设定 12 拍里的重音个数</span>
+              <div class="btn-row accent-cnt-row" role="group" aria-label="设定重音数量">
+                <button type="button" class="btn-light" data-accent-count="0" aria-pressed="false">0 个</button>
+                <button type="button" class="btn-light" data-accent-count="2" aria-pressed="false">2 个</button>
+                <button type="button" class="btn-light is-active" data-accent-count="3" aria-pressed="true">3 个</button>
+                <button type="button" class="btn-light" data-accent-count="6" aria-pressed="false">6 个</button>
+                <button type="button" class="btn-light" data-accent-count="10" aria-pressed="false">10 个</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="accent-track" class="accent-stage" data-channel="size" aria-label="12 拍重音通道与占比演示带"></div>
+
+          <div class="accent-readout">
+            <span id="accent-status" class="accent-status" data-tone="ok">25% · 清晰层次（经验甜区）</span>
+            <p id="accent-headline" class="accent-headline">3 处重音被 9 处静拍稳稳托起</p>
+            <p id="accent-detail" class="accent-detail">少数重点与多数底拍拉开鲜明反差，眼睛自动先读强点、再扫弱拍，节奏张弛有度。</p>
+            <p id="accent-channel-desc" class="accent-ch-desc">像 109 原海报一样把重音柱拉高 2×，最直观、无需依赖色觉。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04｜节奏组织从哪来 ==================== -->
+  <section class="band band-light" id="sec-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <h2 class="sec-h2">节奏组织从哪来</h2>
+        <span class="sec-en" lang="en">WHERE IT COMES FROM</span>
+      </div>
+      <div class="history-grid">
+        <div>
+          <div class="era-tabs" role="tablist" aria-label="视觉节奏理论发展年代">
+            <button type="button" role="tab" class="btn-light is-active" data-era="1894" aria-selected="true">1894 博尔顿</button>
+            <button type="button" role="tab" class="btn-light" data-era="1923" aria-selected="false">1923 韦特海默</button>
+            <button type="button" role="tab" class="btn-light" data-era="1925" aria-selected="false">1925–1930 克利</button>
+            <button type="button" role="tab" class="btn-light" data-era="1944" aria-selected="false">1944 凯佩什</button>
+            <button type="button" role="tab" class="btn-light" data-era="1967" aria-selected="false">1967 鲁德</button>
+            <button type="button" role="tab" class="btn-light" data-era="1992" aria-selected="false">1992 布林赫斯特</button>
+          </div>
+
+          <article class="era-panel" data-era-panel="1894">
+            <p class="era-year">1894 · 实验心理学 · 主观节拍化</p>
+            <h3 class="era-title">博尔顿发现：大脑天生拒绝平淡无奇的等距流</h3>
+            <p>心理学家 Thaddeus L. Bolton 在 1894 年发表长达 94 页的论文《Rhythm》，让受试者聆听节拍器发出的完全等强、等距单调声响。实验发现，人类几乎无法长期将其感知为平直序列，大脑会自发给它们强行加上「强-弱」或「强-弱-弱」的主观分组，而且分组大小直接受脉冲间隔快慢支配。</p>
+            <p class="era-source">出处：Thaddeus L. Bolton, "Rhythm", The American Journal of Psychology, Vol. 6, No. 2 (1894), pp. 145–238。</p>
+          </article>
+
+          <article class="era-panel" data-era-panel="1923" hidden>
+            <p class="era-year">1923 · 格式塔心理学 · 邻近律与相似律</p>
+            <h3 class="era-title">韦特海默解释了：为什么改一个间距就能切分乐句</h3>
+            <p>Max Wertheimer 在 1923 年发表《Untersuchungen zur Lehre von der Gestalt II》，用点阵图直接证明：视觉元素无需画任何边框，单靠「距离更近（邻近律）」和「形态相近（相似律）」就会自动编组成群。这也正是平面设计能靠间隔疏密制造停顿与断句的感知基础。</p>
+            <p class="era-source">出处：Max Wertheimer, Psychologische Forschung, Vol. 4 (1923), pp. 301–350。</p>
+          </article>
+
+          <article class="era-panel" data-era-panel="1925" hidden>
+            <p class="era-year">1925 &amp; 1930 · 包豪斯教学与画作 · 视觉乐谱</p>
+            <h3 class="era-title">保罗·克利把音乐节拍与切分搬进了几何网格</h3>
+            <p>身兼小提琴手的包豪斯导师 Paul Klee 在 1925 年《教学草图册》（Pädagogisches Skizzenbuch，包豪斯丛书第 2 卷）里反复用节拍条纹分析结构重复与个体变化；1930 年他在麻布油画《Rhythmisches》（现藏巴黎蓬皮杜艺术中心，编号 AM 1984-356）中，把规则的三拍黑-灰-白方格从第 4 行起刻意切分错拍，示范了「有序重复加上受控破拍」如何让静态棋盘活起来。</p>
+            <p class="era-source">出处：Paul Klee, Pädagogisches Skizzenbuch (1925); Rhythmisches (1930), Centre Pompidou AM 1984-356。</p>
+          </article>
+
+          <article class="era-panel" data-era-panel="1944" hidden>
+            <p class="era-year">1944 · 新包豪斯 · 视觉语言体系化</p>
+            <h3 class="era-title">凯佩什将「重复与间隔变化」确立为现代视觉组织力</h3>
+            <p>曾在芝加哥新包豪斯执教的 György Kepes 在 1944 年出版《Language of Vision》，将格式塔知觉理论与现代平面实践打通。他在「造型组织」一节指出，重复建立统一骨架，而对重复单元间隔与强弱的调节，能让静态平面产生时间流逝与视觉动势。</p>
+            <p class="era-source">出处：György Kepes, Language of Vision, Paul Theobald, Chicago, 1944。</p>
+          </article>
+
+          <article class="era-panel" data-era-panel="1967" hidden>
+            <p class="era-year">1967 · 瑞士国际主义排版 · 文字的黑白节拍</p>
+            <h3 class="era-title">埃米尔·鲁德：排版节奏藏在黑字竖画与白缝之间</h3>
+            <p>巴塞尔设计学院核心导师 Emil Ruder 在 1967 年出版经典教材《Typographie》，专章讨论排版中的「节奏」。他提出，哪怕是一段纯文字，黑笔画与白字怀的规律交替本身就是一种视觉音乐；字号阶梯、行距、留白与非对称停顿，共同决定读者眼神在页面上行进的快慢。</p>
+            <p class="era-source">出处：Emil Ruder, Typographie: Ein Gestaltungslehrbuch, Verlag Arthur Niggli, 1967。</p>
+          </article>
+
+          <article class="era-panel" data-era-panel="1992" hidden>
+            <p class="era-year">1992 · 当代书籍版式 · 横向与纵向双节奏</p>
+            <h3 class="era-title">布林赫斯特把版面节奏拆成「横行速度」与「纵列基线」</h3>
+            <p>加拿大排版家 Robert Bringhurst 在 1992 年首版的《The Elements of Typographic Style》第二章「Rhythm &amp; Proportion」中，把版面节奏拆解为横向运动（字距、词距与行长速度）和纵向运动（行距与基线网格步频），强调好的阅读节奏应该像平稳呼吸，而不是杂技表演。</p>
+            <p class="era-source">出处：Robert Bringhurst, The Elements of Typographic Style, Hartley &amp; Marks, 1992, Ch. 2。</p>
+          </article>
+        </div>
+
+        <aside class="klee-card" aria-label="Paul Klee 1930 Rhythmisches 切分示意">
+          <div class="klee-head">
+            <h3>克利 1930《Rhythmisches》破拍示意</h3>
+            <span class="klee-meta" lang="en">3-BEAT SYNCOPATION</span>
+          </div>
+          <div id="klee-grid" class="klee-grid" aria-label="三拍棋盘与第四行切分破拍对比图"></div>
+          <button id="klee-syncopate" type="button" class="btn-light" aria-pressed="true">切回「死板纯三拍棋盘」</button>
+          <p id="klee-note" class="klee-note">当前：切分破拍（自第 4 行起打破固定黑-灰-白三拍与等宽格，画面瞬间有了乐句推进）。</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05｜放进真实版面怎么用 ==================== -->
+  <section class="band band-dark" id="sec-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <h2 class="sec-h2">放进真实版面怎么用</h2>
+        <span class="sec-en" lang="en">IN REAL EDITORIAL LAYOUT</span>
+      </div>
+      <div class="prose sand-intro">
+        <p>抽象的蓝色竖柱怎么落回日常设计？把柱高换成<strong>标题层级与色块重量</strong>，把柱距换成<strong>段间距与栏目留白</strong>，109 原海报的结构就是一份现成的编辑排版乐谱。切换下方真实版面与节奏透视层，观察每条内容与其旁侧蓝色骨架条的逐行对应。</p>
+      </div>
+
+      <div class="sand-controls">
+        <div class="btn-row" role="group" aria-label="切换真实排版题材">
+          <button type="button" class="btn-dark is-active" data-sand-topic="magazine" aria-pressed="true">杂志专题目录</button>
+          <button type="button" class="btn-dark" data-sand-topic="feed" aria-pressed="false">信息流卡片列表</button>
+        </div>
+        <div class="btn-row" role="group" aria-label="切换版面节奏排布">
+          <button type="button" class="btn-dark" data-sand-pace="flat" aria-pressed="false">无节奏平铺</button>
+          <button type="button" class="btn-dark is-active" data-sand-pace="rhythm" aria-pressed="true">疏密重音排布</button>
+          <button type="button" class="btn-dark" data-sand-pace="noisy" aria-pressed="false">过度炫技失控</button>
+        </div>
+        <button id="sand-xray" type="button" class="btn-dark is-active" aria-pressed="true">节奏骨架透视：开</button>
+      </div>
+
+      <div id="layout-sandbox" class="sand-stage" data-topic="magazine" data-pace="rhythm" data-xray="on">
+        <div class="sand-head-row" aria-hidden="true">
+          <span>真实排版纸面</span>
+          <span class="sand-xray-head">逐行脉冲骨架</span>
+        </div>
+
+        <div class="sand-view-mag sand-items">
+          <div class="sand-row">
+            <div class="sand-item"><span class="sand-item-meta">P.04 · 卷首短札</span>城市声景里的慢拍与急拍</div>
+            <div class="sand-xray-cell" aria-hidden="true"><span class="xray-bar"></span></div>
+          </div>
+          <div class="sand-row">
+            <div class="sand-item"><span class="sand-item-meta">P.10 · 字体观察</span>铅字排工如何用手感控制词距</div>
+            <div class="sand-xray-cell" aria-hidden="true"><span class="xray-bar"></span></div>
+          </div>
+          <div class="sand-row is-peak">
+            <div class="sand-item"><span class="sand-item-meta">P.18 · 本期重磅专题</span>建筑立面里的光影节拍：从柱廊到幕墙</div>
+            <div class="sand-xray-cell" aria-hidden="true"><span class="xray-bar"></span></div>
+          </div>
+          <div class="sand-row is-breath">
+            <div class="sand-item"><span class="sand-item-meta">P.42 · 工具评述</span>三款经典机械节拍器结构拆解</div>
+            <div class="sand-xray-cell" aria-hidden="true"><span class="xray-bar"></span></div>
+          </div>
+          <div class="sand-row">
+            <div class="sand-item"><span class="sand-item-meta">P.54 · 书架笔记</span>重读鲁德《Typographie》里的留白练习</div>
+            <div class="sand-xray-cell" aria-hidden="true"><span class="xray-bar"></span></div>
+          </div>
+          <div class="sand-row is-peak">
+            <div class="sand-item"><span class="sand-item-meta">P.68 · 人物长访</span>把四小时演出折成一张海报的视觉逻辑</div>
+            <div class="sand-xray-cell" aria-hidden="true"><span class="xray-bar"></span></div>
+          </div>
+        </div>
+
+        <div class="sand-view-feed sand-items">
+          <div class="sand-row">
+            <div class="sand-item"><span class="sand-item-meta">09:10 · 常规更新</span>设计系统字号表已同步至 v2.4 规范库</div>
+            <div class="sand-xray-cell" aria-hidden="true"><span class="xray-bar"></span></div>
+          </div>
+          <div class="sand-row">
+            <div class="sand-item"><span class="sand-item-meta">09:24 · 常规更新</span>导出 PNG 脚本新增 2× 清晰度开关</div>
+            <div class="sand-xray-cell" aria-hidden="true"><span class="xray-bar"></span></div>
+          </div>
+          <div class="sand-row is-peak">
+            <div class="sand-item"><span class="sand-item-meta">10:00 · 关键里程碑</span>首页信息架构定稿：移动端首屏留白压缩 18%</div>
+            <div class="sand-xray-cell" aria-hidden="true"><span class="xray-bar"></span></div>
+          </div>
+          <div class="sand-row is-breath">
+            <div class="sand-item"><span class="sand-item-meta">11:15 · 日常记录</span>深色模式下卡片边框对比度微调备忘</div>
+            <div class="sand-xray-cell" aria-hidden="true"><span class="xray-bar"></span></div>
+          </div>
+          <div class="sand-row">
+            <div class="sand-item"><span class="sand-item-meta">11:40 · 日常记录</span>归档上一期专题切图与字体授权清单</div>
+            <div class="sand-xray-cell" aria-hidden="true"><span class="xray-bar"></span></div>
+          </div>
+          <div class="sand-row is-peak">
+            <div class="sand-item"><span class="sand-item-meta">14:30 · 待拍板事项</span>秋季发布页主视觉候选二选一评审</div>
+            <div class="sand-xray-cell" aria-hidden="true"><span class="xray-bar"></span></div>
+          </div>
+        </div>
+
+        <p id="sand-note" class="sand-note">疏密重音排布：用顶部大留白起势（疏）→ 同类短目紧凑连读（密）→ 章节换气空（疏）→ 主专题加粗提亮（强），原海报骨架直接落地。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06｜什么时候别强求节奏 ==================== -->
+  <section class="band band-mist" id="sec-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <h2 class="sec-h2">什么时候别强求节奏</h2>
+        <span class="sec-en" lang="en">WHEN NOT TO FORCE RHYTHM</span>
+      </div>
+
+      <div class="nuance-banner">
+        <span class="nuance-tag">前提要补一句</span>
+        <p>原海报说「间隔的疏密变化控制视觉节奏」，这话放在宏观版面和展示设计里很准，但容易被初学者误解成「页面里所有缝隙都要变来变去」。实际上，<strong>长正文段落内部的行距字距、金融核对表的列宽与行高，靠的是恒定稳态</strong>；疏密变化属于「段落之间、板块之间、主次之间」的大节奏，不要在细密阅读的字缝里乱抖。</p>
+      </div>
+
+      <div class="avoid-grid" role="group" aria-label="选择不适合强加疏密起伏的场景">
+        <button type="button" class="avoid-btn is-active" data-avoid-id="table" aria-pressed="true">
+          <span class="avoid-num">场景 01</span>
+          <span class="avoid-name">数据与财务核对表</span>
+        </button>
+        <button type="button" class="avoid-btn" data-avoid-id="prose" aria-pressed="false">
+          <span class="avoid-num">场景 02</span>
+          <span class="avoid-name">沉浸式长正文段内</span>
+        </button>
+        <button type="button" class="avoid-btn" data-avoid-id="alert" aria-pressed="false">
+          <span class="avoid-num">场景 03</span>
+          <span class="avoid-name">紧急告警与确认框</span>
+        </button>
+        <button type="button" class="avoid-btn" data-avoid-id="minimal" aria-pressed="false">
+          <span class="avoid-num">场景 04</span>
+          <span class="avoid-name">少于三元的极简封面</span>
+        </button>
+      </div>
+
+      <div id="avoid-preview" class="avoid-compare" data-scenario="table">
+        <div class="avoid-col is-bad">
+          <p class="avoid-col-tag">硬套疏密起伏的后果 · <span id="avoid-title">财务与参数核对表</span></p>
+          <div id="avoid-vis-bad" class="avoid-vis" aria-hidden="true"></div>
+          <p id="avoid-bad">为了「有节奏」故意拉宽几行、放大某几格字号，结果上下列小数点错位，核对效率暴跌。</p>
+        </div>
+        <div class="avoid-col is-good">
+          <p class="avoid-col-tag">更妥当的做法</p>
+          <div id="avoid-vis-good" class="avoid-vis" aria-hidden="true"></div>
+          <p id="avoid-good">行高与列距严格统一，只在表头与合计行做一次克制分隔——稳态秩序本身就是可读性。</p>
+        </div>
+      </div>
+
+      <div class="siblings-box">
+        <h3 class="siblings-title">同小类其他 7 页（各讲一个侧重点，点开直达在线互动版）</h3>
+        <ul class="siblings-list">
+          <li><a class="inline-link" href="https://layout.xiaoxiaodong.ai/107/play/" target="_blank" rel="noopener">107 重复原则</a>：先靠统一母题建立秩序与记忆点，为节奏搭好底盘。</li>
+          <li><a class="inline-link" href="https://layout.xiaoxiaodong.ai/108/play/" target="_blank" rel="noopener">108 图案组织</a>：把基础母砖按对称规则铺向二维平面，形成连续纹理。</li>
+          <li><a class="inline-link" href="https://layout.xiaoxiaodong.ai/110/play/" target="_blank" rel="noopener">110 渐变组织</a>：专注大小、色相或疏密沿单一轴线的平滑连续过渡。</li>
+          <li><a class="inline-link" href="https://layout.xiaoxiaodong.ai/111/play/" target="_blank" rel="noopener">111 交替节奏组织</a>：专讲 A-B-A-B 两种形态或强弱状态之间的往复切换。</li>
+          <li><a class="inline-link" href="https://layout.xiaoxiaodong.ai/112/play/" target="_blank" rel="noopener">112 渐进节奏组织</a>：专讲按等比或阶梯递增/递减推动视线的持续加速感。</li>
+          <li><a class="inline-link" href="https://layout.xiaoxiaodong.ai/113/play/" target="_blank" rel="noopener">113 流动节奏组织</a>：专讲借曲线、波纹与斜势牵引连绵不断的动态视流。</li>
+          <li><a class="inline-link" href="https://layout.xiaoxiaodong.ai/114/play/" target="_blank" rel="noopener">114 随机节奏组织</a>：专讲在可控视觉边界内制造不可预测的有机跳跃感。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07｜小练习：哪条节奏立得住 ==================== -->
+  <section class="band band-light" id="sec-07">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <h2 class="sec-h2">练一练：哪条节奏立得住</h2>
+        <span class="sec-en" lang="en">SPOT THE RHYTHM</span>
+      </div>
+      <p class="quiz-prompt">下面四条 12 拍蓝青序列使用完全相同的画幅、底色与基础柱宽，每次只改动一项节奏变量。哪一条同时成立了「间隔变化」「重音层次」与「连贯不断层」？点击你的判断：</p>
+
+      <div id="quiz-grid" class="quiz-grid" role="group" aria-label="四选一节奏辨析选项"></div>
+      <div id="quiz-result" class="quiz-result" hidden aria-live="polite"></div>
+      <div class="quiz-actions">
+        <button id="quiz-reset" type="button" class="btn-light" hidden>重新作答</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 08｜原海报与视觉词典 ==================== -->
+  <section class="band band-obsidian" id="sec-08">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">08</span>
+        <h2 class="sec-h2">原海报与视觉词典</h2>
+        <span class="sec-en" lang="en">ORIGINAL POSTER · NO. 109</span>
+      </div>
+      <div class="poster-grid">
+        <div class="poster-frame">
+          <img id="poster" src="poster.webp" width="1086" height="1448" alt="109 节奏组织原海报：曜黑底色上斜向攀升的电光钴蓝与冰青竖柱及圆点序列，右下配重音塑造层次与间隔决定节奏速度双蓝框图示">
+          <div class="poster-open-row">
+            <span class="poster-open-tip">点击海报放大细看（支持滚拖与 Esc 关闭）</span>
+            <button id="poster-open" type="button" class="btn-dark">放大查看</button>
+          </div>
+        </div>
+
+        <div class="poster-meta">
+          <div class="quote-box">
+            <p class="quote-zh">节奏来源于有序的重复，以及间隔变化的控制。</p>
+            <p class="quote-en" lang="en">RHYTHM EMERGES FROM ORDERED REPETITION AND THE CONTROL OF INTERVAL VARIATIONS.</p>
+          </div>
+
+          <div class="kw-grid">
+            <div class="kw-card">
+              <div><span class="kw-zh">间隔</span><span class="kw-en" lang="en">INTERVAL</span></div>
+              <p class="kw-desc">元素之间空隙的宽窄控制——密处连读、疏处换气，不拉出断层。</p>
+            </div>
+            <div class="kw-card">
+              <div><span class="kw-zh">重音</span><span class="kw-en" lang="en">ACCENT</span></div>
+              <p class="kw-desc">借体量、字重、色光或留白把少数关键拍托离底盘，建立视觉高点。</p>
+            </div>
+            <div class="kw-card">
+              <div><span class="kw-zh">速度</span><span class="kw-en" lang="en">TEMPO</span></div>
+              <p class="kw-desc">由间隔疏密与重音驻留共同决定的阅读快慢，让静止页面有了流动感。</p>
+            </div>
+            <div class="kw-card">
+              <div><span class="kw-zh">连贯</span><span class="kw-en" lang="en">CONTINUITY</span></div>
+              <p class="kw-desc">无论怎么变化，各小节仍被重复底盘与格式塔邻近律牵成一条完整乐句。</p>
+            </div>
+          </div>
+
+          <div class="poster-points">
+            <div class="poster-point-card">
+              <h3>重音塑造层次</h3>
+              <p>通过对比大小、粗细与间距，强化视觉重点，形成节奏起伏。</p>
+              <p class="poster-point-en" lang="en">ACCENT CREATES HIERARCHY — USE CONTRAST IN SIZE, WEIGHT, AND SPACING TO ESTABLISH FOCAL POINTS AND RHYTHMIC DYNAMICS.</p>
+            </div>
+            <div class="poster-point-card">
+              <h3>间隔决定节奏速度</h3>
+              <p>间隔的疏密变化控制视觉节奏，引导视线的流动与停顿。</p>
+              <p class="poster-point-en" lang="en">INTERVAL DRIVES TEMPO — CHANGES IN INTERVALS CONTROL THE PACE OF RHYTHM, GUIDING THE FLOW AND PAUSE OF VIEWER'S ATTENTION.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p class="footer-line">
+      <span><a href="https://layout.xiaoxiaodong.ai/109/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a></span>
+      <span aria-hidden="true">·</span>
+      <span>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a></span>
+      <span aria-hidden="true">·</span>
+      <span>源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></span>
+    </p>
+  </div>
+</footer>
+
+<dialog id="zoom" class="zoom-dialog" aria-label="109 节奏组织原海报放大查看">
+  <div class="zoom-bar">
+    <span class="zoom-title">109 · 节奏组织原海报</span>
+    <div class="zoom-controls">
+      <button id="zoom-out" type="button" class="btn-dark" aria-label="缩小">−</button>
+      <span id="zoom-level" lang="en">100%</span>
+      <button id="zoom-in" type="button" class="btn-dark" aria-label="放大">+</button>
+      <button id="zoom-close" type="button" class="btn-dark">关闭</button>
+    </div>
+  </div>
+  <div id="zoom-view">
+    <img id="zoom-img" alt="109 节奏组织原海报大图" draggable="false">
+  </div>
+</dialog>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
