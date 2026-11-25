@@ -17,7 +17,9 @@ mkdirSync(OUT, { recursive: true });
 
 const MODEL = process.env.MODEL || "gemini-4-neon-xhigh";
 const WORKERS = Number(process.env.WORKERS || 4);
-const ATTEMPTS = 3;
+const ATTEMPTS = 4;
+const REVIEWS = 2;
+const CLAUDE = "/opt/homebrew/bin/claude";
 const AUTHOR_MS = 90 * 60_000;
 const DEPLOY_EVERY = Number(process.env.DEPLOY_EVERY || 20);
 const AGY = "/Users/admin/.local/bin/agy";
@@ -48,7 +50,9 @@ async function prompt(id, retry) {
     t.summary ? `海报上的总述：${t.summary.replace(/\s+/g, " ")}` : "",
     peers ? `同一小类的其他编号（各有一页，不要重讲它们的重点；提到时一句话链接到 https://layout.xiaoxiaodong.ai/<编号>/play/）：${peers}。` : "",
     context(id),
-    retry ? `\n这一页上次没有做完：${retry.reason}。pages/${pageDir(id) ?? `${id}-*`}/ 里是上次留下的东西，先看懂再接着做完，不要从零重写能用的部分。上次检查输出的最后几行：\n${retry.tail}` : "",
+    retry?.review
+      ? `\n这一页已经做出来了，在 pages/${pageDir(id)}/。${retry.reason}，下面是主编的意见。逐条改好（改不了的在报告里说明为什么），不要从零重写；改完照 BRIEF 的「做完的标准」重新 build、check、看截图、跑交互脚本和 perf：\n${retry.tail}`
+      : retry ? `\n这一页上次没有做完：${retry.reason}。pages/${pageDir(id) ?? `${id}-*`}/ 里是上次留下的东西，先看懂再接着做完，不要从零重写能用的部分。上次检查输出的最后几行：\n${retry.tail}` : "",
     `做完写报告，最后一行写「完成」。`,
   ].filter(Boolean).join("\n");
 }
@@ -127,52 +131,86 @@ function maybeRelease(force = false) {
 }
 
 // ---------- 一页 ----------
+// 一页的流程：作者做 → 自己 build / check / gate → 过了就请 Claude 审稿（最多 REVIEWS 轮）→ 不好就把意见交回作者改。
+// 作者最多跑 ATTEMPTS 次；两轮审稿后的修改不再审，只要 build / check / gate 过了就提交。
+// 新规矩（page.json 有 concept）之前提交的页：不重做，先过 gate 和审稿，不好再交给作者改。
+const hasConcept = (id) => { try { return !!JSON.parse(readFileSync(join(ROOT, "pages", pageDir(id), "page.json"), "utf8")).concept; } catch { return false; } };
 async function page(id) {
-  if (committed(id)) return;
-  let retry = null;
-  for (let attempt = 1, flaky = 0; attempt <= ATTEMPTS; ) {
+  const revisit = committed(id);
+  if (revisit && hasConcept(id)) return;
+  let retry = null, reviews = 0, flaky = 0, skipAuthor = revisit;
+  const notes = [];
+  if (revisit) log(`${id} 回头查（新规矩之前提交的）`);
+  for (let attempt = 1; attempt <= ATTEMPTS; ) {
     if (stopped()) return;
     await roomToRun();
     const started = Date.now();
     const file = join(OUT, `${id}-${attempt}.log`);
-    log(`${id} 开始（第 ${attempt} 次）`);
-    const a = await run(AGY, ["-p", await prompt(id, retry), "--model", MODEL, "--dangerously-skip-permissions", "--disable-slash-commands"], { ms: AUTHOR_MS, file });
+    let a = { out: existsSync(join(OUT, `${id}-1.log`)) ? readFileSync(join(OUT, `${id}-1.log`), "utf8") : "", timedOut: false, code: 0 };
+    if (!skipAuthor) {
+    log(`${id} 开始（第 ${attempt} 次${retry?.review ? "，按审稿意见改" : ""}）`);
+    a = await run(AGY, ["-p", await prompt(id, retry), "--model", MODEL, "--dangerously-skip-permissions", "--disable-slash-commands"], { ms: AUTHOR_MS, file });
+    }
     const minutes = Math.round((Date.now() - started) / 60_000);
+    const authored = !skipAuthor;
+    if (skipAuthor) { skipAuthor = false; attempt--; }
     // 三分钟内就退出、连目录都没有：多半是额度、网络，不算一次，歇一会儿再来
-    if (!a.timedOut && minutes < 3 && !pageDir(id)) {
+    if (authored && !a.timedOut && minutes < 3 && (!pageDir(id) || retry?.review)) {
       if (++flaky > 6) { log(`${id} agy 一直起不来，跳过：${tail(a.out, 2)}`); record({ id, ok: false, why: "agy" }); return; }
       log(`${id} agy ${minutes} 分钟就退出了，歇 10 分钟：${tail(a.out, 2).replace(/\n/g, " | ")}`);
       await sleep(10 * 60_000);
       continue;
     }
+    attempt++;
     const b = await run("npm", ["run", "build", "--", "--only", id], { ms: 10 * 60_000 });
     const c = b.code === 0 ? await run("npm", ["run", "check", "--", "--only", id], { ms: 15 * 60_000 }) : null;
     const { gate } = await import(`./gate.mjs?${Date.now()}`);
-    const problems = b.code === 0 && c.code === 0 ? gate(id, a.out) : [];
-    const ok = b.code === 0 && c.code === 0 && problems.length === 0;
-    if (ok) {
-      const p = await run("node", ["tools/perf.mjs", `batch${id}`], { ms: 10 * 60_000, env: { ONLY: id } });
-      const fps = (p.out.match(/'(hero|drag[^']*)'\s*│\s*([\d.]+)/g) || []).map((m) => Number(m.split("│")[1])).filter(Number.isFinite);
-      const dir = pageDir(id), t = text[id];
-      const name = t.title_en.toLowerCase().replace(/ composition$/, "").replace(/[^a-z0-9]+/g, " ").trim();
-      await withGit(() => {
-        execFileSync("git", ["add", "--", `pages/${dir}`], { cwd: ROOT });
-        execFileSync("git", ["commit", "-q", "-m", `Add the interactive ${name} page`, "--", `pages/${dir}`], { cwd: ROOT });
-      });
-      const minFps = fps.length ? Math.min(...fps) : null;
-      log(`${id} ✓ 提交（${minutes} 分钟${a.timedOut ? "，作者超时被停" : ""}，最低 ${minFps ?? "?"} 帧${minFps !== null && minFps < 40 ? " ⚠ 低于 40" : ""}）`);
-      record({ id, ok: true, attempt, minutes, timedOut: a.timedOut, minFps, said: /完成\s*$/.test(a.out.trim()) });
-      sinceDeploy++;
-      maybeRelease();
-      return;
+    const problems = b.code === 0 && c.code === 0 ? gate(id, (existsSync(join(OUT, `${id}-1.log`)) ? readFileSync(join(OUT, `${id}-1.log`), "utf8") : "") + a.out) : [];
+    if (b.code !== 0 || c.code !== 0 || problems.length) {
+      const reason = a.timedOut ? "作者 90 分钟没做完被停了" : b.code !== 0 ? "build 没过" : c.code !== 0 ? "check 没过" : `自查没过：${problems.join("；")}`;
+      log(`${id} ✗ ${reason}（${minutes} 分钟）`);
+      retry = { review: revisit, reason: revisit ? `这一页是新规矩之前做的，${reason}` : reason, tail: problems.length ? problems.map((p) => `- ${p}`).join("\n") : tail((c ?? b).out) };
+      continue;
     }
-    const reason = a.timedOut ? "作者 90 分钟没做完被停了" : b.code !== 0 ? "build 没过" : c.code !== 0 ? "check 没过" : `自查没过：${problems.join("；")}`;
-    log(`${id} ✗ ${reason}（${minutes} 分钟）`);
-    retry = { reason, tail: problems.length ? problems.map((p) => `- ${p}`).join("\n") : tail((c ?? b).out) };
-    attempt++;
+    if (reviews < REVIEWS && attempt <= ATTEMPTS) {
+      reviews++;
+      const { reviewArgs, verdict } = await import(`./review.mjs?${Date.now()}`);
+      const r = await run(CLAUDE, reviewArgs(id), { ms: 20 * 60_000, file: join(OUT, `${id}-review-${reviews}.log`) });
+      const v = r.code === 0 ? verdict(r.out) : { pass: true, points: [], failed: true };
+      if (v.failed || v.unparsed) log(`${id} 审稿没出结果（${r.timedOut ? "超时" : `退出码 ${r.code}`}），当作放行`);
+      notes.push(...v.points.map((p) => `第 ${reviews} 轮：${p}`));
+      if (!v.pass) {
+        log(`${id} ↺ 审稿第 ${reviews} 轮要改 ${v.points.length} 条：${v.points[0]?.slice(0, 60) ?? ""}…`);
+        retry = { review: true, reason: `主编审稿（第 ${reviews} 轮）认为还不够好`, tail: v.points.map((p, i) => `${i + 1}. ${p}`).join("\n") };
+        continue;
+      }
+    }
+    await commitPage(id, { started, minutes, timedOut: a.timedOut, reviews, notes, revisit });
+    return;
   }
   record({ id, ok: false, why: retry?.reason });
   log(`${id} 放弃：${ATTEMPTS} 次都没过，目录留着等人看`);
+}
+
+async function commitPage(id, { minutes, timedOut, reviews, notes, revisit }) {
+  if (revisit && !execFileSync("git", ["status", "--porcelain", "--", `pages/${pageDir(id)}`], { cwd: ROOT }).toString().trim()) {
+    log(`${id} ✓ 回头查通过，没改动`);
+    record({ id, ok: true, revisit, reviews, notes });
+    return;
+  }
+  const p = await run("node", ["tools/perf.mjs", `batch${id}`], { ms: 10 * 60_000, env: { ONLY: id } });
+  const fps = (p.out.match(/'(hero|drag[^']*)'\s*│\s*([\d.]+)/g) || []).map((m) => Number(m.split("│")[1])).filter(Number.isFinite);
+  const dir = pageDir(id), t = text[id];
+  const name = t.title_en.toLowerCase().replace(/ composition$/, "").replace(/[^a-z0-9]+/g, " ").trim();
+  await withGit(() => {
+    execFileSync("git", ["add", "--", `pages/${dir}`], { cwd: ROOT });
+    execFileSync("git", ["commit", "-q", "-m", `${revisit ? "Revise" : "Add"} the interactive ${name} page`, "--", `pages/${dir}`], { cwd: ROOT });
+  });
+  const minFps = fps.length ? Math.min(...fps) : null;
+  log(`${id} ✓ 提交（审稿 ${reviews} 轮${timedOut ? "，作者超时被停" : ""}，最低 ${minFps ?? "?"} 帧${minFps !== null && minFps < 40 ? " ⚠ 低于 40" : ""}）`);
+  record({ id, ok: true, reviews, timedOut, minFps, notes });
+  sinceDeploy++;
+  maybeRelease();
 }
 
 // ---------- 分段，开跑 ----------
