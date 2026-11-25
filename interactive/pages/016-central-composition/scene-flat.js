@@ -1,56 +1,54 @@
-// 016 居中构图 · 关掉 WebGL 时的矢量降级舞台
-// 读取与三维版完全相同的 (u, v, subject, clutter) 状态，画面依旧锐利、清爽、可拖动。
+// 016 居中构图 · 关掉 WebGL 时的矢量降级展墙舞台
+// 与三维舞台读取完全同一份 (subject, clutterMask, geom) 状态与展品外接框尺寸，贴近海报的平涂朱红圆盘质感。
 
-import { CLUTTER_ITEMS } from "./model.js";
 import { PALETTE } from "./palette.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const el = (tag, attrs = {}) => {
   const n = document.createElementNS(NS, tag);
-  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v));
   return n;
 };
 
 export function createSceneFlat(host) {
   const svg = el("svg", {
     class: "flat-svg",
-    viewBox: "0 0 600 450",
+    viewBox: "0 0 500 480",
     "aria-hidden": "true",
   });
 
   const defs = el("defs");
-  const grad = el("radialGradient", { id: "flat-bg", cx: "50%", cy: "48%", r: "65%" });
+  const grad = el("radialGradient", { id: "flat-bg", cx: "50%", cy: "48%", r: "68%" });
   grad.append(
-    el("stop", { offset: "0%", "stop-color": "#ffffff" }),
-    el("stop", { offset: "72%", "stop-color": "#fcfaf7" }),
-    el("stop", { offset: "100%", "stop-color": "#efece6" })
+    el("stop", { offset: "0%", "stop-color": "#fefcfb" }),
+    el("stop", { offset: "74%", "stop-color": "#fcfaf7" }),
+    el("stop", { offset: "100%", "stop-color": "#f2eee8" })
+  );
+  // 极克制的哑光平涂渐层，收掉塑料球高光，贴近原海报平涂朱红圆盘
+  const orbGrad = el("radialGradient", { id: "flat-orb", cx: "44%", cy: "40%", r: "78%" });
+  orbGrad.append(
+    el("stop", { offset: "0%", "stop-color": "#ff5626" }),
+    el("stop", { offset: "72%", "stop-color": PALETTE.vermilion }),
+    el("stop", { offset: "100%", "stop-color": "#f24817" })
   );
   const shGrad = el("radialGradient", { id: "flat-sh", cx: "50%", cy: "50%", r: "50%" });
   shGrad.append(
-    el("stop", { offset: "0%", "stop-color": PALETTE.ink, "stop-opacity": "0.18" }),
+    el("stop", { offset: "0%", "stop-color": PALETTE.ink, "stop-opacity": "0.10" }),
     el("stop", { offset: "100%", "stop-color": PALETTE.ink, "stop-opacity": "0" })
   );
-  defs.append(grad, shGrad);
+  defs.append(grad, orbGrad, shGrad);
 
-  const bgRect = el("rect", { width: "600", height: "450", fill: "url(#flat-bg)" });
-  const roomRect = el("rect", {
-    x: "42",
-    y: "32",
-    width: "516",
-    height: "386",
-    fill: "none",
-    stroke: PALETTE.hairline,
-    "stroke-width": "1.2",
-  });
+  const bgRect = el("rect", { width: "500", height: "480", fill: "url(#flat-bg)" });
+  const wallG = el("g");
   const clutterG = el("g");
-  const shadow = el("circle", { r: "90", fill: "url(#flat-sh)" });
+  const shadow = el("circle", { r: "80", fill: "url(#flat-sh)" });
   const subjG = el("g");
 
-  svg.append(defs, bgRect, roomRect, clutterG, shadow, subjG);
+  svg.append(defs, bgRect, wallG, clutterG, shadow, subjG);
   host.append(svg);
 
-  let width = 600;
-  let height = 450;
+  let width = 500;
+  let height = 480;
 
   function resize(w, h) {
     width = Math.max(1, w);
@@ -58,69 +56,65 @@ export function createSceneFlat(host) {
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     bgRect.setAttribute("width", String(width));
     bgRect.setAttribute("height", String(height));
-    roomRect.setAttribute("x", String(width * 0.07));
-    roomRect.setAttribute("y", String(height * 0.07));
-    roomRect.setAttribute("width", String(width * 0.86));
-    roomRect.setAttribute("height", String(height * 0.86));
+
+    const wf = new DocumentFragment();
+    const step = Math.max(48, Math.round(Math.min(width, height) / 6));
+    for (let x = (width * 0.5) % step; x < width; x += step) {
+      wf.append(el("line", { x1: x, y1: 0, x2: x, y2: height, stroke: PALETTE.hairline, "stroke-opacity": 0.55, "stroke-width": 1 }));
+    }
+    for (let y = (height * 0.5) % step; y < height; y += step) {
+      wf.append(el("line", { x1: 0, y1: y, x2: width, y2: y, stroke: PALETTE.hairline, "stroke-opacity": 0.55, "stroke-width": 1 }));
+    }
+    wallG.replaceChildren(wf);
   }
 
   function render(frame) {
-    const { u, v, subject, clutter } = frame;
-    const cx = u * width;
-    const cy = v * height;
-    const r = Math.min(width, height) * 0.21;
+    const { subject, clutterMask, geom } = frame;
+    const { cx, cy, pxPerMm } = geom;
 
-    shadow.setAttribute("cx", String(cx + (u - 0.5) * 14 + 5));
-    shadow.setAttribute("cy", String(cy + (v - 0.5) * 10 + 8));
-    shadow.setAttribute("r", String(r * 1.15));
+    shadow.setAttribute("cx", String(cx + 2.4 * pxPerMm));
+    shadow.setAttribute("cy", String(cy + 3.2 * pxPerMm));
+    shadow.setAttribute("r", String(37 * pxPerMm));
 
     const f = new DocumentFragment();
     if (subject === "sphere") {
-      f.append(
-        el("circle", { cx, cy, r, fill: PALETTE.vermilion }),
-        el("ellipse", {
-          cx,
-          cy,
-          rx: r * 1.16,
-          ry: r * 0.26,
-          fill: "none",
-          stroke: PALETTE.ink,
-          "stroke-width": 1.1,
-          "stroke-opacity": 0.25,
-        })
-      );
+      // 平涂质感朱红圆盘，半径严格为 33 mm
+      f.append(el("circle", { cx, cy, r: 33 * pxPerMm, fill: "url(#flat-orb)" }));
     } else if (subject === "arch") {
-      const w = r * 1.5;
-      const h = r * 1.8;
-      const x0 = cx - w / 2;
-      const y0 = cy - h / 2;
+      // 严格按 [-26, +26] × [-36, +36] mm 绘制
+      const x = (mm) => cx + mm * pxPerMm;
+      const y = (mm) => cy - mm * pxPerMm; // 向上为正 mm
+      const rOut = 23 * pxPerMm;
+      const rIn = 14.4 * pxPerMm;
       f.append(
         el("path", {
-          d: `M${x0},${y0 + h} V${y0 + w / 2} A${w / 2},${w / 2} 0 0 1 ${x0 + w},${y0 + w / 2} V${y0 + h} H${x0 + w * 0.78} V${y0 + w / 2} A${w * 0.28},${w * 0.28} 0 0 0 ${x0 + w * 0.22},${y0 + w / 2} V${y0 + h} Z`,
+          d: `M${x(-23)},${y(-31.2)} V${y(13)} A${rOut},${rOut} 0 0 1 ${x(23)},${y(13)} V${y(-31.2)} H${x(14.4)} V${y(13)} A${rIn},${rIn} 0 0 0 ${x(-14.4)},${y(13)} V${y(-31.2)} Z`,
           fill: PALETTE.ink,
         }),
         el("rect", {
-          x: x0 - r * 0.14,
-          y: y0 + h - r * 0.14,
-          width: w + r * 0.28,
-          height: r * 0.16,
+          x: x(-26),
+          y: y(-31.2),
+          width: 52 * pxPerMm,
+          height: 4.8 * pxPerMm,
           fill: PALETTE.ink,
         }),
-        el("circle", { cx, cy: cy + r * 0.08, r: r * 0.32, fill: PALETTE.vermilion })
+        el("circle", { cx: x(0), cy: y(2.2), r: 9.2 * pxPerMm, fill: "url(#flat-orb)" })
       );
     } else if (subject === "boat") {
-      const s = r * 1.05;
+      // 严格按 [-32, +39] × [-23, +33] mm 绘制
+      const x = (mm) => cx + mm * pxPerMm;
+      const y = (mm) => cy - mm * pxPerMm;
       f.append(
         el("polygon", {
-          points: `${cx - s},${cy + s * 0.22} ${cx + s * 1.18},${cy + s * 0.22} ${cx + s * 0.78},${cy + s * 0.64} ${cx - s * 0.74},${cy + s * 0.64}`,
+          points: `${x(-32)},${y(-7.5)} ${x(39)},${y(-7.5)} ${x(26)},${y(-23)} ${x(-23)},${y(-23)}`,
           fill: PALETTE.ink,
         }),
         el("polygon", {
-          points: `${cx - s * 0.16},${cy + s * 0.12} ${cx + s * 0.92},${cy + s * 0.12} ${cx - s * 0.08},${cy - s * 0.95}`,
-          fill: PALETTE.vermilion,
+          points: `${x(-4.5)},${y(-4.5)} ${x(30.5)},${y(-4.5)} ${x(-2)},${y(33)}`,
+          fill: "url(#flat-orb)",
         }),
         el("polygon", {
-          points: `${cx - s * 0.84},${cy + s * 0.12} ${cx - s * 0.26},${cy + s * 0.12} ${cx - s * 0.26},${cy - s * 0.66}`,
+          points: `${x(-26.5)},${y(-4.5)} ${x(-8.2)},${y(-4.5)} ${x(-8.2)},${y(22.5)}`,
           fill: PALETTE.ink,
         })
       );
@@ -128,35 +122,34 @@ export function createSceneFlat(host) {
     subjG.replaceChildren(f);
 
     const cf = new DocumentFragment();
-    if (clutter) {
-      for (const item of CLUTTER_ITEMS) {
-        const ix = item.u * width;
-        const iy = item.v * height;
-        const ir = Math.min(width, height) * 0.065;
-        if (item.kind === "block") {
-          cf.append(
-            el("rect", {
-              x: ix - ir,
-              y: iy - ir,
-              width: ir * 2,
-              height: ir * 2,
-              fill: "#1b1a1f",
-            })
-          );
-        } else if (item.kind === "circle") {
-          cf.append(el("circle", { cx: ix, cy: iy, r: ir * 0.9, fill: "#d94b24" }));
-        } else {
-          cf.append(
-            el("circle", {
-              cx: ix,
-              cy: iy,
-              r: ir * 0.82,
-              fill: "none",
-              stroke: PALETTE.ink,
-              "stroke-width": Math.max(4, ir * 0.28),
-            })
-          );
-        }
+    const mask = Array.isArray(clutterMask) ? clutterMask : [false, false, false];
+    for (let i = 0; i < geom.clutter.length; i++) {
+      if (!mask[i]) continue;
+      const item = geom.clutter[i];
+      const ir = item.r;
+      if (item.kind === "block") {
+        cf.append(
+          el("rect", {
+            x: item.x - ir,
+            y: item.y - ir,
+            width: ir * 2,
+            height: ir * 2,
+            fill: "#1b1a1f",
+          })
+        );
+      } else if (item.kind === "circle") {
+        cf.append(el("circle", { cx: item.x, cy: item.y, r: ir * 0.92, fill: "#c43308" }));
+      } else {
+        cf.append(
+          el("circle", {
+            cx: item.x,
+            cy: item.y,
+            r: ir * 0.84,
+            fill: "none",
+            stroke: PALETTE.ink,
+            "stroke-width": Math.max(3.5, ir * 0.28),
+          })
+        );
       }
     }
     clutterG.replaceChildren(cf);

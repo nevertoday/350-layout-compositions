@@ -92,9 +92,12 @@ function initArnheimLab() {
     handle.style.top = `${state.v * 100}%`;
     handle.setAttribute("aria-valuetext", `横向 ${Math.round(state.u * 100)}%，纵向 ${Math.round(state.v * 100)}%`);
 
-    // 读数与感知判断
-    const tensionPct = Math.round(f.mag * 100);
-    outForce.textContent = locked ? "拉扯力 0% · 归零" : `视觉张力约 ${tensionPct}%`;
+    // 读数与感知判断（用强/中/弱三档标明为教学示意模型，不冒充实测百分比）
+    let tierLabel = "示意模型 · 拉扯感：弱";
+    if (locked) tierLabel = "示意模型 · 拉扯归零";
+    else if (f.mag >= 0.62) tierLabel = "示意模型 · 拉扯感：强";
+    else if (f.mag >= 0.3) tierLabel = "示意模型 · 拉扯感：中";
+    outForce.textContent = tierLabel;
     if (locked) {
       outTitle.textContent = "正中静止点：四向合力完全抵消";
       outBody.textContent = "阿恩海姆指出，正方形并非空白容器，而是布满隐性轴线的力场。圆盘落在正中时，上下左右与四条对角线的拉扯全部抵消，画面立刻安静下来。";
@@ -162,7 +165,7 @@ function initArnheimLab() {
     if (d) {
       e.preventDefault();
       setPos(state.u + d[0], state.v + d[1], false);
-    } else if (e.key === "Home" || e.key === " ") {
+    } else if (e.key === "0" || e.key === " ") {
       e.preventDefault();
       setPos(0.5, 0.5, true);
     }
@@ -205,23 +208,23 @@ function initOpticalLab() {
   const SHAPES = {
     circle: {
       label: "正圆",
-      ideal: 3.5,
-      note: "正圆上下完全对称，但放在 50% 数学正中仍略感沉底；按装裱经验值上提约 3%–4%，观感更轻盈稳固。",
+      ideal: 4.0,
+      note: "正圆上下完全对称，但放在 50% 几何中点常略感沉底；装裱与平面排版中常按经验上提约 3%–5%（此处示意 +4%），观感更轻盈稳固。",
     },
     triUp: {
       label: "正三角（底重）",
       ideal: -3.0,
-      note: "等边三角形的面积质心距顶点占高的 2/3，远低于外接框中点。如果再往上提就会头轻脚空；通常要略向下放低一点点，或按面积质心对齐。",
+      note: "等边三角形的面积质心距顶点占高的 2/3，远低于外接框中点。若套用圆形的 3%–5% 上提经验反而头轻脚空；通常需略微下放，或按面积质心对齐。",
     },
     triDown: {
       label: "倒三角（顶重）",
-      ideal: 5.5,
-      note: "倒三角的视觉重量压在上半截，放在几何中点会觉得整块往下坠；比正圆需要更明显的上提（经验值约 5%–6%）。",
+      ideal: 5.0,
+      note: "倒三角的视觉重量压在上半截，放在几何中点会觉得整块往下坠；需要接近甚至略高于 3%–5% 经验区间的上提幅度。",
     },
     text: {
       label: "双行标题块",
       ideal: 4.0,
-      note: "单张海报或书籍扉页上的居中文字块，底部留白略大于顶部（常见经验值上移 3%–5%），下方像多了一层隐形底座托住文字。",
+      note: "单张海报或书籍扉页上的居中文字块，底部留白通常略大于顶部（常见经验值上提约 3%–5%），下方像多了一层底座托住文字。",
     },
   };
 
@@ -255,10 +258,10 @@ function initOpticalLab() {
         // 几何中心线
         el("line", { x1: 12, y1: geoY, x2: W - 12, y2: geoY, stroke: PALETTE.ink, "stroke-opacity": 0.35, "stroke-width": 1, "stroke-dasharray": "5 5" }),
         el("line", { x1: W / 2, y1: 12, x2: W / 2, y2: H - 12, stroke: PALETTE.ink, "stroke-opacity": 0.22, "stroke-width": 1, "stroke-dasharray": "5 5" }),
-        el("text", { x: 18, y: geoY + 13, fill: PALETTE.inkMuted, "font-size": 10.5, "font-family": "Space Grotesk, Noto Sans SC, sans-serif" }, "50% 几何中线"),
+        el("text", { x: 18, y: geoY + 13, fill: PALETTE.inkMuted, "font-size": 10.5, "font-family": "DM Mono, Noto Sans SC, monospace" }, "50% 几何中线"),
         // 光学参考线
         el("line", { x1: 12, y1: idealY, x2: W - 12, y2: idealY, stroke: PALETTE.vermilion, "stroke-opacity": 0.55, "stroke-width": 1.2, "stroke-dasharray": "2 4" }),
-        el("text", { x: W - 18, y: idealY - 6, "text-anchor": "end", fill: PALETTE.vermilionDeep, "font-size": 10.5, "font-family": "Space Grotesk, Noto Sans SC, sans-serif" }, "光学参考位")
+        el("text", { x: W - 18, y: idealY - 6, "text-anchor": "end", fill: PALETTE.vermilionDeep, "font-size": 10.5, "font-family": "DM Mono, Noto Sans SC, monospace" }, "光学参考位")
       );
     }
 
@@ -365,17 +368,17 @@ function initSwitchesLab() {
   const state = { scale: 44, clutter: "none", ratio: "3:4" };
 
   const RATIOS = {
-    "1:1": { w: 260, h: 260, label: "1:1 正方" },
-    "3:4": { w: 210, h: 280, label: "3:4 竖版海报" },
-    "16:9": { w: 368, h: 207, label: "16:9 宽银幕" },
+    "1:1": { w: 204, h: 204, label: "1:1 正方" },
+    "3:4": { w: 162, h: 216, label: "3:4 竖版海报" },
+    "16:9": { w: 320, h: 180, label: "16:9 宽银幕" },
   };
 
   function render() {
     const VW = 420;
-    const VH = 340;
+    const VH = 268;
     const r = RATIOS[state.ratio];
     const fx = (VW - r.w) / 2;
-    const fy = 32 + (VH - 46 - r.h) / 2;
+    const fy = 28 + (VH - 40 - r.h) / 2;
     const cx = VW / 2;
     const cy = fy + r.h * 0.48; // 微抬光学中心
     const radius = (Math.min(r.w, r.h) * (state.scale / 100)) / 2;
@@ -401,21 +404,21 @@ function initSwitchesLab() {
     let shiftY = 0;
     if (state.clutter === "light") {
       frag.append(
-        el("rect", { x: fx + r.w - 42, y: fy + 14, width: 28, height: 10, fill: PALETTE.ink, opacity: 0.72 }),
-        el("rect", { x: fx + 14, y: fy + r.h - 24, width: 42, height: 8, fill: PALETTE.inkMuted, opacity: 0.45 })
+        el("rect", { x: fx + r.w - 38, y: fy + 12, width: 26, height: 9, fill: PALETTE.ink, opacity: 0.72 }),
+        el("rect", { x: fx + 12, y: fy + r.h - 20, width: 38, height: 7, fill: PALETTE.inkMuted, opacity: 0.45 })
       );
       shiftX = 6;
       shiftY = -3;
     } else if (state.clutter === "heavy") {
       frag.append(
-        el("rect", { x: fx + r.w - 58, y: fy + 14, width: 44, height: 34, fill: PALETTE.ink }),
-        el("circle", { cx: fx + r.w - 30, cy: fy + r.h - 32, r: 16, fill: PALETTE.vermilionDeep }),
-        el("rect", { x: fx + 14, y: fy + 16, width: 32, height: 14, fill: PALETTE.ink, opacity: 0.8 }),
-        el("rect", { x: fx + 14, y: fy + r.h - 36, width: 52, height: 18, fill: PALETTE.ink, opacity: 0.65 }),
-        el("circle", { cx: fx + r.w - 22, cy: cy - 4, r: 8, fill: PALETTE.ink })
+        el("rect", { x: fx + r.w - 48, y: fy + 12, width: 36, height: 28, fill: PALETTE.ink }),
+        el("circle", { cx: fx + r.w - 25, cy: fy + r.h - 26, r: 13, fill: PALETTE.vermilionDeep }),
+        el("rect", { x: fx + 12, y: fy + 14, width: 26, height: 12, fill: PALETTE.ink, opacity: 0.8 }),
+        el("rect", { x: fx + 12, y: fy + r.h - 30, width: 44, height: 15, fill: PALETTE.ink, opacity: 0.65 }),
+        el("circle", { cx: fx + r.w - 19, cy: cy - 4, r: 7, fill: PALETTE.ink })
       );
-      shiftX = 18;
-      shiftY = -9;
+      shiftX = 16;
+      shiftY = -8;
     }
 
     // 若有干扰，画出被拉偏的综合重心点
@@ -428,7 +431,7 @@ function initSwitchesLab() {
 
     // 尺寸标签（置顶居中，留足上下边距不裁切）
     frag.append(
-      el("text", { x: VW / 2, y: 20, "text-anchor": "middle", fill: PALETTE.inkMuted, "font-size": 11, "font-family": "Space Grotesk, Noto Sans SC, sans-serif" }, `${r.label} · 主体直径占比 ${state.scale}%`)
+      el("text", { x: VW / 2, y: 18, "text-anchor": "middle", fill: PALETTE.inkMuted, "font-size": 11, "font-family": "DM Mono, Noto Sans SC, monospace" }, `${r.label} · 主体直径占比 ${state.scale}%`)
     );
 
     svg.replaceChildren(frag);
@@ -444,7 +447,7 @@ function initSwitchesLab() {
       outBadge.textContent = "体量过小";
       outBadge.dataset.tone = "warn";
       outTitle.textContent = "主体像迷失在空白里的小点";
-      outBody.textContent = `直径只占画框短边的 ${state.scale}%，压不住四周空白。除非刻意做极简孤寂感，否则单主体海报一般需维持在约 35%–52%（经验值）。`;
+      outBody.textContent = `直径只占画框短边的 ${state.scale}%，压不住四周空白。除非刻意做极简孤寂感，否则单主体海报经验上通常维持在约三成半到五成。`;
     } else if (state.scale > 68) {
       outBadge.textContent = "逼近满幅";
       outBadge.dataset.tone = "warn";
@@ -456,7 +459,7 @@ function initSwitchesLab() {
       outTitle.textContent = "16:9 宽银幕：左右侧翼更长，更怕杂物";
       outBody.textContent = "宽画幅里单主体居中，左右留出大片水平静默区，很有电影停顿感；但两侧空间一宽，任何多余元素都会格外显眼。";
     } else {
-      outBadge.textContent = state.clutter === "light" ? "轻度分心" : "黄金平衡";
+      outBadge.textContent = state.clutter === "light" ? "轻度分心" : "舒适区";
       outBadge.dataset.tone = "ok";
       outTitle.textContent =
         state.clutter === "light"
@@ -465,7 +468,7 @@ function initSwitchesLab() {
       outBody.textContent =
         state.clutter === "light"
           ? "主体体量正好，但右上深色角标略微拉走了重量；把角标字号缩细、明度压浅，中心就能重新独揽全局。"
-          : `在 ${r.label} 画幅中，主体占短边约 ${state.scale}%（经验值舒适区间），四周均匀的留白像托盘一样稳稳托住主角。`;
+          : `在 ${r.label} 画幅中，主体占短边约 ${state.scale}%（落入约三成半到五成的经验舒适区），四周均匀的留白像托盘一样稳稳托住主角。`;
     }
   }
 
@@ -525,7 +528,7 @@ function initTemperamentLab() {
 
   function render() {
     const W = 420;
-    const H = 280;
+    const H = 260;
     const cx = W / 2;
     const cy = H / 2;
     const frag = new DocumentFragment();
@@ -533,43 +536,88 @@ function initTemperamentLab() {
     frag.append(el("rect", { x: 1, y: 1, width: W - 2, height: H - 2, fill: PALETTE.paper, stroke: PALETTE.ink, "stroke-width": 1.6 }));
     // 统一中心十字
     frag.append(
-      el("line", { x1: cx, y1: 10, x2: cx, y2: H - 10, stroke: PALETTE.ink, "stroke-opacity": 0.16, "stroke-width": 1, "stroke-dasharray": "4 5" }),
-      el("line", { x1: 10, y1: cy, x2: W - 10, y2: cy, stroke: PALETTE.ink, "stroke-opacity": 0.16, "stroke-width": 1, "stroke-dasharray": "4 5" })
+      el("line", { x1: cx, y1: 10, x2: cx, y2: H - 10, stroke: PALETTE.ink, "stroke-opacity": 0.2, "stroke-width": 1, "stroke-dasharray": "4 5" }),
+      el("line", { x1: 10, y1: cy, x2: W - 10, y2: cy, stroke: PALETTE.ink, "stroke-opacity": 0.2, "stroke-width": 1, "stroke-dasharray": "4 5" })
     );
 
     if (active === "sym") {
       // 严整对称徽章器物
       frag.append(
-        el("rect", { x: cx - 54, y: cy - 68, width: 108, height: 136, fill: "none", stroke: PALETTE.ink, "stroke-width": 2 }),
-        el("circle", { cx, cy, r: 42, fill: PALETTE.vermilion }),
-        el("polygon", { points: `${cx},${cy - 28} ${cx + 22},${cy} ${cx},${cy + 28} ${cx - 22},${cy}`, fill: PALETTE.ink }),
-        el("circle", { cx, cy, r: 6, fill: PALETTE.paper }),
-        el("rect", { x: cx - 44, y: cy + 84, width: 88, height: 6, fill: PALETTE.ink })
+        el("rect", { x: cx - 50, y: cy - 64, width: 100, height: 128, fill: "none", stroke: PALETTE.ink, "stroke-width": 2 }),
+        el("circle", { cx, cy, r: 39, fill: PALETTE.vermilion }),
+        el("polygon", { points: `${cx},${cy - 26} ${cx + 20},${cy} ${cx},${cy + 26} ${cx - 20},${cy}`, fill: PALETTE.ink }),
+        el("circle", { cx, cy, r: 5.5, fill: PALETTE.paper }),
+        el("rect", { x: cx - 42, y: cy + 78, width: 84, height: 6, fill: PALETTE.ink })
       );
     } else if (active === "asym") {
-      // 居中但不对称的抽象花枝器物（主体重心在正中，轮廓自然舒展）
+      // 一株左右不对称、但整体视觉重心稳落十字交点的单瓶花枝（四周完全纯净，无任何角落杂物）
       frag.append(
-        // 主体底座与朱红主圆压住视觉中心
-        el("circle", { cx: cx - 4, cy: cy + 8, r: 48, fill: PALETTE.vermilion }),
-        // 向右上伸出的非对称枝条与叶片
-        el("path", { d: `M${cx - 6},${cy + 8} Q${cx + 12},${cy - 34} ${cx + 58},${cy - 68}`, fill: "none", stroke: PALETTE.ink, "stroke-width": 3, "stroke-linecap": "round" }),
-        el("ellipse", { cx: cx + 44, cy: cy - 54, rx: 14, ry: 7, transform: `rotate(-36 ${cx + 44} ${cy - 54})`, fill: PALETTE.ink }),
-        el("ellipse", { cx: cx + 18, cy: cy - 32, rx: 11, ry: 5.5, transform: `rotate(-52 ${cx + 18} ${cy - 32})`, fill: PALETTE.ink }),
-        // 左下侧一点小体量做视觉平衡
-        el("rect", { x: cx - 68, y: cy + 32, width: 32, height: 22, fill: PALETTE.ink }),
-        el("circle", { cx, cy, r: 3.5, fill: PALETTE.paper })
+        // 1. 底部略偏左的墨黑哑光陶瓶（沉稳体量平衡右上方舒展枝条）
+        el("path", {
+          d: "M186,162 H208 L205,172 C222,179 225,204 214,220 H178 C167,204 170,179 189,172 Z",
+          fill: PALETTE.ink,
+        }),
+        el("rect", { x: 184, y: 158, width: 26, height: 4.5, fill: PALETTE.vermilion }),
+        el("line", { x1: 175, y1: 196, x2: 217, y2: 196, stroke: PALETTE.paper, "stroke-opacity": 0.45, "stroke-width": 1.4 }),
+
+        // 2. 从瓶口向右上方自然拱起的主枝 + 向左舒展的短侧枝（左右轮廓明显不对称）
+        el("path", {
+          d: "M197,158 C197,130 218,96 266,54",
+          fill: "none",
+          stroke: PALETTE.ink,
+          "stroke-width": 3.2,
+          "stroke-linecap": "round",
+        }),
+        el("path", {
+          d: "M204,132 C188,118 172,108 158,92",
+          fill: "none",
+          stroke: PALETTE.ink,
+          "stroke-width": 2.3,
+          "stroke-linecap": "round",
+        }),
+        el("path", {
+          d: "M228,104 C244,102 258,98 272,91",
+          fill: "none",
+          stroke: PALETTE.ink,
+          "stroke-width": 2,
+          "stroke-linecap": "round",
+        }),
+
+        // 3. 有机墨叶（左右数量与朝向各异，呈现自然植物体态）
+        el("path", { d: "M265,54 C272,42 286,40 291,48 C284,58 272,60 265,54 Z", fill: PALETTE.ink }),
+        el("path", { d: "M242,78 C240,61 250,51 258,56 C256,68 250,76 242,78 Z", fill: PALETTE.ink }),
+        el("path", { d: "M269,92 C278,86 291,89 294,97 C284,102 274,99 269,92 Z", fill: PALETTE.ink }),
+        el("path", { d: "M172,107 C160,104 150,111 151,119 C161,120 170,115 172,107 Z", fill: PALETTE.ink }),
+        el("path", { d: "M186,118 C184,104 175,96 168,100 C170,111 177,118 186,118 Z", fill: PALETTE.ink }),
+
+        // 4. 三枚朱红果/花蕾收束视觉重量，让整体重心稳稳落在 (cx, cy) = (210, 130)
+        el("circle", { cx: 214, cy: 112, r: 12, fill: PALETTE.vermilion }),
+        el("circle", { cx: 252, cy: 76, r: 8, fill: PALETTE.vermilion }),
+        el("circle", { cx: 158, cy: 91, r: 6.5, fill: PALETTE.vermilion }),
+
+        // 5. 十字交点处的「视觉重心」标示（白边朱红靶点 + 干净斜引线，不遮挡枝条）
+        el("circle", { cx, cy, r: 6.5, fill: PALETTE.paper, stroke: PALETTE.vermilion, "stroke-width": 2.2, "data-marker": "asym-centroid" }),
+        el("circle", { cx, cy, r: 2.3, fill: PALETTE.ink }),
+        el("polyline", { points: `${cx + 6},${cy + 6} ${cx + 34},${cy + 26} ${cx + 56},${cy + 26}`, fill: "none", stroke: PALETTE.vermilionDeep, "stroke-width": 1.2 }),
+        el("text", { x: cx + 60, y: cy + 30, fill: PALETTE.vermilionDeep, "font-size": 10.5, "font-weight": 700, "font-family": "Noto Sans SC, sans-serif" }, "视觉重心")
       );
     } else if (active === "offsetType") {
-      // 居中纯主体 + 瑞士风非对称边角字标
+      // 居中纯主体 + 清晰分离在边角留白里的偏位字标（绝不与主体叠压）
       frag.append(
-        el("circle", { cx, cy: cy - 4, r: 54, fill: PALETTE.vermilion }),
-        el("circle", { cx, cy: cy - 4, r: 22, fill: PALETTE.ink }),
-        // 左上角锐利字标
-        el("text", { x: 22, y: 34, fill: PALETTE.ink, "font-size": 11, "font-weight": 700, "font-family": "Space Grotesk, sans-serif" }, "NO. 016"),
-        el("line", { x1: 22, y1: 42, x2: 72, y2: 42, stroke: PALETTE.ink, "stroke-width": 1.6 }),
-        // 右下角克制文案块
-        el("rect", { x: W - 114, y: H - 46, width: 92, height: 7, fill: PALETTE.ink }),
-        el("rect", { x: W - 86, y: H - 32, width: 64, height: 4, fill: PALETTE.inkMuted, opacity: 0.6 })
+        // 中央纯主体：半径 44px，四周留出宽裕空白
+        el("circle", { cx, cy, r: 44, fill: PALETTE.vermilion }),
+        el("circle", { cx, cy, r: 16, fill: PALETTE.ink }),
+        el("path", { d: `M${cx - 6},${cy}H${cx + 6} M${cx},${cy - 6}V${cy + 6}`, stroke: PALETTE.paper, "stroke-width": 1.5 }),
+
+        // 左上独立角标区（x: 24..110, y: 24..56，远离中心圆）
+        el("text", { x: 24, y: 34, fill: PALETTE.ink, "font-size": 11.5, "font-weight": 700, "letter-spacing": 1.4, "font-family": "Outfit, sans-serif" }, "NO. 016"),
+        el("line", { x1: 24, y1: 42, x2: 88, y2: 42, stroke: PALETTE.vermilion, "stroke-width": 1.8 }),
+        el("text", { x: 24, y: 55, fill: PALETTE.inkMuted, "font-size": 9, "letter-spacing": 1.2, "font-family": "DM Mono, monospace" }, "CENTRAL STUDY"),
+
+        // 右下独立字标区（x: 292..396, y: 210..242，远离中心圆）
+        el("text", { x: W - 24, y: H - 36, "text-anchor": "end", fill: PALETTE.ink, "font-size": 12, "font-weight": 700, "font-family": "Noto Sans SC, sans-serif" }, "居中主体 · 偏位字标"),
+        el("line", { x1: W - 118, y1: H - 28, x2: W - 24, y2: H - 28, stroke: PALETTE.ink, "stroke-width": 1.2 }),
+        el("text", { x: W - 24, y: H - 15, "text-anchor": "end", fill: PALETTE.inkMuted, "font-size": 9, "letter-spacing": 1.2, "font-family": "DM Mono, monospace" }, "EDITION · SWISS GRID")
       );
     } else if (active === "tunnel") {
       // 一点透视走廊把视线推向正中主体
@@ -590,13 +638,13 @@ function initTemperamentLab() {
         );
       }
       frag.append(
-        el("line", { x1: 0, y1: 0, x2: cx - 42, y2: cy - 28, stroke: PALETTE.ink, "stroke-opacity": 0.35, "stroke-width": 1.2 }),
-        el("line", { x1: W, y1: 0, x2: cx + 42, y2: cy - 28, stroke: PALETTE.ink, "stroke-opacity": 0.35, "stroke-width": 1.2 }),
-        el("line", { x1: 0, y1: H, x2: cx - 42, y2: cy + 28, stroke: PALETTE.ink, "stroke-opacity": 0.35, "stroke-width": 1.2 }),
-        el("line", { x1: W, y1: H, x2: cx + 42, y2: cy + 28, stroke: PALETTE.ink, "stroke-opacity": 0.35, "stroke-width": 1.2 }),
+        el("line", { x1: 0, y1: 0, x2: cx - 42, y2: cy - 26, stroke: PALETTE.ink, "stroke-opacity": 0.35, "stroke-width": 1.2 }),
+        el("line", { x1: W, y1: 0, x2: cx + 42, y2: cy - 26, stroke: PALETTE.ink, "stroke-opacity": 0.35, "stroke-width": 1.2 }),
+        el("line", { x1: 0, y1: H, x2: cx - 42, y2: cy + 26, stroke: PALETTE.ink, "stroke-opacity": 0.35, "stroke-width": 1.2 }),
+        el("line", { x1: W, y1: H, x2: cx + 42, y2: cy + 26, stroke: PALETTE.ink, "stroke-opacity": 0.35, "stroke-width": 1.2 }),
         // 走廊尽头居中剪影（无五官）
-        el("circle", { cx, cy: cy - 12, r: 11, fill: PALETTE.vermilion }),
-        el("path", { d: `M${cx - 18},${cy + 28} C${cx - 17},${cy + 4} ${cx + 17},${cy + 4} ${cx + 18},${cy + 28} Z`, fill: PALETTE.ink })
+        el("circle", { cx, cy: cy - 12, r: 10.5, fill: PALETTE.vermilion }),
+        el("path", { d: `M${cx - 17},${cy + 26} C${cx - 16},${cy + 4} ${cx + 16},${cy + 4} ${cx + 17},${cy + 26} Z`, fill: PALETTE.ink })
       );
     }
 
@@ -679,7 +727,7 @@ function initDirectionLab() {
       frag.append(g);
 
       frag.append(
-        el("text", { x: aheadX + aheadW / 2, y: 42, "text-anchor": "middle", fill: PALETTE.vermilionDeep, "font-size": 11, "font-family": "Space Grotesk, Noto Sans SC, sans-serif" }, `前方余地 ${Math.round((aheadW / W) * 100)}%`)
+        el("text", { x: aheadX + aheadW / 2, y: 42, "text-anchor": "middle", fill: PALETTE.vermilionDeep, "font-size": 11, "font-family": "DM Mono, Noto Sans SC, monospace" }, `前方余地 ${Math.round((aheadW / W) * 100)}%`)
       );
     }
 
@@ -721,7 +769,12 @@ function initDirectionLab() {
 }
 
 // =========================================================================
-// 小练习：四张「陶器展」海报草图（第 07 节）
+// 小练习：四张同一只陶瓶的展签草图（第 07 节 · 控制单一细微变量考眼力）
+// 四张图主体造型、大小与底字完全一致，无多余光晕暗示，只在一个变量上有差别：
+//   A：严格卡在几何中点（偏沉）
+//   B：与 C 同光学位，但右上多一枚高对比朱红角章（拉偏重心）
+//   C：正确示范（光学中心上提约 4.5% 经验区间 + 四周纯净 + 横向精准归中）
+//   D：与 C 同光学高度且无杂物，但横向微偏 +5.5%（落入阿恩海姆焦躁区）
 // =========================================================================
 function initQuiz() {
   const container = $("quiz");
@@ -732,105 +785,100 @@ function initQuiz() {
   const VERDICTS = {
     A: {
       ok: false,
-      title: "A · 失焦散乱：主体偏小偏沉，角落杂物抢走了重心",
-      text: "陶瓶只占了很小一块且落偏几何中点下方，四角又堆了色块与粗框标签——居中构图最忌四周喧宾夺主，视线一进来就被角标拉走了。",
+      title: "A · 几何中点偏沉：没做光学上提",
+      text: "陶瓶左右完全正中、四周也干净，但它死卡在画幅数学 50% 甚至更靠下一点的位置，底部又压着字标，整体显得往下坠——和 C 一比就能看出第 03 节讲的光学落差。",
     },
     B: {
-      ok: true,
-      title: "B · 居中成立！光学中心落点、体量饱满、四周纯净",
-      text: "正立陶瓶放在略高于几何中点的光学中心，高度约占画幅四成多，四周留出干净均等的空白场域；底部一行克制细标题托底，稳重又不呆板。",
+      ok: false,
+      title: "B · 单枚角章破功：四周纯净度失守",
+      text: "陶瓶本身与 C 处在完全相同的光学高度，只比 C 在右上角多出一枚高对比朱红方印。别小看这一枚角章：它悄悄把整张画的综合视觉重心往右上拽了一截（第 04 节）。",
     },
     C: {
-      ok: false,
-      title: "C · 朝向撞框：长嘴茶壶朝右，却被硬卡在正中偏右",
-      text: "带明确指向的壶嘴几乎顶到右侧边框，左边背后反倒空出一大截。这种强朝向的单主体不该死卡居中，需要顺应朝向往左退让（见 009 视线空间与 017 偏心构图）。",
+      ok: true,
+      title: "C · 居中成立！光学上提 + 严守中轴 + 四周纯净",
+      text: "同一只陶瓶，水平严守中轴，垂直按约 3%–5% 的经验区间微微上提，让下方的底字与陶瓶之间留出舒展的托底留白；四周零干扰，稳重又挺拔。",
     },
     D: {
       ok: false,
-      title: "D · 过满憋闷：四周缓冲场消失，已滑向满幅压迫",
-      text: "虽然左右正中，但陶瓶大到快撑破四边，看不到上下左右的呼吸边距。居中构图的安定感来自「主体被四周空白稳稳托住」，而不是把框塞满。",
+      title: "D · 微妙偏轴：落入阿恩海姆焦躁区",
+      text: "高度和纯净度都和 C 一样，但陶瓶悄悄往右挪了约 5.5% 框宽。离正中太近又没对齐，正踩在第 02 节「好像没摆正」的不安区域里。",
     },
   };
+
+  function appendVessel(frag, cx, cy) {
+    // 四张图共用同一只对称高肩陶瓶（高 108px，占 290px 画幅约 37%，在三成半到五成舒适区内）
+    frag.append(
+      el("path", {
+        d: `M${cx - 13},${cy - 50} H${cx + 13} L${cx + 10},${cy - 32} C${cx + 35},${cy - 22} ${cx + 39},${cy + 22} ${cx + 21},${cy + 54} H${cx - 21} C${cx - 39},${cy + 22} ${cx - 35},${cy - 22} ${cx - 10},${cy - 32} Z`,
+        fill: PALETTE.ink,
+      }),
+      el("rect", { x: cx - 16, y: cy - 54, width: 32, height: 5.5, fill: PALETTE.vermilion }),
+      el("line", { x1: cx - 26, y1: cy + 5, x2: cx + 26, y2: cy + 5, stroke: PALETTE.vermilion, "stroke-width": 3.5 })
+    );
+  }
 
   function drawCard(id, reveal) {
     const svg = $(`q-svg-${id}`);
     if (!svg) return;
     const W = 220;
     const H = 290;
+    const geoY = H * 0.5; // 145
+    const optY = 131; // 相对几何中点上提约 4.8%（落入 3%–5% 经验值区间）
     const frag = new DocumentFragment();
 
     frag.append(el("rect", { x: 1, y: 1, width: W - 2, height: H - 2, fill: PALETTE.paper, stroke: PALETTE.ink, "stroke-width": 1.4 }));
 
+    // 四张图共享完全一致的克制底字，杜绝任何「正确答案装修得更精致」的暗示
+    frag.append(
+      el("text", { x: W / 2, y: H - 26, "text-anchor": "middle", fill: PALETTE.ink, "font-size": 10.5, "font-weight": 500, "letter-spacing": 2.4, "font-family": "DM Mono, Noto Sans SC, monospace" }, "VESSEL · 016")
+    );
+
     if (id === "A") {
-      // 主体太小且沉底 + 四角杂物干扰
-      frag.append(
-        el("rect", { x: 12, y: 12, width: 54, height: 22, fill: PALETTE.ink }),
-        el("circle", { cx: W - 28, cy: 28, r: 15, fill: PALETTE.vermilion }),
-        el("rect", { x: 14, y: H - 42, width: 64, height: 24, fill: PALETTE.ink, opacity: 0.75 }),
-        el("rect", { x: W - 64, y: H - 38, width: 50, height: 20, fill: PALETTE.vermilion, opacity: 0.85 }),
-        // 过小偏沉的陶瓶
-        el("ellipse", { cx: W / 2, cy: 176, rx: 16, ry: 22, fill: PALETTE.ink }),
-        el("rect", { x: W / 2 - 7, y: 146, width: 14, height: 14, fill: PALETTE.ink }),
-        el("rect", { x: W / 2 - 11, y: 142, width: 22, height: 5, fill: PALETTE.vermilion })
-      );
+      // 唯一变量：严格落在几何中点偏下（cy = 148，无光学上提）
+      appendVessel(frag, W / 2, 148);
     } else if (id === "B") {
-      // 正确示范：光学中心（略高于 50%），饱满正立陶瓶，纯净留白，克制底字
-      const cx = W / 2;
-      const cy = H * 0.455;
+      // 唯一变量：与 C 完全同位，但右上多一枚高对比朱红角章
+      appendVessel(frag, W / 2, optY);
       frag.append(
-        el("circle", { cx, cy: cy + 4, r: 58, fill: PALETTE.vermilion, opacity: 0.14 }),
-        // 经典对称高肩陶瓶
-        el("path", {
-          d: `M${cx - 14},${cy - 54} H${cx + 14} L${cx + 11},${cy - 34} C${cx + 38},${cy - 24} ${cx + 42},${cy + 24} ${cx + 22},${cy + 58} H${cx - 22} C${cx - 42},${cy + 24} ${cx - 38},${cy - 24} ${cx - 11},${cy - 34} Z`,
-          fill: PALETTE.ink,
-        }),
-        el("rect", { x: cx - 18, y: cy - 58, width: 36, height: 6, fill: PALETTE.vermilion }),
-        el("line", { x1: cx - 28, y1: cy + 6, x2: cx + 28, y2: cy + 6, stroke: PALETTE.vermilion, "stroke-width": 4 }),
-        // 底部克制单行标题
-        el("text", { x: cx, y: H - 36, "text-anchor": "middle", fill: PALETTE.ink, "font-size": 11, "font-weight": 700, "letter-spacing": 3, "font-family": "Space Grotesk, Noto Sans SC, sans-serif" }, "VESSEL · 016"),
-        el("line", { x1: cx - 20, y1: H - 24, x2: cx + 20, y2: H - 24, stroke: PALETTE.vermilion, "stroke-width": 2.4, "stroke-linecap": "round" })
+        el("rect", { x: W - 36, y: 18, width: 20, height: 20, fill: PALETTE.vermilion }),
+        el("rect", { x: W - 31, y: 23, width: 10, height: 10, fill: "none", stroke: PALETTE.paper, "stroke-width": 1.6 })
       );
     } else if (id === "C") {
-      // 长嘴茶壶朝右硬卡正中偏右，壶嘴贴死右框
-      const cx = W * 0.56;
-      const cy = H * 0.5;
-      frag.append(
-        // 壶身
-        el("ellipse", { cx, cy: cy + 8, rx: 38, ry: 34, fill: PALETTE.ink }),
-        // 壶盖
-        el("rect", { x: cx - 18, y: cy - 30, width: 36, height: 7, fill: PALETTE.vermilion }),
-        el("circle", { cx, cy: cy - 35, r: 5, fill: PALETTE.ink }),
-        // 朝右长壶嘴几乎顶到右框
-        el("path", { d: `M${cx + 34},${cy + 6} Q${cx + 64},${cy + 2} ${W - 8},${cy - 22} L${W - 12},${cy - 10} Q${cx + 62},${cy + 16} ${cx + 32},${cy + 22} Z`, fill: PALETTE.vermilion }),
-        // 左侧把手
-        el("path", { d: `M${cx - 34},${cy - 4} C${cx - 56},${cy - 6} ${cx - 56},${cy + 24} ${cx - 34},${cy + 22}`, fill: "none", stroke: PALETTE.ink, "stroke-width": 6 }),
-        el("text", { x: W / 2, y: H - 30, "text-anchor": "middle", fill: PALETTE.inkMuted, "font-size": 10, "font-family": "Space Grotesk, sans-serif" }, "TEAPOT")
-      );
+      // 最佳：水平正中 + 光学上提 + 四周纯净
+      appendVessel(frag, W / 2, optY);
     } else if (id === "D") {
-      // 主体过大撑死四边，无缓冲呼吸
-      const cx = W / 2;
-      const cy = H * 0.5;
-      frag.append(
-        el("path", {
-          d: `M${cx - 32},14 H${cx + 32} L${cx + 26},56 C${cx + 96},78 ${cx + 104},186 ${cx + 58},278 H${cx - 58} C${cx - 104},186 ${cx - 96},78 ${cx - 26},56 Z`,
-          fill: PALETTE.ink,
-        }),
-        el("rect", { x: cx - 40, y: 6, width: 80, height: 12, fill: PALETTE.vermilion }),
-        el("line", { x1: cx - 78, y1: cy + 8, x2: cx + 78, y2: cy + 8, stroke: PALETTE.vermilion, "stroke-width": 8 })
-      );
+      // 唯一变量：与 C 同光学高度，但横向微偏 +12px（约 +5.5%）
+      appendVessel(frag, W / 2 + 12, optY);
     }
 
-    // 选完后叠加辅助中线与诊断标记
+    // 选完后叠出统一参考线与针对单变量的诊断标示
     if (reveal) {
       frag.append(
-        el("line", { x1: W / 2, y1: 6, x2: W / 2, y2: H - 6, stroke: PALETTE.vermilion, "stroke-opacity": 0.6, "stroke-width": 1, "stroke-dasharray": "4 4" }),
-        el("line", { x1: 6, y1: H / 2, x2: W - 6, y2: H / 2, stroke: PALETTE.vermilion, "stroke-opacity": 0.45, "stroke-width": 1, "stroke-dasharray": "4 4" })
+        el("line", { x1: W / 2, y1: 6, x2: W / 2, y2: H - 6, stroke: PALETTE.ink, "stroke-opacity": 0.32, "stroke-width": 1, "stroke-dasharray": "4 4" }),
+        el("line", { x1: 6, y1: geoY, x2: W - 6, y2: geoY, stroke: PALETTE.ink, "stroke-opacity": 0.32, "stroke-width": 1, "stroke-dasharray": "4 4" }),
+        el("line", { x1: 16, y1: optY, x2: W - 16, y2: optY, stroke: PALETTE.vermilion, "stroke-opacity": 0.65, "stroke-width": 1.2, "stroke-dasharray": "2 3" })
       );
-      if (id === "B") {
-        frag.append(el("line", { x1: 24, y1: H * 0.455, x2: W - 24, y2: H * 0.455, stroke: PALETTE.vermilion, "stroke-width": 1.6 }));
-      }
-      if (id === "C") {
-        frag.append(el("circle", { cx: W - 10, cy: H * 0.5 - 16, r: 9, fill: "none", stroke: PALETTE.vermilion, "stroke-width": 2 }));
+      if (id === "A") {
+        frag.append(
+          el("line", { x1: 30, y1: optY, x2: 30, y2: 148, stroke: PALETTE.vermilion, "stroke-width": 1.8 }),
+          el("text", { x: 14, y: 22, fill: PALETTE.vermilionDeep, "font-size": 9.5, "font-family": "Noto Sans SC, sans-serif" }, "偏沉 · 几何中点")
+        );
+      } else if (id === "B") {
+        frag.append(
+          el("line", { x1: W / 2, y1: optY, x2: W - 26, y2: 28, stroke: PALETTE.vermilion, "stroke-width": 1.4, "stroke-dasharray": "3 3" }),
+          el("circle", { cx: W / 2 + 14, cy: optY - 18, r: 4, fill: PALETTE.paper, stroke: PALETTE.vermilion, "stroke-width": 1.8 }),
+          el("text", { x: 14, y: 22, fill: PALETTE.vermilionDeep, "font-size": 9.5, "font-family": "Noto Sans SC, sans-serif" }, "角章拉偏重心")
+        );
+      } else if (id === "C") {
+        frag.append(
+          el("text", { x: 14, y: 22, fill: PALETTE.vermilionDeep, "font-size": 9.5, "font-weight": 700, "font-family": "Noto Sans SC, sans-serif" }, "光学居中 · 四周净")
+        );
+      } else if (id === "D") {
+        frag.append(
+          el("line", { x1: W / 2 + 12, y1: 68, x2: W / 2 + 12, y2: 194, stroke: PALETTE.vermilion, "stroke-width": 1.3 }),
+          el("line", { x1: W / 2, y1: 62, x2: W / 2 + 12, y2: 62, stroke: PALETTE.vermilion, "stroke-width": 1.8 }),
+          el("text", { x: 14, y: 22, fill: PALETTE.vermilionDeep, "font-size": 9.5, "font-family": "Noto Sans SC, sans-serif" }, "右偏 5.5% · 歪轴")
+        );
       }
     }
 
