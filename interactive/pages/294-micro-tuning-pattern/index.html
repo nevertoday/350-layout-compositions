@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>294 微调模式 · MICRO-TUNING PATTERN</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="hero">
+  <div class="sheet-wrap">
+    <!-- 顶部非对称瑞士规格单页头（暖灰纸面，零深色导航栏） -->
+    <div class="hero-head">
+      <div class="hero-brand">
+        <p class="eyebrow">网页与 UI / 响应式重排模式 <span class="mono">· NO. 294</span></p>
+        <h1 class="hero-title">微<span id="hero-tune-char" class="tune-char" data-aligned="false">调</span>模式</h1>
+        <p class="hero-en" lang="en">MICRO-TUNING PATTERN</p>
+        <div id="hero-tune-rule" class="dual-rule" data-aligned="false" aria-hidden="true">
+          <span class="rule-blue"></span>
+          <span class="rule-red"></span>
+        </div>
+      </div>
+
+      <div class="hero-aside">
+        <div class="hero-slogan">
+          <p class="slogan-zh">细节决定专业度<br>用微小调整，成就精准表达</p>
+          <p class="slogan-en" lang="en">DETAILS DEFINE PROFESSIONALISM<br>SMALL ADJUSTMENTS, PRECISE EXPRESSION</p>
+        </div>
+        <div class="specimen-tabs" role="group" aria-label="切换微调标本">
+          <button type="button" class="tab-btn" data-mode="poster" aria-pressed="true">原海报标本</button>
+          <button type="button" class="tab-btn" data-mode="nav" aria-pressed="false">导航栏组件</button>
+          <button type="button" class="tab-btn" data-mode="tweaks" aria-pressed="false">跨屏微调</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主体：忠实承袭 294 原海报 左三圆徽目录脊 × 右活体规格校对台 -->
+    <div class="hero-grid">
+      <!-- 右台（源码前置让 390 手机首屏直接满画幅露出校对台，桌面端通过 Grid 列定位放在右侧 76%） -->
+      <div class="hero-work">
+        <div class="canvas-shell">
+          <canvas id="bench-canvas" data-perf-drag tabindex="0" aria-label="微调模式活体微距校对台：可点选字形、间距卡尺或描边圆环，横向拖动微调，配合方向键每次 1px 校准"></canvas>
+        </div>
+
+        <div class="work-controls">
+          <!-- 左：02 间距模数尺与步进精控 -->
+          <div class="ctrl-panel ctrl-scale">
+            <div class="ctrl-top">
+              <span class="mono-tag" id="focus-readout" data-sharp="false">字形「设」 · X 0px · Y +1.5pt</span>
+              <button type="button" class="mini-toggle" id="btn-grid-toggle" aria-pressed="true">工程格：开</button>
+            </div>
+
+            <div class="ctrl-row">
+              <span class="ctrl-label">步进精度</span>
+              <div class="seg-group" role="group" aria-label="微调步进档位">
+                <button type="button" class="seg-btn" data-step="0.1" aria-pressed="false">0.1px 亚像素</button>
+                <button type="button" class="seg-btn" data-step="1" aria-pressed="true">1px 方向键</button>
+                <button type="button" class="seg-btn" data-step="4" aria-pressed="false">4px 模数</button>
+              </div>
+            </div>
+
+            <!-- 1:1 复刻原海报红框 4px 模数刻度条 -->
+            <div class="modulus-box">
+              <div class="modulus-head">
+                <span class="info-dot" aria-hidden="true">i</span>
+                <span class="modulus-title">间距建议使用 4px 倍数</span>
+                <span class="mono-val" id="gap-slider-val">13 / 23px</span>
+              </div>
+              <div class="modulus-ticks" role="group" aria-label="快速套用 4px 倍数间距">
+                <button type="button" class="tick-btn" data-mod-gap="4" aria-pressed="false">4</button>
+                <button type="button" class="tick-btn" data-mod-gap="8" aria-pressed="false">8</button>
+                <button type="button" class="tick-btn" data-mod-gap="12" aria-pressed="false">12</button>
+                <button type="button" class="tick-btn" data-mod-gap="16" aria-pressed="false">16</button>
+                <button type="button" class="tick-btn" data-mod-gap="20" aria-pressed="false">20</button>
+                <button type="button" class="tick-btn" data-mod-gap="24" aria-pressed="false">24</button>
+                <button type="button" class="tick-btn" data-mod-gap="28" aria-pressed="false">28</button>
+                <button type="button" class="tick-btn" data-mod-gap="32" aria-pressed="false">32</button>
+              </div>
+              <label class="slider-wrap">
+                <span class="sr-only">自由拖调间距（4 到 44px）</span>
+                <input type="range" id="gap-slider" min="4" max="44" step="1" value="13">
+              </label>
+            </div>
+
+            <div class="preset-bar" role="group" aria-label="合法多解与反例试错">
+              <button type="button" class="preset-btn is-good" data-preset="compact">紧凑 12px 解</button>
+              <button type="button" class="preset-btn is-good" data-preset="poster20">原海报 20px 解</button>
+              <button type="button" class="preset-btn is-good" data-preset="airy28">宽舒 28px 解</button>
+              <button type="button" class="preset-btn is-bad" data-preset="trapSubpixel">试错：0.3px 模糊</button>
+              <button type="button" class="preset-btn is-bad" data-preset="trapLoose">试错：过散 40px</button>
+              <button type="button" class="preset-btn is-reset" data-preset="broken">复原错态</button>
+            </div>
+          </div>
+
+          <!-- 右：1:1 复刻原海报 03 细微位移（Nudge）3×3 机械方向键阵 -->
+          <div class="ctrl-panel ctrl-nudge">
+            <div class="nudge-head">
+              <span class="spec-badge is-blue">03 细微位移</span>
+              <span class="spec-en" lang="en">NUDGE · 1PX</span>
+            </div>
+            <div class="nudge-grid" role="group" aria-label="九向细微位移方向键">
+              <button type="button" class="nudge-key" data-nudge="-1,-1" aria-label="上左微移">
+                <span class="nk-arrow" aria-hidden="true">↖</span>
+                <span class="nk-label">上左</span>
+                <span class="nk-coord">-1, +1</span>
+              </button>
+              <button type="button" class="nudge-key" data-nudge="0,-1" aria-label="向上微移">
+                <span class="nk-arrow" aria-hidden="true">↑</span>
+                <span class="nk-label">上移</span>
+                <span class="nk-coord">0, +1</span>
+              </button>
+              <button type="button" class="nudge-key" data-nudge="1,-1" aria-label="上右微移">
+                <span class="nk-arrow" aria-hidden="true">↗</span>
+                <span class="nk-label">上右</span>
+                <span class="nk-coord">+1, +1</span>
+              </button>
+              <button type="button" class="nudge-key" data-nudge="-1,0" aria-label="向左微移">
+                <span class="nk-arrow" aria-hidden="true">←</span>
+                <span class="nk-label">左移</span>
+                <span class="nk-coord">-1, 0</span>
+              </button>
+              <button type="button" class="nudge-key is-center" data-nudge="center" aria-label="归位中心 0px">
+                <span class="nk-dot" aria-hidden="true"></span>
+                <span class="nk-label">中心</span>
+                <span class="nk-coord">0px, 0px</span>
+              </button>
+              <button type="button" class="nudge-key" data-nudge="1,0" aria-label="向右微移">
+                <span class="nk-arrow" aria-hidden="true">→</span>
+                <span class="nk-label">右移</span>
+                <span class="nk-coord">+1, 0</span>
+              </button>
+              <button type="button" class="nudge-key" data-nudge="-1,1" aria-label="下左微移">
+                <span class="nk-arrow" aria-hidden="true">↙</span>
+                <span class="nk-label">下左</span>
+                <span class="nk-coord">-1, -1</span>
+              </button>
+              <button type="button" class="nudge-key" data-nudge="0,1" aria-label="向下微移">
+                <span class="nk-arrow" aria-hidden="true">↓</span>
+                <span class="nk-label">下移</span>
+                <span class="nk-coord">0, -1</span>
+              </button>
+              <button type="button" class="nudge-key" data-nudge="1,1" aria-label="下右微移">
+                <span class="nk-arrow" aria-hidden="true">↘</span>
+                <span class="nk-label">下右</span>
+                <span class="nk-coord">+1, -1</span>
+              </button>
+            </div>
+            <p class="nudge-note"><span class="blue-dot" aria-hidden="true"></span>使用方向键进行微调：每次 1px（Shift 每次 4px）</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 左脊（桌面端位于左侧 24%：原海报三枚实心圆徽 + 单真源工程研判框） -->
+      <aside class="hero-spine" aria-label="三项微调检定与诊断">
+        <div class="diag-box" id="diag-box" data-state="err" aria-live="polite">
+          <div class="diag-top">
+            <span class="diag-badge" id="diag-badge">4 项待调 · 基线参差</span>
+            <span class="diag-src">单真源实测</span>
+          </div>
+          <p class="diag-title" id="diag-title">「设」(+1.5pt)、「改」(-1.0pt) 脱离基线</p>
+          <p class="diag-why" id="diag-why">人眼横扫文字时靠底部隐形基线保持匀速；哪怕只有 1–1.5pt 的上下跳动，整行字就会显得没排稳。</p>
+          <p class="diag-hint" id="diag-hint">点选偏移字形并用方向键或中央「中心」键落回 0pt 基线。</p>
+          <button type="button" class="fix-btn" id="btn-fix-one">一键对齐全部基线</button>
+        </div>
+
+        <div class="pillar-list">
+          <button type="button" class="pillar-item" data-pillar="spacing" data-ok="false">
+            <span class="pillar-circle is-blue" aria-hidden="true">
+              <svg viewBox="0 0 40 40" width="26" height="26" fill="none">
+                <rect x="7" y="9" width="26" height="8" fill="#FFFFFF"/>
+                <rect x="7" y="23" width="26" height="8" fill="#FFFFFF"/>
+                <path d="M16 17v6M24 17v6" stroke="#0025D3" stroke-width="2.5"/>
+              </svg>
+            </span>
+            <span class="pillar-copy">
+              <span class="pillar-head">
+                <strong>间距</strong>
+                <span class="pillar-en" lang="en">SPACING</span>
+              </span>
+              <span class="pillar-desc">控制元素间的距离，建立清晰的层级关系</span>
+              <span class="pillar-status">不等 13/23px</span>
+            </span>
+          </button>
+
+          <button type="button" class="pillar-item" data-pillar="align" data-ok="false">
+            <span class="pillar-circle is-red" aria-hidden="true">
+              <svg viewBox="0 0 40 40" width="26" height="26" fill="none">
+                <rect x="18" y="6" width="4" height="28" fill="#FFFFFF"/>
+                <rect x="8" y="18" width="24" height="4" fill="#FFFFFF"/>
+              </svg>
+            </span>
+            <span class="pillar-copy">
+              <span class="pillar-head">
+                <strong>对齐</strong>
+                <span class="pillar-en" lang="en">ALIGN</span>
+              </span>
+              <span class="pillar-desc">精确对齐基线与网格，保持视觉秩序</span>
+              <span class="pillar-status">「设」+1.5pt</span>
+            </span>
+          </button>
+
+          <button type="button" class="pillar-item" data-pillar="tune" data-ok="false">
+            <span class="pillar-circle is-blue" aria-hidden="true">
+              <svg viewBox="0 0 40 40" width="26" height="26" fill="none">
+                <circle cx="20" cy="20" r="10" stroke="#FFFFFF" stroke-width="2.6"/>
+                <circle cx="20" cy="20" r="3" fill="#FFFFFF"/>
+                <path d="M20 5v6M20 29v6M5 20h6M29 20h6" stroke="#FFFFFF" stroke-width="2.4"/>
+              </svg>
+            </span>
+            <span class="pillar-copy">
+              <span class="pillar-head">
+                <strong>校正</strong>
+                <span class="pillar-en" lang="en">TUNE</span>
+              </span>
+              <span class="pillar-desc">发现并修正偏差，优化细节提升质感</span>
+              <span class="pillar-status">0.3px 虚 · 偏心</span>
+            </span>
+          </button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- 移动端后置原海报标语，确保 390 首屏优先让位给校对画布 -->
+    <p class="mobile-slogan">细节决定专业度 · 用微小调整，成就精准表达。</p>
+
+    <!-- 底沿压脚条：1:1 复刻原海报底部结语与蓝/红/黑三色圆点 -->
+    <div class="hero-foot">
+      <div class="foot-quote">
+        <strong>微调不是苛求完美，而是尊重细节</strong>
+        <span lang="en">MICRO-TUNING IS NOT OBSESSION, BUT RESPECT FOR DETAILS</span>
+      </div>
+      <div class="three-dots" aria-label="三项校对进度点">
+        <span class="sig-dot is-blue" data-foot-dot="spacing" data-ok="false" title="间距"></span>
+        <span class="sig-dot is-red" data-foot-dot="align" data-ok="false" title="对齐"></span>
+        <span class="sig-dot is-ink" data-foot-dot="tune" data-ok="false" title="校正"></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== 01 基线与光学补偿 ==================== -->
+  <section class="sec sec-white" id="sec-01">
+    <div class="sheet-wrap">
+      <div class="sec-head">
+        <div class="sec-kicker">
+          <span class="spec-badge is-blue">01</span>
+          <span class="sec-en" lang="en">BASELINE &amp; OPTICAL ALIGNMENT</span>
+        </div>
+        <h2>基线与光学补偿</h2>
+        <p class="sec-lead">原海报说「以基线为准，统一视觉水平」。数学基线是第一道纪律，但真正让一行字和一枚图标看起来齐平，还得补上第二道微调：照顾人眼的光学错觉。</p>
+      </div>
+
+      <div class="lab-split">
+        <div class="lab-stage-box">
+          <canvas id="optical-canvas" class="sub-canvas" aria-label="基线对齐、光学过冲与 4px 基线网格交互剖面图"></canvas>
+          <div class="lab-bar">
+            <div class="seg-group" role="group" aria-label="切换基线与光学模式">
+              <button type="button" class="seg-btn" data-opt-mode="math" aria-pressed="true">几何齐平</button>
+              <button type="button" class="seg-btn" data-opt-mode="optical" aria-pressed="false">光学补偿</button>
+              <button type="button" class="seg-btn" data-opt-mode="grid4" aria-pressed="false">4px 基线网</button>
+            </div>
+            <span class="mono-note" id="optical-metric">O 过冲 0% · ▶ 偏移 0px</span>
+          </div>
+        </div>
+
+        <div class="lab-side">
+          <p class="side-eyebrow">点击元件检视视觉重心</p>
+          <div class="focus-pills" role="group" aria-label="选择检视对象">
+            <button type="button" class="pill-btn" data-opt-focus="circle" aria-pressed="true">圆字 O（过冲）</button>
+            <button type="button" class="pill-btn" data-opt-focus="play" aria-pressed="false">播放钮 ▶（重心）</button>
+            <button type="button" class="pill-btn" data-opt-focus="cjk" aria-pressed="false">汉字混排「设」</button>
+          </div>
+          <p class="lab-explain" id="optical-note">几何齐平时，圆字「O」与方字「H」上下顶线完全同高。</p>
+
+          <div class="nuance-card">
+            <span class="nuance-tag">温和补充海报</span>
+            <p>原海报 01 模块演示了把参差的字全部拉回 0pt 基线；05 模块给出 4px 间距的 20px 行高参考。实战中请记住一句口诀：<strong>外框与行高守住基线网格，圆弧和尖角允许 1–2px 光学过冲</strong>（字型设计里称作 Overshoot，通常高出平头字母 1%–3%）。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 4px 模数与间距节拍 ==================== -->
+  <section class="sec sec-cool" id="sec-02">
+    <div class="sheet-wrap">
+      <div class="sec-head">
+        <div class="sec-kicker">
+          <span class="spec-badge is-red">02</span>
+          <span class="sec-en" lang="en">4PX SPACING RHYTHM</span>
+        </div>
+        <h2>4px 模数与间距节拍</h2>
+        <p class="sec-lead">原海报 02 模块红框专门提醒「间距建议使用 4px 倍数 · 4 8 12 16 20 24 28 32」。这不只是强迫症——它同时解决了跨倍率屏幕像素折算与视觉亲疏层级两件实事。</p>
+      </div>
+
+      <div class="spacing-workbench">
+        <div class="spacing-top-bar">
+          <div class="dpr-group" role="group" aria-label="切换屏幕像素倍率">
+            <span class="ctrl-label">测试屏幕倍率</span>
+            <button type="button" class="seg-btn" data-dpr="1" aria-pressed="false">@1x 普通屏</button>
+            <button type="button" class="seg-btn" data-dpr="1.5" aria-pressed="true">@1.5x 缩放屏</button>
+            <button type="button" class="seg-btn" data-dpr="2" aria-pressed="false">@2x 视网膜</button>
+            <button type="button" class="seg-btn" data-dpr="3" aria-pressed="false">@3x 高分手机</button>
+          </div>
+          <div class="calc-readout">
+            <span class="mono-val" id="spacing-calc">13px × @1.5x = 19.5 物理像素</span>
+            <span class="verdict-pill" id="spacing-verdict" data-state="err">落到半像素</span>
+          </div>
+        </div>
+
+        <p class="ruler-caption">点选刻度尺上任意数值（含 6 / 10 / 13 / 15 等常见非 4n 随手值），查看物理像素折算与亲疏预览：</p>
+        <div class="modulus-ruler" id="modulus-ruler" role="group" aria-label="点击像素刻度测试物理像素折算">
+          <button type="button" class="r-tick is-4n" data-gap-px="4" aria-pressed="false">4</button>
+          <button type="button" class="r-tick is-trap" data-gap-px="6" aria-pressed="false">6</button>
+          <button type="button" class="r-tick is-8n" data-gap-px="8" aria-pressed="false">8</button>
+          <button type="button" class="r-tick is-trap" data-gap-px="10" aria-pressed="false">10</button>
+          <button type="button" class="r-tick is-4n" data-gap-px="12" aria-pressed="false">12</button>
+          <button type="button" class="r-tick is-trap" data-gap-px="13" aria-pressed="true">13</button>
+          <button type="button" class="r-tick is-trap" data-gap-px="15" aria-pressed="false">15</button>
+          <button type="button" class="r-tick is-8n" data-gap-px="16" aria-pressed="false">16</button>
+          <button type="button" class="r-tick is-4n" data-gap-px="20" aria-pressed="false">20</button>
+          <button type="button" class="r-tick is-8n" data-gap-px="24" aria-pressed="false">24</button>
+          <button type="button" class="r-tick is-4n" data-gap-px="28" aria-pressed="false">28</button>
+          <button type="button" class="r-tick is-8n" data-gap-px="32" aria-pressed="false">32</button>
+        </div>
+
+        <div class="spacing-lower">
+          <p class="lab-explain" id="spacing-explain"></p>
+          <div class="proximity-demo" id="proximity-demo">
+            <div class="prox-card">
+              <div class="prox-head">项目 A · 主标题</div>
+              <div class="prox-sub">副标题与主标属于同一信息组</div>
+            </div>
+            <div class="prox-card">
+              <div class="prox-head">项目 B · 主标题</div>
+              <div class="prox-sub">卡片之间的外距应明显大于卡内行距</div>
+            </div>
+            <div class="prox-legend">
+              <span class="mono-tag" id="prox-inner-val">组内 13px</span>
+              <span class="mono-tag" id="prox-outer-val">组外 13px</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 亚像素暗室与描边居中 ==================== -->
+  <section class="sec sec-cobalt" id="sec-03">
+    <div class="sheet-wrap">
+      <div class="sec-head">
+        <div class="sec-kicker">
+          <span class="spec-badge is-bright">03</span>
+          <span class="sec-en" lang="en">SUBPIXEL &amp; STROKE PRECISION LAB</span>
+        </div>
+        <h2>亚像素暗室与描边居中</h2>
+        <p class="sec-lead">原海报 04 精度校正指出两处最容易被忽略的硬伤：「0.3px 偏移导致模糊」与「描边偏离视觉中心」。把它们放进双联物理像素显微镜里，原因立刻水落石出。</p>
+      </div>
+
+      <div class="dark-lab">
+        <canvas id="subpixel-canvas" class="sub-canvas is-dark" aria-label="双联物理像素显微镜：镜 A 演示 0.0 到 0.9px 亚像素灰化，镜 B 演示内中外交界描边"></canvas>
+
+        <div class="dark-controls">
+          <div class="dark-ctrl-col">
+            <label class="dark-label" for="subpixel-range">
+              <span>镜 A · 亚像素偏移量</span>
+              <strong class="mono" id="subpixel-val">0.3px</strong>
+            </label>
+            <input type="range" id="subpixel-range" min="0" max="0.9" step="0.1" value="0.3">
+          </div>
+
+          <div class="dark-ctrl-col">
+            <span class="dark-label">镜 B · 描边位置与线宽</span>
+            <div class="dark-btn-row">
+              <div class="seg-group is-dark" role="group" aria-label="描边对齐位置">
+                <button type="button" class="seg-btn" data-stroke-pos="inside" aria-pressed="false">内描边</button>
+                <button type="button" class="seg-btn" data-stroke-pos="center" aria-pressed="true">居中描边</button>
+                <button type="button" class="seg-btn" data-stroke-pos="outside" aria-pressed="false">外描边</button>
+              </div>
+              <div class="seg-group is-dark" role="group" aria-label="描边线宽">
+                <button type="button" class="seg-btn" data-stroke-w="1" aria-pressed="true">1px 奇宽</button>
+                <button type="button" class="seg-btn" data-stroke-w="2" aria-pressed="false">2px 偶宽</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="dark-readout" id="subpixel-readout"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 从纸媒网格到跨屏微调 ==================== -->
+  <section class="sec sec-paper" id="sec-04">
+    <div class="sheet-wrap">
+      <div class="sec-head">
+        <div class="sec-kicker">
+          <span class="spec-badge is-blue">04</span>
+          <span class="sec-en" lang="en">ORIGIN &amp; TINY TWEAKS</span>
+        </div>
+        <h2>从纸媒网格到跨屏微调</h2>
+        <p class="sec-lead">「微调模式」站在两条脉络的交汇处：一边是瑞士排版与数字设计系统的像素级秩序，另一边是 2012 年确立的响应式五模式里最克制的一种——骨架不动、仅微调字距与留白。</p>
+      </div>
+
+      <div class="origin-grid">
+        <div class="timeline-col">
+          <div class="era-tabs" role="tablist" aria-label="历史源流节点">
+            <button type="button" class="era-btn" data-era="1981" aria-pressed="true">1981 · 瑞士网格</button>
+            <button type="button" class="era-btn" data-era="2012" aria-pressed="false">2012 · Tiny Tweaks</button>
+            <button type="button" class="era-btn" data-era="2014" aria-pressed="false">2014+ · 4dp/8dp 网格</button>
+          </div>
+
+          <div class="era-panel" data-era-panel="1981">
+            <h3>Josef Müller-Brockmann 与基线纪律</h3>
+            <p>1981 年，瑞士设计师 Josef Müller-Brockmann 在 Arthur Niggli 出版社出版双语经典《Rastersysteme für die visuelle Gestaltung》（英文名 Grid Systems in Graphic Design），系统整理了用固定行高与基线网格统一跨栏文字、消除随意偏移的方法。</p>
+          </div>
+          <div class="era-panel" data-era-panel="2012" hidden>
+            <h3>Luke Wroblewski 命名「Tiny Tweaks」</h3>
+            <p>2012 年 3 月 14 日，Luke Wroblewski 在博客文章《Multi-Device Layout Patterns》中，从 Media Queries 收录的真实响应式站点里提炼出五种多设备重排模式。其中 <strong>Tiny Tweaks（微调模式）</strong>最克制：单栏骨架在手机与桌面保持一致，只随屏幕宽度微调字号、留白与图文比例。</p>
+          </div>
+          <div class="era-panel" data-era-panel="2014" hidden>
+            <h3>Material Design 4dp / 8dp 与高分屏实践</h3>
+            <p>Google Material Design 布局规范将界面拆为 8dp 基准网格与用于文字、图标的 4dp 子网格，让间距在 @1x、@1.5x、@2x、@3x 密度下均能落整；配合浏览器 devicePixelRatio 像素映射，促成了现代 UI 的 4px 间距与 1px 方向键微调习惯。</p>
+          </div>
+
+          <!-- 同小类兄弟编号一句话导览（绝不重讲重点） -->
+          <div class="siblings-box">
+            <p class="siblings-title">同属「响应式重排模式」的其余九页（各讲各的骨架变化）：</p>
+            <ul class="siblings-list">
+              <li><a href="https://layout.xiaoxiaodong.ai/291/play/" target="_blank" rel="noopener">291 大体流动模式</a> — 多栏流式伸缩，仅窄屏叠成单栏。</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/292/play/" target="_blank" rel="noopener">292 列下落模式</a> — 空间不够时次栏逐级落到下方。</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/293/play/" target="_blank" rel="noopener">293 布局切换模式</a> — 跨断点直接切换另一套区域骨架。</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/295/play/" target="_blank" rel="noopener">295 画布外模式</a> — 把次要导航与筛选藏到屏外抽屉。</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/296/play/" target="_blank" rel="noopener">296 堆叠重排</a>、<a href="https://layout.xiaoxiaodong.ai/297/play/" target="_blank" rel="noopener">297 顺序重排</a>、<a href="https://layout.xiaoxiaodong.ai/298/play/" target="_blank" rel="noopener">298 折叠双窗格</a>、<a href="https://layout.xiaoxiaodong.ai/299/play/" target="_blank" rel="noopener">299 自适应网格</a>、<a href="https://layout.xiaoxiaodong.ai/300/play/" target="_blank" rel="noopener">300 组件级响应布局</a> — 分别处理列堆叠、视觉次序调换、折叠双屏、容器自折列与组件自身查询。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tt-col">
+          <div class="tt-bar">
+            <span class="spec-badge is-red">TINY TWEAKS 实景</span>
+            <div class="seg-group" role="group" aria-label="切换跨屏微调视口宽度">
+              <button type="button" class="seg-btn" data-tt-vp="375" aria-pressed="false">375px 手机</button>
+              <button type="button" class="seg-btn" data-tt-vp="768" aria-pressed="true">768px 平板</button>
+              <button type="button" class="seg-btn" data-tt-vp="1280" aria-pressed="false">1280px 桌面</button>
+            </div>
+          </div>
+
+          <div class="tt-stage">
+            <article id="tt-preview" class="tt-frame vp-768">
+              <span class="tt-eyebrow">SINGLE COLUMN · 0 REFLOW</span>
+              <h4 class="tt-h">当内容天生是单栏长文，别硬凑多栏断点</h4>
+              <p class="tt-p">Luke Wroblewski 指出，微调模式是五种响应式策略里最少见却最轻巧的一种：文章主体始终保持单栏，只按屏幕宽窄轻调标题字号、4px 倍数行高与页边留白，读者在任何设备上都不会迷失结构。</p>
+              <div class="tt-foot">
+                <span class="tt-chip">4px 基线</span>
+                <span class="tt-chip">单栏直读</span>
+              </div>
+            </article>
+          </div>
+          <p class="mono-note" id="tt-diff"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 何时微调与何时别用 ==================== -->
+  <section class="sec sec-charcoal" id="sec-05">
+    <div class="sheet-wrap">
+      <div class="sec-head">
+        <div class="sec-kicker">
+          <span class="spec-badge is-red">05</span>
+          <span class="sec-en" lang="en">WHEN TO USE &amp; WHEN NOT TO</span>
+        </div>
+        <h2>何时微调与何时别用</h2>
+        <p class="sec-lead">原海报最后一句非常清醒：「微调不是苛求完美，而是尊重细节。」同样地，不问前提死抠 1px，反而会拖慢产品迭代、掩盖真正的结构问题。</p>
+      </div>
+
+      <div class="when-grid">
+        <div class="when-col is-do">
+          <h3>适合用微调模式</h3>
+          <ul>
+            <li><strong>极简单栏页面</strong>：独立文章、更新日志、宣言页、产品单页，本身无需跨屏换骨架。</li>
+            <li><strong>组件库定稿验收</strong>：按钮、表单、标签、导航栏复用率极高，1px 错位会被放大成百上千次。</li>
+            <li><strong>图文与图标混排</strong>：中英混排、图标配字、徽标配标题，需要基线与光学微调补齐视觉齐平。</li>
+          </ul>
+        </div>
+
+        <div class="when-col is-dont">
+          <h3>什么时候别只靠微调</h3>
+          <ul>
+            <li><strong>信息骨架还没立住</strong>：主次不分、入口藏错层级时，调准 1px 救不了整体阅读路线。</li>
+            <li><strong>多栏应用与复杂工作台</strong>：硬套 Tiny Tweaks 会让手机变成超长滚动条，应改用 <a href="https://layout.xiaoxiaodong.ai/292/play/" target="_blank" rel="noopener">292 列下落</a>、<a href="https://layout.xiaoxiaodong.ai/293/play/" target="_blank" rel="noopener">293 布局切换</a> 或 <a href="https://layout.xiaoxiaodong.ai/295/play/" target="_blank" rel="noopener">295 画布外</a>。</li>
+            <li><strong>早期低保真线框阶段</strong>：业务流程还在推翻重写，像素洁癖只会浪费验证窗口。</li>
+            <li><strong>死守整数无视光学</strong>：三角箭头、圆角按钮强按数学居中不给 1–2px 补偿，反而越对齐越显得歪。</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="side-eyebrow is-light">四个真实工作情境——点开检验该微调还是先改骨架</p>
+      <div class="scenario-grid">
+        <article class="scenario-card">
+          <h4>情境 01 · 品牌新品长文发布页</h4>
+          <p>全文单栏叙事，宽屏左右大片留白，手机端阅读行长略紧。</p>
+          <button type="button" class="sc-btn" data-scenario-toggle aria-expanded="false">查看工程判断</button>
+          <p class="scenario-answer" hidden><strong>直接用微调模式</strong>：保持单栏不变，只在 375 / 768 / 1280px 三档按 4px 模数微调标题字号、行高与段前距即可。</p>
+        </article>
+        <article class="scenario-card">
+          <h4>情境 02 · 电商筛选列表迁移到手机</h4>
+          <p>桌面端左侧有 240px 筛选栏，右侧四列商品卡片。</p>
+          <button type="button" class="sc-btn" data-scenario-toggle aria-expanded="false">查看工程判断</button>
+          <p class="scenario-answer" hidden><strong>不要只做微调</strong>：缩字号和间距装不下四列，应先用画布外抽屉（295）收纳筛选栏、用自适应网格（299）折列，再对卡片内部做 4px 微调。</p>
+        </article>
+        <article class="scenario-card">
+          <h4>情境 03 · 设计系统图标按钮库发版</h4>
+          <p>同一套 32px 按钮要出现在 80 个页面里，但播放图标略偏左、文字基线比图标低 1px。</p>
+          <button type="button" class="sc-btn" data-scenario-toggle aria-expanded="false">查看工程判断</button>
+          <p class="scenario-answer" hidden><strong>高回报微调场景</strong>：一次 1px 基线校准和 +1.5px 光学居中，立刻让全站 80 个页面的精致度整体跃升。</p>
+        </article>
+        <article class="scenario-card">
+          <h4>情境 04 · 方案评审前夜的原型草图</h4>
+          <p>团队还在争论要不要砍掉一半表单字段，有人花了三小时把间距全调成 4px 倍数。</p>
+          <button type="button" class="sc-btn" data-scenario-toggle aria-expanded="false">查看工程判断</button>
+          <p class="scenario-answer" hidden><strong>时机错了，先别微调</strong>：微调是定稿前的抛光工序，在信息取舍未定前投入像素精修属于本末倒置。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 眼力校对小练习 ==================== -->
+  <section class="sec sec-white" id="sec-06">
+    <div class="sheet-wrap">
+      <div class="sec-head">
+        <div class="sec-kicker">
+          <span class="spec-badge is-blue">06</span>
+          <span class="sec-en" lang="en">CALIBRATION DRILL</span>
+        </div>
+        <h2>眼力校对小练习</h2>
+        <p class="sec-lead">下面四张同宽度的 UI 列表卡几乎一模一样，三张错项各自只差 <strong>1 个微调变量</strong>。别看标签，用眼睛找出同时满足「基线齐平、4px 亲疏间距与图标光学居中」的那一张。</p>
+      </div>
+
+      <div class="quiz-grid" id="quiz-grid">
+        <!-- 方案 A：播放三角数学居中未做光学右移（0px -> 显偏左） -->
+        <button type="button" class="quiz-card" data-quiz-opt="A" aria-pressed="false">
+          <span class="quiz-label"><strong>A</strong> · 样本 01</span>
+          <svg class="quiz-svg" viewBox="0 0 300 96" role="img" aria-label="样本 A 界面列表卡">
+            <rect x="0.5" y="0.5" width="299" height="95" fill="#FBF9F7" stroke="#070706" stroke-width="1"/>
+            <!-- 左圆钮：播放三角数学居中，未向右补偿 -->
+            <circle cx="40" cy="48" r="20" fill="#070706"/>
+            <polygon points="34,39 48,48 34,57" fill="#FFFFFF"/>
+            <!-- 右侧文字组：基线齐平、组内 8px、组外 16px -->
+            <rect x="76" y="21" width="34" height="16" fill="#0025D3"/>
+            <text x="93" y="32.5" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="700" font-family="Noto Sans SC, sans-serif">指南</text>
+            <text x="118" y="34" fill="#070706" font-size="15" font-weight="900" font-family="Noto Sans SC, sans-serif">基线与微距秩序</text>
+            <text x="76" y="54" fill="#3D3A36" font-size="11.5" font-family="Noto Sans SC, sans-serif">统一水平线并按 4px 排布</text>
+            <text x="76" y="78" fill="#5A5650" font-size="10" font-family="Space Mono, monospace">04 MIN · GRID 4PX</text>
+            <!-- 揭晓透视线（默认隐藏，点击后显示） -->
+            <g class="xray">
+              <line x1="40" y1="22" x2="40" y2="74" stroke="#EE3701" stroke-width="1.2" stroke-dasharray="2 2"/>
+              <circle cx="40" cy="48" r="23" fill="none" stroke="#EE3701" stroke-width="1.5"/>
+              <text x="40" y="88" text-anchor="middle" fill="#B82800" font-size="9.5" font-weight="700" font-family="Space Mono, monospace">三角偏左 0px</text>
+            </g>
+          </svg>
+        </button>
+
+        <!-- 方案 B：内外间距同为 10px（非 4px 模数且亲疏黏连） -->
+        <button type="button" class="quiz-card" data-quiz-opt="B" aria-pressed="false">
+          <span class="quiz-label"><strong>B</strong> · 样本 02</span>
+          <svg class="quiz-svg" viewBox="0 0 300 96" role="img" aria-label="样本 B 界面列表卡">
+            <rect x="0.5" y="0.5" width="299" height="95" fill="#FBF9F7" stroke="#070706" stroke-width="1"/>
+            <circle cx="40" cy="48" r="20" fill="#070706"/>
+            <polygon points="36.2,39 50.2,48 36.2,57" fill="#FFFFFF"/>
+            <rect x="76" y="21" width="34" height="16" fill="#0025D3"/>
+            <text x="93" y="32.5" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="700" font-family="Noto Sans SC, sans-serif">指南</text>
+            <text x="118" y="34" fill="#070706" font-size="15" font-weight="900" font-family="Noto Sans SC, sans-serif">基线与微距秩序</text>
+            <!-- 10px / 10px 等距，丢失 8px vs 16px 亲疏 -->
+            <text x="76" y="57" fill="#3D3A36" font-size="11.5" font-family="Noto Sans SC, sans-serif">统一水平线并按 4px 排布</text>
+            <text x="76" y="75" fill="#5A5650" font-size="10" font-family="Space Mono, monospace">04 MIN · GRID 4PX</text>
+            <g class="xray">
+              <line x1="258" y1="36" x2="258" y2="50" stroke="#EE3701" stroke-width="1.5"/>
+              <line x1="258" y1="59" x2="258" y2="69" stroke="#EE3701" stroke-width="1.5"/>
+              <text x="290" y="47" text-anchor="end" fill="#B82800" font-size="9.5" font-weight="700" font-family="Space Mono, monospace">10px</text>
+              <text x="290" y="68" text-anchor="end" fill="#B82800" font-size="9.5" font-weight="700" font-family="Space Mono, monospace">10px</text>
+            </g>
+          </svg>
+        </button>
+
+        <!-- 方案 C：正确解！基线 0px、组内 8px / 组外 16px、播放三角光学右移 +2.2px -->
+        <button type="button" class="quiz-card" data-quiz-opt="C" aria-pressed="false">
+          <span class="quiz-label"><strong>C</strong> · 样本 03</span>
+          <svg class="quiz-svg" viewBox="0 0 300 96" role="img" aria-label="样本 C 界面列表卡">
+            <rect x="0.5" y="0.5" width="299" height="95" fill="#FBF9F7" stroke="#070706" stroke-width="1"/>
+            <circle cx="40" cy="48" r="20" fill="#070706"/>
+            <polygon points="36.2,39 50.2,48 36.2,57" fill="#FFFFFF"/>
+            <rect x="76" y="21" width="34" height="16" fill="#0025D3"/>
+            <text x="93" y="32.5" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="700" font-family="Noto Sans SC, sans-serif">指南</text>
+            <text x="118" y="34" fill="#070706" font-size="15" font-weight="900" font-family="Noto Sans SC, sans-serif">基线与微距秩序</text>
+            <text x="76" y="54" fill="#3D3A36" font-size="11.5" font-family="Noto Sans SC, sans-serif">统一水平线并按 4px 排布</text>
+            <text x="76" y="78" fill="#5A5650" font-size="10" font-family="Space Mono, monospace">04 MIN · GRID 4PX</text>
+            <g class="xray">
+              <line x1="74" y1="37" x2="242" y2="37" stroke="#0025D3" stroke-width="1.2"/>
+              <line x1="258" y1="37" x2="258" y2="45" stroke="#0025D3" stroke-width="1.5"/>
+              <line x1="258" y1="56" x2="258" y2="72" stroke="#0025D3" stroke-width="1.5"/>
+              <text x="292" y="45" text-anchor="end" fill="#001EA8" font-size="9.5" font-weight="700" font-family="Space Mono, monospace">8px ✓</text>
+              <text x="292" y="69" text-anchor="end" fill="#001EA8" font-size="9.5" font-weight="700" font-family="Space Mono, monospace">16px ✓</text>
+            </g>
+          </svg>
+        </button>
+
+        <!-- 方案 D：标签与标题基线错开 +2.5px -->
+        <button type="button" class="quiz-card" data-quiz-opt="D" aria-pressed="false">
+          <span class="quiz-label"><strong>D</strong> · 样本 04</span>
+          <svg class="quiz-svg" viewBox="0 0 300 96" role="img" aria-label="样本 D 界面列表卡">
+            <rect x="0.5" y="0.5" width="299" height="95" fill="#FBF9F7" stroke="#070706" stroke-width="1"/>
+            <circle cx="40" cy="48" r="20" fill="#070706"/>
+            <polygon points="36.2,39 50.2,48 36.2,57" fill="#FFFFFF"/>
+            <!-- 仅这一处错误：标签偏高，标题基线下坠 3.5px -->
+            <rect x="76" y="17" width="34" height="16" fill="#0025D3"/>
+            <text x="93" y="28.5" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="700" font-family="Noto Sans SC, sans-serif">指南</text>
+            <text x="118" y="37" fill="#070706" font-size="15" font-weight="900" font-family="Noto Sans SC, sans-serif">基线与微距秩序</text>
+            <text x="76" y="54" fill="#3D3A36" font-size="11.5" font-family="Noto Sans SC, sans-serif">统一水平线并按 4px 排布</text>
+            <text x="76" y="78" fill="#5A5650" font-size="10" font-family="Space Mono, monospace">04 MIN · GRID 4PX</text>
+            <g class="xray">
+              <line x1="74" y1="33" x2="112" y2="33" stroke="#EE3701" stroke-width="1.4"/>
+              <line x1="116" y1="38.5" x2="236" y2="38.5" stroke="#EE3701" stroke-width="1.4"/>
+              <text x="292" y="37" text-anchor="end" fill="#B82800" font-size="9.5" font-weight="700" font-family="Space Mono, monospace">基线错位</text>
+            </g>
+          </svg>
+        </button>
+      </div>
+
+      <div class="quiz-foot">
+        <p class="quiz-result" id="quiz-result" hidden aria-live="polite"></p>
+        <button type="button" class="mini-toggle" id="quiz-reset" hidden>重新测试</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 原海报与关键词 ==================== -->
+  <section class="sec sec-paper" id="sec-07">
+    <div class="sheet-wrap">
+      <div class="sec-head">
+        <div class="sec-kicker">
+          <span class="spec-badge is-blue">07</span>
+          <span class="sec-en" lang="en">ORIGINAL POSTER &amp; KEYWORDS</span>
+        </div>
+        <h2>原海报与关键词</h2>
+        <p class="sec-lead">点击下方原海报可全屏放大、拖拽细看 01–05 五处微距图示；按 Esc 键或点击遮罩即可关闭。</p>
+      </div>
+
+      <div class="poster-layout">
+        <figure class="poster-frame">
+          <img id="poster" src="poster.webp" width="1086" height="1448" draggable="false" alt="294 微调模式 原版教学海报">
+          <figcaption>
+            <button type="button" class="poster-btn" id="poster-open">全屏放大检视原海报</button>
+          </figcaption>
+        </figure>
+
+        <div class="poster-info">
+          <blockquote class="poster-quote">
+            <p>「微调不是苛求完美，而是尊重细节。」</p>
+            <cite lang="en">MICRO-TUNING IS NOT OBSESSION, BUT RESPECT FOR DETAILS</cite>
+          </blockquote>
+
+          <div class="kw-block">
+            <h3>海报核心词与速查规则</h3>
+            <ul class="kw-tags">
+              <li><span class="kw-zh">基线</span><span class="kw-en" lang="en">BASELINE</span></li>
+              <li><span class="kw-zh">间距</span><span class="kw-en" lang="en">SPACING</span></li>
+              <li><span class="kw-zh">对齐</span><span class="kw-en" lang="en">ALIGN</span></li>
+              <li><span class="kw-zh">校正</span><span class="kw-en" lang="en">TUNE</span></li>
+              <li><span class="kw-zh">细微位移</span><span class="kw-en" lang="en">NUDGE 1PX</span></li>
+              <li><span class="kw-zh">4px 模数</span><span class="kw-en" lang="en">4 / 8 / 12 / 16</span></li>
+            </ul>
+          </div>
+
+          <div class="spec-summary">
+            <p><strong>1px 方向键微调</strong> · 校正亚像素发虚与光学偏心</p>
+            <p><strong>4px 模数间距</strong> · 兼顾 @1.5x/@2x/@3x 物理像素整除与视觉节奏</p>
+            <p><strong>0pt 基线与 20px 行高</strong> · 统一横扫视线与跨栏垂直秩序</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 原海报全屏放大灯箱（不重复内联图片，运行时复用 #poster.src） -->
+<div class="poster-modal" id="poster-modal" role="dialog" aria-modal="true" aria-label="原海报放大查看" hidden>
+  <div class="lb-toolbar">
+    <span class="mono-tag">294 原海报 · 滚轮缩放 / 拖拽平移 / Esc 关闭</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn" id="lb-reset">复位</button>
+      <button type="button" class="lb-btn is-close" id="lb-close">关闭</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="poster-modal-stage">
+    <img id="poster-modal-img" alt="微调模式原海报大图" draggable="false">
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="sheet-wrap footer-line">
+    <a href="https://layout.xiaoxiaodong.ai/294/play/" target="_blank" rel="noopener">在线版</a>
+    <span aria-hidden="true">/</span>
+    <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+    <span aria-hidden="true">·</span>
+    <span>海报 CC BY 4.0</span>
+    <span aria-hidden="true">·</span>
+    <a href="https://github.com/xxd-design/350-layout-redesign" target="_blank" rel="noopener">源文件 GitHub</a>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
