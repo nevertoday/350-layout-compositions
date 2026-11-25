@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>292 列下落模式 · Column Drop Pattern</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="shell hero-shell">
+    <!-- 顶部极细眉线 -->
+    <div class="eyebrow-bar">
+      <div class="eyebrow-left">
+        <span class="swatch-strip" aria-hidden="true">
+          <i class="sw sw-lime"></i><i class="sw sw-chalk"></i><i class="sw sw-lime"></i><i class="sw sw-orange"></i>
+        </span>
+        <span class="eyebrow-cat">网页与 UI / 响应式重排模式</span>
+        <span class="eyebrow-sep" aria-hidden="true">·</span>
+        <span class="eyebrow-num" lang="en">NO. 292</span>
+      </div>
+      <div class="eyebrow-right">
+        <span class="status-pill is-fault" id="hero-status-pill" aria-live="polite">0/4 · 挤压窒息</span>
+      </div>
+    </div>
+
+    <!-- 自示范阶梯刊头 + 三场景切签 -->
+    <div class="masthead">
+      <div class="masthead-title-wrap">
+        <h1 class="step-title" aria-label="列下落模式">
+          <span class="step-char sc-1">列</span>
+          <span class="step-char sc-2">下</span>
+          <span class="step-char sc-3">落</span>
+          <span class="step-char sc-4">模式</span>
+        </h1>
+        <p class="masthead-en" lang="en">COLUMN DROP PATTERN</p>
+      </div>
+
+      <div class="masthead-actions">
+        <div class="scenario-group" role="group" aria-label="切换实验场景">
+          <button type="button" class="sc-btn is-active" data-scenario="poster" aria-pressed="true">原海报 · 四列阶梯</button>
+          <button type="button" class="sc-btn" data-scenario="news" aria-pressed="false">三栏资讯站</button>
+          <button type="button" class="sc-btn" data-scenario="catalog" aria-pressed="false">多维产品目录</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主交互工作台：左 66% 重力列下落立面画布 × 右 34% 概念与单真源诊单控制塔 -->
+    <div class="hero-workbench">
+      <div class="stage-column">
+        <div class="stage-frame">
+          <canvas
+            id="hero-canvas"
+            class="hero-canvas"
+            data-perf-drag
+            tabindex="0"
+            role="application"
+            aria-label="列下落互动舞台：左右拖动调节视口宽度触发逐级落列，上下拖动立柱顶帽调整高度落差，点击列号交换下落顺位"
+          ></canvas>
+        </div>
+        <div class="stage-hint-bar">
+          <span class="hint-text">↔ 横拖画布拉缩视口触发落列 · ↕ 拖立柱顶帽调落差 · 点 #1–#4 换顺位 · 键盘 ←/→ 微调</span>
+          <span class="hint-meta" id="stage-bp-meta" lang="en">BP 4→3: 642px · 3→2: 488px · 2→1: 334px</span>
+        </div>
+      </div>
+
+      <aside class="diag-tower" aria-label="单真源诊断与精控台">
+        <!-- 原海报右上概念解析块（手机竖屏自然落在画布之后） -->
+        <div class="concept-box">
+          <div class="concept-rule" aria-hidden="true"><span></span></div>
+          <div class="concept-body">
+            <div class="concept-head">
+              <span class="concept-zh">概念解析</span>
+              <span class="concept-en" lang="en">CONCEPT</span>
+            </div>
+            <p class="concept-text" id="hero-concept-text">列下落模式通过不等高的列块排列，形成由高到低的视觉动线，自然引导信息的阅读顺序，突出重点，增强信息组织力。</p>
+          </div>
+        </div>
+
+        <!-- 单真源白话诊单 -->
+        <section class="diag-card is-fault" id="diag-card" aria-live="polite">
+          <div class="diag-top">
+            <span class="diag-badge" id="diag-badge">0/4 · 挤压窒息</span>
+            <span class="diag-source">实绘几何单真源</span>
+          </div>
+          <h2 class="diag-headline" id="diag-headline">当前最窄列被挤到 165px，拒绝下落导致折行破碎</h2>
+          <p class="diag-detail" id="diag-detail">下落阈值设得太低，视口缩到 740px 仍硬挤四列并排。</p>
+          <div class="diag-action-row" id="diag-action-row">
+            <p class="diag-action-text" id="diag-action-text">把「最低列宽阈值」调到 225–280px 区间，让次要列主动下落。</p>
+            <button type="button" class="fix-btn" id="diag-fix-btn">校准下落阈值 245px</button>
+          </div>
+          <div class="metrics-grid">
+            <div class="metric-cell">
+              <span class="metric-k">最窄列实宽</span>
+              <strong class="metric-v" id="m-colw" lang="en">165px</strong>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-k">排布 / 落列</span>
+              <strong class="metric-v" id="m-drop">4列/落0</strong>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-k">首末高差</span>
+              <strong class="metric-v" id="m-slope" lang="en">-26%</strong>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-k">节奏档位</span>
+              <strong class="metric-v" id="m-tier">挤扁失序（示意）</strong>
+            </div>
+          </div>
+        </section>
+
+        <!-- 精控操作槽 -->
+        <div class="control-deck">
+          <div class="slider-row">
+            <div class="slider-head">
+              <label for="ctrl-viewport">模拟视口宽</label>
+              <output id="val-viewport" for="ctrl-viewport" lang="en">740px</output>
+            </div>
+            <input type="range" id="ctrl-viewport" min="360" max="1280" step="2" value="740">
+            <div class="vp-chips" role="group" aria-label="快捷视口宽度">
+              <button type="button" class="vp-chip" data-vp="375">375 手机</button>
+              <button type="button" class="vp-chip is-active" data-vp="740">740 平板</button>
+              <button type="button" class="vp-chip" data-vp="960">960 笔电</button>
+              <button type="button" class="vp-chip" data-vp="1200">1200 桌面</button>
+            </div>
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-head">
+              <label for="ctrl-minw">最低列宽阈值（触发下落）</label>
+              <output id="val-minw" for="ctrl-minw" lang="en">140px</output>
+            </div>
+            <input type="range" id="ctrl-minw" min="120" max="420" step="5" value="140">
+          </div>
+
+          <div class="toggle-row">
+            <button type="button" class="toggle-btn is-warn" id="ctrl-order-flip" aria-pressed="true">
+              CSS order：错序（Tab 逆跳）
+            </button>
+            <button type="button" class="toggle-btn" id="ctrl-primary-top">
+              主栏归位 #1
+            </button>
+          </div>
+
+          <div class="preset-row" role="group" aria-label="合法解与试错预设">
+            <button type="button" class="preset-btn is-solve" data-preset="posterClassic">原海报阶梯解</button>
+            <button type="button" class="preset-btn is-solve" data-preset="wroblewski3">三阶落列解</button>
+            <button type="button" class="preset-btn is-solve" data-preset="editorialGentle">出版宽松解</button>
+            <button type="button" class="preset-btn is-err" data-preset="errPremature">试错：过早塌陷</button>
+            <button type="button" class="preset-btn is-err" data-preset="errFlat">试错：平顶无峰</button>
+            <button type="button" class="preset-btn is-reset" data-preset="fault">复原 0/4</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- 1:1 复刻 292 原海报底部：模式要点 7×4 酸柠点阵 + 四枚几何图符实时状态带 -->
+    <div class="poster-keypoints" aria-label="模式要点实时状态">
+      <div class="kp-brand">
+        <div class="kp-title-zh">模式要点</div>
+        <div class="kp-title-en" lang="en">KEY POINTS</div>
+        <div class="kp-dash" aria-hidden="true"></div>
+        <svg class="kp-dotmatrix" id="kp-dotmatrix" viewBox="0 0 98 56" width="98" height="56" aria-hidden="true"></svg>
+      </div>
+
+      <div class="kp-grid">
+        <article class="kp-item" data-kp="column">
+          <div class="kp-top-row">
+            <svg class="kp-icon" viewBox="0 0 56 44" width="56" height="44" aria-hidden="true">
+              <rect x="4" y="26" width="12" height="16" fill="#C4D226"/>
+              <rect x="20" y="16" width="12" height="26" fill="#C4D226"/>
+              <rect x="36" y="4" width="14" height="38" fill="none" stroke="#EAE6E0" stroke-width="2"/>
+            </svg>
+            <span class="kp-pill is-fault" id="kp-pill-column">主栏落第 4 位</span>
+          </div>
+          <div class="kp-name">列序 <span lang="en">COLUMN</span></div>
+          <div class="kp-sub">有序排列</div>
+        </article>
+
+        <article class="kp-item" data-kp="drop">
+          <div class="kp-top-row">
+            <svg class="kp-icon" viewBox="0 0 56 44" width="56" height="44" aria-hidden="true">
+              <rect x="4" y="14" width="11" height="28" fill="#C4D226"/>
+              <rect x="20" y="22" width="11" height="20" fill="#EAE6E0"/>
+              <rect x="36" y="30" width="11" height="12" fill="#EAE6E0"/>
+              <path d="M22 6 L44 21 M38 22 L45 21 L44 14" fill="none" stroke="#F0761F" stroke-width="2.6" stroke-linecap="square"/>
+            </svg>
+            <span class="kp-pill is-fault" id="kp-pill-drop">逆坡 -26%</span>
+          </div>
+          <div class="kp-name">落差 <span lang="en">DROP</span></div>
+          <div class="kp-sub">高度变化</div>
+        </article>
+
+        <article class="kp-item" data-kp="rhythm">
+          <div class="kp-top-row">
+            <svg class="kp-icon" viewBox="0 0 64 44" width="64" height="44" aria-hidden="true">
+              <circle cx="32" cy="14" r="6" fill="#F0761F"/>
+              <path d="M4 28 Q 14 14, 22 28 T 40 28 T 60 28" fill="none" stroke="#C4D226" stroke-width="2.6" stroke-linecap="round"/>
+            </svg>
+            <span class="kp-pill is-fault" id="kp-pill-rhythm">挤扁 165px</span>
+          </div>
+          <div class="kp-name">节奏 <span lang="en">RHYTHM</span></div>
+          <div class="kp-sub">错落有致</div>
+        </article>
+
+        <article class="kp-item" data-kp="pattern">
+          <div class="kp-top-row">
+            <svg class="kp-icon" viewBox="0 0 56 44" width="56" height="44" aria-hidden="true">
+              <rect x="4" y="6" width="13" height="15" fill="#C4D226"/>
+              <rect x="21" y="6" width="13" height="15" fill="#C4D226"/>
+              <rect x="38" y="6" width="13" height="15" fill="#EAE6E0"/>
+              <rect x="4" y="25" width="13" height="15" fill="#EAE6E0"/>
+              <rect x="21" y="25" width="13" height="15" fill="#C4D226"/>
+              <rect x="38" y="25" width="13" height="15" fill="#F0761F"/>
+            </svg>
+            <span class="kp-pill is-fault" id="kp-pill-pattern">Tab 逆跳 2 处</span>
+          </div>
+          <div class="kp-name">模式 <span lang="en">PATTERN</span></div>
+          <div class="kp-sub">可复用结构</div>
+        </article>
+      </div>
+    </div>
+
+    <!-- 原海报最底沿通栏酸柠长箭 -->
+    <div class="flow-rail" aria-hidden="true">
+      <div class="flow-line">
+        <span class="flow-dot"></span>
+        <span class="flow-bar"></span>
+        <span class="flow-arrow"></span>
+      </div>
+      <div class="flow-labels">
+        <span>起点 <small lang="en">START</small></span>
+        <span>视觉动线 <small lang="en">VISUAL FLOW</small></span>
+        <span>终点 <small lang="en">END</small></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 01 海报四字与两种下落 -->
+  <section class="sec sec-chalk" id="sec-01">
+    <div class="shell">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div class="sec-titles">
+          <h2>海报四字与两种下落</h2>
+          <p class="sec-en" lang="en">DUAL MEANING · POSTER METAPHOR &amp; RESPONSIVE DROP</p>
+        </div>
+      </div>
+
+      <div class="sec01-grid">
+        <div class="sec01-prose">
+          <blockquote class="poster-quote">
+            <span class="quote-tag">原海报总述</span>
+            <p>「列下落模式通过不等高的列块排列，形成由高到低的视觉动线，自然引导信息的阅读顺序，突出重点，增强信息组织力。」</p>
+          </blockquote>
+
+          <div class="honest-note">
+            <span class="honest-tag">说深一层</span>
+            <p>原海报用四根从高到低排开的彩色立柱，把「列下落」画成了一张极具辨识度的阶梯图。放到真实网页与 UI 响应式重排里，Column Drop 的核心机制其实不是把页面硬切成参差柱状图，而是<strong>当屏幕宽度收窄到塞不下多列时，按重要度把次要列一根根「放落」到主栏下方</strong>。海报的「由高到低」恰好点破了它的灵魂：先定好谁居高位、谁随后落，再让断点替你执行。</p>
+          </div>
+
+          <div class="four-words">
+            <div class="fw-card fw-lime">
+              <div class="fw-head"><strong>列序</strong><span lang="en">COLUMN</span></div>
+              <p>「元素按列排列，形成视觉秩序。」决定主栏站首位、次栏依次跟随的排队规矩。</p>
+            </div>
+            <div class="fw-card fw-chalk">
+              <div class="fw-head"><strong>落差</strong><span lang="en">DROP</span></div>
+              <p>「通过高度变化，建立层级与焦点。」越重要的栏越高、越晚下落，焦点才不会散。</p>
+            </div>
+            <div class="fw-card fw-lime">
+              <div class="fw-head"><strong>节奏</strong><span lang="en">RHYTHM</span></div>
+              <p>「高低错落，形成节奏感与流动感。」每跨过一道宽度断点只落下一列，呼吸感顺滑不断层。</p>
+            </div>
+            <div class="fw-card fw-orange">
+              <div class="fw-head"><strong>模式</strong><span lang="en">PATTERN</span></div>
+              <p>「可重复、可延展的版式结构方法。」同一套规则覆盖 1280px 桌面到 375px 手机。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec01-visual">
+          <div class="panel-box">
+            <div class="panel-bar">
+              <span class="panel-label">双视角剥层对照</span>
+              <div class="seg-group" role="group" aria-label="切换视角">
+                <button type="button" class="seg-btn is-active" data-lens="poster" aria-pressed="true">海报视觉高差</button>
+                <button type="button" class="seg-btn" data-lens="web" aria-pressed="false">网页断点下落</button>
+              </div>
+            </div>
+            <div class="lens-stage" id="lens-stage">
+              <svg id="lens-svg" viewBox="0 0 540 330" width="540" height="330" role="img" aria-label="海报视觉高差与网页断点下落映射图"></svg>
+            </div>
+            <p class="panel-caption" id="lens-caption">
+              在海报平面里，四根列块自左向右高度递减，配合右缘四阶标注「高位启动 → 信息逐级向下 → 节奏递进 → 低位收束」，直接把阅读先后刻进视觉高度差。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 逐级下落的断点解剖 -->
+  <section class="sec sec-moss" id="sec-02">
+    <div class="shell">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div class="sec-titles">
+          <h2>逐级下落的断点解剖</h2>
+          <p class="sec-en" lang="en">BREAKPOINT CASCADE · KEEP MEASURE, DROP COLUMNS</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">
+        列下落最珍贵的纪律是<strong>「宁可少一列，绝不挤窄一列」</strong>。当所有列并排时，只要某一列逼近最低可读宽度（经验值：常规 15–16px 中文正文单栏约 220–260px，英文正文每行约 45–75 字符），就应该立刻让优先级最低的那一列落到下一行，让留下的列瞬间重新舒展开来。
+      </p>
+
+      <div class="bp-toolbar">
+        <span class="bp-tool-label">切换页面列结构</span>
+        <div class="seg-group" role="group" aria-label="切换列结构策略">
+          <button type="button" class="seg-btn is-active" data-bp-mode="holy" aria-pressed="true">圣杯三栏（25 / 50 / 25）</button>
+          <button type="button" class="seg-btn" data-bp-mode="asym" aria-pressed="false">主副双栏（65 / 35）</button>
+          <button type="button" class="seg-btn" data-bp-mode="quad" aria-pressed="false">等宽四列（auto-fit）</button>
+        </div>
+      </div>
+
+      <div class="trio-devices" id="trio-devices">
+        <article class="dev-card">
+          <div class="dev-head">
+            <strong>桌面宽屏</strong>
+            <span class="dev-spec" lang="en">1280px</span>
+          </div>
+          <div class="dev-screen" id="dev-desktop"></div>
+          <p class="dev-note" id="dev-desktop-note">三栏完整并排，主正文稳守 608px 黄金行长。</p>
+        </article>
+
+        <article class="dev-card">
+          <div class="dev-head">
+            <strong>平板中屏</strong>
+            <span class="dev-spec" lang="en">768px</span>
+          </div>
+          <div class="dev-screen" id="dev-tablet"></div>
+          <p class="dev-note" id="dev-tablet-note">右侧推荐栏先落到底层，主栏与导航仍舒适并行。</p>
+        </article>
+
+        <article class="dev-card">
+          <div class="dev-head">
+            <strong>手机窄屏</strong>
+            <span class="dev-spec" lang="en">375px</span>
+          </div>
+          <div class="dev-screen" id="dev-mobile"></div>
+          <p class="dev-note" id="dev-mobile-note">全部列依次落成通栏单列，主栏稳居最上方。</p>
+        </article>
+      </div>
+
+      <div class="code-strip">
+        <div class="code-strip-head">
+          <span class="code-strip-title">当前结构对应的现代 CSS 实现</span>
+          <span class="code-strip-meta" id="bp-css-meta" lang="en">CSS Grid + @media</span>
+        </div>
+        <pre class="code-block" id="bp-code" lang="en"><code></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 五种重排模式怎么分（深炭暗室） -->
+  <section class="sec sec-dark" id="sec-03">
+    <div class="shell">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <div class="sec-titles">
+          <h2>五种重排模式怎么分</h2>
+          <p class="sec-en" lang="en">MULTI-DEVICE TAXONOMY · HOW COLUMN DROP DIFFERS</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">
+        2012 年 Luke Wroblewski 从大量真实网站归纳出五种多设备响应式布局模式，列下落正好卡在「几乎不变形」与「彻底大改版」之间的黄金中间地带。下面让四种典型模式在同一个缩屏尺子上同步跑一遍，一眼看清差异。
+      </p>
+
+      <div class="compare-stage-wrap">
+        <div class="compare-controls">
+          <button type="button" class="dark-btn is-lime" id="cmp-play" aria-pressed="true">暂停缩屏演示</button>
+          <div class="cmp-presets" role="group" aria-label="定格到指定屏宽">
+            <button type="button" class="dark-btn" data-cmp-w="1200">定格 1200px 宽屏</button>
+            <button type="button" class="dark-btn" data-cmp-w="760">定格 760px 平板</button>
+            <button type="button" class="dark-btn" data-cmp-w="390">定格 390px 手机</button>
+          </div>
+          <span class="cmp-readout" id="cmp-readout" lang="en">VIEWPORT 960px</span>
+        </div>
+        <canvas id="compare-canvas" class="compare-canvas" aria-label="四种响应式布局模式同步缩屏对比动画"></canvas>
+      </div>
+
+      <div class="sibling-grid">
+        <article class="sib-card">
+          <div class="sib-top"><span lang="en">NO. 291</span><a href="https://layout.xiaoxiaodong.ai/291/play/" target="_blank" rel="noopener">大体流动模式 →</a></div>
+          <p>大屏锁住容器最大宽度、让两侧留白自然扩张，小屏才统一堆叠；列下落则倾向占满宽幅并逐列放落。</p>
+        </article>
+        <article class="sib-card">
+          <div class="sib-top"><span lang="en">NO. 293</span><a href="https://layout.xiaoxiaodong.ai/293/play/" target="_blank" rel="noopener">布局切换模式 →</a></div>
+          <p>在不同断点大幅重排区块位置甚至重组版面结构，自由度更高，但维护成本远高于只做下落动作的列下落。</p>
+        </article>
+        <article class="sib-card">
+          <div class="sib-top"><span lang="en">NO. 294</span><a href="https://layout.xiaoxiaodong.ai/294/play/" target="_blank" rel="noopener">微调模式 →</a></div>
+          <p>本来就是单列布局，跨屏只需微调字号与边距，不需要「哪一列先下落」的决策。</p>
+        </article>
+        <article class="sib-card">
+          <div class="sib-top"><span lang="en">NO. 295</span><a href="https://layout.xiaoxiaodong.ai/295/play/" target="_blank" rel="noopener">画布外模式 →</a></div>
+          <p>把次要导航或工具栏藏到屏幕外抽屉里按需唤出，而不是像列下落那样直接放落在页面底部。</p>
+        </article>
+        <article class="sib-card">
+          <div class="sib-top"><span lang="en">NO. 296 / 297</span><a href="https://layout.xiaoxiaodong.ai/296/play/" target="_blank" rel="noopener">堆叠重排</a> · <a href="https://layout.xiaoxiaodong.ai/297/play/" target="_blank" rel="noopener">顺序重排 →</a></div>
+          <p>分别深入「多块收束为纵列」的节奏控制，以及「重排时何时允许调换内容顺序」的法则。</p>
+        </article>
+        <article class="sib-card">
+          <div class="sib-top"><span lang="en">NO. 298–300</span><a href="https://layout.xiaoxiaodong.ai/298/play/" target="_blank" rel="noopener">折叠双窗格</a> · <a href="https://layout.xiaoxiaodong.ai/299/play/" target="_blank" rel="noopener">自适应网格</a> · <a href="https://layout.xiaoxiaodong.ai/300/play/" target="_blank" rel="noopener">组件级响应 →</a></div>
+          <p>分别应对折叠屏铰链分屏、等权卡片流自动填满，以及用容器查询让单个卡片自己决定何时下落。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 下落顺序与无障碍暗礁 -->
+  <section class="sec sec-chalk" id="sec-04">
+    <div class="shell">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div class="sec-titles">
+          <h2>下落顺序与无障碍暗礁</h2>
+          <p class="sec-en" lang="en">DOM SOURCE ORDER · WCAG 1.3.2 &amp; FOCUS JUMP</p>
+        </div>
+      </div>
+
+      <div class="a11y-grid">
+        <div class="a11y-prose">
+          <p class="sec-lead">
+            做列下落最容易踩的工程暗礁，不是断点数字写错，而是<strong>为了桌面端把目录放左边，在 HTML 里把侧栏写在主正文前面，到了手机端又靠 CSS <code>order</code> 硬把主正文拽回顶部</strong>。
+          </p>
+          <p>
+            根据 W3C WCAG 2.1 成功准则 <strong>1.3.2（有意义的顺序）</strong>与 <strong>2.4.3（焦点顺序）</strong>，键盘 <code>Tab</code> 键和屏幕阅读器始终只认 HTML 文档源序，不认 CSS 的视觉搬运。一旦视觉顺序与 DOM 源序反着走，键盘用户按 <code>Tab</code> 时焦点就会在屏幕上下诡异乱跳。
+          </p>
+          <p>
+            稳妥的做法很朴素：<strong>把最重要的主栏写在 HTML 源序第一位</strong>（或靠跳过导航链接直达），再用 CSS Grid 命名区域在宽屏做视觉分布，让窄屏自然回归源序下落——视觉和键盘永远走同一条路。
+          </p>
+        </div>
+
+        <div class="panel-box a11y-sim">
+          <div class="panel-bar">
+            <div class="seg-group" role="group" aria-label="切换源序方案">
+              <button type="button" class="seg-btn is-active" data-a11y="sync" aria-pressed="true">健康：DOM 与下落同序</button>
+              <button type="button" class="seg-btn" data-a11y="flip" aria-pressed="false">暗礁：CSS order 硬翻</button>
+            </div>
+            <div class="a11y-step-btns">
+              <button type="button" class="step-tab-btn" id="a11y-next-tab">按一次 Tab →</button>
+              <button type="button" class="step-reset-btn" id="a11y-reset-tab">重置</button>
+            </div>
+          </div>
+
+          <div class="a11y-canvas-area" id="a11y-board">
+            <svg class="a11y-arrows" id="a11y-arrows" viewBox="0 0 520 236" aria-hidden="true"></svg>
+            <div class="a11y-slots" id="a11y-slots">
+              <div class="a11y-block ab-main" data-slot="0">
+                <span class="ab-tag" lang="en">MAIN</span>
+                <strong>核心主栏</strong>
+                <span class="ab-dom" id="ab-dom-0">DOM #1 · Tab 1</span>
+              </div>
+              <div class="a11y-block ab-toc" data-slot="1">
+                <span class="ab-tag" lang="en">INDEX</span>
+                <strong>章节目录</strong>
+                <span class="ab-dom" id="ab-dom-1">DOM #2 · Tab 2</span>
+              </div>
+              <div class="a11y-block ab-aside" data-slot="2">
+                <span class="ab-tag" lang="en">RELATED</span>
+                <strong>延伸推荐（已下落到底部通栏）</strong>
+                <span class="ab-dom" id="ab-dom-2">DOM #3 · Tab 3</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="panel-caption" id="a11y-readout" aria-live="polite">
+            当前停在 Tab 1（核心主栏）：点击「按一次 Tab →」依次步进，观察焦点如何沿阅读顺序顺滑向下，零回跳。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 从哪来：断点到网格 -->
+  <section class="sec sec-parchment" id="sec-05">
+    <div class="shell">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div class="sec-titles">
+          <h2>从哪来：断点到网格</h2>
+          <p class="sec-en" lang="en">LINEAGE · FROM 2010 RWD TO INTRINSIC CSS GRID</p>
+        </div>
+      </div>
+
+      <div class="timeline-grid">
+        <article class="tl-card">
+          <span class="tl-year" lang="en">2010.05</span>
+          <h3>流体网格奠基</h3>
+          <p>Ethan Marcotte 在 <em>A List Apart</em> 发表《Responsive Web Design》（2011 年由 A Book Apart 出版同名书），以流体网格、弹性媒体与 CSS 媒体查询打破固定像素时代。</p>
+        </article>
+        <article class="tl-card">
+          <span class="tl-year" lang="en">2012.03</span>
+          <h3>Column Drop 定名</h3>
+          <p>Luke Wroblewski 在个人专栏《Multi-Device Layout Patterns》梳理 Media Queries 站点实践，首次把「屏幕变窄、逐列垂直放落」独立命名为 Column Drop。</p>
+        </article>
+        <article class="tl-card">
+          <span class="tl-year" lang="en">2014–2017</span>
+          <h3>Web Fundamentals 普及</h3>
+          <p>Google 开发者文档体系（Pete LePage 等整理）将列下落纳入核心响应式范式，前端实现由脆弱的 <code>float</code> 浮动转向 Flexbox 弹性换行。</p>
+        </article>
+        <article class="tl-card">
+          <span class="tl-year" lang="en">2017–今日</span>
+          <h3>内在网格与无障碍约束</h3>
+          <p>CSS Grid 的 <code>auto-fit</code> / <code>minmax()</code> 让等权列无需手写媒体查询就能自动下落；W3C WCAG 2.1（2018）与容器查询让重排更重视源序与组件自治。</p>
+        </article>
+      </div>
+
+      <div class="era-box">
+        <div class="panel-bar">
+          <span class="panel-label">三代 CSS 实现代码切片</span>
+          <div class="seg-group" role="group" aria-label="切换代码时代">
+            <button type="button" class="seg-btn is-active" data-era="2012" aria-pressed="true">2012 Float 浮动</button>
+            <button type="button" class="seg-btn" data-era="2015" aria-pressed="false">2015 Flexbox</button>
+            <button type="button" class="seg-btn" data-era="modern" aria-pressed="false">今日 CSS Grid</button>
+          </div>
+        </div>
+        <div class="era-body">
+          <pre class="code-block era-code" id="era-code" lang="en"><code></code></pre>
+          <div class="era-explain" id="era-explain"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 何时该用，何时别用 + 小练习 -->
+  <section class="sec sec-moss" id="sec-06">
+    <div class="shell">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <div class="sec-titles">
+          <h2>何时该用，何时别用</h2>
+          <p class="sec-en" lang="en">WHEN TO USE · ANTI-PATTERNS · PRACTICE QUIZ</p>
+        </div>
+      </div>
+
+      <div class="decision-grid">
+        <div class="dec-col dec-do">
+          <h3>适合用列下落</h3>
+          <ul>
+            <li><strong>有清晰主次梯度的新闻与文档页</strong>：主正文永远居首，目录次之，关联推荐与注释排在最后，逐级下落毫不违和。</li>
+            <li><strong>宽幅桌面要高效铺满的规格与专栏页</strong>：不需要像大体流动那样在大屏留宽外边距，每列保住舒适读宽即可。</li>
+            <li><strong>小团队追求稳健易维护的响应式站点</strong>：比布局切换模式省去多套模板，只需守住最低可读列宽与源序。</li>
+            <li><strong>信息流自左向右、由主到次推进的看板说明</strong>：恰好呼应原海报「高位启动 → 逐级下落 → 低位收束」的阅读节奏。</li>
+          </ul>
+        </div>
+        <div class="dec-col dec-dont">
+          <h3>什么时候别用</h3>
+          <ul>
+            <li><strong>左右必须同屏逐行对照的场景</strong>（代码 Diff、双语对照、实时报价与表单）：一旦右栏落到屏幕下方，对照关系立刻断裂，应考虑 <a href="https://layout.xiaoxiaodong.ai/298/play/" target="_blank" rel="noopener">298 折叠双窗格</a> 或页签切换。</li>
+            <li><strong>各栏同等重要、没有主次先后的监控仪表盘</strong>：末尾栏在手机上被推到三四屏之外，关键告警根本看不见，应改用 <a href="https://layout.xiaoxiaodong.ai/293/play/" target="_blank" rel="noopener">293 布局切换模式</a>。</li>
+            <li><strong>首列很长、侧栏全是高频操作按钮的工具界面</strong>：窄屏下操作区掉到长文底部导致交互瘫痪，应把工具收入 <a href="https://layout.xiaoxiaodong.ai/295/play/" target="_blank" rel="noopener">295 画布外模式</a>。</li>
+            <li><strong>本来就是单栏文章，或同权卡片瀑布墙</strong>：单栏直接用 <a href="https://layout.xiaoxiaodong.ai/294/play/" target="_blank" rel="noopener">294 微调模式</a>，均等卡片集合更适合 <a href="https://layout.xiaoxiaodong.ai/299/play/" target="_blank" rel="noopener">299 自适应网格</a>。</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 单变量四选一小练习 -->
+      <div class="quiz-box" id="quiz-box">
+        <div class="quiz-head">
+          <span class="quiz-badge">小练习 · 单变量判断</span>
+          <h3>768px 平板断点：这一步该怎么下落？</h3>
+          <p>一份三栏技术文档页（桌面端：主正文 60%、章节目录 22%、相关示例 18%）正在适配 <strong>768px 平板竖屏</strong>。以下四套方案字号、色彩与边距完全相同，<strong>只差「768px 时如何落列」这一个变量</strong>，哪一套最符合列下落模式的原则？</p>
+        </div>
+
+        <div class="quiz-options" role="radiogroup" aria-label="四个平板断点落列方案">
+          <button type="button" class="quiz-opt" data-opt="A" aria-pressed="false">
+            <span class="qo-letter" lang="en">A</span>
+            <svg class="qo-svg" viewBox="0 0 200 108" aria-hidden="true">
+              <rect x="6" y="8" width="188" height="92" fill="#1A1D1C"/>
+              <rect x="12" y="16" width="106" height="76" fill="#C4D226"/>
+              <rect x="122" y="16" width="36" height="76" fill="#EAE6E0"/>
+              <rect x="162" y="16" width="26" height="76" fill="#F0761F"/>
+              <text x="65" y="58" text-anchor="middle" fill="#1A1D1C" font-size="11" font-weight="700">440</text>
+              <text x="140" y="58" text-anchor="middle" fill="#1A1D1C" font-size="10" font-weight="700">160</text>
+              <text x="175" y="58" text-anchor="middle" fill="#1A1D1C" font-size="9" font-weight="700">132</text>
+            </svg>
+            <strong class="qo-title">方案 A</strong>
+            <span class="qo-desc">三栏留在同一行，宽度按比例缩为 440px / 160px / 132px。</span>
+          </button>
+
+          <button type="button" class="quiz-opt" data-opt="B" aria-pressed="false">
+            <span class="qo-letter" lang="en">B</span>
+            <svg class="qo-svg" viewBox="0 0 200 108" aria-hidden="true">
+              <rect x="6" y="8" width="188" height="92" fill="#1A1D1C"/>
+              <rect x="12" y="16" width="122" height="48" fill="#C4D226"/>
+              <rect x="138" y="16" width="50" height="48" fill="#EAE6E0"/>
+              <rect x="12" y="68" width="176" height="24" fill="#F0761F"/>
+              <text x="73" y="44" text-anchor="middle" fill="#1A1D1C" font-size="11" font-weight="700">正文 530</text>
+              <text x="163" y="44" text-anchor="middle" fill="#1A1D1C" font-size="10" font-weight="700">目录 206</text>
+              <text x="100" y="84" text-anchor="middle" fill="#1A1D1C" font-size="10" font-weight="700">示例下落 · 740</text>
+            </svg>
+            <strong class="qo-title">方案 B</strong>
+            <span class="qo-desc">正文 530px 与目录 206px 留顶行，相关示例落至下方通栏，DOM 正文在前。</span>
+          </button>
+
+          <button type="button" class="quiz-opt" data-opt="C" aria-pressed="false">
+            <span class="qo-letter" lang="en">C</span>
+            <svg class="qo-svg" viewBox="0 0 200 108" aria-hidden="true">
+              <rect x="6" y="8" width="188" height="92" fill="#1A1D1C"/>
+              <rect x="12" y="15" width="176" height="24" fill="#C4D226"/>
+              <rect x="12" y="43" width="176" height="22" fill="#EAE6E0"/>
+              <rect x="12" y="69" width="176" height="22" fill="#F0761F"/>
+              <text x="100" y="31" text-anchor="middle" fill="#1A1D1C" font-size="10" font-weight="700">正文 100%</text>
+              <text x="100" y="58" text-anchor="middle" fill="#1A1D1C" font-size="10" font-weight="700">目录 100%</text>
+              <text x="100" y="84" text-anchor="middle" fill="#1A1D1C" font-size="10" font-weight="700">示例 100%</text>
+            </svg>
+            <strong class="qo-title">方案 C</strong>
+            <span class="qo-desc">在 768px 直接三栏全拆成三行 100% 通栏纵向堆叠。</span>
+          </button>
+
+          <button type="button" class="quiz-opt" data-opt="D" aria-pressed="false">
+            <span class="qo-letter" lang="en">D</span>
+            <svg class="qo-svg" viewBox="0 0 200 108" aria-hidden="true">
+              <rect x="6" y="8" width="188" height="92" fill="#1A1D1C"/>
+              <rect x="12" y="16" width="86" height="32" fill="#F0761F"/>
+              <rect x="102" y="16" width="86" height="32" fill="#EAE6E0"/>
+              <rect x="12" y="52" width="176" height="40" fill="#C4D226"/>
+              <text x="55" y="36" text-anchor="middle" fill="#1A1D1C" font-size="10" font-weight="700">示例 order:-1</text>
+              <text x="145" y="36" text-anchor="middle" fill="#1A1D1C" font-size="10" font-weight="700">目录</text>
+              <text x="100" y="76" text-anchor="middle" fill="#1A1D1C" font-size="11" font-weight="700">正文下落到底部</text>
+            </svg>
+            <strong class="qo-title">方案 D</strong>
+            <span class="qo-desc">示例与目录留在首屏顶行各占 50%，正文落到底部并用 CSS order 视觉换序。</span>
+          </button>
+        </div>
+
+        <div class="quiz-feedback" id="quiz-feedback" aria-live="polite">
+          点击任意一张方案卡，查看这一选择在平板宽度下会带来什么真实阅读后果。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 原海报与关键词（深炭展墙） -->
+  <section class="sec sec-gallery" id="sec-07">
+    <div class="shell">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div class="sec-titles">
+          <h2>原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER · NO. 292 ARCHIVE</p>
+        </div>
+      </div>
+
+      <div class="poster-archive-grid">
+        <div class="poster-frame-col">
+          <button type="button" class="poster-zoom-trigger" id="poster-open" aria-label="点击放大查看 292 号原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="292 号原海报：列下落模式" draggable="false">
+            <span class="poster-zoom-hint">点击原图放大 · 支持拖动与 Esc 关闭</span>
+          </button>
+        </div>
+
+        <div class="poster-meta-col">
+          <div class="archive-label" lang="en">POSTER KEYWORDS · 292</div>
+          <div class="kw-list">
+            <div class="kw-row">
+              <span class="kw-dot kw-lime"></span>
+              <strong class="kw-zh">列序</strong>
+              <span class="kw-en" lang="en">COLUMN</span>
+              <span class="kw-note">有序排列 — 元素按列排列，形成视觉秩序。</span>
+            </div>
+            <div class="kw-row">
+              <span class="kw-dot kw-chalk"></span>
+              <strong class="kw-zh">落差</strong>
+              <span class="kw-en" lang="en">DROP</span>
+              <span class="kw-note">高度变化 — 通过高度变化，建立层级与焦点。</span>
+            </div>
+            <div class="kw-row">
+              <span class="kw-dot kw-lime"></span>
+              <strong class="kw-zh">节奏</strong>
+              <span class="kw-en" lang="en">RHYTHM</span>
+              <span class="kw-note">错落有致 — 高低错落，形成节奏感与流动感。</span>
+            </div>
+            <div class="kw-row">
+              <span class="kw-dot kw-orange"></span>
+              <strong class="kw-zh">模式</strong>
+              <span class="kw-en" lang="en">PATTERN</span>
+              <span class="kw-note">可复用结构 — 可重复、可延展的版式结构方法。</span>
+            </div>
+          </div>
+
+          <div class="archive-spine-summary">
+            <div class="archive-label" lang="en">POSTER RIGHT-EDGE FLOW</div>
+            <ol class="spine-steps">
+              <li><strong>高位启动</strong> · 吸引注意</li>
+              <li><strong>信息逐级</strong> · 向下流动</li>
+              <li><strong>节奏递进</strong> · 层级清晰</li>
+              <li><strong>低位收束</strong> · 形成记忆点</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="shell footer-inner">
+    <span>在线版：<a href="https://layout.xiaoxiaodong.ai/292/play/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai/292/play/</a></span>
+    <span aria-hidden="true">·</span>
+    <span>全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai" target="_blank" rel="noopener">layout.xiaoxiaodong.ai</a></span>
+    <span aria-hidden="true">·</span>
+    <span>海报 CC BY 4.0</span>
+    <span aria-hidden="true">·</span>
+    <span><a href="https://github.com/xiaoxiaodong/350-layout-interactive" target="_blank" rel="noopener">源文件 GitHub</a></span>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱（支持缩放、拖动、Esc 关闭） -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="292 号原海报放大预览">
+  <div class="lb-toolbar">
+    <span class="lb-title">292 · 列下落模式原海报（拖动平移 · 滚轮或按钮缩放 · Esc 关闭）</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+      <span class="lb-scale" id="lb-scale" lang="en">100%</span>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn" id="lb-reset">重置</button>
+      <button type="button" class="lb-btn is-close" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lb-viewport">
+    <img id="lb-img" alt="292 号原海报放大视图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
