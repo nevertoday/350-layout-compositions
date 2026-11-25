@@ -1,119 +1,157 @@
-// 267 列表—详情布局：共享数据模型、比例诊断、断点判断与练习题定义
+// 267 列表—详情布局：共享数据模型、开场工单收件箱、断点判断与练习题定义
 export const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
-// 海报左栏的五个原始主题 + 对应详情与主行动
-export const TOPICS = [
+// 开场实战收件箱 / 工单台：7 条真实工作条目，每条都有独立正文、专属附件图与主行动按钮
+// 7 条高度超出列表可视区，正好能在 <600px 单窗格钻取时亲眼验证「返回列表并恢复滚动位置」
+export const HERO_TICKETS = [
   {
-    id: "concept",
-    zh: "概念定义",
-    short: "概念",
-    en: "CONCEPT",
+    id: "TK-201",
+    tag: "待审",
+    tagTone: "orange",
     shape: "cut-square",
-    eyebrow: "当前主题",
-    summary: "列表—详情布局通过左右分区，将导航与内容分离，形成清晰的阅读路径与信息聚焦。",
-    detail: "左栏承担索引，告诉你「有哪些、当前在看哪一条」；右栏铺开完整正文、图示与主操作，两块分工不打架。",
-    action: "标记已读",
-    actionDone: "已读 · 概念定义",
-    bars: [0.84, 0.72, 0.56, 0.42],
+    title: "新版活动头图终稿验收",
+    sender: "视觉组 · 林岚",
+    time: "2 分钟前",
+    eyebrow: "视觉验收 · 品牌活动",
+    summary: "桌面与移动端头图已按深松墨配暖米纸规范导出，请确认明度反差与焦点位置。",
+    detail: "本次将深色导航区与亮米主视觉区的边界重新校准，亮橙只保留在主图与行动按钮上，避免标题区和配图互相抢戏。确认无误后即可推入今晚的发布队列。",
+    attachType: "poster-art",
+    attachName: "hero-banner-v4.webp",
+    attachMeta: "1440 × 600 · 86 KB",
+    cta: "通过视觉验收",
+    ctaDone: "已通过 · 排入发布",
   },
   {
-    id: "structure",
-    zh: "结构关系",
-    short: "结构",
-    en: "STRUCTURE",
+    id: "TK-202",
+    tag: "紧急",
+    tagTone: "alert",
     shape: "triangle",
-    eyebrow: "主从映射",
-    summary: "左栏是一组同类条目的父级索引，右栏是单一条目的展开容器，构成一对多的联动。",
-    detail: "拖动中间的橙色分隔条试试：列表通常占约三成，给右侧详情留下充裕的阅读行宽与主图空间。",
-    action: "锁定比例",
-    actionDone: "已记下 32:68 结构",
-    bars: [0.68, 0.9, 0.62, 0.48],
+    title: "导出报表中文乱码修复",
+    sender: "财务部 · 周衡",
+    time: "9 分钟前",
+    eyebrow: "线上故障 · 报表导出",
+    summary: "季度 CSV 对账单在 Excel 直接双击打开出现中文乱码，已定位缺少 UTF-8 BOM 头。",
+    detail: "导出接口目前输出纯 UTF-8 字节流，Windows 端 Excel 默认按本地编码解析导致表头全部乱码。补丁已在预发环境验证：文件首部写入 EF BB BF 后，中文字段与金额列均正常对齐。",
+    attachType: "csv-diff",
+    attachName: "Q3-reconcile.csv",
+    attachMeta: "42 KB · UTF-8 BOM 对比",
+    cta: "下发 UTF-8 补丁",
+    ctaDone: "已下发 · 补丁完成",
   },
   {
-    id: "hierarchy",
-    zh: "视觉层级",
-    short: "层级",
-    en: "HIERARCHY",
+    id: "TK-203",
+    tag: "待批",
+    tagTone: "teal",
     shape: "circle",
-    eyebrow: "明暗主次",
-    summary: "突出重点，弱化次要：深色列表主动退后，浅色详情抬到眼前，亮橙只留给唯一焦点。",
-    detail: "如果左右一样亮、每条都标红，眼睛就失去了落脚点。克制色彩数量，层级才会一眼分明。",
-    action: "聚焦重点",
-    actionDone: "已聚焦 · 视觉层级",
-    bars: [0.92, 0.64, 0.76, 0.36],
+    title: "素材库配额扩容申请",
+    sender: "设计组 · 许诺",
+    time: "24 分钟前",
+    eyebrow: "资源审批 · 存储配额",
+    summary: "团队素材库已用 192 / 200 GB（96%），申请扩容至 500 GB 以承接第四季度物料。",
+    detail: "近两周新增活动海报源文件与视频封面样张后，剩余可用空间仅剩 8 GB，导出任务已开始触发容量提醒。建议直接批复至 500 GB，并将历史草稿设为 90 天自动归档。",
+    attachType: "quota-bar",
+    attachName: "storage-quota.json",
+    attachMeta: "192 / 200 GB → 500 GB",
+    cta: "批准扩容至 500 GB",
+    ctaDone: "已批准 · 配额已生效",
   },
   {
-    id: "organization",
-    zh: "内容组织",
-    short: "组织",
-    en: "ORGANIZATION",
+    id: "TK-204",
+    tag: "排查",
+    tagTone: "orange",
     shape: "diamond",
-    eyebrow: "轻重分工",
-    summary: "列表只留分辨条目的最小线索，把长文、图片、参数和表单全部放进详情区。",
-    detail: "摘要放左栏，完整内容放右栏。列表越干净，扫描速度越快；详情越从容，读得越透。",
-    action: "归档条目",
-    actionDone: "已归档 · 内容组织",
-    bars: [0.74, 0.58, 0.88, 0.52],
+    title: "新成员 SSO 登录白屏",
+    sender: "研发部 · 顾铭",
+    time: "41 分钟前",
+    eyebrow: "权限异常 · 单点登录",
+    summary: "今日入职同事完成企业单点登录后停在空白页，原因查明为默认工作区角色为空。",
+    detail: "身份令牌校验本身已成功返回，但初始化接口在读取角色权限时收到空值并中断了路由跳转。只需为该账号补分配标准成员角色，同时给新建账号加上默认角色兜底。",
+    attachType: "auth-trace",
+    attachName: "sso-trace-0412.log",
+    attachMeta: "3 步调用链 · 第 2 步中断",
+    cta: "分配默认成员角色",
+    ctaDone: "已分配 · 登录已恢复",
   },
   {
-    id: "interaction",
-    zh: "交互引导",
-    short: "交互",
-    en: "INTERACTION",
+    id: "TK-205",
+    tag: "告警",
+    tagTone: "alert",
     shape: "square",
-    eyebrow: "原地切换",
-    summary: "点选列表、敲击上下方向键，右侧详情就地刷新，视线不必离开当前窗口。",
-    detail: "连续处理邮件、工单或笔记时，省掉反复「进入—返回」的跳页成本，始终看得见前后文。",
-    action: "切到第一项",
-    actionDone: "已回到 · 概念定义",
-    bars: [0.62, 0.82, 0.7, 0.9],
+    title: "安卓锁屏推送延迟复盘",
+    sender: "客服组 · 沈悦",
+    time: "1 小时前",
+    eyebrow: "终端兼容 · 消息触达",
+    summary: "部分安卓机型锁屏后审批提醒延迟约三分钟，确认为系统后台省电策略收紧所致。",
+    detail: "实测前台在线与 iOS 端都能在两秒左右送达，只有开启深度省电的安卓终端在熄屏后被系统延后唤醒。已整理分品牌白名单设置步骤与高优先级通道开关，待同步客服知识库。",
+    attachType: "latency-bars",
+    attachName: "push-latency-report.csv",
+    attachMeta: "3 组设备实测对比",
+    cta: "发送白名单指引",
+    ctaDone: "已发送 · 同步客服库",
+  },
+  {
+    id: "TK-206",
+    tag: "变更",
+    tagTone: "teal",
+    shape: "cut-square",
+    title: "更新本月发票抬头税号",
+    sender: "运营组 · 梁远",
+    time: "2 小时前",
+    eyebrow: "财务变更 · 开票资料",
+    summary: "合作方工商主体名称已完成变更，需在月底出账前同步最新开票抬头与识别号。",
+    detail: "对方已回传加盖公章的新版营业执照扫描件，开户行与账号保持不变，仅公司全称与纳税人识别号更新。确认同步后，本月尚未开具的两笔账单将直接按新抬头生成。",
+    attachType: "invoice-diff",
+    attachName: "billing-profile-diff.pdf",
+    attachMeta: "抬头与税号字段核对",
+    cta: "同步开票信息",
+    ctaDone: "已同步 · 下期账单生效",
+  },
+  {
+    id: "TK-207",
+    tag: "归档",
+    tagTone: "muted",
+    shape: "triangle",
+    title: "本周工单处理效率周报",
+    sender: "运维组 · 程曦",
+    time: "昨天",
+    eyebrow: "例行汇总 · 第 46 周",
+    summary: "本周累计关闭 142 单，一次解决率 91%，高频工单集中在权限配置与报表导出。",
+    detail: "较上周相比，重复追问率继续下降，主要得益于同屏工单台减少切页中断、常见排查指引已做成一键发送模板。审阅完毕后可归档入季度运营目录。",
+    attachType: "weekly-kpi",
+    attachName: "week46-sla-summary.md",
+    attachMeta: "142 单 · 91% 一次解决",
+    cta: "归档本周周报",
+    ctaDone: "已归档 · 第 46 周",
   },
 ];
 
-// 拖动分隔把手时，靠近经典比例（32%）和对半（50%）时轻轻吸附
-export function snapSplit(pct) {
-  const anchors = [32, 50];
-  for (const a of anchors) {
-    if (Math.abs(pct - a) <= 1.8) return a;
-  }
-  return Math.round(pct);
-}
-
-// 不同左右列宽比例对观看者的实际感受（不光报数字，讲「会让人怎么看」）
-export function splitZone(pct) {
-  if (pct < 24) {
+// 开场窗口宽度断点分级（严格对应 Material Design 3 的 600 / 840 两档）
+export function heroBreakpoint(width) {
+  if (width < 600) {
     return {
-      key: "narrow",
-      label: "列表过窄 · 标题截断",
-      text: "左栏被压成一条细缝，列表标题只能露出两三个字或图标。人必须一个个盲点才能知道里面是什么，导航功能先失灵了。",
-      bar: "warn",
+      tier: "compact",
+      badge: "Compact <600 · 单窗格钻取",
+      shortBadge: "<600 单窗格",
+      rule: "窄于 600px 时自动收成单窗格：先满宽看列表，点一条推入详情，顶部给「← 列表」并在返回时恢复滚动位置。",
     };
   }
-  if (pct <= 38) {
+  if (width < 840) {
     return {
-      key: "sweet",
-      label: "导航清晰 · 详情充裕",
-      text: "经验上的舒适区间（约 26%–38%）：左栏足够放稳图标与完整标题，右栏占去六成以上宽幅，主图、正文与右下主按钮都舒展，主次一眼分开。",
-      bar: "good",
-    };
-  }
-  if (pct <= 52) {
-    return {
-      key: "even",
-      label: "接近平分 · 主次模糊",
-      text: "左右宽度拉到接近五五开，列表不再像「退后一步的目录」，而像另一块平起平坐的页面——容易滑向分屏对比，详情的聚焦感被冲淡了。",
-      bar: "mid",
+      tier: "medium",
+      badge: "Medium 600–839 · 紧凑双栏",
+      shortBadge: "600–839 过渡双栏",
+      rule: "跨过 600px 进入临界双栏：列表与详情开始同屏并排，点选或按 ↑↓ 可就地刷新，但每栏留白已明显偏紧。",
     };
   }
   return {
-    key: "wide",
-    label: "喧宾夺主 · 详情受挤",
-    text: "左栏反客为主占掉大半屏幕，大量横向留白空耗在列表里；右侧真正要读的正文和主图被挤成窄柱，视线反而被左边的目录拖住。",
-    bar: "warn",
+    tier: "expanded",
+    badge: "Expanded ≥840 · 经典双栏",
+    shortBadge: "≥840 经典双栏",
+    rule: "跨过 840px 展开为经典双栏：左栏稳住索引，右栏舒展正文、附件与行动按钮，连续切换零返回。",
   };
 }
 
-// 03 节：工单样本（用来亲手比较「单页跳页」和「列表—详情同屏」）
+// 03 节与 04 节：工单样本（用来亲手比较「单页跳页」和「列表—详情同屏」以及断点演示）
 export const TICKETS = [
   {
     id: "TK-401",

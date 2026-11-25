@@ -47,7 +47,7 @@ function initContrastLab() {
   if (!box) return;
 
   const COPY = {
-    poster: "原版层级：暗列表压低视觉噪音，暖米详情抬高亮度，亮橙只给唯一选中项与右下行动按钮。眼睛 1 秒内就顺着橙条落进详情。",
+    poster: "原版层级：暗列表压低视觉噪音，暖米详情抬高亮度，亮橙只给唯一选中项与右下行动按钮。视线立刻就能顺着橙条落进详情。",
     flat: "去掉明暗对照：左右两栏一样亮，列表不再像退后的目录，整页变成两大块并排的白框，眼睛要在两边来回犹豫。",
     noisy: "去掉唯一焦点：每条列表都挂满亮橙色标和按钮，主次瞬间塌陷——处处都在喊「看我」，结果哪里都看不进去。",
   };
@@ -224,17 +224,48 @@ function initSwitchCostLab() {
   render();
 }
 
-// ---------- 04 节：响应式视口宽度模拟器 ----------
+// ---------- 04 节：响应式视口宽度模拟器（按「模拟宽度 / 容器宽度」等比缩放，窄屏绝不失真） ----------
 function initResponsiveLab() {
   const range = $("bp-range");
   const forceChk = $("bp-force");
+  const stage = $("bp-stage");
+  const scaleBox = $("bp-scale-box");
   const sim = $("bp-sim");
+  const scaleBadge = $("bp-scale-badge");
   const backBtn = $("bp-back");
-  if (!range || !sim) return;
+  if (!range || !sim || !scaleBox) return;
 
   const presets = [...document.querySelectorAll("[data-bp]")];
   const rows = [...sim.querySelectorAll(".bp-row")];
   const state = { width: 960, force: false, selected: 0, compactPane: "list" };
+
+  function syncScale() {
+    const cs = getComputedStyle(stage);
+    const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+    const availW = Math.max(220, Math.floor(stage.clientWidth - padX));
+    const simW = state.width;
+    const scale = Math.min(1, availW / simW);
+
+    sim.style.width = `${simW}px`;
+    sim.style.transform = "none";
+    const naturalH = Math.max(220, sim.offsetHeight);
+
+    if (scale < 0.995) {
+      sim.style.left = "0px";
+      sim.style.transform = `scale(${scale.toFixed(4)})`;
+      scaleBox.style.height = `${Math.ceil(naturalH * scale)}px`;
+      if (scaleBadge) {
+        scaleBadge.hidden = false;
+        scaleBadge.textContent = `按真实 ${simW}px 渲染 · 等比缩放 ${Math.round(scale * 100)}%`;
+      }
+    } else {
+      const offsetX = Math.max(0, Math.round((availW - simW) / 2));
+      sim.style.left = `${offsetX}px`;
+      sim.style.transform = "none";
+      scaleBox.style.height = `${naturalH}px`;
+      if (scaleBadge) scaleBadge.hidden = true;
+    }
+  }
 
   function render() {
     const info = breakpointInfo(state.width, state.force);
@@ -245,15 +276,16 @@ function initResponsiveLab() {
     tag.dataset.mode = info.mode;
     $("bp-read").textContent = info.text;
 
-    // 比例尺预览壳宽：相对 1280px 映射，窄屏幕时不超过容器宽
-    const pct = clamp((state.width / 1280) * 100, 32, 100);
-    sim.style.setProperty("--sim-pct", `${pct.toFixed(1)}%`);
     sim.dataset.mode = info.mode;
     sim.dataset.pane = state.compactPane;
 
-    // 只在 Compact 区间启用「反例：强行双栏」选项提示
-    forceChk.disabled = state.width >= 600;
-    forceChk.closest("label").classList.toggle("is-disabled", state.width >= 600);
+    // 只在 Compact 区间启用「反例：强行双栏」选项，但保持高对比度清晰可读
+    const locked = state.width >= 600;
+    forceChk.disabled = locked;
+    const lbl = forceChk.closest("label");
+    lbl.classList.toggle("is-disabled", locked);
+    const hint = $("bp-force-hint");
+    if (hint) hint.textContent = locked ? "（调至 <600px 后可勾选）" : "（当前已可切换）";
 
     presets.forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.bp === state.width)));
 
@@ -268,7 +300,11 @@ function initResponsiveLab() {
     $("bp-d-meta").textContent = tk.meta;
     $("bp-d-body").textContent = tk.body;
     $("bp-d-cta").textContent = tk.cta;
+
+    syncScale();
   }
+
+  new ResizeObserver(syncScale).observe(stage);
 
   range.addEventListener("input", () => {
     state.width = +range.value;

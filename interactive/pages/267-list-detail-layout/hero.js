@@ -1,534 +1,706 @@
-// 开场主角玩具：可调比例 × 可点选 × 2D Canvas 实时视线与结构可视化
-// 状态单一干净：{ split(16..64), active(0..4), done(Set), pulse(0..1) }
-// 纯 2D Canvas + 原生语义化 HTML 控件：WebGL 关闭完全一致，慢手机与软件渲染同样丝滑。
+// 开场主角玩具：真实可用工单收件箱 × 窗口宽度断点模拟器
+// 核心操作：①点选或按↑↓切换 7 条真实工单（就地刷新正文、专属附件图与行动按钮，实时记「切换次数 / 无效返回次数」）
+// ②拖窗口右边缘（或顶部宽度导轨）跨过 600 / 840 两档，现场看双栏退为单窗格钻取（全屏列表 → 推入详情 → 「← 列表」返回并恢复滚动位置）
+// <600px 手机竖屏默认遵循自身规律，直接以 1:1 满宽单窗格列表呈现。
 import { loop, pixelRatio, reducedMotion } from "../../lib/stage.js";
-import { TOPICS, clamp, snapSplit, splitZone } from "./model.js";
+import { HERO_TICKETS, clamp, heroBreakpoint } from "./model.js";
 
 const $ = (id) => document.getElementById(id);
 
+const MIN_W = 340;
+const MAX_W = 1120;
+
 const C = {
-  bg: "#011613",
-  panel: "#05201C",
-  activeBg: "#0D352E",
-  paper: "#F8EBD8",
-  paperSoft: "#EFE0C7",
-  ink: "#042923",
-  muted: "#B9AC98",
-  mutedDark: "rgba(37,134,113,0.42)",
+  bg: "#041c18",
+  track: "#0a2e28",
+  compact: "rgba(238, 97, 10, 0.22)",
+  medium: "rgba(46, 160, 138, 0.24)",
+  expanded: "rgba(248, 235, 216, 0.16)",
   teal: "#207767",
-  tealBright: "#2EA08A",
-  orange: "#EE610A",
-  orangeSoft: "rgba(238,97,10,0.18)",
-  sun: "#FAD8B6",
-  line: "rgba(4,41,35,0.22)",
+  tealHi: "#2ea08a",
+  orange: "#ee610a",
+  paper: "#f8ebd8",
+  sun: "#fad8b6",
 };
 
+// 为 7 条工单分别生成各自专属的详情附件图示（拒绝千篇一律）
+function renderAttachment(ticket) {
+  switch (ticket.attachType) {
+    case "poster-art":
+      return `
+        <div class="att-art">
+          <svg viewBox="0 0 360 116" role="img" aria-label="活动头图深松墨配暖米纸与橙色山峰预览">
+            <rect width="360" height="116" rx="6" fill="#011613"/>
+            <rect x="10" y="10" width="96" height="96" rx="5" fill="#06231F"/>
+            <rect x="10" y="18" width="4" height="22" rx="1" fill="#EE610A"/>
+            <rect x="18" y="18" width="82" height="22" rx="4" fill="#0D352E"/>
+            <circle cx="28" cy="29" r="4.5" fill="#EE610A"/>
+            <rect x="38" y="25" width="48" height="4" rx="1.5" fill="#F8EBD8"/>
+            <rect x="38" y="32" width="32" height="2.5" rx="1" fill="#2EA08A"/>
+            <circle cx="28" cy="54" r="4" fill="#207767"/>
+            <rect x="38" y="52" width="42" height="3.5" rx="1.5" fill="#207767"/>
+            <circle cx="28" cy="74" r="4" fill="#207767"/>
+            <rect x="38" y="72" width="36" height="3.5" rx="1.5" fill="#207767"/>
+            <circle cx="28" cy="94" r="4" fill="#207767"/>
+            <rect x="38" y="92" width="46" height="3.5" rx="1.5" fill="#207767"/>
+            <path d="M108 29 H124 M120 25 L125 29 L120 33" stroke="#EE610A" stroke-width="2" fill="none" stroke-dasharray="3 3" stroke-linecap="round"/>
+            <rect x="128" y="10" width="222" height="96" rx="6" fill="#EE610A"/>
+            <circle cx="194" cy="52" r="24" fill="#FAD8B6"/>
+            <polygon points="194,106 264,34 334,106" fill="#042923"/>
+          </svg>
+        </div>`;
+    case "csv-diff":
+      return `
+        <div class="att-diff">
+          <div class="ad-row is-bad"><span class="ad-lbl" lang="en">RAW</span><code lang="en">æ”¶å…¥æ±‡æ€»,2026-Q3,Â¥184,200</code></div>
+          <div class="ad-row is-ok"><span class="ad-lbl" lang="en">BOM</span><code>EF BB BF · 收入汇总, 2026-Q3, ¥184,200</code></div>
+        </div>`;
+    case "quota-bar":
+      return `
+        <div class="att-quota">
+          <div class="aq-head"><span>当前占用 <b>192 GB</b> / 200 GB</span><em lang="en">96%</em></div>
+          <div class="aq-track"><i style="width:96%"></i></div>
+          <div class="aq-chips">
+            <span>海报原稿 124 GB</span>
+            <span>导出样张 48 GB</span>
+            <span>历史归档 20 GB</span>
+          </div>
+        </div>`;
+    case "auth-trace":
+      return `
+        <div class="att-trace">
+          <span class="at-node is-ok"><b lang="en">01</b>SSO 令牌通过</span>
+          <span class="at-arrow" aria-hidden="true">→</span>
+          <span class="at-node is-err"><b lang="en">02</b>工作区角色为空</span>
+          <span class="at-arrow" aria-hidden="true">→</span>
+          <span class="at-node is-wait"><b lang="en">03</b>首页路由中断</span>
+        </div>`;
+    case "latency-bars":
+      return `
+        <div class="att-bars">
+          <div class="ab-row"><span>iOS 锁屏</span><div class="ab-track"><i style="width:8%" class="t"></i></div><b lang="en">1.2s</b></div>
+          <div class="ab-row"><span>安卓前台</span><div class="ab-track"><i style="width:14%" class="t"></i></div><b lang="en">2.1s</b></div>
+          <div class="ab-row"><span>省电限制</span><div class="ab-track"><i style="width:92%" class="o"></i></div><b lang="en">184s</b></div>
+        </div>`;
+    case "invoice-diff":
+      return `
+        <div class="att-invoice">
+          <div><span>原发票抬头</span><s>星屿信息科技有限公司</s></div>
+          <div><span>新发票抬头</span><b>星屿数字设计有限公司</b></div>
+          <div><span>税务核验</span><em class="ok">营业执照公章已核对</em></div>
+        </div>`;
+    default:
+      return `
+        <div class="att-kpi">
+          <div><b lang="en">142</b><span>本周关闭工单</span></div>
+          <div><b lang="en">91%</b><span>一次解决率</span></div>
+          <div><b lang="en">6 min</b><span>平均首响</span></div>
+        </div>`;
+  }
+}
+
 export function initHero() {
-  const stage = $("hero-stage");
-  const canvas = $("hero-canvas");
-  const divider = $("hero-divider");
-  const listEl = $("hero-list");
-  const range = $("hero-range");
-  const titleEl = $("title");
+  const heroWrap = $("hero-workbench");
+  const rail = $("hero-width-rail");
+  const railCanvas = $("hero-width-canvas");
+  const viewport = $("hero-viewport");
+  const winEl = $("hero-stage");
+  const edgeHandle = $("hero-edge");
+  const listScrollEl = $("hero-list");
+  const backBtn = $("hero-back");
   const ctaBtn = $("hero-cta");
-  const ctx = canvas.getContext("2d");
+  const ratioRange = $("hero-ratio-range");
+  const ratioVal = $("hero-ratio-val");
+  const resetBtn = $("hero-reset");
+  const scaleTag = $("hero-scale-tag");
+  const restoreBadge = $("hero-restore-badge");
+  const ctx = railCanvas.getContext("2d");
+
+  const items = [...listScrollEl.querySelectorAll(".hl-item")];
+  const widthPresetBtns = [...document.querySelectorAll("[data-hero-w]")];
+
+  const isPhoneInit = () => window.innerWidth < 600;
+
+  let availW = 0;
+  let naturalH = 420;
+  let railW = 0;
+  let railH = 0;
+  let dpr = 1;
+  let lastTier = "";
+  let restoreFlashTimer = 0;
 
   const state = {
-    split: 32,
-    shownSplit: reducedMotion.matches ? 32 : 46, // 开场从偏失衡的 46% 缓缓落位到经典 32%
+    simWidth: isPhoneInit() ? 360 : 960,
+    shownWidth: isPhoneInit() ? 360 : (reducedMotion.matches ? 960 : 880),
+    listPct: 34,
     active: 0,
+    pane: isPhoneInit() ? "list" : "detail", // compact(<600) 下在 "list" 与 "detail" 之间钻取
+    savedScrollTop: 0,
+    lastReturnedIndex: -1,
+    visited: isPhoneInit() ? new Set() : new Set([0]),
     done: new Set(),
-    introDone: reducedMotion.matches,
+    switches: 0,
+    backs: 0,
     dragging: false,
-    switchAge: 0, // 切换主题后的脉冲动画时间
+    userSized: false,
+    introDone: reducedMotion.matches || isPhoneInit(),
   };
 
-  let W = 0, H = 0, dpr = 1;
+  function getTier() {
+    return heroBreakpoint(state.simWidth).tier;
+  }
 
-  // 渲染右侧详情文本 + 左侧按钮选中态 + 读数条
-  const items = [...listEl.querySelectorAll(".hl-item")];
-  const presetBtns = [...document.querySelectorAll("[data-split]")];
-  const prinBars = [...document.querySelectorAll(".hp-bar i")];
+  function updateTelemetry() {
+    const bp = heroBreakpoint(state.simWidth);
+    const tier = bp.tier;
+    const isCompact = tier === "compact";
+
+    $("hero-w-num").textContent = `${Math.round(state.simWidth)}px`;
+    const badge = $("hero-tier-badge");
+    badge.textContent = window.innerWidth < 600 ? bp.shortBadge : bp.badge;
+    badge.dataset.tier = tier;
+
+    $("hero-seen-num").textContent = `${state.visited.size} / ${HERO_TICKETS.length}`;
+    $("hero-switch-num").textContent = `${state.switches} 次`;
+    $("hero-back-num").textContent = `${state.backs} 次`;
+    $("hero-done-num").textContent = `${state.done.size} / ${HERO_TICKETS.length}`;
+
+    // 次要控件：左栏占比滑轨在单窗格下停用
+    ratioRange.disabled = isCompact;
+    ratioRange.value = String(state.listPct);
+    ratioVal.textContent = isCompact ? "单窗格满宽" : `${state.listPct}%`;
+    ratioRange.closest(".sec-ratio").classList.toggle("is-disabled", isCompact);
+
+    // 标尺预设高亮
+    widthPresetBtns.forEach((b) => {
+      const bw = +b.dataset.heroW;
+      b.setAttribute("aria-pressed", String(Math.abs(state.simWidth - bw) <= 18));
+    });
+
+    // 动态白话解释：说清「为什么省力」以及「窄屏为何退回单窗格」
+    const readEl = $("hero-read-text");
+    if (isCompact) {
+      if (state.pane === "detail") {
+        readEl.textContent = `当前 ${Math.round(state.simWidth)}px（<600px 单窗格）：列表先让出全宽给详情阅读。想看下一条必须先点顶部「← 列表」（已记录刚才的列表滚动位置，返回后会自动还原）。`;
+      } else if (state.backs > 0) {
+        readEl.textContent = `已从详情返回列表并恢复刚才的滚动位置（累计无效返回 ${state.backs} 次）。窄屏退回单窗格保住了字号与可读性，代价是每换一条多一步「返回」；把导轨拉过 600px 立刻恢复零返回双栏。`;
+      } else {
+        readEl.textContent = `当前 ${Math.round(state.simWidth)}px（<600px）：按本页规矩自动退成单窗格。点击任意一条工单推入详情，再点「← 列表」看它如何恢复滚动位置；拖动上方导轨跨过 600 / 840 可对比双栏。`;
+      }
+    } else if (state.switches > 0) {
+      readEl.textContent =
+        state.backs === 0
+          ? `已在同屏双栏中切换 ${state.switches} 次、无效返回 0 次：左栏一直留在原位，点选或按 ↑↓ 时右侧就地刷新，眼睛不必离开清单重新找行。试着把窗口拖窄到 600px 以下看看变化。`
+          : `回到 ${Math.round(state.simWidth)}px 双栏后，后续切换不再增加返回次数（当前切换 ${state.switches} 次、累计返回 ${state.backs} 次）。这就是宽屏列表—详情省力的根本原因。`;
+    } else {
+      readEl.textContent = bp.rule;
+    }
+
+    rail.setAttribute("aria-valuenow", String(Math.round(state.simWidth)));
+    rail.setAttribute("aria-valuetext", `${Math.round(state.simWidth)} 像素，${bp.badge}`);
+  }
 
   function updateDetailDOM() {
-    const topic = TOPICS[state.active];
-    $("hd-eyebrow").textContent = topic.eyebrow;
-    $("hd-title").textContent = topic.zh;
-    $("hd-desc").textContent = topic.summary;
-    const isDone = state.done.has(topic.id);
-    ctaBtn.textContent = isDone ? topic.actionDone : `${topic.action} →`;
+    const tk = HERO_TICKETS[state.active];
+    const isDone = state.done.has(tk.id);
+
+    $("hd-code").textContent = tk.id;
+    const tagEl = $("hd-tag");
+    tagEl.textContent = tk.tag;
+    tagEl.dataset.tone = tk.tagTone;
+    $("hd-eyebrow").textContent = tk.eyebrow;
+    $("hd-title").textContent = tk.title;
+    $("hd-meta").textContent = `${tk.sender} · ${tk.time}`;
+    $("hd-summary").textContent = tk.summary;
+    $("hd-detail").textContent = tk.detail;
+    $("hd-attach-name").textContent = tk.attachName;
+    $("hd-attach-meta").textContent = tk.attachMeta;
+    $("hd-attach-body").innerHTML = renderAttachment(tk);
+
+    ctaBtn.textContent = isDone ? tk.ctaDone : `${tk.cta} →`;
     ctaBtn.dataset.done = isDone ? "1" : "0";
+
+    $("hero-back-hint").textContent = `第 ${state.active + 1} / ${HERO_TICKETS.length} 条`;
+
     items.forEach((btn, i) => {
       const sel = i === state.active;
+      const done = state.done.has(HERO_TICKETS[i].id);
+      const seen = state.visited.has(i);
       btn.setAttribute("aria-selected", String(sel));
       btn.classList.toggle("is-active", sel);
-      btn.classList.toggle("is-done", state.done.has(TOPICS[i].id));
-    });
-    prinBars.forEach((el, i) => {
-      el.style.setProperty("--w", `${Math.round(topic.bars[i] * 100)}%`);
+      btn.classList.toggle("is-done", done);
+      btn.classList.toggle("is-seen", seen);
     });
   }
 
-  function updateRatioUI(val) {
-    const pct = Math.round(val);
-    const detailPct = 100 - pct;
-    const z = splitZone(pct);
-    stage.style.setProperty("--split", `${val.toFixed(2)}%`);
-    stage.dataset.zone = z.key;
-    titleEl.style.setProperty("--split", `${val.toFixed(2)}%`);
-    $("hero-ratio-num").textContent = `${pct}% : ${detailPct}%`;
-    const chip = $("hero-zone-chip");
-    chip.textContent = z.label;
-    chip.dataset.zone = z.key;
-    $("hero-read-text").textContent = z.text;
-    range.value = String(pct);
-    divider.setAttribute("aria-valuenow", String(pct));
-    divider.setAttribute("aria-valuetext", `列表占 ${pct}%，详情占 ${detailPct}%，${z.label}`);
-    presetBtns.forEach((b) => {
-      b.setAttribute("aria-pressed", String(Math.abs(+b.dataset.split - pct) <= 1));
-    });
+  // 根据 simWidth 与容器可用宽 availW，应用真实宽度或等比 scale（杜绝手机窄屏出现反例挤压）
+  function applyWindowLayout({ remeasure = false } = {}) {
+    const tier = getTier();
+    const isCompact = tier === "compact";
+    const tierChanged = tier !== lastTier;
+    lastTier = tier;
+
+    winEl.dataset.tier = tier;
+    winEl.dataset.pane = isCompact ? state.pane : "both";
+    winEl.style.setProperty("--list-pct", `${state.listPct}%`);
+
+    if (!availW) {
+      availW = Math.max(280, Math.floor(viewport.getBoundingClientRect().width));
+    }
+
+    // 在真实 <600 手机上，若 simWidth <= availW + 12 且处于 compact，按 100% 满宽 1:1 渲染最清晰
+    const w = Math.round(state.simWidth);
+    let scale = 1;
+    let cssW = w;
+    if (isCompact && window.innerWidth < 600 && w <= availW + 24) {
+      cssW = availW;
+      scale = 1;
+    } else if (w > availW) {
+      scale = availW / w;
+    }
+
+    winEl.style.width = `${cssW}px`;
+
+    // 仅在断点切档、初始或尺寸变化时重测未缩放高度，避免拖动时反复触发强制同步回流
+    if (remeasure || tierChanged || scale === 1) {
+      if (scale === 1) {
+        winEl.style.transform = "";
+        winEl.style.position = "relative";
+        viewport.style.height = "";
+        naturalH = winEl.offsetHeight || naturalH;
+      } else {
+        winEl.style.position = "absolute";
+        winEl.style.transform = "none";
+        naturalH = winEl.offsetHeight || naturalH;
+        winEl.style.transform = `scale(${scale.toFixed(4)})`;
+        viewport.style.height = `${Math.ceil(naturalH * scale)}px`;
+      }
+    } else if (scale < 1) {
+      winEl.style.position = "absolute";
+      winEl.style.transform = `scale(${scale.toFixed(4)})`;
+      viewport.style.height = `${Math.ceil(naturalH * scale)}px`;
+    }
+
+    // 桌面容器内显示 600 / 840 参考标线位置
+    if (availW >= 620) {
+      viewport.style.setProperty("--g600", `${Math.min(600, availW)}px`);
+      viewport.style.setProperty("--g840", `${Math.min(840, availW)}px`);
+      viewport.dataset.guides = "1";
+    } else {
+      viewport.dataset.guides = "0";
+    }
+
+    // 缩放徽标提示（当模拟宽度超出当前设备宽度并等比缩小时显示）
+    if (scale < 0.985) {
+      scaleTag.hidden = false;
+      scaleTag.textContent = `等比缩放入屏 ${Math.round(scale * 100)}%`;
+    } else {
+      scaleTag.hidden = true;
+    }
+
+    // 桌面拖右边缘把手位置紧贴窗口右缘（预留 28px 防止在 768/844/1024 下被裁切）
+    const showEdge = window.innerWidth >= 640 && scale >= 0.995;
+    edgeHandle.hidden = !showEdge;
+    if (showEdge) {
+      edgeHandle.style.left = `${Math.min(cssW, availW - 26)}px`;
+    }
+
+    heroWrap.dataset.tier = tier;
   }
 
-  function setSplit(next, { snap = true, fromUser = true } = {}) {
-    if (fromUser) state.introDone = true;
-    const clamped = clamp(next, 16, 64);
-    state.split = snap ? snapSplit(clamped) : Math.round(clamped * 10) / 10;
-    if (reducedMotion.matches) state.shownSplit = state.split;
-    updateRatioUI(state.split);
+  function setSimWidth(next, { fromUser = true, remeasure = false } = {}) {
+    if (fromUser) {
+      state.introDone = true;
+      state.userSized = true;
+    }
+    const prevTier = getTier();
+    state.simWidth = clamp(Math.round(next), MIN_W, MAX_W);
+    if (fromUser || reducedMotion.matches) state.shownWidth = state.simWidth;
+    const nextTier = getTier();
+
+    // 刚从双栏缩进单窗格时，默认展示列表页以便马上体验「点选推入 → ← 列表返回」
+    if (prevTier !== "compact" && nextTier === "compact") {
+      state.pane = "list";
+    }
+    // 从单窗格拉宽成双栏时，确保当前选中的条目算作已看
+    if (prevTier === "compact" && nextTier !== "compact") {
+      state.visited.add(state.active);
+    }
+
+    applyWindowLayout({ remeasure: remeasure || prevTier !== nextTier });
+    updateTelemetry();
     draw();
   }
 
-  function setActive(index) {
-    state.introDone = true;
-    state.active = (index + TOPICS.length) % TOPICS.length;
-    state.switchAge = 0;
+  function openTicket(index, { fromUser = true, keepFocus = false } = {}) {
+    const prev = state.active;
+    const next = (index + HERO_TICKETS.length) % HERO_TICKETS.length;
+    const isCompact = getTier() === "compact";
+
+    if (fromUser) {
+      if (isCompact) {
+        // 记住当前列表滚动位置，等「← 列表」时精确还原
+        state.savedScrollTop = listScrollEl.scrollTop;
+        state.pane = "detail";
+        state.switches += 1;
+      } else if (next !== prev || !state.visited.has(next)) {
+        state.switches += 1;
+      }
+    }
+
+    state.active = next;
+    state.visited.add(next);
     updateDetailDOM();
+    applyWindowLayout({ remeasure: isCompact });
+    updateTelemetry();
+    if (keepFocus && !isCompact) items[next].focus();
+    if (isCompact && fromUser) backBtn.focus({ preventScroll: true });
     draw();
   }
 
-  // ---------- 2D Canvas 绘制：右栏内的活海报图示 ----------
-  // 画海报原版经典嵌套图（暗小列表 + 橙虚线箭头 + 亮米框内太阳深绿山峰 + 标题条 + 橙色行动按钮），
-  // 并随着当前选中的主题（0..4）和左右分栏比例（state.shownSplit）实时变化！
-  function roundRect(x, y, w, h, r) {
-    const rr = Math.min(r, w / 2, h / 2);
-    ctx.beginPath();
-    ctx.moveTo(x + rr, y);
-    ctx.arcTo(x + w, y, x + w, y + h, rr);
-    ctx.arcTo(x + w, y + h, x, y + h, rr);
-    ctx.arcTo(x, y + h, x, y, rr);
-    ctx.arcTo(x, y, x + w, y, rr);
-    ctx.closePath();
+  function returnToList() {
+    if (getTier() !== "compact" || state.pane !== "detail") return;
+    state.pane = "list";
+    state.backs += 1;
+    state.lastReturnedIndex = state.active;
+    applyWindowLayout({ remeasure: true });
+
+    // 立即恢复进入详情前记住的列表滚动位置，并轻闪标记刚才读过的那一行
+    listScrollEl.scrollTop = state.savedScrollTop;
+    const targetBtn = items[state.active];
+    if (targetBtn) {
+      targetBtn.classList.remove("is-restored");
+      void targetBtn.offsetWidth;
+      targetBtn.classList.add("is-restored");
+      targetBtn.focus({ preventScroll: true });
+    }
+    if (restoreBadge) {
+      restoreBadge.hidden = false;
+      restoreBadge.textContent =
+        state.savedScrollTop > 4
+          ? `已恢复滚动位置（${Math.round(state.savedScrollTop)}px · 第 ${state.active + 1} 条）`
+          : `已回到第 ${state.active + 1} 条原位`;
+      clearTimeout(restoreFlashTimer);
+      restoreFlashTimer = setTimeout(() => {
+        restoreBadge.hidden = true;
+      }, 2800);
+    }
+    updateTelemetry();
+    draw();
+  }
+
+  // ---------- 2D Canvas 宽度断点标尺（高效 60fps，响应拖拽并标明 600 / 840 两档） ----------
+  function xForW(w) {
+    const pad = 14;
+    const span = Math.max(10, railW - pad * 2);
+    return pad + ((clamp(w, MIN_W, MAX_W) - MIN_W) / (MAX_W - MIN_W)) * span;
+  }
+
+  function wForClientX(clientX) {
+    const r = rail.getBoundingClientRect();
+    const pad = 14;
+    const span = Math.max(10, r.width - pad * 2);
+    const frac = clamp((clientX - r.left - pad) / span, 0, 1);
+    return MIN_W + frac * (MAX_W - MIN_W);
   }
 
   function frame(t, dt, { still }) {
-    if (!W || !H) return;
+    if (!railW || !railH) return;
 
-    // 缓动分栏比例：开场 0.9s 前平滑落向 32%，拖动时紧跟手指
     if (still) {
-      state.shownSplit = state.split;
-      state.switchAge = 1;
-    } else {
-      const target = state.introDone ? state.split : t > 0.35 ? 32 : 46;
-      if (!state.introDone && t > 1.3) state.introDone = true;
-      const rate = state.dragging ? 28 : 8.5;
-      const k = dt ? 1 - Math.exp(-dt * rate) : 0;
-      state.shownSplit += (target - state.shownSplit) * k;
-      if (Math.abs(target - state.shownSplit) < 0.04) state.shownSplit = target;
-      state.switchAge = Math.min(1, state.switchAge + dt * 1.4);
-      if (!state.introDone) {
-        stage.style.setProperty("--split", `${state.shownSplit.toFixed(2)}%`);
-        titleEl.style.setProperty("--split", `${state.shownSplit.toFixed(2)}%`);
+      state.shownWidth = state.simWidth;
+      state.introDone = true;
+    } else if (!state.introDone) {
+      const target = state.simWidth;
+      const k = dt ? 1 - Math.exp(-dt * 7.5) : 0;
+      state.shownWidth += (target - state.shownWidth) * k;
+      if (Math.abs(target - state.shownWidth) < 0.6 || t > 0.85) {
+        state.shownWidth = target;
+        state.introDone = true;
       }
+    } else {
+      state.shownWidth = state.simWidth;
     }
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, railW, railH);
 
-    // 画布本身位于右侧详情纸面内：底色透明直接复用暖米纸
-    const pad = Math.max(8, Math.min(W * 0.03, 14));
-    const innerW = W - pad * 2;
-    const innerH = H - pad * 2;
+    const pad = 14;
+    const trackY = Math.round(railH * 0.52);
+    const trackH = 10;
+    const xMin = xForW(MIN_W);
+    const x600 = xForW(600);
+    const x840 = xForW(840);
+    const xMax = xForW(MAX_W);
+    const xCur = xForW(state.shownWidth);
 
-    // 根据真实 split 计算小示意图里的左小列表与右详情卡的比例，直观反映「列表宽窄如何影响详情空间」
-    const splitFrac = clamp(state.shownSplit / 100, 0.16, 0.64);
-    const gap = Math.max(14, Math.min(innerW * 0.06, 26));
-    const miniListW = clamp(innerW * splitFrac, innerW * 0.18, innerW * 0.6);
-    const miniDetailW = Math.max(40, innerW - miniListW - gap);
-    const listX = pad;
-    const listY = pad;
-    const detailX = listX + miniListW + gap;
-    const detailY = pad;
+    // 三档区间色带（Compact / Medium / Expanded）
+    ctx.fillStyle = C.compact;
+    ctx.fillRect(xMin, trackY - trackH / 2, x600 - xMin, trackH);
+    ctx.fillStyle = C.medium;
+    ctx.fillRect(x600, trackY - trackH / 2, x840 - x600, trackH);
+    ctx.fillStyle = C.expanded;
+    ctx.fillRect(x840, trackY - trackH / 2, xMax - x840, trackH);
 
-    const z = splitZone(state.shownSplit);
-    const activeIdx = state.active;
-    const pulse = still ? 0.65 : (t * 0.55) % 1;
-
-    // 1. 左侧迷你暗列表（呼应海报中段黑卡片）
-    roundRect(listX, listY, miniListW, innerH, 10);
-    ctx.fillStyle = C.bg;
-    ctx.fill();
-
-    // 画 4 行迷你条目，对应 activeIdx 映射到 0..3
-    const rowCount = 4;
-    const rowPadX = Math.max(6, miniListW * 0.09);
-    const rowPadY = Math.max(8, innerH * 0.06);
-    const rowH = (innerH - rowPadY * 2) / rowCount;
-    const mappedRow = activeIdx % rowCount;
-    let activeCenterY = listY + rowPadY + rowH * (mappedRow + 0.5);
-
-    for (let i = 0; i < rowCount; i++) {
-      const ry = listY + rowPadY + i * rowH;
-      const isSel = i === mappedRow;
-      if (isSel) {
-        roundRect(listX + 4, ry + 2, miniListW - 8, rowH - 4, 6);
-        ctx.fillStyle = C.activeBg;
-        ctx.fill();
-        // 左侧亮橙竖杠
-        ctx.fillStyle = C.orange;
-        ctx.fillRect(listX + 4, ry + 6, 3, rowH - 12);
-      }
-      const dotR = clamp(Math.min(rowH * 0.21, miniListW * 0.1), 4, 8.5);
-      const dotX = listX + rowPadX + dotR + 2;
-      const dotY = ry + rowH * 0.5;
+    // 标尺小刻度
+    ctx.strokeStyle = "rgba(248, 235, 216, 0.24)";
+    ctx.lineWidth = 1;
+    for (let w = 360; w <= 1120; w += 40) {
+      const tx = Math.round(xForW(w)) + 0.5;
+      const major = w === 600 || w === 840;
       ctx.beginPath();
-      ctx.arc(dotX, dotY, dotR, 0, Math.PI * 2);
-      ctx.fillStyle = isSel ? C.orange : C.teal;
-      ctx.fill();
-
-      // 右侧文字条：如果列表太窄（< 24%），文字条明显截断并标橙警
-      const barX = dotX + dotR + Math.max(5, miniListW * 0.06);
-      const avail = listX + miniListW - rowPadX - barX;
-      if (avail > 8) {
-        const w1 = avail * (isSel ? 0.92 : 0.72 - (i % 2) * 0.1);
-        const w2 = avail * (isSel ? 0.58 : 0.48);
-        ctx.fillStyle = isSel ? C.orange : C.mutedDark;
-        roundRect(barX, dotY - 5, Math.max(4, w1), 4, 2);
-        ctx.fill();
-        ctx.fillStyle = isSel ? C.sun : "rgba(37,134,113,0.28)";
-        roundRect(barX, dotY + 2.5, Math.max(3, w2), 3, 1.5);
-        ctx.fill();
-      }
-    }
-
-    // 列表过宽时的浪费空间斜线提示
-    if (z.key === "wide" && miniListW > innerW * 0.46) {
-      ctx.save();
-      roundRect(listX + miniListW * 0.62, listY + 6, miniListW * 0.34, innerH - 12, 6);
-      ctx.clip();
-      ctx.strokeStyle = "rgba(238,97,10,0.22)";
-      ctx.lineWidth = 1;
-      for (let d = -innerH; d < miniListW; d += 10) {
-        ctx.beginPath();
-        ctx.moveTo(listX + miniListW * 0.62 + d, listY);
-        ctx.lineTo(listX + miniListW * 0.62 + d - innerH * 0.5, listY + innerH);
-        ctx.stroke();
-      }
-      ctx.restore();
-    }
-
-    // 2. 右侧迷你详情卡片（海报原版浅米框 + 橙天米日深绿山峰）
-    roundRect(detailX, detailY, miniDetailW, innerH, 10);
-    ctx.fillStyle = "#FCF4E7";
-    ctx.fill();
-    ctx.strokeStyle = z.key === "wide" ? "rgba(238,97,10,0.65)" : C.line;
-    ctx.lineWidth = z.key === "wide" ? 1.5 : 1;
-    ctx.stroke();
-
-    const dPad = Math.max(8, Math.min(miniDetailW * 0.08, 16));
-    const artX = detailX + dPad;
-    const artY = detailY + dPad;
-    const artW = Math.max(20, miniDetailW - dPad * 2);
-    const artH = innerH * 0.48;
-
-    // 按当前 5 个主题微调主图视觉隐喻，同时保留 267 海报标志性的橙底 + 暖圆 + 深绿几何语言
-    ctx.save();
-    roundRect(artX, artY, artW, artH, 4);
-    ctx.clip();
-
-    // 橙色背景画布
-    ctx.fillStyle = C.orange;
-    ctx.fillRect(artX, artY, artW, artH);
-
-    const reveal = still ? 1 : clamp(state.switchAge * 1.25, 0, 1);
-    const ease = 1 - Math.pow(1 - reveal, 3);
-
-    if (activeIdx === 0) {
-      // 概念定义：海报原版「暖米圆日 + 深墨绿山峰」
-      const sunR = Math.min(artW, artH) * 0.28;
-      ctx.fillStyle = C.sun;
-      ctx.beginPath();
-      ctx.arc(artX + artW * 0.34, artY + artH * (0.52 + (1 - ease) * 0.14), sunR, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = C.ink;
-      ctx.beginPath();
-      ctx.moveTo(artX + artW * 0.34, artY + artH);
-      ctx.lineTo(artX + artW * 0.68, artY + artH * (0.28 + (1 - ease) * 0.25));
-      ctx.lineTo(artX + artW * 0.98, artY + artH);
-      ctx.closePath();
-      ctx.fill();
-    } else if (activeIdx === 1) {
-      // 结构关系：一对多比例网格与节点连线
-      ctx.fillStyle = C.ink;
-      ctx.fillRect(artX, artY, artW * splitFrac, artH);
-      ctx.strokeStyle = C.sun;
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([4, 4]);
-      ctx.beginPath();
-      ctx.moveTo(artX + artW * splitFrac, artY);
-      ctx.lineTo(artX + artW * splitFrac, artY + artH);
+      ctx.moveTo(tx, trackY - (major ? 10 : 5));
+      ctx.lineTo(tx, trackY + (major ? 10 : 5));
       ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle = C.sun;
-      ctx.beginPath();
-      ctx.arc(artX + artW * splitFrac * 0.5, artY + artH * 0.5, Math.min(artW, artH) * 0.14, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#FCF4E7";
-      const rx = artX + artW * splitFrac + 10;
-      const rw = Math.max(8, artW * (1 - splitFrac) - 20);
-      roundRect(rx, artY + artH * 0.22, rw * ease, artH * 0.56, 3);
-      ctx.fill();
-    } else if (activeIdx === 2) {
-      // 视觉层级：三层递进金字塔（呼应海报「主次」图标）
-      const cx = artX + artW * 0.5;
-      const baseW = Math.min(artW * 0.68, artH * 1.25);
-      const topY = artY + artH * 0.16;
-      const h3 = (artH * 0.7) / 3;
-      const layers = [
-        { fill: C.ink, y0: topY, y1: topY + h3 - 3, w0: 0, w1: baseW * 0.34 },
-        { fill: C.teal, y0: topY + h3, y1: topY + h3 * 2 - 3, w0: baseW * 0.38, w1: baseW * 0.68 },
-        { fill: C.sun, y0: topY + h3 * 2, y1: topY + h3 * 3, w0: baseW * 0.72, w1: baseW },
-      ];
-      layers.forEach((L, idx) => {
-        const dy = (1 - ease) * (10 + idx * 6);
-        ctx.fillStyle = L.fill;
-        ctx.beginPath();
-        ctx.moveTo(cx - L.w0 / 2, L.y0 + dy);
-        ctx.lineTo(cx + L.w0 / 2, L.y0 + dy);
-        ctx.lineTo(cx + L.w1 / 2, L.y1 + dy);
-        ctx.lineTo(cx - L.w1 / 2, L.y1 + dy);
-        ctx.closePath();
-        ctx.fill();
-      });
-    } else if (activeIdx === 3) {
-      // 内容组织：卡片模块矩阵（左缩略 + 右多区块）
-      const cols = 3;
-      const bw = (artW - 24 - (cols - 1) * 6) / cols;
-      for (let c = 0; c < cols; c++) {
-        ctx.fillStyle = c === 0 ? C.ink : c === 1 ? C.sun : C.teal;
-        const bh = artH * (0.45 + (c === 1 ? 0.22 : 0.1)) * ease;
-        roundRect(artX + 12 + c * (bw + 6), artY + artH - 12 - bh, Math.max(6, bw), Math.max(6, bh), 3);
-        ctx.fill();
-      }
-    } else {
-      // 交互引导：点击波纹 + 连续切换轨迹
-      const cx = artX + artW * 0.5;
-      const cy = artY + artH * 0.5;
-      const maxR = Math.min(artW, artH) * 0.42;
-      for (let k = 0; k < 3; k++) {
-        const rr = maxR * (((pulse + k / 3) % 1) * 0.75 + 0.25);
-        ctx.strokeStyle = k === 0 ? C.sun : C.ink;
-        ctx.globalAlpha = 1 - rr / (maxR * 1.15);
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(cx, cy, rr, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = C.ink;
-      ctx.beginPath();
-      ctx.arc(cx, cy, Math.max(5, maxR * 0.22), 0, Math.PI * 2);
-      ctx.fill();
     }
-    ctx.restore();
 
-    // 主图下方的标题条、正文灰条与右下橙色主行动按钮（忠实复刻海报结构）
-    const titleY = artY + artH + Math.max(8, innerH * 0.055);
-    ctx.fillStyle = C.ink;
-    roundRect(artX, titleY, artW * 0.56, Math.max(6, innerH * 0.04), 2);
+    // 600 / 840 两道关键断点亮橙标记线
+    for (const bpW of [600, 840]) {
+      const bx = Math.round(xForW(bpW)) + 0.5;
+      const crossed = state.shownWidth >= bpW;
+      ctx.strokeStyle = crossed ? C.orange : "rgba(238, 97, 10, 0.65)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(bx, 3);
+      ctx.lineTo(bx, railH - 3);
+      ctx.stroke();
+    }
+
+    // 当前宽度进度亮条
+    ctx.fillStyle = state.shownWidth < 600 ? C.orange : C.tealHi;
+    ctx.fillRect(xMin, trackY - 2.5, Math.max(2, xCur - xMin), 5);
+
+    // 亮橙拖拽游标
+    const knobW = 14;
+    const knobH = 22;
+    const kx = xCur - knobW / 2;
+    const ky = trackY - knobH / 2;
+    ctx.fillStyle = C.orange;
+    ctx.beginPath();
+    ctx.roundRect(kx, ky, knobW, knobH, 4);
     ctx.fill();
-
-    // 右下亮橙主行动按钮 CTA（点完外面的真实按钮后变为青绿已确认！）
-    const btnW = clamp(artW * 0.26, 26, 56);
-    const btnH = clamp(innerH * 0.085, 11, 17);
-    const btnX = artX + artW - btnW;
-    const btnY = detailY + innerH - dPad - btnH;
-
-    const lineGap = Math.max(7, innerH * 0.05);
-    const lineWidths = [0.95, 0.86, 0.72];
-    ctx.fillStyle = C.muted;
-    lineWidths.forEach((lw, idx) => {
-      const ly = titleY + Math.max(12, innerH * 0.09) + idx * lineGap;
-      if (ly + 5 < btnY - 5) {
-        roundRect(artX, ly, artW * lw, 3.5, 1.5);
-        ctx.fill();
-      }
-    });
-
-    const isDone = state.done.has(TOPICS[activeIdx].id);
-    ctx.fillStyle = isDone ? C.teal : C.orange;
-    roundRect(btnX, btnY, btnW, btnH, 3);
-    ctx.fill();
-
-    // 3. 海报灵魂：跨越暗列表与亮纸面的「橙色虚线箭头」+ 流动视线光点
-    const arrowStartX = listX + miniListW + 2;
-    const arrowEndX = detailX + 3;
-    ctx.save();
-    ctx.strokeStyle = C.orange;
+    ctx.strokeStyle = C.paper;
     ctx.lineWidth = 2;
-    ctx.setLineDash([4, 4]);
-    ctx.lineDashOffset = still ? 0 : -t * 18;
-    ctx.beginPath();
-    ctx.moveTo(arrowStartX, activeCenterY);
-    ctx.lineTo(arrowEndX - 5, activeCenterY);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    // 箭头尖
-    ctx.beginPath();
-    ctx.moveTo(arrowEndX - 7, activeCenterY - 4.5);
-    ctx.lineTo(arrowEndX - 1, activeCenterY);
-    ctx.lineTo(arrowEndX - 7, activeCenterY + 4.5);
     ctx.stroke();
 
-    // 流动的视线焦点脉冲点（沿着「列表选中点 → 虚线桥 → 右侧主图 → 右下 CTA」轻盈扫过）
-    const pts = [
-      [listX + miniListW * 0.5, activeCenterY],
-      [arrowEndX + 8, activeCenterY],
-      [artX + artW * 0.5, artY + artH * 0.52],
-      [btnX + btnW * 0.5, btnY + btnH * 0.5],
-    ];
-    const seg = pulse * (pts.length - 1);
-    const i0 = Math.min(pts.length - 2, Math.floor(seg));
-    const frac = seg - i0;
-    const px = pts[i0][0] + (pts[i0 + 1][0] - pts[i0][0]) * frac;
-    const py = pts[i0][1] + (pts[i0 + 1][1] - pts[i0][1]) * frac;
-
-    ctx.fillStyle = "rgba(238,97,10,0.28)";
+    // 游标中央白线
+    ctx.strokeStyle = "#fff8f0";
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.arc(px, py, 8, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#FFF5E8";
-    ctx.strokeStyle = C.orange;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(px, py, 3.8, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.moveTo(xCur, ky + 6);
+    ctx.lineTo(xCur, ky + knobH - 6);
     ctx.stroke();
-    ctx.restore();
   }
 
-  const { draw } = loop(stage, frame);
+  const { draw } = loop(heroWrap, frame);
 
-  function resize() {
-    const r = canvas.getBoundingClientRect();
-    W = Math.round(r.width);
-    H = Math.round(r.height);
+  let lastMeasuredAvailW = 0;
+  let lastMeasuredRailW = 0;
+
+  function measureAndSync() {
+    const rr = rail.getBoundingClientRect();
+    const nextRailW = Math.round(rr.width);
+    const nextRailH = Math.round(rr.height);
+    const nextAvail = Math.max(280, Math.floor(viewport.getBoundingClientRect().width));
+
+    // 高度变化（如手机单窗格列表/详情切换）不应重置用户当前视图或重复重算
+    if (lastMeasuredAvailW && Math.abs(nextAvail - lastMeasuredAvailW) < 2 && Math.abs(nextRailW - lastMeasuredRailW) < 2) {
+      return;
+    }
+    const widthChanged = Math.abs(nextAvail - lastMeasuredAvailW) >= 2;
+    lastMeasuredAvailW = nextAvail;
+    lastMeasuredRailW = nextRailW;
+
+    railW = nextRailW;
+    railH = nextRailH;
     dpr = pixelRatio(2);
-    if (W > 0 && H > 0) {
-      canvas.width = Math.round(W * dpr);
-      canvas.height = Math.round(H * dpr);
-      draw();
+    if (railW > 0 && railH > 0) {
+      railCanvas.width = Math.round(railW * dpr);
+      railCanvas.height = Math.round(railH * dpr);
     }
+
+    availW = nextAvail;
+
+    // 仅在首次挂载或容器宽度真正变化且用户未手动改窗宽时，按当前设备设置最自然的初始宽度
+    if (widthChanged && !state.userSized) {
+      if (window.innerWidth < 600) {
+        state.simWidth = clamp(availW, MIN_W, 560);
+        state.shownWidth = state.simWidth;
+        state.pane = "list";
+      } else {
+        // 桌面与平板预留 30px 给右侧橙色「拖窗宽」把手，绝不贴边裁切
+        const desktopRoom = Math.max(620, availW - 30);
+        state.simWidth = clamp(Math.min(960, desktopRoom), 620, MAX_W);
+        if (state.introDone) state.shownWidth = state.simWidth;
+      }
+    }
+
+    applyWindowLayout({ remeasure: true });
+    updateTelemetry();
+    draw();
   }
-  new ResizeObserver(resize).observe(canvas);
+
+  const ro = new ResizeObserver(measureAndSync);
+  ro.observe(viewport);
+  ro.observe(rail);
 
   // ---------- 交互绑定 ----------
-  // 1. 列表点击 + 键盘上下导航
+  // 1. 工单列表点击 + 键盘 ↑↓ Home End（支持双栏就地刷新 & 窄屏钻取）
   items.forEach((btn, i) => {
-    btn.addEventListener("click", () => setActive(i));
+    btn.addEventListener("click", () => openTicket(i, { fromUser: true }));
     btn.addEventListener("keydown", (e) => {
       if (e.key === "ArrowDown") {
         e.preventDefault();
         const next = (i + 1) % items.length;
-        setActive(next);
-        items[next].focus();
+        if (getTier() === "compact") {
+          items[next].focus();
+        } else {
+          openTicket(next, { fromUser: true, keepFocus: true });
+        }
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         const prev = (i - 1 + items.length) % items.length;
-        setActive(prev);
-        items[prev].focus();
+        if (getTier() === "compact") {
+          items[prev].focus();
+        } else {
+          openTicket(prev, { fromUser: true, keepFocus: true });
+        }
       } else if (e.key === "Home") {
         e.preventDefault();
-        setActive(0);
-        items[0].focus();
+        if (getTier() === "compact") items[0].focus();
+        else openTicket(0, { fromUser: true, keepFocus: true });
       } else if (e.key === "End") {
         e.preventDefault();
-        setActive(items.length - 1);
-        items[items.length - 1].focus();
+        const last = items.length - 1;
+        if (getTier() === "compact") items[last].focus();
+        else openTicket(last, { fromUser: true, keepFocus: true });
       }
     });
   });
 
-  // 2. 右侧详情主行动按钮 CTA
-  ctaBtn.addEventListener("click", () => {
-    const topic = TOPICS[state.active];
-    if (topic.id === "interaction") {
-      setActive(0);
-      return;
+  // 2. 单窗格返回按钮（恢复滚动位置 + 累计无效返回）
+  backBtn.addEventListener("click", returnToList);
+  winEl.addEventListener("keydown", (e) => {
+    if ((e.key === "Escape" || e.key === "ArrowLeft") && getTier() === "compact" && state.pane === "detail") {
+      e.preventDefault();
+      returnToList();
     }
-    if (state.done.has(topic.id)) state.done.delete(topic.id);
-    else state.done.add(topic.id);
-    updateDetailDOM();
-    draw();
   });
 
-  // 3. 中轴分栏分隔条拖动（同时支持 pointer 与 touch，标记了 data-perf-drag 供 perf 测试）
-  const pctFromClientX = (clientX) => {
-    const r = stage.getBoundingClientRect();
-    return ((clientX - r.left) / Math.max(1, r.width)) * 100;
-  };
+  // 3. 详情区真实主行动按钮 CTA（标记该工单已处理）
+  ctaBtn.addEventListener("click", () => {
+    const tk = HERO_TICKETS[state.active];
+    if (state.done.has(tk.id)) state.done.delete(tk.id);
+    else state.done.add(tk.id);
+    updateDetailDOM();
+    updateTelemetry();
+  });
 
-  let activePtr = null;
-  divider.addEventListener("pointerdown", (e) => {
-    activePtr = e.pointerId;
+  // 4. 顶部宽度断点导轨（标记 data-perf-drag，支持鼠标、触屏与键盘）
+  let railPtr = null;
+  rail.addEventListener("pointerdown", (e) => {
+    railPtr = e.pointerId;
     state.dragging = true;
-    state.introDone = true;
-    try { divider.setPointerCapture(e.pointerId); } catch {}
-    stage.classList.add("is-dragging");
-    setSplit(pctFromClientX(e.clientX), { snap: false });
+    try { rail.setPointerCapture(e.pointerId); } catch {}
+    heroWrap.classList.add("is-dragging");
+    setSimWidth(wForClientX(e.clientX));
     e.preventDefault();
   });
   window.addEventListener("pointermove", (e) => {
-    if (activePtr !== e.pointerId) return;
-    setSplit(pctFromClientX(e.clientX), { snap: false });
+    if (railPtr !== e.pointerId) return;
+    setSimWidth(wForClientX(e.clientX));
   });
-  const endPointer = (e) => {
-    if (activePtr !== e.pointerId) return;
-    activePtr = null;
+  const endRail = (e) => {
+    if (railPtr !== e.pointerId) return;
+    railPtr = null;
     state.dragging = false;
-    stage.classList.remove("is-dragging");
-    setSplit(state.split, { snap: true });
+    heroWrap.classList.remove("is-dragging");
+    applyWindowLayout({ remeasure: true });
   };
-  window.addEventListener("pointerup", endPointer);
-  window.addEventListener("pointercancel", endPointer);
+  window.addEventListener("pointerup", endRail);
+  window.addEventListener("pointercancel", endRail);
 
-  // 键盘调整分隔条
-  divider.addEventListener("keydown", (e) => {
-    const step = e.shiftKey ? 5 : 2;
+  rail.addEventListener("keydown", (e) => {
+    const step = e.shiftKey ? 60 : 20;
     if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
       e.preventDefault();
-      setSplit(state.split - step, { snap: false });
+      setSimWidth(state.simWidth - step, { remeasure: true });
     } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
       e.preventDefault();
-      setSplit(state.split + step, { snap: false });
+      setSimWidth(state.simWidth + step, { remeasure: true });
     } else if (e.key === "Home") {
       e.preventDefault();
-      setSplit(16, { snap: false });
+      setSimWidth(390, { remeasure: true });
     } else if (e.key === "End") {
       e.preventDefault();
-      setSplit(64, { snap: false });
-    } else if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      setSplit(32, { snap: true });
+      setSimWidth(1080, { remeasure: true });
     }
   });
 
-  // 4. 滑块与预设按钮
-  range.addEventListener("input", () => setSplit(+range.value, { snap: false }));
-  presetBtns.forEach((btn) => {
-    btn.addEventListener("click", () => setSplit(+btn.dataset.split, { snap: true }));
+  // 点击宽度刻度快捷跳转（390 / 600 / 840 / 1080）
+  widthPresetBtns.forEach((b) => {
+    b.addEventListener("click", () => setSimWidth(+b.dataset.heroW, { remeasure: true }));
+  });
+
+  // 5. 窗口右边缘拖拽缩放柄（桌面直拖窗口右边跨过 840 / 600 两档）
+  let edgeDrag = null;
+  edgeHandle.addEventListener("pointerdown", (e) => {
+    edgeDrag = { id: e.pointerId, startX: e.clientX, startW: state.simWidth };
+    state.dragging = true;
+    try { edgeHandle.setPointerCapture(e.pointerId); } catch {}
+    heroWrap.classList.add("is-dragging");
+    e.preventDefault();
+  });
+  window.addEventListener("pointermove", (e) => {
+    if (!edgeDrag || edgeDrag.id !== e.pointerId) return;
+    const dx = e.clientX - edgeDrag.startX;
+    setSimWidth(clamp(edgeDrag.startW + dx, MIN_W, Math.min(MAX_W, Math.max(availW - 26, 620))));
+  });
+  const endEdge = (e) => {
+    if (!edgeDrag || edgeDrag.id !== e.pointerId) return;
+    edgeDrag = null;
+    state.dragging = false;
+    heroWrap.classList.remove("is-dragging");
+    applyWindowLayout({ remeasure: true });
+  };
+  window.addEventListener("pointerup", endEdge);
+  window.addEventListener("pointercancel", endEdge);
+
+  edgeHandle.addEventListener("keydown", (e) => {
+    const step = e.shiftKey ? 60 : 20;
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      setSimWidth(state.simWidth - step, { remeasure: true });
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      setSimWidth(state.simWidth + step, { remeasure: true });
+    }
+  });
+
+  // 6. 次要控件：左栏占比微调滑轨（不抢主角，无预设按钮）
+  ratioRange.addEventListener("input", () => {
+    state.listPct = clamp(+ratioRange.value, 24, 48);
+    applyWindowLayout();
+    updateTelemetry();
+  });
+
+  // 7. 重置计数
+  resetBtn.addEventListener("click", () => {
+    const isCompact = getTier() === "compact";
+    state.active = 0;
+    state.pane = isCompact ? "list" : "detail";
+    state.savedScrollTop = 0;
+    listScrollEl.scrollTop = 0;
+    state.visited = isCompact ? new Set() : new Set([0]);
+    state.done.clear();
+    state.switches = 0;
+    state.backs = 0;
+    if (restoreBadge) restoreBadge.hidden = true;
+    updateDetailDOM();
+    applyWindowLayout({ remeasure: true });
+    updateTelemetry();
   });
 
   updateDetailDOM();
-  updateRatioUI(32);
-  resize();
+  measureAndSync();
 }
