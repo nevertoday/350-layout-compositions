@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>063 分支构图 · BRANCHING COMPOSITION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="topbar-cat">
+      <span class="cat-dot" aria-hidden="true"></span>
+      <span>构图逻辑 / 阵列、层叠与组群</span>
+    </div>
+    <p class="topbar-no" lang="en">NO. 063<span class="topbar-no-en"> · BRANCHING COMPOSITION</span></p>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== 开场：063 原海报同构活体分叉嫁接台 ==================== -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero-shell">
+      <!-- 顶部宣言带：左侧带橘红主干圆与 45° 绿叉的示范标题，右侧 6px 亮橘竖杠原海报总述 -->
+      <div class="hero-head">
+        <div class="hero-title-group">
+          <div class="title-trunk-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 56" width="52" height="46">
+              <path d="M18 28H34L48 12H60M34 28H60M34 28L48 44H60" fill="none" stroke="#007348" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="15" cy="28" r="13" fill="#EA6E1F"/>
+              <rect x="54" y="7" width="9" height="9" fill="#086142"/>
+              <circle cx="58.5" cy="28" r="5" fill="#FFA2BC"/>
+              <rect x="54" y="39.5" width="9" height="9" fill="#164085"/>
+            </svg>
+          </div>
+          <div class="title-stack">
+            <div class="title-row">
+              <h1 id="hero-title">分支构图</h1>
+              <span id="mobile-score" class="mobile-score is-err">0 / 4 · 断枝孤岛</span>
+            </div>
+            <p class="hero-en" lang="en">BRANCHING COMPOSITION</p>
+          </div>
+        </div>
+        <div class="hero-lead hero-lead-desktop">
+          <p class="lead-zh">以一个主干节点为起点，像树枝一样逐级分叉展开，形成清晰的层级树状结构，引导视线从根部流向末端。</p>
+          <p class="lead-en" lang="en">A COMPOSITION THAT STARTS FROM A MAIN NODE AND BRANCHES OUT STEP BY STEP LIKE A TREE.</p>
+        </div>
+      </div>
+
+      <!-- 主互动区（宽屏通栏敞开、844×390 横屏左台右诊） -->
+      <div class="hero-arena">
+        <div class="hero-board">
+          <div class="board-bar">
+            <p class="stage-hint" id="stage-hint">点击任意节点再点目标父节点嫁接分叉 · 拖动底沿拉尺调节展幅</p>
+            <div class="board-bar-actions">
+              <button type="button" id="btn-detach" class="mini-btn is-danger" hidden>断开成孤岛</button>
+              <div class="seg-group" role="group" aria-label="节点语义题材">
+                <button type="button" class="seg-btn is-active" data-theme="abstract" aria-pressed="true">原海报几何</button>
+                <button type="button" class="seg-btn" data-theme="coffee" aria-pressed="false">咖啡风味</button>
+                <button type="button" class="seg-btn" data-theme="design" aria-pressed="false">设计系统</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="stage-wrap" id="hero-stage-wrap">
+            <canvas id="hero-canvas" tabindex="0" aria-label="分支构图活体分叉嫁接台，点击节点可重新挂载父级，方向键可切换节点"></canvas>
+          </div>
+
+          <!-- 紧贴画布底沿的一体化条：左侧原海报四色图例与体量级差，右侧横向延伸拉尺（data-perf-drag） -->
+          <div class="board-foot">
+            <div class="span-rail-box">
+              <div class="rail-meta">
+                <span class="rail-title">延伸展幅拉尺 <span lang="en">EXTENSION SPAN</span></span>
+                <span class="rail-val is-err" id="span-readout">36% · 偏窄挤撞</span>
+              </div>
+              <div class="span-rail" id="span-rail" data-perf-drag>
+                <div class="rail-zone z-tight">挤撞</div>
+                <div class="rail-zone z-sweet">经验甜区 56%–88%</div>
+                <div class="rail-zone z-bleed">贴边</div>
+                <button type="button" class="span-thumb" id="span-thumb" role="slider" aria-label="横向延伸展幅" aria-valuemin="28" aria-valuemax="96" aria-valuenow="36">
+                  <span aria-hidden="true">↔</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="scale-bar" role="group" aria-label="逐级体量级差">
+              <span class="bar-label">体量级差</span>
+              <div class="scale-btns">
+                <button type="button" class="mini-btn" data-scale="inverted" aria-pressed="false">倒挂 0.6×</button>
+                <button type="button" class="mini-btn is-active" data-scale="equal" aria-pressed="true">平权 1.0×</button>
+                <button type="button" class="mini-btn" data-scale="gentle" aria-pressed="false">缓降 1.5×</button>
+                <button type="button" class="mini-btn" data-scale="poster" aria-pressed="false">原海报级差</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 原海报四色层级图例条 -->
+          <div class="legend-strip" aria-label="原海报四级编码图例">
+            <span><i class="lg-dot lg-l1"></i>主干节点（根部）</span>
+            <span><i class="lg-sq lg-l2"></i>二级节点</span>
+            <span><i class="lg-dot lg-l3"></i>三级节点</span>
+            <span><i class="lg-sq lg-l4"></i>末端节点</span>
+          </div>
+        </div>
+
+        <!-- 底部 2px 黑实横线分隔：忠实 063 原海报左四图腾竖栏 × 右圆角单黑线诊单盒 -->
+        <div class="hero-lower">
+          <!-- 左：原海报四竖栏关键词实况图腾 -->
+          <div class="kw-strip" aria-label="分支构图四项实时检核">
+            <div class="kw-cell is-err" data-kw="trunk">
+              <div class="kw-top">
+                <strong>主干</strong>
+                <span class="kw-rule" aria-hidden="true"></span>
+              </div>
+              <svg class="kw-ico" viewBox="0 0 64 36" aria-hidden="true">
+                <line x1="22" y1="18" x2="58" y2="18" stroke="#007348" stroke-width="5.5" stroke-linecap="round"/>
+                <circle cx="18" cy="18" r="12" fill="#EA6E1F"/>
+              </svg>
+              <span class="kw-en" lang="en">MAIN TRUNK</span>
+              <span class="kw-live">1 处孤岛</span>
+            </div>
+
+            <div class="kw-cell is-err" data-kw="branching">
+              <div class="kw-top">
+                <strong>分叉</strong>
+                <span class="kw-rule" aria-hidden="true"></span>
+              </div>
+              <svg class="kw-ico" viewBox="0 0 64 36" aria-hidden="true">
+                <path d="M8 18H30L46 6H58M30 18L46 30H58" fill="none" stroke="#007348" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="kw-en" lang="en">BRANCHING</span>
+              <span class="kw-live">交叉 2 处</span>
+            </div>
+
+            <div class="kw-cell is-err" data-kw="hierarchy">
+              <div class="kw-top">
+                <strong>层级</strong>
+                <span class="kw-rule" aria-hidden="true"></span>
+              </div>
+              <svg class="kw-ico" viewBox="0 0 64 36" aria-hidden="true">
+                <path d="M32 14V26M14 26V20H50V26" fill="none" stroke="#007348" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="25" y="3" width="14" height="12" fill="#086142"/>
+                <circle cx="14" cy="29" r="5.5" fill="#FFA2BC"/>
+                <circle cx="32" cy="29" r="5.5" fill="#FFA2BC"/>
+                <circle cx="50" cy="29" r="5.5" fill="#FFA2BC"/>
+              </svg>
+              <span class="kw-en" lang="en">HIERARCHY</span>
+              <span class="kw-live">跨级 2 处</span>
+            </div>
+
+            <div class="kw-cell is-err" data-kw="extension">
+              <div class="kw-top">
+                <strong>延伸</strong>
+                <span class="kw-rule" aria-hidden="true"></span>
+              </div>
+              <svg class="kw-ico" viewBox="0 0 64 36" aria-hidden="true">
+                <rect x="6" y="15" width="7" height="6" fill="#164085"/>
+                <rect x="17" y="15" width="7" height="6" fill="#164085"/>
+                <rect x="28" y="15" width="7" height="6" fill="#164085"/>
+                <path d="M39 15H46V10L58 18L46 26V21H39Z" fill="#164085"/>
+              </svg>
+              <span class="kw-en" lang="en">EXTENSION</span>
+              <span class="kw-live">缩挤 36%</span>
+            </div>
+          </div>
+
+          <!-- 右：原海报同款 18px 圆角单线黑框诊单盒 -->
+          <aside class="diag-box is-err" id="diag-box" aria-live="polite">
+            <div class="diag-top">
+              <span class="diag-icon" id="diag-icon" aria-hidden="true"></span>
+              <span class="diag-tag" id="diag-tag">错态 · 断枝孤岛</span>
+              <span class="diag-score" id="diag-score" lang="en">0 / 4</span>
+            </div>
+            <h2 class="diag-head" id="diag-head">有 1 枚节点脱离主干，视线根本走不到它</h2>
+            <p class="diag-body" id="diag-body">节点 L6 没有父级连线，游离在树外。读者扫完主干分支后，不知道它归属于哪一类。</p>
+            <p class="diag-hint" id="diag-hint">先点击孤岛节点 L6，再点任意三级粉圆把它重新嫁接回树上。</p>
+
+            <div class="diag-metrics" id="diag-metrics"></div>
+
+            <div class="diag-actions">
+              <button type="button" id="btn-untangle" class="act-btn is-primary">理顺分叉槽位</button>
+              <button type="button" id="btn-cycle" class="act-btn" aria-pressed="false">添回环变网</button>
+              <button type="button" id="btn-reset" class="act-btn">复原错态</button>
+            </div>
+            <div class="preset-row" role="group" aria-label="体验典型错态">
+              <span class="preset-label">试看错态</span>
+              <button type="button" class="mini-btn is-active" data-preset="broken" aria-pressed="true">乱叉错态</button>
+              <button type="button" class="mini-btn" data-preset="flat" aria-pressed="false">扁平爆棚</button>
+              <button type="button" class="mini-btn" data-preset="cycle" aria-pressed="false">成环变网</button>
+              <button type="button" class="mini-btn" data-preset="inverted" aria-pressed="false">体量倒挂</button>
+            </div>
+          </aside>
+        </div>
+
+        <!-- 手机竖屏下把总述放在玩具之后，保证首屏留给活体分叉台 -->
+        <div class="hero-lead hero-lead-mobile">
+          <p class="lead-zh">以一个主干节点为起点，像树枝一样逐级分叉展开，形成清晰的层级树状结构，引导视线从根部流向末端。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01 一条主干，四重编码 ==================== -->
+  <section class="sec sec-sand" id="sec-01" aria-labelledby="h-01">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">01</span>
+        <div>
+          <h2 id="h-01">一条主干，四重编码</h2>
+          <p class="sec-en" lang="en">One Trunk, Four Visual Codes</p>
+        </div>
+      </header>
+
+      <div class="split-2">
+        <div class="prose">
+          <blockquote class="poster-quote">
+            <span class="q-tag">原海报要点</span>
+            <p>「层级分明」<span class="q-en" lang="en">CLEAR HIERARCHY.</span></p>
+          </blockquote>
+          <p>很多人以为把方块用线连起来就是分支构图，其实只画连线远远不够。仔细看 063 原海报就会发现，它一口气叠加了四重视觉通道来锁定层级：</p>
+          <ul class="bullet-list">
+            <li><strong>位置对齐</strong>：同级节点严格落在同一条隐藏纵列上，从左到右一望即知深浅；</li>
+            <li><strong>体量递减</strong>：主干最大，随后二级、三级、末端依次收小，天然标出权重序；</li>
+            <li><strong>方圆交替</strong>：圆 → 方 → 圆 → 方，让相邻两级在轮廓上彼此弹开；</li>
+            <li><strong>四色区隔</strong>：橘红、深墨绿、珊瑚粉、深钴蓝分属四级，远扫即可按色分层。</li>
+          </ul>
+          <p>法国制图学者雅克·贝尔坦（Jacques Bertin）在 1967 年的《图形符号学》（Sémiologie graphique）中指出：大小与位置天然自带「有序等级」，而色相与形状擅长「同类归组」。把它们叠加在一起，眼睛就不用逐条数线，0.3 秒内便能认清整棵树的辈分。</p>
+          <p class="try-tip">试着在旁边逐一关掉这四个开关，看看层级清晰度是如何一步步崩塌的。</p>
+        </div>
+
+        <div class="lab-card">
+          <div class="ch-switches" role="group" aria-label="四重视觉编码开关">
+            <button type="button" class="ch-btn is-on" data-ch="align" aria-pressed="true">① 位置对齐</button>
+            <button type="button" class="ch-btn is-on" data-ch="size" aria-pressed="true">② 体量递减</button>
+            <button type="button" class="ch-btn is-on" data-ch="shape" aria-pressed="true">③ 方圆交替</button>
+            <button type="button" class="ch-btn is-on" data-ch="color" aria-pressed="true">④ 四色区隔</button>
+          </div>
+          <div class="svg-frame">
+            <svg id="s1-svg" viewBox="0 0 540 306" role="img" aria-label="四重视觉编码实时对照图"></svg>
+          </div>
+          <div id="s1-readout" class="s1-readout" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 宽度与深度的拉锯 ==================== -->
+  <section class="sec sec-paper" id="sec-02" aria-labelledby="h-02">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">02</span>
+        <div>
+          <h2 id="h-02">宽度与深度的拉锯</h2>
+          <p class="sec-en" lang="en">Breadth vs. Depth</p>
+        </div>
+      </header>
+
+      <div class="prose prose-wide">
+        <blockquote class="poster-quote">
+          <span class="q-tag">原海报要点</span>
+          <p>「逐级分叉」<span class="q-en" lang="en">BRANCHING STEP BY STEP IN MULTIPLE LEVELS.</span></p>
+        </blockquote>
+        <p><span class="gentle-tag">补一句边界</span> 原海报说「逐级分叉展开」能形成清晰层级，但前提是<strong>每级分叉数（扇出）与总层数（深度）必须平衡</strong>。面对同样的 12 项末端信息，一次性全挂在主干上会炸成无法扫读的射线墙；反过来每层只分 2 叉、拉成五六层，读者又得穿行太久才会看到答案。平面信息图里常见的经验舒适区是：<strong>总深度 3–4 层，单节点扇出 2–4 枝</strong>。</p>
+      </div>
+
+      <div class="s2-grid">
+        <div class="s2-left">
+          <div class="topo-cards" role="group" aria-label="12 枚末端的四种分叉结构">
+            <button type="button" class="topo-card" data-topo="flat" aria-pressed="false">
+              <span class="tc-ratio" lang="en">1 → 12</span>
+              <strong>扁平炸开</strong>
+              <span>2 层 · 最大 12 叉</span>
+            </button>
+            <button type="button" class="topo-card" data-topo="wide" aria-pressed="false">
+              <span class="tc-ratio" lang="en">1 → 6 → 2</span>
+              <strong>宽冠两级</strong>
+              <span>3 层 · 最大 6 叉</span>
+            </button>
+            <button type="button" class="topo-card is-active" data-topo="balanced" aria-pressed="true">
+              <span class="tc-ratio" lang="en">1 → 3 → 2 → 2</span>
+              <strong>均衡四级</strong>
+              <span>4 层 · 最大 3 叉</span>
+            </button>
+            <button type="button" class="topo-card" data-topo="deep" aria-pressed="false">
+              <span class="tc-ratio" lang="en">1 → 2 → 2 → 3</span>
+              <strong>前窄后膨</strong>
+              <span>4 层 · 末端 3 叉</span>
+            </button>
+          </div>
+          <div class="s2-bench-note">
+            <p class="s2-bench-title">分叉尺度经验速查</p>
+            <ul>
+              <li><strong>总深度 3–4 层</strong>：超过 5 层后，读者容易忘掉自己是从哪支进来的。</li>
+              <li><strong>单节点扇出 2–4 枝</strong>：每一步只需在少数几个选项里做抉择。</li>
+              <li><strong>同层留足字高</strong>：末端最密的一列，先反推决定整张图需要的高度。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="s2-stage-box">
+          <div class="svg-frame">
+            <svg id="s2-svg" viewBox="0 0 620 314" role="img" aria-label="12 枚末端节点在不同分叉拓扑下的排布对比"></svg>
+          </div>
+          <div id="s2-info" class="s2-info" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 枝干如何领着眼睛走（深森林墨绿暗版） ==================== -->
+  <section class="sec sec-forest" id="sec-03" aria-labelledby="h-03">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">03</span>
+        <div>
+          <h2 id="h-03">枝干如何领着眼睛走</h2>
+          <p class="sec-en" lang="en">How Branches Lead the Eye</p>
+        </div>
+      </header>
+
+      <div class="split-2 split-forest">
+        <div class="prose">
+          <blockquote class="poster-quote is-dark">
+            <span class="q-tag">原海报要点</span>
+            <p>「视线从主干向外延伸」<span class="q-en" lang="en">EYE FLOW EXTENDS FROM THE MAIN TRUNK OUTWARD.</span></p>
+          </blockquote>
+          <p>连线的几何形状直接决定眼睛滑动的手感，而生长方向决定文字标签能否舒服安放。063 原海报挑选的「左→右 + 45° 折转横干」并非偶然：中文与拉丁文都是横向阅读，从左往右展开让文字水平接在节点旁不打架；45° 转角又把斜向分叉压缩成统一节奏，不至于像满屏任意角度的斜射线那样扎眼。</p>
+          <p>在旁边的暗房视流剧场里，切换 4 种枝干画法与 3 种生长方向，观察橘红光点从根部出发流向末端时的节奏变化。</p>
+
+          <div class="s3-controls">
+            <div class="s3-group">
+              <span class="s3-label">枝干几何</span>
+              <div class="s3-btn-row" role="group" aria-label="枝干几何样式">
+                <button type="button" class="dk-btn is-active" data-branch-style="octilinear" aria-pressed="true">45° 折线</button>
+                <button type="button" class="dk-btn" data-branch-style="bezier" aria-pressed="false">柔和曲线</button>
+                <button type="button" class="dk-btn" data-branch-style="ortho" aria-pressed="false">直角阶梯</button>
+                <button type="button" class="dk-btn" data-branch-style="straight" aria-pressed="false">直连斜线</button>
+              </div>
+            </div>
+            <div class="s3-group">
+              <span class="s3-label">生长方向</span>
+              <div class="s3-btn-row" role="group" aria-label="枝干生长方向">
+                <button type="button" class="dk-btn is-active" data-branch-dir="lr" aria-pressed="true">左 → 右</button>
+                <button type="button" class="dk-btn" data-branch-dir="tb" aria-pressed="false">上 → 下</button>
+                <button type="button" class="dk-btn" data-branch-dir="radial" aria-pressed="false">中心放射</button>
+                <button type="button" class="dk-btn is-fire" id="s3-fire">放行一束视线</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="s3-readout" class="s3-readout" aria-live="polite"></div>
+        </div>
+
+        <div class="s3-canvas-wrap" id="s3-wrap">
+          <canvas id="s3-canvas" aria-label="不同枝干几何与方向的视线流动演示"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 同小类里的位置 ==================== -->
+  <section class="sec sec-mint" id="sec-04" aria-labelledby="h-04">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">04</span>
+        <div>
+          <h2 id="h-04">同小类里的位置</h2>
+          <p class="sec-en" lang="en">Within the Same Family</p>
+        </div>
+      </header>
+
+      <div class="split-2">
+        <div class="family-list">
+          <p class="family-intro">在「阵列、层叠与组群」这一小类里，8 种构图各有各的拿手关系。分支构图专管「唯一父级、逐级派生」；遇到下面这些情况，直接交给同族邻居：</p>
+          <ul class="neighbor-ul">
+            <li><a href="https://layout.xiaoxiaodong.ai/057/play/" target="_blank" rel="noopener">057 棋盘构图</a>：各格平等均分、靠行列网格建立秩序，不讲从属高低。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/058/play/" target="_blank" rel="noopener">058 阶梯构图</a>：靠逐级抬升或下降的错落高度建立节奏与递进。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/059/play/" target="_blank" rel="noopener">059 层叠构图</a>：借由元素前后遮挡叠加出物理景深与层次。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/060/play/" target="_blank" rel="noopener">060 级联构图</a>：顺着一条主势能瀑布连续下坠推进，不向多路分岔。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/061/play/" target="_blank" rel="noopener">061 聚类构图</a>：只靠物理距离拉近聚拢成簇，不画显性父子连线。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/062/play/" target="_blank" rel="noopener">062 分散构图</a>：刻意把焦点洒满开放空间，制造多向轻盈的呼吸感。</li>
+            <li class="is-key"><a href="https://layout.xiaoxiaodong.ai/064/play/" target="_blank" rel="noopener">064 网络构图</a>：<strong>最易越界的邻居</strong>——节点多对多互连、允许闭环回指，没有唯一主干。</li>
+          </ul>
+        </div>
+
+        <div class="lab-card">
+          <div class="s4-head">
+            <h3>树与网，只差一两根线</h3>
+            <button type="button" id="s4-toggle" class="act-btn is-primary" aria-pressed="false">添入跨支与回环边（变成 064 网络）</button>
+          </div>
+          <div class="svg-frame">
+            <svg id="s4-svg" viewBox="0 0 360 230" role="img" aria-label="树状分支构图与网状构图的边界切换演示"></svg>
+          </div>
+          <p id="s4-note" class="s4-note" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 从哪来 ==================== -->
+  <section class="sec sec-paper" id="sec-05" aria-labelledby="h-05">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">05</span>
+        <div>
+          <h2 id="h-05">从哪来</h2>
+          <p class="sec-en" lang="en">Origins &amp; Landmarks</p>
+        </div>
+      </header>
+
+      <div class="era-tabs" role="group" aria-label="分支构图历史里程碑">
+        <button type="button" class="era-btn is-active" data-era="porphyry" aria-pressed="true">
+          <span class="era-y" lang="en">c. 270</span>
+          <strong>波菲利之树</strong>
+        </button>
+        <button type="button" class="era-btn" data-era="darwin" aria-pressed="false">
+          <span class="era-y" lang="en">1837</span>
+          <strong>达尔文 B 笔记本</strong>
+        </button>
+        <button type="button" class="era-btn" data-era="beck" aria-pressed="false">
+          <span class="era-y" lang="en">1931 / 1933</span>
+          <strong>亨利·贝克地铁图</strong>
+        </button>
+        <button type="button" class="era-btn" data-era="reingold" aria-pressed="false">
+          <span class="era-y" lang="en">1981 / 2014</span>
+          <strong>整洁树算法与树之书</strong>
+        </button>
+      </div>
+
+      <div class="s5-panel">
+        <div class="s5-fig">
+          <svg id="s5-svg" viewBox="0 0 360 232" role="img" aria-label="对应历史时期的分支图结构微图"></svg>
+        </div>
+        <div id="s5-desc" class="s5-desc" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 什么时候用，什么时候别用 ==================== -->
+  <section class="sec sec-slate" id="sec-06" aria-labelledby="h-06">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">06</span>
+        <div>
+          <h2 id="h-06">什么时候用，什么时候别用</h2>
+          <p class="sec-en" lang="en">When to Use — and When Not To</p>
+        </div>
+      </header>
+
+      <div class="prose prose-wide">
+        <blockquote class="poster-quote">
+          <span class="q-tag">原海报应用建议</span>
+          <p>「通过层级分支的结构，清晰组织信息关系，引导视线有序延展。」</p>
+        </blockquote>
+      </div>
+
+      <div class="s6-columns">
+        <div class="s6-rules">
+          <div class="rule-card is-do">
+            <h3>适合用分支构图</h3>
+            <ul>
+              <li><strong>单一总主题向下拆解</strong>：产品家族谱系、公司组织架构、知识分类树。</li>
+              <li><strong>带条件分岔的决策路径</strong>：故障排查流、选型指南、风味推荐图。</li>
+              <li><strong>多级信息架构鸟瞰</strong>：网站站点地图、设计系统令牌层级一览。</li>
+            </ul>
+          </div>
+          <div class="rule-card is-dont">
+            <h3>什么时候别用</h3>
+            <ul>
+              <li><strong>多对多交叉关系</strong>：同一子项隶属多个父级时，强画成树只能到处复制或满屏交叉，请改用 <a href="https://layout.xiaoxiaodong.ai/064/play/" target="_blank" rel="noopener">064 网络构图</a>。</li>
+              <li><strong>平等并列、无尊卑主次</strong>：作品集或同级商品强安一个主干，会捏造虚假权威，不如看 <a href="https://layout.xiaoxiaodong.ai/057/play/" target="_blank" rel="noopener">057 棋盘构图</a> 或 <a href="https://layout.xiaoxiaodong.ai/062/play/" target="_blank" rel="noopener">062 分散构图</a>。</li>
+              <li><strong>竖窄小屏里塞大段说明文</strong>：横向 4 级分叉在窄屏上会把末端挤压成细条，正文长时宜改折叠目录。</li>
+              <li><strong>毫无分岔的单向步骤</strong>：从第 1 步直走第 5 步时别画空树壳，看 <a href="https://layout.xiaoxiaodong.ai/060/play/" target="_blank" rel="noopener">060 级联构图</a> 更直接。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="lab-card s6-triage">
+          <p class="triage-title">实战分诊：点一个任务，看它该不该画成树</p>
+          <div class="case-tabs" role="group" aria-label="真实排版需求场景">
+            <button type="button" class="mini-btn is-active" data-case="menu" aria-pressed="true">咖啡风味分类</button>
+            <button type="button" class="mini-btn" data-case="collab" aria-pressed="false">跨部门协作网</button>
+            <button type="button" class="mini-btn" data-case="gallery" aria-pressed="false">九人摄影联展</button>
+            <button type="button" class="mini-btn" data-case="linear" aria-pressed="false">5 步注册向导</button>
+          </div>
+          <div class="svg-frame">
+            <svg id="s6-svg" viewBox="0 0 360 180" role="img" aria-label="所选需求对应的合适构图微图"></svg>
+          </div>
+          <div id="s6-verdict" class="s6-verdict" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 挑一张最好读的分支图 ==================== -->
+  <section class="sec sec-paper" id="sec-07" aria-labelledby="h-07">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">07</span>
+        <div>
+          <h2 id="h-07">挑一张最好读的分支图</h2>
+          <p class="sec-en" lang="en">Quick Check</p>
+        </div>
+      </header>
+
+      <p class="quiz-prompt">要把一款音频工具的 4 级功能导览（1 个总入口 → 3 个模块 → 6 个场景 → 6 项操作）印在横版展板上。下面四张方案的节点数量、色板和画幅完全一致，<strong>每张只改了一个构图变量</strong>。哪一张最符合分支构图的阅读效率？</p>
+
+      <div class="quiz-grid" role="group" aria-label="四选一分支构图练习">
+        <button type="button" class="quiz-opt" data-quiz="A" aria-pressed="false">
+          <span class="quiz-label">方案 A</span>
+          <svg viewBox="0 0 280 160" aria-hidden="true"></svg>
+        </button>
+        <button type="button" class="quiz-opt" data-quiz="B" aria-pressed="false">
+          <span class="quiz-label">方案 B</span>
+          <svg viewBox="0 0 280 160" aria-hidden="true"></svg>
+        </button>
+        <button type="button" class="quiz-opt" data-quiz="C" aria-pressed="false">
+          <span class="quiz-label">方案 C</span>
+          <svg viewBox="0 0 280 160" aria-hidden="true"></svg>
+        </button>
+        <button type="button" class="quiz-opt" data-quiz="D" aria-pressed="false">
+          <span class="quiz-label">方案 D</span>
+          <svg viewBox="0 0 280 160" aria-hidden="true"></svg>
+        </button>
+      </div>
+
+      <div id="s7-feedback" class="s7-feedback" hidden aria-live="polite"></div>
+      <div class="quiz-reset-wrap">
+        <button type="button" id="s7-reset" class="act-btn" hidden>重新选一次</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 08 原海报与关键词 ==================== -->
+  <section class="sec sec-sand sec-poster" id="sec-08" aria-labelledby="h-08">
+    <div class="wrap poster-grid">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">08</span>
+        <div>
+          <h2 id="h-08">原海报与关键词</h2>
+          <p class="sec-en" lang="en">The Original Poster</p>
+        </div>
+      </header>
+
+      <figure class="poster-fig">
+        <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="放大查看 063 分支构图原海报">
+          <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="063 分支构图原海报：暖宣纸底，顶部黑体分支构图与亮橘竖杠导语，中段左侧橘红主干圆经深森林绿 45° 折线分叉至 3 枚墨绿方、6 枚珊瑚粉圆与 6 枚深钴藏青方末端，底部为四枚关键词图标与圆角黑框应用总结。">
+        </button>
+        <figcaption>点击放大海报，缩放后可拖动细看，按 Esc 收起。</figcaption>
+      </figure>
+
+      <div class="poster-kw-col">
+        <h3 class="kw-col-title">原海报关键词 <span lang="en">Keywords</span></h3>
+        <ul class="poster-kw-list">
+          <li>
+            <svg viewBox="0 0 64 36" aria-hidden="true"><line x1="22" y1="18" x2="58" y2="18" stroke="#007348" stroke-width="5.5" stroke-linecap="round"/><circle cx="18" cy="18" r="12" fill="#EA6E1F"/></svg>
+            <div><b>主干</b><span lang="en">MAIN TRUNK</span><p>确立唯一的视觉起点与核心主题，统领全局。</p></div>
+          </li>
+          <li>
+            <svg viewBox="0 0 64 36" aria-hidden="true"><path d="M8 18H30L46 6H58M30 18L46 30H58" fill="none" stroke="#007348" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div><b>分叉</b><span lang="en">BRANCHING</span><p>按合理扇出逐级拆分多条支线，绝不成环缠结。</p></div>
+          </li>
+          <li>
+            <svg viewBox="0 0 64 36" aria-hidden="true"><path d="M32 14V26M14 26V20H50V26" fill="none" stroke="#007348" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="25" y="3" width="14" height="12" fill="#086142"/><circle cx="14" cy="29" r="5.5" fill="#FFA2BC"/><circle cx="32" cy="29" r="5.5" fill="#FFA2BC"/><circle cx="50" cy="29" r="5.5" fill="#FFA2BC"/></svg>
+            <div><b>层级</b><span lang="en">HIERARCHY</span><p>借位置纵列、大小递减与形色变化明确辈分。</p></div>
+          </li>
+          <li>
+            <svg viewBox="0 0 64 36" aria-hidden="true"><rect x="6" y="15" width="7" height="6" fill="#164085"/><rect x="17" y="15" width="7" height="6" fill="#164085"/><rect x="28" y="15" width="7" height="6" fill="#164085"/><path d="M39 15H46V10L58 18L46 26V21H39Z" fill="#164085"/></svg>
+            <div><b>延伸</b><span lang="en">EXTENSION</span><p>舒展展幅并保持留白，让视线从根部顺畅流到末端。</p></div>
+          </li>
+        </ul>
+
+        <div class="poster-summary-pill">
+          <span class="pill-check" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5.5 12.5l4.2 4.2L18.5 8" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <div>
+            <p class="pill-zh">通过层级分支的结构，清晰组织信息关系，引导视线有序延展。</p>
+            <p class="pill-en" lang="en">USE A HIERARCHICAL BRANCHING STRUCTURE TO ORGANIZE INFORMATION CLEARLY AND GUIDE THE EYE TO EXTEND IN AN ORDERLY WAY.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 原海报放大灯箱 -->
+<dialog class="lightbox" id="poster-lightbox" aria-label="原海报大图预览">
+  <div class="lb-bar">
+    <span>063 分支构图 · 原海报</span>
+    <div class="lb-btns">
+      <button type="button" id="lb-zoom" class="act-btn">放大细看</button>
+      <button type="button" id="lb-close" class="act-btn is-primary">关闭 (Esc)</button>
+    </div>
+  </div>
+  <div class="lb-stage">
+    <img id="lb-img" draggable="false" alt="063 分支构图原海报大图">
+  </div>
+</dialog>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p class="foot-title"><span lang="en" class="foot-no">No. 063</span> 分支构图 · 350 种排版</p>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/063/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
