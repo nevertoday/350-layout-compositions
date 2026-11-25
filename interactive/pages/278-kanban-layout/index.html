@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EFEAD8">
+<title>看板布局 · Kanban Layout</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <p class="crumb"><i class="crumb-dot" aria-hidden="true"></i><span>网页与 UI / 内容与产品模式</span></p>
+    <div class="topbar-right">
+      <span class="issue-code" lang="en">NO. 278 · KANBAN LAYOUT</span>
+      <span class="status-pill is-err" id="top-status" aria-live="polite">0 / 4 待理顺</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== HERO：活体生产看板台 ==================== -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="wrap hero-grid">
+      <!-- 刊头：承袭 278 原海报左粗森绿大标+竖杠总述 × 右双绿圆与 4×4 点阵 -->
+      <header class="masthead">
+        <div class="mast-left">
+          <div class="title-row">
+            <h1 id="page-title">看板布局</h1>
+            <!-- 标题即示范：5 列实时缩微 WIP 水位柱徽 -->
+            <span class="title-demo" id="title-demo" aria-hidden="true" title="随看板各列在制品实时联动">
+              <i></i><i></i><i></i><i></i><i></i>
+            </span>
+          </div>
+          <p class="title-en" lang="en">KANBAN LAYOUT</p>
+          <p class="hero-summary">通过垂直列组织任务，用状态流转展示工作进度，让团队协同更清晰，问题暴露更及时，交付更可控。</p>
+        </div>
+        <div class="mast-right">
+          <div class="poster-motif" aria-hidden="true">
+            <svg viewBox="0 0 184 78" class="motif-svg">
+              <circle cx="76" cy="36" r="31" fill="#AEBFA0"/>
+              <circle cx="42" cy="54" r="15" fill="#245728"/>
+              <g fill="#849A77">
+                <circle cx="126" cy="20" r="3"/><circle cx="140" cy="20" r="3"/><circle cx="154" cy="20" r="3"/><circle cx="168" cy="20" r="3"/>
+                <circle cx="126" cy="34" r="3"/><circle cx="140" cy="34" r="3"/><circle cx="154" cy="34" r="3"/><circle cx="168" cy="34" r="3"/>
+                <circle cx="126" cy="48" r="3"/><circle cx="140" cy="48" r="3"/><circle cx="154" cy="48" r="3"/><circle cx="168" cy="48" r="3"/>
+                <circle cx="126" cy="62" r="3"/><circle cx="140" cy="62" r="3"/><circle cx="154" cy="62" r="3"/><circle cx="168" cy="62" r="3"/>
+              </g>
+            </svg>
+          </div>
+          <dl class="hero-kpi" aria-label="看板实时读数">
+            <div><dt>在制总量</dt><dd id="kpi-wip">8 张</dd></div>
+            <div><dt>最大堆积</dt><dd id="kpi-hot">进行中 6</dd></div>
+            <div><dt>示意周期</dt><dd id="kpi-cycle">9.5 天</dd></div>
+          </dl>
+        </div>
+      </header>
+
+      <!-- 主角舞台：顶沿 2D Canvas 水位测绘条 + 5 列 × 4 泳道活体看板 -->
+      <div class="board-stage" id="board-stage">
+        <div class="stage-bar">
+          <p class="stage-hint">按住卡片左右拖跨列流转 · 点列头 <b>⇄</b> 调顺流程 · 键盘 ← / → 推进卡片</p>
+          <p class="stage-toast" id="stage-toast" aria-live="polite"></p>
+        </div>
+
+        <div class="flow-strip-wrap">
+          <canvas id="flow-canvas" class="flow-canvas" aria-label="五列在制品水位与流转测绘带"></canvas>
+        </div>
+
+        <div class="board-scroll" id="board-scroll">
+          <div class="kanban-board" id="kanban-board" role="region" aria-label="可拖拽生产看板">
+            <!-- JS 渲染 5 列表头与泳道/任务卡网格 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 诊单与操控双栏：无深色仪表盘侧栏感，延续原海报暖米亚麻圆角说明板 -->
+      <div class="hero-dock">
+        <div class="diag-box is-err" id="diag-box" aria-live="polite">
+          <div class="diag-head">
+            <span class="diag-tag" id="diag-tag">错态 · 列序倒置 (0 / 4)</span>
+            <span class="diag-meta" id="diag-meta">单真源实算 · 周期为示意值</span>
+          </div>
+          <h2 class="diag-title" id="diag-title">「评审中」排在了「进行中」前面，看板流向与真实工作流打架</h2>
+          <p class="diag-why" id="diag-why"></p>
+          <p class="diag-action" id="diag-action"></p>
+        </div>
+
+        <div class="ctrl-box" aria-label="看板结构调控">
+          <div class="ctrl-row">
+            <span class="ctrl-label">在制品上限 WIP</span>
+            <div class="btn-group" role="group" aria-label="在制品上限开关">
+              <button type="button" class="seg-btn is-active" data-wip="off" aria-pressed="true">关闭 ∞</button>
+              <button type="button" class="seg-btn" data-wip="on" aria-pressed="false">严格限流</button>
+            </div>
+          </div>
+          <div class="ctrl-row">
+            <span class="ctrl-label">横向泳道分组</span>
+            <div class="btn-group" role="group" aria-label="泳道分组开关">
+              <button type="button" class="seg-btn is-active" data-lane="off" aria-pressed="true">混堆关闭</button>
+              <button type="button" class="seg-btn" data-lane="on" aria-pressed="false">4 职能泳道</button>
+            </div>
+          </div>
+          <div class="ctrl-row">
+            <span class="ctrl-label">卡片信息密度</span>
+            <div class="btn-group" role="group" aria-label="卡片密度切换">
+              <button type="button" class="seg-btn is-active" data-density="bloated" aria-pressed="true">过载 8 项</button>
+              <button type="button" class="seg-btn" data-density="minimal" aria-pressed="false">最小必要</button>
+              <button type="button" class="seg-btn" data-density="stripped" aria-pressed="false">极简缺标</button>
+            </div>
+          </div>
+          <div class="ctrl-row ctrl-actions">
+            <span class="ctrl-label">快捷演练</span>
+            <div class="btn-group">
+              <button type="button" class="act-btn" id="btn-fix-order">一键理顺列序</button>
+              <button type="button" class="act-btn" id="btn-healthy">看参考稳态</button>
+              <button type="button" class="act-btn is-ghost" id="btn-reset">复原 0/4 错态</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 手机竖屏总述放于交互后 -->
+      <p class="hero-summary-mobile">通过垂直列组织任务，用状态流转展示工作进度，让团队协同更清晰，问题暴露更及时，交付更可控。</p>
+
+      <!-- 原海报底沿五柱原则实时检核带 -->
+      <ul class="five-strip" id="five-strip" aria-label="看板五项原则实时检核">
+        <li data-p="status">
+          <svg viewBox="0 0 36 36" class="p-ico" aria-hidden="true">
+            <rect x="4" y="6" width="11" height="24" rx="2" fill="#245728"/>
+            <rect x="20" y="12" width="11" height="18" rx="2" fill="#6F8C63"/>
+          </svg>
+          <div class="p-copy"><strong>状态 <span lang="en">STATUS</span></strong><span class="p-badge" data-badge="status">列序逆行</span></div>
+        </li>
+        <li data-p="grouping">
+          <svg viewBox="0 0 36 36" class="p-ico" aria-hidden="true">
+            <circle cx="18" cy="7" r="4.5" fill="#245728"/>
+            <rect x="13.5" y="14" width="9" height="9" rx="1.5" fill="#476A40"/>
+            <circle cx="18" cy="29" r="4.5" fill="#AEBFA0"/>
+          </svg>
+          <div class="p-copy"><strong>分组 <span lang="en">GROUPING</span></strong><span class="p-badge" data-badge="grouping">混成一锅</span></div>
+        </li>
+        <li data-p="flow">
+          <svg viewBox="0 0 36 36" class="p-ico" aria-hidden="true">
+            <path d="M5 18H29M22 11L30 18L22 25" fill="none" stroke="#245728" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="p-copy"><strong>流动 <span lang="en">FLOW</span></strong><span class="p-badge" data-badge="flow">WIP 关闭</span></div>
+        </li>
+        <li data-p="priority">
+          <svg viewBox="0 0 36 36" class="p-ico" aria-hidden="true">
+            <circle cx="18" cy="7" r="4.5" fill="#245728"/>
+            <polygon points="18,13.5 23,22.5 13,22.5" fill="#5B8A47"/>
+            <rect x="13.5" y="25" width="9" height="8" rx="1.2" fill="#476A40"/>
+          </svg>
+          <div class="p-copy"><strong>优先级 <span lang="en">PRIORITY</span></strong><span class="p-badge" data-badge="priority">被文字淹没</span></div>
+        </li>
+        <li data-p="compare">
+          <svg viewBox="0 0 36 36" class="p-ico" aria-hidden="true">
+            <rect x="5" y="17" width="6" height="13" rx="1.5" fill="#5B8A47"/>
+            <rect x="15" y="11" width="6" height="19" rx="1.5" fill="#245728"/>
+            <rect x="25" y="6" width="6" height="24" rx="1.5" fill="#476A40"/>
+          </svg>
+          <div class="p-copy"><strong>对比 <span lang="en">COMPARE</span></strong><span class="p-badge" data-badge="compare">进行中堆积</span></div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ==================== 01 五柱骨架：列、泳道与流 ==================== -->
+  <section class="sec sec-ivory" id="sec-01" aria-labelledby="h-01">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">01</span>
+        <div>
+          <h2 id="h-01">五柱骨架：列、泳道与流</h2>
+          <p class="sec-en" lang="en">Five pillars of a Kanban board</p>
+        </div>
+      </header>
+      <p class="sec-lead">原海报把看板拆成五个彼此咬合的零件：垂直列给状态，横向泳道分职责，左向右的限流管节奏，色形标签标轻重，各列高度差直接露出瓶颈。点击下方任意一根柱子，看它在看板里管的是哪一块。</p>
+
+      <div class="pillar-lab">
+        <div class="pillar-tabs" id="pillar-tabs" role="tablist" aria-label="看板五项原则">
+          <!-- JS 渲染五枚带原海报图标的选项卡 -->
+        </div>
+        <div class="pillar-view" id="pillar-view">
+          <div class="pillar-svg-box" id="pillar-svg-box" aria-hidden="true"></div>
+          <div class="pillar-text" aria-live="polite">
+            <p class="pillar-kicker" id="pillar-kicker">状态 · STATUS</p>
+            <blockquote class="poster-quote" id="pillar-quote">“用列表示状态流转，清晰呈现任务当前所处阶段。”</blockquote>
+            <p class="pillar-plain" id="pillar-plain"></p>
+            <p class="pillar-tip" id="pillar-tip"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 为什么要限流：利特尔法则（深松柏暗室） ==================== -->
+  <section class="sec sec-forest-dark" id="sec-02" aria-labelledby="h-02">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">02</span>
+        <div>
+          <h2 id="h-02">为什么要限流：利特尔法则</h2>
+          <p class="sec-en" lang="en">Why WIP limits accelerate delivery</p>
+        </div>
+      </header>
+      <div class="wip-intro">
+        <p class="sec-lead">直觉常以为“同时开十件事，大家都有活干，交付就更快”。排队论给出的答案刚好相反：运筹学者 John D. C. Little 在 1961 年证明，平稳系统里<strong>平均周期时间 W = 在制品数量 L ÷ 吞吐率 λ</strong>。人手和吞吐短期内固定，在制品越堆越高，每一张卡在半路等评审、等切换的时间就被拉得越长。</p>
+        <aside class="gentle-note">
+          <span class="note-pill">经验补充</span>
+          <p>原海报要点写「每列设定在制品上限（WIP）」，但上限并非越小越好：压到 1 容易因为单张卡等外部反馈而饿死整条线；松到不限又会彻底失去刹车。团队常先按人数的 1 到 1.5 倍起步，再按周复盘微调（经验值）。</p>
+        </aside>
+      </div>
+
+      <div class="wip-sim-shell">
+        <div class="wip-sim-top">
+          <div class="wip-modes" id="wip-modes" role="group" aria-label="并发上限档位">
+            <!-- JS 渲染 4 档 WIP 模式 -->
+          </div>
+          <div class="wip-actions">
+            <button type="button" class="dark-btn" id="wip-push-btn">+ 派发新任务</button>
+            <button type="button" class="dark-btn is-sub" id="wip-reset-btn">清空重跑</button>
+          </div>
+        </div>
+        <div class="wip-canvas-wrap">
+          <canvas id="wip-canvas" class="wip-canvas" aria-label="利特尔法则队列流速模拟器"></canvas>
+        </div>
+        <div class="wip-readout" aria-live="polite">
+          <dl class="wip-metrics">
+            <div><dt>当前在制 L</dt><dd id="sim-l">0 张</dd></div>
+            <div><dt>累计完成</dt><dd id="sim-done">0 张</dd></div>
+            <div><dt>示意周期 W</dt><dd id="sim-w">—</dd></div>
+            <div><dt>切换损耗（示意）</dt><dd id="sim-loss">0%</dd></div>
+          </dl>
+          <p class="wip-explain" id="sim-explain"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 一张卡片，该留哪些信息 ==================== -->
+  <section class="sec sec-linen" id="sec-03" aria-labelledby="h-03">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">03</span>
+        <div>
+          <h2 id="h-03">一张卡片，该留哪些信息</h2>
+          <p class="sec-en" lang="en">Minimal &amp; necessary card anatomy</p>
+        </div>
+      </header>
+      <p class="sec-lead">原海报在「布局要点」里特别强调：<strong>卡片信息最小且必要</strong>，并在底部列出五项卡片要素——标题、截止时间、优先级、负责人、标签 / 类型。看板不是工单详情页，每张卡多塞三行废话，一整屏就少看一半全局。勾一勾下列字段，看卡片如何从清爽滑向臃肿。</p>
+
+      <div class="card-lab">
+        <div class="card-controls">
+          <fieldset class="field-checks" id="field-checks">
+            <legend>勾选要摊在卡面上的字段</legend>
+            <!-- JS 渲染 8 个复选框 -->
+          </fieldset>
+          <div class="cb-tools">
+            <label class="toggle-line"><input type="checkbox" id="mono-sim"><span>开启灰度模拟（检验无色彩时形状是否可辨）</span></label>
+            <div class="cb-presets">
+              <button type="button" class="mini-btn" id="preset-five">还原原海报 5 要素</button>
+              <button type="button" class="mini-btn" id="preset-all">全部勾满（看臃肿）</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-preview-col">
+          <div class="card-metrics-bar" aria-live="polite">
+            <span id="card-h-read">单卡高度约 156px</span>
+            <span id="card-cap-read">一屏约扫 3 张 / 列</span>
+            <span class="card-verdict-chip" id="card-verdict-chip">信息偏重</span>
+          </div>
+          <div class="sample-stack" id="sample-stack">
+            <!-- JS 渲染 3 张联动示例卡 -->
+          </div>
+          <p class="card-diagnosis" id="card-diagnosis" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 从丰田车间到你的屏幕 ==================== -->
+  <section class="sec sec-sage-paper" id="sec-04" aria-labelledby="h-04">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">04</span>
+        <div>
+          <h2 id="h-04">从丰田车间到你的屏幕</h2>
+          <p class="sec-en" lang="en">Where Kanban comes from</p>
+        </div>
+      </header>
+      <p class="sec-lead">日语「看板（かんばん）」原意是招牌与指示卡。它并不是为了美观而生的网页网格，而是工厂为消灭库存堆积逼出来的视觉拉动机制。</p>
+
+      <div class="era-switcher" id="era-switcher" role="tablist" aria-label="看板演化四阶段">
+        <!-- JS 渲染 4 个年代切换签 -->
+      </div>
+      <div class="era-stage" id="era-stage" aria-live="polite">
+        <div class="era-visual" id="era-visual" aria-hidden="true"></div>
+        <div class="era-copy">
+          <p class="era-year" id="era-year">1953–1954</p>
+          <h3 class="era-title" id="era-title">丰田车间与超市拉动卡</h3>
+          <p class="era-who" id="era-who">大野耐一（Taiichi Ohno）· 丰田汽车</p>
+          <p class="era-body" id="era-body"></p>
+          <p class="era-takeaway" id="era-takeaway"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 什么时候别用看板 ==================== -->
+  <section class="sec sec-ivory" id="sec-05" aria-labelledby="h-05">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">05</span>
+        <div>
+          <h2 id="h-05">什么时候别用看板</h2>
+          <p class="sec-en" lang="en">When to pick another layout</p>
+        </div>
+      </header>
+      <p class="sec-lead">看板只擅长表达「多条独立任务沿着固定阶段从左向右推进」。一旦你的核心诉求是精确时间刻度、海量字段比对或全局汇总，硬套多列卡片反而碍事。另外，如果只是同级展示而无状态流转，直接用 <a href="https://layout.xiaoxiaodong.ai/270/play/" target="_blank" rel="noopener">270 卡片网格布局</a> 或 <a href="https://layout.xiaoxiaodong.ai/269/play/" target="_blank" rel="noopener">269 信息流布局</a> 会更轻快。</p>
+
+      <div class="anti-tabs" id="anti-tabs" role="tablist" aria-label="四个不适合看板的场景">
+        <!-- JS 渲染 4 个具体业务场景 -->
+      </div>
+      <div class="anti-compare" id="anti-compare" aria-live="polite">
+        <article class="anti-card is-wrong">
+          <p class="anti-label">硬套看板布局的后果</p>
+          <div class="anti-svg" id="anti-svg-bad" aria-hidden="true"></div>
+          <p class="anti-text" id="anti-why-bad"></p>
+        </article>
+        <article class="anti-card is-right">
+          <p class="anti-label">更顺手的替代布局</p>
+          <div class="anti-svg" id="anti-svg-good" aria-hidden="true"></div>
+          <p class="anti-text" id="anti-why-good"></p>
+          <p class="anti-link-row"><a id="anti-link" href="https://layout.xiaoxiaodong.ai/279/play/" target="_blank" rel="noopener">去看 279 日历布局互动版 →</a></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 练一练：哪块看板最健康？ ==================== -->
+  <section class="sec sec-linen" id="sec-06" aria-labelledby="h-06">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">06</span>
+        <div>
+          <h2 id="h-06">练一练：哪块看板最健康？</h2>
+          <p class="sec-en" lang="en">Practice · spot the healthiest board</p>
+        </div>
+      </header>
+      <p class="sec-lead">同一个 5 人产品团队手头有 14 张任务卡。下面四块同样工整的看板，差别只藏在列序、限流与状态拆分里——凭第一眼判断，哪一块最能及时暴露瓶颈并稳住交付？</p>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四块候选看板">
+        <!-- JS 渲染 A / B / C / D 四块工整缩微看板 -->
+      </div>
+
+      <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+        <p class="qv-title" id="qv-title">点选 A、B、C 或 D 中任意一块看板。</p>
+        <p class="qv-body" id="qv-body">选完后会亮出四块板各自的诊断标尺，把差距精确到单一变量。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 原海报与关键词 ==================== -->
+  <section class="sec sec-ivory sec-poster" id="sec-07" aria-labelledby="h-07">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">07</span>
+        <div>
+          <h2 id="h-07">原海报与关键词</h2>
+          <p class="sec-en" lang="en">The original poster &amp; card elements</p>
+        </div>
+      </header>
+
+      <div class="poster-layout">
+        <figure class="poster-figure">
+          <button type="button" class="poster-trigger" id="poster-trigger" aria-expanded="false" aria-label="放大查看 278 看板布局原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="278 看板布局原海报：暖米宣纸底配深松绿大标与大小双绿圆点阵，主体为五列状态表头与产品、设计、开发、运维四条职能泳道构成的圆角看板矩阵，下方列出状态、分组、流动、优先级、对比五项原则，底部为四条布局要点与五项卡片要素建议。">
+          </button>
+          <figcaption>点按放大；放大后可拖动细看，再点关闭钮或按 Esc 收起。</figcaption>
+        </figure>
+
+        <div class="poster-notes">
+          <div class="usage-block">
+            <p class="usage-pill">布局要点 <span aria-hidden="true">→</span></p>
+            <ol class="usage-list">
+              <li>列的顺序符合工作流程</li>
+              <li>每列设定在制品上限（WIP）</li>
+              <li>卡片信息最小且必要</li>
+              <li>定期复盘，持续改进看板</li>
+            </ol>
+          </div>
+
+          <div class="elements-block">
+            <h3>卡片要素建议 <span lang="en">CARD ELEMENTS</span></h3>
+            <ul class="elem-grid">
+              <li>
+                <svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="14"/><path d="M12.5 14h11M18 14v10"/></svg>
+                <strong>标题</strong><span>任务名称</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="14"/><rect x="11.5" y="13" width="13" height="11" rx="1.5"/><path d="M15 10.5v4M21 10.5v4M11.5 17h13"/></svg>
+                <strong>截止时间</strong><span>时间预期</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="14"/><path d="M14 25V11l9 3.5-9 3.5"/></svg>
+                <strong>优先级</strong><span>高 / 中 / 低</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="14"/><circle cx="18" cy="13.5" r="3.4"/><path d="M12 24.5c1.6-3 3.8-4.2 6-4.2s4.4 1.2 6 4.2"/></svg>
+                <strong>负责人</strong><span>明确到人</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="14"/><path d="M12.5 19.2L19.2 12.5H24V17.3L17.3 24Z"/><circle cx="21" cy="15.5" r="1.2"/></svg>
+                <strong>标签 / 类型</strong><span>便于筛选与统计</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="poster-detail-block">
+            <h3>看懂原海报的三处克制设计</h3>
+            <ul class="poster-detail-list">
+              <li><strong>深松绿只用来包框架，不抢卡片：</strong>顶列表头与左侧泳道用沉稳深松绿收住二维矩阵骨架，中间单元格退回低对比亚麻米纸，任务卡的轻白与暖色优先级标签自然浮出纸面。</li>
+              <li><strong>WIP 计数胶囊区分“池”与“流”：</strong>待办（12）与已完成（18）只写总数，而进行中（5/6）、评审中（3/3）、测试中（2/4）都写成「当前 / 上限」，一眼分辨哪几列受限流约束。</li>
+              <li><strong>色彩加形状双编码：</strong>四条泳道既用绿、黄、橘、青灰分色，又在任务卡左上角搭配圆、方、三角三种几何符，确保低饱和打印或色觉受限时依然可读。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 原海报放大灯箱 -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="278 看板布局原海报放大视图">
+  <div class="lb-bar">
+    <span>按住拖动查看细节 · 滚轮或按钮缩放 · Esc 关闭</span>
+    <div class="lb-btns">
+      <button type="button" id="lb-zoom-out" aria-label="缩小">−</button>
+      <button type="button" id="lb-zoom-reset">100%</button>
+      <button type="button" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" id="lb-close" class="is-close">关闭</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" alt="278 看板布局原海报放大图" draggable="false">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p><span lang="en" class="foot-num">No. 278</span> 看板布局 · 350 种排版</p>
+    <p class="foot-meta"><a href="https://layout.xiaoxiaodong.ai/278/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a><span class="sep">·</span>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a> · 源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
