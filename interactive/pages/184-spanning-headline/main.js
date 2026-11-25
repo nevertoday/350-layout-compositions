@@ -1,68 +1,93 @@
 import { loop, reducedMotion } from "../../lib/stage.js";
 import {
+  CAL_PRESETS,
+  computeHeadlineFontSize,
   diagnoseCalibrator,
-  evaluateSpan,
+  evaluateRange,
   FLAWS,
   gridMetrics,
   GROUPING_MODES,
   HEADLINE_LENGTHS,
+  presetsForCols,
   QUIZ,
+  rangeForCols,
   SCENARIOS,
-  snapSpan,
+  snapRange,
 } from "./model.js";
 
 const $ = (id) => document.getElementById(id);
 const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
 
 // =========================================================
-// 1. 开场「过梁拖拽台」
+// 1. 开场「全幅报刊活字跨栏台」
+//    支持栏格轨扫抹、左/右双活字夹拉跨、左偏跨 / 右偏跨 / 全通栏 / 单栏
 // =========================================================
+const broadsheet = $("broadsheet");
 const sheet = $("sheet");
 const sheetGrid = $("sheet-grid");
 const sheetCols = $("sheet-cols");
 const sheetKicker = $("sheet-kicker");
-const sheetColTag = $("sheet-col-tag");
 const spanStage = $("span-stage");
 const spanBox = $("span-box");
 const spanChip = $("span-chip");
 const spanHeadline = $("span-headline");
 const spanDeck = $("span-deck");
-const spanHandle = $("span-handle");
-const sideIntrude = $("side-intrude");
-const siLabel = $("si-label");
+const clampL = $("clamp-l");
+const clampR = $("clamp-r");
+const intrudeLeft = $("intrude-left");
+const ilTag = $("il-tag");
+const ilTitle = $("il-title");
+const ilBody = $("il-body");
+const intrudeRight = $("intrude-right");
+const irTag = $("ir-tag");
+const irTitle = $("ir-title");
+const irBody = $("ir-body");
+const ruleTrack = $("rule-track");
+const ruleBeam = $("rule-beam");
 const flowSvg = $("flow-svg");
 const flowPaths = $("flow-paths");
-const sheetRule = $("sheet-rule");
 const qsBtns = $("qs-btns");
-const spanRuler = $("span-ruler");
-const srTrack = $("sr-track");
-const srCells = $("sr-cells");
-const srFill = $("sr-fill");
-const srThumb = $("sr-thumb");
-const srVal = $("sr-val");
+const spanRail = $("span-rail");
+const railTrack = $("rail-track");
+const railCells = $("rail-cells");
+const railBeam = $("rail-beam");
+const railReadout = $("rail-readout");
+
+const isNarrowInit = window.matchMedia("(max-width: 599px)").matches;
+const initCols = isNarrowInit ? 2 : 3;
 
 const wb = {
-  cols: 3,
+  cols: initCols,
   scene: "broadsheet",
-  targetU: 1,
-  shownU: reducedMotion.matches ? 1 : 0.34,
+  hlen: "medium",
+  targetU0: 0,
+  targetU1: 1,
+  shownU0: 0,
+  shownU1: reducedMotion.matches ? 1 : gridMetrics(initCols).edges[0].right,
   dragging: false,
   deck: true,
   guides: true,
   flow: true,
   introPhase: !reducedMotion.matches,
   introDone: reducedMotion.matches,
-  lastPaintedU: -1,
+  lastPaintedKey: "",
   lastHlKey: "",
-  lastStatus: "",
-  lastPct: -1,
-  lastSpanLabel: "",
-  lastShowSide: null,
-  lastSiLabel: "",
+  lastStatusKey: "",
+  lastLabelKey: "",
+  lastSideKey: "",
   metrics: null,
 };
 
-// 持久化 SVG 节点，拖动中仅更新数值属性，彻底消除 innerHTML 重解析与强制回流
+function evalCurrent(u0, u1) {
+  const text = SCENARIOS[wb.scene].headlines[wb.hlen];
+  return evaluateRange(u0, u1, wb.cols, {
+    hlen: wb.hlen,
+    chars: text.length,
+    deck: wb.deck,
+  });
+}
+
+// 持久化 SVG 节点：拖动全程零 innerHTML 重解析、零强制回流
 const SVG_NS = "http://www.w3.org/2000/svg";
 function svgEl(tag, attrs = {}) {
   const el = document.createElementNS(SVG_NS, tag);
@@ -72,12 +97,19 @@ function svgEl(tag, attrs = {}) {
 
 const flowNodes = {
   dotStart: svgEl("circle", { r: 3.5, fill: "#ed420c", opacity: 0.9 }),
-  arrowLine: svgEl("line", { stroke: "#ed420c", "stroke-width": 2, "stroke-dasharray": "5 4", "marker-end": "url(#arr-o)", opacity: 0.88 }),
-  warnLine: svgEl("line", { stroke: "#ed420c", "stroke-width": 1.8, "stroke-dasharray": "5 4", opacity: 0 }),
+  arrowLine: svgEl("line", {
+    stroke: "#ed420c",
+    "stroke-width": 2,
+    "stroke-dasharray": "5 4",
+    "marker-end": "url(#arr-o)",
+    opacity: 0.88,
+  }),
+  warnL: svgEl("line", { stroke: "#ed420c", "stroke-width": 1.8, "stroke-dasharray": "5 4", opacity: 0 }),
+  warnR: svgEl("line", { stroke: "#ed420c", "stroke-width": 1.8, "stroke-dasharray": "5 4", opacity: 0 }),
   colGroup: svgEl("g"),
   colMarks: [],
 };
-flowPaths.append(flowNodes.dotStart, flowNodes.arrowLine, flowNodes.warnLine, flowNodes.colGroup);
+flowPaths.append(flowNodes.dotStart, flowNodes.arrowLine, flowNodes.warnL, flowNodes.warnR, flowNodes.colGroup);
 
 function rebuildFlowColMarks() {
   flowNodes.colGroup.textContent = "";
@@ -90,16 +122,15 @@ function rebuildFlowColMarks() {
   }
 }
 
-// 只在布局初始化、栏数变更、视口缩放时测量一次 DOM 坐标，拖动全程零 getBoundingClientRect
+// 仅在初始化、栏数变化或视口缩放时测量 DOM 尺寸，拖动全程零 getBoundingClientRect
 function measureSheet() {
   const sr = sheet.getBoundingClientRect();
   if (sr.width < 10 || sr.height < 10) return;
   const stageR = spanStage.getBoundingClientRect();
   const chipR = spanChip.getBoundingClientRect();
-  const ruleR = sheetRule.getBoundingClientRect();
+  const ruleR = ruleTrack.getBoundingClientRect();
   const colsR = sheetCols.getBoundingClientRect();
-  const trackR = srTrack.getBoundingClientRect();
-  const handleW = spanHandle.offsetWidth || 40;
+  const trackR = railTrack.getBoundingClientRect();
   const m = gridMetrics(wb.cols);
   const colLeft = colsR.left - sr.left;
   const colCenters = m.edges.map((e) => Math.round(colLeft + ((e.left + e.right) / 2) * colsR.width));
@@ -111,21 +142,24 @@ function measureSheet() {
     stageW: stageR.width,
     boxTop: Math.round(stageR.top - sr.top),
     arrowY: Math.round(chipR.top - sr.top + chipR.height / 2),
-    xStart: Math.round(chipR.right - sr.left + 10),
-    handleW,
+    clampLW: clampL.offsetWidth || 20,
+    chipOffsetL: Math.round((clampL.offsetWidth || 20) + 12 + Math.max(chipR.width, 76) + 12),
+    clampRW: clampR.offsetWidth || 38,
     ruleY: Math.round(ruleR.top - sr.top + 1),
+    ruleW: ruleR.width,
     colCenters,
     trackW: trackR.width || 300,
     trackLeft: trackR.left,
   };
+
   flowSvg.setAttribute("viewBox", `0 0 ${wb.metrics.W} ${wb.metrics.H}`);
-  flowNodes.dotStart.setAttribute("cx", String(wb.metrics.xStart));
   flowNodes.dotStart.setAttribute("cy", String(wb.metrics.arrowY));
-  flowNodes.arrowLine.setAttribute("x1", String(wb.metrics.xStart + 4));
   flowNodes.arrowLine.setAttribute("y1", String(wb.metrics.arrowY));
   flowNodes.arrowLine.setAttribute("y2", String(wb.metrics.arrowY));
-  flowNodes.warnLine.setAttribute("y1", String(wb.metrics.boxTop));
-  flowNodes.warnLine.setAttribute("y2", String(wb.metrics.H - 14));
+  flowNodes.warnL.setAttribute("y1", String(wb.metrics.boxTop));
+  flowNodes.warnL.setAttribute("y2", String(wb.metrics.H - 12));
+  flowNodes.warnR.setAttribute("y1", String(wb.metrics.boxTop));
+  flowNodes.warnR.setAttribute("y2", String(wb.metrics.H - 12));
   flowNodes.colMarks.forEach(({ dot, tick }, i) => {
     const cx = String(wb.metrics.colCenters[i]);
     dot.setAttribute("cx", cx);
@@ -140,7 +174,7 @@ function measureSheet() {
 function buildSheetStructure() {
   const m = gridMetrics(wb.cols);
   const gapPct = `${(m.gutter * 100).toFixed(2)}%`;
-  sheet.dataset.cols = String(wb.cols);
+  broadsheet.dataset.cols = String(wb.cols);
   sheet.style.setProperty("--sheet-cols", String(wb.cols));
   sheet.style.setProperty("--sheet-gap", gapPct);
 
@@ -149,45 +183,55 @@ function buildSheetStructure() {
   sheetGrid.style.gap = gapPct;
   sheetGrid.innerHTML = Array.from({ length: wb.cols }, (_, i) => `<i class="sg-col" data-n="C${i + 1}"></i>`).join("");
 
-  // 标尺格子
-  srCells.style.gridTemplateColumns = `repeat(${wb.cols}, 1fr)`;
-  srCells.style.gap = gapPct;
-  srCells.innerHTML = Array.from({ length: wb.cols }, (_, i) => `<i>${i + 1} 栏</i>`).join("");
+  // 顶部栏格跨栏轨
+  railCells.style.gridTemplateColumns = `repeat(${wb.cols}, 1fr)`;
+  railCells.style.gap = gapPct;
+  railCells.innerHTML = Array.from({ length: wb.cols }, (_, i) => `<i><span lang="en">C${i + 1}</span> · 第 ${i + 1} 栏</i>`).join("");
 
-  // 正文分栏
+  // 文案与多栏正文
   const sc = SCENARIOS[wb.scene];
   sheetKicker.textContent = sc.kicker;
-  spanHeadline.textContent = sc.headline;
+  spanHeadline.textContent = sc.headlines[wb.hlen];
   spanDeck.textContent = sc.deck;
   spanDeck.hidden = !wb.deck;
 
   sheetCols.innerHTML = sc.columns
     .slice(0, wb.cols)
-    .map((txt, i) => `<div class="sheet-col"><span class="col-cap" lang="en">COL 0${i + 1}</span><p>${txt}</p></div>`)
+    .map(
+      (txt, i) =>
+        `<div class="sheet-col" data-col="${i + 1}"><div class="col-head"><span class="col-cap" lang="en">COL 0${i + 1}</span><span class="col-role">统领</span></div><p>${txt}</p></div>`
+    )
     .join("");
 
-  // 快捷吸附按钮
-  qsBtns.innerHTML = Array.from({ length: wb.cols }, (_, i) => {
-    const n = i + 1;
-    const label = n === 1 ? "1 栏" : n === wb.cols ? `全通 ${n} 栏` : `跨 ${n} 栏`;
-    return `<button type="button" class="qbtn" data-span="${n}">${label}</button>`;
-  }).join("");
-  qsBtns.querySelectorAll(".qbtn").forEach((btn) => {
+  // 快捷跨栏预设按钮（支持左跨、右跨、单栏、全通）
+  const presets = presetsForCols(wb.cols);
+  qsBtns.innerHTML = presets
+    .map(
+      (p) =>
+        `<button type="button" class="pill" data-start="${p.start}" data-end="${p.end}" aria-pressed="false">${p.label}</button>`
+    )
+    .join("");
+  qsBtns.querySelectorAll("button").forEach((btn) => {
     btn.addEventListener("click", () => {
       wb.introPhase = false;
       wb.introDone = true;
-      const n = +btn.dataset.span;
-      const edge = gridMetrics(wb.cols).edges[n - 1];
-      wb.targetU = edge.right;
-      if (reducedMotion.matches) wb.shownU = wb.targetU;
-      updateWorkbenchMeta();
+      const r = rangeForCols(+btn.dataset.start, +btn.dataset.end, wb.cols);
+      wb.targetU0 = r.u0;
+      wb.targetU1 = r.u1;
+      if (reducedMotion.matches) {
+        wb.shownU0 = wb.targetU0;
+        wb.shownU1 = wb.targetU1;
+      }
+      updateWorkbenchMeta(true);
       wbLoop.draw();
     });
   });
 
-  spanHandle.setAttribute("aria-valuemax", String(wb.cols));
+  clampR.setAttribute("aria-valuemax", String(wb.cols));
   wb.lastHlKey = "";
-  wb.lastStatus = "";
+  wb.lastStatusKey = "";
+  wb.lastLabelKey = "";
+  wb.lastSideKey = "";
   rebuildFlowColMarks();
   measureSheet();
 }
@@ -195,89 +239,136 @@ function buildSheetStructure() {
 function paintFlowOverlay(ev) {
   const mt = wb.metrics;
   if (!mt) return;
-  const boxRight = Math.round(mt.stageLeft + ev.u * mt.stageW);
-  const xEnd = Math.round(boxRight - mt.handleW - 11);
-  const showArrow = xEnd - mt.xStart > 24;
+  const boxL = Math.round(mt.stageLeft + ev.u0 * mt.stageW);
+  const boxR = Math.round(mt.stageLeft + ev.u1 * mt.stageW);
+  const xStart = boxL + mt.chipOffsetL;
+  const xEnd = boxR - mt.clampRW - 14;
+  const showArrow = xEnd - xStart > 26;
 
+  flowNodes.dotStart.setAttribute("cx", String(xStart));
   flowNodes.dotStart.setAttribute("opacity", showArrow ? "0.9" : "0");
+  flowNodes.arrowLine.setAttribute("x1", String(xStart + 4));
+  flowNodes.arrowLine.setAttribute("x2", String(Math.max(xStart + 8, xEnd)));
   flowNodes.arrowLine.setAttribute("opacity", showArrow ? "0.88" : "0");
-  if (showArrow) flowNodes.arrowLine.setAttribute("x2", String(xEnd));
 
-  const isWarn = ev.status === "single" || ev.status === "drift";
-  flowNodes.warnLine.setAttribute("opacity", isWarn ? "0.78" : "0");
-  if (isWarn) {
-    flowNodes.warnLine.setAttribute("x1", String(boxRight));
-    flowNodes.warnLine.setAttribute("x2", String(boxRight));
+  const showWarnL = !ev.leftAligned;
+  const showWarnR = !ev.rightAligned || ev.status === "single";
+  flowNodes.warnL.setAttribute("opacity", showWarnL ? "0.82" : "0");
+  if (showWarnL) {
+    flowNodes.warnL.setAttribute("x1", String(boxL));
+    flowNodes.warnL.setAttribute("x2", String(boxL));
+  }
+  flowNodes.warnR.setAttribute("opacity", showWarnR ? "0.82" : "0");
+  if (showWarnR) {
+    flowNodes.warnR.setAttribute("x1", String(boxR));
+    flowNodes.warnR.setAttribute("x2", String(boxR));
   }
 
-  // 只在状态变化时更新各栏小圆点颜色
-  const statusKey = `${ev.status}:${ev.spanCount ?? ""}`;
-  if (statusKey !== wb.lastStatus) {
-    wb.lastStatus = statusKey;
+  // 仅在覆盖栏位集合变化时更新下方各栏圆点与角色标签
+  const statusKey = `${ev.status}:${ev.covered.join(",")}`;
+  if (statusKey !== wb.lastStatusKey) {
+    wb.lastStatusKey = statusKey;
+    const covSet = new Set(ev.covered);
     flowNodes.colMarks.forEach(({ dot, tick }, i) => {
-      if (ev.status === "full") {
+      const col = i + 1;
+      const inside = covSet.has(col);
+      if (ev.status === "full" || ev.status === "sparse") {
         dot.setAttribute("fill", "#0e39d3");
         dot.setAttribute("stroke", "none");
         tick.setAttribute("stroke", "#0e39d3");
-        tick.setAttribute("opacity", "0.72");
-      } else if (ev.status === "partial" && ev.spanCount) {
-        const inside = i < ev.spanCount;
-        const c = inside ? "#0e39d3" : "#5c5650";
-        dot.setAttribute("fill", c);
-        dot.setAttribute("stroke", "none");
-        tick.setAttribute("stroke", c);
-        tick.setAttribute("opacity", "0.65");
+        tick.setAttribute("opacity", "0.75");
+      } else if (ev.status === "partial") {
+        dot.setAttribute("fill", inside ? "#0e39d3" : "#f7f3ef");
+        dot.setAttribute("stroke", inside ? "none" : "#9f968d");
+        dot.setAttribute("stroke-width", "1.5");
+        tick.setAttribute("stroke", "#0e39d3");
+        tick.setAttribute("opacity", inside ? "0.72" : "0");
       } else {
-        dot.setAttribute("fill", i === 0 ? "#ed420c" : "#f7f3ef");
+        dot.setAttribute("fill", inside ? "#ed420c" : "#f7f3ef");
         dot.setAttribute("stroke", "#ed420c");
         dot.setAttribute("stroke-width", "1.6");
         tick.setAttribute("opacity", "0");
       }
     });
+
+    sheetCols.querySelectorAll(".sheet-col").forEach((colEl) => {
+      const c = +colEl.dataset.col;
+      const inside = covSet.has(c);
+      colEl.classList.toggle("is-covered", inside);
+      colEl.classList.toggle("is-free", !inside);
+      const roleEl = colEl.querySelector(".col-role");
+      if (roleEl) roleEl.textContent = inside ? (ev.status === "single" ? "单栏" : "已统领") : "独立顶头";
+    });
   }
 }
 
-function paintSheet(u) {
-  const ev = evaluateSpan(u, wb.cols);
+function paintSheet(u0, u1) {
+  const ev = evalCurrent(u0, u1);
   const mt = wb.metrics;
-  const pctNum = Math.round(ev.u * 100);
-  const spanLabel = ev.aligned ? `${ev.spanCount} / ${wb.cols}` : `${ev.approxCols.toFixed(1)} / ${wb.cols}`;
+  const m = gridMetrics(wb.cols);
 
-  // 标尺走纯 transform（软件渲染下零回流）
-  srFill.style.setProperty("--span-u", ev.u.toFixed(4));
-  if (mt) srThumb.style.setProperty("--thumb-x", `${(ev.u * mt.trackW).toFixed(1)}px`);
+  // 顶部栏格轨滑条与分界蓝线走纯 transform（软件渲染下零回流）
+  if (mt) {
+    railBeam.style.setProperty("--rail-x", `${(ev.u0 * mt.trackW).toFixed(1)}px`);
+    railBeam.style.setProperty("--rail-w", `${Math.max(44, ev.width * mt.trackW).toFixed(1)}px`);
+    ruleBeam.style.setProperty("--rule-x", `${(ev.u0 * mt.ruleW).toFixed(1)}px`);
+    ruleBeam.style.setProperty("--rule-sx", ev.width.toFixed(4));
+  }
 
-  // 标题盒宽更新；字号分三档量化，避免拖动每帧重栅格化中文可变字体
-  spanBox.style.setProperty("--span-pct", `${(ev.u * 100).toFixed(2)}%`);
-  const stageW = Math.max(mt ? mt.stageW : 320, 240);
-  const maxPx = clamp((stageW - 60) / 12.6, 17, 32);
-  const tier = ev.u < 0.48 ? 0 : ev.u < 0.82 ? 1 : 2;
-  const hlKey = `${Math.round(maxPx)}:${tier}`;
+  // 跨栏标题块以流内相对定位随内容自适应高度，margin-left / width 紧跟起止栏位
+  spanBox.style.setProperty("--span-left", `${(ev.u0 * 100).toFixed(2)}%`);
+  spanBox.style.setProperty("--span-width", `${(ev.width * 100).toFixed(2)}%`);
+
+  // 按「跨度可用宽 ÷ 字数」计算字号（1–2 行过梁），2px 量化步进兼顾明显缩放与帧率
+  const headlineText = SCENARIOS[wb.scene].headlines[wb.hlen];
+  const stageW = Math.max(mt ? mt.stageW : 600, 260);
+  const clampLW = mt ? mt.clampLW : 20;
+  const clampRW = mt ? mt.clampRW : 38;
+  const innerPadX = stageW < 520 ? 16 : 26;
+  const innerW = Math.max(96, ev.width * stageW - clampLW - clampRW - innerPadX);
+  const rawPx = computeHeadlineFontSize(innerW, headlineText.length, stageW);
+  const stepPx = Math.max(14, Math.round(rawPx / 2) * 2);
+  const hlKey = `${stepPx}:${wb.hlen}`;
   if (hlKey !== wb.lastHlKey) {
     wb.lastHlKey = hlKey;
-    const scale = tier === 0 ? 0.64 : tier === 1 ? 0.82 : 1;
-    spanBox.style.setProperty("--hl-size", `${(maxPx * scale).toFixed(1)}px`);
+    spanBox.style.setProperty("--hl-size", `${stepPx}px`);
   }
 
-  if (sheet.dataset.status !== ev.status) sheet.dataset.status = ev.status;
-  if (pctNum !== wb.lastPct || spanLabel !== wb.lastSpanLabel) {
-    wb.lastPct = pctNum;
-    wb.lastSpanLabel = spanLabel;
-    srVal.textContent = `${pctNum}% · ${spanLabel}`;
-    spanChip.textContent = `SPAN ${spanLabel}`;
-    sheetColTag.textContent = `${wb.cols} COLS · SPAN ${spanLabel}`;
+  if (broadsheet.dataset.status !== ev.status) broadsheet.dataset.status = ev.status;
+
+  const labelKey = `${ev.rangeLabel}:${ev.pct}:${ev.status}`;
+  if (labelKey !== wb.lastLabelKey) {
+    wb.lastLabelKey = labelKey;
+    const spanTxt = `SPAN ${ev.rangeLabel}`;
+    railReadout.textContent = `${ev.rangeLabel} · ${ev.pct}%`;
+    spanChip.textContent = spanTxt;
   }
 
-  const showSide = 1 - ev.u > 0.16;
-  if (showSide !== wb.lastShowSide) {
-    wb.lastShowSide = showSide;
-    sideIntrude.hidden = !showSide;
-  }
-  if (showSide) {
-    const lbl = ev.status === "single" ? "右侧栏直接顶头" : "末栏留白 / 边注";
-    if (lbl !== wb.lastSiLabel) {
-      wb.lastSiLabel = lbl;
-      siLabel.textContent = lbl;
+  // 左右未跨到的栏顶头伴随块（仅在空出足够宽度时显露）
+  const gapPx = m.gutter * 100;
+  const showLeft = ev.u0 > m.colW * 0.65;
+  const showRight = 1 - ev.u1 > m.colW * 0.65;
+  const leftW = Math.max(0, ev.u0 * 100 - gapPx * 0.85);
+  const rightW = Math.max(0, (1 - ev.u1) * 100 - gapPx * 0.85);
+  if (showLeft) intrudeLeft.style.width = `${leftW.toFixed(2)}%`;
+  if (showRight) intrudeRight.style.width = `${rightW.toFixed(2)}%`;
+
+  const sideKey = `${showLeft}:${showRight}:${wb.scene}:${ev.status}`;
+  if (sideKey !== wb.lastSideKey) {
+    wb.lastSideKey = sideKey;
+    intrudeLeft.hidden = !showLeft;
+    intrudeRight.hidden = !showRight;
+    const briefs = SCENARIOS[wb.scene].sideBriefs;
+    if (showLeft) {
+      ilTag.textContent = briefs[0].tag;
+      ilTitle.textContent = briefs[0].title;
+      ilBody.textContent = briefs[0].body;
+    }
+    if (showRight) {
+      const b = ev.status === "single" ? briefs[1] : briefs[2];
+      irTag.textContent = ev.status === "single" ? "脱离统领" : b.tag;
+      irTitle.textContent = ev.status === "single" ? "右侧栏直接顶头" : b.title;
+      irBody.textContent = b.body;
     }
   }
 
@@ -286,26 +377,26 @@ function paintSheet(u) {
 
 let lastMetaKey = "";
 function updateWorkbenchMeta(force = false) {
-  const ev = evaluateSpan(wb.targetU, wb.cols);
-  const pct = Math.round(ev.u * 100);
-  const metaKey = `${wb.cols}:${ev.status}:${ev.spanCount ?? ""}:${pct}`;
+  const ev = evalCurrent(wb.targetU0, wb.targetU1);
+  const metaKey = `${wb.cols}:${wb.hlen}:${wb.deck}:${ev.status}:${ev.startCol ?? ""}:${ev.endCol ?? ""}:${ev.pct}`;
   if (!force && metaKey === lastMetaKey) return;
   lastMetaKey = metaKey;
 
   const badge = $("ro-badge");
   if (badge.textContent !== ev.badge) badge.textContent = ev.badge;
-  badge.classList.toggle("warn", ev.status === "single" || ev.status === "drift");
-  $("ro-pct").textContent = `${pct}% WIDTH`;
+  badge.classList.toggle("warn", ev.status === "single" || ev.status === "drift" || ev.status === "sparse");
+  $("ro-pct").textContent = `${ev.pct}% WIDTH`;
   if ($("ro-verdict").textContent !== ev.verdict) $("ro-verdict").textContent = ev.verdict;
   if ($("ro-eye").textContent !== ev.eyeNote) $("ro-eye").textContent = ev.eyeNote;
 
   const currentVal = ev.aligned ? ev.spanCount : Number(ev.approxCols.toFixed(1));
-  spanHandle.setAttribute("aria-valuenow", String(currentVal));
-  spanHandle.setAttribute("aria-valuetext", `跨越 ${currentVal} / ${wb.cols} 栏，${ev.badge}`);
+  clampR.setAttribute("aria-valuenow", String(currentVal));
+  clampR.setAttribute("aria-valuetext", `${ev.badge}，占版心 ${ev.pct}%`);
 
-  qsBtns.querySelectorAll(".qbtn").forEach((btn) => {
-    const n = +btn.dataset.span;
-    btn.classList.toggle("is-active", ev.aligned && ev.spanCount === n);
+  qsBtns.querySelectorAll("button").forEach((btn) => {
+    const match = ev.aligned && ev.startCol === +btn.dataset.start && ev.endCol === +btn.dataset.end;
+    btn.classList.toggle("is-active", match);
+    btn.setAttribute("aria-pressed", String(match));
   });
 }
 
@@ -314,173 +405,300 @@ const wbLoop = loop(sheet, (t, dt, { still }) => {
   if (still) {
     wb.introPhase = false;
     wb.introDone = true;
-    wb.shownU = wb.targetU;
-    paintSheet(wb.shownU);
+    wb.shownU0 = wb.targetU0;
+    wb.shownU1 = wb.targetU1;
+    paintSheet(wb.shownU0, wb.shownU1);
     return;
   }
 
-  // 开场 0.0s -> 1.15s：标题从 1 栏流畅展开为全通 3 栏，每一刻都好看清晰
+  // 开场 0.0s -> 1.05s：标题从 C1 流畅摊开成全通 C1–C3，每一刻都稳妥清晰
   if (wb.introPhase && !wb.dragging) {
     const m = gridMetrics(wb.cols);
-    const startU = m.edges[0].right;
+    const startU1 = m.edges[0].right;
     const dur = 1.05;
     const p = clamp(t / dur, 0, 1);
     const eased = 1 - Math.pow(1 - p, 3);
-    wb.shownU = startU + (1 - startU) * eased;
-    paintSheet(wb.shownU);
+    wb.shownU0 = 0;
+    wb.shownU1 = startU1 + (1 - startU1) * eased;
+    paintSheet(wb.shownU0, wb.shownU1);
     if (p >= 1) {
       wb.introPhase = false;
       wb.introDone = true;
-      wb.targetU = 1;
-      wb.shownU = 1;
-      updateWorkbenchMeta();
+      wb.targetU0 = 0;
+      wb.targetU1 = 1;
+      wb.shownU0 = 0;
+      wb.shownU1 = 1;
+      updateWorkbenchMeta(true);
     }
     return;
   }
 
-  const diff = wb.targetU - wb.shownU;
-  if (Math.abs(diff) > 0.0005 || Math.abs(wb.shownU - wb.lastPaintedU) > 0.0005) {
+  const d0 = wb.targetU0 - wb.shownU0;
+  const d1 = wb.targetU1 - wb.shownU1;
+  const key = `${wb.shownU0.toFixed(4)}:${wb.shownU1.toFixed(4)}`;
+  if (Math.abs(d0) > 0.0005 || Math.abs(d1) > 0.0005 || key !== wb.lastPaintedKey) {
     const k = wb.dragging ? 1 : dt ? 1 - Math.exp(-dt * 14) : 1;
-    wb.shownU += diff * k;
-    if (Math.abs(wb.targetU - wb.shownU) <= 0.0005) wb.shownU = wb.targetU;
-    wb.lastPaintedU = wb.shownU;
-    paintSheet(wb.shownU);
+    wb.shownU0 += d0 * k;
+    wb.shownU1 += d1 * k;
+    if (Math.abs(wb.targetU0 - wb.shownU0) <= 0.0005) wb.shownU0 = wb.targetU0;
+    if (Math.abs(wb.targetU1 - wb.shownU1) <= 0.0005) wb.shownU1 = wb.targetU1;
+    wb.lastPaintedKey = `${wb.shownU0.toFixed(4)}:${wb.shownU1.toFixed(4)}`;
+    paintSheet(wb.shownU0, wb.shownU1);
     if (wb.dragging) updateWorkbenchMeta();
   }
 });
 
-// 拖拽把手与底部标尺交互（仅记下目标坐标，统一由 rAF 每帧绘制一次，零同步布局抖动）
+// ---------------------------------------------------------
+// 交互驱动：顶部栏格轨扫抹 + 标题左/右活字夹直接拖拉
+// ---------------------------------------------------------
 let activeDrag = null;
 
-function pointerToU(clientX, drag) {
+function applyDragX(clientX, drag) {
   const m = gridMetrics(wb.cols);
-  return clamp((clientX + drag.offsetX - drag.left) / Math.max(drag.width, 1), m.colW * 0.85, 1);
+  const minW = m.colW * 0.78;
+  const u = clamp((clientX + drag.offsetX - drag.left) / Math.max(drag.width, 1), 0, 1);
+
+  if (drag.mode === "right") {
+    wb.targetU1 = clamp(u, wb.targetU0 + minW, 1);
+  } else if (drag.mode === "left") {
+    wb.targetU0 = clamp(u, 0, wb.targetU1 - minW);
+  } else if (drag.mode === "rail") {
+    // 顶部栏格轨：按住后左右扫抹，自动伸缩右缘（按在最左 18% 且已跨多栏时可拖左缘！）
+    if (drag.sub === "left") {
+      wb.targetU0 = clamp(u, 0, wb.targetU1 - minW);
+    } else {
+      wb.targetU1 = clamp(u, wb.targetU0 + minW, 1);
+    }
+  }
+
+  if (reducedMotion.matches) {
+    wb.shownU0 = wb.targetU0;
+    wb.shownU1 = wb.targetU1;
+    paintSheet(wb.shownU0, wb.shownU1);
+    updateWorkbenchMeta();
+  }
 }
 
-function startDrag(el, refEl, jumpOnDown, e) {
+function beginDrag(el, refEl, mode, e) {
   e.preventDefault();
-  try { el.setPointerCapture(e.pointerId); } catch {}
-  if (el === spanHandle) spanHandle.focus({ preventScroll: true });
+  try {
+    el.setPointerCapture(e.pointerId);
+  } catch {}
+  if (el === clampL || el === clampR) el.focus({ preventScroll: true });
   measureSheet();
   wb.introPhase = false;
   wb.introDone = true;
   wb.dragging = true;
+
   const r = refEl.getBoundingClientRect();
-  const offsetX = jumpOnDown ? 0 : spanBox.getBoundingClientRect().right - e.clientX;
-  activeDrag = { left: r.left, width: r.width, offsetX, pointerId: e.pointerId };
-  sheet.classList.add("dragging");
-  $("wb-readout").setAttribute("aria-live", "off");
-  if (jumpOnDown) {
-    wb.targetU = pointerToU(e.clientX, activeDrag);
-    if (reducedMotion.matches) {
-      wb.shownU = wb.targetU;
-      paintSheet(wb.shownU);
-      updateWorkbenchMeta();
+  let offsetX = 0;
+  let sub = "right";
+  if (mode === "right") {
+    offsetX = spanBox.getBoundingClientRect().right - e.clientX;
+  } else if (mode === "left") {
+    offsetX = spanBox.getBoundingClientRect().left - e.clientX;
+  } else if (mode === "rail") {
+    const downU = clamp((e.clientX - r.left) / Math.max(r.width, 1), 0, 1);
+    const m = gridMetrics(wb.cols);
+    // 按在当前左缘附近且当前跨度大于 1 栏时拖左缘，否则直接拉右缘（全通时从中央左右扫正好平滑展开收缩）
+    if (Math.abs(downU - wb.targetU0) < 0.14 && wb.targetU1 - wb.targetU0 > m.colW * 1.25 && downU < 0.32) {
+      sub = "left";
+    } else {
+      sub = "right";
     }
   }
+
+  activeDrag = { mode, sub, left: r.left, width: r.width, offsetX, pointerId: e.pointerId };
+  broadsheet.classList.add("dragging");
+  $("wb-readout").setAttribute("aria-live", "off");
+  if (mode === "rail") applyDragX(e.clientX, activeDrag);
 }
 
-spanHandle.addEventListener("pointerdown", (e) => startDrag(spanHandle, spanStage, false, e));
-spanRuler.addEventListener("pointerdown", (e) => startDrag(spanRuler, srTrack, true, e));
+clampL.addEventListener("pointerdown", (e) => beginDrag(clampL, spanStage, "left", e));
+clampR.addEventListener("pointerdown", (e) => beginDrag(clampR, spanStage, "right", e));
+spanRail.addEventListener("pointerdown", (e) => beginDrag(spanRail, railTrack, "rail", e));
 
 window.addEventListener("pointermove", (e) => {
   if (!wb.dragging || !activeDrag) return;
-  wb.targetU = pointerToU(e.clientX, activeDrag);
-  if (reducedMotion.matches) {
-    wb.shownU = wb.targetU;
-    paintSheet(wb.shownU);
-    updateWorkbenchMeta();
-  }
+  applyDragX(e.clientX, activeDrag);
 });
 
 function finishDrag() {
   if (!wb.dragging) return;
   wb.dragging = false;
   activeDrag = null;
-  sheet.classList.remove("dragging");
+  broadsheet.classList.remove("dragging");
   $("wb-readout").setAttribute("aria-live", "polite");
-  wb.targetU = snapSpan(wb.targetU, wb.cols);
-  if (reducedMotion.matches) wb.shownU = wb.targetU;
-  updateWorkbenchMeta();
+  const snapped = snapRange(wb.targetU0, wb.targetU1, wb.cols);
+  wb.targetU0 = snapped.u0;
+  wb.targetU1 = snapped.u1;
+  if (reducedMotion.matches) {
+    wb.shownU0 = wb.targetU0;
+    wb.shownU1 = wb.targetU1;
+  }
+  updateWorkbenchMeta(true);
   wbLoop.draw();
 }
 window.addEventListener("pointerup", finishDrag);
 window.addEventListener("pointercancel", finishDrag);
 
 new ResizeObserver(() => {
+  const w = Math.round(sheet.clientWidth);
+  const h = Math.round(sheet.clientHeight);
+  if (wb.metrics && wb.metrics.W === w && wb.metrics.H === h) return;
   measureSheet();
-  paintSheet(wb.shownU);
+  paintSheet(wb.shownU0, wb.shownU1);
 }).observe(sheet);
 
-// 键盘方向键：直接按栏线步进（按住 Shift 可细调观察半栏悬空状态）
-spanHandle.addEventListener("keydown", (e) => {
+// 键盘操作：方向键步进右缘/左缘，Shift 细调看半栏悬空，[ / ] 切换起栏，1-4 快捷跨栏
+function onClampKeydown(edgeSide, e) {
   const m = gridMetrics(wb.cols);
-  const ev = evaluateSpan(wb.targetU, wb.cols);
-  let next = null;
+  const ev = evalCurrent(wb.targetU0, wb.targetU1);
+  let nextU0 = wb.targetU0;
+  let nextU1 = wb.targetU1;
+  let handled = false;
+
   if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
-    next = e.shiftKey
-      ? clamp(wb.targetU - 0.06, m.colW, 1)
-      : m.edges[Math.max(0, (ev.aligned ? ev.spanCount : Math.ceil(ev.approxCols)) - 2)].right;
+    handled = true;
+    if (e.shiftKey) {
+      if (edgeSide === "left") nextU0 = clamp(wb.targetU0 - 0.06, 0, wb.targetU1 - m.colW * 0.8);
+      else nextU1 = clamp(wb.targetU1 - 0.06, wb.targetU0 + m.colW * 0.8, 1);
+    } else if (edgeSide === "left") {
+      const curS = ev.aligned ? ev.startCol : Math.max(1, ev.covered[0]);
+      const targetS = Math.max(1, curS - 1);
+      nextU0 = m.edges[targetS - 1].left;
+    } else {
+      const curS = ev.aligned ? ev.startCol : ev.covered[0];
+      const curE = ev.aligned ? ev.endCol : ev.covered[ev.covered.length - 1];
+      const targetE = Math.max(curS, curE - 1);
+      nextU1 = m.edges[targetE - 1].right;
+    }
   } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
-    next = e.shiftKey
-      ? clamp(wb.targetU + 0.06, m.colW, 1)
-      : m.edges[Math.min(wb.cols - 1, (ev.aligned ? ev.spanCount : Math.floor(ev.approxCols)))].right;
-  } else if (e.key === "Home") {
-    next = m.edges[0].right;
-  } else if (e.key === "End") {
-    next = 1;
+    handled = true;
+    if (e.shiftKey) {
+      if (edgeSide === "left") nextU0 = clamp(wb.targetU0 + 0.06, 0, wb.targetU1 - m.colW * 0.8);
+      else nextU1 = clamp(wb.targetU1 + 0.06, wb.targetU0 + m.colW * 0.8, 1);
+    } else if (edgeSide === "left") {
+      const curS = ev.aligned ? ev.startCol : ev.covered[0];
+      const curE = ev.aligned ? ev.endCol : ev.covered[ev.covered.length - 1];
+      const targetS = Math.min(curE, curS + 1);
+      nextU0 = m.edges[targetS - 1].left;
+    } else {
+      const curE = ev.aligned ? ev.endCol : ev.covered[ev.covered.length - 1];
+      const targetE = Math.min(wb.cols, curE + 1);
+      nextU1 = m.edges[targetE - 1].right;
+    }
+  } else if (e.key === "[") {
+    handled = true;
+    const curS = ev.aligned ? ev.startCol : ev.covered[0];
+    const targetS = Math.max(1, curS - 1);
+    nextU0 = m.edges[targetS - 1].left;
+  } else if (e.key === "]") {
+    handled = true;
+    const curS = ev.aligned ? ev.startCol : ev.covered[0];
+    const curE = ev.aligned ? ev.endCol : ev.covered[ev.covered.length - 1];
+    const targetS = Math.min(curE, curS + 1);
+    nextU0 = m.edges[targetS - 1].left;
+  } else if (/^[1-4]$/.test(e.key)) {
+    const n = Math.min(wb.cols, +e.key);
+    handled = true;
+    const r = rangeForCols(1, n, wb.cols);
+    nextU0 = r.u0;
+    nextU1 = r.u1;
   }
-  if (next == null) return;
+
+  if (!handled) return;
   e.preventDefault();
   wb.introPhase = false;
   wb.introDone = true;
-  wb.targetU = next;
-  if (reducedMotion.matches) wb.shownU = wb.targetU;
-  updateWorkbenchMeta();
+  wb.targetU0 = nextU0;
+  wb.targetU1 = nextU1;
+  if (reducedMotion.matches) {
+    wb.shownU0 = wb.targetU0;
+    wb.shownU1 = wb.targetU1;
+  }
+  updateWorkbenchMeta(true);
   wbLoop.draw();
+}
+
+clampL.addEventListener("keydown", (e) => onClampKeydown("left", e));
+clampR.addEventListener("keydown", (e) => onClampKeydown("right", e));
+
+// 顶眉报社工具栏按钮绑定
+function bindPillGroup(containerId, attr, onSelect) {
+  const box = $(containerId);
+  box.querySelectorAll("button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      box.querySelectorAll("button").forEach((b) => {
+        const on = b === btn;
+        b.classList.toggle("is-active", on);
+        b.setAttribute("aria-pressed", String(on));
+      });
+      onSelect(btn.dataset[attr]);
+    });
+  });
+}
+
+bindPillGroup("ctl-cols", "cols", (val) => {
+  wb.introPhase = false;
+  wb.introDone = true;
+  wb.cols = +val;
+  wb.targetU0 = 0;
+  wb.targetU1 = 1;
+  wb.shownU0 = 0;
+  wb.shownU1 = 1;
+  buildSheetStructure();
+  updateWorkbenchMeta(true);
+  paintSheet(wb.shownU0, wb.shownU1);
 });
 
-// 单选与开关控件
-document.querySelectorAll('input[name="wb-cols"]').forEach((inp) => {
-  inp.addEventListener("change", () => {
-    if (!inp.checked) return;
-    wb.introPhase = false;
-    wb.introDone = true;
-    wb.cols = +inp.value;
-    wb.targetU = 1;
-    wb.shownU = 1;
-    buildSheetStructure();
-    updateWorkbenchMeta();
-    paintSheet(wb.shownU);
-  });
+bindPillGroup("ctl-hlen", "hlen", (val) => {
+  wb.hlen = val;
+  spanHeadline.textContent = SCENARIOS[wb.scene].headlines[wb.hlen];
+  wb.lastHlKey = "";
+  updateWorkbenchMeta(true);
+  paintSheet(wb.shownU0, wb.shownU1);
+  measureSheet();
+  paintSheet(wb.shownU0, wb.shownU1);
 });
 
-document.querySelectorAll('input[name="wb-scene"]').forEach((inp) => {
-  inp.addEventListener("change", () => {
-    if (!inp.checked) return;
-    wb.scene = inp.value;
-    buildSheetStructure();
-    updateWorkbenchMeta();
-    paintSheet(wb.shownU);
-  });
+bindPillGroup("ctl-scene", "scene", (val) => {
+  wb.scene = val;
+  buildSheetStructure();
+  updateWorkbenchMeta(true);
+  paintSheet(wb.shownU0, wb.shownU1);
 });
 
 $("ctl-deck").addEventListener("change", (e) => {
   wb.deck = e.target.checked;
   spanDeck.hidden = !wb.deck;
+  updateWorkbenchMeta(true);
+  measureSheet();
+  paintSheet(wb.shownU0, wb.shownU1);
 });
 $("ctl-guides").addEventListener("change", (e) => {
   wb.guides = e.target.checked;
-  sheet.dataset.guides = wb.guides ? "on" : "off";
+  broadsheet.dataset.guides = wb.guides ? "on" : "off";
 });
 $("ctl-flow").addEventListener("change", (e) => {
   wb.flow = e.target.checked;
-  sheet.dataset.flow = wb.flow ? "on" : "off";
+  broadsheet.dataset.flow = wb.flow ? "on" : "off";
 });
 
+// 初始化栏数按钮高亮（<600px 默认 2 栏，避免极窄微栏）
+$("ctl-cols")
+  .querySelectorAll("button")
+  .forEach((b) => {
+    const on = +b.dataset.cols === wb.cols;
+    b.classList.toggle("is-active", on);
+    b.setAttribute("aria-pressed", String(on));
+  });
+
 buildSheetStructure();
-updateWorkbenchMeta();
-paintSheet(wb.shownU);
+updateWorkbenchMeta(true);
+paintSheet(wb.shownU0, wb.shownU1);
+measureSheet();
+paintSheet(wb.shownU0, wb.shownU1);
 
 // =========================================================
 // 2. 第 01 节：统领 vs 割裂 SVG 对比实验
@@ -495,7 +713,6 @@ function renderGrouping(mode) {
   grpTag.classList.toggle("warn", info.tone === "warn");
   grpText.textContent = info.text;
 
-  // 3 栏坐标
   const cols = [
     { x: 40, w: 184 },
     { x: 248, w: 184 },
@@ -509,13 +726,11 @@ function renderGrouping(mode) {
     }).join("");
 
   let inner = `<rect x="0" y="0" width="680" height="260" fill="#f0eae5"/>`;
-  // 淡栏底
   for (const c of cols) {
     inner += `<rect x="${c.x}" y="22" width="${c.w}" height="214" fill="#f7f3ef" stroke="#c8c0b8" stroke-width="1"/>`;
   }
 
   if (mode === "spanning") {
-    // 顶部钴蓝统领括弧
     inner += `<path d="M40 18 V11 H640 V18" fill="none" stroke="#0e39d3" stroke-width="2"/>`;
     inner += `<rect x="40" y="24" width="600" height="44" fill="#0e39d3"/>`;
     inner += `<text x="56" y="53" font-family="Noto Sans SC, sans-serif" font-size="22" font-weight="900" fill="#ffffff">通栏标题横跨三栏，把它们捆成一篇文章</text>`;
@@ -525,7 +740,6 @@ function renderGrouping(mode) {
       inner += `<circle cx="${c.x + c.w / 2}" cy="80" r="4" fill="#ed420c"/>`;
     }
   } else if (mode === "trapped") {
-    // 割裂：只有第一栏有标题
     inner += `<path d="M40 18 V11 H224 V18" fill="none" stroke="#ed420c" stroke-width="2"/>`;
     inner += `<path d="M248 18 V11 H640 V18" fill="none" stroke="#9f968d" stroke-width="1.5" stroke-dasharray="4 3"/>`;
     inner += `<rect x="40" y="24" width="184" height="72" fill="#ed420c"/>`;
@@ -535,10 +749,8 @@ function renderGrouping(mode) {
     inner += lines(cols[0].x, 110, 8);
     inner += lines(cols[1].x, 36, 13);
     inner += lines(cols[2].x, 36, 13);
-    // 割裂红虚线
     inner += `<line x1="236" y1="20" x2="236" y2="240" stroke="#ed420c" stroke-width="2" stroke-dasharray="6 4"/>`;
   } else {
-    // 三栏各自起标
     const titles = ["焦点一：街道", "焦点二：建筑", "焦点三：社区"];
     cols.forEach((c, idx) => {
       inner += `<path d="M${c.x} 18 V11 H${c.x + c.w} V18" fill="none" stroke="#ed420c" stroke-width="1.8"/>`;
@@ -638,6 +850,48 @@ function updateCalibrator() {
   tag.textContent = d.tag;
   tag.classList.toggle("warn", d.tone === "warn");
   $("cal-msg").textContent = d.text;
+
+  // 同步四条设计要点预设按钮的高亮状态
+  const presetBox = $("cal-presets");
+  if (presetBox) {
+    presetBox.querySelectorAll("button[data-preset]").forEach((btn) => {
+      const p = CAL_PRESETS[btn.dataset.preset]?.state;
+      const match =
+        !!p &&
+        Math.abs(calState.ratio - p.ratio) < 0.05 &&
+        calState.gap === p.gap &&
+        calState.lengthKey === p.lengthKey &&
+        calState.spanCols === p.spanCols &&
+        calState.hasDeck === p.hasDeck &&
+        calState.hasRule === p.hasRule;
+      btn.classList.toggle("is-active", match);
+      btn.setAttribute("aria-pressed", String(match));
+    });
+  }
+}
+
+function applyCalPreset(key) {
+  const p = CAL_PRESETS[key]?.state;
+  if (!p) return;
+  Object.assign(calState, p);
+  $("cal-ratio").value = String(calState.ratio);
+  $("cal-gap").value = String(calState.gap);
+  document.querySelectorAll('input[name="cal-len"]').forEach((inp) => {
+    inp.checked = inp.value === calState.lengthKey;
+  });
+  document.querySelectorAll('input[name="cal-span"]').forEach((inp) => {
+    inp.checked = +inp.value === calState.spanCols;
+  });
+  $("cal-deck").checked = calState.hasDeck;
+  $("cal-rule").checked = calState.hasRule;
+  updateCalibrator();
+}
+
+const calPresetsEl = $("cal-presets");
+if (calPresetsEl) {
+  calPresetsEl.querySelectorAll("button[data-preset]").forEach((btn) => {
+    btn.addEventListener("click", () => applyCalPreset(btn.dataset.preset));
+  });
 }
 
 $("cal-ratio").addEventListener("input", (e) => {
@@ -699,7 +953,6 @@ function renderFlaw() {
     }).join("");
 
   let s = `<rect width="640" height="290" fill="#f0eae5"/>`;
-  // 三栏淡底格
   for (const x of cols) {
     s += `<rect x="${x}" y="18" width="${cw}" height="254" fill="#f7f3ef" stroke="#c8c0b8" stroke-width="1"/>`;
   }
@@ -710,7 +963,7 @@ function renderFlaw() {
     s += `<line x1="44" y1="10" x2="44" y2="280" stroke="${fixed ? "#0e39d3" : "#ed420c"}" stroke-width="1.8" stroke-dasharray="4 3"/>`;
     if (!fixed) {
       s += `<line x1="80" y1="10" x2="80" y2="96" stroke="#ed420c" stroke-width="1.5"/>`;
-      s += `<text x="62" y="20" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="11" font-weight="700" fill="#ed420c">+36px</text>`;
+      s += `<text x="62" y="20" text-anchor="middle" font-family="DM Mono, monospace" font-size="11" font-weight="500" fill="#ed420c">+36px</text>`;
     }
     s += `<rect x="${hx}" y="28" width="${hw}" height="44" fill="${fixed ? "#0e39d3" : "#ed420c"}"/>`;
     s += `<text x="${hx + 14}" y="58" font-family="Noto Sans SC, sans-serif" font-size="22" font-weight="900" fill="#fff">标题左缘必须锁死在首栏线上</text>`;
@@ -753,7 +1006,6 @@ function renderFlaw() {
     s += `<line x1="44" y1="110" x2="596" y2="110" stroke="#0e39d3" stroke-width="1.4"/>`;
     for (const x of cols) s += barLines(x + 6, 126, 9);
   } else {
-    // baseline: 栏顶不齐 vs 齐平起步
     s += `<rect x="44" y="24" width="552" height="42" fill="#0e39d3"/>`;
     s += `<text x="58" y="53" font-family="Noto Sans SC, sans-serif" font-size="21" font-weight="900" fill="#fff">通栏之下，三栏正文应从同一基线起步</text>`;
     const ys = fixed ? [104, 104, 104] : [84, 124, 98];
@@ -864,10 +1116,14 @@ function initPosterZoom() {
     view.scrollLeft = pan.l - (e.clientX - pan.x);
     view.scrollTop = pan.t - (e.clientY - pan.y);
   });
-  view.addEventListener("click", (e) => {
-    if (pan?.moved) e.stopPropagation();
-    pan = null;
-  }, true);
+  view.addEventListener(
+    "click",
+    (e) => {
+      if (pan?.moved) e.stopPropagation();
+      pan = null;
+    },
+    true
+  );
   view.addEventListener("pointerup", () => setTimeout(() => (pan = null), 0));
 }
 initPosterZoom();
