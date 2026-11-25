@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>204 极坐标网格 · POLAR GRID</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <!-- 顶部栏：承袭 204 原海报左标题 + 中右四色图层图例 + 最右圆形虚线印章 -->
+    <div class="hero-masthead">
+      <div class="masthead-title">
+        <div class="crumb-row">
+          <span class="crumb-dot" aria-hidden="true"></span>
+          <span class="crumb-cat">字体、网格与东亚文字 / 网格系统</span>
+          <span class="crumb-no">NO. 204</span>
+          <span class="status-pill is-err" id="hero-status-pill" role="status" aria-live="polite">0/4 · 面积夸大</span>
+        </div>
+        <div class="title-line">
+          <h1>极坐标网格</h1>
+          <span class="title-en">POLAR GRID</span>
+          <span class="title-probe-tag" id="title-probe-tag">P(4.2, 37°)</span>
+        </div>
+        <div class="title-bar-track" aria-hidden="true">
+          <span class="title-bar-fill" id="title-bar-fill"></span>
+        </div>
+        <p class="hero-summary">以圆心为参照，通过半径与角度精确定位空间中的点与结构。</p>
+      </div>
+
+      <!-- 原海报右上 4 项互动图例（点击开关对应结构层） -->
+      <div class="masthead-legend" role="group" aria-label="原海报结构图层开关">
+        <button type="button" class="legend-btn is-on" data-layer="radius" aria-pressed="true">
+          <span class="leg-mark leg-cyan" aria-hidden="true"></span>
+          <span>半径</span>
+          <span class="leg-en">RADIUS</span>
+        </button>
+        <button type="button" class="legend-btn is-on" data-layer="angle" aria-pressed="true">
+          <span class="leg-mark leg-dash" aria-hidden="true"></span>
+          <span>角度</span>
+          <span class="leg-en">ANGLE</span>
+        </button>
+        <button type="button" class="legend-btn is-on" data-layer="circles" aria-pressed="true">
+          <span class="leg-mark leg-slate" aria-hidden="true"></span>
+          <span>同心圆</span>
+          <span class="leg-en">CONCENTRIC</span>
+        </button>
+        <button type="button" class="legend-btn is-on" data-layer="sector" aria-pressed="true">
+          <span class="leg-mark leg-pink" aria-hidden="true"></span>
+          <span>扇区</span>
+          <span class="leg-en">SECTOR</span>
+        </button>
+      </div>
+
+      <!-- 原海报右上圆形虚线印章（随零度极轴实时旋转） -->
+      <div class="masthead-seal" id="masthead-seal" aria-hidden="true">
+        <svg viewBox="0 0 132 132" class="seal-svg" width="118" height="118">
+          <circle cx="66" cy="66" r="61" fill="none" stroke="#5A7E9E" stroke-width="1" stroke-dasharray="3 4"/>
+          <circle cx="66" cy="66" r="54" fill="none" stroke="rgba(27,203,255,0.42)" stroke-width="1"/>
+          <line id="seal-axis-tick" x1="115" y1="66" x2="127" y2="66" stroke="#FC3782" stroke-width="2"/>
+        </svg>
+        <div class="seal-copy">
+          <strong>以圆心为序</strong>
+          <strong>秩序向外扩展</strong>
+          <span>Order radiates from center</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 题材切换 + 快捷预设条 -->
+    <div class="hero-toolbar">
+      <div class="theme-tabs" role="tablist" aria-label="测绘题材切换">
+        <button type="button" class="tab-btn is-active" data-theme="poster" role="tab" aria-selected="true">原海报测绘</button>
+        <button type="button" class="tab-btn" data-theme="wind" role="tab" aria-selected="false">风玫瑰气象</button>
+        <button type="button" class="tab-btn" data-theme="radar" role="tab" aria-selected="false">雷达航迹</button>
+      </div>
+      <div class="preset-row" aria-label="对照方案与复位">
+        <button type="button" class="preset-btn" data-preset="poster">原海报解</button>
+        <button type="button" class="preset-btn" data-preset="compass">八方位解</button>
+        <button type="button" class="preset-btn" data-preset="radar">雷达线性解</button>
+        <button type="button" class="preset-btn is-warn" data-preset="crowded">试错：24路挤心</button>
+        <button type="button" class="preset-btn is-reset" data-preset="broken">复原 0/4 错态</button>
+      </div>
+    </div>
+
+    <!-- 主测绘台：左正圆极坐标蓝图（带原海报四隅实时折线引注）× 右直角展开条+单真源诊单+四维精控 -->
+    <div class="hero-grid">
+      <div class="polar-stage-wrap">
+        <div class="stage-top-strip" id="stage-top-strip">
+          <span class="stage-axis-chip is-err" id="stage-axis-chip">极轴偏转 17° · 空白处横拖归正</span>
+        </div>
+        <!-- 原海报四隅实况角签（桌面贴圆盘四角呼应原海报折线注） -->
+        <div class="corner-note cn-tl" id="note-radius">
+          <span class="cn-dot dot-cyan"></span>
+          <span class="cn-name">半径 RADIUS</span>
+          <strong class="cn-val" id="val-radius">r = 4.20</strong>
+        </div>
+        <div class="corner-note cn-tr" id="note-sector">
+          <span class="cn-dot dot-pink"></span>
+          <span class="cn-name">扇区 SECTOR</span>
+          <strong class="cn-val" id="val-sector">面积 4.0×</strong>
+        </div>
+        <div class="corner-note cn-bl" id="note-angle">
+          <span class="cn-dot dot-white"></span>
+          <span class="cn-name">角度 ANGLE</span>
+          <strong class="cn-val" id="val-angle">7 路 · 51.4°</strong>
+        </div>
+        <div class="corner-note cn-br" id="note-rings">
+          <span class="cn-dot dot-cyan"></span>
+          <span class="cn-name">同心层级 HIERARCHY</span>
+          <strong class="cn-val" id="val-rings">10 环 · 18px</strong>
+        </div>
+
+        <div class="polar-canvas-box">
+          <canvas
+            id="hero-polar-canvas"
+            data-perf-drag
+            tabindex="0"
+            role="application"
+            aria-label="极坐标网格交互测绘盘：可拖拽品红定位点改变半径与角度，左右横拖旋转零度极轴，方向键微调"
+          ></canvas>
+        </div>
+        <p class="stage-gesture-hint">拖品红点 P(r, θ) 测绘坐标 · 空白处左右横拖旋转极轴 · 点扇区查面积 · 方向键微调</p>
+      </div>
+
+      <aside class="hero-console" aria-label="测绘诊断与校准控制">
+        <!-- 同步直角展开条：把圆形极坐标拉直成 θ × r，直接揭穿面积与对齐 -->
+        <div class="unroll-panel">
+          <div class="panel-head">
+            <span class="panel-kicker">极坐标 → 直角展开对照</span>
+            <span class="panel-mono" id="unroll-meta">青柱 = 真实值 · 红杠 = 映射半径</span>
+          </div>
+          <div class="unroll-canvas-wrap">
+            <canvas id="hero-unroll-canvas" aria-label="极坐标展开为直角坐标系的同步对比条"></canvas>
+          </div>
+        </div>
+
+        <!-- 单真源测绘诊单 -->
+        <div class="diag-card is-err" id="diag-card" role="status" aria-live="polite">
+          <div class="diag-top">
+            <span class="diag-badge" id="diag-badge">0/4 · 面积夸大</span>
+            <span class="diag-src">实绘坐标单真源核算</span>
+          </div>
+          <h2 class="diag-title" id="diag-headline">线性半径把 2.0× 数值画成了 4.0× 面积（+100%）</h2>
+          <p class="diag-body" id="diag-body">填色扇区面积公式是 A = ½r²Δθ。主扇区 A 与对照扇区 D 的数值比是 2.0×，若直接按线性半径绘制，色块面积会按平方暴涨到 4.0×。</p>
+          <p class="diag-hint" id="diag-hint">点击下方「面积守恒 r ∝ √v」，让色块面积与真实数据严格成正比。</p>
+          <div class="diag-metrics">
+            <div class="metric-cell">
+              <span class="m-lbl">零度极轴</span>
+              <strong class="m-val" id="m-axis">歪斜 17°</strong>
+            </div>
+            <div class="metric-cell">
+              <span class="m-lbl">首环弦宽</span>
+              <strong class="m-val" id="m-chord">15px</strong>
+            </div>
+            <div class="metric-cell">
+              <span class="m-lbl">同心环距</span>
+              <strong class="m-val" id="m-ringgap">18px</strong>
+            </div>
+            <div class="metric-cell">
+              <span class="m-lbl" id="m-scale-lbl">面积比 / 真实</span>
+              <strong class="m-val" id="m-scale">4.0× / 2.0×</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 四维校准控制器 -->
+        <div class="ctrl-panel">
+          <div class="ctrl-row">
+            <div class="ctrl-head">
+              <label for="zero-angle-range">① 零度极轴基准 <span class="ctrl-mono" id="zero-angle-out">17°</span></label>
+              <div class="mini-snaps">
+                <button type="button" class="mini-btn" data-zero="0">东向 0°</button>
+                <button type="button" class="mini-btn" data-zero="90">北向 90°</button>
+              </div>
+            </div>
+            <input type="range" id="zero-angle-range" min="0" max="359" step="1" value="17">
+          </div>
+
+          <div class="ctrl-row">
+            <span class="ctrl-label">② 角度分割路数 N（需正交且不挤圆心）</span>
+            <div class="seg-group" id="div-group" role="group" aria-label="角度分割路数">
+              <button type="button" class="seg-btn" data-div="5">5路</button>
+              <button type="button" class="seg-btn is-active" data-div="7">7路</button>
+              <button type="button" class="seg-btn" data-div="8">8路</button>
+              <button type="button" class="seg-btn" data-div="12">12路</button>
+              <button type="button" class="seg-btn" data-div="18">18路</button>
+              <button type="button" class="seg-btn" data-div="24">24路</button>
+            </div>
+          </div>
+
+          <div class="ctrl-row ctrl-split">
+            <div>
+              <span class="ctrl-label">③ 同心环数 K</span>
+              <div class="seg-group" id="ring-group" role="group" aria-label="同心环数">
+                <button type="button" class="seg-btn" data-ring="2">2</button>
+                <button type="button" class="seg-btn" data-ring="4">4</button>
+                <button type="button" class="seg-btn" data-ring="5">5</button>
+                <button type="button" class="seg-btn" data-ring="6">6</button>
+                <button type="button" class="seg-btn is-active" data-ring="10">10</button>
+              </div>
+            </div>
+            <div>
+              <span class="ctrl-label">④ 半径映射律</span>
+              <div class="seg-group" id="scale-group" role="group" aria-label="半径映射律">
+                <button type="button" class="seg-btn is-active" data-scale="linear">线性 r∝v</button>
+                <button type="button" class="seg-btn" data-scale="sqrt">面积 r∝√v</button>
+                <button type="button" class="seg-btn" data-scale="truncated">截断基线</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- 原海报底部第一带：核心逻辑 4 栏实况状态条（带原海报 4 枚几何线标） -->
+    <div class="core-logic-bar" aria-label="核心逻辑实时状态">
+      <div class="cl-head">
+        <span class="cl-zh">核心逻辑</span>
+        <span class="cl-en">CORE LOGIC</span>
+      </div>
+      <div class="cl-cols">
+        <div class="cl-col" id="cl-origin">
+          <svg viewBox="0 0 44 44" width="34" height="34" aria-hidden="true">
+            <circle cx="22" cy="22" r="19" fill="none" stroke="currentColor" stroke-width="1.3"/>
+            <circle cx="22" cy="22" r="12" fill="none" stroke="currentColor" stroke-width="1.3"/>
+            <circle cx="22" cy="22" r="5" fill="none" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
+          <div>
+            <div class="cl-title-row"><strong>以圆心为基准</strong><span class="cl-pill" id="pill-origin">歪斜 17°</span></div>
+            <p>所有测量从中心出发</p>
+          </div>
+        </div>
+        <div class="cl-col" id="cl-angle">
+          <svg viewBox="0 0 44 44" width="34" height="34" aria-hidden="true">
+            <circle cx="22" cy="22" r="19" fill="none" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M22 3 L22 22 L39 14" fill="none" stroke="currentColor" stroke-width="1.4"/>
+          </svg>
+          <div>
+            <div class="cl-title-row"><strong>角度组织方向</strong><span class="cl-pill" id="pill-angle">非正交</span></div>
+            <p>角度切分空间，建立清晰的方向系统</p>
+          </div>
+        </div>
+        <div class="cl-col" id="cl-radius">
+          <svg viewBox="0 0 44 44" width="34" height="34" aria-hidden="true">
+            <circle cx="22" cy="22" r="19" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="22" cy="22" r="12" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3 3"/>
+            <circle cx="22" cy="22" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          <div>
+            <div class="cl-title-row"><strong>半径表达层级</strong><span class="cl-pill" id="pill-radius">10 环过密</span></div>
+            <p>半径决定层级与权重，越远越外层</p>
+          </div>
+        </div>
+        <div class="cl-col" id="cl-sector">
+          <svg viewBox="0 0 44 44" width="34" height="34" aria-hidden="true">
+            <path d="M22 22 L22 4 A18 18 0 0 1 39 16 Z" fill="rgba(252,55,130,0.28)" stroke="#FC3782" stroke-width="1.4"/>
+            <circle cx="22" cy="22" r="3" fill="#FC3782"/>
+            <circle cx="14" cy="30" r="2.2" fill="currentColor"/>
+          </svg>
+          <div>
+            <div class="cl-title-row"><strong>扇区承载信息</strong><span class="cl-pill" id="pill-sector">面积 +100%</span></div>
+            <p>扇区整合同类信息，便于比较与读取</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 原海报最底栏：品红加号 + 坐标转换实时公式 + 品红虚线宣言框 -->
+    <div class="formula-ribbon" aria-label="实时坐标转换公式">
+      <div class="fr-brand">
+        <span class="fr-plus" aria-hidden="true">+</span>
+        <div>
+          <strong>坐标转换公式</strong>
+          <span class="fr-en">COORDINATE CONVERSION</span>
+        </div>
+      </div>
+      <div class="fr-eq">
+        <span class="fr-dir">直角 → 极坐标</span>
+        <code id="eq-c2p">r = √(x² + y²) = 4.20 · θ = atan2(y, x) = 37°</code>
+      </div>
+      <div class="fr-eq">
+        <span class="fr-dir">极坐标 → 直角</span>
+        <code id="eq-p2c">x = r cos θ = +3.35 · y = r sin θ = +2.53</code>
+      </div>
+      <div class="fr-motto">
+        <span>以角度定方向 · 以半径定远近 · 以圆心守秩序</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== 01 极坐标的四件套（技术冰白纸） ==================== -->
+  <section class="sec sec-ice" id="sec-01">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">01</span>
+        <div>
+          <h2>极坐标的四件套</h2>
+          <p class="sec-en">FOUR ANATOMICAL ELEMENTS</p>
+        </div>
+      </div>
+      <p class="sec-lead">和用横纵直线切分画面的 <a href="https://layout.xiaoxiaodong.ai/201/play/">201 方格网格</a> 不同，极坐标网格抛弃了上下左右的绝对坐标，只靠唯一圆心、距离 r 和方位角 θ 给平面上的每一点编址。它也不同于只强调视觉中心发散的 <a href="https://layout.xiaoxiaodong.ai/203/play/">203 放射网格</a>——极坐标把方向和远近都量化成了可以反算回直角坐标的精确刻度。</p>
+
+      <div class="anatomy-layout">
+        <div class="anatomy-cards" role="tablist" aria-label="极坐标四部件拆解">
+          <button type="button" class="anat-card is-active" data-part="radius" role="tab" aria-selected="true">
+            <div class="anat-top"><span class="anat-dot c-cyan"></span><strong>半径 / RADIUS</strong><span class="anat-formula">r ∈ [0, R]</span></div>
+            <p class="anat-quote">原海报：「从圆心到点的距离 r 决定层级与尺度。」</p>
+            <p class="anat-why">把离中心越远的对象推向更高数值或更外围层级；所有半径必须锚回同一圆心，截断起算点就会立刻扭曲比例感。</p>
+          </button>
+          <button type="button" class="anat-card" data-part="angle" role="tab" aria-selected="false">
+            <div class="anat-top"><span class="anat-dot c-ink"></span><strong>角度 / ANGLE</strong><span class="anat-formula">θ ∈ [0°, 360°)</span></div>
+            <p class="anat-quote">原海报：「以角度 θ 划分方向，每一条射线代表一个方向基准。」</p>
+            <p class="anat-why">角度负责把循环或方向拆成等步刻度。能整除 90° 的 8 路（45°）和 12 路（30°）能保住水平与竖直主轴，让眼睛不用量角器也能估出大致方位。</p>
+          </button>
+          <button type="button" class="anat-card" data-part="sector" role="tab" aria-selected="false">
+            <div class="anat-top"><span class="anat-dot c-pink"></span><strong>扇区 / SECTOR</strong><span class="anat-formula">A = ½(r<sub>2</sub>²−r<sub>1</sub>²)Δθ</span></div>
+            <p class="anat-quote">原海报：「由两条角线与若干半径围合的区域，用于分类、编组与对比。」</p>
+            <p class="anat-why">扇区就是极坐标里的「单元格」。但它天生不是矩形——越靠近圆心越窄、越往外越宽，同一跨度的外环单元格面积远大于内环。</p>
+          </button>
+          <button type="button" class="anat-card" data-part="circles" role="tab" aria-selected="false">
+            <div class="anat-top"><span class="anat-dot c-cyan"></span><strong>同心层级 / HIERARCHY</strong><span class="anat-formula">r_k = k · Δr</span></div>
+            <p class="anat-quote">原海报：「同心圆形成层级结构，从内到外表达递进关系。」</p>
+            <p class="anat-why">等距同心圆像标尺上的刻度线，让读者不必拿尺子量就能判断两点谁更靠外。经验上 4–6 道环兼顾精度与一眼可读；超过 8 道就容易糊成蛛网。</p>
+          </button>
+        </div>
+
+        <div class="anatomy-viewer" aria-live="polite">
+          <svg id="anatomy-svg" viewBox="0 0 360 360" role="img" aria-label="极坐标四部件隔离解剖图">
+            <rect width="360" height="360" fill="#000B19"/>
+            <!-- 同心圆层 -->
+            <g class="av-layer" data-av="circles">
+              <circle cx="180" cy="180" r="28" fill="none" stroke="#3E6186" stroke-width="1.2"/>
+              <circle cx="180" cy="180" r="56" fill="none" stroke="#3E6186" stroke-width="1.2"/>
+              <circle cx="180" cy="180" r="84" fill="none" stroke="#3E6186" stroke-width="1.2"/>
+              <circle cx="180" cy="180" r="112" fill="none" stroke="#25D0FB" stroke-width="1.6"/>
+              <circle cx="180" cy="180" r="140" fill="none" stroke="#3E6186" stroke-width="1.2"/>
+            </g>
+            <!-- 角度射线层 -->
+            <g class="av-layer" data-av="angle">
+              <line x1="30" y1="180" x2="330" y2="180" stroke="#1BCBFF" stroke-width="1.4"/>
+              <line x1="180" y1="30" x2="180" y2="330" stroke="#1BCBFF" stroke-width="1.4"/>
+              <line x1="59" y1="110" x2="301" y2="250" stroke="#DCE8F4" stroke-width="1" stroke-dasharray="5 5"/>
+              <line x1="110" y1="59" x2="250" y2="301" stroke="#DCE8F4" stroke-width="1" stroke-dasharray="5 5"/>
+              <line x1="250" y1="59" x2="110" y2="301" stroke="#DCE8F4" stroke-width="1" stroke-dasharray="5 5"/>
+              <line x1="301" y1="110" x2="59" y2="250" stroke="#DCE8F4" stroke-width="1" stroke-dasharray="5 5"/>
+              <text x="336" y="184" fill="#F4F6F8" font-size="11" font-family="IBM Plex Mono, monospace">0°</text>
+              <text x="172" y="22" fill="#F4F6F8" font-size="11" font-family="IBM Plex Mono, monospace">90°</text>
+              <text x="304" y="106" fill="#1BCBFF" font-size="10.5" font-family="IBM Plex Mono, monospace">30°</text>
+              <text x="252" y="53" fill="#1BCBFF" font-size="10.5" font-family="IBM Plex Mono, monospace">60°</text>
+            </g>
+            <!-- 扇区层 -->
+            <g class="av-layer" data-av="sector">
+              <path d="M180 180 L301 110 A140 140 0 0 0 250 59 Z" fill="rgba(252,55,130,0.28)" stroke="#FC3782" stroke-width="1.8"/>
+              <path d="M180 180 L253 138 A84 84 0 0 0 222 107 Z" fill="rgba(27,203,255,0.24)" stroke="#1BCBFF" stroke-width="1.2"/>
+            </g>
+            <!-- 半径与 P(r, θ) 层 -->
+            <g class="av-layer is-focus" data-av="radius">
+              <path d="M226 180 A46 46 0 0 0 216 151" fill="none" stroke="#FC3782" stroke-width="2"/>
+              <line x1="180" y1="180" x2="291" y2="95" stroke="#FC3782" stroke-width="2.4"/>
+              <circle cx="291" cy="95" r="6" fill="#FC3782" stroke="#F4F6F8" stroke-width="1.5"/>
+              <text x="234" y="168" fill="#FF79AE" font-size="13" font-style="italic" font-family="IBM Plex Sans, sans-serif">θ</text>
+              <text x="244" y="130" fill="#1BCBFF" font-size="13" font-style="italic" font-family="IBM Plex Sans, sans-serif">r</text>
+              <text x="298" y="88" fill="#FF79AE" font-size="11.5" font-family="IBM Plex Mono, monospace">P(r, θ)</text>
+            </g>
+            <circle cx="180" cy="180" r="4.5" fill="#F4F6F8"/>
+          </svg>
+          <div class="anatomy-caption" id="anatomy-caption">
+            <strong>聚焦：半径 r</strong> — 决定点与圆心的欧氏距离，也决定它在第几道同心层级上落脚。
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 半径翻倍面积四倍（浅青蓝晒纸） ==================== -->
+  <section class="sec sec-cyan-paper" id="sec-02">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">02</span>
+        <div>
+          <h2>半径翻倍面积四倍</h2>
+          <p class="sec-en">THE SQUARED-AREA TRAP</p>
+        </div>
+      </div>
+      <p class="sec-lead">原海报说「半径决定层级与权重，越远越外层」<span class="nuance-tag">说细一点</span>——当你在极坐标里只画<strong>圆点或雷达回波</strong>时，距离确实按线性 r 读取；但一旦给<strong>扇区填满颜色</strong>，人眼会同时看到半径变长和外弧变宽，视觉面积按半径的<strong>平方</strong>放大。同样的 5 环等距划分下，最外第 5 环的面积竟是中心第 1 环的 <strong>9 倍</strong>（5²−4² = 9）。</p>
+
+      <div class="area-lab">
+        <div class="area-controls">
+          <div class="area-slider-wrap">
+            <label for="area-ratio-slider">设定扇区 A 与基准扇区 B 的真实数据倍比：<strong id="area-ratio-val">2.0×</strong></label>
+            <input type="range" id="area-ratio-slider" min="1.2" max="4.0" step="0.1" value="2.0">
+          </div>
+          <div class="area-focus-btns" role="group" aria-label="高亮查看模式">
+            <button type="button" class="light-seg is-active" data-afocus="both">双盘对照</button>
+            <button type="button" class="light-seg" data-afocus="linear">聚焦误用</button>
+            <button type="button" class="light-seg" data-afocus="sqrt">聚焦面积守恒</button>
+          </div>
+        </div>
+        <div class="area-canvas-wrap">
+          <canvas id="area-lab-canvas" aria-label="线性半径与平方根面积守恒双盘实时对比画布"></canvas>
+        </div>
+        <div class="area-readout" id="area-readout">
+          数据真实差 <strong>2.0×</strong>：误用线性半径（r ∝ v）时，扇区 A 的填色面积变成 B 的 <strong>4.00×</strong>（视觉夸大 +100%）；改用南丁格尔平方根法（r ∝ √v）后，半径缩为 <strong>1.41×</strong>，色块面积正好等于 <strong>2.00×</strong>（0% 误差）。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 直角与极坐标卷绕（午夜蓝暗室） ==================== -->
+  <section class="sec sec-dark" id="sec-03">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">03</span>
+        <div>
+          <h2>直角与极坐标卷绕</h2>
+          <p class="sec-en">CARTESIAN TO POLAR MORPH</p>
+        </div>
+      </div>
+      <p class="sec-lead">原海报最底部列出四条换算公式：r = √(x² + y²)、θ = atan2(y, x) 与 x = r cos θ、y = r sin θ。它们不是两套割裂的数学，而是一次连续的拓扑卷绕：把直角方格的水平底边卷成一个点、顶边弯成整圆，0° 和 360° 就在闭合处严丝合缝地咬合在了一起。</p>
+
+      <div class="morph-stage">
+        <div class="morph-canvas-wrap">
+          <canvas id="morph-canvas" aria-label="直角网格连续卷绕变形为极坐标网格交互画布，可点击交点测量换算值"></canvas>
+        </div>
+        <div class="morph-panel">
+          <div class="morph-ctrl-block">
+            <div class="ctrl-head">
+              <label for="morph-slider">卷绕变形进度</label>
+              <strong class="ctrl-mono" id="morph-pct">68% · 卷绕中</strong>
+            </div>
+            <input type="range" id="morph-slider" min="0" max="100" step="1" value="68">
+            <div class="morph-quick">
+              <button type="button" class="mini-btn" data-morph="0">0% 直角展开</button>
+              <button type="button" class="mini-btn" data-morph="50">50% 半圆弧</button>
+              <button type="button" class="mini-btn" data-morph="100">100% 极坐标闭合</button>
+            </div>
+          </div>
+
+          <div class="morph-ctrl-block">
+            <span class="ctrl-label">追踪一条品红曲线看变形真相</span>
+            <div class="seg-group" id="trace-group">
+              <button type="button" class="seg-btn is-active" data-trace="wave">周期波（首尾闭合）</button>
+              <button type="button" class="seg-btn" data-trace="circle">水平线 → 同心圆</button>
+              <button type="button" class="seg-btn" data-trace="spiral">斜直线 → 阿基米德螺线</button>
+            </div>
+          </div>
+
+          <div class="morph-readout" id="morph-readout">
+            <div class="mr-head">点击画布任意网格交点实时验算</div>
+            <div class="mr-eq" id="mr-polar">极坐标：r = 3.00 · θ = 90°</div>
+            <div class="mr-eq" id="mr-cart">直角坐标：x = 0.00 · y = +3.00</div>
+            <p class="mr-note" id="mr-note">周期波在直角展开时被硬切成左端 0° 和右端 360° 两截；拉到 100% 卷绕闭合后，断口彻底消失——这就是气象、潮汐和 24 小时节律天然适合极坐标的几何原因。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 四个最对口的应用（银灰蓝制图纸） ==================== -->
+  <section class="sec sec-slate" id="sec-04">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">04</span>
+        <div>
+          <h2>四个最对口的应用</h2>
+          <p class="sec-en">FOUR SIGNATURE APPLICATIONS</p>
+        </div>
+      </div>
+      <p class="sec-lead">原海报右下角点名了极坐标网格的四个主场：雷达与导航、风玫瑰与气象图、数据可视化、靶场与覆盖分析。它们的共同点不是「画成圆更好看」，而是物理世界里本来就存在一个不可替代的中心点，以及天然首尾相连的 360° 方向。</p>
+
+      <div class="app-bench">
+        <div class="app-selector" role="tablist" aria-label="四大应用场景切换">
+          <button type="button" class="app-tab is-active" data-app="radar" role="tab" aria-selected="true">
+            <strong>雷达与导航</strong>
+            <span>RADAR &amp; NAVIGATION</span>
+          </button>
+          <button type="button" class="app-tab" data-app="wind" role="tab" aria-selected="false">
+            <strong>风玫瑰与气象图</strong>
+            <span>WIND ROSE &amp; METEOROLOGY</span>
+          </button>
+          <button type="button" class="app-tab" data-app="clock" role="tab" aria-selected="false">
+            <strong>数据可视化</strong>
+            <span>DATA VISUALIZATION</span>
+          </button>
+          <button type="button" class="app-tab" data-app="coverage" role="tab" aria-selected="false">
+            <strong>靶场与覆盖分析</strong>
+            <span>TARGET &amp; COVERAGE ANALYSIS</span>
+          </button>
+        </div>
+
+        <div class="app-stage-grid">
+          <div class="app-canvas-wrap">
+            <canvas id="app-canvas" aria-label="应用场景实时极坐标仪器示意画布"></canvas>
+          </div>
+          <div class="app-detail">
+            <div class="app-meta-row">
+              <span class="app-tag" id="app-bind-theta">θ = 方位角（北向 0° 顺时针）</span>
+              <span class="app-tag" id="app-bind-r">r = 线性航距（km）</span>
+            </div>
+            <h3 id="app-title">雷达平面位置显示器：本机即圆心</h3>
+            <p id="app-desc">飞机、舰船或气象雷达站在圆心不动，旋转天线以 360° 扫描周边空间。回波目标以孤立光点标示，没有填色扇区面积，因此半径 r 严格按线性比例对应真实直线距离，让操作员一眼估出拦截方位与剩余航程。</p>
+            <div class="app-switch-row">
+              <button type="button" class="light-seg is-active" data-sub="main" id="app-sub-main">标准空域回波</button>
+              <button type="button" class="light-seg" data-sub="alt" id="app-sub-alt">繁忙进近空域</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 从牛顿到雷达荧光屏（技术冰白纸） ==================== -->
+  <section class="sec sec-ice" id="sec-05">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">05</span>
+        <div>
+          <h2>从牛顿到雷达荧光屏</h2>
+          <p class="sec-en">HISTORICAL LINEAGE</p>
+        </div>
+      </div>
+      <p class="sec-lead">极坐标不是平面设计师拍脑袋发明的装饰圆圈，它从 17 世纪解析几何一路走进战地统计报表、二战雷达示波管与现代视觉感知实验室。点击下方时间节点，看每一次跨越解决了什么真问题。</p>
+
+      <div class="history-grid">
+        <div class="timeline-rail" role="tablist" aria-label="极坐标发展史时间节点">
+          <button type="button" class="era-btn is-active" data-era="bernoulli" role="tab" aria-selected="true">
+            <span class="era-year">1671 — 1691</span>
+            <strong>牛顿、雅各布·伯努利与丰塔纳</strong>
+            <p>把「极点 + 极轴」写进微积分与螺线几何</p>
+          </button>
+          <button type="button" class="era-btn" data-era="nightingale" role="tab" aria-selected="false">
+            <span class="era-year">1858</span>
+            <strong>弗洛伦斯·南丁格尔极区面积图</strong>
+            <p>立下填色扇区按面积开平方（r ∝ √v）的视觉铁律</p>
+          </button>
+          <button type="button" class="era-btn" data-era="ppi" role="tab" aria-selected="false">
+            <span class="era-year">1940 — 1941</span>
+            <strong>雷达平面位置显示器（PPI）</strong>
+            <p>TRE 与 MIT 辐射实验室把旋转回波搬上圆形荧光屏</p>
+          </button>
+          <button type="button" class="era-btn" data-era="perception" role="tab" aria-selected="false">
+            <span class="era-year">1984 &amp; 2010</span>
+            <strong>视觉感知的实证边界</strong>
+            <p>Cleveland &amp; McGill 与 Diehl 等人划清极坐标与直角的分工</p>
+          </button>
+        </div>
+
+        <div class="history-viewer">
+          <div class="history-canvas-wrap">
+            <canvas id="history-canvas" aria-label="历史节点对应的极坐标几何示意微图"></canvas>
+          </div>
+          <div class="history-copy" id="history-copy">
+            <span class="hc-year">1671（1736 刊印）&amp; 1691</span>
+            <h3>从解析曲线走向公开坐标系</h3>
+            <p>艾萨克·牛顿约在 1671 年撰写的《流数法》手稿中就列出了包含极坐标在内的十种曲线定位法，但迟至 1736 年才出版。1691 年，瑞士数学家雅各布·伯努利在《博学者学报》公开发表论文，用「极点」和「极轴」系统研究对数螺线，使极坐标真正进入数学界视野；18 世纪意大利数学家格雷戈里奥·丰塔纳进一步确立了「极坐标」这一名称。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 什么时候别用它（淡品红警示纸） ==================== -->
+  <section class="sec sec-blush" id="sec-06">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">06</span>
+        <div>
+          <h2>什么时候别用它</h2>
+          <p class="sec-en">WHEN NOT TO USE IT</p>
+        </div>
+      </div>
+      <p class="sec-lead">圆盘的秩序感很迷人，但也最容易被滥用。Stephan Diehl、Fabian Beck 与 Michael Burch 在 2010 年（含 674 名受试者的实验）发现，直角排布在定位记忆与读取速度上普遍优于极坐标。遇到下面四类内容，老老实实换回更趁手的网格：</p>
+
+      <div class="avoid-grid">
+        <article class="avoid-card">
+          <span class="avoid-tag">反例 01 · 非周期长序列</span>
+          <h3>五年营收增长或单向流程</h3>
+          <p>首尾本来不相连，硬卷成 360° 会把起点和终点拼成虚假的闭合循环，还会让外圈跨度失真。直接用 <a href="https://layout.xiaoxiaodong.ai/201/play/">201 方格网格</a> 或 <a href="https://layout.xiaoxiaodong.ai/196/play/">196 模块化网格</a> 按线性时间轴推进。</p>
+        </article>
+        <article class="avoid-card">
+          <span class="avoid-tag">反例 02 · 细微差值精读</span>
+          <h3>要分辨 48% 和 52% 的报表</h3>
+          <p>按 Cleveland &amp; McGill（1984）的图形感知排序，人眼对角度和面积的判断精度明显落后于「同一基准线上的位置」。需要精确比大小时，对齐基线的柱图与等距表格永远更可靠。</p>
+        </article>
+        <article class="avoid-card">
+          <span class="avoid-tag">反例 03 · 长段落正文</span>
+          <h3>文章、说明书与多栏阅读</h3>
+          <p>文字顺着直线扫读。把段落塞进上宽下窄的扇区，行宽逐行剧烈缩水，读者还得歪头跟着弧线转。正文阅读应回归 <a href="https://layout.xiaoxiaodong.ai/194/play/">194 手稿网格</a>、<a href="https://layout.xiaoxiaodong.ai/195/play/">195 分栏网格</a> 与 <a href="https://layout.xiaoxiaodong.ai/198/play/">198 基线网格</a>。</p>
+        </article>
+        <article class="avoid-card">
+          <span class="avoid-tag">反例 04 · 纯视觉发散</span>
+          <h3>只要围绕核心、无需量刻度</h3>
+          <p>如果版面只是想把几组观点围绕中心视觉摆开，既不需要角度换算也不用读半径刻度，硬套极坐标网格只会徒增线条噪音——那其实是 <a href="https://layout.xiaoxiaodong.ai/203/play/">203 放射网格</a> 的工作。</p>
+        </article>
+      </div>
+
+      <!-- 互动工况勾选诊断器 -->
+      <div class="decision-box">
+        <div class="decision-checks">
+          <div class="dc-head">
+            <strong>我的项目该用极坐标网格吗？</strong>
+            <span>勾选符合你手头内容的条件，实时看选型建议</span>
+          </div>
+          <div class="dc-list">
+            <label class="dc-item"><input type="checkbox" id="chk-cyclic" checked><span>数据天然循环（如 12 个月 / 24 小时）或自带物理方位角</span></label>
+            <label class="dc-item"><input type="checkbox" id="chk-precision"><span>读者必须精确分辨 5% 以内的微小数值差</span></label>
+            <label class="dc-item"><input type="checkbox" id="chk-longtext"><span>页面主体是连续多段落文字阅读</span></label>
+            <label class="dc-item"><input type="checkbox" id="chk-manycats"><span>离散分类超过 16 项且无法归并大类</span></label>
+          </div>
+        </div>
+        <div class="decision-result is-fit" id="decision-result" aria-live="polite">
+          <span class="dr-badge" id="dr-badge">正对口极坐标</span>
+          <h3 id="dr-title">天然周期 / 方位数据：极坐标网格的最佳主场</h3>
+          <p id="dr-reason">风向、雷达航位、24 小时节律、12 个月季节波动、声场指向性天生首尾相连且围绕同一中心发散，极坐标让方向 θ 与强弱 r 一次对齐。</p>
+          <p class="dr-alt" id="dr-alt">若只需要中心发散的视觉气氛而不需要精确刻度，可看 <a href="https://layout.xiaoxiaodong.ai/203/play/">203 放射网格</a>。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 练一练与原海报（午夜蓝收官展墙） ==================== -->
+  <section class="sec sec-dark sec-finale" id="sec-07">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">07</span>
+        <div>
+          <h2>练一练与原海报</h2>
+          <p class="sec-en">PRACTICE &amp; ORIGINAL POSTER</p>
+        </div>
+      </div>
+
+      <!-- 小练习：中性四图单变量对照 -->
+      <div class="quiz-box">
+        <div class="quiz-prompt">
+          <span class="quiz-kicker">小练习 · 挑一挑</span>
+          <h3>气象站将 12 个方位（每 30° 一档）的月度大风频次画进极坐标风玫瑰图：西北风发生 <strong>40 次</strong>，东南风发生 <strong>10 次</strong>（真实比 4 : 1）。以下四种极坐标设定，哪一种最忠实地传达 4 : 1？</h3>
+        </div>
+        <div class="quiz-options" id="quiz-options" role="radiogroup" aria-label="风玫瑰极坐标设定四选一"></div>
+        <div class="quiz-feedback" id="quiz-feedback" aria-live="polite">点选上方 A / B / C / D 任一方案查看几何理由。</div>
+      </div>
+
+      <!-- 原海报档案 + 关键词 -->
+      <div class="poster-archive">
+        <div class="poster-frame-col">
+          <button type="button" class="poster-open-btn" id="poster-open-btn" aria-label="点击放大查看 204 原海报，支持缩放和拖动">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="204 极坐标网格原海报" draggable="false">
+            <span class="poster-zoom-hint">点击放大查看原海报 · 支持滚轮缩放与拖动</span>
+          </button>
+        </div>
+        <div class="poster-info-col">
+          <span class="pi-kicker">ORIGINAL POSTER · NO. 204</span>
+          <h3>极坐标网格原海报档案</h3>
+          <p>整张海报用深午夜蓝模拟精密测绘蓝图，以电光青标出 0°/90°/180°/270° 正交主轴与同心层级，用白虚线画出每 30° 一道的角度射线，再用高饱和品红锁定目标点 P(r, θ) 与扇区区域。底部四栏概括核心逻辑，最下方直接给出极坐标与直角坐标互转公式。</p>
+          <div class="kw-grid" aria-label="海报关键词">
+            <div class="kw-chip"><strong>半径</strong><span>RADIUS</span></div>
+            <div class="kw-chip"><strong>角度</strong><span>ANGLE</span></div>
+            <div class="kw-chip"><strong>同心圆</strong><span>CONCENTRIC CIRCLES</span></div>
+            <div class="kw-chip"><strong>扇区</strong><span>SECTOR</span></div>
+          </div>
+          <div class="sibling-links">
+            <span class="sl-lbl">同属「网格系统」的相邻页面：</span>
+            <a href="https://layout.xiaoxiaodong.ai/201/play/">201 方格网格</a>
+            <a href="https://layout.xiaoxiaodong.ai/202/play/">202 等距网格</a>
+            <a href="https://layout.xiaoxiaodong.ai/203/play/">203 放射网格</a>
+            <a href="https://layout.xiaoxiaodong.ai/205/play/">205 嵌套网格</a>
+            <a href="https://layout.xiaoxiaodong.ai/209/play/">209 响应式网格</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span><a href="https://layout.xiaoxiaodong.ai/204/play/">在线版</a> / 全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/">layout.xiaoxiaodong.ai</a></span>
+    <span aria-hidden="true">·</span>
+    <span>海报 CC BY 4.0</span>
+    <span aria-hidden="true">·</span>
+    <span><a href="https://github.com/xiaoxiaodong/350-layout-interactive">源文件 GitHub</a></span>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱（支持缩放、拖动、Esc 关闭） -->
+<dialog class="lightbox" id="poster-lightbox" aria-label="204 极坐标网格原海报放大查看">
+  <div class="lb-bar">
+    <span class="lb-title">NO. 204 极坐标网格 · 原海报</span>
+    <div class="lb-tools">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+      <span class="lb-scale" id="lb-scale">100%</span>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn" id="lb-reset">重置</button>
+      <button type="button" class="lb-btn is-close" id="lb-close" aria-label="关闭">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lb-viewport">
+    <img id="lb-img" alt="204 极坐标网格原海报放大图" draggable="false">
+  </div>
+</dialog>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
