@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F9EDDA">
+<title>瀑布流页面 · MASONRY / WATERFALL PAGE</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <p class="series"><span class="series-dot" aria-hidden="true"></span><b>网页与 UI</b><span class="slash" aria-hidden="true">/</span><span>内容与产品模式</span></p>
+    <p class="issue"><span lang="en" class="mono">NO. 271</span><span class="sep" aria-hidden="true">·</span><span>350 种排版 · 互动版</span></p>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== HERO：活体瀑布流砌墙台 ==================== -->
+  <section class="hero" aria-labelledby="title">
+    <div class="wrap hero-shell">
+      <div class="hero-left-rail">
+        <div class="hero-head">
+          <div class="hero-title-group">
+            <h1 id="title" class="stagger-title" aria-label="瀑布流页面">
+              <span class="st-ch ch1" aria-hidden="true">瀑</span><span class="st-ch ch2" aria-hidden="true">布</span><span class="st-ch ch3" aria-hidden="true">流</span><span class="st-ch ch4" aria-hidden="true">页</span><span class="st-ch ch5" aria-hidden="true">面</span>
+            </h1>
+            <p class="hero-en mono" lang="en">MASONRY / WATERFALL PAGE</p>
+            <div class="hero-rule" aria-hidden="true"></div>
+            <p class="hero-summary">通过高度不一、错落排列的内容卡片，打破整齐网格的束缚，形成自然流畅的视觉节奏，适配多维信息与持续浏览场景。</p>
+          </div>
+          <div class="hero-emblem" aria-hidden="true">
+            <canvas id="wave-canvas" width="160" height="168"></canvas>
+            <div class="score-seal" id="score-seal"><span class="mono" id="score-num">0/4</span><span class="seal-sub" id="score-sub">翻车态</span></div>
+          </div>
+        </div>
+
+        <!-- 紧凑砌墙调音条（融入暖羊皮纸面，无深色仪表盘感） -->
+        <div class="tuner" role="region" aria-label="瀑布流编排控件">
+          <div class="tuner-row tuner-row-top">
+            <fieldset class="ctrl-group" id="pack-group">
+              <legend>排布法则</legend>
+              <div class="seg-btns" role="radiogroup" aria-label="排布法则">
+                <button type="button" class="seg-btn is-active" data-pack="grid" aria-pressed="true">等高行锁</button>
+                <button type="button" class="seg-btn" data-pack="columns" aria-pressed="false">纵列硬分</button>
+                <button type="button" class="seg-btn" data-pack="masonry" aria-pressed="false">最短列补位</button>
+              </div>
+            </fieldset>
+
+            <fieldset class="ctrl-group" id="cols-group">
+              <legend>视口列数</legend>
+              <div class="seg-btns" id="cols-btns" role="group" aria-label="视口列数">
+                <button type="button" class="seg-btn" data-cols="2" aria-pressed="false">2列</button>
+                <button type="button" class="seg-btn" data-cols="3" aria-pressed="false">3列</button>
+                <button type="button" class="seg-btn" data-cols="4" aria-pressed="false">4列</button>
+                <button type="button" class="seg-btn is-active" data-cols="6" aria-pressed="true">6列</button>
+              </div>
+            </fieldset>
+
+            <fieldset class="ctrl-group ctrl-actions">
+              <legend>异步加载</legend>
+              <div class="seg-btns">
+                <button type="button" class="seg-btn" id="btn-reserve" aria-pressed="false">无比例占位</button>
+                <button type="button" class="seg-btn btn-accent" id="btn-drop">+ 投放新卡</button>
+                <button type="button" class="seg-btn btn-ghost" id="btn-reset">复原错版</button>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- 居中宽幅可拖高宽比限高闸轨（data-perf-drag 挂在整条轨道，确保 390px 下中心对齐且左右满幅可拖） -->
+          <div class="tuner-row tuner-row-rail">
+            <div class="rail-meta">
+              <span class="rail-label">单卡高宽比上限闸</span>
+              <span class="rail-val mono" id="ratio-readout">3.00× · 不限高</span>
+            </div>
+            <div class="rail-wrap">
+              <div class="ratio-rail" id="ratio-rail" data-perf-drag tabindex="0" role="slider" aria-label="单卡高宽比上限闸" aria-valuemin="0.68" aria-valuemax="3.05" aria-valuenow="3.00" aria-valuetext="3.00倍，放任超长竖图">
+                <div class="rail-track" aria-hidden="true">
+                  <span class="rail-zone zone-flat">压扁</span>
+                  <span class="rail-zone zone-sweet">甜区<i class="sweet-range"> 1.35–1.85×</i></span>
+                  <span class="rail-zone zone-tall">长图霸屏</span>
+                </div>
+                <div class="rail-thumb" id="rail-thumb" aria-hidden="true"><span>|||</span></div>
+              </div>
+              <div class="rail-ticks" aria-hidden="true">
+                <span style="--p:2%">0.7×</span>
+                <span style="--p:28%">1.35×</span>
+                <span style="--p:49%">1.85×</span>
+                <span style="--p:97%">3.0×</span>
+              </div>
+            </div>
+            <label class="rail-toggle">
+              <input type="checkbox" id="chk-xray" checked>
+              <span>水位透视线</span>
+            </label>
+          </div>
+          <div class="tuner-status" id="tuner-status" data-state="bad" aria-live="polite">
+            <span class="ts-badge mono" id="ts-badge">0/4 翻车态</span>
+            <span class="ts-msg" id="ts-msg">等高行锁在矮卡下方撕出空白死角 · 把排布切到「最短列补位」</span>
+            <span class="ts-nums mono" id="ts-nums">单卡 194px · 空洞 49%</span>
+          </div>
+        </div>
+
+        <!-- 原海报底沿四柱实检带（横屏挪入左栏，常规屏位于瀑布墙下方） -->
+        <div class="hero-verdict-slot" id="hero-verdict-mobile-anchor"></div>
+      </div>
+
+      <!-- 活体瀑布流展墙（DOM 真卡片 + 2D Canvas 水位/空洞/动线透视层） -->
+      <div class="hero-wall-stage">
+        <div class="wall-frame" id="wall-frame">
+          <div class="wall-canvas-wrap" id="wall-canvas-wrap">
+            <div class="wall-cards" id="wall-cards" aria-live="polite"></div>
+            <canvas class="wall-overlay" id="hero-canvas" aria-hidden="true"></canvas>
+          </div>
+        </div>
+
+        <!-- 原海报底部四柱实检 + 白话诊断 -->
+        <div class="hero-footer-band" id="hero-footer-band">
+          <div class="verdict-bar" id="verdict-bar" data-state="bad" aria-live="polite">
+            <div class="verdict-head">
+              <span class="verdict-badge mono" id="verdict-badge">0/4 待修</span>
+              <strong class="verdict-title" id="verdict-title">等高行锁在矮卡下方撕出空白死角</strong>
+            </div>
+            <p class="verdict-detail" id="verdict-detail">硬把不同高矮的图文绑在同一条水平底线上，每行都要迁就最高那张图。把排布切到「最短列补位」，拆掉水平行线让新卡往上咬合。</p>
+            <div class="verdict-nums mono" id="verdict-nums">
+              <span>单卡 <b id="m-colw">186px</b></span>
+              <span>行空洞 <b id="m-void">24%</b></span>
+              <span>列尾差 <b id="m-tail">0px</b></span>
+              <span>跳动 <b id="m-shift">0px</b></span>
+            </div>
+          </div>
+
+          <ul class="pillars-bar" id="pillars-bar" aria-label="原海报四项核心体验实时核验">
+            <li class="pillar-item" data-key="stagger">
+              <span class="pillar-ico" id="ico-stagger"></span>
+              <div class="pillar-copy">
+                <p class="pillar-top"><b>错落</b><span lang="en" class="mono">STAGGER</span><span class="p-chip mono" id="st-stagger">待修</span></p>
+                <p class="pillar-desc">高度不一，自然错落</p>
+              </div>
+            </li>
+            <li class="pillar-item" data-key="browse">
+              <span class="pillar-ico" id="ico-browse"></span>
+              <div class="pillar-copy">
+                <p class="pillar-top"><b>浏览</b><span lang="en" class="mono">BROWSE</span><span class="p-chip mono" id="st-browse">待修</span></p>
+                <p class="pillar-desc">顺畅浏览，视觉引导</p>
+              </div>
+            </li>
+            <li class="pillar-item" data-key="flexible">
+              <span class="pillar-ico" id="ico-flexible"></span>
+              <div class="pillar-copy">
+                <p class="pillar-top"><b>弹性</b><span lang="en" class="mono">FLEXIBLE</span><span class="p-chip mono" id="st-flexible">待修</span></p>
+                <p class="pillar-desc">自适应排列，空间高效</p>
+              </div>
+            </li>
+            <li class="pillar-item" data-key="rich">
+              <span class="pillar-ico" id="ico-rich"></span>
+              <div class="pillar-copy">
+                <p class="pillar-top"><b>丰富</b><span lang="en" class="mono">RICH</span><span class="p-chip mono" id="st-rich">待修</span></p>
+                <p class="pillar-desc">容纳多样内容，层次丰富</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <article class="essay">
+    <!-- ==================== 01 拆掉横线，补最矮列 ==================== -->
+    <section class="sec sec-principle" id="sec-01" aria-labelledby="s1">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no serif" lang="en">01</p>
+          <h2 id="s1">拆掉横线，补最矮列</h2>
+          <p class="sec-en mono" lang="en">BREAK THE HORIZONTAL LOCK</p>
+        </header>
+        <div class="sec-body">
+          <p class="lead">普通网格像货架：横线和竖线同时锁死，一张矮卡旁边放了张高图，矮卡下面就会空出一大块死角。瀑布流只保留竖向等宽的列轨，把横向那条行底线彻底拆掉——每来一张新卡，只问一个问题：<strong>此刻哪一列最矮？</strong></p>
+          <p>相比按行齐高的<a href="https://layout.xiaoxiaodong.ai/270/play/" target="_blank" rel="noopener">卡片网格布局（270）</a>，瀑布流让原图不必为了凑齐行高而被硬裁；它落地在页面工程里，也是底层<a href="https://layout.xiaoxiaodong.ai/236/play/" target="_blank" rel="noopener">瀑布流布局（236）</a>算法加上限高、列数与异步加载策略后的完整产品形态。</p>
+
+          <!-- 原海报四要点卡片 -->
+          <ol class="poster-points">
+            <li>
+              <p class="pt-head"><b>错落</b><span lang="en" class="mono">STAGGER</span></p>
+              <p class="pt-quote">“高度不一，自然错落”</p>
+              <p>竖照、横视频、短笔记与引语各按原生高度生长，视口底部总会露出一两张只显半截的卡片，不自觉地勾着手指继续往下滑。</p>
+            </li>
+            <li>
+              <p class="pt-head"><b>浏览</b><span lang="en" class="mono">BROWSE</span></p>
+              <p class="pt-quote">“顺畅浏览，视觉引导”</p>
+              <p>没有齐整的水平切口把视线拦停，眼睛在左右列之间自然滑移，适合没有明确终点、靠偶遇惊喜驱动的漫游场景。</p>
+            </li>
+            <li>
+              <p class="pt-head"><b>弹性</b><span lang="en" class="mono">FLEXIBLE</span></p>
+              <p class="pt-quote">“自适应排列，空间利用高效”</p>
+              <p>窄屏收成双列，桌面舒展到四列或五列；每张卡都紧贴上一张卡的底边，屏效比等高网格高出一截。</p>
+            </li>
+            <li>
+              <p class="pt-head"><b>丰富</b><span lang="en" class="mono">RICH</span></p>
+              <p class="pt-quote">“容纳多样内容，信息层次丰富”</p>
+              <p>一张图配两行字、纯文字金句、带播放标的短视频、商品推荐可以同屏共存，靠底色和体量自然拉开节奏。</p>
+            </li>
+          </ol>
+
+          <!-- 01 独有交互：单步落砖模拟器 -->
+          <div class="lab-box" id="lab-step">
+            <div class="lab-top">
+              <div>
+                <h3 class="lab-title">单步落砖模拟器：轮流发牌 vs 最短列补位</h3>
+                <p class="lab-sub">逐张放下 8 块高低不一的卡片，盯住底部水位数字和列尾落差。</p>
+              </div>
+              <div class="lab-ctrl">
+                <div class="seg-btns" role="radiogroup" aria-label="落砖策略">
+                  <button type="button" class="seg-btn is-active" data-step-mode="shortest" aria-pressed="true">最短列补位</button>
+                  <button type="button" class="seg-btn" data-step-mode="round-robin" aria-pressed="false">轮流发牌 (i%4)</button>
+                </div>
+                <button type="button" class="seg-btn btn-accent" id="step-next">投下一张</button>
+                <button type="button" class="seg-btn" id="step-all">一键排满</button>
+                <button type="button" class="seg-btn btn-ghost" id="step-clear">清空</button>
+              </div>
+            </div>
+            <div class="step-arena" id="step-arena"></div>
+            <p class="lab-caption" id="step-caption" aria-live="polite">已投 4/8 张：下一张将落入当前水位最浅的第 3 列。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 02 从泥瓦脚本到泳道 ==================== -->
+    <section class="sec sec-history" id="sec-02" aria-labelledby="s2">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no serif" lang="en">02</p>
+          <h2 id="s2">从泥瓦脚本到泳道</h2>
+          <p class="sec-en mono" lang="en">WHERE IT COMES FROM</p>
+        </header>
+        <div class="sec-body">
+          <p class="lead">英文里的 Masonry 原意是“石匠砌墙”——挑选大小不一的石头严丝合缝地嵌进空档。这种版式在网页里走过了十五年以上，从早期的脚本补丁一路演进到浏览器原生规范。</p>
+
+          <ol class="timeline">
+            <li>
+              <span class="tl-year mono">2009–2010</span>
+              <div class="tl-body">
+                <h3>David DeSandro 写出开源库 Masonry</h3>
+                <p>他在学习 jQuery 时为了消除 CSS 浮动留下的竖向空隙，做了“像泥瓦匠砌墙一样先竖后横填缝”的插件 jQuery Masonry，并于 2011 年 5 月重写发布 v2.0，随后推出配套的 imagesLoaded 解决图片未就绪导致的叠压。</p>
+              </div>
+            </li>
+            <li>
+              <span class="tl-year mono">2010.03</span>
+              <div class="tl-body">
+                <h3>Pinterest 把图钉板带进主流消费产品</h3>
+                <p>Ben Silbermann、Paul Sciarra 与建筑学背景的 Evan Sharp 推出 Pinterest 内测版，将物理灵感图钉板转译为多列不等高卡片墙，迅速确立了视觉发现页的范式，中文互联网随后习惯称它“瀑布流”。</p>
+              </div>
+            </li>
+            <li>
+              <span class="tl-year mono">2020s–至今</span>
+              <div class="tl-body">
+                <h3>W3C CSS Grid Level 3 收敛至 display: grid-lanes</h3>
+                <p>Firefox 率先在实验开关后试水 grid-template-rows: masonry；围绕“该并入 Grid 还是独立模型”争论多年后，CSS 工作组逐步收敛至原生 display: grid-lanes 方向，让浏览器直接接管最短列排布并兼容逻辑阅读顺序。</p>
+              </div>
+            </li>
+          </ol>
+
+          <!-- 02 独有交互：三代引擎 X 光切换器 + 追加第 9 张测试 -->
+          <div class="lab-box lab-engine" id="lab-engine">
+            <div class="lab-top">
+              <div>
+                <h3 class="lab-title">三代实现引擎 X 光对比</h3>
+                <p class="lab-sub">切换实现方案，再点「追加 #09」看新卡到来时旧卡会不会跳列。</p>
+              </div>
+              <div class="lab-ctrl">
+                <div class="seg-btns" role="tablist" aria-label="瀑布流实现方案">
+                  <button type="button" class="seg-btn is-active" data-eng="columns" role="tab" aria-selected="true">CSS Columns</button>
+                  <button type="button" class="seg-btn" data-eng="js" role="tab" aria-selected="false">JS 最短列</button>
+                  <button type="button" class="seg-btn" data-eng="lanes" role="tab" aria-selected="false">CSS grid-lanes</button>
+                </div>
+                <button type="button" class="seg-btn btn-accent" id="eng-append">+ 追加 #09</button>
+              </div>
+            </div>
+            <div class="eng-stage">
+              <div class="eng-board" id="eng-board" aria-live="polite"></div>
+              <div class="eng-info">
+                <pre class="eng-code mono" id="eng-code"></pre>
+                <p class="eng-note" id="eng-note"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 03 限住长图，留出参差 ==================== -->
+    <section class="sec sec-ratio" id="sec-03" aria-labelledby="s3">
+      <div class="wrap">
+        <header class="sec-head sec-head-wide">
+          <div class="sec-head-left">
+            <p class="sec-no serif" lang="en">03</p>
+            <h2 id="s3">限住长图，留出参差</h2>
+            <p class="sec-en mono" lang="en">TAMING EXTREME ASPECT RATIOS</p>
+          </div>
+          <p class="sec-wide-lead">瀑布流允许高度不同，但绝不等于放任单张长图无限伸长。工程经验通常把单卡图片高宽比收在 <strong>3:4 到 4:3</strong>（最高一般不超 <strong>1:1.8</strong>）：太扁会失去参差感，太长则会让一列霸占整屏，把旁边几列甩出难看的断崖。</p>
+        </header>
+
+        <!-- 03 独有交互：双屏中缝可拖对比帘（中缝直接从 #03 长图身上划过） -->
+        <div class="split-lab" id="split-lab">
+          <div class="split-stage" id="split-stage">
+            <!-- 底层：右侧（限高 3:4 + 长图角标） -->
+            <div class="split-layer split-good" aria-hidden="true">
+              <div class="split-top-row split-top-right">
+                <span class="split-tag mono">右：3:4 限高 + 长图角标</span>
+              </div>
+              <div class="split-deck">
+                <div class="mini-phone mini-phone-wide">
+                  <div class="mp-col">
+                    <div class="mp-card mp-terra" style="height:102px"><span>#01 沙漠徒步</span></div>
+                    <div class="mp-card mp-olive" style="height:132px"><span>#03 峡谷长卷（截断保留入口）</span><em class="mp-badge">长图</em></div>
+                    <div class="mp-card mp-cream" style="height:82px"><span>#05 器物手记</span></div>
+                  </div>
+                  <div class="mp-col">
+                    <div class="mp-card mp-cream" style="height:124px"><span>#02 建筑光影</span></div>
+                    <div class="mp-card mp-dark" style="height:86px"><span>#04 落日海面</span></div>
+                    <div class="mp-card mp-terra" style="height:110px"><span>#06 书房灵感</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 顶层：左侧（无上限放任长图），通过 clip-path 裁切露出右侧 -->
+            <div class="split-layer split-bad" id="split-bad" aria-hidden="true">
+              <div class="split-top-row">
+                <span class="split-tag mono">左：放任长图</span>
+              </div>
+              <div class="split-deck">
+                <div class="mini-phone mini-phone-wide">
+                  <div class="mp-col">
+                    <div class="mp-card mp-terra" style="height:68px"><span>#01 沙漠徒步</span></div>
+                    <div class="mp-card mp-olive mp-runaway" style="height:256px"><span>#03 峡谷长卷（未截断，单卡吞掉 76% 屏高）</span></div>
+                  </div>
+                  <div class="mp-col">
+                    <div class="mp-card mp-cream" style="height:88px"><span>#02 建筑光影</span></div>
+                    <div class="mp-card mp-dark" style="height:66px"><span>#04 落日海面</span></div>
+                    <div class="mp-card mp-terra" style="height:72px"><span>#06 书房灵感</span></div>
+                    <div class="mp-void-gap"><span>右列提前见底 · 断崖 88px</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="split-divider" id="split-divider" aria-hidden="true">
+              <span class="split-knob">◀ ▶</span>
+            </div>
+          </div>
+
+          <div class="split-compare-foot">
+            <div class="scf-item scf-bad">
+              <span class="mono">左 · 放任原图</span>
+              <p>首屏左列仅见 <b>1.5 张</b>，双列尾差 <b>88px</b>，长图吸干视觉重心。</p>
+            </div>
+            <div class="scf-item scf-good">
+              <span class="mono">右 · 3:4 限高截断</span>
+              <p>首屏可见 <b>5.5 张</b>（底沿露半卡），尾差仅 <b>12px</b>，长图贴标留入口。</p>
+            </div>
+          </div>
+
+          <div class="split-controls">
+            <label for="split-range" class="mono">拖动对比帘</label>
+            <input type="range" id="split-range" min="10" max="90" value="38" aria-label="拖动中缝对比无上限长图与限高截断效果">
+            <span class="mono" id="split-pct">38% / 62%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 04 先报比例，再放图片 ==================== -->
+    <section class="sec sec-cls" id="sec-04" aria-labelledby="s4">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no serif" lang="en">04</p>
+          <h2 id="s4">先报比例，再放图片</h2>
+          <p class="sec-en mono" lang="en">PREVENTING LAYOUT SHIFT</p>
+        </header>
+        <div class="sec-body">
+          <p class="lead">瀑布流最隐蔽的体验事故不在静态画面，而在加载那一秒：如果不预先告诉浏览器每张图的宽高比，图片晚到 400 毫秒撑开高度，就会把用户正准备点下去的那张卡狠狠踹向下方。</p>
+          <p>Google 核心网页指标里的累积布局偏移（CLS，良好线 ≤ 0.1）专门衡量这种意外跳动。成熟的做法是在接口返回列表数据时顺带吐出每张图的原始宽高，前端先用 HTML 的 width / height 或 CSS 的 aspect-ratio 占住坑位，图到了只做填充、不挪坐标。</p>
+
+          <!-- 04 独有交互：弱网分段加载回放剧场 -->
+          <div class="lab-box lab-cls" id="lab-cls">
+            <div class="lab-top">
+              <div>
+                <h3 class="lab-title">弱网加载回放：测一次会不会误触</h3>
+                <p class="lab-sub">点击「播放加载」，模拟手指在 0.7 秒时去点目标卡片「收藏」。</p>
+              </div>
+              <div class="lab-ctrl">
+                <div class="seg-btns" role="radiogroup" aria-label="图片占位方式">
+                  <button type="button" class="seg-btn is-active" data-cls-mode="naive" aria-pressed="true">无尺寸占位</button>
+                  <button type="button" class="seg-btn" data-cls-mode="reserved" aria-pressed="false">预写 aspect-ratio</button>
+                </div>
+                <button type="button" class="seg-btn btn-accent" id="cls-play">播放加载</button>
+              </div>
+            </div>
+
+            <div class="cls-theater">
+              <div class="cls-viewport" id="cls-viewport">
+                <div class="cls-col">
+                  <div class="cls-card cls-img-a" id="cls-card-a">
+                    <div class="cls-media" id="cls-media-a"><span>图 A（等待解码）</span></div>
+                    <p>山野露营攻略</p>
+                  </div>
+                  <div class="cls-card cls-target" id="cls-target">
+                    <p class="cls-target-head"><b>目标卡：秋日陶艺展</b><span class="cls-fav">☆ 收藏</span></p>
+                    <p class="cls-target-sub">用户想点的是这张卡</p>
+                  </div>
+                </div>
+                <div class="cls-col">
+                  <div class="cls-card cls-img-b" id="cls-card-b">
+                    <div class="cls-media" id="cls-media-b"><span>图 B（等待解码）</span></div>
+                    <p>暖光建筑速写</p>
+                  </div>
+                  <div class="cls-card cls-plain">
+                    <p>极简木作书架</p>
+                  </div>
+                </div>
+                <div class="cls-finger" id="cls-finger" aria-hidden="true"><span>点击落点</span></div>
+              </div>
+
+              <div class="cls-metrics">
+                <div class="cls-meter">
+                  <span class="mono">估算 CLS 偏移</span>
+                  <strong class="mono" id="cls-score">0.000</strong>
+                  <span class="cls-grade" id="cls-grade">待播放</span>
+                </div>
+                <div class="cls-meter">
+                  <span class="mono">目标卡下移</span>
+                  <strong class="mono" id="cls-shift">0 px</strong>
+                  <span class="cls-grade" id="cls-hit">未触发点击</span>
+                </div>
+                <p class="cls-explain" id="cls-explain" aria-live="polite">当前关闭了宽高比占位：点击「播放加载」，观察图 A 解码瞬间如何把目标卡踹离手指落点。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 05 哪些场景最适合它 ==================== -->
+    <section class="sec sec-use" id="sec-05" aria-labelledby="s5">
+      <div class="wrap">
+        <header class="sec-head sec-head-wide">
+          <div class="sec-head-left">
+            <p class="sec-no serif" lang="en">05</p>
+            <h2 id="s5">哪些场景最适合它</h2>
+            <p class="sec-en mono" lang="en">WHERE IT SHINES &amp; COLUMN SCALE</p>
+          </div>
+          <p class="sec-wide-lead">当读者抱着“随便逛逛、看看有什么新鲜事”的心态进来，且内容本身混杂着横竖照片、文字笔记与轻视频时，瀑布流才显出真正的活力。</p>
+        </header>
+
+        <ul class="use-cards">
+          <li>
+            <span class="use-no mono">A · 社区发现</span>
+            <h3>图文发现流</h3>
+            <p>穿搭、家居、旅行攻略社区的首页推荐：手机双列配 8–12px 槽宽，首图占主体，底沿只留标题和赞数。</p>
+          </li>
+          <li>
+            <span class="use-no mono">B · 视觉图库</span>
+            <h3>摄影与灵感板</h3>
+            <p>允许竖拍人像、方构图静物与宽银幕风景保持原比例同墙展出；如果每张作品需要独立留白鉴赏，更适合<a href="https://layout.xiaoxiaodong.ai/275/play/" target="_blank" rel="noopener">画廊布局（275）</a>。</p>
+          </li>
+          <li>
+            <span class="use-no mono">C · 混合编辑</span>
+            <h3>生活方式杂志墙</h3>
+            <p>像 271 号原海报一样，在图卡之间穿插纯文字引语与色块笔记；若更看重固定区块的秩序感，可看<a href="https://layout.xiaoxiaodong.ai/272/play/" target="_blank" rel="noopener">便当盒布局（272）</a>。</p>
+          </li>
+          <li>
+            <span class="use-no mono">D · 持续漫游</span>
+            <h3>轻决策种草页</h3>
+            <p>不要求读者按分钟逐条追更，而是靠视觉偶遇引发点击；如果需要严格按时间线往下读完，应回用<a href="https://layout.xiaoxiaodong.ai/269/play/" target="_blank" rel="noopener">信息流布局（269）</a>。</p>
+          </li>
+        </ul>
+
+        <!-- 05 独有交互：屏宽与列数经验对照尺 -->
+        <div class="lab-box lab-scale" id="lab-scale">
+          <div class="lab-top">
+            <div>
+              <h3 class="lab-title">屏宽与列数经验对照尺</h3>
+              <p class="lab-sub">点击不同设备档位，查看经验列数、槽宽与单卡宽度怎么联动。</p>
+            </div>
+            <div class="seg-btns" id="scale-btns" role="radiogroup" aria-label="设备宽档位">
+              <button type="button" class="seg-btn" data-vp="phone" aria-pressed="false">手机 375px</button>
+              <button type="button" class="seg-btn" data-vp="tablet" aria-pressed="false">平板 768px</button>
+              <button type="button" class="seg-btn is-active" data-vp="laptop" aria-pressed="true">笔记 1280px</button>
+              <button type="button" class="seg-btn" data-vp="wide" aria-pressed="false">宽屏 1920px</button>
+            </div>
+          </div>
+          <div class="scale-preview">
+            <div class="scale-screen" id="scale-screen" aria-hidden="true"></div>
+            <div class="scale-specs" id="scale-specs" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 06 什么时候别用它 ==================== -->
+    <section class="sec sec-avoid" id="sec-06" aria-labelledby="s6">
+      <div class="wrap sec-grid">
+        <header class="sec-head">
+          <p class="sec-no serif" lang="en">06</p>
+          <h2 id="s6">什么时候别用它</h2>
+          <p class="sec-en mono" lang="en">WHEN TO WALK AWAY</p>
+        </header>
+        <div class="sec-body">
+          <aside class="gentle-fix">
+            <span class="fix-tag mono">海报说多了一点</span>
+            <p>原海报总述写它“适配多维信息与持续浏览场景”。后半句“持续浏览”很准，但遇到<strong>需要横向比参数、按时间回溯、或带着明确目标找一条记录</strong>的多维信息时，错落排列反而会帮倒忙。</p>
+          </aside>
+
+          <dl class="avoid-list">
+            <div>
+              <dt>横向比价与参数筛选</dt>
+              <dd>左右卡片基线错位，眼睛没法水平扫过价格、规格和按钮。这类任务该交给<a href="https://layout.xiaoxiaodong.ai/270/play/" target="_blank" rel="noopener">卡片网格布局（270）</a>或<a href="https://layout.xiaoxiaodong.ai/274/play/" target="_blank" rel="noopener">数据表格布局（274）</a>。</dd>
+            </div>
+            <div>
+              <dt>强时间顺序的日志与动态</dt>
+              <dd>第 4 条卡片落进第 2 列、第 5 条又跳去第 4 列，读者根本分不清哪条更新。需要先后透明时，请用<a href="https://layout.xiaoxiaodong.ai/277/play/" target="_blank" rel="noopener">时间线布局（277）</a>。</dd>
+            </div>
+            <div>
+              <dt>目标明确的精准搜索</dt>
+              <dd>用户已经知道自己在找什么，需要一条清晰的单列扫描轴和可回退的页码，宜用<a href="https://layout.xiaoxiaodong.ai/286/play/" target="_blank" rel="noopener">搜索结果布局（286）</a>。</dd>
+            </div>
+          </dl>
+
+          <!-- 06 独有交互：找 #07 14:20 通知小实验 -->
+          <div class="lab-box lab-find" id="lab-find">
+            <div class="lab-top">
+              <div>
+                <h3 class="lab-title">亲手测一次：找出「#07 · 14:20」的通知</h3>
+                <p class="lab-sub">分别在瀑布流和对齐列表里点中 #07，感受视线跳跃的差别。</p>
+              </div>
+              <div class="seg-btns" role="radiogroup" aria-label="检索对比视图">
+                <button type="button" class="seg-btn is-active" data-find-mode="masonry" aria-pressed="true">瀑布流错落墙</button>
+                <button type="button" class="seg-btn" data-find-mode="list" aria-pressed="false">对齐时间列表</button>
+              </div>
+            </div>
+            <div class="find-board" id="find-board"></div>
+            <p class="lab-caption" id="find-result" aria-live="polite">点一下卡片里的「#07 · 14:20 紧急：线上封面链接修正」开始记录。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 07 练一练：哪份成立 ==================== -->
+    <section class="sec sec-practice" id="sec-07" aria-labelledby="s7">
+      <div class="wrap">
+        <header class="sec-head sec-head-wide">
+          <div class="sec-head-left">
+            <p class="sec-no serif" lang="en">07</p>
+            <h2 id="s7">练一练：哪份成立</h2>
+            <p class="sec-en mono" lang="en">PRACTICE · PICK THE SOUND WATERFALL</p>
+          </div>
+          <p class="sec-wide-lead">下面四份双列手机发现页排的是同一组 6 条图文内容，每份只改动了一个关键变量。先凭判断选出一份真正成立的方案，选完会揭晓四份稿件的内部标注。</p>
+        </header>
+
+        <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四份设计稿选项">
+          <!-- A：最短列，但未限高，#2 长图拖尾 -->
+          <button type="button" class="quiz-card" data-choice="A" aria-pressed="false">
+            <span class="quiz-letter serif">A</span>
+            <svg viewBox="0 0 200 248" class="quiz-svg" aria-hidden="true">
+              <rect x="2" y="2" width="196" height="244" rx="10" class="qs-bg"/>
+              <rect x="12" y="12" width="84" height="44" rx="5" class="qs-cream"/>
+              <text x="20" y="31" class="qs-num">1</text>
+              <rect x="104" y="12" width="84" height="156" rx="5" class="qs-olive"/>
+              <text x="112" y="31" class="qs-num qs-light">2</text>
+              <rect x="12" y="64" width="84" height="42" rx="5" class="qs-terra"/>
+              <text x="20" y="83" class="qs-num qs-light">3</text>
+              <rect x="12" y="114" width="84" height="36" rx="5" class="qs-dark"/>
+              <text x="20" y="133" class="qs-num qs-light">4</text>
+              <rect x="12" y="158" width="84" height="38" rx="5" class="qs-cream"/>
+              <text x="20" y="177" class="qs-num">5</text>
+              <rect x="104" y="176" width="84" height="58" rx="5" class="qs-terra"/>
+              <text x="112" y="195" class="qs-num qs-light">6</text>
+              <g class="qs-reveal">
+                <rect x="12" y="204" width="84" height="30" rx="3" class="qs-warn-box"/>
+                <line x1="100" y1="196" x2="100" y2="234" class="qs-warn-line"/>
+                <text x="54" y="223" text-anchor="middle" class="qs-annot">未限高·长尾</text>
+              </g>
+            </svg>
+          </button>
+
+          <!-- B：最短列 + 限高 3:4 + 长图角标 + 自然参差（正确） -->
+          <button type="button" class="quiz-card" data-choice="B" aria-pressed="false">
+            <span class="quiz-letter serif">B</span>
+            <svg viewBox="0 0 200 248" class="quiz-svg" aria-hidden="true">
+              <rect x="2" y="2" width="196" height="244" rx="10" class="qs-bg"/>
+              <rect x="12" y="12" width="84" height="62" rx="5" class="qs-cream"/>
+              <text x="20" y="31" class="qs-num">1</text>
+              <rect x="104" y="12" width="84" height="86" rx="5" class="qs-olive"/>
+              <text x="112" y="31" class="qs-num qs-light">2</text>
+              <rect x="150" y="76" width="32" height="15" rx="3" class="qs-pill"/>
+              <text x="166" y="87" text-anchor="middle" class="qs-pill-t">长图</text>
+              <rect x="12" y="82" width="84" height="72" rx="5" class="qs-terra"/>
+              <text x="20" y="101" class="qs-num qs-light">3</text>
+              <rect x="104" y="106" width="84" height="54" rx="5" class="qs-dark"/>
+              <text x="112" y="125" class="qs-num qs-light">4</text>
+              <rect x="12" y="162" width="84" height="58" rx="5" class="qs-cream"/>
+              <text x="20" y="181" class="qs-num">5</text>
+              <rect x="104" y="168" width="84" height="68" rx="5" class="qs-terra"/>
+              <text x="112" y="187" class="qs-num qs-light">6</text>
+              <g class="qs-reveal">
+                <path d="M54 44 L146 54 L54 118 L146 132 L54 190 L146 202" class="qs-ok-path"/>
+                <text x="100" y="242" text-anchor="middle" class="qs-ok-annot">限高·最短列·顺流</text>
+              </g>
+            </svg>
+          </button>
+
+          <!-- C：看起来参差，但用 CSS Columns 纵列排号 1→2→3 向下 -->
+          <button type="button" class="quiz-card" data-choice="C" aria-pressed="false">
+            <span class="quiz-letter serif">C</span>
+            <svg viewBox="0 0 200 248" class="quiz-svg" aria-hidden="true">
+              <rect x="2" y="2" width="196" height="244" rx="10" class="qs-bg"/>
+              <rect x="12" y="12" width="84" height="62" rx="5" class="qs-cream"/>
+              <text x="20" y="31" class="qs-num">1</text>
+              <rect x="12" y="82" width="84" height="74" rx="5" class="qs-olive"/>
+              <text x="20" y="101" class="qs-num qs-light">2</text>
+              <rect x="12" y="164" width="84" height="58" rx="5" class="qs-terra"/>
+              <text x="20" y="183" class="qs-num qs-light">3</text>
+              <rect x="104" y="12" width="84" height="84" rx="5" class="qs-dark"/>
+              <text x="112" y="31" class="qs-num qs-light">4</text>
+              <rect x="104" y="104" width="84" height="56" rx="5" class="qs-cream"/>
+              <text x="112" y="123" class="qs-num">5</text>
+              <rect x="104" y="168" width="84" height="68" rx="5" class="qs-terra"/>
+              <text x="112" y="187" class="qs-num qs-light">6</text>
+              <g class="qs-reveal">
+                <path d="M54 38 V192 L146 42 V202" class="qs-warn-path"/>
+                <text x="100" y="242" text-anchor="middle" class="qs-annot">纵列硬分·追加跳列</text>
+              </g>
+            </svg>
+          </button>
+
+          <!-- D：硬裁成统一 1:1 等高方块，退化成齐平网格 -->
+          <button type="button" class="quiz-card" data-choice="D" aria-pressed="false">
+            <span class="quiz-letter serif">D</span>
+            <svg viewBox="0 0 200 248" class="quiz-svg" aria-hidden="true">
+              <rect x="2" y="2" width="196" height="244" rx="10" class="qs-bg"/>
+              <rect x="12" y="12" width="84" height="68" rx="5" class="qs-cream"/>
+              <text x="20" y="31" class="qs-num">1</text>
+              <rect x="104" y="12" width="84" height="68" rx="5" class="qs-olive"/>
+              <text x="112" y="31" class="qs-num qs-light">2</text>
+              <rect x="12" y="88" width="84" height="68" rx="5" class="qs-terra"/>
+              <text x="20" y="107" class="qs-num qs-light">3</text>
+              <rect x="104" y="88" width="84" height="68" rx="5" class="qs-dark"/>
+              <text x="112" y="107" class="qs-num qs-light">4</text>
+              <rect x="12" y="164" width="84" height="68" rx="5" class="qs-cream"/>
+              <text x="20" y="183" class="qs-num">5</text>
+              <rect x="104" y="164" width="84" height="68" rx="5" class="qs-terra"/>
+              <text x="112" y="183" class="qs-num qs-light">6</text>
+              <g class="qs-reveal">
+                <line x1="8" y1="84" x2="192" y2="84" class="qs-warn-line"/>
+                <line x1="8" y1="160" x2="192" y2="160" class="qs-warn-line"/>
+                <text x="100" y="242" text-anchor="middle" class="qs-annot">强裁等高·失去错落</text>
+              </g>
+            </svg>
+          </button>
+        </div>
+
+        <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+          <p class="qv-title" id="qv-title">先凭判断点选一份设计稿。</p>
+          <p class="qv-body" id="qv-body">注意每份稿件里编号顺序、长图占比和底部水平线的细微差别。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 08 原海报与关键词 ==================== -->
+    <section class="sec sec-poster" id="sec-08" aria-labelledby="s8">
+      <div class="wrap poster-grid">
+        <header class="sec-head">
+          <p class="sec-no serif" lang="en">08</p>
+          <h2 id="s8">原海报与关键词</h2>
+          <p class="sec-en mono" lang="en">THE ORIGINAL POSTER</p>
+        </header>
+
+        <figure class="poster-fig">
+          <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="放大查看原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="271 号瀑布流页面原海报：暖羊皮纸底色，顶部为粗体标题瀑布流页面及右侧四股橄榄色波浪与散点，中间为四列高度不一的暖米、赤陶、橄榄、深棕内容卡片，底部为错落、浏览、弹性、丰富四项图标与自然流动等四个关键词。">
+          </button>
+          <figcaption>点击海报放大查看细节；放大后可拖动平移，点关闭钮或按 Esc 收起。</figcaption>
+        </figure>
+
+        <div class="kw-panel">
+          <p class="kw-en-quote mono" lang="en">BY STAGGERING CONTENT BLOCKS OF VARIED HEIGHTS, THE WATERFALL LAYOUT BREAKS THE CONSTRAINTS OF A RIGID GRID, CREATING A NATURAL VISUAL RHYTHM THAT ADAPTS TO MULTI-DIMENSIONAL INFORMATION AND CONTINUOUS BROWSING.</p>
+          <div class="dotted-arrow" aria-hidden="true"><span></span><b>▶</b></div>
+          <h3 class="kw-heading">原海报关键词 <span lang="en" class="mono">KEYWORDS</span></h3>
+          <ul class="kw-list">
+            <li><b>自然流动</b><span lang="en" class="mono">NATURAL FLOW</span></li>
+            <li><b>高效浏览</b><span lang="en" class="mono">EFFICIENT BROWSE</span></li>
+            <li><b>内容优先</b><span lang="en" class="mono">CONTENT FIRST</span></li>
+            <li><b>体验自由</b><span lang="en" class="mono">FREE EXPERIENCE</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<!-- 原海报放大灯箱 -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报放大查看">
+  <div class="lb-bar">
+    <span class="mono">NO. 271 原海报 · 拖动平移 · Esc 关闭</span>
+    <button type="button" class="lb-close" id="lb-close">关闭 ×</button>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" alt="原海报大图" draggable="false">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p><span lang="en" class="mono">No. 271</span> 瀑布流页面 · 350 种排版</p>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/271/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep" aria-hidden="true">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep" aria-hidden="true">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
