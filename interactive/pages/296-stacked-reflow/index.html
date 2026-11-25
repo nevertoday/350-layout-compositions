@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBF4E8">
+<title>堆叠重排 · STACKED REFLOW — 350 种排版互动版</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap mast-inner">
+    <p class="mast-cat">网页与 UI <span aria-hidden="true">/</span> 响应式重排模式</p>
+    <p class="mast-no" lang="en">NO. 296 · STACKED REFLOW</p>
+  </div>
+</header>
+
+<main id="main">
+  <!-- ================= HERO: 海报同源双栏 + 窄屏挤爆→逐块拖入单列重排台 ================= -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="wrap hero-shell">
+      <div class="hero-grid">
+        <!-- 左栏（32%）：大标题 + 总述 + 原海报静态五条核心原理（不做达标/待修打卡灯） -->
+        <div class="hero-left">
+          <div class="hero-title-block">
+            <h1 id="page-title" class="hero-title">堆叠重排</h1>
+            <p class="hero-en" lang="en">STACKED REFLOW</p>
+            <span class="hero-rule" aria-hidden="true"></span>
+            <p class="hero-summary">内容模块纵向堆叠，顺序清晰，结构自适应。</p>
+          </div>
+
+          <div class="principles-block" aria-label="核心原理">
+            <h2 class="principles-heading">核心原理</h2>
+            <ul class="principles-list">
+              <li>
+                <span class="p-ico" aria-hidden="true">
+                  <svg viewBox="0 0 32 32"><rect x="3" y="5" width="14" height="3.2" rx="1" fill="#F35216"/><rect x="3" y="11" width="11" height="3.2" rx="1" fill="#F35216"/><rect x="3" y="17" width="15" height="3.2" rx="1" fill="#F35216"/><rect x="3" y="23" width="9" height="3.2" rx="1" fill="#F35216"/><path d="M24 6V25M20 21l4 4.5 4-4.5" fill="none" stroke="#F35216" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <div class="p-copy">
+                  <strong>纵向堆叠</strong>
+                  <span>从上到下有序排列</span>
+                </div>
+              </li>
+              <li>
+                <span class="p-ico" aria-hidden="true">
+                  <svg viewBox="0 0 32 32"><rect x="3" y="4" width="12" height="10" rx="1.5" fill="#F35216"/><rect x="3.8" y="17.5" width="10.4" height="10" rx="1.5" fill="none" stroke="#F35216" stroke-width="1.8" stroke-dasharray="3 2.2"/><path d="M23 7V25M19 21l4 4.5 4-4.5" fill="none" stroke="#F35216" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <div class="p-copy">
+                  <strong>保持层级</strong>
+                  <span>标题优先，信息跟随</span>
+                </div>
+              </li>
+              <li>
+                <span class="p-ico" aria-hidden="true">
+                  <svg viewBox="0 0 32 32"><path d="M5 7l6 6M11 7v6H5M27 7l-6 6M21 7v6h6M5 25l6-6M11 25v-6H5M27 25l-6-6M21 25v-6h6" fill="none" stroke="#F35216" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <div class="p-copy">
+                  <strong>减少横向依赖</strong>
+                  <span>压缩宽度，信息不丢失</span>
+                </div>
+              </li>
+              <li>
+                <span class="p-ico" aria-hidden="true">
+                  <svg viewBox="0 0 32 32"><rect x="4" y="7" width="24" height="3.2" rx="1" fill="#F35216"/><rect x="4" y="14.4" width="24" height="3.2" rx="1" fill="#F35216"/><rect x="4" y="21.8" width="24" height="3.2" rx="1" fill="#F35216"/></svg>
+                </span>
+                <div class="p-copy">
+                  <strong>模块间距</strong>
+                  <span>节奏一致，呼吸舒适</span>
+                </div>
+              </li>
+              <li>
+                <span class="p-ico" aria-hidden="true">
+                  <svg viewBox="0 0 32 32"><path d="M16 4v18" fill="none" stroke="#F35216" stroke-width="2.2" stroke-dasharray="2.5 3.2" stroke-linecap="round"/><path d="M11 19l5 6 5-6" fill="none" stroke="#F35216" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <div class="p-copy">
+                  <strong>阅读动线清晰</strong>
+                  <span>一条路径，自然流畅</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 右栏（68%）：宽屏横排蓝图 + 固定 375px 逻辑宽度窄屏逐块拖入与调序视口 -->
+        <div class="hero-right">
+          <div class="stage-toolbar" role="region" aria-label="标本与操作">
+            <div class="tool-group" role="group" aria-label="切换界面标本">
+              <button type="button" class="tool-btn is-active" data-specimen="features" aria-pressed="true">产品介绍页</button>
+              <button type="button" class="tool-btn" data-specimen="specs" aria-pressed="false">电纸书商品页</button>
+            </div>
+            <div class="tool-group">
+              <button type="button" class="tool-btn tool-ghost" id="btn-hero-reset">重置横挤</button>
+              <button type="button" class="tool-btn tool-accent" id="btn-hero-all">按宽屏原序全堆</button>
+            </div>
+          </div>
+
+          <div class="task-strip" role="note" aria-label="当前排序任务">
+            <span class="task-pill">场景任务</span>
+            <p class="task-text" id="hero-task-text">出差地铁断网急着改稿——按决策轻重落入单列，让最先要确认的核心能力排在 01。</p>
+          </div>
+
+          <div class="hero-stage" id="hero-stage">
+            <canvas id="hero-canvas" class="hero-canvas" aria-hidden="true"></canvas>
+
+            <!-- 左侧蓝图：横向并列（宽屏原稿），按宽屏视觉位置排布 -->
+            <div class="bp-frame bp-wide" id="wide-ref-box" aria-label="宽屏横向并列对照">
+              <div class="bp-head">
+                <span class="bp-title">横向并列（宽屏）</span>
+                <span class="bp-meta" lang="en">1280px · 2×2</span>
+              </div>
+              <div class="wide-ref-grid" id="wide-ref-grid"></div>
+              <p class="bp-foot-note">宽屏一眼能扫全四格，次要项放左上也能忍；一进 375px 窄屏，照原序硬堆只会让次要项抢占首屏。</p>
+            </div>
+
+            <!-- 中间过渡箭头（呼应原海报） -->
+            <div class="bp-arrow" aria-hidden="true">
+              <svg viewBox="0 0 28 24"><path d="M2 12h21M17 6l6 6-6 6" fill="none" stroke="#0F0F0E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <!-- 右侧蓝图：固定 375px 逻辑宽度的窄屏实操视口（窄于 375px 时等比缩放） -->
+            <div class="bp-frame bp-phone" aria-label="375px 窄屏堆叠重排视口">
+              <div class="bp-head">
+                <span class="bp-title">堆叠重排（375px）</span>
+                <span class="bp-overflow-badge" id="h-overflow-badge" data-state="warn">实测溢出 +0 px</span>
+              </div>
+
+              <div class="phone-scale-host" id="phone-scale-host">
+                <div class="phone-viewport" id="phone-viewport">
+                  <!-- 844×390 手机横屏专属：1:1 不缩放，视口内滚动并显示首屏线 -->
+                  <div class="fold-marker" aria-hidden="true"><span>首屏线 · FOLD（视口内上下滚动）</span></div>
+                  <div class="phone-scroll" id="phone-scroll">
+                    <div class="h-row-section">
+                      <p class="h-row-label" id="h-row-status">横排剩余 4 块（按轻重拖入下方单列，或点击 / Enter）</p>
+                      <div class="h-row-clip" id="h-row-clip" data-overflow="true" data-empty="false">
+                        <div class="h-row-track" id="h-row-track"></div>
+                      </div>
+                    </div>
+                    <div class="v-drop-zone" id="v-drop-zone" aria-label="纵向单列落位与调序区"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 舞台下方统一诊断带（单一数据源实时读数 + 顺序判定 + 为什么） -->
+      <div class="hero-diag" aria-live="polite">
+        <div class="diag-metrics">
+          <div class="diag-chip">
+            <span class="diag-k">状态</span>
+            <strong class="diag-tag" id="ro-tag" data-severity="warn">横向挤爆 · 待重排</strong>
+          </div>
+          <div class="diag-chip">
+            <span class="diag-k">已入单列</span>
+            <strong class="diag-v" id="ro-stacked" lang="en">0 / 4</strong>
+          </div>
+          <div class="diag-chip">
+            <span class="diag-k">375px 实测溢出</span>
+            <strong class="diag-v" id="ro-overflow" data-severity="warn" lang="en">+0 px</strong>
+          </div>
+          <div class="diag-chip">
+            <span class="diag-k">主任务位次</span>
+            <strong class="diag-v" id="ro-priority" data-severity="warn">横排中</strong>
+          </div>
+        </div>
+        <div class="diag-why">
+          <p class="diag-head" id="ro-head">4 个模块全挤在一行，横排超出 375px 视口</p>
+          <p class="diag-text" id="ro-why">别机械从左到右硬堆——先按任务确定优先级，把主任务先落到 01，落位后也能用 ↑ ↓ 调序。</p>
+        </div>
+      </div>
+
+      <!-- 原海报橙色虚线折角引线 + 浅杏桃「带来的价值」四栏条 -->
+      <div class="poster-connector" aria-hidden="true">
+        <svg viewBox="0 0 1200 34" preserveAspectRatio="none">
+          <path d="M920 0 V17 H260 V34" fill="none" stroke="#F35216" stroke-width="1.8" stroke-dasharray="4 5"/>
+        </svg>
+      </div>
+      <div class="values-band" aria-label="带来的价值">
+        <p class="values-label">带来的价值</p>
+        <ul class="values-grid">
+          <li>
+            <span class="v-ico-badge" aria-hidden="true">
+              <svg viewBox="0 0 36 36"><path d="M18 6l12 6.5-12 6.5-12-6.5z" fill="#F35216"/><path d="M6 18.5l12 6.5 12-6.5" fill="none" stroke="#F35216" stroke-width="2.6" stroke-linejoin="round"/><path d="M6 24.5l12 6.5 12-6.5" fill="none" stroke="#F35216" stroke-width="2.6" stroke-linejoin="round"/></svg>
+            </span>
+            <strong>结构稳定</strong>
+            <span lang="en">STABLE</span>
+          </li>
+          <li>
+            <span class="v-ico-badge" aria-hidden="true">
+              <svg viewBox="0 0 36 36"><path d="M8 9l7 7M15 9v7H8M28 9l-7 7M21 9v7h7M8 27l7-7M15 27v-7H8M28 27l-7-7M21 27v-7h7" fill="none" stroke="#F35216" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <strong>高效适配</strong>
+            <span lang="en">RESPONSIVE</span>
+          </li>
+          <li>
+            <span class="v-ico-badge" aria-hidden="true">
+              <svg viewBox="0 0 36 36"><path d="M4 18c4-7 10-10 14-10s10 3 14 10c-4 7-10 10-14 10S8 25 4 18z" fill="#F35216"/><circle cx="18" cy="18" r="5" fill="#FCEEE3"/></svg>
+            </span>
+            <strong>易读易扫</strong>
+            <span lang="en">SCANNABLE</span>
+          </li>
+          <li>
+            <span class="v-ico-badge" aria-hidden="true">
+              <svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="12" fill="#F35216"/><path d="M12.5 18.2l3.8 3.8 7.5-8" fill="none" stroke="#FCEEE3" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <strong>信息完整</strong>
+            <span lang="en">COMPLETE</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 01 节：核心道理与两层结构 + Canvas 动线回放 ================= -->
+  <section class="sec sec-alt" id="sec-01" aria-labelledby="h-s1">
+    <div class="wrap sec-grid">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">01</p>
+        <h2 id="h-s1">拆掉横轴，视线只走一条路</h2>
+        <p class="sec-en" lang="en">One axis · zero horizontal friction</p>
+      </header>
+      <div class="sec-body">
+        <p class="lead">原海报把堆叠重排浓缩成一句话：「内容模块纵向堆叠，顺序清晰，结构自适应。」落到屏幕尺寸剧烈收缩的场景里，它干的其实是一件减法：干脆取消横向空间依赖，把所有平级区块放进同一条从上到下的阅读动线。</p>
+        <p>仔细看 296 号原海报会发现一个值得拆开的细节：右下角「应用示例」画的是桌面四栏合并成手机单列，而右上角双蓝图对比的其实是单个模块内部从「左图右文」翻成「标题优先」。<span class="soft-tag">补充说明</span> 真正站得住的堆叠重排，<strong>页面级的多列转单列</strong>与<strong>模块级的标题优先</strong>两层都得同时到位——只把外框排成一列，如果每块里面还左右互挤，窄屏依然难读。</p>
+        <p>在同一小类里，它和其他几种重排手法分工明确：大屏留白、小屏才汇成单列的是 <a href="https://layout.xiaoxiaodong.ai/291/play/" target="_blank" rel="noopener">291 大体流动模式</a>；随宽度逐列往下掉的是 <a href="https://layout.xiaoxiaodong.ai/292/play/" target="_blank" rel="noopener">292 列下落模式</a>；骨架不动只微调字号留白的是 <a href="https://layout.xiaoxiaodong.ai/294/play/" target="_blank" rel="noopener">294 微调模式</a>；把次级导航或筛选藏出边界的则是 <a href="https://layout.xiaoxiaodong.ai/295/play/" target="_blank" rel="noopener">295 画布外模式</a>。</p>
+
+        <figure class="card-figure">
+          <div class="fig-bar">
+            <span class="fig-bar-title">双屏扫视动线回放对比（示意）</span>
+            <button type="button" class="btn-solid" id="btn-scan-replay">重播扫视动线</button>
+          </div>
+          <canvas id="scan-canvas" class="scan-canvas" aria-label="横向强挤与单列堆叠的视线扫视路径对比示意图"></canvas>
+          <figcaption id="scan-status" class="fig-cap" aria-live="polite">扫视动线示意：左图往返跨栏折跳 3 次，右图沿单一纵轴直落到底。</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 02 节：堆叠重排从哪来 + WCAG 400% 缩放重排阶梯镜 ================= -->
+  <section class="sec sec-ivory" id="sec-02" aria-labelledby="h-s2">
+    <div class="wrap sec-grid">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">02</p>
+        <h2 id="h-s2">堆叠重排从哪来</h2>
+        <p class="sec-en" lang="en">Origins · normal flow to WCAG Reflow</p>
+      </header>
+      <div class="sec-body">
+        <p class="lead">纵向堆叠并不是智能手机发明之后才冒出来的新花样——它本来就是网页与纸面阅读最原始的默认秩序，多栏并列反而是宽屏上后加的约束。</p>
+        <p>1996 年 12 月 17 日发布的 W3C CSS1 推荐标准（Håkon Wium Lie 与 Bert Bos 起草）在第 4.1 节确立了块级元素的正常文档流：不加额外定位或分栏声明，所有区块天然从上到下依次堆叠。2010 年 Ethan Marcotte 提出响应式网页设计，2011 年 Luke Wroblewski 出版《Mobile First》（A Book Apart）进一步主张先为小屏单列理清内容优先级，再随视口变宽渐进展开多栏。</p>
+        <p>需要坦白交代一个命名事实：<span class="soft-tag">名称溯源</span> Luke Wroblewski 在 2012 年 3 月发表《Multi-Device Layout Patterns》时，只归纳了五种模式——Mostly Fluid、Column Drop、Layout Shifter、Tiny Tweaks 与 Off Canvas，<strong>里面并没有「堆叠重排」这一独立名字</strong>。「堆叠重排」是后来设计教学里对「窄屏撤横成纵」这一共性动作的描述性叫法（在窄屏终态上与 291、292 以及跨断点改骨架的 <a href="https://layout.xiaoxiaodong.ai/293/play/" target="_blank" rel="noopener">293 布局切换模式</a> 有所交叠）。同年 CSS Flexbox 发布首次候选推荐，2018 年 6 月 W3C WCAG 2.1 以 SC 1.4.10 Reflow 把「320 CSS px 宽（1280px 桌面 400% 缩放）无双向滚动」写入无障碍标准；2019 年 Heydon Pickering 与 Andy Bell 首版出版《Every Layout》（2021 年第二版引入 Flexbox gap），把这套规律提炼为 The Stack 与 The Switcher 两个组件原语（更细的容器自适应见 <a href="https://layout.xiaoxiaodong.ai/300/play/" target="_blank" rel="noopener">300 组件级响应布局</a>）。</p>
+
+        <ol class="timeline">
+          <li><span class="tl-yr" lang="en">1923</span><div><strong>Wertheimer 邻近律</strong><span>《Psychologische Forschung》第 4 卷提出近邻归组法则，成为块间与块内间距比的知觉基础。</span></div></li>
+          <li><span class="tl-yr" lang="en">1996</span><div><strong>W3C CSS1 推荐标准（12-17）</strong><span>第 4.1 节定义正常文档流，块级盒子默认纵向顺排、垂直外边距合并。</span></div></li>
+          <li><span class="tl-yr" lang="en">2010–2012</span><div><strong>响应式与《Mobile First》</strong><span>Marcotte（2010）、Wroblewski《Mobile First》（2011）与多设备五模式（2012）、CSS Flexbox 首次 CR。</span></div></li>
+          <li><span class="tl-yr" lang="en">2018</span><div><strong>WCAG 2.1 SC 1.4.10 Reflow</strong><span>06-05 推荐标准要求 320 CSS px / 400% 缩放单向重排且不丢信息。</span></div></li>
+          <li><span class="tl-yr" lang="en">2019</span><div><strong>《Every Layout》首版</strong><span>Pickering &amp; Bell 把纵向节奏与自动横纵折排写成 The Stack / The Switcher（2021 第二版改用 gap）。</span></div></li>
+        </ol>
+
+        <figure class="card-figure zoom-lab">
+          <div class="fig-bar fig-bar-wrap">
+            <div class="btn-group" role="group" aria-label="桌面放大倍率阶梯">
+              <button type="button" class="seg-btn" data-zoom="100" aria-pressed="false">100% · 1280px</button>
+              <button type="button" class="seg-btn" data-zoom="200" aria-pressed="false">200% · 640px</button>
+              <button type="button" class="seg-btn" data-zoom="300" aria-pressed="false">300% · 427px</button>
+              <button type="button" class="seg-btn is-active" data-zoom="400" aria-pressed="true">400% · 320px</button>
+            </div>
+            <div class="btn-group" role="group" aria-label="是否启用堆叠重排">
+              <button type="button" class="seg-btn is-active" data-zoom-mode="locked" aria-pressed="true">锁死多列</button>
+              <button type="button" class="seg-btn" data-zoom-mode="reflow" aria-pressed="false">堆叠重排</button>
+            </div>
+          </div>
+          <div class="zoom-stage">
+            <div class="zoom-viewport" id="zoom-viewport" data-mode="locked">
+              <div class="zoom-grid" id="zoom-grid" data-cols="4">
+                <div class="z-card"><b lang="en">01</b><strong>通知偏好</strong><span>按频次合并提醒，减少打断。</span></div>
+                <div class="z-card"><b lang="en">02</b><strong>安全验证</strong><span>支持通行密钥与离线验证码。</span></div>
+                <div class="z-card"><b lang="en">03</b><strong>导出归档</strong><span>随时打包全文与附件副本。</span></div>
+                <div class="z-card"><b lang="en">04</b><strong>账号授权</strong><span>查看已登录设备并一键撤销。</span></div>
+              </div>
+            </div>
+          </div>
+          <p class="zoom-meta" id="zoom-meta" data-state="warn" aria-live="polite">400% 缩放 · 等效 320 CSS px</p>
+          <figcaption class="fig-cap" id="zoom-note">WCAG 2.1 SC 1.4.10 基准线（1280px 放大 400% = 320 CSS px）：必须完成单列堆叠且无横向滚动、不丢失内容。</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 03 节（暖炭墨深版）：块内层级——标题先出场 ================= -->
+  <section class="sec sec-dark" id="sec-03" aria-labelledby="h-s3">
+    <div class="wrap sec-grid">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">03</p>
+        <h2 id="h-s3">块内层级：标题先出场</h2>
+        <p class="sec-en" lang="en">Title first inside every stacked block</p>
+      </header>
+      <div class="sec-body">
+        <p class="lead">原海报第二条核心原理写得非常准：「保持层级：标题优先，信息跟随。」把外框折成单列只是上半场；如果模块内部还死守宽屏的左图右文、左标签右输入框，或者让装饰大图先占满半屏，读者进到这一块还是得先猜半天它在讲什么。</p>
+        <p>这里要顺手划清一条界线：本节只调<strong>单个模块内部</strong>的标题与正文顺序；如果你要在窄屏里把「侧栏模块」整块搬到「主内容模块」前面，改变的是模块之间的出场先后，那就属于 <a href="https://layout.xiaoxiaodong.ai/297/play/" target="_blank" rel="noopener">297 顺序重排</a> 的范畴——并且动手改 CSS <code>order</code> 时务必留心，不要让视觉顺序和键盘 Tab 焦点顺序打架。</p>
+
+        <div class="anatomy-bench">
+          <div class="ana-controls">
+            <div class="btn-group" role="group" aria-label="选择组件类型">
+              <button type="button" class="dark-btn is-active" data-anatomy-comp="card" aria-pressed="true">图文卡片</button>
+              <button type="button" class="dark-btn" data-anatomy-comp="form" aria-pressed="false">表单输入行</button>
+              <button type="button" class="dark-btn" data-anatomy-comp="pricing" aria-pressed="false">价格参数条</button>
+            </div>
+            <div class="btn-group" role="group" aria-label="切换块内排法">
+              <button type="button" class="dark-btn is-active" data-anatomy-mode="squeeze" aria-pressed="true">横向硬挤</button>
+              <button type="button" class="dark-btn" data-anatomy-mode="buried" aria-pressed="false">次要项抢跑</button>
+              <button type="button" class="dark-btn" data-anatomy-mode="titleFirst" aria-pressed="false">标题优先堆叠</button>
+            </div>
+          </div>
+
+          <div class="ana-scale-host" id="ana-scale-host">
+            <div class="ana-viewport" id="ana-viewport">
+              <div class="ana-vp-bar">
+                <span lang="en">375px NARROW MODULE</span>
+                <span id="anatomy-metric" lang="en">实测主内容区宽 -- px</span>
+              </div>
+              <div class="ana-stage" id="anatomy-stage"></div>
+            </div>
+          </div>
+
+          <div class="ana-readout" aria-live="polite">
+            <strong class="ana-badge" id="anatomy-badge" data-state="warn">字栏被图标压碎</strong>
+            <p id="anatomy-why">宽屏的「左大图 + 右正文」直接照搬进 375px，图占去近半宽，右侧正文每行只剩七八个字。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 04 节：内外间距，定住堆叠节奏 ================= -->
+  <section class="sec sec-apricot" id="sec-04" aria-labelledby="h-s4">
+    <div class="wrap sec-grid">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">04</p>
+        <h2 id="h-s4">内外间距，定住堆叠节奏</h2>
+        <p class="sec-en" lang="en">Outer gap vs inner rhythm · Gestalt proximity</p>
+      </header>
+      <div class="sec-body">
+        <p class="lead">模块一列排开之后，区分「哪里是一块、哪里是下一块」靠的不再是列缝，而是垂直距离。原海报把这条称作「模块间距：节奏一致，呼吸舒适」。</p>
+        <p>按照 1923 年韦特海默（Max Wertheimer）总结的格式塔邻近律，大脑会自动把距离更近的元素打包成同一组。所以在纵向堆叠里，<strong>模块外距必须明显大于模块内部的标题—正文间距</strong>：常见经验值是外距落在内距的 <strong>1.5× 到 2.5×</strong> 之间（经验值，视卡片有无边框与底色微调）。外距小于或等于内距，上一块正文就会粘到下一块标题身上；外距拉得过宽，手机小屏里下一块露不出头，又容易让人误以为页面已经结束（假底）。</p>
+
+        <div class="caliper-bench">
+          <div class="caliper-sliders">
+            <label class="slider-row" for="sp-inner">
+              <span>块内距（标题到正文）<b id="sp-inner-val" lang="en">14 px</b></span>
+              <input type="range" id="sp-inner" min="4" max="24" step="1" value="14">
+            </label>
+            <label class="slider-row" for="sp-outer">
+              <span>模块外距（块与块之间）<b id="sp-outer-val" lang="en">10 px</b></span>
+              <input type="range" id="sp-outer" min="4" max="64" step="1" value="10">
+            </label>
+          </div>
+
+          <div class="caliper-visual">
+            <div class="sp-stack" id="sp-stack" data-zone="sticky">
+              <article class="sp-card">
+                <h3 class="sp-title"><span lang="en">01</span> 账单周期说明</h3>
+                <p class="sp-body">每月 1 日自动汇总上一周期用量，支持按部门拆分导出明细。</p>
+              </article>
+              <article class="sp-card">
+                <h3 class="sp-title"><span lang="en">02</span> 发票抬头管理</h3>
+                <p class="sp-body">可保存多组开票资料，结算时一键切换默认接收邮箱。</p>
+              </article>
+              <article class="sp-card">
+                <h3 class="sp-title"><span lang="en">03</span> 异常扣费申诉</h3>
+                <p class="sp-body">如对账单金额存疑，可在 30 天内在线提交工单核验。</p>
+              </article>
+            </div>
+            <svg class="sp-caliper-svg" id="sp-caliper-svg" aria-hidden="true"></svg>
+          </div>
+
+          <div class="caliper-readout" aria-live="polite">
+            <div class="caliper-nums">
+              <span>外距 ÷ 内距：<strong id="sp-ratio" lang="en">10 ÷ 14 = 0.71×</strong></span>
+              <strong class="sp-zone-pill" id="sp-zone" data-zone="sticky">边界粘连（外距 ≤ 内距）</strong>
+            </div>
+            <p id="sp-why">模块外距（10px）小于块内距（14px），上一块正文离下一块标题反而更近，视觉归属立刻串块。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 05 节：四步把宽屏拆成好堆叠（原海报 ①→②→③→④） ================= -->
+  <section class="sec sec-ivory" id="sec-05" aria-labelledby="h-s5">
+    <div class="wrap sec-grid">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">05</p>
+        <h2 id="h-s5">四步把宽屏拆成好堆叠</h2>
+        <p class="sec-en" lang="en">Four-step practice · from wide to stack</p>
+      </header>
+      <div class="sec-body">
+        <p class="lead">原海报底部给出了四步「实践要点」：① 确定信息优先级 → ② 模块化拆分内容 → ③ 垂直堆叠重排 → ④ 检查节奏与间距。顺着这四步走，用几行现代 CSS（如《Every Layout》里的 The Stack / The Switcher 思路）就能把复杂桌面块稳稳落成手机单列。</p>
+        <p>如果你的内容是大量等权商品卡、希望宽度够时自动增列而不必手写一堆断点，可以配合 <a href="https://layout.xiaoxiaodong.ai/299/play/" target="_blank" rel="noopener">299 自适应网格</a>；若宽屏双栏需要实时对照阅读，则应转向 <a href="https://layout.xiaoxiaodong.ai/298/play/" target="_blank" rel="noopener">298 折叠双窗格</a>。</p>
+
+        <div class="pipe-bench">
+          <div class="pipe-checks" role="group" aria-label="四步渐进修复勾选">
+            <label class="pipe-step">
+              <input type="checkbox" data-pipe-step="1">
+              <span class="pipe-circle" aria-hidden="true">1</span>
+              <span class="pipe-step-copy"><strong>确定信息优先级</strong><span>先主后次，明确顺序</span></span>
+            </label>
+            <label class="pipe-step">
+              <input type="checkbox" data-pipe-step="2">
+              <span class="pipe-circle" aria-hidden="true">2</span>
+              <span class="pipe-step-copy"><strong>模块化拆分内容</strong><span>单元独立，便于重排</span></span>
+            </label>
+            <label class="pipe-step">
+              <input type="checkbox" data-pipe-step="3">
+              <span class="pipe-circle" aria-hidden="true">3</span>
+              <span class="pipe-step-copy"><strong>垂直堆叠重排</strong><span>去横向，向下延展</span></span>
+            </label>
+            <label class="pipe-step">
+              <input type="checkbox" data-pipe-step="4">
+              <span class="pipe-circle" aria-hidden="true">4</span>
+              <span class="pipe-step-copy"><strong>检查节奏与间距</strong><span>间距一致，阅读舒适</span></span>
+            </label>
+          </div>
+
+          <div class="pipe-dual">
+            <div class="pipe-phone">
+              <p class="pipe-phone-cap" lang="en">NARROW PREVIEW · 窄屏实时预览</p>
+              <div class="pipe-preview" id="pipe-preview" data-s1="false" data-s2="false" data-s3="false" data-s4="false"></div>
+            </div>
+            <div class="pipe-code-wrap">
+              <p class="pipe-code-cap" lang="en">GENERATED CSS</p>
+              <pre class="pipe-code"><code id="pipe-css"></code></pre>
+            </div>
+          </div>
+          <p class="pipe-status" id="pipe-status" aria-live="polite">当前：原始未改造状态。依次勾选 ①→④ 看看界面如何落地。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 06 节（暖炭墨深版）：什么时候别硬套堆叠 ================= -->
+  <section class="sec sec-dark" id="sec-06" aria-labelledby="h-s6">
+    <div class="wrap sec-grid">
+      <header class="sec-head">
+        <p class="sec-no" lang="en">06</p>
+        <h2 id="h-s6">什么时候别硬套堆叠</h2>
+        <p class="sec-en" lang="en">When NOT to force a vertical stack</p>
+      </header>
+      <div class="sec-body">
+        <p class="lead">原海报最后写了一句「从并列到堆叠，内容不变，结构更优。」<span class="soft-tag soft-tag-dark">说多了一点</span> 堆叠重排能保住信息不丢，但并不是所有二维信息变成一长条以后都会「更优」。</p>
+        <p>WCAG 2.1 SC 1.4.10 本身就明文豁免了依赖二维空间关系才能读懂的内容——比如数据表、地图、设计画布和复杂工具栏。Amy Schade（Nielsen Norman Group，2017-09-17）分析移动端对比表时也明确指出：盲目把多列参数拆成纵向条目，会直接破坏同行横向比较。此外，把桌面长筛选栏硬堆到手机顶部会把真正的主内容挤出首屏（这时更该用 <a href="https://layout.xiaoxiaodong.ai/295/play/" target="_blank" rel="noopener">295 画布外模式</a>），需要边改边看的双栏工具硬堆成上下长条也会让人滚到迷路（更适合 <a href="https://layout.xiaoxiaodong.ai/298/play/" target="_blank" rel="noopener">298 折叠双窗格</a>）。</p>
+
+        <div class="ce-bench">
+          <div class="ce-tabs" role="group" aria-label="选择反例场景">
+            <button type="button" class="dark-btn is-active" data-ce-scene="table" aria-pressed="true">多列参数对比表</button>
+            <button type="button" class="dark-btn" data-ce-scene="map" aria-pressed="false">地图与空间画布</button>
+            <button type="button" class="dark-btn" data-ce-scene="filters" aria-pressed="false">长筛选栏堵顶</button>
+            <button type="button" class="dark-btn" data-ce-scene="split" aria-pressed="false">对照双栏工作区</button>
+          </div>
+          <div class="ce-flip-bar" role="group" aria-label="切换硬套堆叠或替代方案">
+            <button type="button" class="ce-flip-btn is-active" data-ce-mode="bad" aria-pressed="true">硬套堆叠（翻车）</button>
+            <button type="button" class="ce-flip-btn" data-ce-mode="good" aria-pressed="false">更稳替代方案</button>
+          </div>
+
+          <div class="ce-viewport">
+            <p class="ce-title" id="ce-title" data-mode="bad">硬套堆叠：拆成纵向条目</p>
+            <div class="ce-stage" id="ce-stage"></div>
+          </div>
+          <p class="ce-why" id="ce-why" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 07 节：小练习（严格单变量考「节奏一致」，标签仅 A/B/C/D） ================= -->
+  <section class="sec sec-alt" id="sec-practice" aria-labelledby="h-s7">
+    <div class="wrap">
+      <header class="sec-head sec-head-wide">
+        <p class="sec-no" lang="en">07</p>
+        <h2 id="h-s7">小练习：哪版节奏最一致？</h2>
+        <p class="sec-en" lang="en">Practice · single-variable rhythm test</p>
+      </header>
+      <p class="lead quiz-lead">下面四张窄屏单列页面展示同一组四个并列模块（手机端以 2×2 同比例缩略同屏对照）：字号、标题优先结构、块内距（12px），以及 01–02 与 03–04 的间距（均为 24px）全部相同，<strong>只差中间 02–03 这一道缝</strong>。哪一版节奏最稳，不会把四块偷偷切错组？（也可用键盘 1–4 选择）</p>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四个单列间距方案 A 到 D"></div>
+
+      <div class="quiz-verdict" id="quiz-verdict" data-state="idle" aria-live="polite">
+        <div class="quiz-v-copy">
+          <p class="quiz-v-title" id="quiz-v-title">先凭眼睛选一版。</p>
+          <p class="quiz-v-text" id="quiz-v-text">选完后四张图会同时亮出三道实测间距。</p>
+        </div>
+        <button type="button" class="btn-solid" id="quiz-reset" hidden>重新盲测</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 08 节：原海报、关键词与同小类速览 ================= -->
+  <section class="sec sec-ivory" id="sec-08" aria-labelledby="h-s8">
+    <div class="wrap">
+      <header class="sec-head sec-head-wide">
+        <p class="sec-no" lang="en">08</p>
+        <h2 id="h-s8">原海报与关键词</h2>
+        <p class="sec-en" lang="en">Original poster · keywords · series 291–300</p>
+      </header>
+
+      <div class="poster-layout">
+        <figure class="poster-fig">
+          <button type="button" class="poster-btn" id="poster-open" aria-expanded="false" aria-label="点击放大查看 296 堆叠重排原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1200" height="1600" alt="296 号堆叠重排海报：暖象牙纸底、朱橙几何块，左侧列出五条核心原理，右侧并列横向宽屏与窄屏堆叠重排虚线框，下方是浅杏桃色四栏价值、四步实践要点与应用示例。">
+          </button>
+          <figcaption>点击海报放大检视，支持滚轮缩放、鼠标拖拽与 Esc 关闭。</figcaption>
+        </figure>
+
+        <div class="poster-aside">
+          <div class="kw-panel">
+            <h3>原海报关键词 <span lang="en">Keywords</span></h3>
+            <ul class="kw-list">
+              <li><b>结构稳定</b><span lang="en">STABLE</span><p>宽度剧烈收窄也不塌框、不丢模块。</p></li>
+              <li><b>高效适配</b><span lang="en">RESPONSIVE</span><p>撤掉横向约束即可承接不同设备宽度。</p></li>
+              <li><b>易读易扫</b><span lang="en">SCANNABLE</span><p>单纵轴直落，标题先定锚再读细节。</p></li>
+              <li><b>信息完整</b><span lang="en">COMPLETE</span><p>只改排列结构，不靠硬砍内容凑窄屏。</p></li>
+            </ul>
+          </div>
+
+          <div class="siblings-panel">
+            <h3>同小类：响应式重排模式 <span lang="en">291–300</span></h3>
+            <ul class="siblings-list">
+              <li><a href="https://layout.xiaoxiaodong.ai/291/play/" target="_blank" rel="noopener"><b lang="en">291</b> 大体流动模式</a><span>大屏居中留白，小屏顺次堆成单列。</span></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/292/play/" target="_blank" rel="noopener"><b lang="en">292</b> 列下落模式</a><span>随宽度逐列下移，而非一次全堆。</span></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/293/play/" target="_blank" rel="noopener"><b lang="en">293</b> 布局切换模式</a><span>跨断点重组整页骨架。</span></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/294/play/" target="_blank" rel="noopener"><b lang="en">294</b> 微调模式</a><span>骨架不动，只微调字号与留白。</span></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/295/play/" target="_blank" rel="noopener"><b lang="en">295</b> 画布外模式</a><span>次级面板停在屏外，按需拉入。</span></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/297/play/" target="_blank" rel="noopener"><b lang="en">297</b> 顺序重排</a><span>主动改写各模块之间的出场先后。</span></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/298/play/" target="_blank" rel="noopener"><b lang="en">298</b> 折叠双窗格</a><span>宽屏双栏对照、窄屏折叠切换。</span></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/299/play/" target="_blank" rel="noopener"><b lang="en">299</b> 自适应网格</a><span>按最小列宽自动增减列数。</span></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/300/play/" target="_blank" rel="noopener"><b lang="en">300</b> 组件级响应布局</a><span>组件看自身容器宽，而非盯整屏。</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 原海报放大灯箱（复用 #poster 的 data URI，不重复内联图片） -->
+<div class="lightbox" id="poster-lightbox" role="dialog" aria-modal="true" aria-label="296 号原海报大图检视" hidden>
+  <div class="lb-bar">
+    <span class="lb-title">NO. 296 · 堆叠重排原海报</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">－</button>
+      <span class="lb-scale" id="lb-scale" lang="en">100%</span>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">＋</button>
+      <button type="button" class="lb-btn" id="lb-zoom-reset">1:1</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" draggable="false" alt="296 号堆叠重排原海报放大预览">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p><a href="https://layout.xiaoxiaodong.ai/296/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a> · 海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a> · 源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
