@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>196 模块化 网格 · MODULAR GRID</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar" aria-label="页面索引">
+  <div class="topbar-inner">
+    <div class="crumb">
+      <span class="crumb-mark" aria-hidden="true"></span>
+      <span>字体、网格与东亚文字 / 网格系统</span>
+    </div>
+    <div class="topbar-right">
+      <span class="mono-tag" lang="en">NO. 196 · MODULAR GRID</span>
+      <span id="hero-score-pill" class="score-pill is-err" role="status" aria-live="polite">0 / 5 待排块</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== HERO：196 原海报骨架复刻 ==================== -->
+  <section class="hero" aria-label="活体模块化网格拼版台">
+    <div class="hero-wrap">
+      <div class="hero-grid">
+        <!-- 左栏：示范大标 + 副标总述 + 5 枚动态图解原则 -->
+        <div class="hero-left">
+          <div class="title-block">
+            <div class="title-head">
+              <h1 class="hero-title">
+                <span class="title-line">模块化</span>
+                <span class="title-line">网格</span>
+              </h1>
+              <!-- 示范徽标：实时联动当前网格粒度与缝隙的缩微 X×X 矩阵 -->
+              <div class="title-specimen" aria-hidden="true">
+                <svg id="title-grid-svg" viewBox="0 0 64 64" width="60" height="60"></svg>
+                <span id="title-unit-tag" class="mono-micro">8×6 · X</span>
+              </div>
+            </div>
+            <p class="hero-en" lang="en">MODULAR GRID</p>
+            <div class="hero-rule" aria-hidden="true"></div>
+            <p class="hero-summary">用一个小单元，搭建无限可能。</p>
+            <span class="hero-dot" aria-hidden="true"></span>
+          </div>
+
+          <div class="principles-panel">
+            <div class="pill-head">
+              <span class="capsule capsule-orange">模块化原则</span>
+              <span class="pill-hint">随画布实时核验</span>
+            </div>
+            <ol id="principles-list" class="principles-list" aria-label="模块化五原则实时状态">
+              <!-- JS 单真源渲染 5 条带原海报同款动态小图 -->
+            </ol>
+          </div>
+        </div>
+
+        <!-- 右栏：基础模块胶囊 + 操控栏 + 活体 X×X 拼版画布 -->
+        <div class="hero-right">
+          <div class="stage-bar">
+            <div class="stage-bar-lead">
+              <span class="capsule capsule-plum">基础模块</span>
+              <span class="stage-lead-copy">以标准单元 <strong class="mono-inline">X×X</strong> 横纵重复，拖块落位、拉角跨格合并</span>
+            </div>
+            <div class="scene-tabs" role="tablist" aria-label="切换应用场景">
+              <button type="button" class="tab-btn is-active" data-scene="poster" role="tab" aria-selected="true">海报排布</button>
+              <button type="button" class="tab-btn" data-scene="card" role="tab" aria-selected="false">名片卡片</button>
+              <button type="button" class="tab-btn" data-scene="dashboard" role="tab" aria-selected="false">数据看板</button>
+            </div>
+          </div>
+
+          <div class="canvas-shell">
+            <div class="canvas-aspect">
+              <canvas id="hero-canvas" data-perf-drag tabindex="0" aria-label="活体模块化网格画布：拖动模块移动位置，拖右下角橘柄改变跨格尺寸，可用方向键与 Shift 加方向键微调"></canvas>
+            </div>
+            <div class="canvas-foot">
+              <div class="selected-bar">
+                <span class="sel-label">当前块</span>
+                <strong id="sel-name" class="sel-name">图像主视觉</strong>
+                <span id="sel-span" class="mono-chip">1.5×1.3</span>
+                <div class="span-steppers" role="group" aria-label="调整选中块跨格尺寸">
+                  <button type="button" class="mini-btn" id="btn-w-dec" aria-label="宽减一格">宽−</button>
+                  <button type="button" class="mini-btn" id="btn-w-inc" aria-label="宽加一格">宽+</button>
+                  <button type="button" class="mini-btn" id="btn-h-dec" aria-label="高减一格">高−</button>
+                  <button type="button" class="mini-btn" id="btn-h-inc" aria-label="高加一格">高+</button>
+                  <button type="button" class="mini-btn" id="btn-next-block" aria-label="切换下一模块">切块</button>
+                </div>
+              </div>
+              <p class="canvas-tip">直拖模块移位 · 拖右下角橘柄跨格合并 · 方向键/Shift 微调</p>
+            </div>
+          </div>
+
+          <!-- 精简一行系统控件：粒度、缝隙、吸附与参考解 -->
+          <div class="controls-strip">
+            <div class="ctrl-group" role="group" aria-label="网格粒度">
+              <span class="ctrl-k">矩阵</span>
+              <button type="button" class="chip-btn" data-grid="4x3">4×3</button>
+              <button type="button" class="chip-btn" data-grid="6x4">6×4</button>
+              <button type="button" class="chip-btn is-active" data-grid="8x6">8×6</button>
+              <button type="button" class="chip-btn" data-grid="10x7">10×7</button>
+            </div>
+            <div class="ctrl-group" role="group" aria-label="模块缝隙">
+              <span class="ctrl-k">缝隙</span>
+              <button type="button" class="chip-btn is-active" data-gutter="none">0 粘连</button>
+              <button type="button" class="chip-btn" data-gutter="tight">窄 6%</button>
+              <button type="button" class="chip-btn" data-gutter="ideal">标准 16%</button>
+              <button type="button" class="chip-btn" data-gutter="wide">宽 34%</button>
+            </div>
+            <div class="ctrl-actions">
+              <button type="button" id="btn-snap" class="action-btn is-warn" aria-pressed="false">网格吸附：关</button>
+              <button type="button" id="btn-ref" class="action-btn">看一组参考解</button>
+              <button type="button" id="btn-reset" class="action-btn action-ghost">复原错态</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部全宽：原海报标志性焦糖橘虚线大圆角 TIP 实测诊单带 -->
+      <aside class="tip-banner is-err" id="diag-banner" aria-live="polite">
+        <div class="tip-badge-col">
+          <div class="tip-bulb" aria-hidden="true">
+            <svg viewBox="0 0 40 40" width="38" height="38" fill="none">
+              <circle cx="20" cy="20" r="19" fill="currentColor"/>
+              <path d="M20 9.5c-4.4 0-7.5 3.1-7.5 7 0 2.5 1.3 4.5 3.2 5.9.8.6 1.3 1.5 1.3 2.5v1.1h6v-1.1c0-1 .5-1.9 1.3-2.5 1.9-1.4 3.2-3.4 3.2-5.9 0-3.9-3.1-7-7.5-7Z" stroke="#FDF6E9" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M17.2 28.8h5.6M18.3 31.4h3.4M20 6.2V4.5M9.5 16.5H7.8M32.2 16.5h-1.7M12.3 9.2l-1.2-1.2M27.7 9.2l1.2-1.2" stroke="#FDF6E9" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="tip-meta">
+            <span id="diag-tag" class="diag-tag">错态 · 脱格散架 (0/5)</span>
+            <span class="tip-sub" lang="en">LIVE MEASURE</span>
+          </div>
+        </div>
+
+        <div class="tip-copy-col">
+          <p id="diag-headline" class="diag-headline">5 块模块悬在半格缝里，最大脱格 0.36X</p>
+          <p id="diag-why" class="diag-why">人眼极其擅长沿横竖直线扫视对齐。哪怕只差 0.2 格，上下左右四条隐形参考线就全对不上号，版面看起来就像贴歪的便利贴。</p>
+          <p id="diag-action" class="diag-action">点上方「网格吸附：关」打开并归格，再把缝隙切到「标准 16%」、拖大主视觉跨格。</p>
+        </div>
+
+        <dl class="tip-metrics" aria-label="实时单真源测量值">
+          <div>
+            <dt>最大脱格</dt>
+            <dd id="m-off" class="mono-val">+0.36X</dd>
+          </div>
+          <div>
+            <dt>面积跨比</dt>
+            <dd id="m-ratio" class="mono-val">1.8×</dd>
+          </div>
+          <div>
+            <dt>占位 / 留白</dt>
+            <dd id="m-cover" class="mono-val">16% / 84%</dd>
+          </div>
+          <div>
+            <dt>重心偏移</dt>
+            <dd id="m-center" class="mono-val">26%</dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ==================== 01 节：小单元长出大结构 ==================== -->
+  <section class="sec sec-white" id="sec-01">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div>
+          <h2>小单元长出大结构</h2>
+          <p class="sec-en" lang="en">ONE UNIT, MANY SPATIAL ZONES</p>
+        </div>
+      </div>
+
+      <div class="split-2">
+        <div class="prose">
+          <p class="lead-quote">「以一个标准单元为基准，横向与纵向重复，形成秩序化网格。」</p>
+          <p>相比只管整块版心的 <a href="https://layout.xiaoxiaodong.ai/194/play/">194 手稿网格</a>，以及只切竖向栏柱的 <a href="https://layout.xiaoxiaodong.ai/195/play/">195 分栏网格</a>，模块化网格多做了一件关键的事：<strong>加上了等步长的横向行线（flowlines）</strong>。</p>
+          <p>纵横相交后，整张纸被切成一片由标准单元 <strong>X × X</strong> 铺成的棋盘。但高手从不把内容老老实实塞进一个个 1×1 小格——真正好用之处在于<strong>跨格合并（Span）</strong>：把相邻的若干小格融成一个「空间区域」，并且<strong>把夹在中间的那几道缝隙一并吃进色块里</strong>，这样无论横跨 2 格还是 4 格，所有边缘依然卡在同一条隐形轨线上。</p>
+
+          <div class="callout-note">
+            <div class="callout-top">
+              <span class="soft-tag">说多了一点</span>
+              <strong>原海报小贴士写「模块越小，组合越灵活」</strong>
+            </div>
+            <p>理论确实如此，但真动手排稿就会遇到反噬：格子切得过碎（比如 20×16）时，横竖对齐的秩序感会退化成看不见的像素微调，团队协作反而会在「到底跨 5 格还是 6 格」里无休止内耗。经验参考带上，大多数海报、杂志与看板用 <strong>6–12 列 × 4–8 行</strong> 就足够灵活且好管。</p>
+          </div>
+
+          <div class="density-trio" aria-label="三种网格密度经验对比">
+            <div class="d-card">
+              <span class="d-label">4×3 偏粗</span>
+              <span class="d-note">只剩 12 格，难拉出层级</span>
+            </div>
+            <div class="d-card is-sweet">
+              <span class="d-label">8×6 经验带</span>
+              <span class="d-note">既好对齐，又有丰富跨比</span>
+            </div>
+            <div class="d-card">
+              <span class="d-label">20×15 过碎</span>
+              <span class="d-note">肉眼难辨齐位，协作失控</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 01 独有交互：二维单元格涂抹合并矩阵（Paint-to-Merge） -->
+        <div class="lab-box">
+          <div class="lab-head">
+            <div>
+              <strong>跨格合并「吃缝」演示器</strong>
+              <span class="lab-sub">在下方 8×5 矩阵里按住划选一块区域，看中间缝隙如何被吃进模块</span>
+            </div>
+            <div class="lab-presets">
+              <button type="button" class="mini-chip" data-span-preset="1,1">1×1 单格</button>
+              <button type="button" class="mini-chip is-active" data-span-preset="3,2">3×2 图块</button>
+              <button type="button" class="mini-chip" data-span-preset="5,3">5×3 主区</button>
+            </div>
+          </div>
+
+          <div id="span-matrix" class="span-matrix" role="application" aria-label="8 列 5 行涂抹合并矩阵：按住并拖动选择跨格范围">
+            <!-- JS 渲染 8x5 格与合并高亮罩 -->
+          </div>
+
+          <div class="formula-readout">
+            <div class="f-row">
+              <span class="f-k">合并跨度</span>
+              <strong id="f-span" class="mono-val">3 列 × 2 行（共 6 格）</strong>
+            </div>
+            <div class="f-row">
+              <span class="f-k">实得宽度</span>
+              <span id="f-w" class="mono-val">3×64 + 2×12 = 216px</span>
+            </div>
+            <div class="f-row">
+              <span class="f-k">实得高度</span>
+              <span id="f-h" class="mono-val">2×64 + 1×12 = 140px</span>
+            </div>
+            <p id="f-note" class="f-explain">合并 3 列时，模块自动吞下中间 2 道缝隙（+24px）；右边下一块照旧从第 4 列起算，整页边线严丝合缝。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 节：为什么 58 格能万能分栏 ==================== -->
+  <section class="sec sec-sand" id="sec-02">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div>
+          <h2>为什么 58 格能万能分栏</h2>
+          <p class="sec-en" lang="en">FROM YINGZAO FASHI TO GERSTNER'S 58-UNIT CODE</p>
+        </div>
+      </div>
+
+      <!-- 历史沿革四坐标（全部经权威出版物核实） -->
+      <div class="history-rail">
+        <article class="hist-card">
+          <span class="hist-year mono-val">1103</span>
+          <h3>北宋《营造法式》材分制</h3>
+          <p>李诫奉敕颁行，提出「凡构屋之制，皆以材为祖」。单材断面定为 15 分 × 10 分、按屋宇大小分八等用材，让斗栱梁柱靠一套模数就能跨尺度推演。</p>
+        </article>
+        <article class="hist-card is-highlight">
+          <span class="hist-year mono-val">1962 / 1964</span>
+          <h3>格斯特纳 58 单位活动网格</h3>
+          <p>瑞士设计师卡尔·格斯特纳（Karl Gerstner）为德国杂志 <em>Capital</em> 制定 58 格网格（收入 1964 年《Designing Programmes》），固定 2 格缝隙即可无余数切出 1 至 6 栏。</p>
+        </article>
+        <article class="hist-card">
+          <span class="hist-year mono-val">1981</span>
+          <h3>米勒-布罗克曼网格手册</h3>
+          <p>约瑟夫·米勒-布罗克曼（Josef Müller-Brockmann）在 Arthur Niggli 出版《Grid Systems in Graphic Design》，系统讲透 8 到 32 格系统如何同时驾驭平面与立体展陈。</p>
+        </article>
+        <article class="hist-card">
+          <span class="hist-year mono-val">2004 / 2017</span>
+          <h3>进入屏幕与 CSS Grid 标准</h3>
+          <p>艾伦·勒普顿《Thinking with Type》将其普及为现代版式必修课；2017 年 W3C 发布 CSS Grid Layout Level 1 候选推荐标准，网页首次原生拥有行列双轴模块化能力（嵌套对齐详见 <a href="https://layout.xiaoxiaodong.ai/206/play/">206 子网格</a>）。</p>
+        </article>
+      </div>
+
+      <!-- 02 独有交互：格斯特纳 58 单位分栏数学解算器 -->
+      <div class="gerstner-lab">
+        <div class="gerstner-top">
+          <div>
+            <h3>格斯特纳 58 单位数学解算器</h3>
+            <p class="g-sub">为什么偏偏选怪数字 <strong>58</strong> 而不是整数 60？因为加上 1 道 2 格虚拟尾缝后，<strong>58 + 2 = 60</strong> 恰好是 1、2、3、4、5、6 的最小公倍数。点下面亲手验算：</p>
+          </div>
+          <div class="g-controls">
+            <div class="g-row" role="group" aria-label="选择总格数">
+              <span class="ctrl-k">总格数</span>
+              <button type="button" class="chip-btn" data-total="57">57 格</button>
+              <button type="button" class="chip-btn is-active" data-total="58">58 格（格斯特纳）</button>
+              <button type="button" class="chip-btn" data-total="60">60 格（直觉整数）</button>
+            </div>
+            <div class="g-row" role="group" aria-label="选择分栏数">
+              <span class="ctrl-k">切成几栏</span>
+              <button type="button" class="chip-btn" data-gcols="1">1 栏</button>
+              <button type="button" class="chip-btn" data-gcols="2">2 栏</button>
+              <button type="button" class="chip-btn" data-gcols="3">3 栏</button>
+              <button type="button" class="chip-btn is-active" data-gcols="4">4 栏</button>
+              <button type="button" class="chip-btn" data-gcols="5">5 栏</button>
+              <button type="button" class="chip-btn" data-gcols="6">6 栏</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="gerstner-ruler" class="gerstner-ruler" aria-label="58 单位分栏标尺可视化"></div>
+        <div class="gerstner-readout">
+          <span id="g-status" class="g-badge is-ok">严丝合缝</span>
+          <strong id="g-eq" class="mono-val">4 栏 × 13 格 + 3 缝 × 2 格 = 58 格（严丝合缝）</strong>
+          <span id="g-note" class="g-note">同一套 58 格页底，同一本杂志左边排 3 栏长文、右边排 4 栏数据表，所有边线照样精确对位（更多多网格叠加见 <a href="https://layout.xiaoxiaodong.ai/199/play/">199 复合网格</a>）。</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 节：四个积木，三种真场景（深茄暗室） ==================== -->
+  <section class="sec sec-plum" id="sec-03">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <div>
+          <h2>四个积木，三种真场景</h2>
+          <p class="sec-en" lang="en">FOUR BUILDING BLOCKS, THREE REAL ARENAS</p>
+        </div>
+      </div>
+
+      <p class="dark-intro">原海报下方给出了最直白的证据：同一组四类内容模块（图像主视觉、文字信息块、引用模块、数据模块），换个跨格比例与留白密度，就能无缝长出高冲击力的<strong>文化海报</strong>、克制利落的<strong>设计师名片</strong>，以及高密度的<strong>业务数据看板</strong>。</p>
+
+      <!-- 03 独有交互：X 光透视滑幕 + 四积木同步高亮灯 -->
+      <div class="xray-controls">
+        <div class="xray-slider-wrap">
+          <label for="xray-range" class="xray-label">X 光骨架显影</label>
+          <input id="xray-range" type="range" min="0" max="100" value="42" aria-label="调节底层模块化网格骨架显影强度">
+          <span id="xray-val" class="mono-val">42%</span>
+        </div>
+        <div class="block-filter" role="group" aria-label="按内容积木类型高亮">
+          <button type="button" class="dark-chip is-active" data-hl="all">全部积木</button>
+          <button type="button" class="dark-chip" data-hl="visual">图像主视觉</button>
+          <button type="button" class="dark-chip" data-hl="text">文字信息块</button>
+          <button type="button" class="dark-chip" data-hl="quote">引用 / 标题</button>
+          <button type="button" class="dark-chip" data-hl="data">数据 / 徽章</button>
+        </div>
+      </div>
+
+      <div id="arena-trio" class="arena-trio" style="--xray: 0.42">
+        <!-- 场景 1：未来生活节海报（复刻原海报） -->
+        <article class="arena-card">
+          <div class="arena-stage" data-arena="poster">
+            <svg class="arena-svg" viewBox="0 0 240 300" aria-label="未来生活节海报模块化骨架透视">
+              <rect x="0" y="0" width="240" height="300" fill="#2A1D36"/>
+              <!-- 模块区块 -->
+              <g class="ar-zone" data-role="quote">
+                <rect x="16" y="16" width="128" height="96" fill="#352344"/>
+                <text x="26" y="56" fill="#FDF6E9" font-size="30" font-weight="900">未来</text>
+                <text x="26" y="92" fill="#FDF6E9" font-size="30" font-weight="900">生活节</text>
+              </g>
+              <g class="ar-zone" data-role="data">
+                <rect x="156" y="16" width="68" height="96" fill="#352344"/>
+                <text x="166" y="44" fill="#F2D5B3" font-size="14" font-family="JetBrains Mono, monospace">06.01</text>
+                <line x1="166" y1="56" x2="188" y2="56" stroke="#FF9A4D" stroke-width="2"/>
+                <text x="166" y="78" fill="#F2D5B3" font-size="14" font-family="JetBrains Mono, monospace">06.07</text>
+              </g>
+              <g class="ar-zone" data-role="text">
+                <rect x="16" y="124" width="84" height="120" fill="#23162D"/>
+                <!-- 点阵纹理 -->
+                <g fill="#B699BE">
+                  <circle cx="30" cy="142" r="1.8"/><circle cx="44" cy="142" r="1.8"/><circle cx="58" cy="142" r="1.8"/><circle cx="72" cy="142" r="1.8"/><circle cx="86" cy="142" r="1.8"/>
+                  <circle cx="30" cy="158" r="1.8"/><circle cx="44" cy="158" r="1.8"/><circle cx="58" cy="158" r="1.8"/><circle cx="72" cy="158" r="1.8"/><circle cx="86" cy="158" r="1.8"/>
+                  <circle cx="30" cy="174" r="1.8"/><circle cx="44" cy="174" r="1.8"/><circle cx="58" cy="174" r="1.8"/><circle cx="72" cy="174" r="1.8"/><circle cx="86" cy="174" r="1.8"/>
+                  <circle cx="30" cy="190" r="1.8"/><circle cx="44" cy="190" r="1.8"/><circle cx="58" cy="190" r="1.8"/><circle cx="72" cy="190" r="1.8"/><circle cx="86" cy="190" r="1.8"/>
+                  <circle cx="30" cy="206" r="1.8"/><circle cx="44" cy="206" r="1.8"/><circle cx="58" cy="206" r="1.8"/><circle cx="72" cy="206" r="1.8"/><circle cx="86" cy="206" r="1.8"/>
+                  <circle cx="30" cy="222" r="1.8"/><circle cx="44" cy="222" r="1.8"/><circle cx="58" cy="222" r="1.8"/><circle cx="72" cy="222" r="1.8"/><circle cx="86" cy="222" r="1.8"/>
+                </g>
+              </g>
+              <g class="ar-zone" data-role="visual">
+                <rect x="112" y="124" width="112" height="120" fill="#2F1E3C"/>
+                <path d="M112 244 A112 112 0 0 1 224 132 L224 244 Z" fill="#DD7121"/>
+              </g>
+              <g class="ar-zone" data-role="text">
+                <rect x="16" y="256" width="208" height="28" fill="#352344"/>
+                <text x="26" y="275" fill="#F2D5B3" font-size="11.5">探索 · 灵感 · 连接</text>
+              </g>
+              <!-- X 光叠加网格 -->
+              <g class="xray-layer">
+                <path d="M16 16H224M16 70H224M16 124H224M16 184H224M16 244H224M16 284H224M16 16V284M68 16V284M112 16V284M156 16V284M224 16V284" stroke="#FF9A4D" stroke-width="1.2" stroke-dasharray="4 3" fill="none"/>
+                <rect x="16" y="16" width="128" height="96" stroke="#FF9A4D" stroke-width="1.8" fill="rgba(255,154,77,0.12)"/>
+                <rect x="112" y="124" width="112" height="120" stroke="#6FD6B3" stroke-width="1.8" fill="rgba(111,214,179,0.12)"/>
+              </g>
+            </svg>
+          </div>
+          <div class="arena-meta">
+            <h3>海报设计 · 未来生活节</h3>
+            <p>大跨格占掉近 60% 面积给标题与橘红日弧，强视觉反差一眼吸睛。</p>
+          </div>
+        </article>
+
+        <!-- 场景 2：林予安名片（复刻原海报，头像遵守规范无五官纯剪影） -->
+        <article class="arena-card">
+          <div class="arena-stage" data-arena="card">
+            <svg class="arena-svg" viewBox="0 0 240 300" aria-label="林予安名片模块化骨架透视">
+              <rect x="0" y="0" width="240" height="300" fill="#EBC7A0"/>
+              <rect x="0" y="0" width="240" height="226" fill="#342039"/>
+              <g class="ar-zone" data-role="visual">
+                <rect x="16" y="20" width="76" height="76" fill="#3F2746"/>
+                <circle cx="54" cy="58" r="26" fill="#EBC7A0"/>
+              </g>
+              <g class="ar-zone" data-role="quote">
+                <rect x="104" y="20" width="120" height="76" fill="#3F2746"/>
+                <text x="116" y="54" fill="#FDF6E9" font-size="22" font-weight="700">林予安</text>
+                <text x="116" y="78" fill="#EBC7A0" font-size="12">产品设计师</text>
+              </g>
+              <g class="ar-zone" data-role="text">
+                <rect x="16" y="114" width="208" height="94" fill="#2A192F"/>
+                <text x="28" y="142" fill="#F2D5B3" font-size="11.5" font-family="JetBrains Mono, monospace">linyuan@design.co</text>
+                <text x="28" y="168" fill="#F2D5B3" font-size="11.5" font-family="JetBrains Mono, monospace">137 8888 9999</text>
+                <text x="28" y="194" fill="#F2D5B3" font-size="11.5" font-family="JetBrains Mono, monospace">www.design.co</text>
+              </g>
+              <g class="ar-zone" data-role="data">
+                <rect x="16" y="238" width="64" height="46" fill="#DFB88D"/>
+                <rect x="88" y="238" width="64" height="46" fill="#DFB88D"/>
+                <rect x="160" y="238" width="64" height="46" fill="#DFB88D"/>
+                <text x="48" y="266" text-anchor="middle" fill="#2D2039" font-size="11" font-weight="700">专注体验</text>
+                <text x="120" y="266" text-anchor="middle" fill="#2D2039" font-size="11" font-weight="700">系统思维</text>
+                <text x="192" y="266" text-anchor="middle" fill="#2D2039" font-size="11" font-weight="700">持续创新</text>
+              </g>
+              <g class="xray-layer">
+                <path d="M16 20H224M16 96H224M16 114H224M16 208H224M16 238H224M16 284H224M16 20V284M88 20V284M160 20V284M224 20V284" stroke="#FF9A4D" stroke-width="1.2" stroke-dasharray="4 3" fill="none"/>
+                <rect x="16" y="114" width="208" height="94" stroke="#FF9A4D" stroke-width="1.8" fill="rgba(255,154,77,0.12)"/>
+              </g>
+            </svg>
+          </div>
+          <div class="arena-meta">
+            <h3>名片 / 卡片 · 林予安</h3>
+            <p>上 2:3 头像姓名、中全宽联络、底 3 等分标签，小尺幅里秩序干脆利落。</p>
+          </div>
+        </article>
+
+        <!-- 场景 3：数据看板（复刻原海报 12,860 / 72% / +18.6%） -->
+        <article class="arena-card">
+          <div class="arena-stage" data-arena="dashboard">
+            <svg class="arena-svg" viewBox="0 0 240 300" aria-label="业务数据看板模块化骨架透视">
+              <rect x="0" y="0" width="240" height="300" fill="#EDCEAE"/>
+              <g class="ar-zone" data-role="data">
+                <rect x="14" y="16" width="66" height="68" fill="#FFFDF8"/>
+                <text x="22" y="36" fill="#554459" font-size="10">总用户</text>
+                <text x="20" y="65" fill="#2D2039" font-size="13.5" font-weight="700" font-family="JetBrains Mono, monospace">12,860</text>
+                <rect x="87" y="16" width="66" height="68" fill="#FFFDF8"/>
+                <text x="95" y="36" fill="#554459" font-size="10">活跃度</text>
+                <text x="95" y="65" fill="#2D2039" font-size="15" font-weight="700" font-family="JetBrains Mono, monospace">72%</text>
+                <rect x="160" y="16" width="66" height="68" fill="#FFFDF8"/>
+                <text x="168" y="36" fill="#554459" font-size="10">增长率</text>
+                <text x="166" y="65" fill="#A94100" font-size="13.5" font-weight="700" font-family="JetBrains Mono, monospace">+18.6%</text>
+              </g>
+              <g class="ar-zone" data-role="visual">
+                <rect x="14" y="96" width="139" height="188" fill="#FFFDF8"/>
+                <polyline points="28,248 52,232 76,204 100,222 124,186 142,146" fill="none" stroke="#342039" stroke-width="2.4"/>
+                <circle cx="28" cy="248" r="3.2" fill="#D55A07"/>
+                <circle cx="76" cy="204" r="3.2" fill="#D55A07"/>
+                <circle cx="124" cy="186" r="3.2" fill="#D55A07"/>
+                <circle cx="142" cy="146" r="3.8" fill="#342039"/>
+                <line x1="24" y1="262" x2="144" y2="262" stroke="#CBB7A0" stroke-width="1.2"/>
+              </g>
+              <g class="ar-zone" data-role="quote">
+                <rect x="160" y="96" width="66" height="90" fill="#FFFDF8"/>
+                <circle cx="193" cy="141" r="22" fill="none" stroke="#342039" stroke-width="9"/>
+                <path d="M193 119 A22 22 0 0 1 215 141" fill="none" stroke="#D55A07" stroke-width="9"/>
+              </g>
+              <g class="ar-zone" data-role="text">
+                <rect x="160" y="196" width="66" height="88" fill="#FFFDF8"/>
+                <rect x="170" y="212" width="46" height="8" fill="#342039"/>
+                <rect x="170" y="230" width="34" height="8" fill="#D55A07"/>
+                <rect x="170" y="248" width="42" height="8" fill="#EBC7A0"/>
+                <rect x="170" y="264" width="26" height="8" fill="#6F5975"/>
+              </g>
+              <g class="xray-layer">
+                <path d="M14 16H226M14 84H226M14 96H226M14 186H226M14 196H226M14 284H226M14 16V284M80 16V284M153 16V284M226 16V284" stroke="#FF9A4D" stroke-width="1.2" stroke-dasharray="4 3" fill="none"/>
+                <rect x="14" y="96" width="139" height="188" stroke="#6FD6B3" stroke-width="1.8" fill="rgba(111,214,179,0.12)"/>
+              </g>
+            </svg>
+          </div>
+          <div class="arena-meta">
+            <h3>数据看板 · 指标与走势</h3>
+            <p>顶行 3 枚等宽 KPI 块配下方 2:1 折线与环图，扫读效率全靠齐平模块缝。</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 节：缝隙与基线的双轴咬合 ==================== -->
+  <section class="sec sec-paper" id="sec-04">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div>
+          <h2>缝隙与基线的双轴咬合</h2>
+          <p class="sec-en" lang="en">GUTTER &amp; BASELINE LOCK</p>
+        </div>
+      </div>
+
+      <div class="split-2">
+        <div class="prose">
+          <p>很多新手套完模块化网格后总觉得哪里别扭：左栏一张跨 2 块高度的大图，底边却比右栏第二段文字的最后一行差了半行。</p>
+          <p>病根在于<strong>横缝没有按正文行距取整</strong>。设正文行距为 <span class="mono-inline">L</span>，每块装 <span class="mono-inline">k</span> 行字；如果中间横缝恰好等于 <strong>1 行或 2 行</strong>，那么第二块文字起点依旧落回基线，跨 2 块的图底自然与右栏末行文字严丝合缝。一旦横缝设成「0.5 行」或「1.5 行」，整栏基线从第二行模块起全盘错相。（基线体系详解见 <a href="https://layout.xiaoxiaodong.ai/198/play/">198 基线网格</a>。）</p>
+
+          <div class="stepper-panel">
+            <div class="step-row">
+              <span class="step-label">每模块容纳行数 <strong class="mono-inline">k</strong></span>
+              <div class="step-btns">
+                <button type="button" class="step-btn" id="base-k-dec" aria-label="每模块行数减一">−</button>
+                <span id="base-k-val" class="mono-val step-num">4 行</span>
+                <button type="button" class="step-btn" id="base-k-inc" aria-label="每模块行数加一">+</button>
+              </div>
+            </div>
+            <div class="step-row">
+              <span class="step-label">横向模块缝高</span>
+              <div class="step-btns" role="group" aria-label="选择横向模块缝高">
+                <button type="button" class="chip-btn" data-glines="0.5">0.5 行（错相）</button>
+                <button type="button" class="chip-btn is-active" data-glines="1">1 行（齐平）</button>
+                <button type="button" class="chip-btn" data-glines="1.5">1.5 行（错相）</button>
+                <button type="button" class="chip-btn" data-glines="2">2 行（齐平）</button>
+              </div>
+            </div>
+            <div id="base-diag" class="base-diag is-ok" role="status">
+              <strong>图底与末行字脚严丝合缝（误差 0px）</strong>
+              <span>2 块高 = 2 × 4 行 + 1 行缝 = 9 行（198px）</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="baseline-stage" aria-label="基线与横向模块缝咬合实时示意">
+          <svg id="baseline-svg" viewBox="0 0 480 320" width="480" height="320"></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 节：什么时候别硬套模块 ==================== -->
+  <section class="sec sec-white" id="sec-05">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div>
+          <h2>什么时候别硬套模块</h2>
+          <p class="sec-en" lang="en">WHEN TO USE — AND WHEN TO WALK AWAY</p>
+        </div>
+      </div>
+
+      <div class="when-grid">
+        <div class="when-col is-yes">
+          <h3>最适合模块化网格的场景</h3>
+          <ul>
+            <li><strong>多模块并发的界面与看板</strong>：仪表盘、Bento 介绍页、电商目录，一眼扫过多维信息（适配多端屏幕见 <a href="https://layout.xiaoxiaodong.ai/209/play/">209 响应式网格</a>）。</li>
+            <li><strong>长周期系列出版物与设计系统</strong>：多人协同做几十页画册或百套海报时，共用同一枚基础单元就能守住家族脸。</li>
+            <li><strong>图文、引用、数据高频混排</strong>：各内容块大小不一但需要共用对齐基准。</li>
+          </ul>
+        </div>
+        <div class="when-col is-no">
+          <h3>什么时候别用（或必须破格）</h3>
+          <ul>
+            <li><strong>纯线性长篇深阅读</strong>：小说、散文硬切横竖方格只会反复打断阅读心流，直接用 <a href="https://layout.xiaoxiaodong.ai/194/play/">194 手稿网格</a> 更舒展。</li>
+            <li><strong>强情绪张力的单主体爆发海报</strong>：一笔泼墨、斜向冲锋的主体会被死板方框关进笼子，宁可用 <a href="https://layout.xiaoxiaodong.ai/200/play/">200 非对称网格</a>、<a href="https://layout.xiaoxiaodong.ai/210/play/">210 破格网格</a> 或 <a href="https://layout.xiaoxiaodong.ai/211/play/">211 解构网格</a>。</li>
+            <li><strong>全员同权单一流列表</strong>：没有主次强行切方块，反而陷入「豆腐块疲劳」。</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 05 独有交互：四场景「硬套 vs 对路」翻转对比卡 -->
+      <div class="cases-head">
+        <strong>点按切换，亲眼看「硬套模块」与「对路版式」的差别</strong>
+      </div>
+      <div id="anti-cases" class="anti-cases">
+        <!-- JS 渲染 4 张可切换对比场景卡 -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 节：四选一：挑最稳的方案 ==================== -->
+  <section class="sec sec-sand" id="sec-06">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <div>
+          <h2>四选一：挑最稳的方案</h2>
+          <p class="sec-en" lang="en">LAYOUT CRITIQUE EXERCISE</p>
+        </div>
+      </div>
+
+      <p class="quiz-prompt">任务：在 <strong>8×6</strong> 模块化设计年报封面上，排入「主视觉、导语、关键数据、脚注」四块内容。下面四份方案素材与配色完全相同，<strong>只差网格跨格与对齐组织方式</strong>——你选哪一份交付？</p>
+
+      <div id="quiz-grid" class="quiz-grid" role="radiogroup" aria-label="四选一模块化网格练习">
+        <!-- JS 渲染 A/B/C/D 四个严格中性标签的 SVG 方案 -->
+      </div>
+
+      <div id="quiz-feedback" class="quiz-feedback" hidden role="status" aria-live="polite">
+        <strong id="qf-title"></strong>
+        <p id="qf-body"></p>
+        <div id="qf-all" class="qf-all"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 节：原海报与关键词 ==================== -->
+  <section class="sec sec-paper" id="sec-07">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div>
+          <h2>原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; NEIGHBORING GRIDS</p>
+        </div>
+      </div>
+
+      <div class="poster-layout">
+        <div class="poster-frame">
+          <button type="button" id="poster-zoom-btn" class="poster-btn" aria-label="点击放大查看 196 模块化网格原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" draggable="false" alt="196 模块化 网格原海报：暖乳米白纸底，左侧黑体大标与五条模块化原则，右侧虚线 X×X 网格积木、四类模块组合与海报名片看板应用示例，底部焦糖橘虚线设计小贴士">
+            <span class="poster-zoom-hint">点击放大 / 拖动看细节</span>
+          </button>
+        </div>
+
+        <div class="poster-info">
+          <div class="poster-card">
+            <span class="capsule capsule-orange">设计小贴士 TIP</span>
+            <ul class="tips-origin">
+              <li>从小处着手，建立基准模块。</li>
+              <li>保持一致的间距，让版式更整洁。</li>
+              <li>模块越小，组合越灵活。<span class="soft-tag">第 01 节已补边界</span></li>
+              <li>先搭结构，再填充内容。</li>
+            </ul>
+          </div>
+
+          <div class="poster-card">
+            <span class="capsule capsule-plum">同小类网格导览</span>
+            <p class="family-note">模块化网格属于「网格系统」家族的一员，其他常见变体各自独立成页：</p>
+            <ul class="family-links">
+              <li><a href="https://layout.xiaoxiaodong.ai/194/play/">194 手稿网格</a> — 单一长文大版心与古典四边距。</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/195/play/">195 分栏网格</a> — 纵向栏柱与栏缝比例，不锁横行。</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/197/play/">197 层级网格</a> — 按内容轻重而非等分单元划区。</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/198/play/">198 基线网格</a> — 统一全页文字行脚的水平韵律。</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/199/play/">199 复合网格</a> — 两套不同列数网格重叠共生。</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/201/play/">201 方格网格</a> — 全页等大正方形格网与像素制图。</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/205/play/">205 嵌套网格</a> 与 <a href="https://layout.xiaoxiaodong.ai/206/play/">206 子网格</a> — 模块内部再建局部对齐轨道。</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/208/play/">208 流体网格</a> 与 <a href="https://layout.xiaoxiaodong.ai/209/play/">209 响应式网格</a> — 随屏幕宽窄伸缩重排。</li>
+              <li><a href="https://layout.xiaoxiaodong.ai/210/play/">210 破格网格</a> — 先立规矩，再刻意越界制造焦点。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <a href="https://layout.xiaoxiaodong.ai/196/play/">在线版：layout.xiaoxiaodong.ai/196/play/</a>
+    <span aria-hidden="true">·</span>
+    <a href="https://layout.xiaoxiaodong.ai/">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+    <span aria-hidden="true">·</span>
+    <span>海报 CC BY 4.0</span>
+    <span aria-hidden="true">·</span>
+    <a href="https://github.com/chenxiang1991/350-layout-interactive">源文件 GitHub</a>
+  </div>
+</footer>
+
+<!-- 原海报放大检视层（支持缩放、拖动、Esc 关闭） -->
+<div id="lightbox" class="lightbox" hidden role="dialog" aria-modal="true" aria-label="196 模块化网格原海报放大查看">
+  <div class="lb-toolbar">
+    <span class="mono-tag">196 原海报 · 拖动查看细节 · Esc 关闭</span>
+    <div class="lb-btns">
+      <button type="button" id="lb-out" class="lb-btn" aria-label="缩小">−</button>
+      <span id="lb-scale" class="mono-val">100%</span>
+      <button type="button" id="lb-in" class="lb-btn" aria-label="放大">+</button>
+      <button type="button" id="lb-close" class="lb-btn is-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div id="lb-stage" class="lb-stage">
+    <img id="lb-img" src="" draggable="false" alt="196 模块化网格原海报放大图">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
