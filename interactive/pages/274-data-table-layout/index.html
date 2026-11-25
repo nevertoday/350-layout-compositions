@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>No. 274 数据表格布局 · DATA TABLE LAYOUT</title>
+<meta name="description" content="350 种排版互动版 No. 274 数据表格布局：通过活体账簿检校台、位值对齐游标、数据墨水剥离器与可重排矩阵，理解复杂数据为何更易读、更可比、更可用。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main-content">跳到正文</a>
+
+<div class="topbar" role="banner">
+  <div class="wrap topbar-inner">
+    <span class="crumb"><span class="crumb-sq" aria-hidden="true"></span>网页与 UI / 内容与产品模式</span>
+    <span class="top-meta" lang="en">NO. 274 · 350 种排版 · 互动版</span>
+  </div>
+</div>
+
+<main id="main-content">
+  <!-- ==================== HERO：活体账簿检校台 ==================== -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero-shell">
+      <header class="masthead">
+        <div class="masthead-left">
+          <div class="title-ledger" aria-hidden="true">
+            <span class="tl-tick">COL 01</span>
+            <span class="tl-tick">COL 02</span>
+            <span class="tl-tick">COL 03</span>
+            <span class="tl-tick">COL 04</span>
+            <span class="tl-tick">COL 05</span>
+            <span class="tl-tick">COL 06</span>
+          </div>
+          <h1 id="hero-title" class="hero-h1">
+            <span>数</span><span>据</span><span>表</span><span>格</span><span>布</span><span>局</span>
+          </h1>
+          <p class="hero-en" lang="en">DATA TABLE LAYOUT</p>
+        </div>
+
+        <div class="masthead-right">
+          <div class="seal-block">
+            <svg id="matrix-seal" class="matrix-seal" viewBox="0 0 96 96" width="76" height="76" role="img" aria-label="274 原海报三乘三矩阵状态徽章"></svg>
+            <div class="seal-meta">
+              <span class="audit-pill" id="hero-badge" data-tone="fail">0 / 4 待校准</span>
+              <span class="seal-sub" id="seal-sub">4 柱未咬合 · 拖动表尺或点击表头校准</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <p class="hero-summary hero-summary-top">
+        通过清晰的行列结构、稳定的对齐方式与有重点的比较呈现，让复杂数据更易读、更可比、更可用。
+        <span class="hero-summary-en" lang="en">PRESENT COMPLEX DATA IN A STRUCTURED, ALIGNED AND COMPARABLE WAY.</span>
+      </p>
+
+      <div class="hero-workspace">
+        <!-- 主舞台：顶沿列宽游标 + 活体 6 列财务数据表 + 2D Canvas 光学轴线覆盖层 -->
+        <div class="ledger-panel">
+          <div class="ruler-bar" aria-label="首列宽度调节标尺">
+            <div class="ruler-head">
+              <span class="ruler-label">列宽标尺 <span class="ruler-zone-hint">经验舒适带 20%–34%</span></span>
+              <span class="ruler-readout" id="ruler-readout">首列 14% · 挤压</span>
+            </div>
+            <div class="ruler-track" id="col-ruler-track">
+              <div class="ruler-band band-squeeze" aria-hidden="true"><span>挤压</span></div>
+              <div class="ruler-band band-sweet" aria-hidden="true"><span>舒适列宽</span></div>
+              <div class="ruler-band band-river" aria-hidden="true"><span>白河串行</span></div>
+              <button
+                type="button"
+                id="col-drag-handle"
+                class="ruler-handle"
+                data-perf-drag
+                role="slider"
+                aria-label="拖动调节第一列宽度比例，支持键盘左右方向键微调"
+                aria-valuemin="10"
+                aria-valuemax="46"
+                aria-valuenow="14"
+              >
+                <span class="handle-grip" aria-hidden="true">↔</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ledger-stage" id="ledger-stage" data-grid="cage" data-align="left" data-tabular="off" data-spotlight="none">
+            <div class="ledger-scroll" id="ledger-scroll">
+              <table class="audit-table" id="audit-table" aria-describedby="verdict-why">
+                <colgroup id="audit-colgroup">
+                  <col class="col-item">
+                  <col class="col-q1">
+                  <col class="col-q2">
+                  <col class="col-qoq">
+                  <col class="col-share">
+                  <col class="col-achieve">
+                </colgroup>
+                <thead id="audit-thead"></thead>
+                <tbody id="audit-tbody"></tbody>
+                <tfoot id="audit-tfoot"></tfoot>
+              </table>
+            </div>
+            <canvas id="ledger-canvas" class="ledger-canvas" aria-hidden="true"></canvas>
+          </div>
+
+          <div class="mobile-col-bar">
+            <span class="mobile-tip">点击表头排序 · 拖动上方翡翠标尺调列宽</span>
+            <button type="button" class="mini-btn" id="btn-mobile-cols" aria-pressed="false">显示全部 6 列</button>
+          </div>
+        </div>
+
+        <!-- 调控带 + 实测诊单（桌面在表下通栏，横屏手机在右侧并行） -->
+        <div class="hero-controls-wrap">
+          <div class="control-strip" role="region" aria-label="表格排版校准控件">
+            <div class="ctrl-group">
+              <span class="ctrl-title">01 结构 · 网格与合计</span>
+              <div class="btn-row" role="group" aria-label="网格线样式">
+                <button type="button" class="seg-btn" data-ctrl="gridMode" data-val="cage" aria-pressed="true">牢笼全框</button>
+                <button type="button" class="seg-btn" data-ctrl="gridMode" data-val="hairline" aria-pressed="false">清透横线</button>
+                <button type="button" class="seg-btn" data-ctrl="gridMode" data-val="none" aria-pressed="false">全无界线</button>
+              </div>
+              <div class="btn-row" role="group" aria-label="合计行位置">
+                <button type="button" class="seg-btn" data-ctrl="totalMode" data-val="mixed" aria-pressed="true">合计混入行中</button>
+                <button type="button" class="seg-btn" data-ctrl="totalMode" data-val="footer" aria-pressed="false">合计独立置底</button>
+              </div>
+            </div>
+
+            <div class="ctrl-group">
+              <span class="ctrl-title">02 对齐 · 轴线与数字</span>
+              <div class="btn-row" role="group" aria-label="列对齐方式">
+                <button type="button" class="seg-btn" data-ctrl="alignMode" data-val="left" aria-pressed="true">全左对齐</button>
+                <button type="button" class="seg-btn" data-ctrl="alignMode" data-val="center" aria-pressed="false">全居中</button>
+                <button type="button" class="seg-btn" data-ctrl="alignMode" data-val="semantic" aria-pressed="false">左文右数</button>
+              </div>
+              <div class="btn-row" role="group" aria-label="等宽数字与透视线">
+                <button type="button" class="seg-btn" data-ctrl="tabular" data-val="toggle" aria-pressed="false">等宽数字 tabular-nums</button>
+                <button type="button" class="seg-btn" id="btn-overlay" aria-pressed="true">光学轴线：开</button>
+              </div>
+            </div>
+
+            <div class="ctrl-group">
+              <span class="ctrl-title">03 比较 · 焦点与编码</span>
+              <div class="btn-row" role="group" aria-label="焦点比较列">
+                <button type="button" class="seg-btn" data-ctrl="spotlight" data-val="none" aria-pressed="true">无重点</button>
+                <button type="button" class="seg-btn" data-ctrl="spotlight" data-val="qoq" aria-pressed="false">单列：环比</button>
+                <button type="button" class="seg-btn" data-ctrl="spotlight" data-val="all" aria-pressed="false">全表涂色</button>
+              </div>
+              <div class="btn-row" role="group" aria-label="占比图形编码与排序">
+                <button type="button" class="seg-btn" data-ctrl="inlineBars" data-val="toggle" aria-pressed="false">占比迷你条</button>
+                <button type="button" class="seg-btn" id="btn-quick-sort">按环比降序</button>
+              </div>
+            </div>
+
+            <div class="ctrl-group">
+              <span class="ctrl-title">04 精准 · 口径与平账</span>
+              <div class="btn-row" role="group" aria-label="数值格式口径">
+                <button type="button" class="seg-btn" data-ctrl="formatMode" data-val="messy" aria-pressed="true">杂乱·92.2%</button>
+                <button type="button" class="seg-btn" data-ctrl="formatMode" data-val="noise" aria-pressed="false">4位小数</button>
+                <button type="button" class="seg-btn" data-ctrl="formatMode" data-val="clean" aria-pressed="false">千分位·平账</button>
+              </div>
+              <div class="btn-row">
+                <button type="button" class="seg-btn seg-reset" id="btn-reset-broken">复原翻车错态</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 实时白话诊单 -->
+          <div class="verdict-strip" id="hero-verdict" data-tone="fail" aria-live="polite">
+            <div class="verdict-main">
+              <div class="verdict-head">
+                <span class="verdict-tag" id="verdict-tag">0/4 结构失序</span>
+                <strong class="verdict-title" id="verdict-title">「合计」被夹在第 3 行中间，汇总数正在冒充普通品类</strong>
+              </div>
+              <p class="verdict-why" id="verdict-why"></p>
+              <p class="verdict-hint" id="verdict-hint"></p>
+            </div>
+            <dl class="verdict-metrics">
+              <div><dt>位值轴偏（实测）</dt><dd id="m-drift">17.8px</dd></div>
+              <div><dt>数据墨水效率</dt><dd id="m-ink">偏低（示意）</dd></div>
+              <div><dt>占比分项核验</dt><dd id="m-share">92.2% ≠ 100%</dd></div>
+              <div><dt>横扫跨距（实测）</dt><dd id="m-span">620px</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <!-- 手机竖屏说明文字（按指南置于开场主角之后，避免把互动表挤出首屏） -->
+      <p class="hero-summary hero-summary-mobile">
+        通过清晰的行列结构、稳定的对齐方式与有重点的比较呈现，让复杂数据更易读、更可比、更可用。
+      </p>
+
+      <!-- 原海报底沿四柱验收标 -->
+      <div class="pillar-bar" id="hero-pillars" aria-label="原海报四项核心原则实时状态">
+        <div class="pillar-item" data-pillar="structure" data-ok="false">
+          <div class="pillar-top">
+            <svg class="pillar-ico" viewBox="0 0 32 32" width="24" height="24" aria-hidden="true">
+              <rect x="3" y="3" width="11" height="11" fill="currentColor"/>
+              <rect x="18" y="3" width="11" height="11" fill="currentColor"/>
+              <rect x="3" y="18" width="11" height="11" fill="currentColor"/>
+              <rect x="18" y="18" width="11" height="11" fill="currentColor"/>
+            </svg>
+            <div>
+              <span class="pillar-zh">结构</span>
+              <span class="pillar-en" lang="en">STRUCTURE</span>
+            </div>
+          </div>
+          <p class="pillar-state" id="ps-structure">合计混入行中</p>
+        </div>
+
+        <div class="pillar-item" data-pillar="align" data-ok="false">
+          <div class="pillar-top">
+            <svg class="pillar-ico" viewBox="0 0 32 32" width="24" height="24" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="3.5" fill="currentColor"/>
+              <rect x="3" y="14" width="26" height="3.5" fill="currentColor"/>
+              <rect x="3" y="23" width="22" height="3.5" fill="currentColor"/>
+            </svg>
+            <div>
+              <span class="pillar-zh">对齐</span>
+              <span class="pillar-en" lang="en">ALIGN</span>
+            </div>
+          </div>
+          <p class="pillar-state" id="ps-align">左齐错位量级</p>
+        </div>
+
+        <div class="pillar-item" data-pillar="compare" data-ok="false">
+          <div class="pillar-top">
+            <svg class="pillar-ico" viewBox="0 0 32 32" width="24" height="24" aria-hidden="true">
+              <path d="M16 4v24M10 10l6-6 6 6M10 22l6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter"/>
+            </svg>
+            <div>
+              <span class="pillar-zh">比较</span>
+              <span class="pillar-en" lang="en">COMPARE</span>
+            </div>
+          </div>
+          <p class="pillar-state" id="ps-compare">乱序无梯度</p>
+        </div>
+
+        <div class="pillar-item" data-pillar="precise" data-ok="false">
+          <div class="pillar-top">
+            <svg class="pillar-ico" viewBox="0 0 32 32" width="24" height="24" aria-hidden="true">
+              <circle cx="16" cy="16" r="9" fill="none" stroke="currentColor" stroke-width="2.6"/>
+              <circle cx="16" cy="16" r="2.5" fill="currentColor"/>
+              <path d="M16 3v5M16 24v5M3 16h5M24 16h5" stroke="currentColor" stroke-width="2.6"/>
+            </svg>
+            <div>
+              <span class="pillar-zh">精准</span>
+              <span class="pillar-en" lang="en">PRECISE</span>
+            </div>
+          </div>
+          <p class="pillar-state" id="ps-precise">未平账 92.2%</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01 四根柱子撑起一张表 ==================== -->
+  <section class="sec sec-tint" id="sec-01" aria-labelledby="h-01">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">01</span>
+        <div class="sec-titles">
+          <h2 id="h-01">四根柱子撑起一张表</h2>
+          <p class="sec-en" lang="en">The Four Pillars &amp; Two Notes on Poster 274</p>
+        </div>
+      </header>
+
+      <div class="s1-grid reveal">
+        <div class="s1-tabs" role="tablist" aria-label="原海报四项核心原则解剖">
+          <button type="button" class="pillar-tab" role="tab" data-p="structure" aria-selected="true">
+            <span class="pt-no" lang="en">01</span>
+            <span class="pt-name">结构 <small lang="en">STRUCTURE</small></span>
+            <span class="pt-quote">「行列清晰分组，层级关系明确」</span>
+          </button>
+          <button type="button" class="pillar-tab" role="tab" data-p="align" aria-selected="false">
+            <span class="pt-no" lang="en">02</span>
+            <span class="pt-name">对齐 <small lang="en">ALIGN</small></span>
+            <span class="pt-quote">「统一对齐方式，提升浏览效率」</span>
+          </button>
+          <button type="button" class="pillar-tab" role="tab" data-p="compare" aria-selected="false">
+            <span class="pt-no" lang="en">03</span>
+            <span class="pt-name">比较 <small lang="en">COMPARE</small></span>
+            <span class="pt-quote">「突出差异与趋势，强化可比信息」</span>
+          </button>
+          <button type="button" class="pillar-tab" role="tab" data-p="precise" aria-selected="false">
+            <span class="pt-no" lang="en">04</span>
+            <span class="pt-name">精准 <small lang="en">PRECISE</small></span>
+            <span class="pt-quote">「数值、格式一致，传达更可靠」</span>
+          </button>
+        </div>
+
+        <div class="s1-inspector">
+          <div class="s1-diagram-bar">
+            <span class="s1-zone-label" id="s1-zone-label">当前透视区：表头 · 数据体 · 独立汇总行</span>
+            <div class="btn-row" role="group" aria-label="对照海报展示版与实务工作版">
+              <button type="button" class="seg-btn" id="s1-mode-poster" aria-pressed="true">原海报排法</button>
+              <button type="button" class="seg-btn" id="s1-mode-work" aria-pressed="false">实务校准版</button>
+            </div>
+          </div>
+
+          <div class="xray-table-wrap" id="s1-xray" data-focus="structure" data-mode="poster">
+            <table class="xray-table">
+              <thead>
+                <tr>
+                  <th class="xr-text">项目</th>
+                  <th class="xr-num">Q2 销售额</th>
+                  <th class="xr-num xr-spot">环比增长</th>
+                  <th class="xr-share">占比</th>
+                </tr>
+              </thead>
+              <tbody id="s1-xray-body"></tbody>
+              <tfoot id="s1-xray-foot"></tfoot>
+            </table>
+          </div>
+
+          <div class="s1-explain" id="s1-explain">
+            <p class="s1-plain" id="s1-plain"></p>
+            <div class="s1-callout">
+              <span class="callout-badge" id="s1-badge">结构要点</span>
+              <p id="s1-detail"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 对齐为什么能省一半眼力 ==================== -->
+  <section class="sec sec-paper" id="sec-02" aria-labelledby="h-02">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">02</span>
+        <div class="sec-titles">
+          <h2 id="h-02">对齐为什么能省一半眼力</h2>
+          <p class="sec-en" lang="en">Right-Aligned Tabular Numerals &amp; Magnitude Scanning</p>
+        </div>
+      </header>
+
+      <p class="sec-lead reveal">
+        数据可视化学者 Stephen Few 在《Show Me the Numbers》（2004 / 2012）中强调：<strong>对齐方式必须服从数据类型，而不是追求对称装饰</strong>。文字顺着左缘逐字起读，所以左对齐；数字则是从个位、十位、百位自右向左判断量级，必须右对齐并搭配等宽数字（CSS <code lang="en">font-variant-numeric: tabular-nums</code>），连列表头也要跟随数据一起靠右。
+      </p>
+
+      <div class="s2-grid reveal">
+        <!-- 左侧：3 秒找最大数限时微测 -->
+        <div class="hunt-box">
+          <div class="box-head">
+            <div>
+              <h3 class="box-title">实测：一眼找出最大数</h3>
+              <p class="box-sub">先切对齐方式，点「开始计时」，再点数值最大的那一行。</p>
+            </div>
+            <button type="button" class="primary-btn" id="hunt-start">开始计时</button>
+          </div>
+
+          <div class="btn-row hunt-modes" role="group" aria-label="微测对齐方式">
+            <button type="button" class="seg-btn" data-hunt-mode="left" aria-pressed="true">数值左对齐</button>
+            <button type="button" class="seg-btn" data-hunt-mode="center" aria-pressed="false">数值居中</button>
+            <button type="button" class="seg-btn" data-hunt-mode="right-prop" aria-pressed="false">右齐·比例字</button>
+            <button type="button" class="seg-btn" data-hunt-mode="right-tab" aria-pressed="false">右齐·等宽数字</button>
+          </div>
+
+          <div class="hunt-list" id="hunt-list" data-mode="left" role="group" aria-label="六行仓库数据找最大数"></div>
+
+          <div class="hunt-result" id="hunt-result" aria-live="polite">
+            当前为「数值左对齐」：注意 988.4 的首位 9 紧挨在 1,118.1 的 1 上方，极易干扰量级判断。点「开始计时」亲自测一测。
+          </div>
+        </div>
+
+        <!-- 右侧：2D Canvas 数字游标卡尺放大镜 -->
+        <div class="caliper-box">
+          <div class="box-head">
+            <div>
+              <h3 class="box-title">数字游标卡尺：1 和 8 差多宽？</h3>
+              <p class="box-sub">同样右对齐，比例字体的「1」偏窄，会让逗号与千位上下错开。</p>
+            </div>
+            <div class="btn-row" role="group" aria-label="卡尺字体模式">
+              <button type="button" class="seg-btn" id="caliper-prop" aria-pressed="true">比例数字</button>
+              <button type="button" class="seg-btn" id="caliper-tab" aria-pressed="false">等宽 tabular</button>
+            </div>
+          </div>
+
+          <div class="caliper-stage">
+            <canvas id="caliper-canvas" class="caliper-canvas" aria-label="比例数字与等宽数字的位值对齐游标卡尺对比图"></canvas>
+          </div>
+
+          <p class="caliper-note" id="caliper-note">
+            在比例数字下，<code>1,118.1</code> 里的四个「1」比 <code>8,888.8</code> 里的「8」更瘦，即使右边缘对齐，千位逗号与百位已经向右侧错开了半个字符宽度。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 少画线，数字反而更清楚（深海军蓝暗节） ==================== -->
+  <section class="sec sec-navy" id="sec-03" aria-labelledby="h-03">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">03</span>
+        <div class="sec-titles">
+          <h2 id="h-03">少画线，数字反而更清楚</h2>
+          <p class="sec-en" lang="en">Data-Ink Ratio &amp; Significant-Digit Rounding</p>
+        </div>
+      </header>
+
+      <p class="sec-lead reveal">
+        Edward Tufte 在《The Visual Display of Quantitative Information》（1983）提出「数据墨水比」：界面上花在表达真实数据的墨水越多、花在装饰网格与重复文字上的墨水越少，阅读越省力。统计学家 A. S. C. Ehrenberg（1977）进一步指出，把超出决策需要的尾部小数舍去，人脑短时记忆才能真正比较出差异。
+      </p>
+
+      <div class="ink-lab reveal">
+        <div class="ink-slider-row">
+          <label class="ink-label" for="ink-range">
+            拖动剥离非数据墨水：<strong id="ink-stage-name">1/5 · 牢笼重表</strong>
+          </label>
+          <span class="ink-tag" id="ink-stage-en" lang="en">CAGE GRID · LOW SIGNAL</span>
+        </div>
+
+        <input type="range" id="ink-range" class="ink-range" min="1" max="5" step="1" value="1" aria-label="非数据墨水剥离阶段，从 1 牢笼重表到 5 清透账簿">
+
+        <div class="ink-steps" aria-hidden="true">
+          <span>1 牢笼重表</span>
+          <span>2 拆竖框</span>
+          <span>3 单位上提</span>
+          <span>4 有效舍入</span>
+          <span>5 清透账簿</span>
+        </div>
+
+        <div class="ink-stage-grid">
+          <div class="ink-table-card" id="ink-table-card" data-stage="1">
+            <div class="ink-scroll">
+              <table class="ink-table" id="ink-table"></table>
+            </div>
+          </div>
+
+          <div class="ink-meter-panel">
+            <div class="ink-bar-head">
+              <span>有效数据墨水占比（示意）</span>
+              <strong id="ink-share-label">数据墨水偏低 · 线框占主角（示意）</strong>
+            </div>
+            <div class="ink-bar-track" aria-hidden="true">
+              <div class="ink-bar-fill" id="ink-bar-fill" style="width: 26%"></div>
+            </div>
+            <p class="ink-note" id="ink-note"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 排个序，规律自己浮出来 ==================== -->
+  <section class="sec sec-paper" id="sec-04" aria-labelledby="h-04">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">04</span>
+        <div class="sec-titles">
+          <h2 id="h-04">排个序，规律自己浮出来</h2>
+          <p class="sec-en" lang="en">Bertin’s Reorderable Matrix &amp; In-Cell Encoding</p>
+        </div>
+      </header>
+
+      <p class="sec-lead reveal">
+        1967 年，法国制图学家 Jacques Bertin 在《图形符号学》（<em>Sémiologie graphique</em>）里指出，表格不只是静态归档工具，更是「可以重排的分析仪」：只要把散乱的行与列按量级重排，再叠加克制的色阶或单元格内嵌迷你条，原本藏在数字堆里的梯队与异常会瞬间浮现。
+      </p>
+
+      <div class="bertin-lab reveal">
+        <div class="bertin-toolbar">
+          <div class="btn-row" role="group" aria-label="矩阵排序操作">
+            <button type="button" class="seg-btn" id="b-sort-rows">按行均值降序重排</button>
+            <button type="button" class="seg-btn" id="b-sort-cols">按列均值降序重排</button>
+            <button type="button" class="seg-btn" id="b-reset">恢复乱序</button>
+          </div>
+          <div class="btn-row" role="group" aria-label="单元格视觉编码模式">
+            <button type="button" class="seg-btn" data-bmode="plain" aria-pressed="true">纯数字</button>
+            <button type="button" class="seg-btn" data-bmode="heat" aria-pressed="false">明度色阶</button>
+            <button type="button" class="seg-btn" data-bmode="bar" aria-pressed="false">内嵌迷你条</button>
+          </div>
+        </div>
+
+        <p class="bertin-tip">提示：除了点上方按钮，还可以直接点选矩阵里的任意两行名称互换位置，亲手做一次「贝尔坦手排矩阵」。</p>
+
+        <div class="bertin-scroll">
+          <table class="bertin-table" id="bertin-table" data-mode="plain"></table>
+        </div>
+
+        <div class="bertin-verdict" id="bertin-verdict" aria-live="polite">
+          当前处于乱序纯数字状态：高分品类与低分品类穿插混排，人眼必须逐格心算才能找出最强梯队。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 从威尼斯账簿到电子表 ==================== -->
+  <section class="sec sec-stone" id="sec-05" aria-labelledby="h-05">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">05</span>
+        <div class="sec-titles">
+          <h2 id="h-05">从威尼斯账簿到电子表</h2>
+          <p class="sec-en" lang="en">Where Data Table Layout Comes From</p>
+        </div>
+      </header>
+
+      <div class="history-shell reveal">
+        <div class="era-tabs" role="tablist" aria-label="数据表格五代演进标本">
+          <button type="button" class="era-tab" role="tab" data-era="1494" aria-selected="true"><strong lang="en">1494</strong><span>帕乔利账簿</span></button>
+          <button type="button" class="era-tab" role="tab" data-era="1967" aria-selected="false"><strong lang="en">1967</strong><span>贝尔坦矩阵</span></button>
+          <button type="button" class="era-tab" role="tab" data-era="1977" aria-selected="false"><strong lang="en">1977</strong><span>埃伦伯格表</span></button>
+          <button type="button" class="era-tab" role="tab" data-era="1979" aria-selected="false"><strong lang="en">1979</strong><span>VisiCalc</span></button>
+          <button type="button" class="era-tab" role="tab" data-era="modern" aria-selected="false"><strong lang="en">1983–今</strong><span>现代 Web 表</span></button>
+        </div>
+
+        <div class="era-stage">
+          <div class="era-story">
+            <p class="era-meta"><span id="era-year" lang="en">1494</span> · <span id="era-place">威尼斯 · Venice</span></p>
+            <h3 class="era-person" id="era-person">Luca Pacioli（卢卡·帕乔利）</h3>
+            <p class="era-work" id="era-work"></p>
+            <p class="era-summary" id="era-summary"></p>
+          </div>
+          <div class="era-specimen-wrap">
+            <div class="era-specimen" id="era-specimen" data-era="1494"></div>
+            <p class="era-caption" id="era-caption"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 窄屏折中与何时别用表 ==================== -->
+  <section class="sec sec-paper" id="sec-06" aria-labelledby="h-06">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">06</span>
+        <div class="sec-titles">
+          <h2 id="h-06">窄屏折中与何时别用表</h2>
+          <p class="sec-en" lang="en">Responsive Trade-offs &amp; When Not to Use Tables</p>
+        </div>
+      </header>
+
+      <div class="s6-mobile-lab reveal">
+        <div class="s6-lab-head">
+          <div>
+            <h3 class="box-title">同一张 6 列表，在窄屏上的三种解法</h3>
+            <p class="box-sub">Nielsen Norman Group 指出，手机屏没有完美表格，每种响应方案都在「跨行可比」和「单行可读」之间做取舍。</p>
+          </div>
+          <div class="btn-row" role="group" aria-label="手机表格响应策略">
+            <button type="button" class="seg-btn" data-mstrat="freeze" aria-pressed="true">冻结首列横滚</button>
+            <button type="button" class="seg-btn" data-mstrat="collapse" aria-pressed="false">折叠次列展开</button>
+            <button type="button" class="seg-btn" data-mstrat="cards" aria-pressed="false">窄屏转卡片</button>
+          </div>
+        </div>
+
+        <div class="s6-sim-grid">
+          <div class="phone-frame" aria-label="模拟 340px 手机屏表格效果">
+            <div class="phone-bar"><span lang="en">340px VIEWPORT</span><span id="phone-mode-tag">冻结首列 + 横向滚动</span></div>
+            <div class="phone-body" id="phone-body"></div>
+          </div>
+
+          <div class="s6-tradeoff" id="s6-tradeoff">
+            <h4 id="tradeoff-title">保留纵列比较，但隐藏了右侧列</h4>
+            <p id="tradeoff-pro"><strong>保住了什么：</strong>首列品类锚定不动，左右滑动就能沿同一纵列继续比大小，最适合需要横向对账的财务与运营表。</p>
+            <p id="tradeoff-con"><strong>牺牲了什么：</strong>首屏无法一次看全所有维度，需要给右侧加微阴影或滚动提示，避免读者漏看后面几列。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="when-not reveal">
+        <h3 class="wn-title">什么时候别用数据表格</h3>
+        <p class="wn-intro">数据表格擅长的是<strong>同构记录的逐列精确对比</strong>。如果你的页面属于以下情形，换一种更契合的布局反而事半功倍：</p>
+        <div class="wn-grid">
+          <article class="wn-card">
+            <h4>只需要 5 秒扫出宏观异常</h4>
+            <p>高管巡检与实时告警关注的是全局趋势与越线提醒，而非逐行查明细，请改用 <a href="https://layout.xiaoxiaodong.ai/273/play/" target="_blank" rel="noopener">仪表盘布局（273）</a>。</p>
+          </article>
+          <article class="wn-card">
+            <h4>视觉吸引与图文浏览优先</h4>
+            <p>商品挑选、灵感图库靠图片和标题第一眼打动人，硬塞进细密表格只会显得枯燥，改用 <a href="https://layout.xiaoxiaodong.ai/270/play/" target="_blank" rel="noopener">卡片网格布局（270）</a> 或 <a href="https://layout.xiaoxiaodong.ai/275/play/" target="_blank" rel="noopener">画廊布局（275）</a>。</p>
+          </article>
+          <article class="wn-card">
+            <h4>记录按流程阶段或层级流转</h4>
+            <p>追踪任务从待办到完成更适合 <a href="https://layout.xiaoxiaodong.ai/278/play/" target="_blank" rel="noopener">看板布局（278）</a>；多层父子目录更适合 <a href="https://layout.xiaoxiaodong.ai/280/play/" target="_blank" rel="noopener">树形浏览布局（280）</a>。</p>
+          </article>
+          <article class="wn-card">
+            <h4>叙事脉络、动态流或模块分仓</h4>
+            <p>按时间讲故事用 <a href="https://layout.xiaoxiaodong.ai/277/play/" target="_blank" rel="noopener">时间线布局（277）</a> 或 <a href="https://layout.xiaoxiaodong.ai/269/play/" target="_blank" rel="noopener">信息流布局（269）</a>；要让少数重点仓位各归其位则适合 <a href="https://layout.xiaoxiaodong.ai/272/play/" target="_blank" rel="noopener">便当盒布局（272）</a>。</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 挑一挑：哪张表最好读（单变量小练习） ==================== -->
+  <section class="sec sec-tint" id="sec-07" aria-labelledby="h-07">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <span class="sec-no" lang="en">07</span>
+        <div class="sec-titles">
+          <h2 id="h-07">挑一挑：哪张表最好读</h2>
+          <p class="sec-en" lang="en">Practice · One Variable Changed</p>
+        </div>
+      </header>
+
+      <p class="sec-lead reveal">
+        下面四张季度营收表的数据、排序、千分位与轻横线完全一致，<strong>只有「对齐方式与数字字形」这一项不同</strong>。凭眼力挑出最利于纵向快速比大小的那一张，选完后会叠出垂直位值参考线。
+      </p>
+
+      <div class="quiz-grid reveal" id="quiz-grid" role="group" aria-label="四种数据表格排版选项"></div>
+
+      <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+        <strong id="qv-title">先凭直觉点选一个版本。</strong>
+        <p id="qv-reason">提示：重点盯住第二列里的「12,480」「1,110」和「940」，看逗号和个位是不是排在一条垂直线上。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 08 原海报 ==================== -->
+  <section class="sec sec-poster" id="sec-08" aria-labelledby="h-08">
+    <div class="wrap poster-grid">
+      <div class="poster-left">
+        <header class="sec-head reveal">
+          <span class="sec-no" lang="en">08</span>
+          <div class="sec-titles">
+            <h2 id="h-08">原海报</h2>
+            <p class="sec-en" lang="en">The Original Poster · No. 274</p>
+          </div>
+        </header>
+
+        <figure class="poster-fig reveal">
+          <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="点击放大查看 274 号数据表格布局原海报">
+            <img
+              id="poster"
+              src="poster.webp"
+              draggable="false"
+              width="1086"
+              height="1448"
+              alt="No. 274 数据表格布局原海报：暖白纸底上排着黑体大标与右上角三乘三翡翠绿海军蓝矩阵徽章，中段是六列消费品类季度销售表（含深海军蓝环比增长焦点列、内嵌进度条占比列与淡绿合计行），下方是结构、对齐、比较、精准四项说明与四个关键词。"
+            >
+          </button>
+          <figcaption>点击海报放大查看；放大后可拖拽平移，按 Esc 或点关闭按钮收起。</figcaption>
+        </figure>
+      </div>
+
+      <div class="poster-right reveal">
+        <h3 class="kw-heading">海报关键词 <span lang="en">KEYWORDS</span></h3>
+        <ul class="kw-list">
+          <li>
+            <svg class="kw-ico" viewBox="0 0 36 36" width="32" height="32" aria-hidden="true">
+              <rect x="4" y="4" width="12" height="12" fill="currentColor"/>
+              <rect x="20" y="4" width="12" height="12" fill="#002252"/>
+              <rect x="4" y="20" width="12" height="12" fill="currentColor"/>
+              <polygon points="20,32 32,20 32,32" fill="currentColor"/>
+            </svg>
+            <div><strong>清晰结构</strong><span lang="en">STRUCTURED</span></div>
+          </li>
+          <li>
+            <svg class="kw-ico" viewBox="0 0 36 36" width="32" height="32" aria-hidden="true">
+              <rect x="4" y="6" width="18" height="4" fill="currentColor"/>
+              <rect x="4" y="16" width="28" height="4" fill="currentColor"/>
+              <rect x="4" y="26" width="22" height="4" fill="currentColor"/>
+            </svg>
+            <div><strong>稳定对齐</strong><span lang="en">ALIGNED</span></div>
+          </li>
+          <li>
+            <svg class="kw-ico" viewBox="0 0 36 36" width="32" height="32" aria-hidden="true">
+              <path d="M18 5v26M11 12l7-7 7 7M11 24l7 7 7-7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="square"/>
+            </svg>
+            <div><strong>有效比较</strong><span lang="en">COMPARABLE</span></div>
+          </li>
+          <li>
+            <svg class="kw-ico" viewBox="0 0 36 36" width="32" height="32" aria-hidden="true">
+              <circle cx="18" cy="18" r="10" fill="none" stroke="currentColor" stroke-width="2.8"/>
+              <circle cx="18" cy="18" r="3" fill="currentColor"/>
+              <path d="M18 3v6M18 27v6M3 18h6M27 18h6" stroke="currentColor" stroke-width="2.8"/>
+            </svg>
+            <div><strong>精准表达</strong><span lang="en">PRECISE</span></div>
+          </li>
+        </ul>
+
+        <div class="poster-note-box">
+          <h4>海报原话摘录</h4>
+          <p>「通过清晰的行列结构、稳定的对齐方式与有重点的比较呈现，让复杂数据更易读、更可比、更可用。」</p>
+          <p class="poster-note-en" lang="en">Present complex data in a structured, aligned and comparable way to improve readability and usability.</p>
+        </div>
+
+        <div class="poster-spec-box">
+          <h4>原海报视觉语法拆解</h4>
+          <dl class="poster-spec-dl">
+            <div><dt>双主色系</dt><dd><span class="swatch sw-em" aria-hidden="true"></span>翡翠绿 #018868 · <span class="swatch sw-nv" aria-hidden="true"></span>海军蓝 #002252</dd></div>
+            <div><dt>纸面与线网</dt><dd>暖白账簿底 #FCFAF8 · 水平实线 + 竖向微虚线</dd></div>
+            <div><dt>核心母题</dt><dd>右上 3×3 斜切矩阵徽 · 单列深蓝聚焦 · 底部四柱索引</dd></div>
+            <div><dt>实务提示</dt><dd>界面落地时数值建议改右对齐并把占比口径平账至 100.0%</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 原海报放大灯箱（支持滚轮/按钮缩放、鼠标拖拽平移与 Esc 关闭） -->
+<div class="lightbox" id="poster-lightbox" hidden role="dialog" aria-modal="true" aria-label="放大查看原海报">
+  <div class="lb-bar">
+    <span class="lb-title">No. 274 数据表格布局 · 原海报（拖拽平移）</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+      <span class="lb-scale" id="lb-scale" lang="en">100%</span>
+      <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn" id="lb-reset" aria-label="还原尺寸">1:1</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭放大视图">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" alt="No. 274 数据表格布局原海报放大视图" draggable="false">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p class="foot-brand"><span lang="en">No. 274</span> 数据表格布局 · 350 种排版</p>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/274/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
