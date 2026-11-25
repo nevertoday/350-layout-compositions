@@ -51,8 +51,15 @@ function pageText(dir) {
   return readdirSync(d).filter((f) => /\.(html|js)$/.test(f)).map((f) => readFileSync(join(d, f), "utf8")).join("\n");
 }
 const SHINGLE = 20;
+// 页名（列兄弟页、导航时各页都会写）和页脚固定字不算抄：比对前先抹掉，长的先抹
+const NAMES = (() => {
+  const cat = JSON.parse(readFileSync(join(ROOT, "../v2/catalog.json"), "utf8")).map((c) => c.name);
+  const pt = Object.values(JSON.parse(readFileSync(join(ROOT, "../site/src/data/poster-text.json"), "utf8"))).map((t) => t.title);
+  return [...new Set([...cat, ...pt, "全部 350 种排版", "在线版", "海报", "源文件"].filter((n) => n && n.length >= 2))].sort((a, b) => b.length - a.length);
+})();
+const stripNames = (s) => NAMES.reduce((acc, n) => acc.split(n).join(" "), s);
 function shingles(text) {
-  const s = cjk(text), set = new Set();
+  const s = cjk(stripNames(text)), set = new Set();
   for (let i = 0; i + SHINGLE <= s.length; i += 2) set.add(s.slice(i, i + SHINGLE));
   return set;
 }
