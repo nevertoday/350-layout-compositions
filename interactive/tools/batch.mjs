@@ -17,7 +17,7 @@ mkdirSync(OUT, { recursive: true });
 
 const MODEL = process.env.MODEL || "gemini-4-neon-xhigh";
 const WORKERS = Number(process.env.WORKERS || 4);
-const ATTEMPTS = 2;
+const ATTEMPTS = 3;
 const AUTHOR_MS = 90 * 60_000;
 const DEPLOY_EVERY = Number(process.env.DEPLOY_EVERY || 20);
 const AGY = "/Users/admin/.local/bin/agy";
@@ -38,7 +38,8 @@ const ids = catalog.map((c) => c.id).filter((id) => id >= from && id <= to).sort
 const pageDir = (id) => readdirSync(join(ROOT, "pages")).find((d) => d.startsWith(`${id}-`));
 const committed = (id) => execFileSync("git", ["ls-files", "--", `pages/${id}-*/index.html`], { cwd: ROOT }).toString().trim() !== "";
 
-function prompt(id, retry) {
+async function prompt(id, retry) {
+  const { context } = await import(`./gate.mjs?${Date.now()}`);
   const c = byId.get(id), t = text[id];
   const peers = catalog.filter((p) => p.subcategory_slug === c.subcategory_slug && p.id !== id).map((p) => `${p.id} ${p.name}`).join("、");
   return [
@@ -46,6 +47,7 @@ function prompt(id, retry) {
     `你要做的编号是 ${id}「${t.title} ${t.title_en}」，属于「${c.category} / ${c.subcategory}」。`,
     t.summary ? `海报上的总述：${t.summary.replace(/\s+/g, " ")}` : "",
     peers ? `同一小类的其他编号（各有一页，不要重讲它们的重点；提到时一句话链接到 https://layout.xiaoxiaodong.ai/<编号>/play/）：${peers}。` : "",
+    context(id),
     retry ? `\n这一页上次没有做完：${retry.reason}。pages/${pageDir(id) ?? `${id}-*`}/ 里是上次留下的东西，先看懂再接着做完，不要从零重写能用的部分。上次检查输出的最后几行：\n${retry.tail}` : "",
     `做完写报告，最后一行写「完成」。`,
   ].filter(Boolean).join("\n");
@@ -134,7 +136,7 @@ async function page(id) {
     const started = Date.now();
     const file = join(OUT, `${id}-${attempt}.log`);
     log(`${id} 开始（第 ${attempt} 次）`);
-    const a = await run(AGY, ["-p", prompt(id, retry), "--model", MODEL, "--dangerously-skip-permissions", "--disable-slash-commands"], { ms: AUTHOR_MS, file });
+    const a = await run(AGY, ["-p", await prompt(id, retry), "--model", MODEL, "--dangerously-skip-permissions", "--disable-slash-commands"], { ms: AUTHOR_MS, file });
     const minutes = Math.round((Date.now() - started) / 60_000);
     // 三分钟内就退出、连目录都没有：多半是额度、网络，不算一次，歇一会儿再来
     if (!a.timedOut && minutes < 3 && !pageDir(id)) {
@@ -145,7 +147,9 @@ async function page(id) {
     }
     const b = await run("npm", ["run", "build", "--", "--only", id], { ms: 10 * 60_000 });
     const c = b.code === 0 ? await run("npm", ["run", "check", "--", "--only", id], { ms: 15 * 60_000 }) : null;
-    const ok = b.code === 0 && c.code === 0;
+    const { gate } = await import(`./gate.mjs?${Date.now()}`);
+    const problems = b.code === 0 && c.code === 0 ? gate(id, a.out) : [];
+    const ok = b.code === 0 && c.code === 0 && problems.length === 0;
     if (ok) {
       const p = await run("node", ["tools/perf.mjs", `batch${id}`], { ms: 10 * 60_000, env: { ONLY: id } });
       const fps = (p.out.match(/'(hero|drag[^']*)'\s*│\s*([\d.]+)/g) || []).map((m) => Number(m.split("│")[1])).filter(Number.isFinite);
@@ -162,9 +166,9 @@ async function page(id) {
       maybeRelease();
       return;
     }
-    const reason = a.timedOut ? "作者 90 分钟没做完被停了" : b.code !== 0 ? "build 没过" : "check 没过";
+    const reason = a.timedOut ? "作者 90 分钟没做完被停了" : b.code !== 0 ? "build 没过" : c.code !== 0 ? "check 没过" : `自查没过：${problems.join("；")}`;
     log(`${id} ✗ ${reason}（${minutes} 分钟）`);
-    retry = { reason, tail: tail((c ?? b).out) };
+    retry = { reason, tail: problems.length ? problems.map((p) => `- ${p}`).join("\n") : tail((c ?? b).out) };
     attempt++;
   }
   record({ id, ok: false, why: retry?.reason });
