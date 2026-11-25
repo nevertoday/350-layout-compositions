@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10120A">
+<title>309 · 脏单人镜头 · DIRTY SINGLE SHOT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero-band">
+  <div class="masthead hero-wrap">
+    <p class="series"><b>影视画面构图</b><span class="slash">/</span><span>视角与镜头覆盖</span></p>
+    <p class="issue"><span lang="en" class="en-tag">NO. 309</span><span class="issue-tagline">有遮挡 · 有关系 · 有故事</span></p>
+  </div>
+
+  <section class="hero hero-wrap" aria-labelledby="page-title">
+    <div class="hero-head">
+      <div class="title-block">
+        <h1 id="page-title" class="demo-title" aria-label="脏单人镜头">
+          <span class="title-graze" aria-hidden="true"></span>
+          <span class="title-chars">脏单人镜头</span>
+        </h1>
+        <div class="title-meta">
+          <p class="title-en" lang="en">DIRTY SINGLE SHOT</p>
+          <span class="coral-rule" aria-hidden="true"></span>
+          <p class="hero-summary">利用前景遮挡，制造层次与真实感，让画面更有故事。</p>
+        </div>
+      </div>
+      <div class="stamp-seal" aria-hidden="true">
+        <span>有遮挡</span>
+        <span>有关系</span>
+        <span>有故事</span>
+        <i class="stamp-dash"></i>
+      </div>
+    </div>
+
+    <div class="hero-grid">
+      <div class="stage-col">
+        <div class="monitor-shell" id="monitor-shell">
+          <canvas id="hero-monitor" class="monitor-canvas" aria-label="2.39比1宽银幕电影监视器：窗边咖啡馆剪影场景，中景朝左主角与前景同伴"></canvas>
+        </div>
+
+        <div class="floorplan-panel" id="floorplan-panel">
+          <div class="fp-header">
+            <span class="fp-title">片场俯拍走位轨道 <span lang="en" class="en-sub">OVERHEAD BLOCKING TRACK</span></span>
+            <span class="fp-metric" id="fp-metric">机位 <b class="num" id="read-dolly">-0.66m</b> · 前景面积（示意）<b class="num" id="read-cov">21%</b></span>
+          </div>
+          <div class="fp-stage" id="floorplan-wrap">
+            <canvas id="hero-floorplan" class="fp-canvas" aria-hidden="true"></canvas>
+            <button
+              type="button"
+              id="dolly-handle"
+              class="dolly-handle"
+              data-perf-drag
+              role="slider"
+              aria-label="沿片场滑轨左右移动摄影机（支持拖动与左右方向键）"
+              aria-valuemin="-1.25"
+              aria-valuemax="1.25"
+              aria-valuenow="-0.66"
+              aria-valuetext="机位 -0.66 米，同伴落在主角右侧背后"
+            >
+              <svg viewBox="0 0 28 24" aria-hidden="true">
+                <rect x="4" y="8" width="16" height="12" rx="1"/>
+                <polygon points="20,11 26,8 26,20 20,17"/>
+                <circle cx="9" cy="5" r="3"/>
+                <circle cx="16" cy="5" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <p class="fp-hint">拖摄影机跨过中间轴线（或选中滑柄按 ← / →，Shift 细调），让同伴从右背后移到左视线侧；无吸附。</p>
+        </div>
+      </div>
+
+      <aside class="slate-col" aria-label="几何条件判定与镜头光圈">
+        <div class="slate-top">
+          <span class="slate-badge" id="slate-badge" data-state="warn">同伴落在背后 · 2/3</span>
+          <div class="slate-actions">
+            <button type="button" class="mini-btn" id="btn-guides" aria-pressed="false">构图线：关</button>
+            <button type="button" class="mini-btn" id="btn-reset">复原开场</button>
+          </div>
+        </div>
+
+        <ul class="cond-list" id="cond-list" aria-label="三条几何条件">
+          <li class="cond-item" id="cond-rec" data-ok="true">
+            <span class="cond-mark" aria-hidden="true"></span>
+            <span class="cond-name">前景认得出是人</span>
+            <span class="cond-sub">肩线与后脑拐点都在框内</span>
+          </li>
+          <li class="cond-item" id="cond-clr" data-ok="true">
+            <span class="cond-mark" aria-hidden="true"></span>
+            <span class="cond-name">不压主角脸与视线空间</span>
+            <span class="cond-sub">面部与杯前走廊敞开</span>
+          </li>
+          <li class="cond-item" id="cond-gaz" data-ok="false">
+            <span class="cond-mark" aria-hidden="true"></span>
+            <span class="cond-name">同伴在主角视线朝向一侧</span>
+            <span class="cond-sub">主角朝左，同伴须在左缘</span>
+          </li>
+        </ul>
+
+        <div class="slate-readout" aria-live="polite">
+          <p class="slate-headline" id="slate-headline">主角朝左看、同伴肩在右侧背后，看不出两人在说话</p>
+          <p class="slate-why" id="slate-why">309 原海报画的正是这种「主角朝左、肩在右」的机位——轮廓可辨也不挡脸，但同伴留在主角背后一侧，视觉上像两位背对而坐的陌生人。沿轨道向右推过视线轴，让同伴改从左缘迎面入画。</p>
+        </div>
+
+        <div class="optics-box">
+          <div class="optics-row">
+            <span class="optics-label">光圈硬边演示 <span lang="en" class="en-sub">APERTURE</span></span>
+            <div class="ap-group" role="group" aria-label="选择镜头光圈">
+              <button type="button" class="ap-btn" data-ap="1.8" aria-pressed="false">f/1.8</button>
+              <button type="button" class="ap-btn" data-ap="2.8" aria-pressed="false">f/2.8</button>
+              <button type="button" class="ap-btn" data-ap="5.6" aria-pressed="true">f/5.6</button>
+              <button type="button" class="ap-btn" data-ap="11" aria-pressed="false">f/11</button>
+            </div>
+          </div>
+          <p class="optics-note" id="optics-note">f/5.6 前景轮廓仍然偏实，暗块边缘带有明显硬度；光圈不计入上方几何过关门槛，但可用来看硬边怎样抢戏。</p>
+        </div>
+
+        <p class="mobile-summary">利用前景遮挡，制造层次与真实感，让画面更有故事。</p>
+      </aside>
+    </div>
+  </section>
+
+  <div class="coral-ribbon" aria-hidden="true">
+    <div class="hero-wrap ribbon-inner">
+      <div class="ribbon-left">
+        <span class="vf-icon"><i></i><i></i><i></i><i></i></span>
+        <span class="ribbon-zh">让画面更真实，让故事更动人。</span>
+        <span class="ribbon-en" lang="en">MORE REAL. MORE STORY.</span>
+      </div>
+      <div class="ribbon-dots"><b></b><b></b><b></b></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 01 节：深暗室墨绿 -->
+  <section class="sec sec-dark" id="sec-01" aria-labelledby="h-01">
+    <div class="wrap two-col">
+      <header class="sec-head sticky-head">
+        <p class="sec-no" lang="en">01</p>
+        <h2 id="h-01">三层拆解，遮挡为何不堵眼</h2>
+        <p class="sec-en" lang="en">Three Planes &amp; Five Principles</p>
+        <p class="sec-lead">银幕本质是二维平面。在主角镜头边缘刻意放入一块深色、失焦的前景，等于往画面里插进一把三层空间标尺：前景压边、中景清晰、背景透光，目光顺势往清晰的中间掉进去。</p>
+      </header>
+
+      <div class="sec-body">
+        <figure class="lab-box">
+          <div class="peel-controls">
+            <div class="check-row" role="group" aria-label="开关三个景深图层">
+              <label class="chk-pill"><input type="checkbox" id="layer-bg" checked><span>背景窗光</span></label>
+              <label class="chk-pill"><input type="checkbox" id="layer-mid" checked><span>中景主角</span></label>
+              <label class="chk-pill"><input type="checkbox" id="layer-fg" checked><span>前景暗影</span></label>
+            </div>
+            <button type="button" class="action-btn" id="peel-view" aria-pressed="false">展开 2.5D 三层片盒</button>
+          </div>
+          <canvas id="peel-canvas" class="peel-canvas" aria-label="三层景深胶片剥离演示画布"></canvas>
+          <figcaption class="lab-cap" id="peel-cap" aria-live="polite">三层齐开：前景柔焦暗块收住画面左缘，暖黄双格窗从背后托出主角侧影轮廓，视觉焦点自然锁定中景。</figcaption>
+        </figure>
+
+        <blockquote class="poster-tip">
+          <span class="tip-tag" lang="en">POSTER TIP</span>
+          <p class="tip-zh">「遮挡不是遮住，而是服务于故事与情绪。」</p>
+          <p class="tip-en" lang="en">OBSTRUCTION IS NOT TO HIDE, BUT TO SERVE THE STORY.</p>
+        </blockquote>
+
+        <ol class="points-grid">
+          <li class="pt-card">
+            <span class="pt-badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 4h6v16H3z" fill="currentColor"/></svg>
+            </span>
+            <div>
+              <h3>前景遮挡 <span lang="en">FOREGROUND OBSTRUCTION</span></h3>
+              <p class="pt-quote">用物体或边缘遮挡部分画面，增加真实感与层次。</p>
+              <p class="pt-exp">暗色前景像一只天然画框压住一边，抵消单调的平拍感，让镜头像置身真实房间里。</p>
+            </div>
+          </li>
+          <li class="pt-card">
+            <span class="pt-badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><polygon points="12,3 21,8 12,13 3,8"/><polyline points="3,12.5 12,17.5 21,12.5" fill="none" stroke="currentColor" stroke-width="1.8"/><polyline points="3,16.5 12,21.5 21,16.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+            </span>
+            <div>
+              <h3>空间层次 <span lang="en">LAYERS</span></h3>
+              <p class="pt-quote">前景—中景—背景，构建空间深度。</p>
+              <p class="pt-exp">三层之间同时拉开虚实差与明暗差，观众立刻读出摄影机、同伴、主角与窗墙的先后距离。</p>
+            </div>
+          </li>
+          <li class="pt-card">
+            <span class="pt-badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5z"/></svg>
+            </span>
+            <div>
+              <h3>临场感 <span lang="en">PRESENCE</span></h3>
+              <p class="pt-quote">模拟真实观看体验，让观众更有代入感。</p>
+              <p class="pt-exp">人眼在现实里看人说话，余光里常挂着桌角或旁人的肩；带一点遮挡，画面反倒更像亲眼所见。</p>
+            </div>
+          </li>
+          <li class="pt-card">
+            <span class="pt-badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M2 12s3.8-6 10-6 10 6 10 6-3.8 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+            <div>
+              <h3>视线引导 <span lang="en">GUIDED GAZE</span></h3>
+              <p class="pt-quote">通过遮挡与留白，自然引导观众视线。</p>
+              <p class="pt-exp">低反差、失焦的前景暗区没有细节可盯，眼睛会自动跳过暗块，落向有轮廓反差的主角侧影。</p>
+            </div>
+          </li>
+          <li class="pt-card">
+            <span class="pt-badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3"/><circle cx="16.5" cy="10" r="2.6"/><path d="M3.5 19c0-3.2 2.4-5 5.5-5s5.5 1.8 5.5 5z"/><path d="M14.5 19c.2-2.2 1.6-3.8 4-3.8 1.5 0 2.7.8 3.2 2.2V19z"/></svg>
+            </span>
+            <div>
+              <h3>关系暗示 <span lang="en">IMPLIED RELATION</span></h3>
+              <p class="pt-quote">利用遮挡暗示人物关系或空间距离。</p>
+              <p class="pt-exp">不必切回双人全景，只要在主角视线落向的一侧留下同伴肩头与后脑拐点，观众就知道对面有人在倾听。</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="clarify-grid">
+          <aside class="clarify-note">
+            <span class="note-tag">术语分得更细</span>
+            <p>309 原海报同时画了虚焦人肩与门框绿植并统称为「脏单人镜头」。在常见片场教材（如 <em>Grammar of the Shot</em>）里，狭义的 <em>dirty single</em> 通常特指前景带入<strong>另一位角色局部身体</strong>（肩或后脑），夹在 <a href="https://layout.xiaoxiaodong.ai/308/play/" target="_blank" rel="noopener">308 净单人镜头</a> 与 <a href="https://layout.xiaoxiaodong.ai/305/play/" target="_blank" rel="noopener">305 过肩构图</a> 之间；而借门框、杯盏、枝叶遮挡常叫 <em>dirtying the frame</em>（把画框弄脏）。两者构图原理相通，但「人影」暗示对话在场，「环境物」更偏窥视或阻隔。</p>
+          </aside>
+          <aside class="clarify-note">
+            <span class="note-tag">细看原海报的机位</span>
+            <p>留意 309 原海报画面：中景主角朝左看，前景人肩却落在右侧背后。这样固然拉出了前—中—后三层，但在双人对话戏里会让主角背对同伴、看不出两人在交谈。实拍对话脏单人时，机位通常会跨过轴线，把同伴放到主角视线朝向的那一侧（正如开场轨道的演练）。</p>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 节：暖米剧照纸 -->
+  <section class="sec sec-paper" id="sec-02" aria-labelledby="h-02">
+    <div class="wrap">
+      <header class="sec-head wide-head">
+        <div class="head-line">
+          <p class="sec-no" lang="en">02</p>
+          <div>
+            <h2 id="h-02">净、脏、过肩，只差几分肩</h2>
+            <p class="sec-en" lang="en">Clean Single · Dirty Single · Over-the-Shoulder</p>
+          </div>
+        </div>
+        <p class="sec-lead">原海报底部直接摆出了「净单人镜头（Clean）VS 脏单人镜头（Dirty）」的对照。按前景肩背切入画框的多少，单人对话覆盖其实落在一条三档刻度上：从完全清空的净单人，到恰当擦边的脏单人，再到大幅压肩的过肩构图。</p>
+      </header>
+
+      <div class="wipe-deck">
+        <div class="wipe-stage-wrap">
+          <div class="wipe-stage" id="wipe-stage">
+            <canvas id="wipe-canvas" class="wipe-canvas" aria-label="净单人与脏单人及过肩构图拉帘对照画布"></canvas>
+            <div class="wipe-divider" id="wipe-divider" style="left: 42%;" aria-hidden="true">
+              <span class="wipe-knob" lang="en">VS</span>
+            </div>
+            <input
+              type="range"
+              id="wipe-range"
+              class="wipe-range"
+              min="8"
+              max="92"
+              value="42"
+              aria-label="左右拖动对比拉帘，对照左侧目标镜头与右侧 308 净单人基准"
+            >
+          </div>
+          <div class="wipe-labels">
+            <span id="wipe-left-label">左：309 脏单人镜头（Dirty · 左侧肩头入画）</span>
+            <span>右：308 净单人基准（Clean · 无前景）</span>
+          </div>
+        </div>
+
+        <div class="scale-bar" role="group" aria-label="切换右侧对照档位（三条遮挡刻度）">
+          <button type="button" class="scale-stop" data-stop="clean" aria-pressed="false">
+            <span class="stop-no" lang="en">308</span>
+            <strong>净单人镜头</strong>
+            <span>0% 前景 · 纯净孤立</span>
+          </button>
+          <button type="button" class="scale-stop" data-stop="dirty" aria-pressed="true">
+            <span class="stop-no" lang="en">309</span>
+            <strong>脏单人镜头</strong>
+            <span>擦边可辨 · 视线留开</span>
+          </button>
+          <button type="button" class="scale-stop" data-stop="ots" aria-pressed="false">
+            <span class="stop-no" lang="en">305</span>
+            <strong>过肩构图</strong>
+            <span>深肩近压 · 双人对峙</span>
+          </button>
+        </div>
+
+        <div class="wipe-readout" id="wipe-readout" aria-live="polite">
+          <p class="wr-title" id="wr-title">308 净单人 VS 309 脏单人：保留人物孤立聚焦，同时悄悄锚定对面有人</p>
+          <p class="wr-body" id="wr-body">原海报写「净单人：信息直接，层次较少；脏单人：层次丰富，关系明确，氛围更强」。往左拉开拉帘可见：只要把同伴的肩线与后脑拐点轻轻带进主角朝向的左缘，情绪依然归主角所有，但空间立刻从一张平面证件照变成了正在发生的对话现场。查看专页：<a href="https://layout.xiaoxiaodong.ai/308/play/" target="_blank" rel="noopener">308 净单人镜头</a> · <a href="https://layout.xiaoxiaodong.ai/305/play/" target="_blank" rel="noopener">305 过肩构图</a>。</p>
+        </div>
+
+        <aside class="pov-note" aria-label="视角维度补充">
+          <h3>不在这条遮挡刻度上的两类镜头 <span lang="en">DIFFERENT AXIS · CAMERA STANCE</span></h3>
+          <p>同一小类里的另外两张海报讲的是「镜头站在谁的眼睛里」，和前景遮多少不是同一把尺子，所以不放进上面的三档拉帘：</p>
+          <ul>
+            <li><a href="https://layout.xiaoxiaodong.ai/306/play/" target="_blank" rel="noopener">306 主观视角构图</a>：镜头直接替代角色的眼睛，呈现角色第一人称所见，解决的是视点代入而非前景裁切。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/307/play/" target="_blank" rel="noopener">307 客观视角构图</a>：镜头退作中立旁观者，以相对抽离的第三方视点记录事件与空间关系。</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 节：暗橄榄绿墙 -->
+  <section class="sec sec-olive" id="sec-03" aria-labelledby="h-03">
+    <div class="wrap">
+      <header class="sec-head wide-head">
+        <div class="head-line">
+          <p class="sec-no" lang="en">03</p>
+          <div>
+            <h2 id="h-03">脏单人从哪来</h2>
+            <p class="sec-en" lang="en">History &amp; Textbook Lineage</p>
+          </div>
+        </div>
+        <p class="sec-lead">「脏单人」不是哪位大师一夜发明的招式，而是随着正反打覆盖与纵深场面调度一起长出来的片场习惯，后来被写进摄影教材的术语词典。</p>
+      </header>
+
+      <div class="filmstrip-deck">
+        <div class="sprockets" aria-hidden="true"></div>
+        <div class="reel-row" role="tablist" aria-label="选择历史阶段胶片格">
+          <button type="button" class="reel-frame" role="tab" data-era="0" aria-selected="true">
+            <span class="rf-yr" lang="en">1910s–1920s</span>
+            <strong>连续性与正反打成型</strong>
+          </button>
+          <button type="button" class="reel-frame" role="tab" data-era="1" aria-selected="false">
+            <span class="rf-yr" lang="en">1910s &amp; 1940s</span>
+            <strong>欧洲纵深与深焦调度</strong>
+          </button>
+          <button type="button" class="reel-frame" role="tab" data-era="2" aria-selected="false">
+            <span class="rf-yr" lang="en">1965 &amp; 1991</span>
+            <strong>构图层次与俯拍走位</strong>
+          </button>
+          <button type="button" class="reel-frame" role="tab" data-era="3" aria-selected="false">
+            <span class="rf-yr" lang="en">1998–2024</span>
+            <strong>教材词典与当代紧切</strong>
+          </button>
+        </div>
+        <div class="sprockets" aria-hidden="true"></div>
+
+        <div class="era-stage">
+          <div class="era-visual">
+            <canvas id="era-canvas" class="era-canvas" aria-label="对应历史阶段的构图与机位示意图"></canvas>
+            <div class="era-stepper">
+              <button type="button" class="mini-btn" id="era-prev">← 上一格</button>
+              <span class="era-counter" id="era-counter" lang="en">FRAME 01 / 04</span>
+              <button type="button" class="mini-btn" id="era-next">下一格 →</button>
+            </div>
+          </div>
+          <div class="era-copy" aria-live="polite">
+            <p class="era-kicker" id="era-kicker">1910s–1920s · 经典好莱坞正反打体系</p>
+            <h3 class="era-title" id="era-title">从单镜全景拆成对话正反打，单人镜头有了空间搭扣</h3>
+            <p class="era-body" id="era-body">大卫·波德维尔（David Bordwell）、珍妮特·斯泰格与克里斯汀·汤普森在《经典好莱坞电影》（The Classical Hollywood Cinema，1985，Routledge）中考据，1910 至 1920 年代好莱坞逐步确立了 180 度轴线、视线匹配与正反打（shot/reverse-shot）覆盖规范。当一场对话被拆成来回切换的单人镜头时，把对手的肩背擦边留在前景，就成了维系双方空间方向的天然搭扣。</p>
+            <p class="era-source" id="era-source">出处核实：David Bordwell, Janet Staiger &amp; Kristin Thompson, The Classical Hollywood Cinema (Routledge, 1985)。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 节：深暗室墨绿 -->
+  <section class="sec sec-dark" id="sec-04" aria-labelledby="h-04">
+    <div class="wrap two-col">
+      <header class="sec-head sticky-head">
+        <p class="sec-no" lang="en">04</p>
+        <h2 id="h-04">换一件前景，换一段故事</h2>
+        <p class="sec-en" lang="en">One Subject, Four Subtexts</p>
+        <p class="sec-lead">中景主角和背景窗光一像素不动，只换掉左侧画缘那一块虚焦暗影，观众脑补的剧情就会完全改写——这就是原海报说「有遮挡、有关系、有故事」的真正落点。</p>
+      </header>
+
+      <div class="sec-body">
+        <div class="prop-monitor-wrap">
+          <canvas id="prop-canvas" class="monitor-canvas" aria-label="不同前景道具对画面潜台词的影响演示"></canvas>
+        </div>
+
+        <div class="prop-cards" role="group" aria-label="切换四种前景道具">
+          <button type="button" class="prop-card" data-prop="companion" aria-pressed="true">
+            <span class="prop-term" lang="en">DIRTY SINGLE</span>
+            <strong>同伴肩影</strong>
+            <span>狭义脏单人 · 正在对话</span>
+          </button>
+          <button type="button" class="prop-card" data-prop="doorframe" aria-pressed="false">
+            <span class="prop-term" lang="en">DOORFRAME</span>
+            <strong>半掩门框</strong>
+            <span>隔门窥视 · 心理隔阂</span>
+          </button>
+          <button type="button" class="prop-card" data-prop="foliage" aria-pressed="false">
+            <span class="prop-term" lang="en">FOLIAGE</span>
+            <strong>垂落枝叶</strong>
+            <span>庭院呼吸 · 私密旁观</span>
+          </button>
+          <button type="button" class="prop-card" data-prop="glass-rail" aria-pressed="false">
+            <span class="prop-term" lang="en">GLASS &amp; RAIL</span>
+            <strong>酒杯与栏杆</strong>
+            <span>喧闹边缘 · 公共孤立</span>
+          </button>
+        </div>
+
+        <div class="subtext-panel" aria-live="polite">
+          <div>
+            <span class="st-label">观众脑补的潜台词</span>
+            <p class="st-main" id="prop-subtext">「对面正坐着一个人听他把话说完——虽然对方没露正脸，但这场谈话是双向的。」</p>
+          </div>
+          <div>
+            <span class="st-label">空间心理与用法</span>
+            <p class="st-note" id="prop-usage">狭义的 dirty single：最适合双人密谈、谈判或情感摊牌，既保住主角情绪浓度，又让观众时刻记住听者的存在。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 节：暖米剧照纸 -->
+  <section class="sec sec-paper" id="sec-05" aria-labelledby="h-05">
+    <div class="wrap two-col">
+      <header class="sec-head sticky-head">
+        <p class="sec-no" lang="en">05</p>
+        <h2 id="h-05">焦段一换，前景就变脸</h2>
+        <p class="sec-en" lang="en">Focal Length &amp; Depth Compression</p>
+        <p class="sec-lead">保持中景主角在画框里一样大，换长焦退远拍还是换广角贴近拍？焦距和前后景间距一起决定了前景究竟是「温柔暗框」还是「逼脸硬墙」。</p>
+      </header>
+
+      <div class="sec-body">
+        <div class="lens-stage-grid">
+          <div class="lens-frame-wrap">
+            <canvas id="lens-canvas" class="monitor-canvas" aria-label="焦段与前景间距实时光学模拟画布"></canvas>
+          </div>
+          <div class="lens-side-wrap">
+            <canvas id="lens-diagram" class="lens-diagram" aria-label="侧视光学与机位退远示意图"></canvas>
+          </div>
+        </div>
+
+        <div class="sliders-box">
+          <div class="slider-item">
+            <div class="slider-top">
+              <label for="sl-focal">等效焦距（自动移机保持主角等大）</label>
+              <span class="slider-val num" id="val-focal">50 mm</span>
+            </div>
+            <input type="range" id="sl-focal" min="24" max="100" step="1" value="50">
+            <div class="slider-ticks" lang="en"><span>24mm 广角贴近</span><span>50mm 标准</span><span>85–100mm 长焦退远</span></div>
+          </div>
+
+          <div class="slider-item">
+            <div class="slider-top">
+              <label for="sl-dist">前景同伴距主角的距离</label>
+              <span class="slider-val num" id="val-dist">1.35 m</span>
+            </div>
+            <input type="range" id="sl-dist" min="0.70" max="2.10" step="0.05" value="1.35">
+            <div class="slider-ticks"><span>0.7m 紧挨主角（偏实）</span><span>1.35m 隔桌</span><span>2.1m 贴近镜头（极柔）</span></div>
+          </div>
+        </div>
+
+        <div class="lens-readout" aria-live="polite">
+          <p class="lr-metrics">摄影机距主角 <b class="num" id="lr-camdist">2.48 m</b> · 前景弥散圆（示意）<b class="num" id="lr-blur">柔和中度</b> · 背景放大率 <b class="num" id="lr-comp">1.00×</b></p>
+          <p class="lr-why" id="lr-why">50mm 标头最接近自然人眼透视：窗格比例克制，前景同伴与主角隔着一张咖啡桌的距离，f/2.8 下前景化开又不至于散成一团黑雾。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 节：深暗室红线警戒板 -->
+  <section class="sec sec-warn" id="sec-06" aria-labelledby="h-06">
+    <div class="wrap">
+      <header class="sec-head wide-head">
+        <div class="head-line">
+          <p class="sec-no" lang="en">06</p>
+          <div>
+            <h2 id="h-06">什么时候别把画面弄脏</h2>
+            <p class="sec-en" lang="en">When to Stay Clean</p>
+          </div>
+        </div>
+        <p class="sec-lead">原海报说脏单人「层次丰富、氛围更强」，但这不代表它处处高于 <a href="https://layout.xiaoxiaodong.ai/308/play/" target="_blank" rel="noopener">308 净单人镜头</a>。前景每多留一块晃动的身体，剪辑台就多一份穿帮风险；情绪要彻底孤立时，留着别人肩膀反而帮倒忙。</p>
+      </header>
+
+      <div class="edit-deck">
+        <div class="edit-screen-wrap">
+          <canvas id="edit-canvas" class="monitor-canvas" aria-label="正反打剪辑台跳帧穿帮实测画布"></canvas>
+          <div class="edit-bar">
+            <div class="edit-btns">
+              <button type="button" class="action-btn" id="edit-cut">手动切镜 A ↔ B</button>
+              <button type="button" class="mini-btn" id="edit-play" aria-pressed="false">自动连切：关</button>
+            </div>
+            <div class="edit-checks">
+              <label class="chk-pill"><input type="checkbox" id="edit-jitter" checked><span>前景姿态微移（制造穿帮）</span></label>
+              <label class="chk-pill"><input type="checkbox" id="edit-clean"><span>切回 308 净单人救场</span></label>
+            </div>
+          </div>
+          <p class="edit-readout" id="edit-readout" aria-live="polite">当前：正反打带前景肩影 + 姿态微移。点「手动切镜」或开连切，观察每次切回 A 镜时，左缘前景肩头怎样发生生硬跳位穿帮；勾选「切回 308 净单人救场」后，剪辑立刻顺滑。</p>
+        </div>
+
+        <ol class="pitfall-grid">
+          <li class="pf-card">
+            <span class="pf-num" lang="en">01</span>
+            <h3>情绪彻底孤立或决裂</h3>
+            <p>主角刚听到噩耗、陷入独白或决意离开——此时需要把他人痕迹从画框里彻底清空，改用 <a href="https://layout.xiaoxiaodong.ai/308/play/" target="_blank" rel="noopener">308 净单人镜头</a>，孤独感才会瞬间成立。</p>
+          </li>
+          <li class="pf-card">
+            <span class="pf-num" lang="en">02</span>
+            <h3>高频正反打的动作穿帮</h3>
+            <p>前景角色只要轻轻点头、端杯或耸肩，剪辑师在两段最佳表演间拼接时，前景黑肩就会突然瞬移跳帧，逼迫剪辑放弃更好的台词条。</p>
+          </li>
+          <li class="pf-card">
+            <span class="pf-num" lang="en">03</span>
+            <h3>亮色或晃动前景反客为主</h3>
+            <p>脏单人依赖前景「暗、静、虚」三件事。如果前景挂着高光反光玻璃、高饱和色块或频繁走动的路人，眼睛会被直接吸走。</p>
+          </li>
+          <li class="pf-card">
+            <span class="pf-num" lang="en">04</span>
+            <h3>初次交代空间或关键动作</h3>
+            <p>角色刚登场或手上在做推进剧情的关键动作时，先给干净无挡的视野，等观众认清人与动作，再推进带前景的近景脏单人。</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 节：暗橄榄绿墙 · 小练习 -->
+  <section class="sec sec-olive" id="sec-07" aria-labelledby="h-07">
+    <div class="wrap">
+      <header class="sec-head wide-head">
+        <div class="head-line">
+          <p class="sec-no" lang="en">07</p>
+          <div>
+            <h2 id="h-07">小练习：哪一帧脏得刚刚好</h2>
+            <p class="sec-en" lang="en">Practice · Same 20% Area, Four Placements</p>
+          </div>
+        </div>
+        <p class="sec-lead">同一场窗边对话，固定 50mm、f/2.0 浅景深，且<strong>四帧的前景覆盖面积都约 20%–21%（示意）</strong>，没法靠「猜中间值」蒙混过关。只看机位横移造成的同伴入画位置，哪一帧同时满足三条几何条件？（支持键盘按 1–4 选帧）</p>
+      </header>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四帧候选取景">
+        <button type="button" class="quiz-card" data-choice="A" aria-pressed="false">
+          <canvas class="quiz-canvas" data-quiz="A" aria-hidden="true"></canvas>
+          <span class="quiz-foot"><strong class="quiz-label">帧 A</strong><span class="quiz-stat" data-stat="A">按键 1</span></span>
+        </button>
+        <button type="button" class="quiz-card" data-choice="B" aria-pressed="false">
+          <canvas class="quiz-canvas" data-quiz="B" aria-hidden="true"></canvas>
+          <span class="quiz-foot"><strong class="quiz-label">帧 B</strong><span class="quiz-stat" data-stat="B">按键 2</span></span>
+        </button>
+        <button type="button" class="quiz-card" data-choice="C" aria-pressed="false">
+          <canvas class="quiz-canvas" data-quiz="C" aria-hidden="true"></canvas>
+          <span class="quiz-foot"><strong class="quiz-label">帧 C</strong><span class="quiz-stat" data-stat="C">按键 3</span></span>
+        </button>
+        <button type="button" class="quiz-card" data-choice="D" aria-pressed="false">
+          <canvas class="quiz-canvas" data-quiz="D" aria-hidden="true"></canvas>
+          <span class="quiz-foot"><strong class="quiz-label">帧 D</strong><span class="quiz-stat" data-stat="D">按键 4</span></span>
+        </button>
+      </div>
+
+      <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+        <div class="qv-top">
+          <p class="qv-title" id="qv-title">先凭眼力点选一帧。</p>
+          <button type="button" class="mini-btn" id="quiz-reset" hidden>重做一次</button>
+        </div>
+        <p class="qv-text" id="qv-text">选完后，四帧都会调用与开场相同的几何模型，同步叠绘视线走廊、肩头与后脑轮廓辨认线，以及实算的前景面积（示意）。</p>
+        <ul class="qv-breakdown" id="qv-breakdown" hidden></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 节：深暗室墨绿 · 原海报与关键词 -->
+  <section class="sec sec-dark sec-poster" id="sec-08" aria-labelledby="h-08">
+    <div class="wrap poster-layout">
+      <header class="sec-head sticky-head">
+        <p class="sec-no" lang="en">08</p>
+        <h2 id="h-08">原海报与关键词</h2>
+        <p class="sec-en" lang="en">Original Poster &amp; Keywords</p>
+        <p class="sec-lead">点击海报可放大并拖动细看原版构图、文字要点与底栏对照；按 Esc 或再点空白处收起。</p>
+
+        <div class="kw-block">
+          <h3 class="kw-heading">海报关键词 <span lang="en">KEYWORDS</span></h3>
+          <ul class="kw-list">
+            <li>
+              <svg viewBox="0 0 36 36" aria-hidden="true"><rect x="4" y="6" width="28" height="24" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="15" r="4"/><path d="M12 26c0-3.5 2.7-5.5 6-5.5s6 2 6 5.5z"/></svg>
+              <div><b>主体清晰</b><span lang="en">CLEAR SUBJECT</span></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 36 36" aria-hidden="true"><rect x="4" y="6" width="28" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/><rect x="9" y="10" width="18" height="16" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="8" height="8" fill="currentColor"/></svg>
+              <div><b>空间延伸</b><span lang="en">DEPTH EXTENSION</span></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 36 36" aria-hidden="true"><rect x="4" y="6" width="28" height="24" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 6h10v24H4z" fill="currentColor"/></svg>
+              <div><b>前景遮挡</b><span lang="en">FOREGROUND OBSTRUCTION</span></div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="siblings-box">
+          <h3 class="kw-heading">同小类索引 <span lang="en">305–309 COVERAGE</span></h3>
+          <ul class="sib-list">
+            <li><a href="https://layout.xiaoxiaodong.ai/305/play/" target="_blank" rel="noopener"><span lang="en">305</span> 过肩构图</a><span>深肩锁双人</span></li>
+            <li><a href="https://layout.xiaoxiaodong.ai/306/play/" target="_blank" rel="noopener"><span lang="en">306</span> 主观视角构图</a><span>镜头即角色双眼</span></li>
+            <li><a href="https://layout.xiaoxiaodong.ai/307/play/" target="_blank" rel="noopener"><span lang="en">307</span> 客观视角构图</a><span>中立第三方旁观</span></li>
+            <li><a href="https://layout.xiaoxiaodong.ai/308/play/" target="_blank" rel="noopener"><span lang="en">308</span> 净单人镜头</a><span>无前景纯净独人</span></li>
+            <li class="is-current"><span class="cur-tag"><span lang="en">309</span> 脏单人镜头</span><span>本页 · 擦边前景层次</span></li>
+          </ul>
+        </div>
+      </header>
+
+      <figure class="poster-fig" id="poster-fig">
+        <button type="button" class="poster-btn" id="poster-btn" aria-expanded="false" aria-label="点击放大 309 脏单人镜头原海报">
+          <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="309 脏单人镜头原海报：暗橄榄底色与窗边咖啡馆剪影，左侧五条要点，右侧大片虚焦暗前景，底部为净单人与脏单人对比以及珊瑚红收口条。">
+        </button>
+        <figcaption>点按放大查看细节，放大后可拖拽平移，再点一次或按 Esc 收起。</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<!-- 全屏灯箱 -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报放大查看">
+  <div class="lb-bar">
+    <span class="lb-hint">拖动平移 · 滚轮或按钮缩放 · 按 Esc 关闭</span>
+    <div class="lb-btns">
+      <button type="button" class="mini-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+      <span class="lb-scale num" id="lb-scale">100%</span>
+      <button type="button" class="mini-btn" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="mini-btn" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lb-viewport">
+    <img id="lb-img" alt="309 脏单人镜头原海报放大视图" draggable="false">
+  </div>
+</div>
+
+<div class="coral-ribbon" aria-hidden="true">
+  <div class="wrap ribbon-inner">
+    <div class="ribbon-left">
+      <span class="vf-icon"><i></i><i></i><i></i><i></i></span>
+      <span class="ribbon-zh">让画面更真实，让故事更动人。</span>
+      <span class="ribbon-en" lang="en">MORE REAL. MORE STORY.</span>
+    </div>
+    <div class="ribbon-dots"><b></b><b></b><b></b></div>
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p><span lang="en" class="num">No. 309</span> 脏单人镜头 · 350 种排版</p>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/309/play/" target="_blank" rel="noopener">在线版</a> /
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
