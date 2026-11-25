@@ -111,6 +111,54 @@ const glCanvases = (b) =>
   })`);
 const readable = (b) => b.js(`document.body.innerText.replace(/\\s+/g, "").length`);
 
+// 审稿里最常见、机器量得出来的版面毛病（滚完整页、动画都放完后量）：
+//   文字被裁掉（overflow:hidden/clip 里装不下）、标题断成 4 行以上、字号小于 10px、
+//   文字和底色对比度低于 3（24px 以上的大字低于 2；底下有图片或画布的跳过）、整段字透明度低于 0.45。
+const layoutLint = (b) =>
+  b.js(`(() => {
+    const out = { clipped: [], lines: [], tiny: [], contrast: [] };
+    const name = (el) => el.tagName.toLowerCase() + (el.className && typeof el.className === "string" ? "." + el.className.trim().split(/\\s+/)[0] : "") + "「" + el.textContent.trim().replace(/\\s+/g, " ").slice(0, 14) + "」";
+    const visible = (el, cs) => cs.display !== "none" && cs.visibility !== "hidden" && el.getClientRects().length && !el.closest("[hidden],[aria-hidden=true],[inert],dialog:not([open]),[popover]:not(:popover-open)");
+    const rgb = (s) => { const m = s.match(/[\\d.]+/g); return m ? m.map(Number) : null; };
+    const lum = ([r, g, b]) => { const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+    function backdrop(el) {
+      for (let e = el; e; e = e.parentElement) {
+        const cs = getComputedStyle(e);
+        if (cs.backgroundImage !== "none" || /^(CANVAS|IMG|SVG|VIDEO)$/i.test(e.tagName)) return null;
+        const c = rgb(cs.backgroundColor);
+        if (c && (c[3] ?? 1) > 0.9) return c;
+        if (c && (c[3] ?? 1) > 0.05) return null; // 半透明叠色，量不准
+      }
+      return [255, 255, 255];
+    }
+    function alpha(el) { let a = 1; for (let e = el; e; e = e.parentElement) a *= Number(getComputedStyle(e).opacity); return a; }
+    for (const el of document.querySelectorAll("body *")) {
+      if (/^(SCRIPT|STYLE|SVG|CANVAS|NOSCRIPT|OPTION)$/i.test(el.tagName) || el.closest("svg")) continue;
+      const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1);
+      if (!own) continue;
+      const cs = getComputedStyle(el);
+      if (!visible(el, cs)) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < 4 || r.height < 4) continue;
+      const a = alpha(el);
+      if (a < 0.05) continue; // 还没出场的，不算
+      const clips = /hidden|clip/.test(cs.overflowX + cs.overflowY);
+      if (clips && cs.textOverflow !== "ellipsis" && (el.scrollWidth > el.clientWidth + 2 || el.scrollHeight > el.clientHeight + 2)) out.clipped.push(name(el));
+      if (/^H[12]$/.test(el.tagName)) { const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2; const n = Math.round(r.height / lh); if (n >= 4) out.lines.push(name(el) + " " + n + " 行"); }
+      if (parseFloat(cs.fontSize) < 10) out.tiny.push(name(el) + " " + cs.fontSize);
+      const fg = rgb(cs.webkitTextFillColor || cs.color), bg = backdrop(el);
+      if (a < 0.45) out.contrast.push(name(el) + " 透明度 " + a.toFixed(2));
+      else if (fg && bg && (fg[3] ?? 1) > 0.5) { // 镂空、描边字跳过 const L1 = lum(fg), L2 = lum(bg); const ratio = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05); if (ratio < (parseFloat(cs.fontSize) >= 24 ? 2 : 3)) out.contrast.push(name(el) + " 对比度 " + ratio.toFixed(1)); }
+    }
+    return out;
+  })()`);
+const lintIssues = (l) => [
+  l.clipped.length && `文字被裁掉 ${l.clipped.length} 处：${l.clipped.slice(0, 3).join("、")}`,
+  l.lines.length && `大标题断成 4 行以上：${l.lines.slice(0, 3).join("、")}`,
+  l.tiny.length && `字号小于 10px ${l.tiny.length} 处：${l.tiny.slice(0, 3).join("、")}`,
+  l.contrast.length && `文字看不清 ${l.contrast.length} 处：${l.contrast.slice(0, 3).join("、")}`,
+].filter(Boolean);
+
 // 一屏一屏往下滚，每屏等 CSS 动画、过渡走完（最多 1.5 秒）再截；最后停在页底，和 scrollThrough 一样
 async function tour(b, name) {
   const { max, ih } = await b.js(`({ max: document.scrollingElement.scrollHeight - innerHeight, ih: innerHeight })`);
@@ -146,6 +194,9 @@ async function visit(b, file, view, { reduced = false, name, tourName, webgl = t
   if (broken.length) issues.push(`字体解不开：${broken.join("、")}`);
   const chars = await readable(b);
   if (chars < 20) issues.push(`看得见的字只有 ${chars} 个`);
+  const lint = lintIssues(await layoutLint(b));
+  if (process.env.LINT === "report") { if (lint.length) console.log(`[lint] ${name}\n  ${lint.join("\n  ")}`); }
+  else issues.push(...lint);
   issues.push(...b.page.problems);
   return { issues, gl: gl.length };
 }

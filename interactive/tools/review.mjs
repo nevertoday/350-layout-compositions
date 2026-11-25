@@ -41,6 +41,29 @@ revise 时 points 最多 6 条，按重要性排，每条写清：在哪（第�
   return ["-p", prompt, "--model", "opus", "--allowedTools", "Read", "Glob", "Grep", "--output-format", "text"];
 }
 
+// 方案审：页面还没写，只看 PLAN.md 和 page.json 的 concept
+export function planReviewArgs(id) {
+  const dir = readdirSync(join(ROOT, "pages")).find((d) => d.startsWith(`${id}-`));
+  const prompt = `你是这套「350 种排版 · 互动版」的主编。${id} 这一页还没开始写代码，作者（另一个模型）先交了方案，你的意见会原样交给它。
+
+读 ${join(ROOT, "BRIEF.md")}，看原海报 ${join(ROOT, "pages", dir, "poster.webp")}，读方案 ${join(ROOT, "pages", dir, "PLAN.md")} 和 ${join(ROOT, "pages", dir, "page.json")}。
+${context(id)}
+挑三四页的 1440 截图看一眼。
+
+只看构思层面的事（版面细节等做出来再审）：
+- 开场玩法是不是从这一种排版本身的动作来、和最近的页明显不同（换皮不算不同）；一打开是不是已经把答案摆好、用户没事可做。
+- 读数准备说什么「为什么」；同一个数值是不是只有一个来源（读数、正文、按钮不会各说各的）。
+- 版式骨架：1440、390、844×390 各怎么排，会不会宽屏主体太小、窄屏被压扁、两栏一边先结束留大块空白。
+- 配色和母题是不是从海报来；字体有没有一款最近没用过。
+- 节目录：有没有「从哪来」「什么时候别用」；来源是不是具体可查（人名、书名、年份、网址），有没有看着就可疑的年份或说法。
+- 练习：选项标签有没有泄露答案，四个选项是不是只差一个变量、真要想一下。
+
+方案能用就放行；有问题就写清改什么、改成什么。最后一行只输出一个 JSON（不要代码块）：
+{"verdict":"pass" 或 "revise","points":["……"]}
+points 最多 5 条。`;
+  return ["-p", prompt, "--model", "opus", "--allowedTools", "Read", "Glob", "Grep", "--output-format", "text"];
+}
+
 export function verdict(out) {
   // 意见里常有 CSS 的 { }，不能用正则配括号：从最后一个 {"verdict" 起，往后逐个 } 试着 JSON.parse
   const at = out.lastIndexOf('{"verdict"');

@@ -40,7 +40,7 @@ const ids = catalog.map((c) => c.id).filter((id) => id >= from && id <= to).sort
 const pageDir = (id) => readdirSync(join(ROOT, "pages")).find((d) => d.startsWith(`${id}-`));
 const committed = (id) => execFileSync("git", ["ls-files", "--", `pages/${id}-*/index.html`], { cwd: ROOT }).toString().trim() !== "";
 
-async function prompt(id, retry) {
+async function prompt(id, retry, stage = "build") {
   const { context } = await import(`./gate.mjs?${Date.now()}`);
   const c = byId.get(id), t = text[id];
   const peers = catalog.filter((p) => p.subcategory_slug === c.subcategory_slug && p.id !== id).map((p) => `${p.id} ${p.name}`).join("、");
@@ -50,7 +50,11 @@ async function prompt(id, retry) {
     t.summary ? `海报上的总述：${t.summary.replace(/\s+/g, " ")}` : "",
     peers ? `同一小类的其他编号（各有一页，不要重讲它们的重点；提到时一句话链接到 https://layout.xiaoxiaodong.ai/<编号>/play/）：${peers}。` : "",
     context(id),
-    retry?.review
+    stage === "plan"
+      ? `\n这一步只出方案，不写页面代码、不 build：先 npm run new -- ${id}，再照 BRIEF「先写方案」写 pages/<编号>-*/PLAN.md，并把 concept 写进 page.json。主编看过方案才开始做页面。`
+      : retry?.plan
+      ? `\n方案已经写在 pages/${pageDir(id)}/PLAN.md。主编看过方案，意见如下；先按意见改好 PLAN.md，再照方案把整页做完：\n${retry.tail}`
+      : retry?.review
       ? `\n这一页已经做出来了，在 pages/${pageDir(id)}/。${retry.reason}，下面是主编的意见。逐条改好（改不了的在报告里说明为什么），不要从零重写；改完照 BRIEF 的「做完的标准」重新 build、check、看截图、跑交互脚本和 perf：\n${retry.tail}`
       : retry ? `\n这一页上次没有做完：${retry.reason}。pages/${pageDir(id) ?? `${id}-*`}/ 里是上次留下的东西，先看懂再接着做完，不要从零重写能用的部分。上次检查输出的最后几行：\n${retry.tail}` : "",
     `做完写报告，最后一行写「完成」。`,
@@ -149,6 +153,20 @@ async function makePage(id) {
   if (!revisit && pageDir(id)) retry = { reason: "上一轮批量被打断了", tail: "（没有检查输出）" };
   const notes = [];
   if (revisit) log(`${id} 回头查（新规矩之前提交的）`);
+  // 新页先出方案、过主编这一关再动手：构思上的问题（玩法撞车、答案先给、练习太易）在这里改最便宜
+  if (!revisit && !pageDir(id) && !stopped()) {
+    await roomToRun();
+    log(`${id} 先写方案`);
+    await run(AGY, ["-p", await prompt(id, null, "plan"), "--model", MODEL, "--dangerously-skip-permissions", "--disable-slash-commands"], { ms: 25 * 60_000, file: join(OUT, `${id}-plan.log`) });
+    if (pageDir(id) && existsSync(join(ROOT, "pages", pageDir(id), "PLAN.md"))) {
+      const { planReviewArgs, verdict } = await import(`./review.mjs?${Date.now()}`);
+      const r = await run(CLAUDE, planReviewArgs(id), { ms: 15 * 60_000, file: join(OUT, `${id}-planreview.log`) });
+      const v = r.code === 0 ? verdict(r.out) : { pass: true, points: [] };
+      log(`${id} 方案${v.pass ? "通过" : `要改 ${v.points.length} 条`}${v.points[0] ? `：${v.points[0].slice(0, 50)}…` : ""}`);
+      notes.push(...v.points.map((p) => `方案：${p}`));
+      retry = { plan: true, tail: v.points.length ? v.points.map((p, i) => `${i + 1}. ${p}`).join("\n") : "（方案通过，没有意见，照方案做）" };
+    } else log(`${id} 没写出 PLAN.md，直接做页面`);
+  }
   for (let attempt = 1; attempt <= ATTEMPTS; ) {
     if (stopped()) return;
     await roomToRun();
@@ -163,7 +181,7 @@ async function makePage(id) {
     const authored = !skipAuthor;
     if (skipAuthor) { skipAuthor = false; attempt--; }
     // 三分钟内就退出、连目录都没有：多半是额度、网络，不算一次，歇一会儿再来
-    if (authored && !a.timedOut && minutes < 3 && (!pageDir(id) || retry?.review)) {
+    if (authored && !a.timedOut && minutes < 3 && (!pageDir(id) || retry?.review || retry?.plan)) {
       if (++flaky > 6) { log(`${id} agy 一直起不来，跳过：${tail(a.out, 2)}`); record({ id, ok: false, why: "agy" }); return; }
       log(`${id} agy ${minutes} 分钟就退出了，歇 10 分钟：${tail(a.out, 2).replace(/\n/g, " | ")}`);
       await sleep(10 * 60_000);
