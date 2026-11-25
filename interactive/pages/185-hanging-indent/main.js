@@ -1,94 +1,186 @@
 import { reducedMotion } from "../../lib/stage.js";
 import { createHero } from "./hero.js";
 import {
-  initAnatomyLab,
-  initCalibratorLab,
   initCodeLab,
+  initFinderLab,
   initLightbox,
+  initMeasureLab,
   initMismatchLab,
   initQuiz,
   initReveal,
   initStructLab,
 } from "./labs.js";
-import { evaluateIndent, fmtEm, INDENT_MAX, INDENT_MIN, PRESETS, snapIndent, uToIndent } from "./model.js";
+import {
+  clamp,
+  evaluateDualIndent,
+  fmtEm,
+  fmtPos,
+  PRESETS,
+  round1,
+  RULER_MAX_EM,
+  RULER_MIN_EM,
+  snapFirstMarker,
+  snapRestMarker,
+} from "./model.js";
 
 const $ = (id) => document.getElementById(id);
+const setTextIf = (el, txt) => {
+  if (el.textContent !== txt) el.textContent = txt;
+};
+let lastReadoutKey = "";
 if (!reducedMotion.matches) document.documentElement.classList.add("motion");
 
 const state = {
   preset: "poster",
-  indent: PRESETS.poster.sweet,
-  snapped: true,
+  firstEm: 0.0,
+  restEm: PRESETS.poster.normHangEm,
   showGrid: true,
-  dragging: false,
+  dragging: null, // "first" | "rest" | null
   userTouched: false,
+  autoAligned: true,
 };
 
 const stage = $("stage");
 const canvas = $("hero-canvas");
-const handle = $("hero-handle");
-const handleVal = $("handle-val");
-const range = $("hero-range");
+const handleFirst = $("handle-first");
+const handleRest = $("handle-rest");
+const motifGhost = $("motif-ghost");
+const motifSolid = $("motif-solid");
 
-let trackGeom = { x: 160, y: 58, x0: 40, x1: 280 };
+let geom = {
+  firstX: 48,
+  restX: 120,
+  railTopY: 38,
+  railBotY: 82,
+  scaleTopY: 50,
+  scaleBotY: 70,
+  rulerBottom: 94,
+  zeroX: 48,
+  emPx: 18,
+  maxMarkerEm: RULER_MAX_EM,
+  metrics: { headEndEm: 3.1, alignEm: 4.1, measureEm: 30, maxMarkerEm: RULER_MAX_EM },
+};
 
-const hero = createHero(canvas, stage, state, (geom) => {
-  trackGeom = geom;
-  handle.style.left = `${geom.x.toFixed(1)}px`;
-  handle.style.top = `${geom.y.toFixed(1)}px`;
+function positionHandles(g) {
+  handleFirst.style.transform = `translate3d(${g.firstX.toFixed(1)}px, ${g.railTopY.toFixed(1)}px, 0) translate(-50%, -50%)`;
+  handleRest.style.transform = `translate3d(${g.restX.toFixed(1)}px, ${g.railBotY.toFixed(1)}px, 0) translate(-50%, -50%)`;
+}
+
+const hero = createHero(canvas, stage, state, (g) => {
+  const alignChanged = Math.abs(g.metrics.alignEm - geom.metrics.alignEm) > 0.04;
+  geom = g;
+  if (state.autoAligned && !state.userTouched && alignChanged) {
+    state.firstEm = 0;
+    state.restEm = g.metrics.alignEm;
+    hero.draw();
+  }
+  positionHandles(g);
+  syncReadoutOnly();
 });
 
-function syncUI() {
-  const ev = evaluateIndent(state.indent, state.preset);
-  const label = fmtEm(state.indent);
+// 初始化时立刻按真实字号测出原海报词头对齐宽度
+{
+  const initM = hero.measurePreset(state.preset);
+  state.firstEm = 0;
+  state.restEm = initM.alignEm;
+  geom.metrics = initM;
+}
 
-  handleVal.textContent = label.replace(" ", "");
-  $("range-out").textContent = label;
-  range.value = state.indent.toFixed(1);
+function syncReadoutOnly() {
+  const m = geom.metrics;
+  const rk = `${state.preset}|${state.firstEm}|${state.restEm}|${state.showGrid}|${state.dragging}|${m.alignEm}|${m.measureEm}`;
+  if (rk === lastReadoutKey) return;
+  lastReadoutKey = rk;
 
-  $("ro-title").textContent = ev.title;
-  $("ro-badge").textContent = ev.badge;
-  $("ro-badge").dataset.status = ev.status;
-  $("ro-text").textContent = ev.text;
-  $("ro-note").textContent = ev.hint;
+  const ev = evaluateDualIndent(state.firstEm, state.restEm, state.preset, m);
+  const hang = round1(state.restEm - state.firstEm);
 
-  handle.classList.toggle("snapped", ev.status === "sweet");
-  handle.classList.toggle("dragging", state.dragging);
-  handle.setAttribute(
+  setTextIf($("val-first"), fmtPos(state.firstEm));
+  setTextIf($("val-rest"), fmtPos(state.restEm));
+  setTextIf($("val-hang"), fmtEm(hang));
+
+  setTextIf($("ro-title"), ev.title);
+  setTextIf($("ro-badge"), ev.badge);
+  if ($("ro-badge").dataset.status !== ev.status) $("ro-badge").dataset.status = ev.status;
+  setTextIf($("ro-text"), ev.text);
+  setTextIf($("ro-note"), ev.hint);
+
+  // 联动刊头右侧原海报双圆母题（实心圆=首行 ▽，虚线圆=续行 △）
+  if (motifSolid && motifGhost) {
+    const baseCx = 27;
+    const dxFirst = clamp(state.firstEm * 2.2, -5, 14);
+    const dxRest = clamp(state.restEm * 2.6, -5, 20);
+    motifSolid.setAttribute("cx", (baseCx + dxFirst).toFixed(1));
+    motifGhost.setAttribute("cx", (baseCx + dxRest).toFixed(1));
+    motifGhost.setAttribute("stroke", hang < 0 ? "#fb665b" : "#c3d142");
+  }
+
+  handleFirst.classList.toggle("dragging", state.dragging === "first");
+  handleRest.classList.toggle("dragging", state.dragging === "rest");
+  handleRest.classList.toggle("snapped", ev.status === "sweet");
+
+  handleFirst.setAttribute(
     "aria-label",
-    `${PRESETS[state.preset].label}，悬挂缩进 ${label}，${ev.badge}。左右拖动或用方向键调节。`
+    `首行缩进游标 ▽：当前 ${fmtPos(state.firstEm)}，悬挂差值 ${fmtEm(hang)}。左右拖动或按方向键调节，按 0 归零。`
+  );
+  handleRest.setAttribute(
+    "aria-label",
+    `左缩进游标 △：当前 ${fmtPos(state.restEm)}，悬挂差值 ${fmtEm(hang)}，${ev.badge}。左右拖动或按方向键调节，按 0 归零。`
   );
   $("btn-grid").setAttribute("aria-pressed", String(state.showGrid));
-
-  hero.draw();
 }
 
-function setIndent(rawEm, useSnap = true) {
+function syncUI(deferCanvas = false) {
+  syncReadoutOnly();
+  if (deferCanvas) {
+    hero.markDirty();
+  } else {
+    hero.fitHeight();
+  }
+}
+
+function setFirstEm(rawEm, useSnap = true, deferCanvas = false) {
   state.userTouched = true;
+  state.autoAligned = false;
+  const maxEm = geom.maxMarkerEm || RULER_MAX_EM;
   const res = useSnap
-    ? snapIndent(state.preset, rawEm)
-    : { em: Math.max(INDENT_MIN, Math.min(INDENT_MAX, Math.round(rawEm * 10) / 10)), snapped: false };
-  state.indent = res.em;
-  state.snapped = res.snapped;
-  syncUI();
+    ? snapFirstMarker(rawEm, state.restEm, maxEm)
+    : { em: round1(clamp(rawEm, RULER_MIN_EM, maxEm)) };
+  if (res.em === state.firstEm && deferCanvas) return;
+  state.firstEm = res.em;
+  syncUI(deferCanvas);
 }
 
-// 样本切换
-$("preset-seg").addEventListener("change", (e) => {
+function setRestEm(rawEm, useSnap = true, deferCanvas = false) {
   state.userTouched = true;
-  state.preset = e.target.value;
-  state.indent = PRESETS[state.preset].sweet;
-  state.snapped = true;
+  state.autoAligned = false;
+  const maxEm = geom.maxMarkerEm || RULER_MAX_EM;
+  const res = useSnap
+    ? snapRestMarker(rawEm, state.firstEm, geom.metrics, maxEm)
+    : { em: round1(clamp(rawEm, RULER_MIN_EM, maxEm)) };
+  if (res.em === state.restEm && deferCanvas) return;
+  state.restEm = res.em;
+  syncUI(deferCanvas);
+}
+
+function snapToBest() {
+  const m = hero.measurePreset(state.preset);
+  geom.metrics = m;
+  state.userTouched = true;
+  state.autoAligned = true;
+  state.firstEm = 0;
+  state.restEm = m.alignEm;
+  hero.fitHeight();
   syncUI();
   hero.triggerScan();
+}
+
+// 样本切换（并入标尺顶栏，切样本即按实测宽度对齐并贴合行数高度）
+$("preset-seg").addEventListener("change", (e) => {
+  state.preset = e.target.value;
+  snapToBest();
 });
 
-// 滑块联动
-range.addEventListener("input", () => {
-  setIndent(parseFloat(range.value), true);
-});
-
-// 舞台工具栏
 $("btn-grid").addEventListener("click", () => {
   state.showGrid = !state.showGrid;
   syncUI();
@@ -97,79 +189,92 @@ $("btn-scan").addEventListener("click", () => {
   hero.triggerScan();
 });
 $("btn-sweet").addEventListener("click", () => {
-  state.userTouched = true;
-  state.indent = PRESETS[state.preset].sweet;
-  state.snapped = true;
-  syncUI();
-  hero.triggerScan();
+  snapToBest();
 });
 
-// 卡尺游标拖动（支持鼠标、触屏；左右连续重绘）
+// 双游标真指针拖动（缓存 rect 避免拖动中强制回流，并将画布重绘并入 rAF）
 let drag = null;
-function emFromClientX(clientX) {
-  const r = stage.getBoundingClientRect();
-  const lx = clientX - r.left;
-  const span = Math.max(40, trackGeom.x1 - trackGeom.x0);
-  const u = (lx - trackGeom.x0) / span;
-  return uToIndent(u);
+function emFromClientX(clientX, rectLeft = null) {
+  const left = rectLeft != null ? rectLeft : stage.getBoundingClientRect().left;
+  const lx = clientX - left;
+  return (lx - geom.zeroX) / Math.max(8, geom.emPx);
 }
 
-handle.addEventListener("pointerdown", (e) => {
-  e.preventDefault();
-  try {
-    handle.setPointerCapture(e.pointerId);
-  } catch {}
-  handle.focus({ preventScroll: true });
-  state.dragging = true;
-  drag = { id: e.pointerId };
-  setIndent(emFromClientX(e.clientX), false);
-});
+function bindHandle(el, which) {
+  el.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    try {
+      el.setPointerCapture(e.pointerId);
+    } catch {}
+    el.focus({ preventScroll: true });
+    state.dragging = which;
+    const rectLeft = stage.getBoundingClientRect().left;
+    drag = { id: e.pointerId, which, rectLeft };
+    const v = emFromClientX(e.clientX, rectLeft);
+    if (which === "first") setFirstEm(v, false, true);
+    else setRestEm(v, false, true);
+  });
+
+  el.addEventListener("lostpointercapture", (e) => endDrag(e));
+
+  el.addEventListener("keydown", (e) => {
+    const step = e.shiftKey ? 0.5 : 0.2;
+    const cur = which === "first" ? state.firstEm : state.restEm;
+    if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+      e.preventDefault();
+      if (which === "first") setFirstEm(cur - step, false);
+      else setRestEm(cur - step, false);
+    } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (which === "first") setFirstEm(cur + step, false);
+      else setRestEm(cur + step, false);
+    } else if (e.key === "0") {
+      e.preventDefault();
+      if (which === "first") setFirstEm(0, false);
+      else setRestEm(0, false);
+    }
+  });
+}
+
 window.addEventListener("pointermove", (e) => {
   if (!drag || e.pointerId !== drag.id) return;
-  setIndent(emFromClientX(e.clientX), false);
+  const v = emFromClientX(e.clientX, drag.rectLeft);
+  if (drag.which === "first") setFirstEm(v, false, true);
+  else setRestEm(v, false, true);
 });
-const endDrag = (e) => {
-  if (!drag || (e.pointerId != null && e.pointerId !== drag.id)) return;
+
+function endDrag(e) {
+  if (!drag || (e && e.pointerId != null && e.pointerId !== drag.id)) return;
+  const which = drag.which;
   drag = null;
-  state.dragging = false;
-  setIndent(state.indent, true);
-};
+  state.dragging = null;
+  if (which === "first") setFirstEm(state.firstEm, true);
+  else setRestEm(state.restEm, true);
+  hero.fitHeight();
+}
+
 window.addEventListener("pointerup", endDrag);
 window.addEventListener("pointercancel", endDrag);
-handle.addEventListener("lostpointercapture", endDrag);
 
-// 点击标尺区域可直接跳到对应刻度
+bindHandle(handleFirst, "first");
+bindHandle(handleRest, "rest");
+
+// 直接点击标尺带：点上半部调 ▽ 首行，点下半部调 △ 左缩进
 canvas.addEventListener("pointerdown", (e) => {
   const r = stage.getBoundingClientRect();
   const ly = e.clientY - r.top;
-  if (Math.abs(ly - trackGeom.y) < 36) {
-    setIndent(emFromClientX(e.clientX), true);
-  }
-});
-
-// 键盘操作游标（左右键每步 0.2em，Shift 0.5em，Home 回推荐区，0 回 0em）
-handle.addEventListener("keydown", (e) => {
-  const step = e.shiftKey ? 0.5 : 0.2;
-  if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
-    e.preventDefault();
-    setIndent(state.indent - step, false);
-  } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
-    e.preventDefault();
-    setIndent(state.indent + step, false);
-  } else if (e.key === "Home") {
-    e.preventDefault();
-    state.indent = PRESETS[state.preset].sweet;
-    state.userTouched = true;
-    syncUI();
-  } else if (e.key === "0") {
-    e.preventDefault();
-    setIndent(0, false);
+  if (ly >= 18 && ly <= geom.rulerBottom + 10) {
+    const midY = (geom.scaleTopY + geom.scaleBotY) * 0.5;
+    const v = emFromClientX(e.clientX);
+    if (ly < midY) setFirstEm(v, true);
+    else setRestEm(v, true);
   }
 });
 
 syncUI();
-initAnatomyLab();
-initCalibratorLab();
+hero.fitHeight();
+initFinderLab();
+initMeasureLab();
 initStructLab();
 initCodeLab();
 initMismatchLab();
