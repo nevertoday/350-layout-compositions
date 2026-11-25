@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>320 游观式构图 · Roaming-View Composition</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 顶部极细卷首眉条 -->
+  <header class="topbar" aria-label="页面索引">
+    <div class="topbar-inner">
+      <div class="topbar-cat">
+        <span class="cat-dot" aria-hidden="true"></span>
+        <span>中国传统构图 / 三远、透视与游观</span>
+      </div>
+      <div class="topbar-meta">
+        <span class="mono-id">NO. 320 · ROAMING-VIEW</span>
+        <span id="topStatusBadge" class="status-stamp is-warn" role="status" aria-live="polite">0 / 4 待编景</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== 开场：展卷游观编景台 ==================== -->
+    <section class="hero" aria-label="游观式构图开场实验台">
+      <div class="wrap hero-grid">
+        <!-- 卷首刊头：左示范大标 + 右原海报圆印、粉点阵与三母题 -->
+        <div class="masthead">
+          <div class="masthead-left">
+            <h1 class="demo-title" aria-label="游观式构图">
+              <span class="dt-char dt-1">游</span><span class="dt-char dt-2">观</span><span class="dt-char dt-3">式</span><span class="dt-char dt-4">构</span><span class="dt-char dt-5">图</span>
+              <svg class="title-path-svg" viewBox="0 0 280 18" aria-hidden="true">
+                <path d="M2 14 C 52 14, 72 4, 128 8 C 184 12, 214 3, 272 5" fill="none" stroke="#E891A3" stroke-width="3" stroke-linecap="round"/>
+                <polygon points="278,5 267,1 269,5 267,9" fill="#DF758C"/>
+              </svg>
+            </h1>
+            <p class="en-sub">ROAMING-VIEW COMPOSITION</p>
+            <div class="navy-rule" aria-hidden="true"></div>
+            <p class="hero-lead hero-lead-desktop">通过视线的游走与停留，逐步展开画面信息，在移步换景中建立连续的观看体验。</p>
+          </div>
+
+          <div class="masthead-right">
+            <div class="masthead-ornaments">
+              <div class="poster-seal" aria-label="视觉组织 进阶原理">
+                <span>视觉组织</span>
+                <span>进阶原理</span>
+                <i class="seal-line" aria-hidden="true"></i>
+              </div>
+              <svg class="pink-dot-grid" viewBox="0 0 72 34" width="72" height="34" aria-hidden="true">
+                <g fill="#E891A3">
+                  <circle cx="4" cy="5" r="2.2"/><circle cx="16" cy="5" r="2.2"/><circle cx="28" cy="5" r="2.2"/><circle cx="40" cy="5" r="2.2"/><circle cx="52" cy="5" r="2.2"/><circle cx="64" cy="5" r="2.2"/>
+                  <circle cx="4" cy="17" r="2.2"/><circle cx="16" cy="17" r="2.2"/><circle cx="28" cy="17" r="2.2"/><circle cx="40" cy="17" r="2.2"/><circle cx="52" cy="17" r="2.2"/><circle cx="64" cy="17" r="2.2"/>
+                  <circle cx="4" cy="29" r="2.2"/><circle cx="16" cy="29" r="2.2"/><circle cx="28" cy="29" r="2.2"/><circle cx="40" cy="29" r="2.2"/><circle cx="52" cy="29" r="2.2"/><circle cx="64" cy="29" r="2.2"/>
+                </g>
+              </svg>
+            </div>
+            <div class="theme-tabs" role="group" aria-label="切换游观题材母题">
+              <button type="button" class="tab-btn is-active" data-theme="poster" aria-pressed="true">原海报五景</button>
+              <button type="button" class="tab-btn" data-theme="bianhe" aria-pressed="false">汴河长卷</button>
+              <button type="button" class="tab-btn" data-theme="garden" aria-pressed="false">江南园林</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 全宽游观手卷舞台 -->
+        <div class="scroll-stage-wrap">
+          <div class="stage-ribbon-bar">
+            <div class="act-stepper" role="group" aria-label="快速跳转至五幕景点">
+              <button type="button" class="act-pill" data-jump="0"><span class="act-num">01</span><span class="act-name">进入</span></button>
+              <button type="button" class="act-pill" data-jump="1"><span class="act-num">02</span><span class="act-name">移步</span></button>
+              <button type="button" class="act-pill" data-jump="2"><span class="act-num">03</span><span class="act-name">停留</span></button>
+              <button type="button" class="act-pill" data-jump="3"><span class="act-num">04</span><span class="act-name">过渡</span></button>
+              <button type="button" class="act-pill" data-jump="4"><span class="act-num">05</span><span class="act-name">抵达</span></button>
+            </div>
+            <div class="stage-quick-actions">
+              <button type="button" id="btnAutoRoam" class="action-btn" aria-pressed="false">自动游走</button>
+              <button type="button" id="btnResetBroken" class="action-btn is-ghost">复原 0/4 错态</button>
+            </div>
+          </div>
+
+          <div class="canvas-frame">
+            <canvas
+              id="scrollStage"
+              data-perf-drag
+              tabindex="0"
+              role="application"
+              aria-label="游观式构图手卷编景画布：左右拖动推进游观取景视窗，点击画布上两处景致可对调站序，键盘左右方向键移动视窗"
+            ></canvas>
+          </div>
+
+          <div class="gaze-whisper" aria-live="polite">
+            <span id="gazePaceTag" class="pace-badge">直穿失趣</span>
+            <span id="gazeFeelingText" class="gaze-text">左右拖动上方手卷画布游走五幕，点击任意两处景致即可直接对调站序。</span>
+            <span id="swapHintText" class="swap-hint">画布提示：拖视窗游观 · 点两景对调</span>
+          </div>
+        </div>
+
+        <!-- 窄屏简介置于开场舞台之后，让首屏先看到手卷 -->
+        <p class="hero-lead hero-lead-mobile">通过视线的游走与停留，逐步展开画面信息，在移步换景中建立连续的观看体验。</p>
+
+        <!-- 复刻 320 原海报底部的开放细线双栏账页：左诊单与三彩圆核心要点 | 右四维编景调律 -->
+        <div class="editorial-ledger">
+          <div class="ledger-col ledger-diag">
+            <div class="diag-head">
+              <span id="diagBadge" class="diag-badge is-warn">错态 · 高潮泄底</span>
+              <span class="diag-source">实绘坐标单真源核算</span>
+            </div>
+            <h2 id="diagTitle" class="diag-title">把最强的「灯塔抵达」塞在开头第 1 站</h2>
+            <p id="diagWhy" class="diag-why"></p>
+            <p id="diagAction" class="diag-action"></p>
+
+            <dl class="metric-strip">
+              <div class="metric-cell">
+                <dt>路径曲折比</dt>
+                <dd id="mBend">1.00×</dd>
+              </div>
+              <div class="metric-cell">
+                <dt>景致换新</dt>
+                <dd id="mVariety">5 / 5</dd>
+              </div>
+              <div class="metric-cell">
+                <dt>主停跨比 / CV</dt>
+                <dd id="mRhythm">1.0× · 0.00</dd>
+              </div>
+              <div class="metric-cell">
+                <dt>藏露（示意）</dt>
+                <dd id="mVeil">0%</dd>
+              </div>
+            </dl>
+
+            <!-- 原海报同款三枚彩色圆标核心要点实时灯 -->
+            <div class="poster-pillars" id="posterPillars" aria-label="核心要点实时检核">
+              <div class="pillar-item" data-pillar="shift">
+                <span class="pillar-icon is-rose" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="16" height="16"><path d="M5 18 V11 A3 3 0 0 1 8 8 H18 M14 4 L18 8 L14 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <div class="pillar-body">
+                  <strong>移步换景</strong>
+                  <span class="pillar-sub">场景更替，保持新鲜感</span>
+                </div>
+                <span class="pillar-state" id="pillarShiftState">站序倒置</span>
+              </div>
+              <div class="pillar-item" data-pillar="path">
+                <span class="pillar-icon is-sage" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="16" height="16"><path d="M4 12 H20 M12 4 V20 M8 12 A4 4 0 1 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="2 2.5" stroke-linecap="round"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/></svg>
+                </span>
+                <div class="pillar-body">
+                  <strong>路径引导</strong>
+                  <span class="pillar-sub">清晰路径，控制视线流向</span>
+                </div>
+                <span class="pillar-state" id="pillarPathState">直穿 1.00×</span>
+              </div>
+              <div class="pillar-item" data-pillar="rhythm">
+                <span class="pillar-icon is-navy" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="16" height="16"><path d="M4 9 Q 8 5, 12 9 T 20 9 M4 15 Q 8 11, 12 15 T 20 15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+                </span>
+                <div class="pillar-body">
+                  <strong>节奏转换</strong>
+                  <span class="pillar-sub">快慢有序，丰富观看体验</span>
+                </div>
+                <span class="pillar-state" id="pillarRhythmState">平权 1.0×</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ledger-col ledger-controls">
+            <div class="ctrl-row">
+              <div class="ctrl-label">
+                <span class="ctrl-idx">01</span>
+                <span>起承序列</span>
+                <span class="ctrl-en">SEQUENCE</span>
+              </div>
+              <div class="ctrl-btns" role="group" aria-label="起承序列设置">
+                <button type="button" class="chip-btn" data-seq="climaxFirst">倒序泄底</button>
+                <button type="button" class="chip-btn" data-seq="monotone">五景雷同</button>
+                <button type="button" class="chip-btn" data-seq="poster">原海报序</button>
+                <button type="button" class="chip-btn" data-seq="pavilionEnd">亭阁压轴</button>
+              </div>
+            </div>
+
+            <div class="ctrl-row">
+              <div class="ctrl-label">
+                <span class="ctrl-idx">02</span>
+                <span>路径引导</span>
+                <span class="ctrl-en">PATH</span>
+              </div>
+              <div class="ctrl-btns" role="group" aria-label="路径走势设置">
+                <button type="button" class="chip-btn" data-path="straight">死直一眼穿</button>
+                <button type="button" class="chip-btn" data-path="broken">断脉迷途</button>
+                <button type="button" class="chip-btn" data-path="scurve">曲径 S 游</button>
+                <button type="button" class="chip-btn" data-path="zigzag">之字盘升</button>
+              </div>
+            </div>
+
+            <div class="ctrl-row">
+              <div class="ctrl-label">
+                <span class="ctrl-idx">03</span>
+                <span>节奏停留</span>
+                <span class="ctrl-en">RHYTHM</span>
+              </div>
+              <div class="ctrl-btns" role="group" aria-label="节奏与间距设置">
+                <button type="button" class="chip-btn" data-rhythm="flat">平权等距</button>
+                <button type="button" class="chip-btn" data-rhythm="cluster">扎堆撞景</button>
+                <button type="button" class="chip-btn" data-rhythm="balanced">疏密主停</button>
+                <button type="button" class="chip-btn" data-rhythm="crescendo">渐密收高潮</button>
+              </div>
+            </div>
+
+            <div class="ctrl-row">
+              <div class="ctrl-label">
+                <span class="ctrl-idx">04</span>
+                <span>藏露余韵</span>
+                <span class="ctrl-en">REVEAL</span>
+              </div>
+              <div class="ctrl-btns" role="group" aria-label="遮蔽藏露与终景呼应设置">
+                <button type="button" class="chip-btn" data-reveal="exposed">全敞急刹</button>
+                <button type="button" class="chip-btn" data-reveal="blocked">过度闷堵</button>
+                <button type="button" class="chip-btn" data-reveal="veiledLookback">适度藏露·回望</button>
+                <button type="button" class="chip-btn" data-reveal="mistResonance">清雅留白·余韵</button>
+              </div>
+            </div>
+
+            <!-- 选中景点的单站停留权重调钮 + 多正当解快捷入口 -->
+            <div class="ctrl-foot">
+              <div class="slot-weight-bar" aria-label="当前景致停留权重">
+                <span id="slotWeightLabel" class="slot-weight-label">第 1 站权重：</span>
+                <button type="button" class="mini-btn" data-w="0.78">轻掠</button>
+                <button type="button" class="mini-btn" data-w="1">次停</button>
+                <button type="button" class="mini-btn" data-w="1.46">主停</button>
+              </div>
+              <div class="solution-bar">
+                <button type="button" id="btnSolPoster" class="sol-btn">原海报 S 径解</button>
+                <button type="button" id="btnSolZigzag" class="sol-btn">之字盘升解</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 复刻 320 原海报底沿细线与尾端粉圆 -->
+        <div class="hero-colophon">
+          <div class="colophon-motto">
+            <span class="calli-motto">游走<i class="motto-dot" aria-hidden="true"></i>发现<i class="motto-dot" aria-hidden="true"></i>联结</span>
+            <span class="en-motto">ROAM · DISCOVER · CONNECT</span>
+          </div>
+          <div class="colophon-rule" aria-hidden="true"></div>
+          <span class="colophon-dot" aria-hidden="true"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 01 移步五幕：从入口到回望 ==================== -->
+    <section id="sec-01" class="band band-light">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div>
+            <p class="sec-en">Five Acts of a Visual Journey</p>
+            <h2>移步五幕：从入口到回望</h2>
+          </div>
+        </div>
+
+        <p class="sec-intro">
+          原海报把游观式构图拆成五幕连续动作：从「01 进入」到「05 抵达」，每一步都在替观者回答一个问题——为什么我要看下去？下一眼往哪拐？哪里该停下来细读？点选下方五幕，也可以拨动「抽掉这一幕」开关，看看少掉任何一环时整段体验会怎样塌陷。
+        </p>
+
+        <div class="acts-theatre">
+          <div class="acts-nav" role="tablist" aria-label="游观五幕选择">
+            <button type="button" class="act-card is-active" role="tab" aria-selected="true" data-act="0">
+              <span class="ac-num">01</span>
+              <span class="ac-zh">进入 · 引发好奇</span>
+              <span class="ac-en">ENTRY ATTRACTION</span>
+            </button>
+            <button type="button" class="act-card" role="tab" aria-selected="false" data-act="1">
+              <span class="ac-num">02</span>
+              <span class="ac-zh">移步 · 转换视角</span>
+              <span class="ac-en">SHIFT GUIDANCE</span>
+            </button>
+            <button type="button" class="act-card" role="tab" aria-selected="false" data-act="2">
+              <span class="ac-num">03</span>
+              <span class="ac-zh">停留 · 聚焦重点</span>
+              <span class="ac-en">PAUSE FOCUS</span>
+            </button>
+            <button type="button" class="act-card" role="tab" aria-selected="false" data-act="3">
+              <span class="ac-num">04</span>
+              <span class="ac-zh">过渡 · 节奏转换</span>
+              <span class="ac-en">TRANSITION RHYTHM</span>
+            </button>
+            <button type="button" class="act-card" role="tab" aria-selected="false" data-act="4">
+              <span class="ac-num">05</span>
+              <span class="ac-zh">抵达 · 余韵延续</span>
+              <span class="ac-en">ARRIVAL RESONANCE</span>
+            </button>
+          </div>
+
+          <div class="act-detail" id="actDetailPanel" role="tabpanel">
+            <div class="act-detail-top">
+              <div>
+                <span id="actQuoteTag" class="quote-tag">海报原话 · 01 进入</span>
+                <h3 id="actDetailTitle">开场建立入口，用强对比吸引视线</h3>
+              </div>
+              <button type="button" id="btnToggleOmit" class="omit-toggle" aria-pressed="false">
+                试试抽掉这一幕
+              </button>
+            </div>
+            <div class="act-detail-grid">
+              <div class="act-visual-box">
+                <svg id="actMiniSvg" viewBox="0 0 360 150" role="img" aria-label="该幕视线节奏示意"></svg>
+              </div>
+              <div class="act-prose">
+                <p id="actExplain"></p>
+                <div class="act-compare-note" id="actOmitNote"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 02 一眼望穿与移步换景 ==================== -->
+    <section id="sec-02" class="band band-sage">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div>
+            <p class="sec-en">Single Glance vs. Serial Unfolding</p>
+            <h2>一眼望穿与移步换景</h2>
+          </div>
+        </div>
+
+        <div class="split-2col">
+          <div class="col-prose sticky-col">
+            <p>
+              西方定点透视好比站在窗前按下一张快门：眼睛固定在一个点上，画面里的主次在第一秒就全部摊开。中国传统手卷却不同——一卷数米长的画，摊在案头时两臂展开一次大约只看 60 至 80 厘米（经验观画幅宽），左手徐徐展开、右手缓缓收卷，空间因此变成了时间。
+            </p>
+            <p>
+              这也让游观式构图和同一小类的其他技法各司其职：<a href="https://layout.xiaoxiaodong.ai/319/play/">319 散点透视</a>负责撤掉单一消失点、让多处视点各自成立；<a href="https://layout.xiaoxiaodong.ai/315/play/">315 高远法</a>、<a href="https://layout.xiaoxiaodong.ai/316/play/">316 深远法</a>、<a href="https://layout.xiaoxiaodong.ai/317/play/">317 平远法</a>与<a href="https://layout.xiaoxiaodong.ai/318/play/">318 三远综合构图</a>解决的是仰望、穿深、平展三种空间格局；而 <strong>320 游观式构图</strong>关心的是「观众沿着怎样的路线、按怎样的快慢节奏，一段一段走进画面」。
+            </p>
+            <div class="caliper-box">
+              <label for="apertureSlider" class="caliper-label">
+                <span>一次可见视窗宽度</span>
+                <strong id="apertureVal">34%（手卷逐段展观）</strong>
+              </label>
+              <input id="apertureSlider" type="range" min="22" max="100" step="2" value="34" />
+              <div class="caliper-scale">
+                <span>22% 窄窗窥景</span>
+                <span>36% 舒适展卷</span>
+                <span>100% 全幅一览</span>
+              </div>
+              <p id="apertureVerdict" class="caliper-verdict"></p>
+            </div>
+          </div>
+
+          <div class="col-stage">
+            <div class="unroll-panel">
+              <div class="unroll-head">
+                <span class="unroll-title">同一卷五景在不同展幅下的心理悬念（示意）</span>
+                <span id="unrollStats" class="unroll-stats">发现节点 5 次 · 悬念档位：饱满</span>
+              </div>
+              <canvas id="unrollCanvas" aria-label="手卷展幅与全幅一览对比画布"></canvas>
+              <div class="unroll-legend">
+                <span><i class="leg-swatch is-navy"></i>当前视窗可见范围</span>
+                <span><i class="leg-swatch is-rose"></i>视线发现高潮波峰（示意）</span>
+                <span><i class="leg-swatch is-sage"></i>未展开留悬区域</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 03 藏露与路径：曲径的秘密（深靛暗室） ==================== -->
+    <section id="sec-03" class="band band-dark">
+      <div class="wrap">
+        <div class="sec-head is-dark">
+          <span class="sec-num">03</span>
+          <div>
+            <p class="sec-en">Veil, Path &amp; Sightline Darkroom</p>
+            <h2>藏露与路径：曲径的秘密</h2>
+          </div>
+        </div>
+
+        <div class="dark-layout">
+          <div class="dark-stage-col">
+            <div class="topo-tabs" role="group" aria-label="选择障景空间拓扑">
+              <button type="button" class="dark-tab" data-topo="straight" aria-pressed="false">直廊一览</button>
+              <button type="button" class="dark-tab is-active" data-topo="screen" aria-pressed="true">屏风曲折</button>
+              <button type="button" class="dark-tab" data-topo="window" aria-pressed="false">漏窗借景</button>
+              <button type="button" class="dark-tab" data-topo="deadend" aria-pressed="false">迷宫死胡同</button>
+            </div>
+            <div class="dark-canvas-box">
+              <canvas id="rayCanvas" aria-label="暗室视线路径与障景遮蔽模拟画布"></canvas>
+            </div>
+            <div class="dark-readout" id="rayReadout" aria-live="polite">
+              <div class="dr-metrics">
+                <div><span>转向次数</span><strong id="rayTurns">3 折</strong></div>
+                <div><span>首眼遮蔽（示意）</span><strong id="rayVeil">48%</strong></div>
+                <div><span>跳轨风险</span><strong id="rayRisk">低</strong></div>
+              </div>
+              <p id="rayExplain" class="dr-explain"></p>
+            </div>
+          </div>
+
+          <div class="dark-notes-col">
+            <div class="dark-pillar-list">
+              <article class="dark-card">
+                <span class="dc-kicker is-rose">核心要点 01 · 移步换景</span>
+                <h3>「场景更替，保持新鲜感」</h3>
+                <p>为什么转过一道屏风或穿过一扇漏窗会突然觉得好看？不是因为后面的景物多昂贵，而是大脑在视觉切换的瞬间重新触发了注意——前一段藏住一半，后一段的展开才会有惊喜。</p>
+              </article>
+
+              <article class="dark-card">
+                <div class="dc-head-row">
+                  <span class="dc-kicker is-sage">核心要点 02 · 路径引导</span>
+                  <span class="gentle-tag">说得略满</span>
+                </div>
+                <h3>「清晰路径，控制视线流向」</h3>
+                <p>海报把话说得略满了一点。实际观看时，人眼并不会像铁轨上的列车那样被一根线条彻底「控制」——路径真正能做的是用明暗对比、物体朝向和局部留白<strong>邀请</strong>视线顺势前行。一旦拐弯过于生硬、或者角落塞进一块高饱和色块抢戏，眼睛照样会当场跳轨。</p>
+              </article>
+
+              <article class="dark-card">
+                <span class="dc-kicker is-light">核心要点 03 · 节奏转换</span>
+                <h3>「快慢有序，丰富观看体验」</h3>
+                <p>连续的曲折如果没有快慢变化，也会让人疲倦。宽敞处放慢脚步细看细节（如双拱楼阁、虹桥人群），窄径与桥面轻快掠过，观者才会有呼吸感。</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 04 从画卷、园林到现代街景 ==================== -->
+    <section id="sec-04" class="band band-sand">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div>
+            <p class="sec-en">Lineage: Scrolls, Gardens &amp; Streets</p>
+            <h2>从画卷、园林到现代街景</h2>
+          </div>
+        </div>
+
+        <p class="sec-intro">
+          「游观」并不是现代平面排版才发明的新词。从南朝画论中的「卧游」，到北宋长卷的宏阔展开，再到明代园林的空间编排与二十世纪城市设计里的「连续视觉」，东西方创作者在跨越一千五百年的时间里，反复打磨着同一件事——把观看变成一场旅程。
+        </p>
+
+        <div class="era-tabs" role="tablist" aria-label="游观历史脉络节点">
+          <button type="button" class="era-btn is-active" role="tab" aria-selected="true" data-era="0">约 5 世纪 · 宗炳「卧游」</button>
+          <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="1">北宋 · 郭熙「可游可居」</button>
+          <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="2">北宋 · 汴河与千里长卷</button>
+          <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="3">1631 · 计成《园冶》</button>
+          <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="4">1961 · 卡伦「连续视觉」</button>
+        </div>
+
+        <div class="era-stage">
+          <div class="era-detail" id="eraDetail" role="tabpanel">
+            <span id="eraMeta" class="era-meta">南朝刘宋 · 宗炳（375–443）</span>
+            <h3 id="eraTitle">《画山水序》：澄怀观道，卧以游之</h3>
+            <p id="eraBody"></p>
+            <p id="eraLinkNote" class="era-source"></p>
+          </div>
+
+          <div class="scroll-scale-box" aria-label="三幅北宋传世手卷实测纵横比例对照">
+            <div class="scale-head">
+              <strong>三幅北宋传世手卷尺幅实比</strong>
+              <span>与约 70 cm 单次展卷臂展对照</span>
+            </div>
+            <div class="scale-rows">
+              <div class="scale-row">
+                <div class="sr-label">
+                  <span>郭熙《树色平远图》（约 1080）</span>
+                  <span class="mono-num">35.6 × 104.4 cm · 约 1.5 臂展</span>
+                </div>
+                <div class="sr-track">
+                  <div class="sr-bar is-sage" style="width: 9%"></div>
+                  <div class="sr-arm" style="left: 5.9%" title="约 70 cm 舒适臂展"></div>
+                </div>
+              </div>
+              <div class="scale-row">
+                <div class="sr-label">
+                  <span>张择端《清明上河图》（故宫藏）</span>
+                  <span class="mono-num">24.8 × 528.7 cm · 约 7.5 臂展</span>
+                </div>
+                <div class="sr-track">
+                  <div class="sr-bar is-rose" style="width: 44.4%"></div>
+                  <div class="sr-arm" style="left: 5.9%" title="约 70 cm 舒适臂展"></div>
+                </div>
+              </div>
+              <div class="scale-row">
+                <div class="sr-label">
+                  <span>王希孟《千里江山图》（故宫藏）</span>
+                  <span class="mono-num">51.5 × 1191.5 cm · 约 17 臂展</span>
+                </div>
+                <div class="sr-track">
+                  <div class="sr-bar is-navy" style="width: 100%"></div>
+                  <div class="sr-arm" style="left: 5.9%" title="约 70 cm 舒适臂展"></div>
+                </div>
+              </div>
+            </div>
+            <p class="scale-footnote">
+              红色虚竖线示意约 70 cm（经验值）的单次展卷舒展宽度：看《千里江山图》需要将近十七次开合移步，才真正走进「一步一景」的游观节奏。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 05 何时适用，何时别用 ==================== -->
+    <section id="sec-05" class="band band-light">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div>
+            <p class="sec-en">When to Roam &amp; When to Stop</p>
+            <h2>何时适用，何时别用</h2>
+          </div>
+        </div>
+
+        <p class="sec-intro">
+          游观式构图靠的是「愿意多停留几十秒的耐心」。一旦使用场景要求 1 秒内抓取核心数字、或者并排对照十几个平级条目，硬做曲径通幽反而是在给读者添堵。点选下面 6 个真实需求，试试先自己判断该用游观还是直给。
+        </p>
+
+        <div class="triage-grid" id="triageGrid">
+          <!-- 6 张场景分诊卡由 HTML 静态给出骨架，交互翻转 -->
+          <article class="triage-card" data-triage="0">
+            <span class="tc-type">场景 01 · 文旅与展览</span>
+            <h3>古城徒步导览折页与长图</h3>
+            <p class="tc-desc">带领游客从古城南门出发，沿河经过五座古桥与茶馆，在夕阳观景台收尾。</p>
+            <div class="tc-actions">
+              <button type="button" class="tc-btn" data-pick="yes">适合游观</button>
+              <button type="button" class="tc-btn" data-pick="no">改用直给</button>
+            </div>
+            <div class="tc-feedback" hidden></div>
+          </article>
+
+          <article class="triage-card" data-triage="1">
+            <span class="tc-type">场景 02 · 公共安全</span>
+            <h3>机场紧急疏散指示牌</h3>
+            <p class="tc-desc">需要让奔跑中的旅客在 1 秒内识别最近出口方向与距离。</p>
+            <div class="tc-actions">
+              <button type="button" class="tc-btn" data-pick="yes">适合游观</button>
+              <button type="button" class="tc-btn" data-pick="no">改用直给</button>
+            </div>
+            <div class="tc-feedback" hidden></div>
+          </article>
+
+          <article class="triage-card" data-triage="2">
+            <span class="tc-type">场景 03 · 品牌叙事</span>
+            <h3>茶山制茶工艺互动专题长页</h3>
+            <p class="tc-desc">从清晨采青、萎凋揉捻到炭火烘焙，带读者循序感受一杯茶的诞生过程。</p>
+            <div class="tc-actions">
+              <button type="button" class="tc-btn" data-pick="yes">适合游观</button>
+              <button type="button" class="tc-btn" data-pick="no">改用直给</button>
+            </div>
+            <div class="tc-feedback" hidden></div>
+          </article>
+
+          <article class="triage-card" data-triage="3">
+            <span class="tc-type">场景 04 · 效率工具</span>
+            <h3>运维监控与实时报警仪表盘</h3>
+            <p class="tc-desc">工程师要同屏扫视 12 台服务器的延迟、吞吐和异常红灯，立刻排查故障。</p>
+            <div class="tc-actions">
+              <button type="button" class="tc-btn" data-pick="yes">适合游观</button>
+              <button type="button" class="tc-btn" data-pick="no">改用直给</button>
+            </div>
+            <div class="tc-feedback" hidden></div>
+          </article>
+
+          <article class="triage-card" data-triage="4">
+            <span class="tc-type">场景 05 · 电商促销</span>
+            <h3>限时秒杀主图（信息流刷过 0.8 秒）</h3>
+            <p class="tc-desc">在手机瀑布流里与几十件商品抢注意力，只需让用户瞬间看清商品与到手价。</p>
+            <div class="tc-actions">
+              <button type="button" class="tc-btn" data-pick="yes">适合游观</button>
+              <button type="button" class="tc-btn" data-pick="no">改用直给</button>
+            </div>
+            <div class="tc-feedback" hidden></div>
+          </article>
+
+          <article class="triage-card" data-triage="5">
+            <span class="tc-type">场景 06 · 出版绘本</span>
+            <h3>博物馆文物修复历程跨页图解</h3>
+            <p class="tc-desc">呈现一件古画从揭裱、补纸、全色到重新装池的五个阶段细节。</p>
+            <div class="tc-actions">
+              <button type="button" class="tc-btn" data-pick="yes">适合游观</button>
+              <button type="button" class="tc-btn" data-pick="no">改用直给</button>
+            </div>
+            <div class="tc-feedback" hidden></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 06 小练习：挑出好游观 ==================== -->
+    <section id="sec-06" class="band band-blush">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div>
+            <p class="sec-en">Practice: Diagnose the Journey</p>
+            <h2>小练习：挑出好游观</h2>
+          </div>
+        </div>
+
+        <p class="sec-intro">
+          下面四张草图画的都是同一段五景海岛游览长图（山门、林坡、观海亭、石桥、灯塔），四套方案只差一个关键变量。仔细看路径、顺序和五站体量，选出最符合游观式构图的一张。
+        </p>
+
+        <div class="quiz-grid" role="group" aria-label="游观式构图四选一练习">
+          <button type="button" class="quiz-opt" data-opt="A" aria-pressed="false">
+            <span class="qo-head"><strong>方案 A</strong><span class="qo-tag">五景方案一</span></span>
+            <svg viewBox="0 0 280 156" class="qo-svg" aria-hidden="true">
+              <rect width="280" height="156" fill="#FBF5EA"/>
+              <line x1="26" y1="86" x2="256" y2="86" stroke="#E891A3" stroke-width="6" stroke-linecap="round"/>
+              <polygon points="262,86 250,79 252,86 250,93" fill="#DF758C"/>
+              <circle cx="24" cy="86" r="10" fill="#071B44"/>
+              <!-- 1 拱门 -->
+              <path d="M52 78 V62 A8 8 0 0 1 68 62 V78 Z" fill="#071B44"/><rect x="57" y="65" width="6" height="13" fill="#FBF5EA"/>
+              <!-- 2 山林 -->
+              <polygon points="94,78 106,56 118,78" fill="#366E5B"/><circle cx="92" cy="68" r="6" fill="#E27D84"/>
+              <!-- 3 主亭（放大主停） -->
+              <rect x="136" y="48" width="22" height="30" fill="#F3DCB9"/><polygon points="132,48 147,32 162,48" fill="#071B44"/><rect x="132" y="70" width="30" height="8" fill="#366E5B"/>
+              <!-- 4 弧桥 -->
+              <path d="M180 78 Q194 60 208 78" fill="none" stroke="#071B44" stroke-width="4.5"/><rect x="180" y="78" width="28" height="4" fill="#E27D84"/>
+              <!-- 5 灯塔（放大高潮） -->
+              <polygon points="228,78 232,40 242,40 246,78" fill="#071B44"/><rect x="231" y="54" width="12" height="8" fill="#E891A3"/><polygon points="230,40 237,30 244,40" fill="#071B44"/><polygon points="232,37 210,31 210,43" fill="#F3DCB9" opacity="0.8"/>
+            </svg>
+          </button>
+
+          <button type="button" class="quiz-opt" data-opt="B" aria-pressed="false">
+            <span class="qo-head"><strong>方案 B</strong><span class="qo-tag">五景方案二</span></span>
+            <svg viewBox="0 0 280 156" class="qo-svg" aria-hidden="true">
+              <rect width="280" height="156" fill="#FBF5EA"/>
+              <path d="M26 124 C 82 124, 72 44, 134 62 C 186 78, 186 118, 224 72 C 240 52, 246 36, 256 34" fill="none" stroke="#E891A3" stroke-width="6" stroke-linecap="round"/>
+              <polygon points="262,33 249,28 252,34 250,41" fill="#DF758C"/>
+              <circle cx="24" cy="124" r="10" fill="#071B44"/>
+              <!-- 1 错误把大灯塔放最前！ -->
+              <polygon points="52,118 56,74 68,74 72,118" fill="#071B44"/><rect x="55" y="90" width="14" height="9" fill="#E891A3"/><polygon points="54,74 62,62 70,74" fill="#071B44"/><polygon points="68,70 94,62 94,76" fill="#F3DCB9" opacity="0.85"/>
+              <!-- 2 山林 -->
+              <polygon points="88,68 100,46 112,68" fill="#366E5B"/><circle cx="86" cy="58" r="6" fill="#E27D84"/>
+              <!-- 3 主亭 -->
+              <rect x="136" y="42" width="22" height="30" fill="#F3DCB9"/><polygon points="132,42 147,26 162,42" fill="#071B44"/><rect x="132" y="64" width="30" height="8" fill="#366E5B"/>
+              <!-- 4 弧桥 -->
+              <path d="M174 102 Q188 84 202 102" fill="none" stroke="#071B44" stroke-width="4.5"/><rect x="174" y="102" width="28" height="4" fill="#E27D84"/>
+              <!-- 5 把小拱门挪到末尾 -->
+              <path d="M224 58 V42 A8 8 0 0 1 240 42 V58 Z" fill="#071B44"/><rect x="229" y="45" width="6" height="13" fill="#FBF5EA"/>
+            </svg>
+          </button>
+
+          <button type="button" class="quiz-opt" data-opt="C" aria-pressed="false">
+            <span class="qo-head"><strong>方案 C</strong><span class="qo-tag">五景方案三</span></span>
+            <svg viewBox="0 0 280 156" class="qo-svg" aria-hidden="true">
+              <rect width="280" height="156" fill="#FBF5EA"/>
+              <path d="M26 124 C 82 124, 72 44, 134 62 C 186 78, 186 118, 224 72 C 240 52, 246 36, 256 34" fill="none" stroke="#E891A3" stroke-width="6" stroke-linecap="round"/>
+              <polygon points="262,33 249,28 252,34 250,41" fill="#DF758C"/>
+              <circle cx="24" cy="124" r="10" fill="#071B44"/>
+              <!-- 1 拱门入景 -->
+              <path d="M52 118 V96 A10 10 0 0 1 72 96 V118 Z" fill="#071B44"/><rect x="58" y="100" width="8" height="18" fill="#FBF5EA"/><circle cx="62" cy="112" r="4" fill="#E27D84"/>
+              <!-- 2 山林移步（轻） -->
+              <polygon points="88,68 100,48 112,68" fill="#366E5B"/><circle cx="86" cy="58" r="5.5" fill="#E27D84"/>
+              <!-- 3 观海亭（放大主停） -->
+              <rect x="134" y="42" width="24" height="32" fill="#F3DCB9"/><polygon points="130,42 146,24 162,42" fill="#071B44"/><rect x="128" y="66" width="36" height="8" fill="#366E5B"/>
+              <!-- 4 弧桥过渡（轻） -->
+              <path d="M174 102 Q188 86 202 102" fill="none" stroke="#071B44" stroke-width="4"/><rect x="174" y="102" width="28" height="4" fill="#E27D84"/>
+              <!-- 5 灯塔回望（高潮主停 + 左回望光束） -->
+              <polygon points="222,68 226,30 238,30 242,68" fill="#071B44"/><rect x="225" y="44" width="14" height="8" fill="#E891A3"/><polygon points="224,30 232,19 240,30" fill="#071B44"/><polygon points="226,26 196,18 196,34" fill="#F3DCB9" opacity="0.88"/>
+            </svg>
+          </button>
+
+          <button type="button" class="quiz-opt" data-opt="D" aria-pressed="false">
+            <span class="qo-head"><strong>方案 D</strong><span class="qo-tag">五景方案四</span></span>
+            <svg viewBox="0 0 280 156" class="qo-svg" aria-hidden="true">
+              <rect width="280" height="156" fill="#FBF5EA"/>
+              <path d="M26 122 Q 70 64, 114 96 T 198 76 T 256 42" fill="none" stroke="#E891A3" stroke-width="6" stroke-linecap="round"/>
+              <polygon points="262,38 249,36 253,42 254,48" fill="#DF758C"/>
+              <circle cx="24" cy="122" r="10" fill="#071B44"/>
+              <!-- 五站体量与间距完全均等，无一处主停 -->
+              <path d="M54 96 V82 A7 7 0 0 1 68 82 V96 Z" fill="#071B44"/><rect x="58" y="85" width="6" height="11" fill="#FBF5EA"/>
+              <polygon points="94,86 102,70 110,86" fill="#366E5B"/><circle cx="92" cy="78" r="4.5" fill="#E27D84"/>
+              <rect x="136" y="76" width="14" height="16" fill="#F3DCB9"/><polygon points="133,76 143,66 153,76" fill="#071B44"/>
+              <path d="M174 84 Q183 72 192 84" fill="none" stroke="#071B44" stroke-width="3.5"/><rect x="174" y="84" width="18" height="3" fill="#E27D84"/>
+              <polygon points="220,66 222,48 230,48 232,66" fill="#071B44"/><rect x="222" y="54" width="8" height="5" fill="#E891A3"/>
+            </svg>
+          </button>
+        </div>
+
+        <div id="quizFeedback" class="quiz-feedback" aria-live="polite" hidden></div>
+      </div>
+    </section>
+
+    <!-- ==================== 07 原海报与关键概念 ==================== -->
+    <section id="sec-07" class="band band-paper">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div>
+            <p class="sec-en">Original Poster &amp; Colophon</p>
+            <h2>原海报与关键概念</h2>
+          </div>
+        </div>
+
+        <div class="poster-layout">
+          <div class="poster-frame-col">
+            <button type="button" id="openPosterBtn" class="poster-trigger" aria-label="点击放大查看 320 游观式构图原海报">
+              <img id="poster" src="poster.webp" alt="320 游观式构图原版教学海报" />
+              <span class="poster-zoom-hint">点击放大查看 · 支持拖拽与 Esc 关闭</span>
+            </button>
+          </div>
+
+          <div class="poster-meta-col sticky-col">
+            <div class="meta-block">
+              <span class="meta-kicker">原海报核心三要 · CORE PRINCIPLES</span>
+              <ul class="recap-list">
+                <li><strong>移步换景</strong><span>场景更替，保持新鲜感</span></li>
+                <li><strong>路径引导</strong><span>用曲径与对比邀请视线自然前行</span></li>
+                <li><strong>节奏转换</strong><span>快慢有序，在游走与停留间形成余韵</span></li>
+              </ul>
+            </div>
+
+            <div class="meta-block">
+              <span class="meta-kicker">原海报关键词 · KEYWORDS</span>
+              <ul class="kw-list">
+                <li><strong>JOURNEY</strong><span>把观看当作一趟有起点、有高潮、有归宿的旅程</span></li>
+                <li><strong>PATH</strong><span>以柔和曲径把分散的景致串联成可跟随的动线</span></li>
+                <li><strong>SEQUENCE</strong><span>用先后次序释放信息，而不是把底牌一次摊光</span></li>
+                <li><strong>EXPERIENCE</strong><span>在游走与停顿的快慢交替里留下完整余韵</span></li>
+              </ul>
+              <svg class="wave-motif" viewBox="0 0 120 18" width="120" height="18" aria-hidden="true">
+                <path d="M2 10 Q 16 2, 30 10 T 58 10 T 86 10 T 114 10" fill="none" stroke="#DF758C" stroke-width="2.4" stroke-linecap="round"/>
+              </svg>
+            </div>
+
+            <div class="meta-block">
+              <span class="meta-kicker">同一小类 · 三远、透视与游观</span>
+              <ul class="sibling-links">
+                <li><a href="https://layout.xiaoxiaodong.ai/315/play/">315 高远法</a><span>仰望山势，拉出崇高拔升</span></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/316/play/">316 深远法</a><span>层层递进，窥见纵深幽微</span></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/317/play/">317 平远法</a><span>舒展平视，铺开旷远烟水</span></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/318/play/">318 三远综合构图</a><span>统筹高深平，确立一主二辅</span></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/319/play/">319 散点透视</a><span>撤掉单灭点，并置多重独立视角</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 原海报可缩放可拖拽灯箱 -->
+  <div id="posterLightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="原海报放大查看" hidden>
+    <div class="lightbox-bar">
+      <span>320 游观式构图 · 原海报</span>
+      <div class="lb-ctrls">
+        <button type="button" id="lbZoomOut" aria-label="缩小">−</button>
+        <span id="lbZoomPct" class="mono-num">100%</span>
+        <button type="button" id="lbZoomIn" aria-label="放大">+</button>
+        <button type="button" id="lbClose" aria-label="关闭原海报">关闭 Esc</button>
+      </div>
+    </div>
+    <div id="lbViewport" class="lb-viewport">
+      <img id="lbImg" alt="320 游观式构图原版教学海报大图" draggable="false" />
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <a href="https://layout.xiaoxiaodong.ai/320/play/">在线版 / 全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span aria-hidden="true">·</span>
+      <span>海报 CC BY 4.0</span>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/xiaoxiaodong/350-layout-interactive">源文件 GitHub</a>
+    </div>
+  </footer>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
