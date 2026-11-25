@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>312 三角调度 · TRIANGULAR ARRANGEMENT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="hero-slash" aria-hidden="true"></div>
+
+  <div class="topbar">
+    <div class="wrap topbar-inner">
+      <p class="crumb"><span class="crumb-tri" aria-hidden="true"></span>影视画面构图 / 场面调度与景深</p>
+      <p class="code-tag" lang="en">NO. 312 · STABILITY · GUIDE · HIERARCHY · FOCUS</p>
+    </div>
+  </div>
+
+  <div class="wrap hero-wrap">
+    <!-- 左上斜切朱红角报头 + 脚本切换 + 原海报同款圆形徽章 -->
+    <div class="hero-head">
+      <div class="hero-title-group">
+        <div class="title-demo-row">
+          <h1 class="hero-title">
+            <span class="title-apex" aria-hidden="true"></span>三角调度
+          </h1>
+          <span class="mobile-score-pill" id="mobile-seal-hint" aria-hidden="true">312</span>
+        </div>
+        <p class="hero-en" lang="en">TRIANGULAR ARRANGEMENT</p>
+        <p class="hero-lead hero-lead-desktop">三角结构通过汇聚与指向，将视觉重量组织到稳定的顶点，建立清晰的视觉秩序与信息层级。</p>
+      </div>
+
+      <div class="hero-head-right">
+        <div class="script-switcher" role="group" aria-label="导演脚本目标">
+          <button type="button" class="chip-btn is-active" data-script="upright" aria-pressed="true">稳固正三角</button>
+          <button type="button" class="chip-btn" data-script="inverted" aria-pressed="false">压迫倒三角</button>
+          <button type="button" class="chip-btn" data-script="asymmetric" aria-pressed="false">偏心斜三角</button>
+        </div>
+
+        <div class="poster-seal" aria-label="当前四原则达标数">
+          <span class="seal-top">视觉组织</span>
+          <strong class="seal-score" id="seal-score" lang="en">0 / 4</strong>
+          <span class="seal-rule" aria-hidden="true"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主舞台：左 60% 宽银幕取景框 + 机位环轨；右 40% 俯视片场走位图 + 导演实况诊单 -->
+    <div class="desk-grid">
+      <div class="desk-left">
+        <div class="vf-shell">
+          <div class="vf-toolbar">
+            <span class="mono-label" lang="en">CAMERA VIEWFINDER · 1.82:1</span>
+            <div class="vf-actions">
+              <div class="lens-group" role="group" aria-label="镜头焦段">
+                <button type="button" class="mini-btn is-active" data-lens="35" aria-pressed="true" lang="en">35mm</button>
+                <button type="button" class="mini-btn" data-lens="50" aria-pressed="false" lang="en">50mm</button>
+                <button type="button" class="mini-btn" data-lens="85" aria-pressed="false" lang="en">85mm</button>
+              </div>
+              <button type="button" class="mini-btn" id="toggle-poster-guide" aria-pressed="false">海报原型</button>
+              <button type="button" class="mini-btn" id="hero-reset">复原一字</button>
+            </div>
+          </div>
+
+          <div class="vf-frame">
+            <canvas id="vf-canvas" aria-label="宽银幕片场取景框，可拖动角色或空白处旋转机位"></canvas>
+          </div>
+        </div>
+
+        <!-- 机位环轨滑柄（data-perf-drag，直接左右拖动绕拍） -->
+        <div class="orbit-bar">
+          <div class="orbit-meta">
+            <span class="orbit-label">机位环轨 <span class="mono-sub" lang="en">CAMERA DOLLY ORBIT</span></span>
+            <strong class="orbit-value" id="orbit-value" lang="en">0°</strong>
+          </div>
+          <div
+            class="orbit-track"
+            id="orbit-track"
+            data-perf-drag
+            role="slider"
+            tabindex="0"
+            aria-label="拖动调节摄影机环轨角度，负 55 度到正 55 度"
+            aria-valuemin="-55"
+            aria-valuemax="55"
+            aria-valuenow="0"
+          >
+            <span class="orbit-zero" aria-hidden="true"></span>
+            <span class="orbit-ticks" aria-hidden="true"></span>
+            <span class="orbit-thumb" id="orbit-thumb" aria-hidden="true">↔</span>
+          </div>
+          <div class="orbit-scale" aria-hidden="true" lang="en">
+            <span>-55° 左绕</span>
+            <span>0° 正拍</span>
+            <span>+55° 右绕</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="desk-right">
+        <div class="fp-shell">
+          <div class="fp-header">
+            <span class="mono-label">俯视走位图 <span lang="en">FLOORPLAN</span></span>
+            <span class="fp-hint" id="selected-actor-label">主角 A · 站姿</span>
+          </div>
+          <div class="fp-frame">
+            <canvas id="fp-canvas" tabindex="0" aria-label="俯视片场走位图，拖动 A B C 三名演员改变位置，方向键微调，数字键 1 2 3 切换坐站登台"></canvas>
+          </div>
+          <div class="actor-controls">
+            <div class="ctrl-row">
+              <div class="seg-group" role="group" aria-label="选择演员">
+                <button type="button" class="seg-btn is-active" data-select-actor="A" aria-pressed="true">A 主角</button>
+                <button type="button" class="seg-btn" data-select-actor="B" aria-pressed="false">B 配角</button>
+                <button type="button" class="seg-btn" data-select-actor="C" aria-pressed="false">C 配角</button>
+              </div>
+              <div class="seg-group" role="group" aria-label="切换演员高低姿态">
+                <button type="button" class="seg-btn" data-posture="sit" aria-pressed="false">坐</button>
+                <button type="button" class="seg-btn is-active" data-posture="stand" aria-pressed="true">站</button>
+                <button type="button" class="seg-btn" data-posture="rise" aria-pressed="false">登台</button>
+              </div>
+            </div>
+            <div class="nudge-row" role="group" aria-label="微调选中演员片场站位">
+              <span class="nudge-caption">走位微调</span>
+              <button type="button" class="nudge-btn" data-nudge="left" aria-label="左移">←</button>
+              <button type="button" class="nudge-btn" data-nudge="back" aria-label="后退进后景">↑</button>
+              <button type="button" class="nudge-btn" data-nudge="front" aria-label="前进到前景">↓</button>
+              <button type="button" class="nudge-btn" data-nudge="right" aria-label="右移">→</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="diag-box" id="hero-diagnosis" data-state="error" aria-live="polite">
+          <div class="diag-top">
+            <span class="diag-badge" id="diag-badge">错态 · 塌成一字（0/4）</span>
+            <span class="diag-note">经验阈值判定</span>
+          </div>
+          <h2 class="diag-headline" id="diag-headline">三人几乎平排成一字，镜头里没有谁领头</h2>
+          <p class="diag-body" id="diag-body">目前三角高度只有 0%，两侧缺少汇聚斜线，观众视线只能在三人之间来回打转。</p>
+          <p class="diag-hint" id="diag-hint">把主角 A 切到「登台」抬高（或让 B、C 切「坐姿」前移），立刻拉出三角形高度。</p>
+          <dl class="diag-metrics">
+            <div>
+              <dt>底边跨度</dt>
+              <dd id="m-base" lang="en">50%</dd>
+            </div>
+            <div>
+              <dt>画面顶角</dt>
+              <dd id="m-apex" lang="en">180°</dd>
+            </div>
+            <div>
+              <dt>顶点领差</dt>
+              <dd id="m-lead" lang="en">0%</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <!-- 移动端摘要顺移到舞台下方，保证首屏 ≥45% 给互动舞台 -->
+    <p class="hero-lead hero-lead-mobile">三角结构通过汇聚与指向，将视觉重量组织到稳定的顶点，建立清晰的视觉秩序与信息层级。</p>
+
+    <!-- 底沿通栏：312 原海报四原则实时检核带（稳定 / 引导 / 层级 / 焦点） -->
+    <div class="principles-strip" aria-label="原海报四项视觉原则实时状态">
+      <div class="p-item is-err" id="p-card-stability">
+        <svg class="p-icon" viewBox="0 0 28 28" aria-hidden="true"><polygon points="14,4 25,24 3,24" fill="currentColor"/></svg>
+        <div class="p-copy">
+          <div class="p-row"><span class="p-zh">稳定</span><span class="p-en" lang="en">STABILITY</span></div>
+          <span class="p-status" id="p-status-stability">塌成一字</span>
+        </div>
+      </div>
+      <div class="p-item is-err" id="p-card-guide">
+        <svg class="p-icon" viewBox="0 0 28 28" aria-hidden="true"><path d="M14 24V6M7 12L14 5L21 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg>
+        <div class="p-copy">
+          <div class="p-row"><span class="p-zh">引导</span><span class="p-en" lang="en">GUIDE</span></div>
+          <span class="p-status" id="p-status-guide">平角 180°</span>
+        </div>
+      </div>
+      <div class="p-item is-err" id="p-card-hierarchy">
+        <svg class="p-icon" viewBox="0 0 28 28" aria-hidden="true"><rect x="11" y="5" width="6" height="4" fill="currentColor"/><rect x="7" y="12" width="14" height="4" fill="currentColor"/><rect x="3" y="19" width="22" height="4" fill="currentColor"/></svg>
+        <div class="p-copy">
+          <div class="p-row"><span class="p-zh">层级</span><span class="p-en" lang="en">HIERARCHY</span></div>
+          <span class="p-status" id="p-status-hierarchy">三人平头</span>
+        </div>
+      </div>
+      <div class="p-item is-err" id="p-card-focus">
+        <svg class="p-icon" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9.5" fill="none" stroke="currentColor" stroke-width="5"/></svg>
+        <div class="p-copy">
+          <div class="p-row"><span class="p-zh">焦点</span><span class="p-en" lang="en">FOCUS</span></div>
+          <span class="p-status" id="p-status-focus">焦点分散</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 01 节：拆开原海报的四道力 -->
+  <section class="sec sec-ivory" id="sec-01" aria-labelledby="h-01">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">01</span>
+        <div>
+          <h2 id="h-01">拆开原海报的四道力</h2>
+          <p class="sec-en" lang="en">Anatomy of the Four Forces on Poster 312</p>
+        </div>
+      </header>
+
+      <div class="anatomy-grid">
+        <div class="anatomy-diagram">
+          <svg id="anatomy-svg" class="anatomy-svg" data-active="stability" viewBox="0 0 420 340" role="img" aria-label="312 原海报三角形视觉力学解剖图">
+            <!-- 左侧点阵母题 -->
+            <g fill="#E54B1A" opacity="0.55">
+              <circle cx="26" cy="140" r="2"/><circle cx="38" cy="140" r="2"/><circle cx="50" cy="140" r="2"/>
+              <circle cx="26" cy="156" r="2"/><circle cx="38" cy="156" r="2"/><circle cx="50" cy="156" r="2"/>
+              <circle cx="26" cy="172" r="2"/><circle cx="38" cy="172" r="2"/><circle cx="50" cy="172" r="2"/>
+              <circle cx="26" cy="188" r="2"/><circle cx="38" cy="188" r="2"/><circle cx="50" cy="188" r="2"/>
+              <circle cx="26" cy="204" r="2"/><circle cx="38" cy="204" r="2"/><circle cx="50" cy="204" r="2"/>
+              <circle cx="26" cy="220" r="2"/><circle cx="38" cy="220" r="2"/><circle cx="50" cy="220" r="2"/>
+            </g>
+            <!-- 中央暖沙金字塔 -->
+            <polygon points="210,58 76,294 344,294" fill="#EDDFCB"/>
+            <!-- 引导层：两侧虚线与上行箭头 -->
+            <g class="layer-guide">
+              <line x1="76" y1="294" x2="210" y2="58" stroke="#E54B1A" stroke-width="2" stroke-dasharray="6 5"/>
+              <line x1="344" y1="294" x2="210" y2="58" stroke="#E54B1A" stroke-width="2" stroke-dasharray="6 5"/>
+              <path d="M116,222 L144,173 M134,177 L144,173 L144,185" fill="none" stroke="#E54B1A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M304,222 L276,173 M286,177 L276,173 L276,185" fill="none" stroke="#E54B1A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <!-- 层级层：上小中大下三圆 -->
+            <g class="layer-hierarchy">
+              <circle cx="210" cy="112" r="7.5" fill="#11100E"/>
+              <rect x="190" y="126" width="40" height="6" fill="#11100E"/>
+              <line x1="184" y1="140" x2="236" y2="140" stroke="#4B463F" stroke-width="1.2"/>
+              <line x1="184" y1="147" x2="236" y2="147" stroke="#4B463F" stroke-width="1.2"/>
+              <circle cx="210" cy="196" r="36" fill="#E54B1A"/>
+              <circle cx="144" cy="254" r="10.5" fill="#11100E"/>
+              <circle cx="210" cy="254" r="10.5" fill="#11100E"/>
+              <circle cx="276" cy="254" r="10.5" fill="#11100E"/>
+              <line x1="126" y1="274" x2="162" y2="274" stroke="#4B463F" stroke-width="1.2"/>
+              <line x1="192" y1="274" x2="228" y2="274" stroke="#4B463F" stroke-width="1.2"/>
+              <line x1="258" y1="274" x2="294" y2="274" stroke="#4B463F" stroke-width="1.2"/>
+            </g>
+            <!-- 稳定层：底部厚黑横梁 -->
+            <g class="layer-stability">
+              <rect x="64" y="294" width="292" height="11" fill="#11100E"/>
+              <text x="210" y="324" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#4B463F">WIDE BASE PLINTH · 稳定底座</text>
+            </g>
+            <!-- 焦点层：顶点朱红圆与三道顶芒 -->
+            <g class="layer-focus">
+              <circle cx="210" cy="48" r="9.5" fill="#E54B1A"/>
+              <line x1="200" y1="32" x2="195" y2="22" stroke="#E54B1A" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="210" y1="29" x2="210" y2="18" stroke="#E54B1A" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="220" y1="32" x2="225" y2="22" stroke="#E54B1A" stroke-width="2.2" stroke-linecap="round"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="anatomy-panel">
+          <p class="sec-intro">312 号原海报没有用真实剧照，而是把三角调度剥离成四组最纯粹的几何语言。点选下面四枚原则徽标，看每一道力究竟藏在图的哪一层。</p>
+          <div class="anatomy-tabs" role="group" aria-label="选择要解剖的原海报原则">
+            <button type="button" class="anat-btn is-active" data-anatomy="stability" aria-pressed="true">▲ 稳定</button>
+            <button type="button" class="anat-btn" data-anatomy="guide" aria-pressed="false">↑ 引导</button>
+            <button type="button" class="anat-btn" data-anatomy="hierarchy" aria-pressed="false">≡ 层级</button>
+            <button type="button" class="anat-btn" data-anatomy="focus" aria-pressed="false">◎ 焦点</button>
+          </div>
+          <div class="anatomy-readout">
+            <p class="mono-kicker" id="anatomy-title">稳定 · STABILITY</p>
+            <blockquote class="poster-quote" id="anatomy-quote">「底宽顶窄，形成稳定支撑，视觉落点清晰可靠。」</blockquote>
+            <p class="body-p" id="anatomy-detail"></p>
+            <p class="cue-line" id="anatomy-cue"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 节：从祭坛画到电影片场（历史来源） -->
+  <section class="sec sec-sand" id="sec-02" aria-labelledby="h-02">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">02</span>
+        <div>
+          <h2 id="h-02">从祭坛画到电影片场</h2>
+          <p class="sec-en" lang="en">From High Renaissance Pyramids to Film Blocking</p>
+        </div>
+      </header>
+
+      <div class="history-layout">
+        <div class="era-list" role="group" aria-label="选择历史里程碑">
+          <button type="button" class="era-btn is-active" data-era="davinci" aria-pressed="true">
+            <span class="era-year" lang="en">1483–1486</span>
+            <strong>达·芬奇《岩间圣母》</strong>
+            <span>金字塔群像首立经典范式</span>
+          </button>
+          <button type="button" class="era-btn" data-era="raphael" aria-pressed="false">
+            <span class="era-year" lang="en">1505–1506</span>
+            <strong>拉斐尔《草地上的圣母》</strong>
+            <span>开阔底边与清朗轮廓提纯</span>
+          </button>
+          <button type="button" class="era-btn" data-era="arnheim" aria-pressed="false">
+            <span class="era-year" lang="en">1954 / 1974</span>
+            <strong>阿恩海姆《艺术与视知觉》</strong>
+            <span>用格式塔重力轴解释稳与危</span>
+          </button>
+          <button type="button" class="era-btn" data-era="cinema" aria-pressed="false">
+            <span class="era-year" lang="en">1991–2005</span>
+            <strong>电影 A / I / L 场面调度</strong>
+            <span>走位与机位让三角在时间里流动</span>
+          </button>
+        </div>
+
+        <div class="history-stage">
+          <svg id="history-svg" class="history-svg" viewBox="0 0 360 240" role="img" aria-label="三角构图历史演进矢量结构图"></svg>
+          <div class="history-caption">
+            <p class="mono-kicker" id="history-meta">1483–1486 · 卢浮宫藏品 INV 777</p>
+            <h3 id="history-title">达·芬奇《岩间圣母》</h3>
+            <p class="body-p" id="history-text"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 节（暗房版）：三种三角，三种权力（温和补充原海报 + 重力轮盘） -->
+  <section class="sec sec-dark" id="sec-03" aria-labelledby="h-03">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">03</span>
+        <div>
+          <h2 id="h-03">三种三角，三种权力</h2>
+          <p class="sec-en" lang="en">Upright Stability, Asymmetric Tension &amp; Inverted Pressure</p>
+        </div>
+      </header>
+
+      <div class="refine-banner">
+        <span class="refine-tag">海报侧重正三角</span>
+        <p>原海报着重强调「底宽顶窄，形成稳定支撑」，这是经典正三角的强项。但放到电影片场，导演并不总想让画面「稳」——把三角形倒过来或斜过去，照样是极犀利的叙事武器。</p>
+      </div>
+
+      <div class="dial-grid">
+        <div class="dial-stage-col">
+          <div class="dial-canvas-wrap">
+            <canvas id="dial-canvas" tabindex="0" aria-label="可拖动旋转的三角形重力倾角实验，支持方向键调整角度"></canvas>
+          </div>
+          <div class="dial-presets" role="group" aria-label="快速切换三种三角倾角">
+            <button type="button" class="dark-btn is-active" data-tilt-preset="0">0° 正三角（权威）</button>
+            <button type="button" class="dark-btn" data-tilt-preset="48">48° 偏心斜三角（变局）</button>
+            <button type="button" class="dark-btn" data-tilt-preset="180">180° 倒三角（压迫）</button>
+          </div>
+        </div>
+
+        <div class="dial-readout">
+          <div class="dial-nums">
+            <div>
+              <span class="dark-label">当前倾角</span>
+              <strong class="dial-big" id="dial-angle" lang="en">0°</strong>
+            </div>
+            <div>
+              <span class="dark-label">稳定判定</span>
+              <strong class="dial-stat" id="dial-stability">高稳定（底盘承重）</strong>
+            </div>
+          </div>
+          <h3 class="dial-mode" id="dial-mode">正三角 · 稳固秩序</h3>
+          <p class="dark-p" id="dial-desc"></p>
+          <ul class="dark-notes">
+            <li><strong>正三角</strong>：阿恩海姆指出，底重顶轻顺应重力预期，天然赋予顶点「不可动摇」的气场。</li>
+            <li><strong>偏心斜三角</strong>：顶点离开中轴后，两腰一陡一缓，像一根即将倾倒的杠杆，适合潜藏冲突的对话。</li>
+            <li><strong>倒三角</strong>：两人高立上沿形成夹角、一人沉底受压，常用于法庭质询、背叛摊牌与绝境困兽。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 节：一镜之内如何换主角（三拍长镜头时间轴 + 同类编号链接） -->
+  <section class="sec sec-paper" id="sec-04" aria-labelledby="h-04">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">04</span>
+        <div>
+          <h2 id="h-04">一镜之内如何换主角</h2>
+          <p class="sec-en" lang="en">Passing the Apex Across One Uncut Take</p>
+        </div>
+      </header>
+
+      <p class="sec-lead-wide">电影里的三角不是画死在画布上的静物。在西德尼·吕美特《十二怒汉》（1957）与黑泽明《天国与地狱》（1963）这类室内群戏里，导演很少靠频繁正反打来切分焦点——只要有人起身、走位，或摄影机沿弧轻移，三角形就会在同一个长镜头里旋转重构，把最高顶点平稳交到下一位角色手上。</p>
+
+      <div class="take-lab">
+        <div class="take-canvas-wrap">
+          <canvas id="take-canvas" aria-label="三拍长镜头俯视走位与宽银幕画面同步演示"></canvas>
+        </div>
+        <div class="take-controls">
+          <div class="take-bar-row">
+            <button type="button" class="ink-btn" id="take-play">播放三拍</button>
+            <input type="range" id="take-slider" min="0" max="100" value="0" aria-label="拖动长镜头时间轴进度，0 到 100">
+            <div class="beat-pills" role="group" aria-label="跳到对应节拍">
+              <button type="button" class="mini-btn is-active" data-beat="0">第 1 拍</button>
+              <button type="button" class="mini-btn" data-beat="1">第 2 拍</button>
+              <button type="button" class="mini-btn" data-beat="2">第 3 拍</button>
+            </div>
+          </div>
+          <div class="take-readout">
+            <div class="take-tags">
+              <span class="mono-pill" id="take-tag" lang="en">BEAT 01 · 开场宣读</span>
+              <span class="verm-pill" id="take-owner">A 掌顶点</span>
+            </div>
+            <p class="body-p" id="take-desc"></p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="sibling-strip" aria-label="同一小类的其它调度方法">
+        <p class="sibling-title">场面调度小类速览（各页专注各自核心，不在此重复展开）</p>
+        <ul class="sibling-list">
+          <li>想沿纵深拉出前中后三层的剧烈大小对比，看 <a href="https://layout.xiaoxiaodong.ai/310/play/" target="_blank" rel="noopener">310 深度调度</a>；</li>
+          <li>想把透视压平为 0° 垂直正面立面构图，看 <a href="https://layout.xiaoxiaodong.ai/311/play/" target="_blank" rel="noopener">311 平面调度</a>；</li>
+          <li>想沿水平横轴铺开行进与群像展开，看 <a href="https://layout.xiaoxiaodong.ai/313/play/" target="_blank" rel="noopener">313 横向调度</a>；</li>
+          <li>想借多层前景框景与遮挡织出窥视纵深，看 <a href="https://layout.xiaoxiaodong.ai/314/play/" target="_blank" rel="noopener">314 多层前景调度</a>。</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- 05 节：没三个人也能凑三角（三开关隐形三角合成台） -->
+  <section class="sec sec-ivory" id="sec-05" aria-labelledby="h-05">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">05</span>
+        <div>
+          <h2 id="h-05">没三个人也能凑三角</h2>
+          <p class="sec-en" lang="en">Props, Light Cones &amp; Sightlines as the Third Vertex</p>
+        </div>
+      </header>
+
+      <div class="implied-grid">
+        <div class="implied-stage">
+          <svg id="implied-svg" class="implied-svg" viewBox="0 0 460 270" role="img" aria-label="双人镜头通过道具、顶光或视线补齐隐形三角形示意图">
+            <rect x="0" y="0" width="460" height="164" fill="#F4EADC"/>
+            <rect x="0" y="164" width="460" height="106" fill="#E6D7C1"/>
+            <!-- 桌面 -->
+            <rect x="74" y="190" width="312" height="12" fill="#2B2621"/>
+            <rect x="96" y="202" width="12" height="60" fill="#2B2621"/>
+            <rect x="352" y="202" width="12" height="60" fill="#2B2621"/>
+
+            <!-- 初始平庸双人跷跷板线 -->
+            <g id="imp-seesaw" opacity="1">
+              <line x1="120" y1="116" x2="340" y2="116" stroke="#A62614" stroke-width="1.8" stroke-dasharray="5 4"/>
+              <text x="230" y="106" text-anchor="middle" font-family="Noto Sans SC, sans-serif" font-size="11" fill="#A62614">水平跷跷板 · 缺收束顶点</text>
+            </g>
+
+            <!-- 开关 2：顶光光锥（正三角） -->
+            <g id="imp-light-layer" opacity="0">
+              <polygon points="230,26 88,200 372,200" fill="rgba(229,75,26,0.14)"/>
+              <line x1="230" y1="26" x2="118" y2="122" stroke="#E54B1A" stroke-width="2" stroke-dasharray="6 4"/>
+              <line x1="230" y1="26" x2="342" y2="122" stroke="#E54B1A" stroke-width="2" stroke-dasharray="6 4"/>
+              <rect x="214" y="14" width="32" height="10" fill="#11100E"/>
+              <circle cx="230" cy="28" r="6" fill="#E54B1A"/>
+            </g>
+
+            <!-- 开关 3：视线汇聚交点（隐形正三角） -->
+            <g id="imp-gaze-layer" opacity="0">
+              <line x1="128" y1="112" x2="230" y2="48" stroke="#11100E" stroke-width="1.8" stroke-dasharray="3 4"/>
+              <line x1="332" y1="112" x2="230" y2="48" stroke="#11100E" stroke-width="1.8" stroke-dasharray="3 4"/>
+              <circle cx="230" cy="48" r="9" fill="none" stroke="#E54B1A" stroke-width="2.2"/>
+              <circle cx="230" cy="48" r="3" fill="#E54B1A"/>
+            </g>
+
+            <!-- 开关 1：前景桌面证物/台灯（倒三角） -->
+            <g id="imp-prop-layer" opacity="0">
+              <polygon points="120,116 340,116 230,180" fill="rgba(229,75,26,0.13)"/>
+              <line x1="120" y1="116" x2="230" y2="180" stroke="#E54B1A" stroke-width="2" stroke-dasharray="6 4"/>
+              <line x1="340" y1="116" x2="230" y2="180" stroke="#E54B1A" stroke-width="2" stroke-dasharray="6 4"/>
+              <rect x="218" y="172" width="24" height="18" fill="#E54B1A"/>
+              <circle cx="230" cy="166" r="5" fill="#11100E"/>
+            </g>
+
+            <!-- 左右两位无五官坐姿角色 -->
+            <circle cx="120" cy="116" r="15" fill="#11100E"/>
+            <path d="M96,190 L102,138 C104,132 136,132 138,138 L144,190 Z" fill="#11100E"/>
+            <circle cx="340" cy="116" r="15" fill="#2F2A25"/>
+            <path d="M316,190 L322,138 C324,132 356,132 358,138 L364,190 Z" fill="#2F2A25"/>
+            <rect x="0" y="262" width="460" height="8" fill="#11100E"/>
+          </svg>
+        </div>
+
+        <div class="implied-panel">
+          <p class="sec-intro">很多新手误以为「三角调度 = 画面里必须塞满三个人」。其实人脑只要拿到三个视觉锚点就会自动连面：关键道具、一束顶光，甚至两人共同注视的空白处，都能稳稳当起第三顶点。</p>
+          <div class="toggle-stack">
+            <label class="toggle-row">
+              <input type="checkbox" data-implied="prop">
+              <span class="toggle-box" aria-hidden="true"></span>
+              <span class="toggle-text"><strong>加入前景桌面证物</strong><small>构成向下收束的「道具倒三角」</small></span>
+            </label>
+            <label class="toggle-row">
+              <input type="checkbox" data-implied="light">
+              <span class="toggle-box" aria-hidden="true"></span>
+              <span class="toggle-text"><strong>开启居中吊灯顶光</strong><small>借两条光束斜边罩出「光影正三角」</small></span>
+            </label>
+            <label class="toggle-row">
+              <input type="checkbox" data-implied="gaze">
+              <span class="toggle-box" aria-hidden="true"></span>
+              <span class="toggle-text"><strong>统一两人斜上视线</strong><small>用目光交汇点捏出「隐形顶点」</small></span>
+            </label>
+          </div>
+          <div class="implied-readout" aria-live="polite">
+            <strong id="implied-status">双人跷跷板 · 缺第三顶点</strong>
+            <p class="body-p" id="implied-note"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 节（暗房版）：什么时候别用三角调度 -->
+  <section class="sec sec-dark" id="sec-06" aria-labelledby="h-06">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">06</span>
+        <div>
+          <h2 id="h-06">什么时候别用三角调度</h2>
+          <p class="sec-en" lang="en">When Triangular Staging Works Against Your Scene</p>
+        </div>
+      </header>
+
+      <p class="dark-lead">任何几何秩序都有代价：三角形天然偏爱主次分明与明确收敛，碰到下面四类拍摄意图时，强套三角反而会把戏拍假。</p>
+
+      <div class="avoid-tabs" role="group" aria-label="选择不适合用三角调度的场景">
+        <button type="button" class="dark-btn is-active" data-avoid="duel" aria-pressed="true">双人 50/50 僵持</button>
+        <button type="button" class="dark-btn" data-avoid="chaos" aria-pressed="false">街头失控群像</button>
+        <button type="button" class="dark-btn" data-avoid="closeup" aria-pressed="false">极短特写快切</button>
+        <button type="button" class="dark-btn" data-avoid="staged" aria-pressed="false">纪实日常闲聊</button>
+      </div>
+
+      <div class="avoid-compare">
+        <article class="compare-card is-bad">
+          <span class="compare-tag bad-tag">硬套三角翻车</span>
+          <svg id="avoid-bad-svg" class="compare-svg" viewBox="0 0 210 144" role="img" aria-label="强套三角构图的反面示意"></svg>
+          <h3 id="avoid-bad-title"></h3>
+          <p class="dark-p" id="avoid-bad-desc"></p>
+        </article>
+        <article class="compare-card is-good">
+          <span class="compare-tag good-tag">更诚实的构图策略</span>
+          <svg id="avoid-good-svg" class="compare-svg" viewBox="0 0 210 144" role="img" aria-label="更适合该场景的构图示意"></svg>
+          <h3 id="avoid-good-title"></h3>
+          <p class="dark-p" id="avoid-good-desc"></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 节：导演小练习（四选一，中性标签，只差高低与朝向单一变量） -->
+  <section class="sec sec-sand" id="sec-07" aria-labelledby="h-07">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">07</span>
+        <div>
+          <h2 id="h-07">导演小练习：挑对这一镜</h2>
+          <p class="sec-en" lang="en">Directing Drill · Spot the Controlling Arrangement</p>
+        </div>
+      </header>
+
+      <p class="quiz-prompt"><strong>剧本要求</strong>：一镜拍出「三人谈判，主角 A 牢牢掌控局面，B、C 在两侧听命」。下面四镜的水平间距、焦段与背景完全一致，<strong>只改变了三人的高低姿态</strong>。选出最符合要求的一镜：</p>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四个候选镜头">
+        <!-- 方案 A：三人齐高平排 -->
+        <button type="button" class="quiz-card" data-quiz-opt="A" aria-pressed="false">
+          <span class="quiz-label" lang="en">方案 A</span>
+          <svg class="quiz-svg" viewBox="0 0 240 144" aria-hidden="true">
+            <rect width="240" height="82" fill="#FAF4EC"/><rect y="82" width="240" height="62" fill="#E6D7C1"/>
+            <line class="quiz-guide" x1="50" y1="48" x2="190" y2="48" stroke="#A62614" stroke-width="2" stroke-dasharray="4 3"/>
+            <circle cx="50" cy="48" r="10" fill="#2E2924"/><path d="M36,134 L40,62 L60,62 L64,134 Z" fill="#2E2924"/>
+            <circle cx="120" cy="48" r="10" fill="#E54B1A"/><path d="M106,134 L110,62 L130,62 L134,134 Z" fill="#11100E"/>
+            <circle cx="190" cy="48" r="10" fill="#2E2924"/><path d="M176,134 L180,62 L200,62 L204,134 Z" fill="#2E2924"/>
+            <text x="50" y="96" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11" fill="#FAF4EC">B</text>
+            <text x="120" y="96" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11" fill="#FAF4EC">A</text>
+            <text x="190" y="96" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11" fill="#FAF4EC">C</text>
+            <rect y="136" width="240" height="8" fill="#11100E"/>
+          </svg>
+        </button>
+
+        <!-- 方案 B（正确）：A 居中最高，B C 坐于两侧低位 -->
+        <button type="button" class="quiz-card" data-quiz-opt="B" aria-pressed="false">
+          <span class="quiz-label" lang="en">方案 B</span>
+          <svg class="quiz-svg" viewBox="0 0 240 144" aria-hidden="true">
+            <rect width="240" height="82" fill="#FAF4EC"/><rect y="82" width="240" height="62" fill="#E6D7C1"/>
+            <polygon class="quiz-guide" points="120,28 50,82 190,82" fill="rgba(229,75,26,0.16)" stroke="#E54B1A" stroke-width="2" stroke-dasharray="5 3"/>
+            <circle cx="50" cy="82" r="10" fill="#2E2924"/><path d="M36,134 L40,96 L60,96 L64,134 Z" fill="#2E2924"/>
+            <circle cx="120" cy="28" r="10" fill="#E54B1A"/><path d="M106,134 L110,42 L130,42 L134,134 Z" fill="#11100E"/>
+            <circle cx="190" cy="82" r="10" fill="#2E2924"/><path d="M176,134 L180,96 L200,96 L204,134 Z" fill="#2E2924"/>
+            <text x="50" y="118" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11" fill="#FAF4EC">B</text>
+            <text x="120" y="76" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11" fill="#FAF4EC">A</text>
+            <text x="190" y="118" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11" fill="#FAF4EC">C</text>
+            <rect y="136" width="240" height="8" fill="#11100E"/>
+          </svg>
+        </button>
+
+        <!-- 方案 C：B C 两侧高立，A 居中坐低（倒三角） -->
+        <button type="button" class="quiz-card" data-quiz-opt="C" aria-pressed="false">
+          <span class="quiz-label" lang="en">方案 C</span>
+          <svg class="quiz-svg" viewBox="0 0 240 144" aria-hidden="true">
+            <rect width="240" height="82" fill="#FAF4EC"/><rect y="82" width="240" height="62" fill="#E6D7C1"/>
+            <polygon class="quiz-guide" points="50,30 190,30 120,84" fill="rgba(166,38,20,0.14)" stroke="#A62614" stroke-width="2" stroke-dasharray="5 3"/>
+            <circle cx="50" cy="30" r="10" fill="#2E2924"/><path d="M36,134 L40,44 L60,44 L64,134 Z" fill="#2E2924"/>
+            <circle cx="120" cy="84" r="10" fill="#E54B1A"/><path d="M106,134 L110,98 L130,98 L134,134 Z" fill="#11100E"/>
+            <circle cx="190" cy="30" r="10" fill="#2E2924"/><path d="M176,134 L180,44 L200,44 L204,134 Z" fill="#2E2924"/>
+            <text x="50" y="78" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11" fill="#FAF4EC">B</text>
+            <text x="120" y="120" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11" fill="#FAF4EC">A</text>
+            <text x="190" y="78" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11" fill="#FAF4EC">C</text>
+            <rect y="136" width="240" height="8" fill="#11100E"/>
+          </svg>
+        </button>
+
+        <!-- 方案 D：左高右低单向斜坡，B 抢占最高点 -->
+        <button type="button" class="quiz-card" data-quiz-opt="D" aria-pressed="false">
+          <span class="quiz-label" lang="en">方案 D</span>
+          <svg class="quiz-svg" viewBox="0 0 240 144" aria-hidden="true">
+            <rect width="240" height="82" fill="#FAF4EC"/><rect y="82" width="240" height="62" fill="#E6D7C1"/>
+            <line class="quiz-guide" x1="50" y1="28" x2="190" y2="86" stroke="#A62614" stroke-width="2" stroke-dasharray="5 3"/>
+            <circle cx="50" cy="28" r="10" fill="#2E2924"/><path d="M36,134 L40,42 L60,42 L64,134 Z" fill="#2E2924"/>
+            <circle cx="120" cy="56" r="10" fill="#E54B1A"/><path d="M106,134 L110,70 L130,70 L134,134 Z" fill="#11100E"/>
+            <circle cx="190" cy="86" r="10" fill="#2E2924"/><path d="M176,134 L180,100 L200,100 L204,134 Z" fill="#2E2924"/>
+            <text x="50" y="76" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11" fill="#FAF4EC">B</text>
+            <text x="120" y="102" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11" fill="#FAF4EC">A</text>
+            <text x="190" y="120" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11" fill="#FAF4EC">C</text>
+            <rect y="136" width="240" height="8" fill="#11100E"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="quiz-feedback" id="quiz-feedback" hidden aria-live="polite">
+        <strong id="quiz-fb-head"></strong>
+        <p class="body-p" id="quiz-fb-body"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 节：原海报与关键词 -->
+  <section class="sec sec-paper" id="sec-08" aria-labelledby="h-08">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">08</span>
+        <div>
+          <h2 id="h-08">原海报与关键词</h2>
+          <p class="sec-en" lang="en">Original Poster 312 &amp; Visual Keywords</p>
+        </div>
+      </header>
+
+      <div class="poster-grid">
+        <figure class="poster-figure">
+          <button type="button" class="poster-trigger" id="poster-trigger" aria-label="点击放大查看 312 三角调度原海报">
+            <img
+              id="poster"
+              src="poster.webp"
+              width="1086"
+              height="1448"
+              draggable="false"
+              alt="312 三角调度原海报：暖象牙纸底配左上角朱红斜切三角与厚重大标，中央为暖沙色金字塔坐落于厚黑横梁上，两侧朱红虚线与上行箭头指向顶点朱红圆与三道顶芒，右侧列有稳定、引导、层级、焦点四项原则，底部为顶点聚焦、两侧引导、底部支撑三栏注记。"
+            >
+          </button>
+          <figcaption class="poster-cap">点击海报可放大查看，支持滚轮与拖拽平移，按 Esc 键收起。</figcaption>
+        </figure>
+
+        <div class="poster-meta">
+          <p class="mono-kicker" lang="en">NO. 312 · TRIANGULAR ARRANGEMENT</p>
+          <p class="poster-en-stmt" lang="en">TRIANGULAR ARRANGEMENT ORGANIZES VISUAL WEIGHT TOWARD A STABLE APEX TO ESTABLISH CLEAR VISUAL ORDER AND INFORMATION HIERARCHY.</p>
+
+          <h3 class="meta-subhead">四个关键词 <span lang="en">Keywords</span></h3>
+          <ul class="kw-grid">
+            <li><span class="kw-zh">稳定</span><span class="kw-en" lang="en">STABILITY</span><small>底宽顶窄，形成稳定支撑</small></li>
+            <li><span class="kw-zh">引导</span><span class="kw-en" lang="en">GUIDE</span><small>线条与方向向上汇聚</small></li>
+            <li><span class="kw-zh">层级</span><span class="kw-en" lang="en">HIERARCHY</span><small>从顶点到底部由强至弱</small></li>
+            <li><span class="kw-zh">焦点</span><span class="kw-en" lang="en">FOCUS</span><small>顶点强化主题与核心信息</small></li>
+          </ul>
+
+          <h3 class="meta-subhead">底部三项结构注记</h3>
+          <dl class="tri-notes">
+            <div><dt>● 顶点聚焦</dt><dd>核心信息置于顶点，形成强烈聚焦。</dd></div>
+            <div><dt>▶ 两侧引导</dt><dd>两侧线条向中心汇聚，增强方向感与秩序感。</dd></div>
+            <div><dt>■ 底部支撑</dt><dd>底部信息分布均衡，提供稳定的承载力。</dd></div>
+          </dl>
+
+          <h3 class="meta-subhead meta-refs-head">主要出处与书目 <span lang="en">References</span></h3>
+          <ul class="ref-list">
+            <li>达·芬奇《岩间圣母》（1483–1486），卢浮宫藏品 INV 777。</li>
+            <li>拉斐尔《草地上的圣母》（1505–1506），维也纳艺术史博物馆 GG 175。</li>
+            <li>Rudolf Arnheim, <em>Art and Visual Perception</em>（UC Press, 1954 / 1974）。</li>
+            <li>Steven D. Katz, <em>Film Directing Shot by Shot</em>（Michael Wiese, 1991）。</li>
+            <li>Bruce Block, <em>The Visual Story</em>（Focal Press / Routledge, 2001）；David Bordwell, <em>Figures Traced in Light</em>（UC Press, 2005）。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p class="footer-links">
+      <a href="https://layout.xiaoxiaodong.ai/312/play/" target="_blank" rel="noopener">在线版</a>
+      <span aria-hidden="true"> / </span>
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span aria-hidden="true"> · </span>
+      <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">海报 CC BY 4.0</a>
+      <span aria-hidden="true"> · </span>
+      <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">源文件 GitHub</a>
+    </p>
+    <span class="footer-bar" aria-hidden="true"></span>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱（支持缩放、拖动、Esc 关闭，图片 draggable="false"） -->
+<div class="lightbox" id="poster-lightbox" role="dialog" aria-modal="true" aria-label="312 三角调度原海报大图" hidden>
+  <div class="lightbox-bar">
+    <span class="lightbox-title">NO. 312 三角调度 · 原海报</span>
+    <div class="lightbox-tools">
+      <button type="button" class="lb-btn" id="poster-zoom-out" aria-label="缩小">−</button>
+      <span class="lb-readout" id="poster-zoom-readout" lang="en">100%</span>
+      <button type="button" class="lb-btn" id="poster-zoom-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn" id="poster-zoom-reset">复原</button>
+      <button type="button" class="lb-btn lb-close" id="poster-lightbox-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lightbox-stage" id="poster-lightbox-stage">
+    <img id="poster-lightbox-img" alt="312 三角调度原海报放大视图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
