@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>194 手稿网格 · MANUSCRIPT GRID</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar" aria-label="归类与编号">
+  <div class="wrap topbar-in">
+    <span class="topbar-cat"><i class="dot-cinnabar" aria-hidden="true"></i>字体、网格与东亚文字 / 网格系统</span>
+    <span class="topbar-id" lang="en">NO. 194 · MANUSCRIPT GRID</span>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== 开场：书卷眉首 + 活体稿纸与双页版心裁定台 ==================== -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="wrap hero-wrap">
+      <!-- 书卷眉首（承袭 194 原海报顶栏气质） -->
+      <div class="masthead">
+        <div class="masthead-left">
+          <div class="title-lockup">
+            <div class="title-demo-frame" id="title-demo-frame" aria-hidden="true">
+              <span class="tdf-box"></span>
+            </div>
+            <div class="title-text-col">
+              <h1 id="page-title">手稿网格</h1>
+              <p class="title-en" lang="en">MANUSCRIPT GRID</p>
+            </div>
+          </div>
+          <div class="masthead-rule" aria-hidden="true"></div>
+          <p class="masthead-summary">为内容建立秩序，让阅读更专注、舒适。</p>
+        </div>
+
+        <div class="masthead-right">
+          <div class="motto-block" aria-label="原海报题辞">
+            <span class="motto-line">有界之中</span>
+            <span class="motto-line">自成章法</span>
+          </div>
+          <!-- 定制朱文方印 SVG（呼应 194 原海报右上印章） -->
+          <svg class="seal-mark" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="手稿朱文方印">
+            <rect x="2" y="2" width="44" height="44" fill="none" stroke="#902004" stroke-width="2.2"/>
+            <rect x="5.5" y="5.5" width="37" height="37" fill="none" stroke="#902004" stroke-width="0.9"/>
+            <line x1="24" y1="7" x2="24" y2="41" stroke="#902004" stroke-width="1"/>
+            <path d="M10 13h10M10 19h10M15 10v24M10 27c2 3 8 3 10 0M28 12h10v7H28zM28 24h10M33 19v18M28 31h10" fill="none" stroke="#902004" stroke-width="1.5" stroke-linecap="square"/>
+          </svg>
+          <output id="hero-seal-status" class="seal-status" data-pass="0" aria-live="polite">0 / 5 待校版</output>
+        </div>
+      </div>
+
+      <!-- 主舞台双栏：左 54% 活体稿纸台 × 右 46% 校勘书签与五项古苔原则列 -->
+      <div class="hero-grid">
+        <div class="hero-stage-col">
+          <!-- 稿纸上方轻量模式栏 -->
+          <div class="stage-bar" role="toolbar" aria-label="稿纸视图与辅助线">
+            <div class="seg-group" role="group" aria-label="单页或对开">
+              <button type="button" class="seg-btn is-active" data-hero-view="single" aria-pressed="true">单页稿纸</button>
+              <button type="button" class="seg-btn" data-hero-view="spread" aria-pressed="false">双页对开</button>
+            </div>
+            <div class="tool-group">
+              <button type="button" class="tool-btn" id="btn-canon" aria-pressed="false">古典九分线</button>
+              <button type="button" class="tool-btn" id="btn-thumbs" aria-pressed="false">拇指握持区</button>
+              <button type="button" class="tool-btn tool-btn-warn" id="btn-reset">复原错版</button>
+            </div>
+          </div>
+
+          <!-- 主角 2D Canvas 活体稿纸与双页书台（标 data-perf-drag） -->
+          <div class="canvas-shell">
+            <canvas id="hero-canvas" class="hero-canvas" data-perf-drag tabindex="0" aria-label="活体手稿网格裁定画布：拖拽四边游标或按方向键调节上、下、左、右边距"></canvas>
+          </div>
+
+          <!-- 紧贴底沿的单行排字与边界微调带 -->
+          <div class="stage-controls" aria-label="版心参数微调">
+            <div class="ctrl-row">
+              <label class="ctrl-slider" for="ctrl-leading">
+                <span class="ctrl-lbl">行距</span>
+                <input id="ctrl-leading" type="range" min="1.18" max="2.18" step="0.02" value="1.18">
+                <output id="ctrl-leading-val" class="mono">1.18×</output>
+              </label>
+              <button type="button" class="ctrl-chip" id="btn-clutter" aria-pressed="false">干扰插块：开</button>
+              <div class="fmt-group" role="group" aria-label="开本比例">
+                <button type="button" class="fmt-btn is-active" data-hero-format="classic23" aria-pressed="true">2:3 经典</button>
+                <button type="button" class="fmt-btn" data-hero-format="isoA4" aria-pressed="false">A4</button>
+                <button type="button" class="fmt-btn" data-hero-format="pocket" aria-pressed="false">口袋本</button>
+              </div>
+            </div>
+            <div class="ctrl-row ctrl-edge-row">
+              <div class="edge-tabs" role="group" aria-label="选择要微调的边距">
+                <button type="button" class="edge-tab" data-edge-select="top" aria-pressed="false">上边距 5%</button>
+                <button type="button" class="edge-tab" data-edge-select="bottom" aria-pressed="false">下边距 5%</button>
+                <button type="button" class="edge-tab" data-edge-select="inner" aria-pressed="false">左边距 5%</button>
+                <button type="button" class="edge-tab is-active" data-edge-select="outer" aria-pressed="true">右边距 5%</button>
+              </div>
+              <div class="edge-stepper" aria-label="步进调节当前边距">
+                <button type="button" class="step-btn" id="btn-edge-minus" aria-label="减小当前边距">−</button>
+                <output id="edge-readout" class="sr-only">右边距 5%</output>
+                <button type="button" class="step-btn" id="btn-edge-plus" aria-label="增大当前边距">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 旁侧：校勘书签诊单 + 原海报五枚古苔圆徽原则列 -->
+        <aside class="hero-side-col" aria-label="实时校勘诊单与五项原则">
+          <div class="diag-slip" aria-live="polite">
+            <div class="diag-top">
+              <span id="diag-tag" class="diag-tag" data-pass="0">错态 · 满版窒息</span>
+              <span class="diag-meta" lang="en">LIVE CHECK</span>
+            </div>
+            <h3 id="diag-headline" class="diag-headline">留白只剩 19%，文字紧贴纸边喘不过气</h3>
+            <p id="diag-reason" class="diag-reason">当前最窄边距仅 5%，正文撑满页面 81%。单行被拖长到 41 字，眼睛回扫容易串行；手一捧书，拇指还会直接盖住外侧和底行的字。</p>
+            <p id="diag-action" class="diag-action">直接在稿纸上向内拖拉四条边线（或在版心内左右拖动），让左右与上边距达到 15%–20%、下边距达到 20%–25%。</p>
+            <dl class="diag-metrics">
+              <div><dt>总留白</dt><dd id="m-whitespace" class="mono">19%</dd></div>
+              <div><dt>单行字数</dt><dd id="m-measure" class="mono">41 字/行</dd></div>
+              <div><dt>四边实比</dt><dd id="m-ratio" class="mono">1:1.5:1:1.5</dd></div>
+              <div><dt>版心占比</dt><dd id="m-area" class="mono">81%</dd></div>
+            </dl>
+          </div>
+
+          <div class="principles-box">
+            <p class="principles-head"><i class="dot-cinnabar" aria-hidden="true"></i>手稿网格的五个原则<span class="principles-hint">点按可点亮稿纸对应结构</span></p>
+            <ul class="principles-list">
+              <li>
+                <button type="button" class="principle-item" data-ok="0" data-focus="0" aria-pressed="false">
+                  <span class="p-badge" lang="en">01</span>
+                  <span class="p-main">
+                    <span class="p-title-row"><strong>留白为先</strong><span class="principle-verdict mono">留白 19% · 窒息</span></span>
+                    <span class="p-desc">边距留白创造呼吸感，让内容在空间中被看见。</span>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="principle-item" data-ok="0" data-focus="0" aria-pressed="false">
+                  <span class="p-badge" lang="en">02</span>
+                  <span class="p-main">
+                    <span class="p-title-row"><strong>阅读舒适</strong><span class="principle-verdict mono">41 字 · 过长</span></span>
+                    <span class="p-desc">合理的行宽与行距，提升长文阅读的舒适度。</span>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="principle-item" data-ok="0" data-focus="0" aria-pressed="false">
+                  <span class="p-badge" lang="en">03</span>
+                  <span class="p-main">
+                    <span class="p-title-row"><strong>聚焦内容</strong><span class="principle-verdict mono">插块抢戏 · 断流</span></span>
+                    <span class="p-desc">明确的正文区，减少视觉干扰，强化专注。</span>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="principle-item" data-ok="0" data-focus="0" aria-pressed="false">
+                  <span class="p-badge" lang="en">04</span>
+                  <span class="p-main">
+                    <span class="p-title-row"><strong>视觉统一</strong><span class="principle-verdict mono">地脚偏浅 · 下坠</span></span>
+                    <span class="p-desc">网格建立稳定的秩序，使版面整洁、专业。</span>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="principle-item" data-ok="0" data-focus="0" aria-pressed="false">
+                  <span class="p-badge" lang="en">05</span>
+                  <span class="p-main">
+                    <span class="p-title-row"><strong>古典秩序</strong><span class="principle-verdict mono">拇指遮字 · 缺握持</span></span>
+                    <span class="p-desc">源自传统书写智慧，成就经得起时间考验的版面。</span>
+                  </span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 01 留白不是剩下来的 ==================== -->
+  <section class="sec sec-ivory" id="s01" aria-labelledby="h01">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">01</span>
+        <div class="sec-titles">
+          <h2 id="h01">留白不是剩下来的</h2>
+          <p class="sec-en" lang="en">Margins Are the Frame, Not Leftover Paper</p>
+        </div>
+      </header>
+
+      <div class="two-col">
+        <div class="prose-col">
+          <p class="lead">原海报把第一条原则定为「留白为先：边距留白创造呼吸感，让内容在空间中被看见」。手稿网格看似只有一个大方框，真正决定气质与可读性的，反而是框外那四条空白。</p>
+          <p>四周边距同时承担三件实事：第一是<strong>物理握持</strong>，捧起纸书时拇指落在外缘和地脚，不遮住正文；第二是<strong>视觉隔离</strong>，把纸外的桌面杂物或浏览器边框挡在余光之外；第三是<strong>光学托举</strong>——人眼认定的视觉中心比几何正中略偏上，所以地脚（下边距）要比天头（上边距）更厚，文字才不会像滑向纸底。</p>
+
+          <div class="nuance-box">
+            <span class="nuance-tag">单页与对开之别</span>
+            <p>原海报上方单页标尺给出了「左边距 15–20% / 右边距 15–20%」，这在论文单页、散文长图与网页阅读里完全适用。但一旦装订成海报下方那样的<strong>双页对开书页</strong>，左右两页的内边距会在书脊处拼成一条双倍宽的空白：若内外依旧等宽，中缝就会比外缘宽出一倍，把跨页生生劈开。因此实体书通常把订口内距收窄、切口外距放宽。</p>
+          </div>
+
+          <div class="recipe-card">
+            <p class="recipe-head">三组常见开本四边分配（经验参考）</p>
+            <dl class="margin-recipes">
+              <div>
+                <dt>单页论文 / 报告</dt>
+                <dd class="mono">上 15–18% · 下 20–24% · 左右各 16–20%</dd>
+              </div>
+              <div>
+                <dt>经典 2:3 对开书籍</dt>
+                <dd class="mono">内 11% · 天 11–14% · 外 22% · 地 22–25%</dd>
+              </div>
+              <div>
+                <dt>便携口袋本（手持）</dt>
+                <dd class="mono">内 10–12% · 天 12% · 外 18–22% · 地 20–24%</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+
+        <div class="widget-card">
+          <div class="widget-head">
+            <h3 class="widget-title">对开书页折叠与握持检查器</h3>
+            <p class="widget-sub">对比单页等距直接装订 vs 经典内窄外宽，再切换阅读姿势</p>
+          </div>
+          <div class="btn-strip" role="group" aria-label="对开边距方案">
+            <button type="button" class="chip-btn is-active" data-s1-mode="equal" aria-pressed="true">单页等距 18% / 18%</button>
+            <button type="button" class="chip-btn" data-s1-mode="canon" aria-pressed="false">对开 2:3:4:6</button>
+            <button type="button" class="chip-btn" data-s1-mode="cramped" aria-pressed="false">满版压缩 6%</button>
+          </div>
+          <div class="btn-strip btn-strip-sub" role="group" aria-label="阅读姿势">
+            <button type="button" class="mini-btn is-active" data-s1-posture="hands" aria-pressed="true">双手拇指捧读</button>
+            <button type="button" class="mini-btn" data-s1-posture="flat" aria-pressed="false">桌面平摊看中缝</button>
+            <button type="button" class="mini-btn" data-s1-posture="annotate" aria-pressed="false">查看四边百分比</button>
+          </div>
+          <div id="sec01-svg" class="svg-stage"></div>
+          <dl class="inline-stats">
+            <div><dt>中缝实宽</dt><dd id="sec01-spine" class="mono">内+内 = 36%</dd></div>
+            <div><dt>体感实况</dt><dd id="sec01-thumb">拇指安稳落在白边内</dd></div>
+          </dl>
+          <p id="sec01-note" class="widget-note"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 02 一行多长、行距多宽 ==================== -->
+  <section class="sec sec-parchment" id="s02" aria-labelledby="h02">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">02</span>
+        <div class="sec-titles">
+          <h2 id="h02">一行多长、行距多宽</h2>
+          <p class="sec-en" lang="en">Measure and Leading Govern Long-Form Comfort</p>
+        </div>
+      </header>
+
+      <div class="sec02-intro">
+        <p>原海报第二条写着「阅读舒适：合理的行宽与行距，提升长文阅读的舒适度」。手稿网格的本质，是用左右边距替眼睛把行长收进舒适区间。排版实践里的<strong>经验值</strong>是：中文单栏长文每行约 24–34 字，西文按 Robert Bringhurst 在《字体排印风格要素》中的建议约 45–75 个字符（66 字符常被视为理想中值）。</p>
+        <p>行宽与行距永远成对起作用：行越长，眼睛从行尾斜向折返下一行起点的路程越远，行间白带就得越松（经验带约 1.55×–1.85×），才能防止回扫串行。关于横排眼动回扫的光学机制，详见 <a href="https://layout.xiaoxiaodong.ai/193/play/" target="_blank" rel="noopener">193 水平文字排版</a>；若要在多页正反面严格对齐每一行基线，则需要配合 <a href="https://layout.xiaoxiaodong.ai/198/play/" target="_blank" rel="noopener">198 基线网格</a>。</p>
+      </div>
+
+      <div class="specimen-lab">
+        <div class="specimen-controls">
+          <div class="width-cards" role="group" aria-label="选择手稿开本行宽">
+            <button type="button" class="w-card" data-s2-width="narrow" aria-pressed="false">
+              <strong class="w-card-t">极窄口袋条</strong>
+              <span class="mono">15em 宽</span>
+            </button>
+            <button type="button" class="w-card is-active" data-s2-width="literary" aria-pressed="true">
+              <strong class="w-card-t">标准文学本</strong>
+              <span class="mono">28em 宽</span>
+            </button>
+            <button type="button" class="w-card" data-s2-width="academic" aria-pressed="false">
+              <strong class="w-card-t">学术大开本</strong>
+              <span class="mono">34em 宽</span>
+            </button>
+            <button type="button" class="w-card" data-s2-width="wide" aria-pressed="false">
+              <strong class="w-card-t">无约束宽屏</strong>
+              <span class="mono">48em 宽</span>
+            </button>
+          </div>
+
+          <div class="matrix-bar">
+            <div class="matrix-group" role="group" aria-label="正文字号">
+              <span class="matrix-lbl">字号</span>
+              <button type="button" class="mini-btn" data-s2-size="14" aria-pressed="false">14px</button>
+              <button type="button" class="mini-btn is-active" data-s2-size="16" aria-pressed="true">16px</button>
+              <button type="button" class="mini-btn" data-s2-size="18" aria-pressed="false">18px</button>
+            </div>
+            <div class="matrix-group" role="group" aria-label="行距倍数">
+              <span class="matrix-lbl">行距</span>
+              <button type="button" class="mini-btn" data-s2-lead="1.25" aria-pressed="false">1.25× 紧</button>
+              <button type="button" class="mini-btn is-active" data-s2-lead="1.72" aria-pressed="true">1.72× 舒</button>
+              <button type="button" class="mini-btn" data-s2-lead="2.15" aria-pressed="false">2.15× 松</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="sec02-specimen" class="specimen-sheet">
+          <div class="specimen-meta">
+            <span id="sec02-cpl" class="mono">约 28 字 / 行</span>
+            <span id="sec02-lines" class="mono">实测折成 5 行 · 行距 1.72×</span>
+          </div>
+          <p id="sec02-para" class="specimen-para">走进书店随手翻开一本装帧精良的散文集，读上三页你往往说不出它好看在哪里，只觉得眼睛不累。秘密大半藏在版心宽度与行距的默契里：单行短到十几字，思维会被频频打断；拉长到四五十字，视线折返时就像在宽阔的冰面上寻找起点，稍一走神就跳回同一行。真正的秩序并不显山露水，它只替你把阅读的阻力降到最低。</p>
+          <p id="sec02-verdict" class="specimen-verdict" data-state="ok"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 古典九分与东西双轨（从哪来 · 深墨橄榄暗室） ==================== -->
+  <section class="sec sec-dark" id="s03" aria-labelledby="h03">
+    <div class="wrap">
+      <header class="sec-head sec-head-dark">
+        <span class="sec-no" lang="en">03</span>
+        <div class="sec-titles">
+          <h2 id="h03">古典九分与东西双轨</h2>
+          <p class="sec-en" lang="en">Origin: Canons of Page Construction &amp; Song Woodblock Books</p>
+        </div>
+      </header>
+
+      <div class="two-col two-col-dark">
+        <div class="prose-col">
+          <p class="lead">手稿网格的名字（Manuscript Grid）直指中世纪手抄羊皮纸写本。早在约公元 800 年的《凯尔经》（Book of Kells，都柏林圣三一学院藏本 MS 58）里，抄经人便先用尖针在纸边刺孔定位（pricking），再用钝器压出隐约的纵横界线（ruling），圈出规整的单栏正文区。</p>
+          <p>活字印刷诞生后，1455 年前后古登堡在美因茨印制的 42 行圣经虽采用双栏大对开，四周留白仍承袭写本法度；1501 年威尼斯出版家阿杜斯·马努提乌斯（Aldus Manutius）推出八开袖珍本《维吉尔》，以简洁单栏正文搭配斜体活字，让长文书籍真正走出书架、走进旅人的衣袋。</p>
+          <p>二十世纪中叶，荷兰学者 J. A. van de Graaf（1946）、阿根廷研究者 Raúl Rosarivo（九分法）与装帧大师扬·奇肖尔德（Jan Tschichold，德文文集 1975 年由 Birkhäuser 出版，英译本《书籍的形态》<em>The Form of the Book</em> 于 1991 年由 Hartley &amp; Marks 出版）参照十三世纪建筑师维拉尔·德·奥内库尔（Villard de Honnecourt）的几何分割图，用几条对角线还原出经典 2:3:4:6（内:天:外:地）版面法典。</p>
+          <p>而在东方，中国宋版雕版书却走出了另一套深植阅读习惯的规则——<strong>「天大於地」</strong>：竖排古籍把天头留得格外宽阔，好让读者用朱笔墨笔随手写下「眉批」，地脚则作刷印对齐基准而相对偏窄。东西方方向相反，底层逻辑却一脉相承：<strong>留白永远服务于人的阅读动作</strong>。</p>
+        </div>
+
+        <div class="dark-lab">
+          <div class="dark-bar">
+            <div class="dark-group" role="group" aria-label="东西传统切换">
+              <button type="button" class="dark-btn is-active" data-s3-tradition="west" aria-pressed="true">西方九分对角线</button>
+              <button type="button" class="dark-btn" data-s3-tradition="song" aria-pressed="false">宋版古籍 · 天大於地</button>
+            </div>
+            <div class="dark-steps" role="group" aria-label="作图步骤">
+              <button type="button" class="step-dot" data-s3-step="1" aria-pressed="false">1 跨页线</button>
+              <button type="button" class="step-dot" data-s3-step="2" aria-pressed="false">2 单页线</button>
+              <button type="button" class="step-dot" data-s3-step="3" aria-pressed="false">3 九分格</button>
+              <button type="button" class="step-dot is-active" data-s3-step="4" aria-pressed="true">4 锁版心</button>
+            </div>
+          </div>
+          <canvas id="sec03-canvas" class="dark-canvas" aria-label="古典九分对角线与宋版书版框分步作图画布"></canvas>
+          <p id="sec03-caption" class="dark-caption"></p>
+          <p class="dark-credit" lang="en">Van de Graaf (1946) · Tschichold (1975 / 1991) · Bringhurst (1992) · Samara (2002) · Elam &amp; Lupton (2004)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 单块版心的弹性变奏 ==================== -->
+  <section class="sec sec-sand" id="s04" aria-labelledby="h04">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">04</span>
+        <div class="sec-titles">
+          <h2 id="h04">单块版心的弹性变奏</h2>
+          <p class="sec-en" lang="en">Quiet Variation Inside One Consistent Block</p>
+        </div>
+      </header>
+
+      <p class="sec-lead">原海报第四、五条强调「视觉统一」与「古典秩序」。许多初学者担心整本书只用一个矩形会单调，其实真正成熟的手稿网格由<strong>主结构（唯一正文区）</strong>与<strong>次级辅助件</strong>共同构成：书眉、页码、章首下沉、外缘旁注与偶发的满宽图版各安其位，变奏就在秩序里生长出来。</p>
+
+      <div class="anatomy-board">
+        <div class="toggle-strip" role="group" aria-label="切换手稿网格辅助结构件">
+          <button type="button" class="chip-btn is-active" data-s4-part="sinkage" aria-pressed="true">章首下沉 1/3</button>
+          <button type="button" class="chip-btn is-active" data-s4-part="header" aria-pressed="true">天头书眉</button>
+          <button type="button" class="chip-btn" data-s4-part="marginalia" aria-pressed="false">外缘旁注</button>
+          <button type="button" class="chip-btn is-active" data-s4-part="folio" aria-pressed="true">地脚页码</button>
+          <button type="button" class="chip-btn" data-s4-part="bleed" aria-pressed="false">满宽图版</button>
+        </div>
+
+        <div id="sec04-spreads" class="spread-trio" data-sinkage="1" data-header="1" data-marginalia="0" data-folio="1" data-bleed="0">
+          <!-- 跨页一：章首页 -->
+          <figure class="mini-spread">
+            <div class="ms-pages">
+              <div class="ms-page ms-left">
+                <span class="ms-head">山川与风物</span>
+                <div class="ms-block ms-block-quiet">
+                  <span class="ms-chap-no" lang="en">CHAPTER III</span>
+                  <span class="ms-chap-title">雨后石阶</span>
+                </div>
+                <span class="ms-folio">028</span>
+              </div>
+              <div class="ms-page ms-right">
+                <span class="ms-head">第三章 · 雨后石阶</span>
+                <div class="ms-block ms-block-sink">
+                  <i class="ms-ln"></i><i class="ms-ln"></i><i class="ms-ln"></i><i class="ms-ln short"></i>
+                  <i class="ms-ln"></i><i class="ms-ln"></i><i class="ms-ln short"></i>
+                </div>
+                <span class="ms-note" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="ms-folio">029</span>
+              </div>
+            </div>
+            <figcaption>章首跨页 · 下沉起势</figcaption>
+          </figure>
+
+          <!-- 跨页二：连续正文 -->
+          <figure class="mini-spread">
+            <div class="ms-pages">
+              <div class="ms-page ms-left">
+                <span class="ms-head">山川与风物</span>
+                <div class="ms-block">
+                  <i class="ms-ln"></i><i class="ms-ln"></i><i class="ms-ln"></i><i class="ms-ln"></i>
+                  <i class="ms-ln short"></i><i class="ms-ln"></i><i class="ms-ln"></i><i class="ms-ln"></i>
+                </div>
+                <span class="ms-note ms-note-l" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="ms-folio">030</span>
+              </div>
+              <div class="ms-page ms-right">
+                <span class="ms-head">第三章 · 雨后石阶</span>
+                <div class="ms-block">
+                  <i class="ms-ln"></i><i class="ms-ln"></i><i class="ms-ln"></i><i class="ms-ln short"></i>
+                  <i class="ms-ln"></i><i class="ms-ln"></i><i class="ms-ln"></i><i class="ms-ln short"></i>
+                </div>
+                <span class="ms-note" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="ms-folio">031</span>
+              </div>
+            </div>
+            <figcaption>正文跨页 · 稳定长流</figcaption>
+          </figure>
+
+          <!-- 跨页三：图版插页 -->
+          <figure class="mini-spread">
+            <div class="ms-pages">
+              <div class="ms-page ms-left ms-plate-page">
+                <span class="ms-head">山川与风物</span>
+                <div class="ms-plate" aria-hidden="true"></div>
+                <span class="ms-folio">032</span>
+              </div>
+              <div class="ms-page ms-right">
+                <span class="ms-head">第三章 · 雨后石阶</span>
+                <div class="ms-block">
+                  <i class="ms-ln"></i><i class="ms-ln"></i><i class="ms-ln short"></i>
+                  <i class="ms-ln"></i><i class="ms-ln"></i><i class="ms-ln"></i><i class="ms-ln short"></i>
+                </div>
+                <span class="ms-note" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="ms-folio">033</span>
+              </div>
+            </div>
+            <figcaption>图版跨页 · 呼吸转折</figcaption>
+          </figure>
+        </div>
+
+        <p id="sec04-summary" class="anatomy-summary"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 在网格家族里的位置 ==================== -->
+  <section class="sec sec-ivory" id="s05" aria-labelledby="h05">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">05</span>
+        <div class="sec-titles">
+          <h2 id="h05">在网格家族里的位置</h2>
+          <p class="sec-en" lang="en">Where Manuscript Fits Among Grid Systems</p>
+        </div>
+      </header>
+
+      <div class="family-lab">
+        <div class="brief-tabs" role="tablist" aria-label="按出版物题材选网格">
+          <button type="button" class="brief-tab is-active" data-s5-brief="novel" aria-pressed="true">长篇小说 / 论文 / 诗集</button>
+          <button type="button" class="brief-tab" data-s5-brief="magazine" aria-pressed="false">专题月刊 / 报纸版面</button>
+          <button type="button" class="brief-tab" data-s5-brief="dashboard" aria-pressed="false">多指标后台 / 商品目录</button>
+          <button type="button" class="brief-tab" data-s5-brief="exhibition" aria-pressed="false">先锋展讯 / 实验画册</button>
+        </div>
+
+        <div class="brief-stage">
+          <div id="sec05-diagram" class="brief-diagram"></div>
+          <div class="brief-copy">
+            <span id="sec05-verdict" class="brief-badge" data-ok="1">留任 · 194 手稿网格</span>
+            <p id="sec05-detail"></p>
+            <div id="sec05-links" class="brief-links"></div>
+          </div>
+        </div>
+      </div>
+
+      <p class="sibling-index">
+        手稿网格是「网格系统」中最纯粹的起点。当信息变复杂，再按需切入同族兄弟：多栏并行看 <a href="https://layout.xiaoxiaodong.ai/195/play/" target="_blank" rel="noopener">195 分栏网格</a>，纵横矩阵看 <a href="https://layout.xiaoxiaodong.ai/196/play/" target="_blank" rel="noopener">196 模块化网格</a>，按内容权重自由切分看 <a href="https://layout.xiaoxiaodong.ai/197/play/" target="_blank" rel="noopener">197 层级网格</a>，锁定行间韵律看 <a href="https://layout.xiaoxiaodong.ai/198/play/" target="_blank" rel="noopener">198 基线网格</a>，两套叠加看 <a href="https://layout.xiaoxiaodong.ai/199/play/" target="_blank" rel="noopener">199 复合网格</a>，动态失衡看 <a href="https://layout.xiaoxiaodong.ai/200/play/" target="_blank" rel="noopener">200 非对称网格</a>；几何绘图类见 <a href="https://layout.xiaoxiaodong.ai/201/play/" target="_blank" rel="noopener">201 方格</a>、<a href="https://layout.xiaoxiaodong.ai/202/play/" target="_blank" rel="noopener">202 等距</a>、<a href="https://layout.xiaoxiaodong.ai/203/play/" target="_blank" rel="noopener">203 放射</a>、<a href="https://layout.xiaoxiaodong.ai/204/play/" target="_blank" rel="noopener">204 极坐标</a>；多层容器嵌套见 <a href="https://layout.xiaoxiaodong.ai/205/play/" target="_blank" rel="noopener">205 嵌套</a>、<a href="https://layout.xiaoxiaodong.ai/206/play/" target="_blank" rel="noopener">206 子网格</a>；屏幕尺寸适配见 <a href="https://layout.xiaoxiaodong.ai/207/play/" target="_blank" rel="noopener">207 固定</a>、<a href="https://layout.xiaoxiaodong.ai/208/play/" target="_blank" rel="noopener">208 流体</a>、<a href="https://layout.xiaoxiaodong.ai/209/play/" target="_blank" rel="noopener">209 响应式</a>；主动越界破序见 <a href="https://layout.xiaoxiaodong.ai/210/play/" target="_blank" rel="noopener">210 破格</a> 与 <a href="https://layout.xiaoxiaodong.ai/211/play/" target="_blank" rel="noopener">211 解构网格</a>。
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================== 06 什么时候别用它 ==================== -->
+  <section class="sec sec-parchment" id="s06" aria-labelledby="h06">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">06</span>
+        <div class="sec-titles">
+          <h2 id="h06">什么时候别用它</h2>
+          <p class="sec-en" lang="en">When to Put the Manuscript Grid Away</p>
+        </div>
+      </header>
+
+      <div class="avoid-grid">
+        <article class="avoid-card">
+          <svg class="avoid-ico" viewBox="0 0 64 44" aria-hidden="true">
+            <rect x="4" y="4" width="56" height="36" fill="#FBF8F1" stroke="#9B8868"/>
+            <rect x="9" y="10" width="20" height="10" fill="#EFE7D6" stroke="#902004"/>
+            <rect x="35" y="10" width="20" height="10" fill="#EFE7D6" stroke="#902004"/>
+            <rect x="9" y="24" width="20" height="10" fill="#EFE7D6" stroke="#902004"/>
+            <rect x="35" y="24" width="20" height="10" fill="#EFE7D6" stroke="#902004"/>
+          </svg>
+          <h3>多维并行对比的页面</h3>
+          <p>价格对比表、数据仪表盘、电商筛选列表要求用户横向扫视多个同等权重的数据块，塞进单栏流水账会让对比效率骤降，应换用 <a href="https://layout.xiaoxiaodong.ai/196/play/" target="_blank" rel="noopener">196 模块化网格</a>。</p>
+        </article>
+
+        <article class="avoid-card">
+          <svg class="avoid-ico" viewBox="0 0 64 44" aria-hidden="true">
+            <rect x="4" y="4" width="56" height="36" fill="#FBF8F1" stroke="#9B8868"/>
+            <rect x="9" y="9" width="14" height="26" fill="#EFE7D6" stroke="#645828"/>
+            <rect x="26" y="9" width="29" height="12" fill="#EFE7D6" stroke="#902004"/>
+            <rect x="26" y="24" width="13" height="11" fill="#EFE7D6" stroke="#645828"/>
+            <rect x="42" y="24" width="13" height="11" fill="#EFE7D6" stroke="#645828"/>
+          </svg>
+          <h3>多线索并发的新闻与月刊</h3>
+          <p>同一版面里主文、快讯、图注、广告并存时，读者要快速挑着看，单栏结构提供不了足够多的视觉入口，改用 <a href="https://layout.xiaoxiaodong.ai/195/play/" target="_blank" rel="noopener">195 分栏网格</a> 或 <a href="https://layout.xiaoxiaodong.ai/199/play/" target="_blank" rel="noopener">199 复合网格</a> 更合适。</p>
+        </article>
+
+        <article class="avoid-card">
+          <svg class="avoid-ico" viewBox="0 0 64 44" aria-hidden="true">
+            <rect x="4" y="4" width="56" height="36" fill="#FBF8F1" stroke="#9B8868"/>
+            <line x1="10" y1="15" x2="54" y2="15" stroke="#902004" stroke-width="2"/>
+            <line x1="10" y1="22" x2="54" y2="22" stroke="#902004" stroke-width="2"/>
+            <line x1="10" y1="29" x2="54" y2="29" stroke="#902004" stroke-width="2"/>
+          </svg>
+          <h3>宽屏网页照搬纸书百分比</h3>
+          <p>在 1440px 或 2560px 显示器上只写「左右留 15%」，正文依然会拉到 1000px 以上。网页用手稿网格必须先锁死行宽上限，再让多余屏幕自然变成留白。</p>
+        </article>
+
+        <article class="avoid-card">
+          <svg class="avoid-ico" viewBox="0 0 64 44" aria-hidden="true">
+            <rect x="4" y="4" width="56" height="36" fill="#FBF8F1" stroke="#9B8868"/>
+            <rect x="10" y="7" width="32" height="18" transform="rotate(-5 26 16)" fill="rgba(144,32,4,0.14)" stroke="#902004"/>
+            <rect x="28" y="19" width="28" height="16" transform="rotate(4 42 27)" fill="#EFE7D6" stroke="#645828"/>
+          </svg>
+          <h3>需要强情绪冲突的宣发海报</h3>
+          <p>手稿网格刻意隐藏自己、追求沉静。如果页面目标是在三秒内抓住路人视线，需要的是戏剧性张力，应转向 <a href="https://layout.xiaoxiaodong.ai/200/play/" target="_blank" rel="noopener">200 非对称网格</a> 或 <a href="https://layout.xiaoxiaodong.ai/210/play/" target="_blank" rel="noopener">210 破格网格</a>。</p>
+        </article>
+      </div>
+
+      <!-- 宽屏网页 CSS 陷阱交互演示 -->
+      <div class="css-trap-box">
+        <div class="css-trap-head">
+          <div>
+            <h3>网页移植现场：1440px 宽屏上的两种写法</h3>
+            <p class="widget-sub">对比「死套 15% 百分比留白」与「锁定行宽上限 + 自动留白」</p>
+          </div>
+          <div class="seg-group" role="group" aria-label="网页手稿 CSS 写法对比">
+            <button type="button" class="seg-btn is-active" data-s6-css="percent" aria-pressed="true">仅留 15% 边距（错）</button>
+            <button type="button" class="seg-btn" data-s6-css="maxwidth" aria-pressed="false">锁 34em + 自动留白（正）</button>
+          </div>
+        </div>
+        <div class="css-trap-body">
+          <div id="sec06-screen" class="mock-screen" data-mode="percent" aria-label="1440px 浏览器长文宽度示意">
+            <div class="mock-bar"><span class="mono">1440px 桌面视口</span></div>
+            <div class="mock-viewport">
+              <div class="mock-col">
+                <p>网页里的手稿网格并不是机械照搬纸书的左右百分比，而是先把单行字数锚定在眼睛最轻松的 28 至 34 个汉字，再把宽屏多出的空间慷慨让给两侧留白。</p>
+                <p>无论读者用的是十三寸笔记本还是二十七寸大显示器，只要版心宽度恒定，长文阅读的节奏就不会在大屏上散架。</p>
+              </div>
+            </div>
+          </div>
+          <div class="css-trap-codecol">
+            <pre id="sec06-code" class="code-box mono"></pre>
+            <p id="sec06-verdict" class="trap-verdict" data-ok="0"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 校版小练习 ==================== -->
+  <section class="sec sec-sand" id="s07" aria-labelledby="h07">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">07</span>
+        <div class="sec-titles">
+          <h2 id="h07">校版小练习</h2>
+          <p class="sec-en" lang="en">Editorial Eye Check</p>
+        </div>
+      </header>
+
+      <div class="quiz-box">
+        <div class="quiz-top">
+          <div class="seg-group" role="group" aria-label="切换练习题目">
+            <button type="button" class="seg-btn is-active" data-s7-q="q1" aria-pressed="true">第 1 题 · 双页对开边距</button>
+            <button type="button" class="seg-btn" data-s7-q="q2" aria-pressed="false">第 2 题 · 宽屏网页容器</button>
+          </div>
+        </div>
+        <p id="quiz-prompt" class="quiz-prompt"></p>
+        <div id="quiz-grid" class="quiz-grid" role="group" aria-label="四个候选方案"></div>
+        <div id="quiz-feedback" class="quiz-feedback" data-state="idle" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 08 原海报与要点 ==================== -->
+  <section class="sec sec-ivory" id="s08" aria-labelledby="h08">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="sec-no" lang="en">08</span>
+        <div class="sec-titles">
+          <h2 id="h08">原海报与要点</h2>
+          <p class="sec-en" lang="en">Original Poster &amp; Field Notes</p>
+        </div>
+      </header>
+
+      <div class="poster-layout">
+        <figure class="poster-fig">
+          <button type="button" id="poster-open" class="poster-btn" aria-label="放大查看 194 手稿网格原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="194 号手稿网格原海报：暖宣纸底色，左上朱砂红标题「手稿网格」配 MANUSCRIPT GRID 与古苔短横杠，右上竖线「有界之中 自成章法」与朱文方印；中左为带稿纸细方格的正文区与四周 15–20%、下边距 20–25% 红色虚线标尺，中右为五枚古苔圆形数字原则，底部为翻开的「山川与风物」书籍内页应用示例。">
+          </button>
+          <figcaption>点击海报放大细看（放大后可拖拽平移，按 Esc 关闭）。</figcaption>
+        </figure>
+
+        <div class="poster-notes">
+          <div class="pn-head">
+            <p class="pn-motto">有界之中 · 自成章法</p>
+            <p class="pn-sum">为内容建立秩序，让阅读更专注、舒适。</p>
+          </div>
+
+          <div class="pn-block">
+            <h3>应用示例 <span lang="en" class="pn-en">APPLICATION EXAMPLE</span></h3>
+            <p><strong>书籍内页版式</strong>：手稿网格适用于书籍、报告、论文、诗集等长文版面，提升阅读体验与专业性。</p>
+          </div>
+
+          <div class="pn-block">
+            <h3>核心词签 <span lang="en" class="pn-en">KEYWORDS</span></h3>
+            <ul class="kw-tags">
+              <li><span class="kw-dot" aria-hidden="true"></span><strong>留白为先</strong><span>给予页面呼吸与宁静感</span></li>
+              <li><span class="kw-dot" aria-hidden="true"></span><strong>阅读舒适</strong><span>合理行宽配舒展行距</span></li>
+              <li><span class="kw-dot" aria-hidden="true"></span><strong>聚焦内容</strong><span>稳定的单一正文区域</span></li>
+              <li><span class="kw-dot" aria-hidden="true"></span><strong>视觉统一</strong><span>页页相承的边界秩序</span></li>
+              <li><span class="kw-dot" aria-hidden="true"></span><strong>古典秩序</strong><span>写本智慧与九分比例</span></li>
+              <li><span class="kw-dot" aria-hidden="true"></span><strong>边距引导</strong><span>自然收束视线减缓疲劳</span></li>
+            </ul>
+          </div>
+
+          <div class="pn-block pn-refs">
+            <h3>延展书目 <span lang="en" class="pn-en">FURTHER READING</span></h3>
+            <ul class="ref-list">
+              <li><strong>Jan Tschichold</strong> · 《书籍的形态》（德文版 1975 / 英译版 1991）——系统还原中世纪与文艺复兴版面法典。</li>
+              <li><strong>Robert Bringhurst</strong> · 《字体排印风格要素》（1992）——第 8 章以音程比例分析书页尺寸与四周边距。</li>
+              <li><strong>Timothy Samara</strong> · 《网格的建立与打破》（2002）与 <strong>Kimberly Elam</strong> · 《网格系统》（2004）——现代网格分类中的手稿网格界定。</li>
+              <li><strong>Ellen Lupton</strong> · 《字体设计思考》（2004 / 2010 / 2024）——单栏网格在纸书对开与屏幕长文中的转换。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p class="foot-title"><span lang="en">NO. 194</span> 手稿网格 · 350 种排版互动版</p>
+    <p class="foot-nav">上一张 <a href="https://layout.xiaoxiaodong.ai/193/play/" target="_blank" rel="noopener">193 水平文字排版</a> · 下一张 <a href="https://layout.xiaoxiaodong.ai/195/play/" target="_blank" rel="noopener">195 分栏网格</a></p>
+    <p class="foot-meta"><a href="https://layout.xiaoxiaodong.ai/194/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a> · 海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a> · 源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></p>
+  </div>
+</footer>
+
+<dialog id="zoom" class="zoom" aria-label="原海报放大查看">
+  <div class="zoom-bar">
+    <button id="zoom-out" type="button" aria-label="缩小">−</button>
+    <output id="zoom-level" class="mono">100%</output>
+    <button id="zoom-in" type="button" aria-label="放大">+</button>
+    <button id="zoom-close" type="button">关闭</button>
+  </div>
+  <div class="zoom-view" id="zoom-view">
+    <img id="zoom-img" draggable="false" alt="194 手稿网格原海报放大图">
+  </div>
+</dialog>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
