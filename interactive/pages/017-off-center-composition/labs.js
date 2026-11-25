@@ -1,10 +1,10 @@
-// 正文全部互动实验：
-// 01 三态临界滑条（居中 → 微偏犹疑 → 偏心甜区 → 过偏失衡）
-// 02 视觉杠杆实验室（力臂 × 重量 = 偏而不倒）
-// 04 内向 vs 外向方向空间实验（Palmer et al. 2008 实证）
-// 05 同题换构图对比（居中 / 偏心配重 / 失衡偏心）
-// 06 观察与练习四选一（点击叠出虚线轴与力矩诊断）
-// 07 原海报灯箱（放大、鼠标/触控拖动、滚轮缩放、Esc 关）
+// 正文全部互动实验（每节只讲一个开场没讲过的独立原理，零重复）：
+// 01 位置钉死 · 只改主体大小与对比（证明「过不过偏」不只看圆心偏移距）
+// 02 视觉杠杆 · 主圆固定，只滑配重力臂与配重策略（阿恩海姆力臂换重量，用抵消百分比表达）
+// 04 内向 vs 外向方向空间实验（Palmer, Gardner & Wickens 2008 实证）
+// 05 文案块放哪才算配重（主图固定右上，对比 4 种真实排字落位）
+// 06 观察与练习四选一（点击叠出虚线轴与诊断）
+// 07 原海报灯箱（放大、拖动、滚轮缩放、Esc 关闭）
 
 import { reducedMotion } from "../../lib/stage.js";
 import { PALETTE } from "./palette.js";
@@ -12,153 +12,173 @@ import { PALETTE } from "./palette.js";
 const $ = (id) => document.getElementById(id);
 const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
 
-// ---------- 01 三态临界滑条 ----------
-function initContinuumLab() {
-  const range = $("cont-range");
-  const orb = $("cont-orb");
-  const pull = $("cont-pull");
-  const stateEl = $("cont-state");
-  const pctEl = $("cont-pct");
-  const descEl = $("cont-desc");
-  const marker = $("cont-marker");
-  if (!range || !orb) return;
+// ---------- 01 位置钉死：体量 × 对比 ----------
+function initWeightContrastLab() {
+  const radiusRange = $("wt-radius");
+  const contrastRadios = document.querySelectorAll('input[name="wt-contrast"]');
+  const orb = $("wt-orb");
+  const gapLine = $("wt-gap-line");
+  const topGapLine = $("wt-top-gap-line");
+  const gapLabel = $("wt-gap-label");
+  const stateEl = $("wt-state");
+  const valEl = $("wt-radius-val");
+  const descEl = $("wt-desc");
+  if (!radiusRange || !orb) return;
+
+  const CONTRAST = {
+    low: { fill: "#431a8a", factor: 0.42, name: "低对比暗紫" },
+    mid: { fill: "#b56995", factor: 0.72, name: "中对比淡粉" },
+    high: { fill: PALETTE.coral, factor: 1.0, name: "高对比珊瑚红" },
+  };
+
+  let contrastKey = "high";
 
   const update = () => {
-    const p = Number(range.value); // 0 .. 46 (%)
-    // 画框宽 360 高 220，中心在 (180, 110)，向右上 30° 方向推进
-    const rad = (-28 * Math.PI) / 180;
-    const dist = (p / 46) * 158;
-    const x = 180 + Math.cos(rad) * dist;
-    const y = 110 + Math.sin(rad) * dist;
+    const r = Number(radiusRange.value); // 14 .. 74 (圆心钉死在 x=282, y=86；右边框在 x=368，上边框在 y=12)
+    const c = CONTRAST[contrastKey] || CONTRAST.high;
+    const rightGap = Math.max(0, 368 - (282 + r));
+    const topGap = Math.max(0, 86 - r - 12);
+    const minGap = Math.min(rightGap, topGap);
 
-    orb.setAttribute("cx", x.toFixed(1));
-    orb.setAttribute("cy", y.toFixed(1));
-    orb.setAttribute("fill", p < 4 ? PALETTE.ink : PALETTE.coral);
-    pull.setAttribute("x2", x.toFixed(1));
-    pull.setAttribute("y2", y.toFixed(1));
-    pull.setAttribute("opacity", p < 4 ? "0" : "0.75");
-    if (marker) marker.setAttribute("cx", (20 + (p / 46) * 320).toFixed(1));
+    orb.setAttribute("r", String(r));
+    orb.setAttribute("fill", c.fill);
 
-    pctEl.textContent = `偏移 ${p}%`;
-    let zone = "sweet";
-    let tag = "偏心（动态）";
-    let desc = "经验甜区（离中心约 16%–34%）：既摆脱了居中的呆板，又保留了足够边缘呼吸空间，是现代海报最常用的偏心区间。";
-
-    if (p < 4) {
-      zone = "center";
-      tag = "居中（静态）";
-      desc = "圆心紧扣十字交点：四边距离均等，静止、安定，但也几乎没有视线流动与悬念。";
-    } else if (p < 14) {
-      zone = "awkward";
-      tag = "轻偏（犹疑区）";
-      desc = "经验盲区（4%–13%）：离正中只错开一点点，人眼难以判断你是刻意偏心还是排版手滑没对齐。";
-    } else if (p > 35) {
-      zone = "over";
-      tag = "过偏（失衡）";
-      desc = "超过约 35% 且缺少对侧强配重时，主体贴近甚至被画框裁切——张力滑向坠落与不适感。";
+    // 同时标出上缘与右缘的呼吸余量，画面标尺与下方文字读数完全一致
+    gapLine.setAttribute("x1", String(Math.min(368, 282 + r)));
+    gapLine.setAttribute("stroke", rightGap < 22 ? PALETTE.amber : PALETTE.mint);
+    if (topGapLine) {
+      topGapLine.setAttribute("y2", String(Math.max(12, 86 - r)));
+      topGapLine.setAttribute("stroke", topGap < 18 ? PALETTE.amber : PALETTE.mint);
+      topGapLine.setAttribute("visibility", topGap <= 1 ? "hidden" : "visible");
     }
+    gapLabel.textContent =
+      topGap <= 1
+        ? `已顶上边框 · 右缘 ${rightGap} px`
+        : `上缘 ${topGap} px · 右缘 ${rightGap} px`;
+
+    const sizeTag = r <= 22 ? "小号" : r >= 54 ? "特大" : "中号";
+    valEl.textContent = `${sizeTag} · ${r} px`;
+
+    // 感知视觉份量（经验类比：面积 × 明暗对比）
+    const perceivedMass = Math.pow(r / 34, 1.75) * c.factor;
+
+    let zone = "sweet";
+    let tag = "偏心张力成立";
+    let desc = "";
+
+    if (perceivedMass < 0.42) {
+      zone = "center";
+      tag = "拉不动视线";
+      desc = `圆心一样右偏 24%，但${sizeTag}体量配${c.name}的视觉份量太轻——眼睛扫过去几乎停不住，偏心感落不下来。`;
+    } else if (minGap < 18 || perceivedMass > 1.78) {
+      zone = "over";
+      tag = "位置未变，却已过偏";
+      desc =
+        minGap < 18
+          ? `圆心一毫米都没挪，但半径涨到 ${r} px 后${topGap <= 1 ? "已顶上画框上边框" : `上缘仅余 ${topGap} px`}（右缘 ${rightGap} px），画框右上明显发堵——过不过偏，要连体量与边距一起看。`
+          : `虽然圆心仍停在 24%，但特大面积叠加${c.name}的视觉分量压垮了左侧暗弧，画面开始向右倾倒。`;
+    } else {
+      zone = "sweet";
+      tag = "偏心张力成立";
+      desc = `同样停在右偏 24%：${sizeTag}圆盘搭配${c.name}，既足以把目光从画心拉过来，外缘又保留了上缘 ${topGap} px、右缘 ${rightGap} px 的呼吸余量。`;
+    }
+
     stateEl.textContent = tag;
     stateEl.dataset.zone = zone;
     descEl.textContent = desc;
-    range.setAttribute("aria-valuetext", `${tag}，偏离中心 ${p}%`);
+    radiusRange.setAttribute("aria-valuetext", `${sizeTag}半径 ${r} 像素，${c.name}，上缘 ${topGap} 像素，右缘 ${rightGap} 像素，${tag}`);
   };
 
-  range.addEventListener("input", update);
-  document.querySelectorAll("[data-cont-preset]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      range.value = btn.dataset.contPreset;
+  radiusRange.addEventListener("input", update);
+  contrastRadios.forEach((radio) => {
+    radio.addEventListener("change", () => {
+      if (!radio.checked) return;
+      contrastKey = radio.value;
       update();
     });
   });
   update();
 }
 
-// ---------- 02 视觉杠杆实验室 ----------
+// ---------- 02 视觉杠杆：主圆固定，只滑配重力臂与策略 ----------
 function initLeverLab() {
-  const offRange = $("lv-offset");
   const cwDistRange = $("lv-cw-dist");
   const cwTypeRadios = document.querySelectorAll('input[name="lv-cw-type"]');
-  const mainOrb = $("lv-main-orb");
   const cwGroup = $("lv-cw-group");
   const cwArc = $("lv-cw-arc");
   const cwStamp = $("lv-cw-stamp");
-  const cwTypeBlock = $("lv-cw-typeblock");
+  const cwRule = $("lv-cw-rule");
+  const armLine = $("lv-arm-line");
   const beam = $("lv-beam");
-  const mainArm = $("lv-main-arm");
   const cwArm = $("lv-cw-arm");
   const verdict = $("lv-verdict");
   const badge = $("lv-badge");
-  const metricMain = $("lv-m-main");
-  const metricCw = $("lv-m-cw");
-  const outOff = $("lv-off-val");
+  const pctEl = $("lv-pct");
+  const armRead = $("lv-arm-read");
   const outCw = $("lv-cw-val");
-  if (!offRange || !beam) return;
+  if (!cwDistRange || !beam) return;
 
+  // 主圆固定在右侧 26%，固定主侧拉力基准 = 62
+  const MAIN_PULL = 62;
   const CW_PROFILES = {
-    arc: { mass: 0.78, name: "大面积低对比暗弧" },
-    stamp: { mass: 0.52, name: "远端高对比小印章" },
-    copy: { mass: 0.66, name: "对侧短标题与导语块" },
+    arc: { mass: 1.85, r: 13, name: "大块低对比暗弧" },
+    stamp: { mass: 1.42, r: 8, name: "远角小亮印" },
+    rule: { mass: 1.15, r: 6.5, name: "细标尺短线" },
   };
 
   let cwType = "arc";
 
   const update = () => {
-    const mainDist = Number(offRange.value); // 12..38 (%)
-    const cwDist = Number(cwDistRange.value); // 0..42 (%)
-    const prof = CW_PROFILES[cwType];
+    const cwDist = Number(cwDistRange.value); // 0 .. 44 (%)
+    const prof = CW_PROFILES[cwType] || CW_PROFILES.arc;
 
-    // 体验类比：力矩 ≈ 视觉重量 × 离中心距（明确标注为感知类比而非刚体公式）
-    const mainMoment = Math.round(1.0 * mainDist * 2.2);
-    const cwMoment = cwDist === 0 ? 0 : Math.round(prof.mass * cwDist * 2.55);
-    const diff = mainMoment - cwMoment; // >0 右倾；<0 左倾；接近 0 平衡
-    const tiltDeg = clamp(diff * 0.24, -14, 14);
+    const cwPull = cwDist === 0 ? 0 : prof.mass * cwDist;
+    const cancelPct = Math.round((cwPull / MAIN_PULL) * 100);
+    const diff = MAIN_PULL - cwPull; // >0 右沉；<0 左沉
+    const tiltDeg = clamp(diff * 0.22, -13, 13);
 
-    // 上方画框坐标（560 × 270，中心 280, 135）
-    const mx = 280 + (mainDist / 42) * 205;
-    const my = 135 - (mainDist / 42) * 52;
-    mainOrb.setAttribute("cx", mx.toFixed(1));
-    mainOrb.setAttribute("cy", my.toFixed(1));
-
-    const cx = 280 - (cwDist / 42) * 214;
-    const cy = 135 + (cwDist / 42) * 68;
+    // 上方画框坐标（560 × 264，画心 280, 132）
+    const cx = 280 - (cwDist / 44) * 218;
+    const cy = 132 + (cwDist / 44) * 68;
     cwGroup.setAttribute("visibility", cwDist === 0 ? "hidden" : "visible");
     cwArc.setAttribute("visibility", cwType === "arc" ? "visible" : "hidden");
     cwStamp.setAttribute("visibility", cwType === "stamp" ? "visible" : "hidden");
-    cwTypeBlock.setAttribute("visibility", cwType === "copy" ? "visible" : "hidden");
+    cwRule.setAttribute("visibility", cwType === "rule" ? "visible" : "hidden");
     cwGroup.setAttribute("transform", `translate(${cx.toFixed(1)} ${cy.toFixed(1)})`);
 
-    // 下方杠杆图（支点在 280, 62）
-    beam.setAttribute("transform", `rotate(${tiltDeg.toFixed(2)} 280 62)`);
-    mainArm.setAttribute("cx", (280 + (mainDist / 42) * 195).toFixed(1));
-    cwArm.setAttribute("cx", (280 - (cwDist / 42) * 195).toFixed(1));
-    cwArm.setAttribute("r", cwType === "arc" ? "13" : cwType === "copy" ? "10" : "7");
+    armLine.setAttribute("visibility", cwDist === 0 ? "hidden" : "visible");
+    armLine.setAttribute("x2", cx.toFixed(1));
+    armLine.setAttribute("y2", cy.toFixed(1));
+
+    // 下方天平（支点 280, 58）
+    beam.setAttribute("transform", `rotate(${tiltDeg.toFixed(2)} 280 58)`);
+    cwArm.setAttribute("cx", (280 - (cwDist / 44) * 204).toFixed(1));
+    cwArm.setAttribute("r", String(prof.r));
     cwArm.setAttribute("visibility", cwDist === 0 ? "hidden" : "visible");
 
-    outOff.textContent = `${mainDist}%`;
-    outCw.textContent = cwDist === 0 ? "关闭" : `${cwDist}%`;
-    metricMain.textContent = `${mainMoment}`;
-    metricCw.textContent = `${cwMoment}`;
+    outCw.textContent = cwDist === 0 ? "已移除" : `${cwDist}%`;
+    armRead.textContent = cwDist === 0 ? "0%" : `${cwDist}%`;
+    pctEl.textContent = `${cancelPct}%`;
 
     if (cwDist === 0) {
       badge.textContent = "单侧下沉";
       badge.dataset.state = "tilt";
-      verdict.textContent = "对侧没有配重，整个画面被右上方重圆单向拉沉；把配重往远处推开，杠杆立刻开始回平。";
-    } else if (Math.abs(diff) <= 10) {
+      verdict.textContent = "撤掉配重后，抵消比例降为 0%，右侧主圆把整张版面拉沉。把滑块往右拖（把配重推向远角），看力臂怎样起作用。";
+    } else if (cancelPct >= 82 && cancelPct <= 116) {
       badge.textContent = "动态平衡";
       badge.dataset.state = "ok";
-      verdict.textContent = `平衡成立！主圆偏离 ${mainDist}%，但「${prof.name}」凭借 ${cwDist}% 的长力臂稳稳拉住了右端——小配重一样能压住大主角。`;
-    } else if (diff > 10) {
+      verdict.textContent = `杠杆回平！「${prof.name}」退到距画心 ${cwDist}% 的远角，抵消了主圆 ${cancelPct}% 的拉力——不必做成和主圆一样大，照样稳得住。`;
+    } else if (cancelPct < 82) {
       badge.textContent = "主侧偏沉";
       badge.dataset.state = "tilt";
-      verdict.textContent = `右端主圆仍重出 ${diff} 单位：试着把「${prof.name}」往远角再推远一点（加长力臂），或换更有分量的配重形式。`;
+      verdict.textContent = `目前只抵消了主圆拉力的 ${cancelPct}%：配重离画心还太近（力臂短），继续把它往左下远角推远，或换体量更足的暗弧。`;
     } else {
       badge.textContent = "配重反客为主";
       badge.dataset.state = "tilt";
-      verdict.textContent = `配重拉过了头（左端多出 ${Math.abs(diff)} 单位）：配重应该稳住画面，不能抢走主圆的焦点。把配重往内收一点试试。`;
+      verdict.textContent = `左侧已反超至 ${cancelPct}%：把大块暗弧推到最远角落时，配重反而抢走了主圆的风头。往画心收回几格即可恢复主次。`;
     }
   };
 
-  offRange.addEventListener("input", update);
   cwDistRange.addEventListener("input", update);
   cwTypeRadios.forEach((r) => {
     r.addEventListener("change", () => {
@@ -183,31 +203,37 @@ function initDirectionLab() {
   const textEl = $("dir-text");
   if (!figure) return;
 
-  let side = "left"; // left | right
-  let face = "right"; // right | left
+  let side = "left";
+  let face = "right";
   let showCopy = true;
 
   const update = () => {
-    // SVG 560 × 300
     const x = side === "left" ? 132 : 428;
     const scaleX = face === "right" ? 1 : -1;
     figure.setAttribute("transform", `translate(${x} 168) scale(${scaleX} 1)`);
 
-    // 留白区在主体对面
     const openLeft = side === "right";
     roomRect.setAttribute("x", openLeft ? "22" : "216");
     roomRect.setAttribute("width", "322");
 
-    // 视线方向箭头
     const inward = (side === "left" && face === "right") || (side === "right" && face === "left");
     if (face === "right") {
-      gazeArrow.setAttribute("d", side === "left" ? "M 184 126 H 474 M 462 117 L 476 126 L 462 135" : "M 476 126 H 536 M 526 118 L 538 126 L 526 134");
+      gazeArrow.setAttribute(
+        "d",
+        side === "left"
+          ? "M 184 126 H 474 M 462 117 L 476 126 L 462 135"
+          : "M 476 126 H 536 M 526 118 L 538 126 L 526 134"
+      );
     } else {
-      gazeArrow.setAttribute("d", side === "right" ? "M 376 126 H 86 M 98 117 L 84 126 L 98 135" : "M 84 126 H 24 M 34 118 L 22 126 L 34 134");
+      gazeArrow.setAttribute(
+        "d",
+        side === "right"
+          ? "M 376 126 H 86 M 98 117 L 84 126 L 98 135"
+          : "M 84 126 H 24 M 34 118 L 22 126 L 34 134"
+      );
     }
-    gazeArrow.setAttribute("stroke", inward ? PALETTE.coralHot : "#f5a962");
+    gazeArrow.setAttribute("stroke", inward ? PALETTE.coralHot : PALETTE.amber);
 
-    // 留白处排文案
     copyGroup.setAttribute("visibility", showCopy ? "visible" : "hidden");
     copyGroup.setAttribute("transform", openLeft ? "translate(46 0)" : "translate(256 0)");
 
@@ -235,26 +261,112 @@ function initDirectionLab() {
   update();
 }
 
-// ---------- 05 同题换构图对比 ----------
-function initCompareLab() {
-  const stage = $("cmp-stage");
-  const caption = $("cmp-caption");
-  const radios = document.querySelectorAll('input[name="cmp-mode"]');
-  if (!stage) return;
+// ---------- 05 文案块放哪才算配重（主图固定右上） ----------
+function initCopyCounterweightLab() {
+  const stage = $("copy-stage");
+  const copyG = $("cp-copy");
+  const titleT = $("cp-h");
+  const subT = $("cp-s");
+  const ruleR = $("cp-rule");
+  const flowP = $("cp-flow");
+  const cogOuter = $("cp-cog");
+  const cogInner = $("cp-cog-in");
+  const metaT = $("cp-meta");
+  const badge = $("cp-badge");
+  const metric = $("cp-metric");
+  const caption = $("cp-caption");
+  const radios = document.querySelectorAll('input[name="cp-place"]');
+  if (!stage || !copyG) return;
 
-  const TEXT = {
-    offcenter: "偏心摆法：硕大珊瑚主圆推向右上，左下用标题块与暗弧收住——视觉路径从右上斜穿到左下，现代、利落，文案也有整片呼吸空间。",
-    center: "居中摆法：元素全部锁在中轴线上，庄重端正，但画面安静得像纪念碑；如果展览主打先锋实验或动感，就会显得偏稳、偏平。",
-    unbalanced: "失衡偏心：主圆和标题一起挤到右侧，左半边彻底空置且无配重——重心全压在一边，画面像向右翻倒。",
+  const PLACES = {
+    diag: {
+      tx: 26,
+      ty: 192,
+      anchor: "start",
+      ruleX: 0,
+      metaX: 26,
+      metaY: 34,
+      flow: "M 276 82 L 98 186",
+      flowColor: PALETTE.mint,
+      cog: [218, 122],
+      ok: "good",
+      badge: "对角配重成立",
+      metric: "左半文案抵消右图拉力 62% · 视线顺畅",
+      cap: "最稳妥的实操做法：主圆压右上，文字块坐左下，视线从图形斜穿到标题，文字本身就是配重，不需要额外堆装饰。",
+    },
+    across: {
+      tx: 26,
+      ty: 82,
+      anchor: "start",
+      ruleX: 0,
+      metaX: 26,
+      metaY: 238,
+      flow: "M 276 82 L 154 82",
+      flowColor: PALETTE.mint,
+      cog: [212, 92],
+      ok: "good",
+      badge: "横向拉平成立",
+      metric: "左上标题抵消右图拉力 58% · 下半区通透",
+      cap: "类似原海报 017 的排法：标题和主圆分居左右上角形成横向对拉，把整个下半幅腾成大块呼吸空间，再在底角轻落展期。",
+    },
+    under: {
+      tx: 204,
+      ty: 186,
+      anchor: "start",
+      ruleX: 0,
+      metaX: 204,
+      metaY: 240,
+      flow: "M 276 82 L 276 176",
+      flowColor: PALETTE.amber,
+      cog: [272, 126],
+      ok: "bad",
+      badge: "同侧叠加塌空",
+      metric: "左侧抵消仅 0% · 重心全压右半幅",
+      cap: "把标题硬叠在主图正下方后，左半张海报彻底成了无理由的死空，合成重心全部滚向右半幅，整张版面像往右栽倒。",
+    },
+    center: {
+      tx: 190,
+      ty: 204,
+      anchor: "middle",
+      ruleX: -22,
+      metaX: 26,
+      metaY: 34,
+      flow: "M 190 144 L 190 250 M 276 82 L 190 198",
+      flowColor: PALETTE.amber,
+      cog: [248, 128],
+      ok: "bad",
+      badge: "上偏下正 · 语法打架",
+      metric: "居中文字几乎不产生左向配重 · 轴线冲突",
+      cap: "主图是果断的右上偏心，底下标语却摆回中轴对称——上半张在拉动视线，下半张在锁死中轴，两种构图语言互相拆台。",
+    },
   };
 
-  const apply = (mode) => {
-    stage.dataset.mode = mode;
-    caption.textContent = TEXT[mode] || TEXT.offcenter;
+  const apply = (key) => {
+    const p = PLACES[key] || PLACES.diag;
+    stage.dataset.place = key;
+    copyG.setAttribute("transform", `translate(${p.tx} ${p.ty})`);
+    titleT.setAttribute("text-anchor", p.anchor);
+    subT.setAttribute("text-anchor", p.anchor);
+    ruleR.setAttribute("x", String(p.ruleX));
+    metaT.setAttribute("x", String(p.metaX));
+    metaT.setAttribute("y", String(p.metaY));
+    flowP.setAttribute("d", p.flow);
+    flowP.setAttribute("stroke", p.flowColor);
+    cogOuter.setAttribute("cx", String(p.cog[0]));
+    cogOuter.setAttribute("cy", String(p.cog[1]));
+    cogOuter.setAttribute("stroke", p.flowColor);
+    cogInner.setAttribute("cx", String(p.cog[0]));
+    cogInner.setAttribute("cy", String(p.cog[1]));
+    cogInner.setAttribute("fill", p.flowColor);
+
+    badge.textContent = p.badge;
+    badge.dataset.ok = p.ok;
+    metric.textContent = p.metric;
+    caption.textContent = p.cap;
   };
 
   radios.forEach((r) => r.addEventListener("change", () => r.checked && apply(r.value)));
-  apply("offcenter");
+  apply("diag");
 }
 
 // ---------- 06 观察与练习四选一 ----------
@@ -269,17 +381,17 @@ function initQuiz() {
     A: {
       ok: false,
       title: "A · 偏得太少，像没对齐",
-      body: "主圆只离中心偏了不到 7%，标题也半悬在中间——既没有居中的仪式感，又没有偏心的果断张力。对照 C：主圆明确推到右上约 27% 处，左下用标题与波浪线对角配重，节奏一下子就清晰了。",
+      body: "主圆只离画心错开一点点，标题又居中悬在下面——既丢掉了居中的端正，又拉不出偏心的果断张力。对照 C：主圆明确推向右上，左下用标题与暗弧对角接住，节奏立刻清晰。",
     },
     B: {
       ok: false,
       title: "B · 过偏失衡，整张图往右上倒",
-      body: "主圆被挤进右上角裁掉近半，且文字也堆在右上，左下角彻底空荡无配重——这是海报右下第三格警示的「过偏（失衡）」。对照 C：让主圆留出边缘呼吸，并把标题放到斜对角拉住它。",
+      body: "主圆被挤进右上角裁掉近半，文字又全部叠在右侧同侧，左下角彻底塌空——这是海报右下第三格警示的「过偏（失衡）」。对照 C：给主圆留出边缘呼吸，并把标题放到斜对角拉住它。",
     },
     C: {
       ok: true,
       title: "选对了！C · 有控制的失衡",
-      body: "最重的珊瑚主圆稳稳推到右上偏心区（距中心约 27%，离边留有呼吸），左下角用粗体标题块与细波浪线做斜对角配重，整张画面既有明显视线流动，又丝毫不晃。",
+      body: "最重的珊瑚主圆果断推向右上方且与边框保留呼吸，左下角用暗弧、粗体标题与珊瑚波浪线做斜对角配重，整张画面既有明显视线流动，合成重心也稳稳托得住。",
     },
     D: {
       ok: false,
@@ -437,10 +549,10 @@ function initReveals() {
 }
 
 export function initLabs() {
-  initContinuumLab();
+  initWeightContrastLab();
   initLeverLab();
   initDirectionLab();
-  initCompareLab();
+  initCopyCounterweightLab();
   initQuiz();
   initLightbox();
   initReveals();
