@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>旁注（Ruby）排版 · RUBY ANNOTATION LAYOUT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <!-- 顶眉：忠实复刻 221 原海报双色大标 + 红短杠 + 右上红日与 4×6 点阵 -->
+    <div class="hero-masthead">
+      <div class="masthead-left">
+        <div class="masthead-meta">
+          <span class="badge-num">NO. 221</span>
+          <span class="crumb">字体、网格与东亚文字 / 东亚文字与混排</span>
+          <span id="hero-status-pill" class="status-pill">0/4 · 巨注 78%</span>
+        </div>
+        <h1 class="hero-title">
+          <span class="title-ruby-unit">
+            <span id="title-live-ruby" class="title-live-ruby" aria-hidden="true">páng zhù</span>
+            <span class="title-red">旁注 (Ruby)</span>
+          </span>
+          <span class="title-ink">排版</span>
+        </h1>
+        <p class="hero-en" lang="en">RUBY ANNOTATION LAYOUT</p>
+        <div class="hero-red-bar" aria-hidden="true"></div>
+        <p class="hero-summary">旁注是位于主文本上方或右侧的微型注释，用于提供发音、解释或补充信息。</p>
+      </div>
+
+      <div class="masthead-right">
+        <div class="sun-dot-cluster">
+          <button type="button" id="hero-sun-btn" class="sun-btn" title="点击或按空格演播视线扫读">
+            <svg class="sun-svg" viewBox="0 0 84 84" aria-hidden="true">
+              <circle cx="42" cy="42" r="36" fill="none" stroke="#EFE0DA" stroke-width="2.5"></circle>
+              <circle id="hero-sun-ring" cx="42" cy="42" r="36" fill="none" stroke="#C4302B" stroke-width="3" stroke-linecap="round" transform="rotate(-90 42 42)"></circle>
+              <circle cx="42" cy="42" r="29" fill="#F46158"></circle>
+            </svg>
+            <span class="sr-only">演播视线扫读</span>
+          </button>
+          <div class="poster-dots" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="specimen-tabs" role="group" aria-label="选择排版标本">
+          <button type="button" class="pill-btn is-active" data-specimen="poster-ja" aria-pressed="true">原海报日语</button>
+          <button type="button" class="pill-btn" data-specimen="pinyin-zh" aria-pressed="false">汉语拼音</button>
+          <button type="button" class="pill-btn" data-specimen="term-book" aria-pressed="false">术语古籍</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主舞台：1:1 承袭 221 原海报 18px 圆角玫瑰红细框解剖排字盘 -->
+    <div class="galley-frame">
+      <canvas id="hero-canvas" class="hero-canvas" data-perf-drag tabindex="0" aria-label="旁注排字盘：横向拖动调字号比，拖动左侧红圆点调注距，点击右侧切直排，按空格演播扫读"></canvas>
+    </div>
+
+    <!-- 紧底精控操轨（与排字盘融为一体） -->
+    <div class="galley-dock">
+      <div class="dock-sliders">
+        <label class="slider-item">
+          <span class="slider-head"><span>旁注字号比</span><strong id="val-ratio" class="mono">78%</strong></span>
+          <input id="ctrl-ratio" type="range" min="24" max="95" step="1" value="78">
+        </label>
+        <label class="slider-item">
+          <span class="slider-head"><span>注释距离</span><strong id="val-gap" class="mono">36%</strong></span>
+          <input id="ctrl-gap" type="range" min="-4" max="48" step="1" value="36">
+        </label>
+        <label class="slider-item">
+          <span class="slider-head"><span>段落行距</span><strong id="val-lh" class="mono">1.80×</strong></span>
+          <input id="ctrl-lh" type="range" min="1.45" max="2.35" step="0.02" value="1.80">
+        </label>
+      </div>
+
+      <div class="dock-switches">
+        <div class="switch-group" role="group" aria-label="挂接对齐方式">
+          <span class="switch-label">挂接</span>
+          <button type="button" class="seg-btn is-active" data-align="drift" aria-pressed="true">错位</button>
+          <button type="button" class="seg-btn" data-align="mono" aria-pressed="false">逐字</button>
+          <button type="button" class="seg-btn" data-align="jukugo" aria-pressed="false">熟语</button>
+          <button type="button" class="seg-btn" data-align="group" aria-pressed="false">词组</button>
+        </div>
+        <div class="switch-group" role="group" aria-label="旁注墨色层级">
+          <span class="switch-label">墨阶</span>
+          <button type="button" class="seg-btn is-active" data-ink="heavy" aria-pressed="true">同黑</button>
+          <button type="button" class="seg-btn" data-ink="vermilion" aria-pressed="false">朱红</button>
+          <button type="button" class="seg-btn" data-ink="slate" aria-pressed="false">素墨</button>
+          <button type="button" class="seg-btn" data-ink="faint" aria-pressed="false">过淡</button>
+        </div>
+        <button type="button" id="ctrl-overhang" class="seg-btn" aria-pressed="false">悬挑借位：关</button>
+      </div>
+    </div>
+
+    <!-- 底沿：1:1 复刻原海报实心黑圆白灯泡诊单 + 多组合法解与试错 -->
+    <div class="diag-bar">
+      <div class="diag-main">
+        <div class="bulb-emblem" aria-hidden="true">
+          <svg viewBox="0 0 36 36" width="36" height="36">
+            <circle cx="18" cy="18" r="18" fill="#070B0A"></circle>
+            <path d="M18 8.5a6.5 6.5 0 0 0-3.8 11.75c.65.48 1.05 1.2 1.05 2v.75h5.5v-.75c0-.8.4-1.52 1.05-2A6.5 6.5 0 0 0 18 8.5z" fill="#FEFAF5"></path>
+            <rect x="15.3" y="24.5" width="5.4" height="1.8" rx="0.9" fill="#FEFAF5"></rect>
+            <rect x="16.3" y="27.3" width="3.4" height="1.6" rx="0.8" fill="#FEFAF5"></rect>
+          </svg>
+        </div>
+        <div class="diag-copy">
+          <div class="diag-head">
+            <span id="diag-score" class="diag-score">0/4 · 巨注 78%</span>
+            <span class="diag-tag">单真源实测</span>
+            <span id="spec-desc" class="spec-desc">1:1 复刻原海报「希望の未来」与右侧「山 やま」；点击「の」头顶可开关多余助词注音。</span>
+          </div>
+          <p id="diag-title" class="diag-title">旁注放大到主文的 78%，反客为主把主文挤碎了</p>
+          <p id="diag-why" class="diag-why">主文应该是视觉入口。当旁注超过 60% 时，宽注音会抢夺焦点并撑裂主文字距。</p>
+          <p id="diag-action" class="diag-action">直接在画布上向左横拖，把旁注压回 44%–55% 半字区间。</p>
+        </div>
+      </div>
+
+      <div class="diag-actions">
+        <div class="action-primary">
+          <button type="button" id="btn-fix" class="btn-solid">一键校准经典解</button>
+          <button type="button" id="btn-scan" class="btn-outline">扫读演播 Space</button>
+          <button type="button" id="btn-reset" class="btn-ghost">复原开场</button>
+        </div>
+        <div class="preset-row">
+          <span class="preset-label">合法解</span>
+          <button type="button" class="mini-pill is-sol" data-solution="poster">原海报朱红</button>
+          <button type="button" class="mini-pill is-sol" data-solution="bunko">文库素墨</button>
+          <button type="button" class="mini-pill is-sol" data-solution="primer">启蒙疏朗</button>
+          <span class="preset-sep" aria-hidden="true">|</span>
+          <span class="preset-label">试错</span>
+          <button type="button" class="mini-pill is-fail" data-fail="tiny">蚂蚁糊死</button>
+          <button type="button" class="mini-pill is-fail" data-fail="crush">压顶粘连</button>
+          <button type="button" class="mini-pill is-fail" data-fail="invert">浮高倒挂</button>
+          <button type="button" class="mini-pill is-fail" data-fail="faint">过淡失对比</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1:1 复刻原海报柔杏桃色四栏要点探针卡（点卡片联动高亮画布标尺） -->
+    <div class="peach-probes" role="group" aria-label="原海报四大原则实时探针">
+      <button type="button" class="probe-card" data-probe="baseFirst">
+        <div class="probe-top">
+          <svg class="probe-ico" viewBox="0 0 56 42" aria-hidden="true">
+            <circle cx="21" cy="21" r="15" fill="none" stroke="#F25952" stroke-width="2"></circle>
+            <path d="M15.5 15h11M21 15v13" stroke="#F25952" stroke-width="2.4" stroke-linecap="round"></path>
+            <path d="M40 9h8M40 33h8M44 10v22M41.5 13l2.5-3 2.5 3M41.5 29l2.5 3 2.5-3" fill="none" stroke="#F25952" stroke-width="1.5" stroke-dasharray="2 2"></path>
+          </svg>
+          <span class="probe-badge is-bad">84% 抢戏</span>
+        </div>
+        <div class="probe-title">主文优先</div>
+        <div class="probe-en" lang="en">BASE FIRST</div>
+        <div class="probe-bar" aria-hidden="true"></div>
+        <p class="probe-body">主文是视觉焦点，字号更大、更重，先阅读主文。</p>
+      </button>
+
+      <button type="button" class="probe-card" data-probe="alignment">
+        <div class="probe-top">
+          <svg class="probe-ico" viewBox="0 0 56 42" aria-hidden="true">
+            <text x="28" y="15" text-anchor="middle" fill="#F25952" font-size="14" font-weight="700" font-family="Noto Sans SC, sans-serif">あ</text>
+            <line x1="12" y1="20" x2="44" y2="20" stroke="#D2C2B9" stroke-width="1.4" stroke-dasharray="3 3"></line>
+            <text x="28" y="37" text-anchor="middle" fill="#070B0A" font-size="16" font-weight="900" font-family="Noto Sans SC, sans-serif">字</text>
+          </svg>
+          <span class="probe-badge is-bad">偏右 +26%</span>
+        </div>
+        <div class="probe-title">紧密对应</div>
+        <div class="probe-en" lang="en">CLOSE ALIGNMENT</div>
+        <div class="probe-bar" aria-hidden="true"></div>
+        <p class="probe-body">每个旁注紧贴对应字符的中心对齐。</p>
+      </button>
+
+      <button type="button" class="probe-card" data-probe="spacing">
+        <div class="probe-top">
+          <svg class="probe-ico" viewBox="0 0 56 42" aria-hidden="true">
+            <line x1="10" y1="10" x2="34" y2="10" stroke="#F25952" stroke-width="3.6" stroke-linecap="round"></line>
+            <line x1="10" y1="32" x2="34" y2="32" stroke="#F25952" stroke-width="3.6" stroke-linecap="round"></line>
+            <path d="M39 10h8M39 32h8M43 11v20M40.5 14l2.5-3 2.5 3M40.5 28l2.5 3 2.5-3" fill="none" stroke="#070B0A" stroke-width="1.5" stroke-dasharray="2 2"></path>
+          </svg>
+          <span class="probe-badge is-bad">贴上行</span>
+        </div>
+        <div class="probe-title">合理间距</div>
+        <div class="probe-en" lang="en">APPROPRIATE SPACING</div>
+        <div class="probe-bar" aria-hidden="true"></div>
+        <p class="probe-body">保持一致的注释距离，避免拥挤或分离。</p>
+      </button>
+
+      <button type="button" class="probe-card" data-probe="legibility">
+        <div class="probe-top">
+          <svg class="probe-ico" viewBox="0 0 56 42" aria-hidden="true">
+            <path d="M12 24c4.5-7 11-10.5 16-10.5S39.5 17 44 24c-4.5 7-11 10.5-16 10.5S16.5 31 12 24z" fill="none" stroke="#070B0A" stroke-width="2.2"></path>
+            <circle cx="28" cy="24" r="6" fill="#F25952"></circle>
+            <circle cx="28" cy="24" r="2.6" fill="#070B0A"></circle>
+            <path d="M28 5v4M17 8l2 3.5M39 8l-2 3.5" stroke="#F25952" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+          <span class="probe-badge is-bad">同黑糊连</span>
+        </div>
+        <div class="probe-title">提升可读性</div>
+        <div class="probe-en" lang="en">LEGIBILITY</div>
+        <div class="probe-bar" aria-hidden="true"></div>
+        <p class="probe-body">对比清晰、层级分明，帮助快速理解。</p>
+      </button>
+    </div>
+
+    <!-- 手机竖屏后置的总述补充区（大屏隐藏，避免重复） -->
+    <p class="hero-summary-mobile">旁注是位于主文本上方或右侧的微型注释，用于提供发音、解释或补充信息。</p>
+  </div>
+</header>
+
+<main>
+  <!-- 01 从 5.5 磅活字到 Web（亮白宣） -->
+  <section class="sec sec-pure" id="sec-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">01</span>
+        <div class="sec-titles">
+          <h2>从 5.5 磅活字到 Web</h2>
+          <p class="sec-en" lang="en">ORIGIN · FROM 5.5PT LEAD TYPE TO W3C RUBY</p>
+        </div>
+      </div>
+
+      <div class="split-origin">
+        <div class="origin-copy">
+          <p class="lead">为什么东亚文字旁边的注音，英文偏偏叫「红宝石（Ruby）」？答案藏在 19 世纪的金属活字模数里。</p>
+          <p>在早期铅活字工坊，文字必须靠精准的铅块高度拼接才能锁进印版。正文用约 10.5pt 的五号活字时，旁边注音如果刚好用一半大小的七号活字（约 5.25pt，对应英国 5.5pt 的 Ruby 活字），<strong>两枚注音假名并排恰好严丝合缝等于一枚正方形汉字</strong>，排版工人不必额外塞满铅条垫空。</p>
+          <div class="era-tabs" role="group" aria-label="选择历史时期">
+            <button type="button" class="era-btn" data-era="british" aria-pressed="false">1880s 英国 5.5pt</button>
+            <button type="button" class="era-btn is-active" data-era="meiji" aria-pressed="true">明治五号配七号</button>
+            <button type="button" class="era-btn" data-era="pinyin" aria-pressed="false">1958 汉语拼音</button>
+            <button type="button" class="era-btn" data-era="web" aria-pressed="false">2001 W3C &amp; CSS</button>
+          </div>
+          <div class="era-card">
+            <h3 id="s1-title">五号正文（10.5pt）配七号旁注（5.25pt），得名「ルビ」</h3>
+            <p id="s1-body"></p>
+          </div>
+          <aside class="gentle-note">
+            <span class="note-chip">多说一句</span>
+            <p>细看 221 原海报正中的示例，连平假名助词「の」头顶也标了一个红字「の」。实战出版中，本身已是表音假名的助词并不需要重复注音——你可以在上方排字盘里直接点击「の」头顶，亲手删掉这枚多余注音，感受一下行间立刻清爽的变化。</p>
+          </aside>
+        </div>
+
+        <div class="lead-diagram">
+          <div class="lead-diagram-head">
+            <span id="s1-svg-era" class="mono">明治时期 · 日本号数活字</span>
+            <span id="s1-ratio" class="ratio-tag">两枚七号 = 一枚五号</span>
+          </div>
+          <svg class="lead-svg" viewBox="0 0 360 280" role="img" aria-label="主文铅块与两枚半字旁注铅块的 2:1 模数结构示意图">
+            <!-- 网格底纹 -->
+            <rect x="0" y="0" width="360" height="280" rx="14" fill="#FEFAF5" stroke="#E7A4A0" stroke-width="1.2"></rect>
+            <!-- 上方两枚 0.5x 旁注铅块 -->
+            <rect x="92" y="26" width="84" height="68" rx="6" fill="#FDF4EC" stroke="#F25952" stroke-width="1.6"></rect>
+            <rect x="184" y="26" width="84" height="68" rx="6" fill="#FDF4EC" stroke="#F25952" stroke-width="1.6"></rect>
+            <text id="s1-svg-r1" x="134" y="68" text-anchor="middle" fill="#C4302B" font-size="30" font-weight="600" font-family="Noto Sans SC, sans-serif">ぼ</text>
+            <text id="s1-svg-r2" x="226" y="68" text-anchor="middle" fill="#C4302B" font-size="30" font-weight="600" font-family="Noto Sans SC, sans-serif">う</text>
+            <!-- 呼吸注距带 -->
+            <line x1="92" y1="106" x2="268" y2="106" stroke="#E7A4A0" stroke-dasharray="4 3" stroke-width="1.2"></line>
+            <text x="180" y="121" text-anchor="middle" fill="#585C5D" font-size="11" font-family="DM Mono, monospace">GAP ≈ 0.12–0.18 em</text>
+            <!-- 下方一枚 1.0x 主文铅块 -->
+            <rect x="92" y="134" width="176" height="122" rx="8" fill="#FFFFFF" stroke="#070B0A" stroke-width="2"></rect>
+            <text id="s1-svg-base" x="180" y="218" text-anchor="middle" fill="#070B0A" font-size="76" font-weight="900" font-family="Noto Sans SC, sans-serif">望</text>
+            <!-- 左侧标尺：1:2 高度对比 -->
+            <line x1="58" y1="26" x2="58" y2="94" stroke="#C4302B" stroke-width="1.6"></line>
+            <line x1="52" y1="26" x2="64" y2="26" stroke="#C4302B" stroke-width="1.6"></line>
+            <line x1="52" y1="94" x2="64" y2="94" stroke="#C4302B" stroke-width="1.6"></line>
+            <text x="48" y="64" text-anchor="end" fill="#C4302B" font-size="11" font-family="DM Mono, monospace">0.5×</text>
+
+            <line x1="58" y1="134" x2="58" y2="256" stroke="#070B0A" stroke-width="1.6"></line>
+            <line x1="52" y1="134" x2="64" y2="134" stroke="#070B0A" stroke-width="1.6"></line>
+            <line x1="52" y1="256" x2="64" y2="256" stroke="#070B0A" stroke-width="1.6"></line>
+            <text x="48" y="200" text-anchor="end" fill="#070B0A" font-size="11" font-family="DM Mono, monospace">1.0×</text>
+
+            <!-- 右侧模数标注 -->
+            <line x1="286" y1="34" x2="286" y2="254" stroke="#E9DDD5" stroke-width="1.2"></line>
+            <text x="296" y="72" fill="#C4302B" font-size="11" font-family="Noto Sans SC, sans-serif">2 枚旁注</text>
+            <text x="296" y="196" fill="#070B0A" font-size="11" font-family="Noto Sans SC, sans-serif">1 枚主字</text>
+            <text x="296" y="214" fill="#585C5D" font-size="10.5" font-family="Noto Sans SC, sans-serif">等宽咬合</text>
+          </svg>
+          <dl class="lead-specs">
+            <div><dt>主文铅字</dt><dd id="s1-base-pt">五号活字 ≈ 10.5 pt</dd></div>
+            <div><dt>旁注铅字</dt><dd id="s1-ruby-pt">七号活字 ≈ 5.25 pt</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 三种挂接：单字、熟语、词组（柔杏桃纸） -->
+  <section class="sec sec-peach" id="sec-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">02</span>
+        <div class="sec-titles">
+          <h2>三种挂接：单字、熟语、词组</h2>
+          <p class="sec-en" lang="en">ATTACHMENT · MONO-RUBY, JUKUGO-RUBY &amp; GROUP-RUBY</p>
+        </div>
+      </div>
+
+      <p class="sec-intro">W3C《日语排版需求（JLReq）》第 3.3 节把旁注挂接细分为三种结构：<strong>单字旁注（Mono-ruby）</strong>一字一注，<strong>熟语旁注（Jukugo-ruby）</strong>词内借位平滑分配，<strong>词组旁注（Group-ruby）</strong>跨整词居中。拖下面这条栏宽拉杆，看三种排法在撞到行尾时谁能自然换行、谁会把版面撕出豁口。</p>
+
+      <div class="attach-toolbar">
+        <div class="word-tabs" role="group" aria-label="切换测试词条">
+          <button type="button" class="pill-btn is-active" data-attach-word="library" aria-pressed="true">図書館（熟语）</button>
+          <button type="button" class="pill-btn" data-attach-word="today" aria-pressed="false">今日（熟字训）</button>
+          <button type="button" class="pill-btn" data-attach-word="pinyin" aria-pressed="false">参差霜叶（拼音）</button>
+        </div>
+        <label class="width-slider">
+          <span>收窄测试栏宽</span>
+          <input id="s2-width" type="range" min="148" max="280" step="4" value="184">
+          <strong id="s2-width-val" class="mono">184 px</strong>
+        </label>
+      </div>
+
+      <div id="s2-cols" class="attach-grid">
+        <article class="attach-card">
+          <header class="attach-head">
+            <h3>单字旁注</h3>
+            <span class="mono">MONO-RUBY</span>
+          </header>
+          <div class="attach-well">
+            <p id="s2-mono-demo" class="attach-sample"></p>
+          </div>
+          <p id="s2-mono-note" class="attach-note"></p>
+        </article>
+
+        <article class="attach-card">
+          <header class="attach-head">
+            <h3>熟语旁注</h3>
+            <span class="mono">JUKUGO-RUBY</span>
+          </header>
+          <div class="attach-well">
+            <p id="s2-jukugo-demo" class="attach-sample"></p>
+          </div>
+          <p id="s2-jukugo-note" class="attach-note"></p>
+        </article>
+
+        <article class="attach-card">
+          <header class="attach-head">
+            <h3>词组旁注</h3>
+            <span class="mono">GROUP-RUBY</span>
+          </header>
+          <div class="attach-well">
+            <p id="s2-group-demo" class="attach-sample"></p>
+          </div>
+          <p id="s2-group-note" class="attach-note"></p>
+        </article>
+      </div>
+
+      <div class="code-strip">
+        <span class="code-label mono">HTML &amp; CSS RUBY REFERENCE</span>
+        <pre id="s2-code" class="code-pre"></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 暗室解剖：行距与悬挑碰撞（深漆黑暗室） -->
+  <section class="sec sec-dark" id="sec-03">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">03</span>
+        <div class="sec-titles">
+          <h2>暗室解剖：行距与悬挑碰撞</h2>
+          <p class="sec-en" lang="en">COLLISION · LINE-HEIGHT INVERSION &amp; OVERHANG</p>
+        </div>
+      </div>
+
+      <p class="sec-intro">单行好看的旁注，放进连续段落往往当场翻车。原因只有两个：<strong>垂直方向</strong>上，若注距偏大或行距不足（经验值建议放宽至 1.85×–2.2×），下一行的旁注会贴近上一行底脚导致归属倒挂；<strong>横向方向</strong>上，宽音节若关闭悬挑（<code>ruby-overhang: none</code>），会把主文撕出一条条突兀白洞。</p>
+
+      <div class="dark-lab">
+        <div class="dark-canvas-wrap">
+          <div class="dark-bar">
+            <span class="mono">INFRARED COLLISION SCAN · 实绘盒测</span>
+            <span id="s3-verdict" class="dark-verdict" data-level="fail">检测中</span>
+          </div>
+          <canvas id="dark-collision-canvas" class="dark-canvas" aria-label="多行段落旁注防撞红外测绘仪"></canvas>
+        </div>
+
+        <div class="dark-panel">
+          <div class="dark-metrics">
+            <div class="dm-cell"><span>垂直撞行</span><strong id="s3-vhits" class="mono">0 处</strong></div>
+            <div class="dm-cell"><span>横向撕裂</span><strong id="s3-hcracks" class="mono">0 处</strong></div>
+            <div class="dm-cell"><span>上行净空</span><strong id="s3-clearance" class="mono">0 px</strong></div>
+            <div class="dm-cell"><span>启用旁注</span><strong id="s3-count" class="mono">0 处</strong></div>
+          </div>
+
+          <div class="dark-controls">
+            <label class="dark-slider">
+              <span>段落行距（经验安全区 ≥ 1.85×）<strong id="s3-lh-val" class="mono">1.52×</strong></span>
+              <input id="s3-lh" type="range" min="1.35" max="2.35" step="0.02" value="1.52">
+            </label>
+            <label class="dark-slider">
+              <span>旁注距主字（经验安全区 10%–18%）<strong id="s3-gap-val" class="mono">28%</strong></span>
+              <input id="s3-gap" type="range" min="0.02" max="0.38" step="0.01" value="0.28">
+            </label>
+
+            <div class="dark-btn-row">
+              <button type="button" id="s3-overhang" class="dark-toggle" aria-pressed="false">半字悬挑：关（硬撑）</button>
+            </div>
+            <div class="dark-btn-row" role="group" aria-label="注音密度">
+              <button type="button" class="dark-seg is-active" data-s3-mode="full" aria-pressed="true">总注音（满行）</button>
+              <button type="button" class="dark-seg" data-s3-mode="para" aria-pressed="false">选注音（仅难字）</button>
+            </div>
+          </div>
+
+          <p class="dark-hint">试着把行距拉过 <strong>1.90×</strong>、注距收回 <strong>12%</strong>，再打开「半字悬挑」并切换到「选注音」，看看红框与黄洞如何一并清零。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 四大场景与横竖变体（暖白宣纸） -->
+  <section class="sec sec-paper" id="sec-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">04</span>
+        <div class="sec-titles">
+          <h2>四大场景与横竖变体</h2>
+          <p class="sec-en" lang="en">APPLICATIONS · FOUR REAL EDITORIAL CONTEXTS</p>
+        </div>
+      </div>
+
+      <p class="sec-intro">原海报底沿列出的四个应用场景，对应着完全不同的排印规矩：横排放在主文上方，直排放到主文右侧；启蒙教材可以逐字满注，成人书刊则只点注难字。点下面原海报样式的四枚场景药丸，直接在纸页样本里切换并开闭旁注体验阅读负荷。</p>
+
+      <div class="scene-bar">
+        <div class="scene-pills" role="group" aria-label="切换四大应用场景">
+          <button type="button" class="poster-pill is-active" data-scene="furigana" aria-pressed="true">
+            <strong>日语发音标注</strong><span lang="en">JAPANESE FURIGANA</span>
+          </button>
+          <button type="button" class="poster-pill" data-scene="hanzi" aria-pressed="false">
+            <strong>汉字读音提示</strong><span lang="en">HANZI PRONUNCIATION</span>
+          </button>
+          <button type="button" class="poster-pill" data-scene="terms" aria-pressed="false">
+            <strong>专业术语解释</strong><span lang="en">TERMS EXPLANATION</span>
+          </button>
+          <button type="button" class="poster-pill" data-scene="classical" aria-pressed="false">
+            <strong>古籍整理排版</strong><span lang="en">CLASSICAL TEXTS</span>
+          </button>
+        </div>
+        <button type="button" id="s4-toggle-ruby" class="btn-outline" aria-pressed="false">隐藏旁注对比扫读</button>
+      </div>
+
+      <div class="scene-stage">
+        <div class="scene-sheet-wrap">
+          <div class="scene-sheet-head">
+            <span id="s4-tag" class="mono">直排右置 · 选注音（パラルビ）</span>
+          </div>
+          <div id="s4-sheet" class="scene-sheet"></div>
+        </div>
+        <div class="scene-meta">
+          <h3>排印要点与规范</h3>
+          <p id="s4-tip"></p>
+          <pre id="s4-css" class="code-pre is-light"></pre>
+          <a id="s4-sibling-link" class="sibling-cta" href="https://layout.xiaoxiaodong.ai/214/play/" target="_blank" rel="noopener">延伸阅读：214 直排右起 →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 什么时候别用旁注（柔桃雾纸） -->
+  <section class="sec sec-mist" id="sec-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">05</span>
+        <div class="sec-titles">
+          <h2>什么时候别用旁注</h2>
+          <p class="sec-en" lang="en">WHEN NOT TO USE · LIMITS &amp; ALTERNATIVES</p>
+        </div>
+      </div>
+
+      <div class="history-quote">
+        <p class="quote-text">1938 年 4 月，日本作家山本有三在岩波书店刊行的《戦争と二人の婦人》后记〈国語に対する一つの意見〉中，把密密麻麻的全篇振假名比作「成排爬行的黑虫（黒い虫の行列）」，呼吁与其靠满页旁注硬撑难词，不如把正文写得平易好读。</p>
+        <p class="quote-sub">同年日本内务省警保局亦向幼少年读物发出废除全注音的指导。这段公案提醒排版者：旁注是按需递出的梯子，不是塞进大段说明或炫耀生僻字的容器。</p>
+      </div>
+
+      <div class="anti-grid">
+        <article class="anti-card" data-fix-card>
+          <header class="anti-head">
+            <span class="anti-idx mono">01</span>
+            <h3>解释超过 6–8 字时别用</h3>
+          </header>
+          <div class="anti-stage">
+            <div class="anti-bad">
+              <span class="state-chip is-bad">踩坑现场</span>
+              <p class="anti-sample">此书采用了<ruby>包背装<rt>把印页反折背粘书脊再包封皮</rt></ruby>工艺。</p>
+            </div>
+            <div class="anti-good">
+              <span class="state-chip is-ok">更优替代</span>
+              <p class="anti-sample">此书采用了<strong>包背装<sup>[1]</sup></strong>工艺。<br><small>[1] 把印页反折、粘牢书背再整张包上封皮的宋元装帧法。</small></p>
+            </div>
+          </div>
+          <p class="anti-why">长解释会把主文硬生生扯断成两截；改用上标编号配脚注或边注，主文流才不断气。</p>
+          <button type="button" class="fix-btn" data-fix-btn aria-pressed="false">换成更优方案</button>
+        </article>
+
+        <article class="anti-card" data-fix-card>
+          <header class="anti-head">
+            <span class="anti-idx mono">02</span>
+            <h3>正文低于 13px 时别用</h3>
+          </header>
+          <div class="anti-stage">
+            <div class="anti-bad">
+              <span class="state-chip is-bad">踩坑现场</span>
+              <p class="anti-sample is-micro"><ruby>薔<rt>ば</rt></ruby><ruby>薇<rt>ら</rt></ruby>与<ruby>霜<rt>shuāng</rt></ruby><ruby>叶<rt>yè</rt></ruby>在极小字号下，50% 旁注跌破 7px，声调与浊点直接糊成灰斑。</p>
+            </div>
+            <div class="anti-good">
+              <span class="state-chip is-ok">更优替代</span>
+              <p class="anti-sample">在信息密区直接改用<strong>行内括注</strong>：蔷薇（qiáng wēi）与霜叶，字号一致且屏幕清晰可读。</p>
+            </div>
+          </div>
+          <p class="anti-why">12px 正文的半字旁注仅 6px，低于常规阅读下限（约 9–10px）；空间紧时用括号平排更稳妥。</p>
+          <button type="button" class="fix-btn" data-fix-btn aria-pressed="false">换成更优方案</button>
+        </article>
+
+        <article class="anti-card" data-fix-card>
+          <header class="anti-head">
+            <span class="anti-idx mono">03</span>
+            <h3>成人读物别通篇满注</h3>
+          </header>
+          <div class="anti-stage">
+            <div class="anti-bad">
+              <span class="state-chip is-bad">踩坑现场</span>
+              <p class="anti-sample"><ruby>今<rt>jīn</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>好<rt>hǎo</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>书<rt>shū</rt></ruby>。</p>
+            </div>
+            <div class="anti-good">
+              <span class="state-chip is-ok">更优替代</span>
+              <p class="anti-sample">今天的天气很好，我们重读这篇<ruby>校<rt>jiào</rt></ruby>勘扎记。</p>
+            </div>
+          </div>
+          <p class="anti-why">常见字全加注只会制造高密度视觉噪点；只给易误读多音字和首次出现的生僻词加注。</p>
+          <button type="button" class="fix-btn" data-fix-btn aria-pressed="false">换成更优方案</button>
+        </article>
+
+        <article class="anti-card" data-fix-card>
+          <header class="anti-head">
+            <span class="anti-idx mono">04</span>
+            <h3>需精确复制的数据文本慎用</h3>
+          </header>
+          <div class="anti-stage">
+            <div class="anti-bad">
+              <span class="state-chip is-bad">踩坑现场</span>
+              <p class="anti-sample">用户复制带注词条「<ruby>希望<rt>きぼう</rt></ruby>」粘贴进搜索框，常变成无法命中的 <code>希望きぼう</code>。</p>
+            </div>
+            <div class="anti-good">
+              <span class="state-chip is-ok">更优替代</span>
+              <p class="anti-sample">合同编号、代码与检索词保持纯文本，必要时把读音放进独立字段或悬浮提示。</p>
+            </div>
+          </div>
+          <p class="anti-why">W3C 国际化缺口分析也专门指出：不同浏览器对带 &lt;ruby&gt; 文本的框选复制与页内查找行为并不统一。</p>
+          <button type="button" class="fix-btn" data-fix-btn aria-pressed="false">换成更优方案</button>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 小练习：四选一排印审校（深漆黑暗室） -->
+  <section class="sec sec-dark" id="sec-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">06</span>
+        <div class="sec-titles">
+          <h2>小练习：四选一排印审校</h2>
+          <p class="sec-en" lang="en">EXERCISE · SINGLE-VARIABLE TYPESETTER'S PROOF</p>
+        </div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="quiz-meta">
+          <span id="q-badge" class="mono">小练习 1 / 2 · 唯一变量：注距与行距配比</span>
+          <div class="quiz-nav">
+            <button type="button" id="q-reset" class="dark-seg">重选</button>
+            <button type="button" id="q-next" class="dark-seg is-active">下一题 →</button>
+          </div>
+        </div>
+        <p id="q-prompt" class="quiz-prompt"></p>
+        <div id="q-grid" class="q-grid"></div>
+        <div id="q-feedback" class="q-feedback is-idle" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 原海报与同类版式索引（暖白宣纸） -->
+  <section class="sec sec-paper" id="sec-07">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">07</span>
+        <div class="sec-titles">
+          <h2>原海报与同类版式</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; EAST ASIAN FAMILY</p>
+        </div>
+      </div>
+
+      <div class="poster-wall">
+        <figure class="poster-figure">
+          <div class="poster-card">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="旁注（Ruby）排版海报" draggable="false">
+          </div>
+          <figcaption class="poster-cap">
+            <span>221 · 旁注（Ruby）排版原海报</span>
+            <button type="button" id="poster-open-btn" class="btn-outline">放大查看与拖动</button>
+          </figcaption>
+        </figure>
+
+        <div class="poster-notes">
+          <div class="poster-block">
+            <h3>原海报核心摘录</h3>
+            <blockquote class="poster-quote">「旁注是位于主文本上方或右侧的微型注释，用于提供发音、解释或补充信息。」</blockquote>
+            <p class="poster-en-motto" lang="en">Ruby annotations are small notes placed above or beside base text to provide pronunciation, explanation, or additional context.</p>
+            <ul class="poster-list">
+              <li><strong>主文优先（BASE FIRST）</strong>：主文是视觉焦点，字号更大、更重，先阅读主文。</li>
+              <li><strong>紧密对应（CLOSE ALIGNMENT）</strong>：每个旁注紧贴对应字符的中心对齐。</li>
+              <li><strong>合理间距（APPROPRIATE SPACING）</strong>：保持一致的注释距离，避免拥挤或分离。</li>
+              <li><strong>提升可读性（LEGIBILITY）</strong>：对比清晰、层级分明，帮助快速理解。</li>
+            </ul>
+            <div class="poster-app-pills" aria-label="原海报应用场景">
+              <span>日语发音标注</span>
+              <span>汉字读音提示</span>
+              <span>专业术语解释</span>
+              <span>古籍整理排版</span>
+            </div>
+          </div>
+
+          <div class="poster-block">
+            <h3>同小类：东亚文字与混排</h3>
+            <p class="family-intro">以下 9 页与旁注排版分工互补，各自展开对应方向与混排细则：</p>
+            <ul class="family-links">
+              <li><a href="https://layout.xiaoxiaodong.ai/212/play/" target="_blank" rel="noopener"><strong>212 横排左起</strong> — 现代中文与汉语拼音上置最常用的基础行向。</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/213/play/" target="_blank" rel="noopener"><strong>213 横排右起</strong> — 匾额与传统右起横书的阅读次序。</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/214/play/" target="_blank" rel="noopener"><strong>214 直排右起</strong> — 日语振假名与古籍右置旁注的主场。</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/215/play/" target="_blank" rel="noopener"><strong>215 直排左起</strong> — 从左往右推进的特殊直排书页行序。</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/216/play/" target="_blank" rel="noopener"><strong>216 横直混排</strong> — 同一跨页里横行正文与直排栏目的衔接。</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/217/play/" target="_blank" rel="noopener"><strong>217 纵中横排</strong> — 直排流里将两三位数字横置对齐的技巧。</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/218/play/" target="_blank" rel="noopener"><strong>218 直排中西文转向</strong> — 长串拉丁词在直排中顺时针转置的排法。</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/219/play/" target="_blank" rel="noopener"><strong>219 直排中西文直立</strong> — 缩写与单字母在直排里保持正立的处理。</a></li>
+              <li><a href="https://layout.xiaoxiaodong.ai/220/play/" target="_blank" rel="noopener"><strong>220 双向文字排版</strong> — 横轴与纵轴在同一画幅交汇共生。</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <p>
+      <a href="https://layout.xiaoxiaodong.ai/221/play/" target="_blank" rel="noopener">在线版</a> /
+      全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai</a>
+      · 海报 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
+      · <a href="https://github.com/xxd-ai/350-layout-interactive" target="_blank" rel="noopener">源文件 GitHub</a>
+    </p>
+    <span class="mono">NO. 221 · RUBY ANNOTATION LAYOUT</span>
+  </div>
+</footer>
+
+<!-- 原海报放大拖动灯箱 -->
+<div id="poster-modal" class="poster-modal" hidden role="dialog" aria-modal="true" aria-label="原海报放大查看">
+  <div class="modal-toolbar">
+    <span class="mono">221 原海报 · 拖动平移 / 滚轮缩放 / Esc 关闭</span>
+    <div class="modal-btns">
+      <button type="button" id="poster-zoom-out" class="dark-seg">－</button>
+      <button type="button" id="poster-zoom-reset" class="dark-seg">100%</button>
+      <button type="button" id="poster-zoom-in" class="dark-seg">＋</button>
+      <button type="button" id="poster-close" class="dark-seg is-active">关闭 Esc</button>
+    </div>
+  </div>
+  <div id="poster-modal-stage" class="modal-stage">
+    <img id="poster-modal-img" src="poster.webp" alt="旁注（Ruby）排版高清原海报" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
