@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>053 向心式构图 · CENTRIPETAL COMPOSITION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="hero-shell">
+    <!-- 顶沿自示范收敛刊头：双侧青/橙细尖角指向中央标题 -->
+    <div class="masthead">
+      <div class="masthead-id">
+        <span class="no-badge">NO. 053</span>
+        <span class="cat-label">构图逻辑 · 几何形与放射结构</span>
+      </div>
+
+      <div class="masthead-center" aria-label="本页主题">
+        <span class="conv-rail conv-rail-l" aria-hidden="true"></span>
+        <h1 class="hero-title">向心式构图</h1>
+        <span class="hero-en" lang="en">CENTRIPETAL COMPOSITION</span>
+        <span class="conv-rail conv-rail-r" aria-hidden="true"></span>
+      </div>
+
+      <div class="masthead-actions">
+        <span class="status-chip is-bad" data-status-chip>0/4 · 叛逃+散焦</span>
+        <button type="button" class="btn-pulse" data-pulse>放流检验 <kbd>Space</kbd></button>
+      </div>
+    </div>
+
+    <!-- 三套语境标本栏 -->
+    <div class="scenario-bar" role="group" aria-label="切换构图标本">
+      <div class="scenario-tabs">
+        <button type="button" class="tab-btn is-active" data-scenario="poster" aria-pressed="true">
+          <span class="tab-full">原海报 · 向心宣言</span>
+          <span class="tab-short">原海报</span>
+        </button>
+        <button type="button" class="tab-btn" data-scenario="product" aria-pressed="false">
+          <span class="tab-full">产品展示 · 镜头光环</span>
+          <span class="tab-short">产品展示</span>
+        </button>
+        <button type="button" class="tab-btn" data-scenario="keynote" aria-pressed="false">
+          <span class="tab-full">演讲封面 · 核心主张</span>
+          <span class="tab-short">演讲封面</span>
+        </button>
+      </div>
+      <p class="gesture-tip">横拖画布拧准汇聚角 · 单点红箭扳回向内 · 点除四角杂散 · 拖虚线环调净空 · 空格放流</p>
+    </div>
+
+    <!-- 主舞台与横屏/竖屏快捷校准组合 -->
+    <div class="hero-stage-grid">
+      <div class="stage-frame">
+        <canvas
+          id="hero-canvas"
+          data-perf-drag
+          aria-label="向心矢量校准场交互画布：横拖拧准汇聚角，点击箭头翻转方向，点击角落清除杂散，拖动中心虚线环调整净空"
+        ></canvas>
+      </div>
+
+      <!-- 手机竖屏 & 横屏折线内快捷条（桌面端隐藏，避免与下方绘图校准坞重复） -->
+      <div class="mobile-quick is-bad" id="mobile-quick" aria-label="快捷校准">
+        <div class="quick-top">
+          <span class="quick-label">汇聚偏角（横拖同步）</span>
+          <span class="mono-val" data-val-skew>+24°</span>
+        </div>
+        <input id="range-skew-quick" type="range" min="-36" max="36" step="1" value="24" aria-label="快捷调整汇聚偏角">
+        <p id="quick-headline" class="quick-verdict">3 支楔形向外叛逃且指向偏散 24°，视线被扯碎</p>
+        <p class="quick-hint">提示：左右横拖画布拧准偏角，或直接点按红箭扳回向内。</p>
+        <div class="quick-btns">
+          <button type="button" class="btn-primary" data-fix-classic>一键校准向心</button>
+          <button type="button" class="btn-ghost" data-pulse>放流检验</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 画布下方融合：水平建筑绘图校准坞（左 46% 单真源诊单 | 右 54% 三轨精控与多解试错） -->
+    <div class="bench-dock">
+      <section class="diag-box is-bad" id="diag-box" aria-live="polite">
+        <div class="diag-head">
+          <div class="split-rule" aria-hidden="true"><span></span><span></span></div>
+          <span class="diag-kicker" lang="en">SINGLE-SOURCE CONVERGENCE AUDIT</span>
+          <span class="diag-tier" id="diag-tier">向心聚力：向心瓦解（示意）</span>
+        </div>
+        <h2 class="diag-title" id="diag-headline">3 支楔形向外叛逃且指向偏散 24°，视线被扯碎</h2>
+        <p class="diag-why" id="diag-why"></p>
+        <p class="diag-next" id="diag-next"></p>
+        <div class="diag-actions">
+          <button type="button" class="btn-primary" data-fix-classic>一键校准原海报解</button>
+          <button type="button" class="btn-secondary" id="btn-fix-rebels">扳回外逃箭头 (3)</button>
+          <button type="button" class="btn-secondary" id="btn-clear-noise">清空角落杂散 (4)</button>
+          <button type="button" class="btn-ghost" data-reset-broken>复原坏态</button>
+        </div>
+      </section>
+
+      <section class="dials-box" aria-label="向心结构精控台">
+        <div class="dials-row">
+          <label class="dial-item" for="range-skew">
+            <span class="dial-head"><span>汇聚偏角</span><strong class="mono-val" data-val-skew>+24°</strong></span>
+            <input id="range-skew" type="range" min="-36" max="36" step="1" value="24">
+          </label>
+          <label class="dial-item" for="range-ring">
+            <span class="dial-head"><span>静谧环净空</span><strong class="mono-val" id="val-ring">11%</strong></span>
+            <input id="range-ring" type="range" min="8" max="50" step="1" value="11">
+          </label>
+          <label class="dial-item" for="range-noise">
+            <span class="dial-head"><span>角落杂散</span><strong class="mono-val" id="val-noise">4 处</strong></span>
+            <input id="range-noise" type="range" min="0" max="4" step="1" value="4">
+          </label>
+        </div>
+
+        <div class="preset-rows">
+          <div class="preset-group">
+            <span class="group-tag">合法多解</span>
+            <div class="chip-row">
+              <button type="button" class="chip-btn" data-preset="classic" aria-pressed="false">八向全聚</button>
+              <button type="button" class="chip-btn" data-preset="corridor" aria-pressed="false">一点透视</button>
+              <button type="button" class="chip-btn" data-preset="minimal4" aria-pressed="false">四角精聚</button>
+              <button type="button" class="chip-btn is-active" id="btn-guides" aria-pressed="true">延长线：开</button>
+            </div>
+          </div>
+          <div class="preset-group">
+            <span class="group-tag">双向试错</span>
+            <div class="chip-row">
+              <button type="button" class="chip-btn chip-fail" data-preset="failRebel" aria-pressed="false">离心叛逃</button>
+              <button type="button" class="chip-btn chip-fail" data-preset="failStab" aria-pressed="false">箭尖刺核</button>
+              <button type="button" class="chip-btn chip-fail" data-preset="failHollow" aria-pressed="false">空心断链</button>
+              <button type="button" class="chip-btn chip-fail" data-preset="failOneSide" aria-pressed="false">单边倾覆</button>
+              <button type="button" class="chip-btn chip-fail" data-preset="failNoise" aria-pressed="false">角落杂噪</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 底沿 1:1 复刻原海报四竖线关键词标尺（含原海报 4 枚定制符号 + 实时单真源状态） -->
+    <div class="poster-ruler" aria-label="向心式构图四项实时判据">
+      <div class="ruler-col is-bad" id="kw-convergence">
+        <svg class="kw-icon" viewBox="0 0 28 28" aria-hidden="true">
+          <path d="M14 4v15M8 14l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+          <circle cx="14" cy="23" r="2.2" fill="currentColor"/>
+        </svg>
+        <div class="kw-text">
+          <div class="kw-head"><strong>汇聚</strong><span class="kw-en" lang="en">CONVERGENCE</span></div>
+          <span class="kw-status" id="kw-convergence-badge">反指 3 支</span>
+        </div>
+      </div>
+
+      <div class="ruler-col is-bad" id="kw-focus">
+        <svg class="kw-icon kw-icon-orange" viewBox="0 0 28 28" aria-hidden="true">
+          <circle cx="14" cy="14" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <circle cx="14" cy="14" r="5.4" fill="currentColor"/>
+        </svg>
+        <div class="kw-text">
+          <div class="kw-head"><strong>聚焦</strong><span class="kw-en" lang="en">FOCUS</span></div>
+          <span class="kw-status" id="kw-focus-badge">刺核 11%</span>
+        </div>
+      </div>
+
+      <div class="ruler-col is-bad" id="kw-gathering">
+        <svg class="kw-icon kw-icon-ink" viewBox="0 0 28 28" aria-hidden="true">
+          <path d="M5 23l6.5-6.5M23 5l-6.5 6.5M7 16.5h4.5V21M21 11.5h-4.5V7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/>
+        </svg>
+        <div class="kw-text">
+          <div class="kw-head"><strong>凝聚</strong><span class="kw-en" lang="en">GATHERING</span></div>
+          <span class="kw-status" id="kw-gathering-badge">杂散 4 处</span>
+        </div>
+      </div>
+
+      <div class="ruler-col is-bad" id="kw-stability">
+        <svg class="kw-icon" viewBox="0 0 28 28" aria-hidden="true">
+          <path d="M4 11h7V4M24 11h-7V4M4 17h7v7M24 17h-7v7" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="square"/>
+        </svg>
+        <div class="kw-text">
+          <div class="kw-head"><strong>向内</strong><span class="kw-en" lang="en">INWARD</span></div>
+          <span class="kw-status" id="kw-stability-badge">偏推 37%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 01 为什么视线会自动往里收 -->
+  <section class="band band-bright" id="sec-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div>
+          <h2>为什么视线会自动往里收</h2>
+          <p class="sec-en" lang="en">CENTRAL FIXATION BIAS &amp; VECTOR CONVERGENCE</p>
+        </div>
+      </div>
+
+      <div class="two-col two-col-balanced">
+        <div class="prose">
+          <blockquote class="poster-quote">
+            <span class="quote-tag">原海报总述</span>
+            「所有视觉元素沿着方向线、形体或动势向中心聚集，形成强烈的视觉吸引力与稳定感，突出主题，引导视线，增强画面凝聚力。」
+          </blockquote>
+
+          <p>向心式构图之所以一上手就管用，是因为它踩中了人类视觉系统的双重顺风车。第一股力量来自眼睛自身的习惯：视觉心理学家本杰明·塔特勒（Benjamin W. Tatler）2007 年在《Journal of Vision》发表的眼动研究指出，面对一幅新画面时，无论图像特征怎么分布，人的第一反应都会优先朝画面中央注视（中心注视偏向，central fixation bias），把中心当作快速读懂全局的最佳观察站。</p>
+
+          <p>第二股力量来自外围元素的方向势能：按照格式塔心理学「良好连续律」（Wertheimer, 1923），人眼会自动顺着连续倾斜的线条与收锋形体往下滑；阿恩海姆（Rudolf Arnheim）在《中心的力量》中更指出，当四面八方的视觉向量指向同一核心时，画面会建立起强大的「向心力场」，把原本各自散开的局部压成一个不可分割的整体。</p>
+
+          <aside class="nuance-note">
+            <span class="nuance-tag">补充边界</span>
+            <p>原海报说「让主体成为唯一的视觉焦点」，但实战中并不要求所有元素都机械地戳向正几何中心，也不必画满字面箭头。焦核可以微微上提以吻合视觉重心，也可以只靠三四道建筑透视或光影斜面来完成向心收束。</p>
+          </aside>
+
+          <p class="sibling-links">同属放射与环形结构家族，但方向流场各不相同：向外爆发看 <a href="https://layout.xiaoxiaodong.ai/052/play/" target="_blank" rel="noopener">052 放射式构图</a>，推离中心甩向边沿看 <a href="https://layout.xiaoxiaodong.ai/054/play/" target="_blank" rel="noopener">054 离心式构图</a>，沿圆周层层环绕看 <a href="https://layout.xiaoxiaodong.ai/055/play/" target="_blank" rel="noopener">055 同心式构图</a>，旋卷收束看 <a href="https://layout.xiaoxiaodong.ai/051/play/" target="_blank" rel="noopener">051 螺旋构图</a>。</p>
+        </div>
+
+        <div class="lab-card">
+          <div class="lab-bar">
+            <div class="seg-group" role="group" aria-label="切换四种矢量流场">
+              <button type="button" class="seg-btn is-active" data-s01-mode="centripetal" aria-pressed="true">053 向心</button>
+              <button type="button" class="seg-btn" data-s01-mode="radiating" aria-pressed="false">052 放射</button>
+              <button type="button" class="seg-btn" data-s01-mode="centrifugal" aria-pressed="false">054 离心</button>
+              <button type="button" class="seg-btn" data-s01-mode="concentric" aria-pressed="false">055 同心</button>
+            </div>
+            <button type="button" class="btn-small" id="s01-drop">外圈投珠</button>
+          </div>
+          <canvas id="s01-canvas" class="lab-canvas" aria-label="四种矢量流场粒子对比画布"></canvas>
+          <div class="lab-readout">
+            <strong id="s01-readout-title">053 向心式 · 外围势能同步向内收束</strong>
+            <p id="s01-readout-body"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 四种向心手法：不止画箭头 -->
+  <section class="band band-sage" id="sec-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div>
+          <h2>四种向心手法：不止画箭头</h2>
+          <p class="sec-en" lang="en">FOUR NON-LITERAL CONVERGING CHANNELS</p>
+        </div>
+      </div>
+
+      <p class="lead-line">新手一听到「向心式构图」，常常本能地在画面四角画上粗箭头。其实真正高明的平面、摄影与产品视觉，往往藏起箭头本身，借四条隐形通道把视线悄悄送进中央——试着单独开关这四个通道，观察不画一根箭头时引力如何叠加。</p>
+
+      <div class="mixer-layout">
+        <div class="mixer-stage">
+          <canvas id="s02-canvas" class="lab-canvas lab-canvas-tall" aria-label="四通道向心手法实时叠加画布"></canvas>
+        </div>
+
+        <div class="mixer-controls">
+          <div class="mixer-head">
+            <span class="group-tag">独立通道混音</span>
+            <span class="mono-pill" id="s02-count">已开 2/4 通道</span>
+          </div>
+
+          <div class="channel-grid">
+            <button type="button" class="ch-card is-active" data-s02-ch="perspective" aria-pressed="true">
+              <span class="ch-num" lang="en">CH 01</span>
+              <strong>透视走廊线</strong>
+              <span>建筑拱廊、墙角折线与地砖正交线自然交汇于远端主角。</span>
+            </button>
+
+            <button type="button" class="ch-card is-active" data-s02-ch="wedges" aria-pressed="true">
+              <span class="ch-num" lang="en">CH 02</span>
+              <strong>外宽内窄收锋</strong>
+              <span>用边缘宽厚、向内渐细的色块或光束制造隐蔽箭势，正如 053 原海报的颗粒楔形。</span>
+            </button>
+
+            <button type="button" class="ch-card" data-s02-ch="silhouettes" aria-pressed="false">
+              <span class="ch-num" lang="en">CH 03</span>
+              <strong>外围转向剪影</strong>
+              <span>借前景人物背影、器械或枝叶朝同一方向倾斜，触发观者自动追随视线。</span>
+            </button>
+
+            <button type="button" class="ch-card" data-s02-ch="vignette" aria-pressed="false">
+              <span class="ch-num" lang="en">CH 04</span>
+              <strong>明暗暗角漏斗</strong>
+              <span>外缘压暗降对比、中央保持明亮高反差，不添一根线条也能产生吸入感。</span>
+            </button>
+          </div>
+
+          <div class="mixer-readout">
+            <span class="group-tag">眼动效果说明</span>
+            <p id="s02-readout"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 静谧核与边界：别戳穿主体（深矿岩暗室） -->
+  <section class="band band-dark" id="sec-03">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <div>
+          <h2>静谧核与边界：别戳穿主体</h2>
+          <p class="sec-en" lang="en">PROTECTING THE CENTRAL SANCTUARY</p>
+        </div>
+      </div>
+
+      <!-- 1:1 引出原海报四条要点 -->
+      <div class="poster-points-grid">
+        <article class="pt-card">
+          <div class="pt-icon pt-teal" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12h13M13 7l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg>
+          </div>
+          <h3>引导汇聚</h3>
+          <p class="pt-orig">「利用线条、方向和动势，引导视线向中心汇聚。」</p>
+          <p class="pt-plain">所有外围线条的延长线要真正交于同一焦点区域，哪怕只偏出一两根反向箭头，都会把刚聚拢的目光扯漏。</p>
+        </article>
+
+        <article class="pt-card">
+          <div class="pt-icon pt-orange" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+          </div>
+          <h3>聚焦主体</h3>
+          <p class="pt-orig">「强化中心视觉重量，让主体成为唯一的视觉焦点。」</p>
+          <p class="pt-plain">导向线必须在主角外侧留出约 22%–36%（经验值）的「静谧环」及时刹住；太紧会刺穿文字，太宽则让主角孤立成空井。</p>
+        </article>
+
+        <article class="pt-card">
+          <div class="pt-icon pt-orange" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 5l4.5 4.5M19 5l-4.5 4.5M5 19l4.5-4.5M19 19l-4.5-4.5" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
+          </div>
+          <h3>增强凝聚</h3>
+          <p class="pt-orig">「减少分散元素，让画面紧凑统一，提升整体感。」</p>
+          <p class="pt-plain">向心版面最怕「角落塞满贴片、角标和二维码」。把非必要信息收进底层小字或直接删掉，才能让外围安静托举中心。</p>
+        </article>
+
+        <article class="pt-card">
+          <div class="pt-icon pt-ring" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
+          </div>
+          <h3>稳定有力</h3>
+          <p class="pt-orig">「形成稳定的结构与向心力，传达力量、信任与专注。」</p>
+          <p class="pt-plain">多方向的推力在圆心互相抵消，才会产生稳如磐石的锚定感；若所有线条都堆在单侧，画面就会倾斜成单向冲撞。</p>
+        </article>
+      </div>
+
+      <!-- 交互拉帘：三套真实应用场景初稿 vs 终稿 + X-Ray 透视 -->
+      <div class="curtain-bench">
+        <div class="curtain-bar">
+          <div class="seg-group seg-dark" role="group" aria-label="切换实操对比场景">
+            <button type="button" class="seg-btn is-active" data-s03-scene="product" aria-pressed="true">产品展示 · 声学耳机</button>
+            <button type="button" class="seg-btn" data-s03-scene="keynote" aria-pressed="false">演讲封面 · 年度发布</button>
+            <button type="button" class="seg-btn" data-s03-scene="photo" aria-pressed="false">摄影后期 · 拱廊人影</button>
+          </div>
+          <button type="button" class="btn-xray is-active" id="s03-xray" aria-pressed="true">隐藏汇聚骨架</button>
+        </div>
+
+        <canvas id="s03-canvas" class="curtain-canvas" aria-label="散乱初稿与向心终稿对比拉帘画布"></canvas>
+
+        <div class="curtain-foot">
+          <label class="curtain-slider" for="s03-split">
+            <span>拖拉对比帘</span>
+            <input id="s03-split" type="range" min="8" max="92" step="1" value="36">
+          </label>
+          <p id="s03-note" class="curtain-note"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 这个方法从哪来 -->
+  <section class="band band-bright" id="sec-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div>
+          <h2>这个方法从哪来</h2>
+          <p class="sec-en" lang="en">FROM PUNTO CENTRICO TO GESTALT FORCE FIELDS</p>
+        </div>
+      </div>
+
+      <div class="history-layout">
+        <div class="timeline-list">
+          <button type="button" class="era-item is-active" data-s04-era="alberti" aria-pressed="true">
+            <span class="era-year" lang="en">1435</span>
+            <div>
+              <strong>阿尔伯蒂《论绘画》（De pictura）</strong>
+              <p>文艺复兴建筑与艺术理论家莱昂·巴蒂斯塔·阿尔伯蒂首次把一点透视的汇聚灭点系统写成文字，称之为「中心点（punto centrico）」——单眼视觉金字塔的中心射线垂直落于此点，所有正交线向它收束。</p>
+            </div>
+          </button>
+
+          <button type="button" class="era-item" data-s04-era="leonardo" aria-pressed="false">
+            <span class="era-year" lang="en">1494–1498</span>
+            <div>
+              <strong>达·芬奇《最后的晚餐》</strong>
+              <p>藏于米兰感恩圣母院食堂。壁画修复与考据显示，达·芬奇在基督右太阳穴的位置钉入细钉并向四周拉线，令藻井天花与两侧壁毯的所有透视线严格汇于这一单点，将戏剧波澜锁定在沉静的中央三角。</p>
+            </div>
+          </button>
+
+          <button type="button" class="era-item" data-s04-era="raphael" aria-pressed="false">
+            <span class="era-year" lang="en">1509–1511</span>
+            <div>
+              <strong>拉斐尔《雅典学院》</strong>
+              <p>绘于梵蒂冈博物馆签字厅。受伯拉孟特古典建筑启发，画中层层递进的筒形拱券与地砖将视线收束于中心远拱——灭点恰落在柏拉图与亚里士多德之间，让数十位先哲各安其位又共属一个核心。</p>
+            </div>
+          </button>
+
+          <button type="button" class="era-item" data-s04-era="arnheim" aria-pressed="false">
+            <span class="era-year" lang="en">1923–2007</span>
+            <div>
+              <strong>格式塔连续律、阿恩海姆与眼动实证</strong>
+              <p>韦特海默（1923）提出良好连续律；鲁道夫·阿恩海姆在《中心的力量》（1982 首版、1988 修订版）中系统提出「向心（centripetal）」与「离心（centrifugal）」视觉力场模型；塔特勒（2007）进一步用眼动实验证实了人类观看画面时固有的中心注视偏向。</p>
+            </div>
+          </button>
+        </div>
+
+        <div class="blueprint-box">
+          <div class="blueprint-head">
+            <span class="group-tag">几何骨架演进图谱</span>
+            <span class="mono-mini" lang="en">CONVERGENCE BLUEPRINT</span>
+          </div>
+          <canvas id="s04-canvas" class="blueprint-canvas" aria-label="四纪元向心构图几何骨架图谱"></canvas>
+          <p id="s04-caption" class="blueprint-caption"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 什么时候用，什么时候别用 -->
+  <section class="band band-sand" id="sec-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div>
+          <h2>什么时候用，什么时候别用</h2>
+          <p class="sec-en" lang="en">WHEN TO CONVERGE &amp; WHEN TO STEP ASIDE</p>
+        </div>
+      </div>
+
+      <!-- 原海报五大应用场景条 -->
+      <div class="usage-strip">
+        <div class="usage-meta">
+          <span class="group-tag">原海报 · 应用场景</span>
+          <p>只要版面只有一个压倒性主角、需要在三秒内定胜负，向心式构图就是最稳的起手式：</p>
+        </div>
+        <ul class="usage-tags">
+          <li>海报设计</li>
+          <li>产品展示</li>
+          <li>演讲封面</li>
+          <li>核心信息页</li>
+          <li>摄影后期</li>
+        </ul>
+      </div>
+
+      <h3 class="sub-head">但这四种场景千万别硬套向心（点击卡片看替代解法）</h3>
+
+      <div class="anti-grid">
+        <!-- 反例 1：长文多段阅读 -->
+        <article class="anti-card" data-s05-card>
+          <div class="anti-visual">
+            <svg class="anti-svg anti-bad" viewBox="0 0 260 130" aria-hidden="true">
+              <rect width="260" height="130" fill="#EDE9E4"/>
+              <path d="M0 0L92 48M260 0L168 48M0 130L92 82M260 130L168 82" stroke="#B8291E" stroke-width="2" stroke-dasharray="4 3"/>
+              <rect x="74" y="34" width="112" height="62" fill="#F6F3EE" stroke="#B8291E" stroke-width="1.4"/>
+              <line x1="86" y1="48" x2="174" y2="48" stroke="#1C2A30" stroke-width="3"/>
+              <line x1="86" y1="60" x2="174" y2="60" stroke="#49585F" stroke-width="2"/>
+              <line x1="86" y1="70" x2="168" y2="70" stroke="#49585F" stroke-width="2"/>
+              <line x1="86" y1="80" x2="152" y2="80" stroke="#49585F" stroke-width="2"/>
+              <text x="130" y="118" text-anchor="middle" fill="#B8291E" font-size="10" font-weight="700">视线总被拉回正中，难以逐行扫读</text>
+            </svg>
+            <svg class="anti-svg anti-good" viewBox="0 0 260 130" aria-hidden="true">
+              <rect width="260" height="130" fill="#F6F3EE"/>
+              <rect x="24" y="18" width="212" height="14" fill="#138385" opacity="0.22"/>
+              <line x1="24" y1="46" x2="122" y2="46" stroke="#1C2A30" stroke-width="2.5"/>
+              <line x1="24" y1="58" x2="118" y2="58" stroke="#49585F" stroke-width="2"/>
+              <line x1="24" y1="70" x2="120" y2="70" stroke="#49585F" stroke-width="2"/>
+              <line x1="24" y1="82" x2="106" y2="82" stroke="#49585F" stroke-width="2"/>
+              <line x1="142" y1="46" x2="236" y2="46" stroke="#1C2A30" stroke-width="2.5"/>
+              <line x1="142" y1="58" x2="232" y2="58" stroke="#49585F" stroke-width="2"/>
+              <line x1="142" y1="70" x2="236" y2="70" stroke="#49585F" stroke-width="2"/>
+              <line x1="142" y1="82" x2="210" y2="82" stroke="#49585F" stroke-width="2"/>
+              <text x="130" y="116" text-anchor="middle" fill="#0B6B56" font-size="10" font-weight="700">改用清晰栏栅与左齐阅读流</text>
+            </svg>
+          </div>
+          <div class="anti-body">
+            <h4>长文阅读与多段编排</h4>
+            <p class="anti-desc-bad">长文需要眼睛顺着水平行从左到右匀速推进。向心线条会把目光一次次拽回版面中心，读两行就觉得发紧疲惫。</p>
+            <p class="anti-desc-good">替代方案：采用规范多栏网格与明确左对齐基线，把视觉注意力完整交还给行间节奏与段落层次。</p>
+            <button type="button" class="btn-flip" data-s05-toggle aria-pressed="false">换对版式（看替代方案）</button>
+          </div>
+        </article>
+
+        <!-- 反例 2：多品平级比价 -->
+        <article class="anti-card" data-s05-card>
+          <div class="anti-visual">
+            <svg class="anti-svg anti-bad" viewBox="0 0 260 130" aria-hidden="true">
+              <rect width="260" height="130" fill="#EDE9E4"/>
+              <polygon points="0,0 100,48 0,34" fill="#138385" opacity="0.45"/>
+              <polygon points="260,0 160,48 260,34" fill="#138385" opacity="0.45"/>
+              <rect x="20" y="34" width="44" height="54" fill="#CBD4D5"/>
+              <rect x="196" y="34" width="44" height="54" fill="#CBD4D5"/>
+              <rect x="94" y="22" width="72" height="78" fill="#E85D26"/>
+              <text x="130" y="118" text-anchor="middle" fill="#B8291E" font-size="10" font-weight="700">中间款霸屏，两侧平级商品被埋没</text>
+            </svg>
+            <svg class="anti-svg anti-good" viewBox="0 0 260 130" aria-hidden="true">
+              <rect width="260" height="130" fill="#F6F3EE"/>
+              <rect x="22" y="22" width="102" height="36" fill="#DCE6E6" stroke="#138385"/>
+              <rect x="136" y="22" width="102" height="36" fill="#DCE6E6" stroke="#138385"/>
+              <rect x="22" y="66" width="102" height="36" fill="#DCE6E6" stroke="#138385"/>
+              <rect x="136" y="66" width="102" height="36" fill="#DCE6E6" stroke="#138385"/>
+              <text x="130" y="118" text-anchor="middle" fill="#0B6B56" font-size="10" font-weight="700">改用均等四象限或卡片矩阵公平对比</text>
+            </svg>
+          </div>
+          <div class="anti-body">
+            <h4>多款平级商品横评</h4>
+            <p class="anti-desc-bad">当页面需要让用户公平对比 4–6 款并列方案时，向心构图会强行把中央那一款抬成「唯一天选」，让周边选项无人问津。</p>
+            <p class="anti-desc-good">替代方案：改用均等权重卡片或 <a href="https://layout.xiaoxiaodong.ai/056/play/" target="_blank" rel="noopener">056 四象限构图</a>，让每个维度与商品获得对等的比较空间。</p>
+            <button type="button" class="btn-flip" data-s05-toggle aria-pressed="false">换对版式（看替代方案）</button>
+          </div>
+        </article>
+
+        <!-- 反例 3：需要向外爆发的宣言 -->
+        <article class="anti-card" data-s05-card>
+          <div class="anti-visual">
+            <svg class="anti-svg anti-bad" viewBox="0 0 260 130" aria-hidden="true">
+              <rect width="260" height="130" fill="#EDE9E4"/>
+              <polygon points="10,10 105,56 36,6" fill="#2F3538" opacity="0.65"/>
+              <polygon points="250,10 155,56 224,6" fill="#2F3538" opacity="0.65"/>
+              <polygon points="10,120 105,74 36,124" fill="#2F3538" opacity="0.65"/>
+              <polygon points="250,120 155,74 224,124" fill="#2F3538" opacity="0.65"/>
+              <circle cx="130" cy="65" r="22" fill="#102026"/>
+              <text x="130" y="118" text-anchor="middle" fill="#B8291E" font-size="10" font-weight="700">向内压紧收拢，反而锁死了冲破感</text>
+            </svg>
+            <svg class="anti-svg anti-good" viewBox="0 0 260 130" aria-hidden="true">
+              <rect width="260" height="130" fill="#101E24"/>
+              <g stroke="#FF8A5C" stroke-width="2">
+                <line x1="130" y1="62" x2="26" y2="18"/>
+                <line x1="130" y1="62" x2="234" y2="18"/>
+                <line x1="130" y1="62" x2="20" y2="96"/>
+                <line x1="130" y1="62" x2="240" y2="96"/>
+                <line x1="130" y1="62" x2="130" y2="10"/>
+              </g>
+              <circle cx="130" cy="62" r="14" fill="#48D6D4"/>
+              <text x="130" y="118" text-anchor="middle" fill="#47DFB6" font-size="10" font-weight="700">改用 052 放射或 054 离心向外释放</text>
+            </svg>
+          </div>
+          <div class="anti-body">
+            <h4>突破边界的外放宣言</h4>
+            <p class="anti-desc-bad">向心自带收敛、沉稳与秩序感。如果主题讲的是「打破常规、狂欢扩散、向外辐射」，往里收的箭头会让情绪背道而驰。</p>
+            <p class="anti-desc-good">替代方案：改用 <a href="https://layout.xiaoxiaodong.ai/052/play/" target="_blank" rel="noopener">052 放射式构图</a> 释放能量，或用 <a href="https://layout.xiaoxiaodong.ai/054/play/" target="_blank" rel="noopener">054 离心式构图</a> 制造冲出画框的张力。</p>
+            <button type="button" class="btn-flip" data-s05-toggle aria-pressed="false">换对版式（看替代方案）</button>
+          </div>
+        </article>
+
+        <!-- 反例 4：高频操作工具界面 -->
+        <article class="anti-card" data-s05-card>
+          <div class="anti-visual">
+            <svg class="anti-svg anti-bad" viewBox="0 0 260 130" aria-hidden="true">
+              <rect width="260" height="130" fill="#EDE9E4"/>
+              <path d="M0 0L110 52M260 0L150 52M0 130L110 78M260 130L150 78" stroke="#E85D26" stroke-width="5" opacity="0.5"/>
+              <rect x="86" y="42" width="88" height="44" rx="4" fill="#FFFFFF" stroke="#B8291E"/>
+              <text x="130" y="68" text-anchor="middle" fill="#102026" font-size="10" font-weight="700">操作面板</text>
+              <text x="130" y="118" text-anchor="middle" fill="#B8291E" font-size="10" font-weight="700">强汇聚线久看压迫，工具栏难定位</text>
+            </svg>
+            <svg class="anti-svg anti-good" viewBox="0 0 260 130" aria-hidden="true">
+              <rect width="260" height="130" fill="#F6F3EE"/>
+              <rect x="16" y="14" width="228" height="18" fill="#102026"/>
+              <rect x="16" y="38" width="54" height="62" fill="#DCE6E6"/>
+              <rect x="78" y="38" width="166" height="62" fill="#FFFFFF" stroke="#CBD4D5"/>
+              <text x="130" y="118" text-anchor="middle" fill="#0B6B56" font-size="10" font-weight="700">改用安静分区框架与低对比边界</text>
+            </svg>
+          </div>
+          <div class="anti-body">
+            <h4>高频操作的工作台界面</h4>
+            <p class="anti-desc-bad">海报只需要抓人 3 秒，工作台却要陪人干活 3 小时。四周持续往里聚的强斜线会不断制造紧张感，削弱角落菜单的可达性。</p>
+            <p class="anti-desc-good">替代方案：保留安静的顶栏与侧栏分区，只在关键空状态或弹窗提示里克制借用一点视觉居中。</p>
+            <button type="button" class="btn-flip" data-s05-toggle aria-pressed="false">换对版式（看替代方案）</button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 挑一挑：哪张向心真正立得住（深矿岩考场） -->
+  <section class="band band-dark" id="sec-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">06</span>
+        <div>
+          <h2>挑一挑：哪张向心立得住</h2>
+          <p class="sec-en" lang="en">SINGLE-VARIABLE DIAGNOSTIC PRACTICE</p>
+        </div>
+      </div>
+
+      <p class="lead-line lead-dark">建筑灯光展「静默光廊 · 2026」准备了四版主视觉海报。四张图的底色、配色、字体与中央主标字号完全相同，仅在向心结构的几何处理上各差一个关键环节。点选你认为真正立得住的那一版：</p>
+
+      <div class="quiz-grid">
+        <button type="button" class="quiz-card" data-quiz-opt="A" aria-pressed="false">
+          <canvas class="quiz-canvas" width="320" height="240" aria-label="方案 A 海报示意"></canvas>
+          <span class="quiz-label">方案 A</span>
+        </button>
+
+        <button type="button" class="quiz-card" data-quiz-opt="B" aria-pressed="false">
+          <canvas class="quiz-canvas" width="320" height="240" aria-label="方案 B 海报示意"></canvas>
+          <span class="quiz-label">方案 B</span>
+        </button>
+
+        <button type="button" class="quiz-card" data-quiz-opt="C" aria-pressed="false">
+          <canvas class="quiz-canvas" width="320" height="240" aria-label="方案 C 海报示意"></canvas>
+          <span class="quiz-label">方案 C</span>
+        </button>
+
+        <button type="button" class="quiz-card" data-quiz-opt="D" aria-pressed="false">
+          <canvas class="quiz-canvas" width="320" height="240" aria-label="方案 D 海报示意"></canvas>
+          <span class="quiz-label">方案 D</span>
+        </button>
+      </div>
+
+      <div id="quiz-feedback" class="quiz-feedback" hidden aria-live="polite"></div>
+      <div class="quiz-actions">
+        <button type="button" id="quiz-reset" class="btn-xray" hidden>重新作答</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 原海报与同类构图 -->
+  <section class="band band-paper" id="sec-07">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div>
+          <h2>原海报与同类构图</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; SIBLING STRUCTURES</p>
+        </div>
+      </div>
+
+      <div class="poster-showcase">
+        <div class="poster-frame">
+          <img id="poster" src="poster.webp" width="1086" height="1448" alt="053 向心式构图原版教学海报" draggable="false">
+          <button type="button" class="btn-secondary poster-zoom-btn" id="poster-open">点击放大原海报（支持拖动查看细节）</button>
+        </div>
+
+        <div class="poster-meta">
+          <div class="meta-block">
+            <span class="group-tag">原海报四组关键词</span>
+            <div class="kw-wall">
+              <div class="kw-pill"><strong>汇聚</strong><span lang="en">CONVERGENCE</span></div>
+              <div class="kw-pill"><strong>聚焦</strong><span lang="en">FOCUS</span></div>
+              <div class="kw-pill"><strong>凝聚</strong><span lang="en">GATHERING</span></div>
+              <div class="kw-pill"><strong>向内</strong><span lang="en">INWARD</span></div>
+            </div>
+          </div>
+
+          <div class="meta-block">
+            <span class="group-tag">同小类：几何形与放射结构（041–056）</span>
+            <p class="meta-hint">每个编号各有独立互动页，以下按结构脉络一键直达：</p>
+            <div class="family-grid">
+              <a href="https://layout.xiaoxiaodong.ai/041/play/" target="_blank" rel="noopener"><span>041</span> 三角构图</a>
+              <a href="https://layout.xiaoxiaodong.ai/042/play/" target="_blank" rel="noopener"><span>042</span> 金字塔构图</a>
+              <a href="https://layout.xiaoxiaodong.ai/043/play/" target="_blank" rel="noopener"><span>043</span> 倒三角构图</a>
+              <a href="https://layout.xiaoxiaodong.ai/044/play/" target="_blank" rel="noopener"><span>044</span> 菱形构图</a>
+              <a href="https://layout.xiaoxiaodong.ai/045/play/" target="_blank" rel="noopener"><span>045</span> 方形构图</a>
+              <a href="https://layout.xiaoxiaodong.ai/046/play/" target="_blank" rel="noopener"><span>046</span> 矩形构图</a>
+              <a href="https://layout.xiaoxiaodong.ai/047/play/" target="_blank" rel="noopener"><span>047</span> 圆形构图</a>
+              <a href="https://layout.xiaoxiaodong.ai/048/play/" target="_blank" rel="noopener"><span>048</span> 椭圆构图</a>
+              <a href="https://layout.xiaoxiaodong.ai/049/play/" target="_blank" rel="noopener"><span>049</span> 弧形构图</a>
+              <a href="https://layout.xiaoxiaodong.ai/050/play/" target="_blank" rel="noopener"><span>050</span> 环形构图</a>
+              <a href="https://layout.xiaoxiaodong.ai/051/play/" target="_blank" rel="noopener"><span>051</span> 螺旋构图</a>
+              <a href="https://layout.xiaoxiaodong.ai/052/play/" target="_blank" rel="noopener"><span>052</span> 放射式构图</a>
+              <span class="is-current"><span>053</span> 向心式构图</span>
+              <a href="https://layout.xiaoxiaodong.ai/054/play/" target="_blank" rel="noopener"><span>054</span> 离心式构图</a>
+              <a href="https://layout.xiaoxiaodong.ai/055/play/" target="_blank" rel="noopener"><span>055</span> 同心式构图</a>
+              <a href="https://layout.xiaoxiaodong.ai/056/play/" target="_blank" rel="noopener"><span>056</span> 四象限构图</a>
+            </div>
+          </div>
+
+          <div class="meta-block">
+            <span class="group-tag">延伸文献与馆藏核查</span>
+            <ul class="ref-list">
+              <li>Alberti, L. B. (1435). <em>De pictura</em>（论绘画）— 首次提出视平线「中心点（punto centrico）」。</li>
+              <li>Leonardo da Vinci (1494–1498). <em>Il Cenacolo</em>（最后的晚餐）— 米兰感恩圣母院食堂单点透视墙画。</li>
+              <li>Raphael (1509–1511). <em>Scuola di Atene</em>（雅典学院）— 梵蒂冈博物馆签字厅多层拱券向心构图。</li>
+              <li>Wertheimer, M. (1923); Arnheim, R. (1982/1988) <em>The Power of the Center</em>; Tatler, B. W. (2007) <em>Journal of Vision</em> 7(14):4。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 原海报放大灯箱 -->
+<div class="poster-modal" id="poster-modal" role="dialog" aria-modal="true" aria-label="原海报放大查看" hidden>
+  <div class="poster-modal-bar">
+    <span>053 向心式构图 · 原海报（拖动画布平移 · 滚轮或按钮缩放 · Esc 关闭）</span>
+    <div class="poster-modal-btns">
+      <button type="button" id="poster-zoom-out">缩小 −</button>
+      <button type="button" id="poster-zoom-reset">100%</button>
+      <button type="button" id="poster-zoom-in">放大 +</button>
+      <button type="button" id="poster-close" class="btn-close-modal">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="poster-modal-stage" id="poster-modal-stage">
+    <img id="poster-modal-img" alt="053 向心式构图原海报高清大图" draggable="false">
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <a href="https://layout.xiaoxiaodong.ai/053/play/" target="_blank" rel="noopener">在线版</a>
+    <span aria-hidden="true">/</span>
+    <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+    <span aria-hidden="true">·</span>
+    <span>海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a></span>
+    <span aria-hidden="true">·</span>
+    <span>源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a></span>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
