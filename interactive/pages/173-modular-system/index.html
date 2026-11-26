@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>173 模块系统 · MODULAR SYSTEM</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ==================== HERO：173 原海报深松青建筑制图展板 ==================== -->
+  <header class="hero" id="top">
+    <div class="hero-inner">
+      <!-- 顶区非对称双栏：左 44% 刊头+总述+单真源诊断单 | 右 56% 活体 4×4 模块合成台 -->
+      <div class="hero-split">
+        <!-- 左翼 -->
+        <div class="hero-left">
+          <div class="hero-head-top">
+            <div class="hero-kicker-row">
+              <span class="index-badge">NO. 173</span>
+              <span class="cat-label">字体、网格与东亚文字 · 字体组织系统</span>
+              <span class="status-pill is-err" id="heroStatusBadge">0/4 · 撞块 1 处</span>
+            </div>
+
+            <!-- 自示范 1:1 方格大标：每字占一枚精准模块格 -->
+            <h1 class="mod-title" aria-label="模块系统">
+              <span class="mod-char">模</span>
+              <span class="mod-char">块</span>
+              <span class="mod-char">系</span>
+              <span class="mod-char">统</span>
+            </h1>
+            <p class="hero-en">MODULAR SYSTEM</p>
+            <div class="gold-rule" aria-hidden="true"></div>
+
+            <div class="hero-summary">
+              <p class="sum-zh">将版面划分为可重复的模块单元，通过组合与变化，实现有秩序、可扩展的设计布局。</p>
+              <p class="sum-en">Divide the layout into repeatable modules, achieving orderly and scalable compositions through combination and variation.</p>
+            </div>
+          </div>
+
+          <!-- 单真源白话诊断卡（紧贴底线与右翼齐底） -->
+          <section class="audit-card" aria-label="实时模块诊断">
+            <div class="audit-top">
+              <span class="audit-pill is-err" id="auditBadge">0/4 · 撞块 1 处</span>
+              <span class="audit-src">SINGLE-SOURCE MATRIX</span>
+            </div>
+            <h2 class="audit-head" id="auditHeadline">有 1 处模块直接重叠撞块</h2>
+            <p class="audit-body" id="auditBody">模块系统的前提是每块单元各占清晰领地。一旦两块越界叠压，原本分隔信息的缝隙就消失了。</p>
+            <p class="audit-hint" id="auditHint">先开启「模数锁定」，再拖开重叠的模块，或直接点击下方按钮对齐基准网格。</p>
+
+            <div class="audit-actions">
+              <button type="button" class="btn-gold" id="primaryFixBtn">锁定模数并归整错块</button>
+              <button type="button" class="btn-ghost" id="resetBrokenBtn">复原开场错态</button>
+            </div>
+
+            <div class="audit-metrics">
+              <div class="metric-cell">
+                <span class="metric-k">最大偏格</span>
+                <strong class="metric-v" id="mSnapErr">0.42u</strong>
+              </div>
+              <div class="metric-cell">
+                <span class="metric-k">缝隙实测</span>
+                <strong class="metric-v" id="mGapStat">0–20px</strong>
+              </div>
+              <div class="metric-cell">
+                <span class="metric-k">最大/最小比</span>
+                <strong class="metric-v" id="mAreaRatio">1.63×</strong>
+              </div>
+              <div class="metric-cell">
+                <span class="metric-k">高光占比</span>
+                <strong class="metric-v" id="mGoldShare">47%</strong>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- 右翼：活体模块拼装与裂变工作台 -->
+        <div class="hero-right">
+          <div class="bench-topbar">
+            <div class="seg-group" role="group" aria-label="内容标本">
+              <button type="button" class="seg-btn is-active" data-specimen="poster">原海报·方阵</button>
+              <button type="button" class="seg-btn" data-specimen="bento">便当盒·产品</button>
+              <button type="button" class="seg-btn" data-specimen="editorial">展讯·画册</button>
+            </div>
+            <div class="seg-group" role="group" aria-label="画幅重组">
+              <button type="button" class="seg-btn is-active" data-format="4x4">4×4</button>
+              <button type="button" class="seg-btn" data-format="3x5">3×5</button>
+              <button type="button" class="seg-btn" data-format="6x3">6×3</button>
+              <button type="button" class="seg-btn seg-accent" id="addModuleBtn">+1 模块</button>
+            </div>
+          </div>
+
+          <div class="canvas-stage">
+            <canvas id="heroCanvas" data-perf-drag aria-label="模块系统互动拼装画布，可拖拽模块或右下金柄调整尺寸"></canvas>
+          </div>
+          <p class="canvas-guide">直接拖拽模块位移或换位 · 拖右下金柄调尺寸 · 方向键移格 · <kbd>[</kbd><kbd>]</kbd> 调宽 · <kbd>Space</kbd> 切底网</p>
+
+          <!-- 紧贴画布的精控轨 -->
+          <div class="bench-controls">
+            <div class="ctrl-row ctrl-tile-ops">
+              <span class="sel-tag" id="selectedTileTag">当前：1.26×1.18u · 赭金</span>
+              <div class="op-btns">
+                <button type="button" class="op-btn" id="expandXBtn">横向扩格</button>
+                <button type="button" class="op-btn" id="expandYBtn">纵向扩格</button>
+                <button type="button" class="op-btn" id="splitBtn">拆回 1×1</button>
+                <button type="button" class="op-btn" id="roleBtn">换角色</button>
+              </div>
+            </div>
+
+            <div class="ctrl-row ctrl-sliders">
+              <label class="gap-control" for="gapSlider">
+                <span class="ctrl-lbl">基准缝隙 g</span>
+                <input type="range" id="gapSlider" min="0" max="24" step="1" value="10" />
+                <span class="ctrl-num" id="gapReadout">10px</span>
+              </label>
+              <div class="toggle-btns">
+                <button type="button" class="tog-btn" id="lockToggleBtn" aria-pressed="false">模数锁定：关</button>
+                <button type="button" class="tog-btn" id="gapToggleBtn" aria-pressed="false">统一缝隙：关</button>
+                <button type="button" class="tog-btn is-on" id="gridToggleBtn" aria-pressed="true">底网：开</button>
+              </div>
+            </div>
+
+            <div class="ctrl-row ctrl-presets">
+              <div class="preset-group">
+                <span class="preset-lbl">多组合法解</span>
+                <button type="button" class="pre-btn pre-ok" data-sol="poster">原海报经典</button>
+                <button type="button" class="pre-btn pre-ok" data-sol="bento">便当盒解</button>
+                <button type="button" class="pre-btn pre-ok" data-sol="diagonal">双焦解</button>
+              </div>
+              <div class="preset-group">
+                <span class="preset-lbl">反向试错</span>
+                <button type="button" class="pre-btn pre-bad" data-anti="monotony">全 1×1 僵化</button>
+                <button type="button" class="pre-btn pre-bad" data-anti="welded">0px 糊死</button>
+                <button type="button" class="pre-btn pre-bad" data-anti="canyon">24px 裂谷</button>
+                <button type="button" class="pre-btn pre-bad" data-anti="gold-flood">满屏全金</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1:1 复刻原海报中段：三列细线圆角大框（模块 / 组合 / 变化 实时联动探针） -->
+      <div class="poster-triad" role="region" aria-label="原海报三大核心支柱实时探针">
+        <button type="button" class="triad-col" data-pillar="module" aria-pressed="false">
+          <div class="triad-text">
+            <div class="triad-head">
+              <h3>模块</h3>
+              <span class="triad-probe is-err" id="probeModule">撞块 1 处</span>
+            </div>
+            <p class="triad-en">MODULE</p>
+            <span class="triad-bar" aria-hidden="true"></span>
+            <p class="triad-zh">基础单位，定义尺寸与间距。</p>
+            <p class="triad-sub">Basic unit that defines size and spacing.</p>
+          </div>
+          <svg class="triad-icon" viewBox="0 0 88 112" aria-hidden="true">
+            <rect x="8" y="8" width="72" height="96" fill="none" stroke="#9EB9AF" stroke-dasharray="4 3" stroke-width="1.2"/>
+            <line x1="44" y1="8" x2="44" y2="104" stroke="#9EB9AF" stroke-dasharray="4 3" stroke-width="1.2"/>
+            <line x1="8" y1="40" x2="80" y2="40" stroke="#9EB9AF" stroke-dasharray="4 3" stroke-width="1.2"/>
+            <line x1="8" y1="72" x2="80" y2="72" stroke="#9EB9AF" stroke-dasharray="4 3" stroke-width="1.2"/>
+            <rect x="5" y="5" width="6" height="6" fill="#C5920A"/>
+            <rect x="77" y="5" width="6" height="6" fill="#C5920A"/>
+            <rect x="5" y="101" width="6" height="6" fill="#C5920A"/>
+            <rect x="77" y="101" width="6" height="6" fill="#C5920A"/>
+          </svg>
+        </button>
+
+        <button type="button" class="triad-col" data-pillar="combination" aria-pressed="false">
+          <div class="triad-text">
+            <div class="triad-head">
+              <h3>组合</h3>
+              <span class="triad-probe is-err" id="probeCombination">咬合断裂</span>
+            </div>
+            <p class="triad-en">COMBINATION</p>
+            <span class="triad-bar" aria-hidden="true"></span>
+            <p class="triad-zh">多个模块按规则组合，形成清晰结构。</p>
+            <p class="triad-sub">Combine modules by rules to form clear structures.</p>
+          </div>
+          <svg class="triad-icon" viewBox="0 0 88 112" aria-hidden="true">
+            <rect x="8" y="8" width="72" height="36" fill="#2B655F"/>
+            <rect x="8" y="48" width="24" height="56" fill="#2B655F"/>
+            <rect x="36" y="48" width="44" height="30" fill="#C5920A"/>
+            <rect x="36" y="82" width="44" height="22" fill="#2B655F"/>
+          </svg>
+        </button>
+
+        <button type="button" class="triad-col" data-pillar="variation" aria-pressed="false">
+          <div class="triad-text">
+            <div class="triad-head">
+              <h3>变化</h3>
+              <span class="triad-probe is-err" id="probeVariation">拉平 1.6×</span>
+            </div>
+            <p class="triad-en">VARIATION</p>
+            <span class="triad-bar" aria-hidden="true"></span>
+            <p class="triad-zh">调整模块的比例、位置或层级，创造不同的视觉效果。</p>
+            <p class="triad-sub">Adjust proportion, position, or hierarchy to create different visual effects.</p>
+          </div>
+          <svg class="triad-icon" viewBox="0 0 88 112" aria-hidden="true">
+            <rect x="8" y="8" width="32" height="60" fill="#2B655F"/>
+            <rect x="44" y="8" width="36" height="60" fill="#2B655F"/>
+            <circle cx="62" cy="38" r="11" fill="#C5920A"/>
+            <rect x="8" y="72" width="46" height="32" fill="#032C2E" stroke="#4E6E64" stroke-width="1"/>
+            <circle cx="18" cy="82" r="1.4" fill="#FDDD6F"/><circle cx="28" cy="82" r="1.4" fill="#FDDD6F"/><circle cx="38" cy="82" r="1.4" fill="#FDDD6F"/><circle cx="46" cy="82" r="1.4" fill="#FDDD6F"/>
+            <circle cx="18" cy="94" r="1.4" fill="#FDDD6F"/><circle cx="28" cy="94" r="1.4" fill="#FDDD6F"/><circle cx="38" cy="94" r="1.4" fill="#FDDD6F"/><circle cx="46" cy="94" r="1.4" fill="#FDDD6F"/>
+            <rect x="58" y="72" width="22" height="32" fill="#2B655F"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- 1:1 复刻原海报底部金灯泡要点横带 -->
+      <div class="poster-keypoint">
+        <div class="kp-left">
+          <span class="kp-bulb" aria-hidden="true">
+            <svg viewBox="0 0 44 44" width="44" height="44">
+              <circle cx="22" cy="22" r="21" fill="#C5920A"/>
+              <path d="M22 10a8 8 0 0 0-5 14.2c1 .8 1.5 1.8 1.6 3h6.8c.1-1.2.6-2.2 1.6-3A8 8 0 0 0 22 10Z" fill="none" stroke="#032122" stroke-width="2" stroke-linejoin="round"/>
+              <line x1="18.5" y1="30.5" x2="25.5" y2="30.5" stroke="#032122" stroke-width="2" stroke-linecap="round"/>
+              <line x1="20" y1="33.5" x2="24" y2="33.5" stroke="#032122" stroke-width="2" stroke-linecap="round"/>
+              <line x1="22" y1="5.5" x2="22" y2="7.5" stroke="#032122" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="11.5" y1="10" x2="13" y2="11.5" stroke="#032122" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="32.5" y1="10" x2="31" y2="11.5" stroke="#032122" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <div>
+            <strong class="kp-zh">要点</strong>
+            <span class="kp-en">KEY POINT</span>
+          </div>
+        </div>
+        <div class="kp-copy">
+          <p class="kp-main">保持模块尺寸与间距的一致性，确保版面统一、有序且易于扩展。</p>
+          <p class="kp-sub">Maintain consistency in module size and spacing to ensure unity, order, and scalability.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== 01 节：暖矿宣纸 ==================== -->
+    <section class="sec sec-parchment" id="sec01">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div class="sec-titles">
+            <h2>模块为何兼得秩序与自由</h2>
+            <p class="sec-en">MODULE GRAMMAR &amp; THREE-STEP BUILD</p>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="prose">
+            <p>很多初学排版的人会把<strong>模块系统</strong>和相邻的 <a href="https://layout.xiaoxiaodong.ai/172/play/">172 网格系统</a> 混为一谈。两者的分水岭其实很直白：网格系统靠贯通全页的隐形纵横标线把文字对齐，容器本身常常不显形；而模块系统是把信息直接装进<strong>显性、可重复的标准几何单元</strong>里，让每个单元像一块建筑砖或乐高积木，靠统一的基准倍比与缝隙彼此咬合。</p>
+            <p>原海报把这套文法拆成三个关键词：<strong>模块</strong>（先定死 1×1 基准单位与缝隙）、<strong>组合</strong>（多块按整数倍拼接成清晰结构）、<strong>变化</strong>（调整比例、位置与层级拉开主次）。</p>
+            <div class="nuance-box">
+              <span class="nuance-tag">边界提醒</span>
+              <p>原海报强调「保持模块尺寸与间距的一致性」，但一致指的是<strong>都出自同一个基准单位 x 的整数倍</strong>，绝不是把整版铺满一模一样的 1×1 格子。在上面的工作台里点一次「全 1×1 僵化」就能立刻看见：秩序拉满却毫无大小变化时，页面会退化成冷冰冰的空白表格。</p>
+            </div>
+          </div>
+
+          <!-- 交互 1：原海报「模块构建 ①→②→③」三阶分步动画蓝图 -->
+          <div class="blueprint-box" id="sec01Builder">
+            <div class="bp-top">
+              <div class="bp-steps" role="group" aria-label="模块构建步骤">
+                <button type="button" class="bp-step is-active" data-bstep="1"><span>1</span>建立基准网格</button>
+                <button type="button" class="bp-step" data-bstep="2"><span>2</span>定义模块单元</button>
+                <button type="button" class="bp-step" data-bstep="3"><span>3</span>应用间距系统</button>
+              </div>
+              <div class="bp-grids" role="group" aria-label="基准格密度">
+                <button type="button" class="bp-gbtn is-active" data-bgrid="4">4×4</button>
+                <button type="button" class="bp-gbtn" data-bgrid="6">6×4</button>
+                <button type="button" class="bp-gbtn" data-bgrid="8">8×5</button>
+              </div>
+            </div>
+            <svg id="buildBlueprintSvg" viewBox="0 0 520 320" class="bp-svg" role="img" aria-label="模块构建三步蓝图示意"></svg>
+            <div class="bp-caption">
+              <strong id="buildStepTitle">步骤 ① 建立基准网格（BASE GRID）</strong>
+              <p id="buildStepBody"></p>
+              <p class="bp-why" id="buildStepWhy"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 02 节：浅青瓷纸 ==================== -->
+    <section class="sec sec-celadon" id="sec02">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div class="sec-titles">
+            <h2>一套模块拼出三种版面</h2>
+            <p class="sec-en">SCALABLE REFLOW &amp; EIGHT SYSTEMS MAP</p>
+          </div>
+        </div>
+
+        <p class="sec-lead">原海报右下角画了三张形态各异的「模块应用示例」，其实全由同一套松绿、赭金与金点阵积木重新排兵布阵。模块系统最值钱的能力叫<strong>可扩展性</strong>：临时加一段日程、删一张配图，或者从宽屏海报缩到竖屏手机，只要每个卡片严守基准倍比，整体秩序就不会散。</p>
+
+        <!-- 交互 2：真实 DOM/CSS 响应式模块容器 + 内容增删 + 破坏倍比对比 -->
+        <div class="reflow-lab" id="sec02Reflow">
+          <div class="rf-toolbar">
+            <div class="rf-group" role="group" aria-label="目标容器列宽">
+              <button type="button" class="rf-btn is-active" data-rcols="4">宽屏 4 列</button>
+              <button type="button" class="rf-btn" data-rcols="3">展板 3 列</button>
+              <button type="button" class="rf-btn" data-rcols="2">竖海报 2 列</button>
+              <button type="button" class="rf-btn" data-rcols="1">手机 1 列</button>
+            </div>
+            <div class="rf-group">
+              <button type="button" class="rf-btn" id="reflowAddBtn">+ 插入模块</button>
+              <button type="button" class="rf-btn" id="reflowDelBtn">− 移除模块</button>
+              <button type="button" class="rf-btn rf-break" id="reflowBreakBtn">破坏倍比（混入非标准宽卡）</button>
+            </div>
+          </div>
+
+          <div class="rf-stage">
+            <div class="rf-wall" id="reflowWall"></div>
+          </div>
+          <p class="rf-status is-ok" id="reflowStatus"></p>
+        </div>
+
+        <!-- 同小类八大字体组织系统一览（每页一句话 + 链接，不重讲重点） -->
+        <div class="siblings-box">
+          <h3>在八大字体组织系统里的坐标</h3>
+          <p class="sib-intro">在金伯莉·伊拉姆（Kimberly Elam）归纳的八大系统中，其余七种各有独立的组织骨架，需要时可以直接跳去对应页面细看：</p>
+          <ul class="sib-grid">
+            <li><a href="https://layout.xiaoxiaodong.ai/168/play/"><strong>168 轴线系统</strong></a>：所有图文沿着一条主轴左右分列展开。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/169/play/"><strong>169 放射系统</strong></a>：文字像光线一样从单一焦点向四周散射。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/170/play/"><strong>170 扩张系统</strong></a>：元素沿同心圆环由内而外逐圈递进扩散。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/171/play/"><strong>171 随机系统</strong></a>：刻意脱离显性规则，靠视觉权重制造张力。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/172/play/"><strong>172 网格系统</strong></a>：靠贯穿整页的隐形纵横轨道精密对齐。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/174/play/"><strong>174 过渡系统</strong></a>：分层色带按节奏横向流转，无固定中轴。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/175/play/"><strong>175 双边系统</strong></a>：所有行块围绕一条中心对称轴左右呼应。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 03 节：深松青暗室（从哪来 + 格斯特纳 58 单元） ==================== -->
+    <section class="sec sec-darkroom" id="sec03">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">03</span>
+          <div class="sec-titles">
+            <h2>格斯特纳的 58 单元魔法</h2>
+            <p class="sec-en">MODULAR LINEAGE · FROM MOVABLE TYPE TO CSS GRID</p>
+          </div>
+        </div>
+
+        <div class="lineage-grid">
+          <article class="lin-item">
+            <span class="lin-year">1041–1048</span>
+            <h3>北宋毕昇活字印刷</h3>
+            <p>沈括《梦溪笔谈》（约 1088 年）记载毕昇用等高胶泥单字块在铁范内拼排、印完拆版复用——这是文字史上最早把版面拆成「可替换标准单元」的实践。</p>
+          </article>
+          <article class="lin-item">
+            <span class="lin-year">1948 / 1950</span>
+            <h3>勒·柯布西耶《模度》</h3>
+            <p>建筑师勒·柯布西耶出版《Le Modulor》，以人体尺度结合黄金比与斐波那契数列建立红蓝双模数尺，用少数标准预制构件生成千变万化的空间。</p>
+          </article>
+          <article class="lin-item">
+            <span class="lin-year">1962 / 1964</span>
+            <h3>格斯特纳《Designing Programmes》</h3>
+            <p>瑞士设计师卡尔·格斯特纳为德国《Capital》杂志造出 58 单元流动网格，并于 1964 年出版方法论专著，把排版从「画死一页」推进成「生成多解的程序」。</p>
+          </article>
+          <article class="lin-item">
+            <span class="lin-year">1981 → 2007 → 2017</span>
+            <h3>从瑞士栅格到数字屏幕</h3>
+            <p>米勒-布罗克曼《Grid Systems in Graphic Design》（1981）系统化了 8–32 格单元，金伯莉·伊拉姆《Typographic Systems》（2007）将模块系统独立归类，W3C CSS Grid（2017）让它在网页和便当盒界面里成为原生能力。</p>
+          </article>
+        </div>
+
+        <!-- 交互 3：格斯特纳 58 单元最小公倍数拆栏校验尺 -->
+        <div class="gerstner-box" id="sec03Gerstner">
+          <div class="g58-head">
+            <div>
+              <h3>亲手验算：为什么格斯特纳选了「58」而不是「60」？</h3>
+              <p>每道栏缝固定占 2 个基准单元（1 单元 = 10pt 行高），点选下面不同栏数，观察每一栏如何精准落回整数格。</p>
+            </div>
+            <div class="g58-btns" role="group" aria-label="格斯特纳 58 单元栏数切换">
+              <button type="button" class="g58-btn is-active" data-gcols="all">六层叠比</button>
+              <button type="button" class="g58-btn" data-gcols="1">1 栏</button>
+              <button type="button" class="g58-btn" data-gcols="2">2 栏</button>
+              <button type="button" class="g58-btn" data-gcols="3">3 栏</button>
+              <button type="button" class="g58-btn" data-gcols="4">4 栏</button>
+              <button type="button" class="g58-btn" data-gcols="5">5 栏</button>
+              <button type="button" class="g58-btn" data-gcols="6">6 栏</button>
+            </div>
+          </div>
+
+          <div class="g58-stack" id="gerstnerStack"></div>
+          <p class="g58-eq" id="gerstnerEq"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 04 节：暖矿宣纸（缝隙 vs 内边距 经验值实验） ==================== -->
+    <section class="sec sec-parchment" id="sec04">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div class="sec-titles">
+            <h2>缝隙与留白的临近法则</h2>
+            <p class="sec-en">OUTER GAP VS INNER PADDING</p>
+          </div>
+        </div>
+
+        <div class="two-col prox-layout" id="sec04Proximity">
+          <div class="prose">
+            <p>把大框切好只是第一步，真正决定模块读起来清不清爽的，是<strong>模块外缝隙（gap）</strong>与<strong>块内留白（padding）</strong>的相对比例。按照格式塔临近性原则，眼睛总是把距离更近的元素自动归成一组。</p>
+            <ul class="rule-list">
+              <li><strong>外缝过窄（经验值 &lt; 6px）</strong>：相邻模块边界贴死，左块末尾的字和右块开头的标题会互相粘连串行。</li>
+              <li><strong>内空远大于外缝</strong>：块里的标题和正文被大内边距推散，反倒显得隔壁模块离自己更近，分组关系彻底倒挂。</li>
+              <li><strong>稳妥甜区（经验值）</strong>：平面印刷与屏幕卡片常把基准外缝设为 10–18px，块内留白取 14–22px，让「块内文字行距 &lt; 外缝隙 ≈ 内边距」，既稳住分组又保留呼吸。</li>
+            </ul>
+
+            <div class="prox-sliders">
+              <label class="ps-row" for="proxGapSlider">
+                <span>模块外缝隙 g</span>
+                <input type="range" id="proxGapSlider" min="0" max="42" step="1" value="14" />
+                <strong id="proxGapVal">14px</strong>
+              </label>
+              <label class="ps-row" for="proxPadSlider">
+                <span>块内留白 padding</span>
+                <input type="range" id="proxPadSlider" min="6" max="36" step="1" value="18" />
+                <strong id="proxPadVal">18px</strong>
+              </label>
+            </div>
+            <p class="prox-diag is-ok" id="proxDiag"></p>
+          </div>
+
+          <div class="prox-stage">
+            <div class="prox-bridge" id="proxBridge" hidden></div>
+            <div class="prox-grid" id="proxGrid">
+              <article class="prox-card prox-c1">
+                <span class="prox-kicker">MODULE 01</span>
+                <h4>建筑模数与人因尺度</h4>
+                <p>用同一把基准尺统领立面开窗、走廊宽度与室内家具，空间才不会在转角处突然失衡。</p>
+              </article>
+              <article class="prox-card prox-c2">
+                <span class="prox-kicker">MODULE 02</span>
+                <h4>信息容器的独立边界</h4>
+                <p>每块只装一类完整语义，增删模块像插拔积木，不会牵连相邻栏目的折行与对齐。</p>
+              </article>
+              <article class="prox-card prox-c3">
+                <span class="prox-kicker">MODULE 03</span>
+                <h4>跨格拉开主次节奏</h4>
+                <p>在 1×1 标准单元之外，把核心结论合并成 2×1 或 2×2，第一眼立刻分出主角与配角。</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 05 节：暖赭砂纸（什么时候别用） ==================== -->
+    <section class="sec sec-sand" id="sec05">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div class="sec-titles">
+            <h2>什么时候别用模块系统</h2>
+            <p class="sec-en">WHEN NOT TO USE MODULES</p>
+          </div>
+        </div>
+
+        <p class="sec-lead">模块系统擅长整理多组并列或可增删的独立信息块，但把它硬套在不合适的题材上，反而会亲手切碎阅读体验。点按任意卡片，对比「硬套模块」和「改用合适版式」的差别。</p>
+
+        <div class="avoid-grid" id="sec05Avoid">
+          <article class="avoid-card">
+            <div class="avoid-preview" aria-hidden="true">
+              <div class="av-bad av-novel">
+                <span>第一章</span><span>接着他推开门</span><span>风吹灭了灯</span><span>走廊很暗</span>
+              </div>
+              <div class="av-good av-novel-ok">
+                <span>第一章</span>
+                <i></i><i></i><i></i><i></i><i></i>
+              </div>
+            </div>
+            <h3>01 · 沉浸式长篇叙事</h3>
+            <p class="av-desc-bad">把小说、深度长文硬切进一个个小盒子，读者每读三四行就撞上框线与缝隙，连续思绪被切成碎片。</p>
+            <p class="av-desc-good">改用干净的单栏或双栏留白书页，只靠行距与页边距护航，让视线一气呵成读到底。</p>
+            <button type="button" class="avoid-toggle" aria-pressed="false">切换「改用合适版式」对照</button>
+          </article>
+
+          <article class="avoid-card">
+            <div class="avoid-preview" aria-hidden="true">
+              <div class="av-bad av-art">
+                <div></div><div></div><div></div><div></div>
+              </div>
+              <div class="av-good av-art-ok">
+                <svg viewBox="0 0 180 86"><path d="M12 68 Q65 8 118 46 T170 20" fill="none" stroke="#C5920A" stroke-width="6" stroke-linecap="round"/><circle cx="132" cy="40" r="14" fill="#2B655F"/></svg>
+              </div>
+            </div>
+            <h3>02 · 有机笔势与情绪海报</h3>
+            <p class="av-desc-bad">音乐节、戏剧或水墨海报依赖跨界张力与流动情绪，严整的模块网格会把气势切得四平八稳。</p>
+            <p class="av-desc-good">改用 <a href="https://layout.xiaoxiaodong.ai/171/play/">171 随机系统</a> 或 <a href="https://layout.xiaoxiaodong.ai/174/play/">174 过渡系统</a>，让字群与视觉流自然冲破方格边界。</p>
+            <button type="button" class="avoid-toggle" aria-pressed="false">切换「改用合适版式」对照</button>
+          </article>
+
+          <article class="avoid-card">
+            <div class="avoid-preview" aria-hidden="true">
+              <div class="av-bad av-solo">
+                <div></div><div class="is-gold"></div><div></div><div></div><div></div><div></div>
+              </div>
+              <div class="av-good av-solo-ok">
+                <div class="solo-dot"></div>
+              </div>
+            </div>
+            <h3>03 · 只有单一主角的极简页</h3>
+            <p class="av-desc-bad">全页只有一个核心物件或一句宣言时，为了凑满模块硬塞五六个空框和装饰块，全是多余视觉杂音。</p>
+            <p class="av-desc-good">直接留出大面积呼吸空白，或转向 <a href="https://layout.xiaoxiaodong.ai/169/play/">169 放射系统</a> / <a href="https://layout.xiaoxiaodong.ai/175/play/">175 双边系统</a> 聚拢视线。</p>
+            <button type="button" class="avoid-toggle" aria-pressed="false">切换「改用合适版式」对照</button>
+          </article>
+
+          <article class="avoid-card">
+            <div class="avoid-preview" aria-hidden="true">
+              <div class="av-bad av-fake">
+                <span style="width:37%;height:26px"></span>
+                <span style="width:55%;height:34px"></span>
+                <span style="width:28%;height:22px"></span>
+                <span style="width:62%;height:28px"></span>
+              </div>
+              <div class="av-good av-fake-ok">
+                <span class="fk-a"></span><span class="fk-b"></span><span class="fk-c"></span><span class="fk-d"></span>
+              </div>
+            </div>
+            <h3>04 · 没有基准尺的「伪模块」</h3>
+            <p class="av-desc-bad">只学了画圆角边框，却没定共同基数和缝隙——每块宽高各凭感觉，既失去自由度，也没得到秩序。</p>
+            <p class="av-desc-good">要么彻底回归统一倍比与恒定缝隙，要么干脆撤掉无意义的方框线，靠留白和字号分层。</p>
+            <button type="button" class="avoid-toggle" aria-pressed="false">切换「改用合适版式」对照</button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 06 节：深松青暗室（单变量小练习） ==================== -->
+    <section class="sec sec-darkroom" id="sec06">
+      <div class="sec-inner" id="sec06Quiz">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div class="sec-titles">
+            <h2>小练习：挑出真模块版面</h2>
+            <p class="sec-en">SINGLE-VARIABLE VISUAL CHECK</p>
+          </div>
+          <div class="quiz-rounds" role="group" aria-label="切换题目">
+            <button type="button" class="qr-btn is-active" data-qround="0">第 1 题 · 倍比与缝隙</button>
+            <button type="button" class="qr-btn" data-qround="1">第 2 题 · 变化与焦点</button>
+          </div>
+        </div>
+
+        <p class="quiz-prompt" id="quizPrompt"></p>
+        <div class="quiz-grid" id="quizGrid"></div>
+        <div class="quiz-feedback" id="quizFeedback" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- ==================== 07 节：浅青瓷原海报展墙 ==================== -->
+    <section class="sec sec-celadon" id="sec07">
+      <div class="sec-inner">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div class="sec-titles">
+            <h2>原海报与关键语汇</h2>
+            <p class="sec-en">ORIGINAL POSTER &amp; VOCABULARY</p>
+          </div>
+        </div>
+
+        <div class="poster-exhibit">
+          <button type="button" class="poster-frame" id="posterTrigger" aria-label="点击放大查看 173 模块系统原版海报">
+            <img id="poster" src="poster.webp" alt="173 模块系统 MODULAR SYSTEM 原版教学海报" draggable="false" />
+            <span class="poster-zoom-hint">点击放大查看 · 支持缩放与拖拽</span>
+          </button>
+
+          <div class="poster-meta">
+            <h3>NO. 173 · 模块系统 MODULAR SYSTEM</h3>
+            <p class="pm-quote">「将版面划分为可重复的模块单元，通过组合与变化，实现有秩序、可扩展的设计布局。」</p>
+            <p class="pm-quote-en">Divide the layout into repeatable modules, achieving orderly and scalable compositions through combination and variation.</p>
+
+            <dl class="pm-dl">
+              <div>
+                <dt>核心三要素</dt>
+                <dd><strong>模块</strong>（基础单位，定义尺寸与间距）· <strong>组合</strong>（多个模块按规则组合，形成清晰结构）· <strong>变化</strong>（调整模块的比例、位置或层级，创造不同的视觉效果）。</dd>
+              </div>
+              <div>
+                <dt>构建三步骤</dt>
+                <dd>① 建立基准网格（BASE GRID）→ ② 定义模块单元（DEFINE MODULE）→ ③ 应用间距系统（APPLY SPACING）。</dd>
+              </div>
+              <div>
+                <dt>要点原话</dt>
+                <dd>保持模块尺寸与间距的一致性，确保版面统一、有序且易于扩展。</dd>
+              </div>
+            </dl>
+
+            <div class="kw-wrap" aria-label="关键词">
+              <span class="kw-chip">模块 MODULE</span>
+              <span class="kw-chip">组合 COMBINATION</span>
+              <span class="kw-chip">变化 VARIATION</span>
+              <span class="kw-chip">基准网格 BASE GRID</span>
+              <span class="kw-chip">间距系统 SPACING</span>
+              <span class="kw-chip">可扩展 SCALABLE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>
+        <a href="https://layout.xiaoxiaodong.ai/173/play/">在线版</a> /
+        <a href="https://layout.xiaoxiaodong.ai/">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+        <span class="f-sep" aria-hidden="true">·</span>
+        <a href="https://creativecommons.org/licenses/by/4.0/">海报 CC BY 4.0</a>
+        <span class="f-sep" aria-hidden="true">·</span>
+        <a href="https://github.com/xxd-design/350-layout">源文件 GitHub</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- 原海报灯箱（放大、拖拽、Esc 关闭） -->
+  <div class="lightbox" id="posterLightbox" role="dialog" aria-modal="true" aria-label="原海报放大查看" hidden>
+    <div class="lb-bar">
+      <button type="button" class="lb-btn" id="lbZoomIn">放大 +</button>
+      <button type="button" class="lb-btn" id="lbZoomOut">缩小 −</button>
+      <button type="button" class="lb-btn" id="lbReset">还原 100%</button>
+      <button type="button" class="lb-btn lb-close" id="lbClose">关闭 Esc</button>
+    </div>
+    <div class="lb-stage">
+      <img id="lightboxImg" alt="173 模块系统 原版海报放大图" draggable="false" />
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
