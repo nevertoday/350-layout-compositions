@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>082 空气透视构图 · ATMOSPHERIC PERSPECTIVE COMPOSITION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main>
+  <!-- ==================== HERO：忠实转译 082 原海报骨架 ==================== -->
+  <section class="hero" aria-label="空气透视构图互动光学台">
+    <div class="hero-wrap">
+
+      <!-- 顶部开放刊头（左雾紫短杠 + 自示范渐淡大标 + 右上淡紫圆点细线 + 场景切换） -->
+      <header class="masthead">
+        <div class="masthead-left">
+          <div class="masthead-eyebrow">
+            <span class="bar-accent" aria-hidden="true"></span>
+            <span class="mono-tag" lang="en">NO. 082</span>
+            <span class="eyebrow-cat">构图逻辑 · 视点、景深与空间感</span>
+          </div>
+          <div class="title-row">
+            <h1 class="hero-title" aria-label="空气透视构图">
+              <span class="ch ch-1">空</span><span class="ch ch-2">气</span><span class="ch ch-3">透</span><span class="ch ch-4">视</span><span class="ch ch-5">构</span><span class="ch ch-6">图</span>
+            </h1>
+            <span class="title-ornament" aria-hidden="true">
+              <svg viewBox="0 0 44 36" width="44" height="36" fill="none">
+                <line x1="2" y1="10" x2="26" y2="10" stroke="#8C83AB" stroke-width="1"/>
+                <line x1="16" y1="2" x2="2" y2="20" stroke="#8C83AB" stroke-width="1"/>
+                <circle cx="34" cy="18" r="6.5" fill="#A293BA"/>
+              </svg>
+            </span>
+          </div>
+          <p class="hero-en" lang="en">ATMOSPHERIC PERSPECTIVE COMPOSITION</p>
+        </div>
+
+        <div class="masthead-right">
+          <div class="status-pill" id="hero-status-pill" role="status" aria-live="polite">3 处待调 · 明度倒挂</div>
+          <div class="scene-tabs" role="tablist" aria-label="切换地景题材">
+            <button type="button" class="scene-tab is-active" data-scene="poster" role="tab" aria-selected="true">原海报·山岚远城</button>
+            <button type="button" class="scene-tab" data-scene="shanshui" role="tab" aria-selected="false">水墨·平远江山</button>
+            <button type="button" class="scene-tab" data-scene="sunset" role="tab" aria-selected="false">晚霞·暖雾峡谷</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- 原海报总述（桌面位于画布左上，手机竖屏通过 order 后置到画布下方） -->
+      <div class="hero-summary">
+        <span class="summary-bar" aria-hidden="true"></span>
+        <p>利用空气的散射与吸收规律，通过明度、饱和度与对比度的渐变，营造空间的深度与氛围。</p>
+      </div>
+
+      <!-- 主体非对称双栏：左 71% 开放山岚画布 + 45°切角近远景诊单 × 右 29% 虚线串四圆徽 -->
+      <div class="hero-grid">
+        <div class="hero-stage-col">
+          <!-- 开放无框 2D 山岚画布 -->
+          <div class="stage-frame">
+            <canvas id="hero-canvas" data-perf-drag width="960" height="520" tabindex="0" aria-label="五层空气透视山岚画布：左右横拖调节大气浊度，点击任意山层或用方向键调节该层明度"></canvas>
+            <div class="stage-hud-top" aria-hidden="true">
+              <span class="hud-chip" id="hud-beta">β = 0.01 /km</span>
+              <span class="hud-chip" id="hud-vis">能见度 ≈ 300 km</span>
+              <span class="hud-chip" id="hud-air">瑞利清岚</span>
+            </div>
+          </div>
+
+          <p class="stage-hint">画布上<strong>左右横拖</strong>调大气浊度 · <strong>直点山层</strong>选中并可用鼠标纵拖、滑轨或键盘 <kbd>←</kbd><kbd>→</kbd> / <kbd>↑</kbd><kbd>↓</kbd> 细调</p>
+
+          <!-- 紧凑光学操控带（浊度 + 五层直选 + 单层微调 + 散射与锐度） -->
+          <div class="hero-controls">
+            <div class="ctrl-row ctrl-primary">
+              <label class="slider-group" for="ctrl-turbidity">
+                <span class="slider-head">
+                  <span>大气散射浊度 β</span>
+                  <strong class="mono-val" id="val-turbidity">0.01 /km</strong>
+                </span>
+                <input id="ctrl-turbidity" type="range" min="0" max="0.45" step="0.005" value="0.01">
+              </label>
+
+              <div class="airlight-pills" role="group" aria-label="散射天光类型">
+                <button type="button" class="chip-btn is-active" data-air="rayleigh">瑞利清岚</button>
+                <button type="button" class="chip-btn" data-air="mie">米氏乳雾</button>
+                <button type="button" class="chip-btn" data-air="sunset">晚霞暖光</button>
+                <button type="button" class="chip-btn" data-air="vacuum">真空无气</button>
+              </div>
+            </div>
+
+            <div class="ctrl-row ctrl-layers">
+              <div class="layer-strip" id="layer-strip" role="group" aria-label="选择五个距离图层">
+                <button type="button" class="layer-chip" data-layer="0"><span class="swatch"></span><span>L1 近崖</span><em class="mono-mini"></em></button>
+                <button type="button" class="layer-chip" data-layer="1"><span class="swatch"></span><span>L2 近脊</span><em class="mono-mini"></em></button>
+                <button type="button" class="layer-chip" data-layer="2"><span class="swatch"></span><span>L3 中岭</span><em class="mono-mini"></em></button>
+                <button type="button" class="layer-chip is-selected" data-layer="3"><span class="swatch"></span><span>L4 远城</span><em class="mono-mini"></em></button>
+                <button type="button" class="layer-chip" data-layer="4"><span class="swatch"></span><span>L5 极远</span><em class="mono-mini"></em></button>
+              </div>
+            </div>
+
+            <div class="ctrl-row ctrl-fine">
+              <label class="slider-group slider-compact" for="ctrl-layer-tone">
+                <span class="slider-head">
+                  <span id="label-layer-tone">L4 远景城廓 · 固有明度</span>
+                  <strong class="mono-val" id="val-layer-tone" lang="en">-26%</strong>
+                </span>
+                <input id="ctrl-layer-tone" type="range" min="-0.5" max="0.5" step="0.01" value="-0.26">
+              </label>
+
+              <label class="slider-group slider-compact" for="ctrl-layer-sat">
+                <span class="slider-head">
+                  <span id="label-layer-sat">L4 远景城廓 · 彩度偏置</span>
+                  <strong class="mono-val" id="val-layer-sat" lang="en">+38%</strong>
+                </span>
+                <input id="ctrl-layer-sat" type="range" min="-0.45" max="0.5" step="0.01" value="0.38">
+              </label>
+
+              <div class="edge-pills" role="group" aria-label="细节锐度衰减模式">
+                <button type="button" class="chip-btn" data-edge="natural">自然递减</button>
+                <button type="button" class="chip-btn is-active" data-edge="oversharp">全景过锐</button>
+                <button type="button" class="chip-btn" data-edge="nearblur">近景失焦</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1:1 复刻 082 原海报底沿 45° 切角「近景与远景对比 NEAR vs FAR」单真源光学诊单 -->
+          <div class="chamfer-box" id="hero-diagnosis">
+            <div class="chamfer-head">
+              <div class="chamfer-tab">
+                <strong>近景与远景对比</strong>
+                <span lang="en">NEAR vs FAR</span>
+              </div>
+              <div class="chamfer-meta">
+                <span class="diag-badge" id="diag-badge">3 处待调</span>
+                <span class="diag-source" lang="en">KOSCHMIEDER SINGLE SOURCE</span>
+              </div>
+            </div>
+
+            <div class="chamfer-body">
+              <!-- 左侧：实测近远景对比条（色阶三点 + 近景实测 → 雾紫箭 → 远景实测） -->
+              <div class="nvf-compare">
+                <div class="nvf-dots" aria-hidden="true">
+                  <span id="dot-l1"></span>
+                  <span id="dot-l3"></span>
+                  <span id="dot-l5"></span>
+                </div>
+                <div class="nvf-side">
+                  <span class="nvf-label">近景 <em lang="en">0.2km</em></span>
+                  <div class="nvf-nums">
+                    <span id="nvf-near-luma">明度 18%</span>
+                    <span id="nvf-near-sat">彩度 27%</span>
+                  </div>
+                </div>
+                <span class="nvf-arrow" aria-hidden="true">→</span>
+                <div class="nvf-side">
+                  <span class="nvf-label">远景 <em lang="en">9.5–18km</em></span>
+                  <div class="nvf-nums">
+                    <span id="nvf-far-luma">明度 16%</span>
+                    <span id="nvf-far-sat">彩度 52%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 右侧：单真源白话诊断与单步纠偏 -->
+              <div class="diag-verdict">
+                <h2 class="diag-title" id="diag-title">9.5 km 的「远景城廓」比更近的「中景湖岭」还深</h2>
+                <p class="diag-why" id="diag-why"></p>
+                <div class="diag-foot">
+                  <p class="diag-action" id="diag-action"></p>
+                  <button type="button" class="fix-btn" id="btn-step-fix">提亮 L4 消除倒挂</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="preset-strip" aria-label="多组合法解与典型错态预设">
+              <span class="preset-label">合法解</span>
+              <button type="button" class="preset-btn is-good" data-preset="poster">原海报·清岚解</button>
+              <button type="button" class="preset-btn is-good" data-preset="crisp">晴日·薄雾解</button>
+              <button type="button" class="preset-btn is-good" data-preset="misty">烟雨·浓岚解</button>
+              <button type="button" class="preset-btn is-good" data-preset="golden">晚霞·暖雾解</button>
+              <span class="preset-label preset-sep">试错</span>
+              <button type="button" class="preset-btn is-bad" data-preset="errVacuum">真空贴纸</button>
+              <button type="button" class="preset-btn is-bad" data-preset="errWhiteout">白雾吞没</button>
+              <button type="button" class="preset-btn is-bad" data-preset="errInvert">远城倒挂</button>
+              <button type="button" class="preset-btn" id="btn-reset-broken">复原错态</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧 29% 实况脊：1:1 复刻 082 原海报「空气透视四要素 FOUR KEY ELEMENTS」垂直虚线串四圆徽 -->
+        <aside class="elements-spine" aria-label="空气透视四要素实时监测">
+          <div class="spine-head">
+            <p class="spine-title">空气透视四要素</p>
+            <p class="spine-en" lang="en">FOUR KEY ELEMENTS</p>
+            <p class="spine-grade" id="spine-grade">错乱 · 前后倒挂（示意）</p>
+          </div>
+
+          <div class="spine-list" id="spine-list">
+            <!-- 1. 层次 LAYERS -->
+            <button type="button" class="elem-item" data-focus-elem="layers">
+              <span class="elem-orb" aria-hidden="true">
+                <svg viewBox="0 0 64 64" width="60" height="60" id="orb-layers">
+                  <clipPath id="clip-layers"><circle cx="32" cy="32" r="27"/></clipPath>
+                  <g clip-path="url(#clip-layers)">
+                    <rect width="64" height="64" fill="#F8F4EB"/>
+                    <path id="orb-l-far" d="M2 46 L18 24 L33 38 L49 20 L64 42 L64 64 L2 64 Z" fill="#C9C3D8"/>
+                    <path id="orb-l-mid" d="M0 52 L14 34 L29 45 L44 30 L64 50 L64 64 L0 64 Z" fill="#9E97BA"/>
+                    <path id="orb-l-near" d="M0 58 L20 40 L38 52 L55 41 L64 56 L64 64 L0 64 Z" fill="#6E6692"/>
+                  </g>
+                  <circle cx="32" cy="32" r="27" fill="none" stroke="#6F6A7E" stroke-width="1.3"/>
+                </svg>
+              </span>
+              <span class="elem-copy">
+                <span class="elem-top"><strong>层次</strong><em lang="en">LAYERS</em></span>
+                <span class="elem-desc">远处物体被空气遮挡，逐层退后。</span>
+                <span class="elem-live"><b id="el-status-layers">五层粘连</b><i class="mono-mini" id="el-metric-layers">Δ14%</i></span>
+              </span>
+            </button>
+
+            <!-- 2. 明度 VALUE -->
+            <button type="button" class="elem-item" data-focus-elem="value">
+              <span class="elem-orb" aria-hidden="true">
+                <svg viewBox="0 0 64 64" width="60" height="60" id="orb-value">
+                  <circle cx="32" cy="32" r="27" fill="#F8F4EB" stroke="#6F6A7E" stroke-width="1.3"/>
+                  <path id="orb-v-left" d="M32 13 A19 19 0 0 0 32 51 Z" fill="#8984A4"/>
+                  <path id="orb-v-right" d="M32 13 A19 19 0 0 1 32 51 Z" fill="#D2CEDE"/>
+                </svg>
+              </span>
+              <span class="elem-copy">
+                <span class="elem-top"><strong>明度</strong><em lang="en">VALUE</em></span>
+                <span class="elem-desc">距离越远，明度越高，反差变小。</span>
+                <span class="elem-live"><b id="el-status-value">L4 倒挂</b><i class="mono-mini" id="el-metric-value">18% → 32%</i></span>
+              </span>
+            </button>
+
+            <!-- 3. 饱和度 SATURATION -->
+            <button type="button" class="elem-item" data-focus-elem="saturation">
+              <span class="elem-orb" aria-hidden="true">
+                <svg viewBox="0 0 64 64" width="60" height="60" id="orb-sat">
+                  <circle cx="32" cy="32" r="27" fill="#F8F4EB" stroke="#6F6A7E" stroke-width="1.3"/>
+                  <circle id="orb-s-1" cx="32" cy="24" r="10.5" fill="#8C83AB" fill-opacity="0.72"/>
+                  <circle id="orb-s-2" cx="25" cy="37" r="10.5" fill="#A59CC2" fill-opacity="0.72"/>
+                  <circle id="orb-s-3" cx="39" cy="37" r="10.5" fill="#C4BEDA" fill-opacity="0.72"/>
+                </svg>
+              </span>
+              <span class="elem-copy">
+                <span class="elem-top"><strong>饱和度</strong><em lang="en">SATURATION</em></span>
+                <span class="elem-desc">距离越远，颜色越灰，饱和度降低。</span>
+                <span class="elem-live"><b id="el-status-saturation">远景抢彩</b><i class="mono-mini" id="el-metric-saturation">27% → 52%</i></span>
+              </span>
+            </button>
+
+            <!-- 4. 空气感 ATMOSPHERE -->
+            <button type="button" class="elem-item" data-focus-elem="atmosphere">
+              <span class="elem-orb" aria-hidden="true">
+                <svg viewBox="0 0 64 64" width="60" height="60" id="orb-atmo">
+                  <circle cx="32" cy="32" r="27" fill="#F8F4EB" stroke="#6F6A7E" stroke-width="1.3"/>
+                  <g id="orb-atmo-dots" fill="#8C83AB">
+                    <circle cx="25" cy="21" r="2.2"/>
+                    <circle cx="39" cy="19" r="1.7"/>
+                    <circle cx="20" cy="31" r="1.6"/>
+                    <circle cx="31" cy="30" r="2.8"/>
+                    <circle cx="44" cy="30" r="2.0"/>
+                    <circle cx="24" cy="42" r="2.3"/>
+                    <circle cx="36" cy="40" r="1.6"/>
+                    <circle cx="42" cy="44" r="2.4"/>
+                    <circle cx="30" cy="48" r="1.8"/>
+                  </g>
+                </svg>
+              </span>
+              <span class="elem-copy">
+                <span class="elem-top"><strong>空气感</strong><em lang="en">ATMOSPHERE</em></span>
+                <span class="elem-desc">空气中的微粒让远景更柔和、轻盈。</span>
+                <span class="elem-live"><b id="el-status-atmosphere">远景过锐</b><i class="mono-mini" id="el-metric-atmosphere">β 0.01</i></span>
+              </span>
+            </button>
+          </div>
+        </aside>
+      </div>
+
+      <!-- 1:1 复刻原海报底沿脚条：紫竖杠标语 + 四关键词 + 右下取景框眼徽（点按切换光学标尺） -->
+      <div class="hero-ribbon">
+        <p class="ribbon-tagline"><span class="ribbon-bar" aria-hidden="true"></span>拉开距离，营造空间；软化远景，传递氛围。</p>
+        <div class="ribbon-keys" aria-hidden="true">
+          <span>层次 <em lang="en">LAYERS</em></span> ·
+          <span>明度 <em lang="en">VALUE</em></span> ·
+          <span>饱和度 <em lang="en">SATURATION</em></span> ·
+          <span>空气感 <em lang="en">ATMOSPHERE</em></span>
+        </div>
+        <button type="button" class="eye-toggle" id="btn-toggle-guides" aria-pressed="false" title="在画布上显示或隐藏五层测距与透射率标注">
+          <svg viewBox="0 0 56 32" width="48" height="28" fill="none" aria-hidden="true">
+            <path d="M2 8 V2 H8 M48 2 H54 V8 M54 24 V30 H48 M8 30 H2 V24" stroke="#8C83AB" stroke-width="1.3"/>
+            <path d="M11 16 Q28 4 45 16 Q28 28 11 16 Z" stroke="#6E6692" stroke-width="1.5" fill="none"/>
+            <circle cx="28" cy="16" r="5" fill="#8C83AB"/>
+            <circle cx="29.5" cy="14.5" r="1.5" fill="#F5EEE3"/>
+          </svg>
+          <span>光学标尺</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== 01 光在空气里走了多远（亮宣白） ==================== -->
+  <section class="band band-alabaster" id="sec-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no" lang="en">01</span>
+        <div>
+          <h2>光在空气里走了多远</h2>
+          <p class="sec-en" lang="en">SCATTERING &amp; KOSCHMIEDER LAW</p>
+        </div>
+      </div>
+
+      <p class="lead">原海报第一句话就点破了物理底牌：「利用空气的散射与吸收规律，通过明度、饱和度与对比度的渐变，营造空间的深度与氛围。」人眼并不是靠尺子量出远山有多远，而是靠读出<strong>「直射光衰减了多少、空气光补进了多少」</strong>来估算距离。</p>
+
+      <div class="opt-lab">
+        <div class="opt-canvas-col">
+          <div class="opt-canvas-wrap">
+            <canvas id="sec1-canvas" width="840" height="410" aria-label="科施米德指数衰减与五距离松树对比图"></canvas>
+          </div>
+          <p class="opt-explain" id="s1-explain"></p>
+        </div>
+        <div class="opt-panel">
+          <div class="formula-box">
+            <p class="formula-cap">科施米德空气光方程（1924）</p>
+            <p class="formula-eq">L(d) = L<sub>0</sub> · e<sup>-βd</sup> + L<sub>∞</sub> · (1 − e<sup>-βd</sup>)</p>
+            <p class="formula-note">第一项是物体自身穿过空气后残留的信号，第二项是沿途空气散射进视线的「空气光」面纱。距离 d 越长，面纱越厚，所有暗部都被推向天光色 L<sub>∞</sub>。</p>
+          </div>
+
+          <div class="opt-controls">
+            <label class="slider-group" for="s1-dist">
+              <span class="slider-head"><span>探针距离 d</span><strong class="mono-val" id="s1-dist-val">6.0 km</strong></span>
+              <input id="s1-dist" type="range" min="0.2" max="20" step="0.2" value="6.0">
+            </label>
+            <label class="slider-group" for="s1-beta">
+              <span class="slider-head"><span>大气浊度 β</span><strong class="mono-val" id="s1-beta-val">0.11 /km</strong></span>
+              <input id="s1-beta" type="range" min="0.01" max="0.32" step="0.01" value="0.11">
+            </label>
+            <div class="particle-tabs" role="group" aria-label="散射颗粒类型">
+              <button type="button" class="chip-btn is-active" data-s1-air="rayleigh">瑞利分子（λ<sup>-4</sup> 偏蓝）</button>
+              <button type="button" class="chip-btn" data-s1-air="mie">米氏水汽（全波段乳白）</button>
+              <button type="button" class="chip-btn" data-s1-air="sunset">晚霞尘雾（偏暖金杏）</button>
+            </div>
+          </div>
+
+          <div class="opt-readout" id="s1-readout">
+            <div class="read-stat"><span>物体残留直射光</span><strong class="mono-val" id="s1-trans">52%</strong></div>
+            <div class="read-stat"><span>空气光面纱占比</span><strong class="mono-val" id="s1-veil">48%</strong></div>
+            <div class="read-stat"><span>气象光学视程 (5%)</span><strong class="mono-val" id="s1-vis">27.2 km</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 温和修正：海报说多了一点的地方 -->
+      <aside class="nuance-box">
+        <span class="nuance-tag">说多了一点</span>
+        <p>海报写着「距离越远，明度越高」，很多教程还会顺口说「越远一定越蓝」。这两句话的前提都是<strong>晴朗白天的开阔室外</strong>——此时天空空气光比景物更亮且偏蓝。但如果换成夜晚街景、幽暗洞穴或深海，背景光比前景灯火更暗，远景反而会<strong>越远越暗</strong>；日落尘雾里空气光偏暖金，远山也会<strong>越远越暖</strong>。记住本质就不会套错：<strong>远景不是机械变蓝变亮，而是向当下的背景天光色靠拢。</strong></p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ==================== 02 拆开海报上的四要素（淡青雾纸） ==================== -->
+  <section class="band band-mist" id="sec-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no" lang="en">02</span>
+        <div>
+          <h2>拆开海报上的四要素</h2>
+          <p class="sec-en" lang="en">FOUR KEY ELEMENTS ABLATION</p>
+        </div>
+      </div>
+
+      <p class="lead">原海报右侧用一条虚线串起了四个圆徽：层次、明度、饱和度、空气感。它们并不是四个平权的滤镜。试着在下方逐一关掉其中某一项，看看哪一条一旦缺失，整幅画的纵深会立刻塌掉。</p>
+
+      <div class="ablation-grid">
+        <div class="ablation-switches" id="ablation-switches">
+          <label class="switch-card">
+            <input type="checkbox" id="ab-layers" checked>
+            <span class="sw-body">
+              <span class="sw-head"><strong>层次</strong> <em lang="en">LAYERS</em></span>
+              <span class="sw-quote">「远处物体被空气遮挡，逐层退后。」</span>
+              <span class="sw-note">关掉后四座山不再前后叠压，只剩并排剪影。</span>
+            </span>
+          </label>
+
+          <label class="switch-card">
+            <input type="checkbox" id="ab-value" checked>
+            <span class="sw-body">
+              <span class="sw-head"><strong>明度</strong> <em lang="en">VALUE</em></span>
+              <span class="sw-quote">「距离越远，明度越高，反差变小。」</span>
+              <span class="sw-note">关掉后四层压回同一暗度，检验明度阶梯的权重。</span>
+            </span>
+          </label>
+
+          <label class="switch-card">
+            <input type="checkbox" id="ab-sat" checked>
+            <span class="sw-body">
+              <span class="sw-head"><strong>饱和度</strong> <em lang="en">SATURATION</em></span>
+              <span class="sw-quote">「距离越远，颜色越灰，饱和度降低。」</span>
+              <span class="sw-note">关掉后远山保留高饱和青蓝，观察背景是否往前冲。</span>
+            </span>
+          </label>
+
+          <label class="switch-card">
+            <input type="checkbox" id="ab-atmo" checked>
+            <span class="sw-body">
+              <span class="sw-head"><strong>空气感</strong> <em lang="en">ATMOSPHERE</em></span>
+              <span class="sw-quote">「空气中的微粒让远景更柔和、轻盈。」</span>
+              <span class="sw-note">关掉后去掉山脚雾带并把远山边缘改成硬黑勾线。</span>
+            </span>
+          </label>
+        </div>
+
+        <div class="ablation-view">
+          <canvas id="sec2-canvas" width="660" height="400" aria-label="四要素独立剥离实验画布"></canvas>
+          <div class="ablation-verdict" id="sec2-verdict">
+            <strong id="sec2-verdict-title">四要素齐全：叠压 + 明度阶梯 + 彩度渐退 + 柔和雾边共同锁住纵深</strong>
+            <p id="sec2-verdict-body">试着先只关掉「明度」，再还原后只关掉「饱和度」——你会马上发现，明度与反差衰减才是支撑空间距离感的主梁。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 03 近景与远景的四重对照（深岩暗室） ==================== -->
+  <section class="band band-dark" id="sec-03">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no" lang="en">03</span>
+        <div>
+          <h2>近景与远景的四重对照</h2>
+          <p class="sec-en" lang="en">NEAR vs FAR · VALUE CHECK</p>
+        </div>
+      </div>
+
+      <p class="lead">原海报底沿的切角对比盒把空气透视浓缩成四对反义词：近景<strong>明度低、饱和度高、对比度强、清晰锐利</strong>；远景<strong>明度高、饱和度低、对比度弱、柔和模糊</strong>。经验上最稳的检验办法是把整张画切去色彩看灰度——只要灰度下四层阶梯分明，上色后空气感几乎不会失手。</p>
+
+      <div class="curtain-toolbar">
+        <div class="context-tabs" role="tablist" aria-label="切换应用题材">
+          <button type="button" class="dark-tab is-active" data-s3-mode="landscape" role="tab" aria-selected="true">风光摄影</button>
+          <button type="button" class="dark-tab" data-s3-mode="illustration" role="tab" aria-selected="false">插画与概念原画</button>
+          <button type="button" class="dark-tab" data-s3-mode="ui" role="tab" aria-selected="false">UI 与地图分层</button>
+        </div>
+        <label class="curtain-slider-wrap" for="s3-split">
+          <span>彩 / 灰分界幕帘</span>
+          <input id="s3-split" type="range" min="5" max="95" step="1" value="52">
+          <strong class="mono-val" id="s3-split-val" lang="en">52%</strong>
+        </label>
+      </div>
+
+      <div class="curtain-stage-wrap">
+        <canvas id="sec3-canvas" width="1120" height="440" aria-label="彩色与去色灰度对比检视画布：可拖动分割线检验近远景明度阶梯"></canvas>
+      </div>
+
+      <div class="nvf-matrix" aria-label="近景与远景四重对照表">
+        <div class="nvf-col">
+          <h3 class="nvf-col-title">近景 <span lang="en">NEAR</span></h3>
+          <ul>
+            <li><strong>明度低</strong><span>暗部扎实沉稳，为全画建立参照原点</span></li>
+            <li><strong>饱和度高</strong><span>物体固有色完整，没有被空气面纱冲灰</span></li>
+            <li><strong>对比度强</strong><span>明暗交界与受背光反差最大，视觉重心先落于此</span></li>
+            <li><strong>清晰锐利</strong><span>松针、岩棱、文字笔画与纹理边缘干脆利落</span></li>
+          </ul>
+        </div>
+        <div class="nvf-col">
+          <h3 class="nvf-col-title">远景 <span lang="en">FAR</span></h3>
+          <ul>
+            <li><strong>明度高</strong><span>白日受空气光叠加，整体向地平线天光抬升</span></li>
+            <li><strong>饱和度低</strong><span>高纯度色迅速衰减为低彩度的雾灰或淡青</span></li>
+            <li><strong>对比度弱</strong><span>山体内部阴影被空气光填浅，明暗趋于平缓</span></li>
+            <li><strong>柔和模糊</strong><span>细碎轮廓被散射柔化，只留轻盈的整体大剪影</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 从罗马壁画到宋代山水（暖米原纸） ==================== -->
+  <section class="band band-paper" id="sec-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no" lang="en">04</span>
+        <div>
+          <h2>从罗马壁画到宋代山水</h2>
+          <p class="sec-en" lang="en">HISTORICAL &amp; OPTICAL LINEAGE</p>
+        </div>
+      </div>
+
+      <p class="lead">在物理学写出散射公式之前，东西方画师早已凭肉眼捕捉到空气的厚度。点选下面四个有确切文献或实物存证的节点，对照不同时代如何把空气画进平面。</p>
+
+      <div class="history-layout">
+        <div class="era-list" role="tablist" aria-label="空气透视历史节点">
+          <button type="button" class="era-card is-active" data-era="roman" role="tab" aria-selected="true">
+            <span class="era-year" lang="en">c. 30–20 BCE</span>
+            <strong>古罗马 · 莉薇娅别墅《花园厅》</strong>
+            <span>第二风格壁画用近处清晰果树与远处淡青雾树消融无窗地室的砖墙，现藏罗马国家博物馆马西莫宫。</span>
+          </button>
+
+          <button type="button" class="era-card" data-era="song" role="tab" aria-selected="false">
+            <span class="era-year">北宋（11 世纪末编纂 · 1117 年作序）</span>
+            <strong>郭熙、郭思 · 《林泉高致》</strong>
+            <span>《山水训》定下「高远、深远、平远」，明言「平远之意冲融而缥缥缈缈」「远山无皴，远水无波，远人无目，非无也，如无耳」。</span>
+          </button>
+
+          <button type="button" class="era-card" data-era="renaissance" role="tab" aria-selected="false">
+            <span class="era-year" lang="en">c. 1490s–1651</span>
+            <strong>达·芬奇 · 《画论》命名空气透视</strong>
+            <span>系统记述空气透视（prospettiva aerea），指出空气层越厚、远山越失反差且偏蓝；手稿由梅尔齐整理，1651 年于巴黎初版。</span>
+          </button>
+
+          <button type="button" class="era-card" data-era="physics" role="tab" aria-selected="false">
+            <span class="era-year" lang="en">1871 / 1908 / 1924</span>
+            <strong>瑞利、米氏与科施米德 · 定量光学</strong>
+            <span>瑞利（1871）揭示短波分子散射，米氏（1908）补全气溶胶散射，科施米德（1924）写出水平能见度与对比度指数衰减公式。</span>
+          </button>
+        </div>
+
+        <div class="era-stage">
+          <canvas id="sec4-canvas" width="600" height="390" aria-label="历史时期空气透视手法示意画板"></canvas>
+          <div class="era-detail" id="sec4-detail">
+            <h3 id="sec4-title">莉薇娅别墅《花园厅》壁画（约公元前 30–20 年）</h3>
+            <p id="sec4-body">为了给奥古斯都妻子莉薇娅的地下避暑餐厅「开窗」，罗马画师把近处的石榴树、低矮栅栏与栖鸟画得浓绿清晰，把栅栏后方的树冠层层调淡、偏冷青并隐去叶片轮廓。这组至今保存完好的壁画证明，远在文艺复兴命名之前，实证性的空气透视已相当成熟。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 05 什么时候别用空气透视（淡紫雾纸） ==================== -->
+  <section class="band band-lavender" id="sec-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no" lang="en">05</span>
+        <div>
+          <h2>什么时候别用空气透视</h2>
+          <p class="sec-en" lang="en">WHEN NOT TO USE</p>
+        </div>
+      </div>
+
+      <p class="lead">空气透视的代价是主动牺牲远景的对比度与清晰度。只要你的画面不想要「远方退隐」，硬加一层雾气只会让作品显得灰脏、发闷。点按下方任意卡片，切换「硬套雾气」与「换对方法」的对比。</p>
+
+      <div class="misuse-grid">
+        <article class="misuse-card" data-misuse="flat">
+          <div class="misuse-top">
+            <span class="misuse-idx" lang="en">CASE 01</span>
+            <button type="button" class="flip-btn" aria-pressed="false">看正确替代</button>
+          </div>
+          <h3>强符号平涂与波普海报</h3>
+          <div class="misuse-svg-wrap" id="svg-misuse-flat" aria-hidden="true"></div>
+          <p class="misuse-note" id="note-misuse-flat">硬套发灰渐层会立刻泄掉色块撞击的锐气，让画面显得旧而脏；追求高饱和平面冲击时，改用 <a href="https://layout.xiaoxiaodong.ai/085/play/" target="_blank" rel="noopener">085 平面化构图</a>。</p>
+        </article>
+
+        <article class="misuse-card" data-misuse="deepfocus">
+          <div class="misuse-top">
+            <span class="misuse-idx" lang="en">CASE 02</span>
+            <button type="button" class="flip-btn" aria-pressed="false">看正确替代</button>
+          </div>
+          <h3>信息图、路线图与建筑平立面</h3>
+          <div class="misuse-svg-wrap" id="svg-misuse-deepfocus" aria-hidden="true"></div>
+          <p class="misuse-note" id="note-misuse-deepfocus">读者需要同时准确读取远处构件尺寸与文字标签，把远端淡化模糊等于毁掉可读性；前后都要锐利交代时，改用 <a href="https://layout.xiaoxiaodong.ai/084/play/" target="_blank" rel="noopener">084 深焦构图</a>。</p>
+        </article>
+
+        <article class="misuse-card" data-misuse="shallow">
+          <div class="misuse-top">
+            <span class="misuse-idx" lang="en">CASE 03</span>
+            <button type="button" class="flip-btn" aria-pressed="false">看正确替代</button>
+          </div>
+          <h3>室内人像、静物与近距特写</h3>
+          <div class="misuse-svg-wrap" id="svg-misuse-shallow" aria-hidden="true"></div>
+          <p class="misuse-note" id="note-misuse-shallow">主体与背景只相隔两三米，物理上根本积不出空气散射厚度，强行加灰雾像镜头蒙尘；近距分离主体应依靠光学虚化的 <a href="https://layout.xiaoxiaodong.ai/083/play/" target="_blank" rel="noopener">083 浅景深构图</a>。</p>
+        </article>
+
+        <article class="misuse-card" data-misuse="geometry">
+          <div class="misuse-top">
+            <span class="misuse-idx" lang="en">CASE 04</span>
+            <button type="button" class="flip-btn" aria-pressed="false">看正确替代</button>
+          </div>
+          <h3>靠几何或极端机位造纵深</h3>
+          <div class="misuse-svg-wrap" id="svg-misuse-geometry" aria-hidden="true"></div>
+          <p class="misuse-note" id="note-misuse-geometry">若画面主角是近大远小的几何错觉或明确视点，雾气会弱化线条骨架——按意图改用 <a href="https://layout.xiaoxiaodong.ai/081/play/" target="_blank" rel="noopener">081 强制透视构图</a>、<a href="https://layout.xiaoxiaodong.ai/086/play/" target="_blank" rel="noopener">086 深空间构图</a>，或以机位定调的 <a href="https://layout.xiaoxiaodong.ai/077/play/" target="_blank" rel="noopener">077 鸟瞰构图</a>、<a href="https://layout.xiaoxiaodong.ai/078/play/" target="_blank" rel="noopener">078 虫视构图</a>、<a href="https://layout.xiaoxiaodong.ai/079/play/" target="_blank" rel="noopener">079 顶视构图</a>、<a href="https://layout.xiaoxiaodong.ai/080/play/" target="_blank" rel="noopener">080 平视构图</a>。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 看图辨层次：小练习（深暮考场） ==================== -->
+  <section class="band band-dusk" id="sec-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no" lang="en">06</span>
+        <div>
+          <h2>看图辨层次：小练习</h2>
+          <p class="sec-en" lang="en">OPTICAL DEPTH CHECK</p>
+        </div>
+      </div>
+
+      <div class="quiz-bar">
+        <p class="quiz-prompt" id="quiz-prompt">第 1 题（晴日远山高塔）：以下四张构图、机位与轮廓完全相同，仅调整了四层山体的明度与彩度梯度。哪一张最符合晴朗白天的空气透视规律？</p>
+        <div class="quiz-rounds" role="tablist" aria-label="切换练习题目">
+          <button type="button" class="dark-tab is-active" data-quiz-round="0" role="tab" aria-selected="true">第 1 题 · 晴日山塔</button>
+          <button type="button" class="dark-tab" data-quiz-round="1" role="tab" aria-selected="false">第 2 题 · 日落暖峡</button>
+        </div>
+      </div>
+
+      <div class="quiz-grid" id="quiz-grid">
+        <button type="button" class="quiz-option" data-opt="0">
+          <canvas class="quiz-canvas" width="320" height="210" aria-hidden="true"></canvas>
+          <span class="quiz-label">方案 A</span>
+        </button>
+        <button type="button" class="quiz-option" data-opt="1">
+          <canvas class="quiz-canvas" width="320" height="210" aria-hidden="true"></canvas>
+          <span class="quiz-label">方案 B</span>
+        </button>
+        <button type="button" class="quiz-option" data-opt="2">
+          <canvas class="quiz-canvas" width="320" height="210" aria-hidden="true"></canvas>
+          <span class="quiz-label">方案 C</span>
+        </button>
+        <button type="button" class="quiz-option" data-opt="3">
+          <canvas class="quiz-canvas" width="320" height="210" aria-hidden="true"></canvas>
+          <span class="quiz-label">方案 D</span>
+        </button>
+      </div>
+
+      <div class="quiz-feedback" id="quiz-feedback" aria-live="polite">
+        <p class="quiz-fb-idle">点选上方 A / B / C / D 任一方案，查看四层明度读数与光学解析。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 07 原海报与关键词（暖米展墙） ==================== -->
+  <section class="band band-paper" id="sec-07">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no" lang="en">07</span>
+        <div>
+          <h2>原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; KEYWORDS</p>
+        </div>
+      </div>
+
+      <div class="poster-spread">
+        <div class="poster-figure">
+          <button type="button" class="poster-trigger" id="poster-trigger" aria-label="放大查看 082 原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="空气透视构图海报">
+            <span class="poster-zoom-hint">点击放大查看 · 支持拖拽与 Esc 关闭</span>
+          </button>
+        </div>
+
+        <div class="poster-meta">
+          <p class="poster-kicker" lang="en">POSTER NO. 082 · REFERENCE SHEET</p>
+          <h3 class="poster-quote">「拉开距离，营造空间；软化远景，传递氛围。」</h3>
+          <p class="poster-desc">整张原海报本身就是一幅空气透视样本：左下角墨青松崖以低明度、高对比度稳住画眼，中景蜿蜒湖湾承接雾气过渡，远景高楼天际线退为浅灰蓝，顶部留出大面积暖米雾白与右侧四枚淡紫圆徽，让视觉从实入虚、由近及远呼吸舒展。</p>
+
+          <div class="keyword-grid">
+            <div class="kw-chip"><strong>层次</strong><span lang="en">LAYERS</span></div>
+            <div class="kw-chip"><strong>明度</strong><span lang="en">VALUE</span></div>
+            <div class="kw-chip"><strong>饱和度</strong><span lang="en">SATURATION</span></div>
+            <div class="kw-chip"><strong>空气感</strong><span lang="en">ATMOSPHERE</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 页脚一行 -->
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <a href="https://layout.xiaoxiaodong.ai/082/play/" target="_blank" rel="noopener">在线版</a>
+    <span aria-hidden="true">·</span>
+    <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+    <span aria-hidden="true">·</span>
+    <span>海报 CC BY 4.0</span>
+    <span aria-hidden="true">·</span>
+    <a href="https://github.com/xxd-ai/350-layout" target="_blank" rel="noopener">源文件 GitHub</a>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱（支持滚轮/按钮缩放、按住拖动、Esc 关闭） -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="原海报大图预览" hidden>
+  <div class="lb-bar">
+    <span class="lb-title">082 空气透视构图 · 原海报</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-out" aria-label="缩小">−</button>
+      <span class="lb-scale mono-val" id="lb-scale">100%</span>
+      <button type="button" class="lb-btn" id="lb-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn" id="lb-reset">归位</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭灯箱">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lb-viewport">
+    <img id="lb-img" alt="空气透视构图原海报大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
