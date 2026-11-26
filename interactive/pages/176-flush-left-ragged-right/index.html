@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>176 左对齐右参差 · FLUSH LEFT, RAGGED RIGHT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <!-- 顶沿自示范左锚刊头：严格复刻原海报左上短红杠 + 统一左起线 -->
+    <div class="hero-head">
+      <div class="hero-title-spine">
+        <div class="hero-meta-row">
+          <span class="red-rule" aria-hidden="true"></span>
+          <span class="meta-id">NO. 176</span>
+          <span class="meta-cat">字体、网格与东亚文字 / 对齐、缩进与文字造型</span>
+          <span id="heroStatusBadge" class="status-pill is-error">0/4 · 窄栏河流</span>
+        </div>
+        <h1 class="hero-h1">左对齐右参差</h1>
+        <p class="hero-en" lang="en">FLUSH LEFT, RAGGED RIGHT</p>
+      </div>
+      <div class="hero-spec-tabs" role="group" aria-label="排字标本切换">
+        <button type="button" class="tab-btn is-active" data-specimen="bilingual" aria-pressed="true">混排专栏</button>
+        <button type="button" class="tab-btn" data-specimen="english" aria-pressed="false">英文书籍</button>
+        <button type="button" class="tab-btn" data-specimen="chinese" aria-pressed="false">纯中文论</button>
+      </div>
+    </div>
+
+    <!-- 主舞台：左 68% 排字修边台（2D Canvas）× 右 32% 原海报三红圆徽 + 朱红巨圆与 10×11 活体点阵 -->
+    <div class="hero-grid">
+      <div class="hero-desk-col">
+        <div class="desk-frame">
+          <canvas
+            id="heroCanvas"
+            class="hero-canvas"
+            data-perf-drag
+            tabindex="0"
+            aria-label="左对齐右参差排字修边画布：横向拖动右边标尺调节栏宽，左对齐下点击任意行尾可推词修边，方向键微调，空格键演练回扫眼动"
+          ></canvas>
+        </div>
+
+        <!-- 紧凑单行排字工具槽 -->
+        <div class="desk-toolbar">
+          <div class="tool-group" role="group" aria-label="对齐方式">
+            <span class="tool-lbl">对齐</span>
+            <button type="button" class="seg-btn" data-align="left" aria-pressed="false">左对齐</button>
+            <button type="button" class="seg-btn is-active" data-align="justify" aria-pressed="true">两端对齐</button>
+            <button type="button" class="seg-btn" data-align="center" aria-pressed="false">居中</button>
+            <button type="button" class="seg-btn" data-align="right" aria-pressed="false">右对齐</button>
+          </div>
+          <div class="tool-sliders">
+            <label class="slider-item">
+              <span class="tool-lbl">栏宽</span>
+              <input id="measureSlider" type="range" min="34" max="100" step="1" value="45">
+              <span id="measureVal" class="mono-val">45%</span>
+            </label>
+            <label class="slider-item">
+              <span class="tool-lbl">行距</span>
+              <input id="leadingSlider" type="range" min="115" max="205" step="2" value="124">
+              <span id="leadingVal" class="mono-val">1.24</span>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button type="button" id="sweepToggleBtn" class="act-btn act-primary" aria-pressed="false">回扫实测 [Space]</button>
+            <button type="button" id="overlayToggleBtn" class="act-btn is-active" aria-pressed="true">透视轮廓：开</button>
+            <button type="button" id="clearPushBtn" class="act-btn" hidden>清除修边</button>
+          </div>
+        </div>
+
+        <!-- 单真源白话诊单条（原海报朱红短竖杠锚定） -->
+        <section id="diagCard" class="diag-bar is-error" aria-live="polite">
+          <div class="diag-top">
+            <span id="diagTag" class="diag-pill">0/4 · 窄栏河流</span>
+            <span id="diagMeta" class="diag-meta">实绘核算</span>
+          </div>
+          <h2 id="diagHeadline" class="diag-h">窄栏强行两端对齐，栏内裂出多条白色河流</h2>
+          <p id="diagBody" class="diag-p">为了把右边线拉直，排版引擎把剩余空隙硬塞进词与字之间，视线不断被纵向白缝钩走。</p>
+          <p id="diagHint" class="diag-hint">先把对齐切到「左对齐」，再向右拖动朱红标尺把栏宽拉入适读区。</p>
+          <div class="diag-foot">
+            <div class="preset-row">
+              <button type="button" id="quickFixBtn" class="fix-btn">一键校准左齐参差</button>
+              <button type="button" id="resetBadBtn" class="ghost-btn">复原开场错态</button>
+            </div>
+            <div class="preset-chips">
+              <span class="chip-lbl">多组合法解</span>
+              <button type="button" class="chip-btn" data-valid="poster">原海报舒展</button>
+              <button type="button" class="chip-btn" data-valid="magazine">期刊紧凑</button>
+              <button type="button" class="chip-btn" data-valid="book">书籍从容</button>
+              <span class="chip-lbl">试错</span>
+              <button type="button" class="chip-btn is-fail" data-fail="rivers">河流</button>
+              <button type="button" class="chip-btn is-fail" data-fail="jagged">锯齿</button>
+              <button type="button" class="chip-btn is-fail" data-fail="centered">居中</button>
+              <button type="button" class="chip-btn is-fail" data-fail="overwide">超宽</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- 右侧原海报视觉脊柱：宣言 + 三枚朱红实心圆徽实时探针 + 朱红巨圆/竖黑轴/10×11 活体点阵 -->
+      <aside class="hero-motif-col" aria-label="原海报核心要点与实时参差波形">
+        <div class="poster-manifesto">
+          <span class="red-rule is-sm" aria-hidden="true"></span>
+          <p class="manifesto-zh">
+            所有行以相同的起点对齐，<br>
+            右侧不刻意对齐，<br>
+            形成自然的参差边缘，<br>
+            让版面更轻松、易读。
+          </p>
+          <p class="manifesto-en" lang="en">
+            Keep the left edge aligned.<br>
+            Let the right edge be uneven.<br>
+            This creates a natural rhythm<br>
+            and improves readability.
+          </p>
+        </div>
+
+        <ul class="poster-badges">
+          <li id="badgeStartItem" class="p-badge">
+            <span class="p-circle" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18"><line x1="12" y1="4" x2="12" y2="20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+            </span>
+            <div class="p-badge-txt">
+              <strong>起线统一</strong>
+              <span lang="en">CLEAR START</span>
+            </div>
+            <span id="badgeStartTag" class="p-state">左齐·右硬拉</span>
+          </li>
+          <li id="badgeReadingItem" class="p-badge">
+            <span class="p-circle" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.7" fill="currentColor"/></svg>
+            </span>
+            <div class="p-badge-txt">
+              <strong>阅读清晰</strong>
+              <span lang="en">EASY READING</span>
+            </div>
+            <span id="badgeReadingTag" class="p-state">词距拉宽</span>
+          </li>
+          <li id="badgeRhythmItem" class="p-badge">
+            <span class="p-circle" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M4 9.5c2.2-2.2 4.8-2.2 7 0s4.8 2.2 7 0M4 15c2.2-2.2 4.8-2.2 7 0s4.8 2.2 7 0" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>
+            </span>
+            <div class="p-badge-txt">
+              <strong>节奏自然</strong>
+              <span lang="en">NATURAL RHYTHM</span>
+            </div>
+            <span id="badgeRhythmTag" class="p-state">右缘拉死</span>
+          </li>
+        </ul>
+
+        <!-- 1:1 呼应原海报右侧：朱红巨圆 + 竖贯细黑线 + 10×11 实时波形点阵 -->
+        <div class="poster-geom">
+          <div class="geom-stage">
+            <div class="geom-circle" aria-hidden="true"></div>
+            <div id="motifAxis" class="geom-axis" aria-hidden="true"></div>
+            <div id="dotMatrix" class="geom-matrix" aria-hidden="true"></div>
+          </div>
+          <p id="motifCaption" class="geom-cap">点阵同步右缘：硬拉平齐 · 内部裂河</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 01 节：为什么眼睛偏爱左起线（亮薄荷宣纸） -->
+  <section class="band band-light" id="sec-sweep">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">01</span>
+        <div>
+          <h2>眼睛为何偏爱左起线</h2>
+          <p class="sec-en" lang="en">THE RETURN SWEEP &amp; EVEN WORD SPACING</p>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="prose-col">
+          <p class="lead">左对齐右参差之所以成为当代网页、说明书与编辑版面的主力排法，靠的不是审美惯性，而是两件非常具体的眼动生理机制。</p>
+          <p>第一是<strong>回扫锚点（Return Sweep）</strong>。阅读横排文字时，眼睛每读完一行都要做一次长距离斜向回跳，去寻找下一行的开头。Keith Rayner、Jens Hofmeister 及 Adam J. Parker 等人的眼动研究指出（Parker, Slattery &amp; Kirkby, 2019），这种长距离回扫极易发生「欠扫（undershoot）」，随后再补一次微小的纠正眼跳。左起线笔直统一，等于给眼球钉住了一堵看不见的靠山墙——大脑无需每行重新测算落点；而右侧参差不齐，则让每一行拥有独一无二的尾形，悄悄提醒眼睛「你刚才读到的是哪一行」，避免漏行或重读。</p>
+          <p>第二是<strong>词距恒定</strong>。不强迫右边线对齐，排版系统就不必把多余白空硬灌进单词或汉字之间，行内灰度均匀平和。与之相对，把参差留给左侧的是 <a href="https://layout.xiaoxiaodong.ai/177/play/">177 右对齐左参差</a>，左右皆参差的是 <a href="https://layout.xiaoxiaodong.ai/178/play/">178 居中排版</a>，把右侧强行拉齐的是 <a href="https://layout.xiaoxiaodong.ai/179/play/">179 两端对齐</a> 与 <a href="https://layout.xiaoxiaodong.ai/180/play/">180 强制两端对齐</a>——它们各有专场，却都以牺牲固定左起线或均匀词距为代价。</p>
+        </div>
+
+        <!-- 互动 01：回扫落点步进对比器 -->
+        <div class="card-panel" id="sweepLab">
+          <div class="panel-bar">
+            <span class="panel-kicker">回扫轨迹对照 · 步进观察</span>
+            <div class="mini-tabs" role="group" aria-label="切换对齐方式观察回扫">
+              <button type="button" class="mini-btn is-active" data-sweep-mode="left" aria-pressed="true">左对齐</button>
+              <button type="button" class="mini-btn" data-sweep-mode="center" aria-pressed="false">居中</button>
+              <button type="button" class="mini-btn" data-sweep-mode="right" aria-pressed="false">右对齐</button>
+              <button type="button" class="mini-btn" data-sweep-mode="justify" aria-pressed="false">窄栏两端</button>
+            </div>
+          </div>
+          <svg id="sweepSvg" class="sweep-svg" viewBox="0 0 420 226" role="img" aria-label="不同对齐方式下的回扫路径与落点示意"></svg>
+          <div class="sweep-foot">
+            <div class="sweep-meta-row">
+              <strong id="sweepCaseTitle">左对齐右参差 · FLUSH LEFT</strong>
+              <span id="sweepCaseVerdict" class="sweep-verdict is-good">落点零抖动 · 词距恒定 1.0×</span>
+            </div>
+            <p id="sweepCaseDesc" class="sweep-desc"></p>
+            <div class="sweep-ctrl-row">
+              <div class="sweep-stats">
+                <span id="sweepStat1" class="mono-pill">起点抖动 0px</span>
+                <span id="sweepStat2" class="mono-pill">白缝河流 0 条</span>
+              </div>
+              <div class="sweep-step-btns">
+                <span id="sweepStepLabel" class="mono-note">回扫步进：第 4 / 4 次换行</span>
+                <button type="button" id="sweepPrev" class="step-btn">上一行</button>
+                <button type="button" id="sweepNext" class="step-btn">下一行</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 节：参差不是随便乱参差（深林墨暗室，明暗交替！） -->
+  <section class="band band-dark" id="sec-rag">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">02</span>
+        <div>
+          <h2>参差不是随便乱参差</h2>
+          <p class="sec-en" lang="en">SHAPING A GOOD RAG · HARD RAG CRAFT</p>
+        </div>
+      </div>
+
+      <div class="dark-intro-row">
+        <p class="lead-dark">把对齐设为「左对齐」只是起点，真正决定版面高级还是粗糙的，是右侧那条轮廓线的形状。经验里，好参差呈「长—略短—长—略短」的温和波浪（非末行起伏大致落在 10%–25% 之间）；软件听之任之时，最常冒出缺口、斜坡和孤词尾巴。Robert Bringhurst（1992）更建议采用「硬参差（Hard Rag）」——保持词距恒定，不让算法偷偷拉宽空格或滥用连字符；若实在需要英文断字，行尾至少留 2 字母、带走至少 3 字母，且连续连字符不超过 3 行。</p>
+        <div class="xray-dock">
+          <button type="button" id="ragXrayToggle" class="xray-btn" aria-pressed="false">剥离文字 · 只看右缘剪影</button>
+          <p id="ragXrayStatus" class="xray-status"></p>
+        </div>
+      </div>
+
+      <!-- 4 块真实参差切片卡：支持一键压黑看右缘轮廓 -->
+      <div class="rag-grid">
+        <article class="rag-card is-good">
+          <header class="rag-head">
+            <span class="rag-tag is-ok">好参差 · 温和波浪</span>
+            <span class="mono-dim">起伏 ~14%</span>
+          </header>
+          <div class="rag-body">
+            <span class="rl" style="--w:92%">所有行以相同的起点对齐，</span>
+            <span class="rl" style="--w:78%">右侧保留克制的交替，</span>
+            <span class="rl" style="--w:89%">字距词距从头到尾匀称，</span>
+            <span class="rl" style="--w:81%">目光沿左轴轻松滑下。</span>
+          </div>
+          <p class="rag-cap">行尾长短轻微交错，像舒缓的海岸线，呼吸自然、重心稳定。</p>
+        </article>
+
+        <article class="rag-card is-bad">
+          <header class="rag-head">
+            <span class="rag-tag is-err">坏参差 · 深凹缺口</span>
+            <span class="mono-dim">落差 46%</span>
+          </header>
+          <div class="rag-body">
+            <span class="rl" style="--w:95%">右侧碰上不可拆分的英文长词</span>
+            <span class="rl is-mark" style="--w:48%">或超长专名，</span>
+            <span class="rl" style="--w:93%">上一行骤然短进一大截，在</span>
+            <span class="rl" style="--w:84%">栏右啃出扎眼白坑。</span>
+          </div>
+          <p class="rag-cap">解法：微调栏宽，或在长词前一行手工轻推一个短词补平凹坑。</p>
+        </article>
+
+        <article class="rag-card is-bad">
+          <header class="rag-head">
+            <span class="rag-tag is-err">坏参差 · 楼梯斜坡</span>
+            <span class="mono-dim">连降 4 行</span>
+          </header>
+          <div class="rag-body">
+            <span class="rl is-mark" style="--w:96%">连续四行顺着同一方向阶梯</span>
+            <span class="rl is-mark" style="--w:82%">逐行变短，右缘便切出</span>
+            <span class="rl is-mark" style="--w:68%">一条生硬斜线，整段</span>
+            <span class="rl is-mark" style="--w:54%">像被削去一角。</span>
+          </div>
+          <p class="rag-cap">解法：打断单调增减趋势，让中间某行回弹变长，恢复波浪节奏。</p>
+        </article>
+
+        <article class="rag-card is-bad">
+          <header class="rag-head">
+            <span class="rag-tag is-err">坏参差 · 孤词短尾</span>
+            <span class="mono-dim">末行仅 13%</span>
+          </header>
+          <div class="rag-body">
+            <span class="rl" style="--w:88%">段落收口时若末行只孤零零</span>
+            <span class="rl" style="--w:92%">掉下来一两个字或短词，</span>
+            <span class="rl" style="--w:84%">就像句尾多出一截尾巴，</span>
+            <span class="rl is-mark" style="--w:14%">散。</span>
+          </div>
+          <p class="rag-cap">解法：从倒数第二行轻推一两个短词到末行，或微调栏宽消尾。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 节：中文与西文的对齐分水岭（原海报鼠尾草纸） -->
+  <section class="band band-sage" id="sec-cjk">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">03</span>
+        <div>
+          <h2>中文与西文的对齐分水岭</h2>
+          <p class="sec-en" lang="en">CJK SQUARE GRID VS. MIXED-SCRIPT REALITY</p>
+        </div>
+      </div>
+
+      <div class="cjk-callout">
+        <span class="gentle-tag">语种有别 · 温和补充原海报</span>
+        <p>原海报说「右侧不刻意对齐，让版面更轻松、易读」，这对<strong>不等宽、靠空格分词的拉丁文</strong>几乎处处成立；但按 W3C《中文排版需求（CLREQ）》所述，<strong>纯汉字天生等宽成方格</strong>，在足够宽的书页里采用 <a href="https://layout.xiaoxiaodong.ai/179/play/">179 两端对齐</a>（常配 <a href="https://layout.xiaoxiaodong.ai/186/play/">186 首行缩进</a> 与 <a href="https://layout.xiaoxiaodong.ai/187/play/">187 凸排标点</a>）本来就能严丝合缝，并不会凭空裂出大河流。真正让中文排版立刻倒向「左对齐右参差」的分水岭，是<strong>中英混排、长数字网址，以及手机与侧栏的窄栏面</strong>——同时在目录列表与多栏对齐里，它常与 <a href="https://layout.xiaoxiaodong.ai/185/play/">185 悬挂缩进</a>、<a href="https://layout.xiaoxiaodong.ai/188/play/">188 基线对齐</a>、<a href="https://layout.xiaoxiaodong.ai/193/play/">193 水平文字排版</a> 协同工作。</p>
+      </div>
+
+      <!-- 互动 03：双语窄宽联动拉幕 -->
+      <div class="compare-lab" id="scriptCompare">
+        <div class="cmp-controls">
+          <div class="mini-tabs" role="group" aria-label="选择语种标本">
+            <button type="button" class="mini-btn" data-script-tab="cjk" aria-pressed="false">纯中文段落</button>
+            <button type="button" class="mini-btn is-active" data-script-tab="mixed" aria-pressed="true">中英混排（高发区）</button>
+            <button type="button" class="mini-btn" data-script-tab="latin" aria-pressed="false">纯英文段落</button>
+          </div>
+          <label class="cmp-slider-wrap">
+            <span class="tool-lbl">同步收缩两栏宽度</span>
+            <input id="scriptWidthSlider" type="range" min="46" max="100" step="2" value="54">
+            <span id="scriptWidthVal" class="mono-val">约 13 汉字/行</span>
+          </label>
+        </div>
+
+        <div class="cmp-grid">
+          <div class="cmp-col">
+            <div class="cmp-col-head">
+              <strong>两端对齐（Justified）</strong>
+              <span id="scriptJustifyMetric" class="cmp-metric is-bad"></span>
+            </div>
+            <div class="cmp-paper">
+              <p id="scriptJustifyBox" class="cmp-prose is-justify"></p>
+            </div>
+          </div>
+          <div class="cmp-col">
+            <div class="cmp-col-head">
+              <strong>左对齐右参差（Flush Left）</strong>
+              <span id="scriptLeftMetric" class="cmp-metric is-ok"></span>
+            </div>
+            <div class="cmp-paper">
+              <p id="scriptLeftBox" class="cmp-prose is-left"></p>
+            </div>
+          </div>
+        </div>
+        <p id="scriptNote" class="cmp-note"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 节：从反叛居中到屏幕默认（亮薄荷宣纸） -->
+  <section class="band band-light" id="sec-history">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">04</span>
+        <div>
+          <h2>从反叛居中到屏幕默认</h2>
+          <p class="sec-en" lang="en">WHERE IT CAME FROM · 1928 TO WCAG</p>
+        </div>
+      </div>
+
+      <p class="lead">现代意义的「左对齐右参差」并非技术偷懒的产物，而是 20 世纪排印师主动向僵化中轴与强拉词距宣战的结果——它与 <a href="https://layout.xiaoxiaodong.ai/181/play/">181 非对称字体排版</a> 同源而生，最终被写入 Web 无障碍标准。</p>
+
+      <!-- 互动 04：五年代排印标本翻检匣 -->
+      <div class="history-drawer" id="historyDrawer">
+        <div class="hist-tabs" role="tablist" aria-label="百年排印关键节点">
+          <button type="button" class="hist-tab is-active" role="tab" data-hist-idx="0" aria-selected="true"><span class="h-yr">1928</span><span class="h-nm">奇肖尔德 · 新排版术</span></button>
+          <button type="button" class="hist-tab" role="tab" data-hist-idx="1" aria-selected="false"><span class="h-yr">1931</span><span class="h-nm">埃里克·吉尔 · 排印随笔</span></button>
+          <button type="button" class="hist-tab" role="tab" data-hist-idx="2" aria-selected="false"><span class="h-yr">1967</span><span class="h-nm">鲁德尔 · 巴塞尔排印学</span></button>
+          <button type="button" class="hist-tab" role="tab" data-hist-idx="3" aria-selected="false"><span class="h-yr">1992</span><span class="h-nm">布林赫斯特 · 风格要素</span></button>
+          <button type="button" class="hist-tab" role="tab" data-hist-idx="4" aria-selected="false"><span class="h-yr">2008–18</span><span class="h-nm">W3C · WCAG 1.4.8</span></button>
+        </div>
+
+        <div class="hist-stage">
+          <div class="hist-info">
+            <span id="histYear" class="mono-kicker">1928 · 柏林</span>
+            <h3 id="histWho" class="hist-who">扬·奇肖尔德（Jan Tschichold）</h3>
+            <p id="histWork" class="hist-work">《新排版术》（Die neue Typographie）</p>
+            <p id="histQuote" class="hist-quote"></p>
+          </div>
+          <div id="histSpecimen" class="hist-specimen"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 节：什么时候别用左对齐（柔鼠尾草纸） -->
+  <section class="band band-mist" id="sec-anti">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">05</span>
+        <div>
+          <h2>什么时候别用左对齐</h2>
+          <p class="sec-en" lang="en">WHEN NOT TO USE FLUSH LEFT</p>
+        </div>
+      </div>
+
+      <p class="lead">左对齐右参差极其好用，却绝不是万能钥匙。遇到下面四类版面目标时，硬套左对齐反而会拆台——同时若涉及绕图与造型排字，也可交给 <a href="https://layout.xiaoxiaodong.ai/182/play/">182 轮廓绕排</a>、<a href="https://layout.xiaoxiaodong.ai/183/play/">183 矩形绕排</a>、<a href="https://layout.xiaoxiaodong.ai/184/play/">184 跨栏标题</a>、<a href="https://layout.xiaoxiaodong.ai/189/play/">189 形状文字</a>、<a href="https://layout.xiaoxiaodong.ai/190/play/">190 图形诗排版</a>、<a href="https://layout.xiaoxiaodong.ai/191/play/">191 路径文字</a> 或东亚传统 <a href="https://layout.xiaoxiaodong.ai/192/play/">192 垂直文字排版</a>。</p>
+
+      <!-- 互动 05：4 场景错配对照切换卡 -->
+      <div class="anti-lab" id="antiLab">
+        <div class="anti-tabs" role="group" aria-label="选择不适合左对齐的场景">
+          <button type="button" class="mini-btn is-active" data-anti="multicol" aria-pressed="true">密集纯中文多栏</button>
+          <button type="button" class="mini-btn" data-anti="ceremony" aria-pressed="false">请柬与庄重扉页</button>
+          <button type="button" class="mini-btn" data-anti="caption" aria-pressed="false">贴图左侧的图注</button>
+          <button type="button" class="mini-btn" data-anti="poster" aria-pressed="false">极短强造型标语</button>
+        </div>
+
+        <div class="anti-pair">
+          <article class="anti-box is-bad">
+            <span class="anti-pill is-err">错配现场</span>
+            <h3 id="antiBadTitle">硬套左对齐右参差</h3>
+            <div id="antiBadPreview" class="anti-preview"></div>
+            <p id="antiBadReason" class="anti-reason"></p>
+          </article>
+          <article class="anti-box is-good">
+            <span class="anti-pill is-ok">更贴切的选择</span>
+            <h3 id="antiGoodTitle">改用两端对齐 + 合理栏缝</h3>
+            <div id="antiGoodPreview" class="anti-preview"></div>
+            <p id="antiGoodReason" class="anti-reason"></p>
+            <a id="antiLink" class="anti-link" href="https://layout.xiaoxiaodong.ai/179/play/">延伸阅读：179 两端对齐 →</a>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 节：挑出最顺眼的一栏（深林墨暗室考场） -->
+  <section class="band band-dark" id="sec-quiz">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">06</span>
+        <div>
+          <h2>挑出最顺眼的一栏</h2>
+          <p class="sec-en" lang="en">TYPOGRAPHY EYE CHECK · PRACTICE</p>
+        </div>
+      </div>
+
+      <div class="quiz-lab" id="quizLab">
+        <div class="quiz-top">
+          <div class="mini-tabs" role="tablist" aria-label="选择练习题">
+            <button type="button" class="mini-btn is-active" role="tab" data-quiz-q="0" aria-selected="true">第 1 题 · 辨参差</button>
+            <button type="button" class="mini-btn" role="tab" data-quiz-q="1" aria-selected="false">第 2 题 · 辨栏宽与行距</button>
+          </div>
+          <p id="quizStem" class="quiz-stem"></p>
+        </div>
+        <div id="quizGrid" class="quiz-grid"></div>
+        <div id="quizFeedback" class="quiz-feedback" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 节：原海报与关键词（原海报鼠尾草纸展墙） -->
+  <section class="band band-sage" id="sec-poster">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num">07</span>
+        <div>
+          <h2>原海报与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER · NO. 176</p>
+        </div>
+      </div>
+
+      <div class="poster-wall">
+        <div class="poster-frame">
+          <img id="poster" src="poster.webp" width="1086" height="1448" alt="176 左对齐右参差原海报">
+          <button type="button" id="posterZoomBtn" class="poster-zoom-btn">放大原海报 · 可拖动查看细节</button>
+        </div>
+
+        <div class="poster-notes">
+          <span class="red-rule" aria-hidden="true"></span>
+          <h3 class="pn-title">左对齐右参差</h3>
+          <p class="pn-en" lang="en">FLUSH LEFT, RAGGED RIGHT</p>
+          <blockquote class="pn-quote">
+            <p>所有行以相同的起点对齐，右侧不刻意对齐，形成自然的参差边缘，让版面更轻松、易读。</p>
+            <p lang="en" class="pn-quote-en">Keep the left edge aligned. Let the right edge be uneven. This creates a natural rhythm and improves readability.</p>
+          </blockquote>
+
+          <div class="pn-kw-grid">
+            <div class="pn-kw">
+              <span class="pn-kw-zh">起线统一</span>
+              <span class="pn-kw-en" lang="en">CLEAR START</span>
+            </div>
+            <div class="pn-kw">
+              <span class="pn-kw-zh">阅读清晰</span>
+              <span class="pn-kw-en" lang="en">EASY READING</span>
+            </div>
+            <div class="pn-kw">
+              <span class="pn-kw-zh">节奏自然</span>
+              <span class="pn-kw-en" lang="en">NATURAL RHYTHM</span>
+            </div>
+          </div>
+
+          <div class="pn-anatomy">
+            <h4>原海报的图形自述</h4>
+            <p>整张海报用极其克制的浅鼠尾草绿纸底（#E6F0E1）、墨黑文字与瑞士朱砂橘红（#EA3D16）搭出骨架：左侧全部文字块与三枚红圆徽死死锁在同一根隐形左起线上，右侧任由中英两段宣言长出舒展的参差阶梯；右下方那颗朱红实心巨圆配 10×11 红点阵被一根极细的垂直墨黑轴线贯通，正好呼应「以笔直单轴立秩序，以有机留白生韵律」的核心主张。</p>
+          </div>
+
+          <div class="sibling-nav">
+            <h4>同小类 · 对齐、缩进与文字造型</h4>
+            <div class="sibling-links">
+              <a href="https://layout.xiaoxiaodong.ai/177/play/">177 右对齐左参差</a>
+              <a href="https://layout.xiaoxiaodong.ai/178/play/">178 居中排版</a>
+              <a href="https://layout.xiaoxiaodong.ai/179/play/">179 两端对齐</a>
+              <a href="https://layout.xiaoxiaodong.ai/180/play/">180 强制两端对齐</a>
+              <a href="https://layout.xiaoxiaodong.ai/181/play/">181 非对称字体排版</a>
+              <a href="https://layout.xiaoxiaodong.ai/182/play/">182 轮廓绕排</a>
+              <a href="https://layout.xiaoxiaodong.ai/183/play/">183 矩形绕排</a>
+              <a href="https://layout.xiaoxiaodong.ai/184/play/">184 跨栏标题</a>
+              <a href="https://layout.xiaoxiaodong.ai/185/play/">185 悬挂缩进</a>
+              <a href="https://layout.xiaoxiaodong.ai/186/play/">186 首行缩进</a>
+              <a href="https://layout.xiaoxiaodong.ai/187/play/">187 凸排标点</a>
+              <a href="https://layout.xiaoxiaodong.ai/188/play/">188 基线对齐</a>
+              <a href="https://layout.xiaoxiaodong.ai/189/play/">189 形状文字</a>
+              <a href="https://layout.xiaoxiaodong.ai/190/play/">190 图形诗排版</a>
+              <a href="https://layout.xiaoxiaodong.ai/191/play/">191 路径文字</a>
+              <a href="https://layout.xiaoxiaodong.ai/192/play/">192 垂直文字排版</a>
+              <a href="https://layout.xiaoxiaodong.ai/193/play/">193 水平文字排版</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <span><a href="https://layout.xiaoxiaodong.ai/176/play/">在线版</a> / 全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai">layout.xiaoxiaodong.ai</a></span>
+    <span class="f-sep" aria-hidden="true">·</span>
+    <span>海报 <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></span>
+    <span class="f-sep" aria-hidden="true">·</span>
+    <span>源文件 <a href="https://github.com/xiaoxiaodong/350-layout">GitHub</a></span>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱（draggable="false" 防止拖拽冲突，Esc 可关） -->
+<div id="posterModal" class="poster-modal" role="dialog" aria-modal="true" aria-label="176 原海报高清预览" hidden>
+  <div class="modal-bar">
+    <span class="modal-title">176 左对齐右参差 · 原海报（滚轮缩放，按住拖动，Esc 关闭）</span>
+    <div class="modal-ctrls">
+      <button type="button" id="posterZoomOut" class="modal-btn">缩小</button>
+      <button type="button" id="posterZoomReset" class="modal-btn">复原</button>
+      <button type="button" id="posterZoomIn" class="modal-btn">放大</button>
+      <button type="button" id="posterClose" class="modal-btn is-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div id="posterViewport" class="modal-viewport">
+    <img id="posterModalImg" src="" alt="176 左对齐右参差原海报高清放大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
