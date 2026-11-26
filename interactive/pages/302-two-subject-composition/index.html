@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>302 双人构图 · TWO-SUBJECT COMPOSITION</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#sec-01">跳到正文</a>
+
+  <!-- ==================== 开场：暖杏编导台 × 双分镜连幕 ==================== -->
+  <header class="hero" id="top">
+    <div class="wrap">
+      <!-- 顶行自示范刊头 -->
+      <div class="hero-masthead">
+        <div class="masthead-left">
+          <div class="eyebrow">
+            <span class="num-pill">NO. 302</span>
+            <span class="cat-text">影视画面构图 · 人物数量与群像</span>
+          </div>
+          <h1 class="hero-title" aria-label="双人构图">
+            <span class="t-char">双</span><span class="title-axis" id="title-axis" aria-hidden="true"><span class="axis-arrow-l"></span><span class="axis-dash"></span><span class="axis-plus">+</span><span class="axis-dash"></span><span class="axis-arrow-r"></span></span><span class="t-char">人构图</span>
+          </h1>
+          <p class="hero-en">TWO-SUBJECT COMPOSITION</p>
+        </div>
+
+        <div class="masthead-right">
+          <div class="scene-tabs" role="tablist" aria-label="双人叙事情景">
+            <button type="button" class="tab-btn is-active" data-scene="salon" role="tab" aria-selected="true">原海报·沙龙</button>
+            <button type="button" class="tab-btn" data-scene="cafe" role="tab" aria-selected="false">咖啡馆博弈</button>
+            <button type="button" class="tab-btn" data-scene="platform" role="tab" aria-selected="false">站台并肩</button>
+          </div>
+          <div class="masthead-status">
+            <button type="button" class="cut-toggle-btn" id="btn-cut-preview" aria-pressed="false">正反打切镜：主机 A</button>
+            <span class="verdict-stamp is-error" id="hero-verdict-stamp" aria-live="polite">0/5 · 挤撞窒息</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 桌面端在刊头下方，手机竖屏通过 order 后置到画布与诊单后 -->
+      <div class="hero-workbench">
+        <div class="hero-summary-band">
+          <span class="terracotta-bar" aria-hidden="true"></span>
+          <p class="hero-summary"><strong>两个人，也要有秩序的关系</strong> — 让互动自然，让画面完整。</p>
+        </div>
+
+        <!-- 主体双联：主银幕画布 + 联动俯视 180° 机位盘 & 深褐导演诊单 -->
+        <div class="hero-grid">
+          <!-- 主银幕侧 -->
+          <div class="stage-col">
+            <div class="stage-frame">
+              <canvas id="stage-canvas" data-perf-drag aria-label="双人构图主银幕交互画布：空白处横拖绕拍机位，直拖人物调间距与高低层次，点击人物切换视线朝向" tabindex="0"></canvas>
+            </div>
+            <p class="stage-caption" id="stage-caption">画布空白处横拖沿 180° 轨道绕拍 · 直拖人物 A / B 调间距与高低 · 点击人物切视线 · 键盘 ←/→ 绕机位、↑/↓ 调间距、空格切镜</p>
+
+            <!-- 紧凑精控轨 -->
+            <div class="stage-controls">
+              <label class="ctrl-range">
+                <span class="ctrl-head"><span>主机绕拍角</span><strong id="val-orbit">0°</strong></span>
+                <input type="range" id="rng-orbit" min="-68" max="68" step="1" value="0">
+              </label>
+              <label class="ctrl-range">
+                <span class="ctrl-head"><span>双人间距</span><strong id="val-span">20%</strong></span>
+                <input type="range" id="rng-span" min="14" max="90" step="1" value="20">
+              </label>
+              <label class="ctrl-range">
+                <span class="ctrl-head"><span>前后纵深差</span><strong id="val-depth">0%</strong></span>
+                <input type="range" id="rng-depth" min="-42" max="42" step="1" value="0">
+              </label>
+              <div class="ctrl-gaze-group">
+                <span class="ctrl-label">双方视线</span>
+                <div class="gaze-pills" role="group" aria-label="双方视线模式">
+                  <button type="button" class="mini-pill" data-gaze-pair="toward">互相对望</button>
+                  <button type="button" class="mini-pill" data-gaze-pair="same-right">同向右看</button>
+                  <button type="button" class="mini-pill" data-gaze-pair="same-left">同向左看</button>
+                  <button type="button" class="mini-pill is-active" data-gaze-pair="away">背离外望</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 编导侧：上半俯视 180° 轴线机位盘 + 下半深褐导演单真源诊单 -->
+          <div class="side-col">
+            <div class="radar-card">
+              <div class="radar-head">
+                <div>
+                  <span class="radar-kicker">180° OVERHEAD PLAN</span>
+                  <strong class="radar-title">俯视轴线机位盘</strong>
+                </div>
+                <span class="radar-deg" id="val-cam-b">副机 B：+142°</span>
+              </div>
+              <div class="radar-wrap">
+                <canvas id="radar-canvas" aria-label="俯视 180 度对话轴线机位盘：拖动圆点 1 或 2 调整主机与副机角度"></canvas>
+              </div>
+              <label class="radar-slider">
+                <span>副机位 B 角度</span>
+                <input type="range" id="rng-camb" min="-175" max="175" step="1" value="142">
+              </label>
+            </div>
+
+            <div class="diag-card" id="diag-card" aria-live="polite">
+              <div class="diag-top">
+                <span class="diag-badge is-error" id="diag-badge">0/5 · 挤撞窒息</span>
+                <span class="diag-source">SINGLE-SOURCE GEOMETRY</span>
+              </div>
+              <h2 class="diag-heading" id="diag-title">两人间距仅占屏宽 5%，负空间被彻底压扁</h2>
+              <p class="diag-body" id="diag-body"></p>
+              <p class="diag-hint" id="diag-hint"></p>
+              <div class="diag-actions">
+                <button type="button" class="btn-fix" id="btn-diag-fix">一键拉开呼吸空间并校准</button>
+                <button type="button" class="btn-reset-ghost" id="btn-reset-hero">复原错态</button>
+              </div>
+              <dl class="diag-metrics">
+                <div><dt>实测净距</dt><dd id="m-gap">5%</dd></div>
+                <div><dt>主次面积比</dt><dd id="m-ratio">1.00×</dd></div>
+                <div><dt>重心偏移</dt><dd id="m-balance">右 15%</dd></div>
+                <div><dt>关系氛围</dt><dd id="m-mood">逼仄窒息（示意）</dd></div>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        <!-- 贯通陶橙细线 → 原海报五枚陶橙圆徽原则实况带 -->
+        <div class="principles-strip" role="group" aria-label="五项双人构图原则实况，点击高亮画布对应分析叠层">
+          <button type="button" class="principle-item" data-overlay="hierarchy" aria-pressed="false">
+            <span class="p-badge" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="9" r="3.2" fill="currentColor" stroke="none"/><circle cx="9.5" cy="22" r="2.6" fill="currentColor" stroke="none"/><circle cx="22.5" cy="22" r="2.6" fill="currentColor" stroke="none"/><path d="M16 12.2v4.3M16 16.5H9.5v2.8M16 16.5h6.5v2.8"/></svg>
+            </span>
+            <span class="p-copy">
+              <span class="p-row"><strong>主次关系</strong><em class="p-tag" id="ptag-hierarchy">待调</em></span>
+              <span class="p-en">HIERARCHY</span>
+              <span class="p-desc">明确画面主次，突出关键人物。</span>
+            </span>
+          </button>
+
+          <button type="button" class="principle-item" data-overlay="axis" aria-pressed="false">
+            <span class="p-badge" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16h18" stroke-dasharray="3 2.5"/><path d="M11 12l-4 4 4 4M21 12l4 4-4 4"/></svg>
+            </span>
+            <span class="p-copy">
+              <span class="p-row"><strong>对话轴线</strong><em class="p-tag" id="ptag-axis">待调</em></span>
+              <span class="p-en">AXIS</span>
+              <span class="p-desc">连接两人视线，引导互动关系。</span>
+            </span>
+          </button>
+
+          <button type="button" class="principle-item" data-overlay="eyeline" aria-pressed="false">
+            <span class="p-badge" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M5.5 16s4.2-6.5 10.5-6.5S26.5 16 26.5 16s-4.2 6.5-10.5 6.5S5.5 16 5.5 16Z"/><circle cx="16" cy="16" r="3" fill="currentColor" stroke="none"/></svg>
+            </span>
+            <span class="p-copy">
+              <span class="p-row"><strong>视线匹配</strong><em class="p-tag" id="ptag-eyeline">待调</em></span>
+              <span class="p-en">EYELINE</span>
+              <span class="p-desc">保持视线方向合理，增强真实感。</span>
+            </span>
+          </button>
+
+          <button type="button" class="principle-item" data-overlay="breathing" aria-pressed="false">
+            <span class="p-badge" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="18" height="18" stroke-dasharray="4 3"/></svg>
+            </span>
+            <span class="p-copy">
+              <span class="p-row"><strong>负空间</strong><em class="p-tag" id="ptag-breathing">待调</em></span>
+              <span class="p-en">BREATHING ROOM</span>
+              <span class="p-desc">在两人之间留出空间，让画面更透气。</span>
+            </span>
+          </button>
+
+          <button type="button" class="principle-item" data-overlay="balance" aria-pressed="false">
+            <span class="p-badge" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 18h19"/><circle cx="10.5" cy="13" r="2.7" fill="currentColor" stroke="none"/><circle cx="21.5" cy="13" r="2.7" fill="currentColor" stroke="none"/><path d="M16 18l-3 5.5h6L16 18Z"/></svg>
+            </span>
+            <span class="p-copy">
+              <span class="p-row"><strong>画面平衡</strong><em class="p-tag" id="ptag-balance">待调</em></span>
+              <span class="p-en">BALANCE</span>
+              <span class="p-desc">调整位置与比例，达到视觉稳定。</span>
+            </span>
+          </button>
+        </div>
+
+        <!-- 1:1 复刻原海报「常见双人构图形式」五格暖沙胶片条 + 试错对比 -->
+        <div class="variations-bar">
+          <div class="variations-head">
+            <div class="variations-title-group">
+              <span class="variations-zh">常见双人构图形式</span>
+              <span class="variations-en">COMPOSITION VARIATIONS</span>
+            </div>
+            <div class="error-tests" role="group" aria-label="常见翻车错态对比">
+              <button type="button" class="err-chip" data-preset="err_cross">试错：越轴穿帮</button>
+              <button type="button" class="err-chip" data-preset="err_crush">试错：挤撞窒息</button>
+              <button type="button" class="err-chip" data-preset="err_split">试错：贴边割裂</button>
+            </div>
+          </div>
+
+          <div class="variations-grid" role="group" aria-label="五种常见双人构图形式合法解">
+            <button type="button" class="var-card" data-preset="symmetrical">
+              <svg class="var-thumb" viewBox="0 0 120 74" aria-hidden="true">
+                <rect width="120" height="74" fill="#EFD4B4"/>
+                <rect x="0" y="48" width="24" height="26" fill="#33241A"/>
+                <rect x="96" y="48" width="24" height="26" fill="#33241A"/>
+                <path d="M14 23c4 0 6 3 5 7l-1 4c5 2 8 8 8 14h11l4 16h-6l-4-11H16V35c-5-2-6-12-2-12Z" fill="#33241A"/>
+                <path d="M106 23c-4 0-6 3-5 7l1 4c-5 2-8 8-8 14H83l-4 16h6l4-11h15V35c5-2 6-12 2-12Z" fill="#33241A"/>
+                <line x1="30" y1="29" x2="90" y2="29" stroke="#D56535" stroke-width="1.6" stroke-dasharray="4 3"/>
+                <polygon points="30,29 35,26.5 35,31.5" fill="#D56535"/>
+                <polygon points="90,29 85,26.5 85,31.5" fill="#D56535"/>
+              </svg>
+              <span class="var-zh">对称对话</span>
+              <span class="var-en">SYMMETRICAL DIALOGUE</span>
+            </button>
+
+            <button type="button" class="var-card" data-preset="offset">
+              <svg class="var-thumb" viewBox="0 0 120 74" aria-hidden="true">
+                <rect width="120" height="74" fill="#EFD4B4"/>
+                <polygon points="0,74 120,38 120,74" fill="#4C382D"/>
+                <path d="M22 28c4 0 6 3 5 7l-1 4c5 2 8 8 8 15h10l3 14h-6l-3-9H22V41c-5-2-5-13 0-13Z" fill="#33241A"/>
+                <path d="M96 14c3 0 5 2 4 6l1 3c-4 2-6 7-6 18h14V26c2-5 1-12-13-12Z" fill="#33241A"/>
+                <line x1="34" y1="34" x2="88" y2="20" stroke="#D56535" stroke-width="1.6" stroke-dasharray="4 3"/>
+                <polygon points="88,20 82,19 84,24" fill="#D56535"/>
+              </svg>
+              <span class="var-zh">错位对话</span>
+              <span class="var-en">OFFSET DIALOGUE</span>
+            </button>
+
+            <button type="button" class="var-card" data-preset="layered">
+              <svg class="var-thumb" viewBox="0 0 120 74" aria-hidden="true">
+                <rect width="120" height="74" fill="#EFD4B4"/>
+                <rect x="0" y="54" width="120" height="20" fill="#D9BE9B"/>
+                <path d="M28 10c9 0 14 7 13 17l-2 9c10 4 17 16 18 38H4C6 53 12 40 21 36c-7-5-6-26 7-26Z" fill="#33241A"/>
+                <path d="M88 30c4 0 6 3 5 8l-1 4c5 2 8 7 8 14H78c0-7 3-12 7-14-3-3-3-12 3-12Z" fill="#4C382D"/>
+                <line x1="45" y1="22" x2="80" y2="35" stroke="#D56535" stroke-width="1.5" stroke-dasharray="4 3"/>
+              </svg>
+              <span class="var-zh">前后层次</span>
+              <span class="var-en">LAYERED DEPTH</span>
+            </button>
+
+            <button type="button" class="var-card" data-preset="samedir">
+              <svg class="var-thumb" viewBox="0 0 120 74" aria-hidden="true">
+                <rect width="120" height="74" fill="#EFD4B4"/>
+                <rect x="0" y="56" width="120" height="18" fill="#D9BE9B"/>
+                <path d="M26 20c5 0 8 4 7 10l-1 5c7 3 11 10 12 21H10c1-11 5-18 11-21-4-4-3-15 5-15Z" fill="#33241A"/>
+                <path d="M58 22c5 0 7 4 6 9l-1 5c7 3 10 10 11 20H43c1-10 4-17 10-20-3-4-2-14 5-14Z" fill="#4C382D"/>
+                <line x1="70" y1="29" x2="108" y2="29" stroke="#D56535" stroke-width="1.6" stroke-dasharray="4 3"/>
+                <polygon points="108,29 102,26 102,32" fill="#D56535"/>
+              </svg>
+              <span class="var-zh">同向观看</span>
+              <span class="var-en">SAME DIRECTION</span>
+            </button>
+
+            <button type="button" class="var-card" data-preset="diagonal">
+              <svg class="var-thumb" viewBox="0 0 120 74" aria-hidden="true">
+                <rect width="120" height="74" fill="#EFD4B4"/>
+                <path d="M24 10c4 0 5 3 5 6l-1 3c4 2 6 6 6 12H16c0-6 2-10 5-12-2-3-2-9 3-9Z" fill="#4C382D"/>
+                <path d="M96 42c4 0 6 3 5 7l-1 4c5 2 8 7 8 15H84c0-8 3-13 7-15-3-3-2-11 5-11Z" fill="#33241A"/>
+                <line x1="33" y1="22" x2="86" y2="52" stroke="#D56535" stroke-width="1.6" stroke-dasharray="4 3"/>
+                <polygon points="86,52 80,51 83,46" fill="#D56535"/>
+              </svg>
+              <span class="var-zh">对角线构图</span>
+              <span class="var-en">DIAGONAL BALANCE</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 1:1 复刻原海报底部深褐胶囊 TIP 条 -->
+        <div class="poster-tip-pill">
+          <span class="tip-bulb" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#F08556" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.8 10.6c.7.6 1.2 1.4 1.3 2.4h5c.1-1 .6-1.8 1.3-2.4A6 6 0 0 0 12 3Z"/></svg>
+          </span>
+          <p><strong>TIP：</strong>先确定两人的关系与方向，再安排机位与空间，画面自然更有故事感。</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== 01 两人之间，先定关系 ==================== -->
+    <section class="sec sec-ivory" id="sec-01">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div>
+            <h2>两人之间，先定关系</h2>
+            <p class="sec-en">ESTABLISHING RELATIONSHIP BEFORE FRAMING</p>
+          </div>
+        </div>
+
+        <div class="sec01-grid">
+          <div class="prose">
+            <p class="lead">在 <a href="https://layout.xiaoxiaodong.ai/301/play/" target="_blank" rel="noopener">301 单人构图</a> 里，画面只有一个人物与画框对话；只要第二个人走进镜头，画里其实就多出了<strong>第三个看不见的主角</strong>——夹在两人之间的视线、间距与权重差。</p>
+            <p>原海报开宗明义：「<strong>两个人，也要有秩序的关系，让互动自然，让画面完整。</strong>」并把这份秩序拆成五个抓手：<strong>主次关系</strong>决定谁领节奏，<strong>对话轴线</strong>和<strong>视线匹配</strong>把两道目光缝成互动，<strong>负空间</strong>替关系留出呼吸，<strong>画面平衡</strong>让整帧落稳不偏。</p>
+            <p>人类学家爱德华·霍尔（Edward T. Hall）在 1966 年出版的《隐藏的维度》（The Hidden Dimension）中指出，人际距离本身就在发言：从约 0.5 米内的亲密区、0.5–1.2 米的个人区、1.2–3.6 米的社交区到更远的公共区，间距一换，关系就变。银幕上虽然按画面比例而不是拿卷尺丈量，但观众依然会本能地把<strong>间距宽窄、头位高低、体量大小</strong>翻译成潜台词。</p>
+          </div>
+
+          <!-- 交互 1：四类戏剧潜台词关系矩阵 -->
+          <div class="rel-lab">
+            <div class="rel-tabs" role="tablist" aria-label="四种戏剧关系潜台词">
+              <button type="button" class="rel-btn is-active" data-rel="equal" role="tab" aria-selected="true">平等对谈</button>
+              <button type="button" class="rel-btn" data-rel="power" role="tab" aria-selected="false">上下博弈</button>
+              <button type="button" class="rel-btn" data-rel="rift" role="tab" aria-selected="false">暗生隔阂</button>
+              <button type="button" class="rel-btn" data-rel="allies" role="tab" aria-selected="false">默契同行</button>
+            </div>
+            <div class="rel-stage" id="rel-stage">
+              <svg id="rel-svg" viewBox="0 0 420 220" role="img" aria-label="双人关系空间结构解剖图"></svg>
+            </div>
+            <div class="rel-readout" id="rel-readout" aria-live="polite">
+              <div class="rel-meta">
+                <span class="rel-chip" id="rel-prox">社交近区 · 均势</span>
+                <span class="rel-chip" id="rel-weight">体量比 1 : 1</span>
+              </div>
+              <h3 id="rel-title">等高对坐，棋逢对手</h3>
+              <p id="rel-desc"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 02 五种常见双人形式 ==================== -->
+    <section class="sec sec-sand" id="sec-02">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div>
+            <h2>五种常见双人形式</h2>
+            <p class="sec-en">FIVE ARCHETYPAL COMPOSITION VARIATIONS</p>
+          </div>
+        </div>
+
+        <p class="sec-intro">302 原海报底部并排摆出了五种经典双人形态。它们没有高下之分，只是各自对应一种不同的叙事重心。点选任意一格，再试着开关<strong>结构骨架线</strong>或<strong>左右角色互换</strong>，观察画面重心与阅读节奏的变化。</p>
+
+        <!-- 交互 2：五格胶片解剖卡 + 骨架显隐 + 左右互换开关 -->
+        <div class="anatomy-shell">
+          <div class="anatomy-toolbar">
+            <div class="anatomy-selector" role="tablist" aria-label="选择双人构图形式解剖">
+              <button type="button" class="anat-tab is-active" data-form="symmetrical" role="tab" aria-selected="true">01 对称对话</button>
+              <button type="button" class="anat-tab" data-form="offset" role="tab" aria-selected="false">02 错位对话</button>
+              <button type="button" class="anat-tab" data-form="layered" role="tab" aria-selected="false">03 前后层次</button>
+              <button type="button" class="anat-tab" data-form="samedir" role="tab" aria-selected="false">04 同向观看</button>
+              <button type="button" class="anat-tab" data-form="diagonal" role="tab" aria-selected="false">05 对角线构图</button>
+            </div>
+            <div class="anatomy-switches">
+              <button type="button" class="switch-btn is-on" id="btn-anat-guides" aria-pressed="true">结构线：显</button>
+              <button type="button" class="switch-btn" id="btn-anat-swap" aria-pressed="false">左右互换：原序</button>
+            </div>
+          </div>
+
+          <div class="anatomy-body">
+            <div class="anatomy-visual">
+              <svg id="anat-svg" viewBox="0 0 520 290" role="img" aria-label="双人构图形式骨架解剖图"></svg>
+            </div>
+            <div class="anatomy-info" aria-live="polite">
+              <span class="anat-en" id="anat-en">SYMMETRICAL DIALOGUE</span>
+              <h3 id="anat-title">对称对话</h3>
+              <p class="anat-summary" id="anat-summary"></p>
+              <dl class="anat-specs">
+                <div><dt>视觉权重</dt><dd id="anat-weight"></dd></div>
+                <div><dt>视线与轴</dt><dd id="anat-gaze"></dd></div>
+                <div><dt>适用戏份</dt><dd id="anat-use"></dd></div>
+                <div><dt>互换效应</dt><dd id="anat-swap-note"></dd></div>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 03 180° 轴线与视线匹配（深褐暗房） ==================== -->
+    <section class="sec sec-dark" id="sec-03">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">03</span>
+          <div>
+            <h2>180° 轴线与视线匹配</h2>
+            <p class="sec-en">THE 180-DEGREE RULE &amp; EYELINE MATCH</p>
+          </div>
+        </div>
+
+        <div class="sec03-lead-row">
+          <p class="dark-lead">双人戏最容易翻车的地方不在单帧构图，而在<strong>切镜那一瞬间</strong>。在两人之间画一条看不见的直线——即「对话轴线（Line of Action）」。把所有机位都留在轴线同一侧的 180° 半圆内，镜头 1 里居左朝右看的人，切到镜头 2 里就会自然对接上居右朝左看的回应者。一旦副机位跨过轴线，屏幕左右和朝向会同时翻转。</p>
+        </div>
+
+        <!-- 交互 3：360° 俯视沙盘 + 实时正反打双监视器 -->
+        <div class="cutlab-shell">
+          <div class="cutlab-canvas-wrap">
+            <canvas id="cut-canvas" aria-label="360度轴线沙盘与正反打切镜实时监视器：拖动橙色圆点2绕圈测试越轴穿帮"></canvas>
+          </div>
+
+          <div class="cutlab-panel">
+            <div class="cutlab-controls">
+              <label class="dark-range">
+                <span>副机位 B 绕圈角度（±90° 以外即越轴）<strong id="val-cut-deg">+42°</strong></span>
+                <input type="range" id="rng-cut-deg" min="-175" max="175" step="1" value="42">
+              </label>
+
+              <div class="cutlab-btn-rows">
+                <div class="cutlab-group">
+                  <span class="dark-label">眼线高度</span>
+                  <div class="dark-pills" role="group" aria-label="镜头2眼线高度设置">
+                    <button type="button" class="dark-pill is-active" data-eye-mm="0">平齐匹配</button>
+                    <button type="button" class="dark-pill" data-eye-mm="1">偏高越顶</button>
+                    <button type="button" class="dark-pill" data-eye-mm="-1">偏低垂视</button>
+                  </div>
+                </div>
+                <div class="cutlab-group">
+                  <span class="dark-label">剪辑台监视</span>
+                  <div class="dark-pills" role="group" aria-label="正反打切换控制">
+                    <button type="button" class="dark-pill" id="btn-cut-step">手动切镜 A ↔ B</button>
+                    <button type="button" class="dark-pill" id="btn-cut-auto" aria-pressed="false">自动轮切：关</button>
+                    <button type="button" class="dark-pill" id="btn-cut-jump">一键试错：越轴 +145°</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cutlab-verdict is-pass" id="cut-verdict" aria-live="polite">
+              <strong id="cut-headline">180° 同侧 + 视线匹配成立（机位 B：+42°）</strong>
+              <p id="cut-detail"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 04 双人构图从哪来 ==================== -->
+    <section class="sec sec-parchment" id="sec-04">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div>
+            <h2>双人构图从哪来</h2>
+            <p class="sec-en">STAGING IN DEPTH, CONTINUITY &amp; PROXEMICS</p>
+          </div>
+        </div>
+
+        <p class="sec-intro">把两个人放进同一个框里，并不是现代影视才发明的技巧，而是默片纵深调度、经典连续性剪辑、东方几何空间实验与人类学距离研究四条线索交汇的结果。</p>
+
+        <!-- 交互 4：四节点历史胶片时间轴 -->
+        <div class="timeline-shell">
+          <div class="timeline-rail" role="tablist" aria-label="双人构图四个历史脉络节点">
+            <button type="button" class="tl-node is-active" data-era="depth" role="tab" aria-selected="true">
+              <span class="tl-year">1910s–1950s</span>
+              <strong>纵深调度与长镜头</strong>
+            </button>
+            <button type="button" class="tl-node" data-era="continuity" role="tab" aria-selected="false">
+              <span class="tl-year">1910s–1991</span>
+              <strong>连续性剪辑与 180° 轴线</strong>
+            </button>
+            <button type="button" class="tl-node" data-era="ozu" role="tab" aria-selected="false">
+              <span class="tl-year">1953 · 1988</span>
+              <strong>小津安二郎的 360° 空间</strong>
+            </button>
+            <button type="button" class="tl-node" data-era="proxemics" role="tab" aria-selected="false">
+              <span class="tl-year">1966–2010</span>
+              <strong>空间关系学与现代教材</strong>
+            </button>
+          </div>
+
+          <div class="timeline-card" id="timeline-card" aria-live="polite">
+            <div class="tl-blueprint">
+              <svg id="tl-svg" viewBox="0 0 280 180" role="img" aria-label="对应历史时期的机位与人物调度示意图"></svg>
+            </div>
+            <div class="tl-content">
+              <span class="tl-kicker" id="tl-kicker">STAGING IN DEPTH</span>
+              <h3 id="tl-title">不靠切镜，用前后景深讲完一场对手戏</h3>
+              <p id="tl-body"></p>
+              <p class="tl-cite" id="tl-cite"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 05 什么时候用，什么时候别用 ==================== -->
+    <section class="sec sec-clay" id="sec-05">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div>
+            <h2>什么时候用，什么时候别用</h2>
+            <p class="sec-en">WHEN TO HOLD A TWO-SHOT &amp; WHEN TO BREAK IT</p>
+          </div>
+        </div>
+
+        <!-- 温和补充原海报小贴士 -->
+        <aside class="nuance-box">
+          <div class="nuance-head">
+            <span class="nuance-tag">补充一句</span>
+            <span class="nuance-quote">原海报提示：「先确定两人的关系与方向，再安排机位与空间，画面自然更有故事感。」</span>
+          </div>
+          <p>在剧情片、访谈和棚拍广告里，这句话非常管用——先定关系再架机位能少走大量弯路。但在不可重来的纪实抓拍或现场新闻里，摄影师往往没机会提前布景摆位，此时更现实的顺序是<strong>先保住双方清晰轮廓与真实目光交汇，再用自己的站步微调轴线与负空间</strong>。</p>
+        </aside>
+
+        <div class="decision-two-col">
+          <div class="use-card use-yes">
+            <h3>适合双人同框</h3>
+            <ul>
+              <li><strong>交代地理与关系起手式</strong>：戏刚开场，需要观众一眼看懂谁坐在谁对面、隔多远、谁占上风。</li>
+              <li><strong>情绪同频反应</strong>：一句话抛出去，听者的微动作与说者的神态必须同屏对照，切开反而碎掉张力。</li>
+              <li><strong>用物理留白替台词说话</strong>：冷战、犹豫、试探或并肩同行，两人之间的空当本身就是戏剧信息。</li>
+              <li><strong>双人访谈与产品对比</strong>：平视对称或微错位同框，既显客观又保留交谈的温度。</li>
+            </ul>
+          </div>
+
+          <div class="use-card use-no">
+            <h3>什么时候别硬塞双人</h3>
+            <ul>
+              <li><strong>需要直击单人内心独白</strong>：当情绪极私密或需要观众完全站进某一人立场，果断切回 <a href="https://layout.xiaoxiaodong.ai/301/play/" target="_blank" rel="noopener">301 单人构图</a>，别硬带半个无关肩膀分心。</li>
+              <li><strong>第三人改写局势时</strong>：一旦第三方介入形成拉扯、挑拨或三角牵制，强行拆成双人会漏掉权力支点，应转向 <a href="https://layout.xiaoxiaodong.ai/303/play/" target="_blank" rel="noopener">303 三人构图</a>。</li>
+              <li><strong>动作跨度过大或群体压迫</strong>：两人在极大空间里相隔数十米，硬拉广角同框只会把人都缩成噪点；若叙事重点在群体与社会规模，交给 <a href="https://layout.xiaoxiaodong.ai/304/play/" target="_blank" rel="noopener">304 群像构图</a>。</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 交互 5：四类拍摄现场抉择开关 -->
+        <div class="scenario-deck">
+          <div class="scenario-head">
+            <h3>导演分镜抉择：这四场戏，你留同框还是拆镜？</h3>
+            <p>点开一个现场情景，看镜头方案如何取舍。</p>
+          </div>
+          <div class="scenario-grid" role="group" aria-label="四个拍摄情景决策卡片">
+            <button type="button" class="scen-card is-active" data-scen="react" aria-pressed="true">
+              <span class="scen-tag">情景 01</span>
+              <strong>坦白真相后的沉默五秒</strong>
+              <span class="scen-sub">一人低头，另一人刚抬眼</span>
+            </button>
+            <button type="button" class="scen-card" data-scen="tears" aria-pressed="false">
+              <span class="scen-tag">情景 02</span>
+              <strong>主角独自崩溃的决定瞬间</strong>
+              <span class="scen-sub">对手戏演员已退到门边</span>
+            </button>
+            <button type="button" class="scen-card" data-scen="third" aria-pressed="false">
+              <span class="scen-tag">情景 03</span>
+              <strong>调解人坐到争吵双方中间</strong>
+              <span class="scen-sub">话语权开始在三方流转</span>
+            </button>
+            <button type="button" class="scen-card" data-scen="wide" aria-pressed="false">
+              <span class="scen-tag">情景 04</span>
+              <strong>空旷车站两岸隔轨喊话</strong>
+              <span class="scen-sub">两人相距超过二十米</span>
+            </button>
+          </div>
+          <div class="scen-answer" id="scen-answer" aria-live="polite">
+            <span class="scen-verdict" id="scen-verdict">建议：保留双人同框</span>
+            <p id="scen-explain"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 06 导演审片小练习（深褐考场） ==================== -->
+    <section class="sec sec-exam" id="sec-06">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div>
+            <h2>导演审片：挑出成立一帧</h2>
+            <p class="sec-en">DIRECTOR'S SCREENING QUIZ</p>
+          </div>
+        </div>
+
+        <div class="quiz-brief">
+          <p><strong>审片题目：</strong>一场「职场上下级谈判」戏，导演希望<strong>左方上司（A）明显占据主导气势，右方下属（B）处于被动倾听</strong>，同时画面自然交代两人的对话互动。以下四帧机位与底色完全相同，<strong>两两之间只差一个构图变量</strong>——请点选最符合导演意图的一帧：</p>
+        </div>
+
+        <div class="quiz-grid" role="group" aria-label="四选一双人构图练习">
+          <button type="button" class="quiz-card" data-choice="A">
+            <div class="quiz-thumb">
+              <svg viewBox="0 0 220 132" aria-hidden="true">
+                <rect width="220" height="132" fill="#F7E5D0"/>
+                <path d="M40 105 A74 74 0 0 1 180 105 Z" fill="#FBF1E3"/>
+                <polygon points="34,104 186,104 220,132 0,132" fill="#D56535"/>
+                <!-- A: 偏大略高前景左，朝右 -->
+                <rect x="20" y="84" width="46" height="30" fill="#33241A"/>
+                <g transform="translate(46,112) scale(0.38,0.38)" fill="#33241A">
+                  <path d="M-14 -212 C4 -222 19 -208 17 -192 L21 -185 L16 -180 Q17 -173 9 -170 L7 -158 C22 -145 27 -120 24 -96 L54 -92 C64 -90 66 -80 60 -68 L74 -22 L92 -14 Q88 -6 70 -10 L52 -46 L56 -6 L72 0 L44 0 L36 -64 L-26 -62 C-30 -102 -24 -144 -14 -162 C-28 -172 -28 -202 -14 -212 Z"/>
+                </g>
+                <!-- B: 略小略低中景右，朝左（严格镜像同一干净路径） -->
+                <rect x="158" y="92" width="38" height="22" fill="#4C382D"/>
+                <g transform="translate(174,114) scale(-0.29,0.29)" fill="#4C382D">
+                  <path d="M-12 -218 C6 -225 19 -213 18 -196 L22 -188 L17 -183 Q17 -176 10 -173 L8 -160 C24 -148 30 -118 28 -94 L62 -90 C72 -88 72 -74 66 -54 L78 -10 L94 -2 L92 3 L66 2 L52 -52 L48 -8 L64 2 L36 2 L30 -62 L-28 -60 C-32 -104 -28 -148 -14 -165 C-22 -176 -23 -208 -12 -218 Z"/>
+                </g>
+                <line x1="60" y1="42" x2="160" y2="59" stroke="#D56535" stroke-width="1.8" stroke-dasharray="5 4"/>
+              </svg>
+            </div>
+            <div class="quiz-meta">
+              <span class="quiz-letter">方案 A</span>
+              <span class="quiz-spec">体量 1.4× · 净距 34% · 相向斜轴</span>
+            </div>
+          </button>
+
+          <button type="button" class="quiz-card" data-choice="B">
+            <div class="quiz-thumb">
+              <svg viewBox="0 0 220 132" aria-hidden="true">
+                <rect width="220" height="132" fill="#F7E5D0"/>
+                <path d="M40 105 A74 74 0 0 1 180 105 Z" fill="#FBF1E3"/>
+                <polygon points="34,104 186,104 220,132 0,132" fill="#D56535"/>
+                <!-- A 与 B 仅间距压窄到 4% -->
+                <rect x="58" y="84" width="46" height="30" fill="#33241A"/>
+                <g transform="translate(84,112) scale(0.38,0.38)" fill="#33241A">
+                  <path d="M-14 -212 C4 -222 19 -208 17 -192 L21 -185 L16 -180 Q17 -173 9 -170 L7 -158 C22 -145 27 -120 24 -96 L54 -92 C64 -90 66 -80 60 -68 L74 -22 L92 -14 Q88 -6 70 -10 L52 -46 L56 -6 L72 0 L44 0 L36 -64 L-26 -62 C-30 -102 -24 -144 -14 -162 C-28 -172 -28 -202 -14 -212 Z"/>
+                </g>
+                <rect x="120" y="92" width="38" height="22" fill="#4C382D"/>
+                <g transform="translate(136,114) scale(-0.29,0.29)" fill="#4C382D">
+                  <path d="M-12 -218 C6 -225 19 -213 18 -196 L22 -188 L17 -183 Q17 -176 10 -173 L8 -160 C24 -148 30 -118 28 -94 L62 -90 C72 -88 72 -74 66 -54 L78 -10 L94 -2 L92 3 L66 2 L52 -52 L48 -8 L64 2 L36 2 L30 -62 L-28 -60 C-32 -104 -28 -148 -14 -165 C-22 -176 -23 -208 -12 -218 Z"/>
+                </g>
+                <line x1="98" y1="42" x2="124" y2="57" stroke="#D56535" stroke-width="1.8" stroke-dasharray="4 3"/>
+              </svg>
+            </div>
+            <div class="quiz-meta">
+              <span class="quiz-letter">方案 B</span>
+              <span class="quiz-spec">体量 1.4× · 净距 4% · 相向斜轴</span>
+            </div>
+          </button>
+
+          <button type="button" class="quiz-card" data-choice="C">
+            <div class="quiz-thumb">
+              <svg viewBox="0 0 220 132" aria-hidden="true">
+                <rect width="220" height="132" fill="#F7E5D0"/>
+                <path d="M40 105 A74 74 0 0 1 180 105 Z" fill="#FBF1E3"/>
+                <polygon points="34,104 186,104 220,132 0,132" fill="#D56535"/>
+                <!-- A 与 B 仅右侧视线背向外侧（scale(+0.29, 0.29) 朝右外望） -->
+                <rect x="20" y="84" width="46" height="30" fill="#33241A"/>
+                <g transform="translate(46,112) scale(0.38,0.38)" fill="#33241A">
+                  <path d="M-14 -212 C4 -222 19 -208 17 -192 L21 -185 L16 -180 Q17 -173 9 -170 L7 -158 C22 -145 27 -120 24 -96 L54 -92 C64 -90 66 -80 60 -68 L74 -22 L92 -14 Q88 -6 70 -10 L52 -46 L56 -6 L72 0 L44 0 L36 -64 L-26 -62 C-30 -102 -24 -144 -14 -162 C-28 -172 -28 -202 -14 -212 Z"/>
+                </g>
+                <rect x="150" y="92" width="38" height="22" fill="#4C382D"/>
+                <g transform="translate(166,114) scale(0.29,0.29)" fill="#4C382D">
+                  <path d="M-12 -218 C6 -225 19 -213 18 -196 L22 -188 L17 -183 Q17 -176 10 -173 L8 -160 C24 -148 30 -118 28 -94 L62 -90 C72 -88 72 -74 66 -54 L78 -10 L94 -2 L92 3 L66 2 L52 -52 L48 -8 L64 2 L36 2 L30 -62 L-28 -60 C-32 -104 -28 -148 -14 -165 C-22 -176 -23 -208 -12 -218 Z"/>
+                </g>
+                <line x1="60" y1="42" x2="108" y2="50" stroke="#D56535" stroke-width="1.8" stroke-dasharray="5 4"/>
+                <line x1="176" y1="59" x2="212" y2="59" stroke="#D56535" stroke-width="1.8" stroke-dasharray="5 4"/>
+              </svg>
+            </div>
+            <div class="quiz-meta">
+              <span class="quiz-letter">方案 C</span>
+              <span class="quiz-spec">体量 1.4× · 净距 34% · 右方外望</span>
+            </div>
+          </button>
+
+          <button type="button" class="quiz-card" data-choice="D">
+            <div class="quiz-thumb">
+              <svg viewBox="0 0 220 132" aria-hidden="true">
+                <rect width="220" height="132" fill="#F7E5D0"/>
+                <path d="M40 105 A74 74 0 0 1 180 105 Z" fill="#FBF1E3"/>
+                <polygon points="34,104 186,104 220,132 0,132" fill="#D56535"/>
+                <!-- A 与 B 仅体量拉平至 1:1 完全对称 -->
+                <rect x="22" y="88" width="42" height="26" fill="#33241A"/>
+                <g transform="translate(46,114) scale(0.33,0.33)" fill="#33241A">
+                  <path d="M-14 -212 C4 -222 19 -208 17 -192 L21 -185 L16 -180 Q17 -173 9 -170 L7 -158 C22 -145 27 -120 24 -96 L54 -92 C64 -90 66 -80 60 -68 L74 -22 L92 -14 Q88 -6 70 -10 L52 -46 L56 -6 L72 0 L44 0 L36 -64 L-26 -62 C-30 -102 -24 -144 -14 -162 C-28 -172 -28 -202 -14 -212 Z"/>
+                </g>
+                <rect x="156" y="88" width="42" height="26" fill="#33241A"/>
+                <g transform="translate(174,114) scale(-0.33,0.33)" fill="#33241A">
+                  <path d="M-12 -218 C6 -225 19 -213 18 -196 L22 -188 L17 -183 Q17 -176 10 -173 L8 -160 C24 -148 30 -118 28 -94 L62 -90 C72 -88 72 -74 66 -54 L78 -10 L94 -2 L92 3 L66 2 L52 -52 L48 -8 L64 2 L36 2 L30 -62 L-28 -60 C-32 -104 -28 -148 -14 -165 C-22 -176 -23 -208 -12 -218 Z"/>
+                </g>
+                <line x1="60" y1="51" x2="160" y2="51" stroke="#D56535" stroke-width="1.8" stroke-dasharray="5 4"/>
+              </svg>
+            </div>
+            <div class="quiz-meta">
+              <span class="quiz-letter">方案 D</span>
+              <span class="quiz-spec">体量 1.0× · 净距 34% · 平视对称</span>
+            </div>
+          </button>
+        </div>
+
+        <div class="quiz-feedback" id="quiz-feedback" hidden aria-live="polite">
+          <div class="qf-top">
+            <strong id="qf-title"></strong>
+            <button type="button" class="btn-retry" id="btn-quiz-retry">重选一次</button>
+          </div>
+          <p id="qf-body"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 07 原海报与关键词 ==================== -->
+    <section class="sec sec-poster" id="sec-07">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div>
+            <h2>原海报与关键词</h2>
+            <p class="sec-en">ORIGINAL POSTER &amp; KEYWORDS</p>
+          </div>
+        </div>
+
+        <div class="poster-gallery">
+          <figure class="poster-card">
+            <button type="button" class="poster-zoom-btn" id="btn-open-poster" aria-label="点击放大查看 302 双人构图原海报">
+              <img id="poster" src="poster.webp" alt="302 双人构图原海报：暖杏纸底与柔白穹顶下，两位深褐侧影人物隔着陶橙地板对坐，虚线双箭连接视线" draggable="false">
+              <span class="poster-zoom-hint">点击放大查看 · 支持拖拽与 Esc 关闭</span>
+            </button>
+          </figure>
+
+          <div class="poster-notes">
+            <h3>海报原句与五组关键词</h3>
+            <p class="poster-verbatim">「两个人，也要有秩序的关系，让互动自然，让画面完整。」</p>
+            <ul class="kw-list">
+              <li><strong>对称对话</strong><span>SYMMETRICAL DIALOGUE</span></li>
+              <li><strong>错位对话</strong><span>OFFSET DIALOGUE</span></li>
+              <li><strong>前后层次</strong><span>LAYERED DEPTH</span></li>
+              <li><strong>同向观看</strong><span>SAME DIRECTION</span></li>
+              <li><strong>对角线构图</strong><span>DIAGONAL BALANCE</span></li>
+            </ul>
+
+            <div class="sibling-links">
+              <h4>同一小类：人物数量与群像</h4>
+              <div class="sib-row">
+                <a href="https://layout.xiaoxiaodong.ai/301/play/" target="_blank" rel="noopener">301 单人构图</a>
+                <a href="https://layout.xiaoxiaodong.ai/303/play/" target="_blank" rel="noopener">303 三人构图</a>
+                <a href="https://layout.xiaoxiaodong.ai/304/play/" target="_blank" rel="noopener">304 群像构图</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <p>
+        <a href="https://layout.xiaoxiaodong.ai/302/play/" target="_blank" rel="noopener">在线版</a> / 全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai</a>
+        · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">海报 CC BY 4.0</a>
+        · <a href="https://github.com/xxd-ai/350-layout-interactive" target="_blank" rel="noopener">源文件 GitHub</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- 原海报放大灯箱（支持滚轮/按钮缩放、拖拽平移、Esc 关） -->
+  <div class="lightbox" id="poster-lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报大图预览">
+    <div class="lb-bar">
+      <span class="lb-title">NO. 302 双人构图 · 原海报</span>
+      <div class="lb-actions">
+        <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+        <span class="lb-scale" id="lb-scale">100%</span>
+        <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+        <button type="button" class="lb-btn" id="lb-reset">重置</button>
+        <button type="button" class="lb-btn lb-close" id="lb-close">关闭 Esc</button>
+      </div>
+    </div>
+    <div class="lb-stage" id="lb-stage">
+      <img id="lb-img" alt="302 双人构图原海报大图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
