@@ -29,8 +29,10 @@ const [from = "016", to = "350"] = process.argv.slice(2);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const stamp = () => new Date().toTimeString().slice(0, 8);
-const log = (msg) => { const line = `${stamp()} ${msg}`; console.log(line); appendFileSync(join(OUT, "run.log"), line + "\n"); };
-const record = (o) => appendFileSync(join(OUT, "results.jsonl"), JSON.stringify({ at: new Date().toISOString(), ...o }) + "\n");
+// 磁盘满时写日志会抛 ENOSPC，不能让整批因此退出
+const append = (file, text) => { try { appendFileSync(file, text); } catch (e) { console.error(`写不进 ${file}：${e.code}`); } };
+const log = (msg) => { const line = `${stamp()} ${msg}`; console.log(line); append(join(OUT, "run.log"), line + "\n"); };
+const record = (o) => append(join(OUT, "results.jsonl"), JSON.stringify({ at: new Date().toISOString(), ...o }) + "\n");
 const stopped = () => existsSync(join(OUT, "STOP"));
 
 // ---------- 数据：每个编号是什么、同一小类还有谁 ----------
@@ -85,7 +87,7 @@ function run(cmd, args, { ms, file, env } = {}) {
   return new Promise((resolve) => {
     const child = spawn(cmd, args, { cwd: ROOT, env: { ...process.env, ...env }, stdio: ["ignore", "pipe", "pipe"] });
     let out = "", timedOut = false;
-    const take = (b) => { out += b; if (file) appendFileSync(file, b); };
+    const take = (b) => { out += b; if (file) append(file, b); };
     child.stdout.on("data", take);
     child.stderr.on("data", take);
     const timer = setTimeout(() => { timedOut = true; killTree(child.pid); }, ms);
@@ -94,9 +96,12 @@ function run(cmd, args, { ms, file, env } = {}) {
 }
 const tail = (s, n = 25) => s.trim().split("\n").slice(-n).join("\n");
 
-// ---------- 内存：低于 15% 空闲就等 ----------
+// ---------- 内存低于 15% 空闲、磁盘少于 10 GB 就等 ----------
+const diskFreeGB = () => Number(execFileSync("df", ["-k", ROOT]).toString().trim().split("\n").at(-1).split(/\s+/)[3]) / 1048576;
 async function roomToRun() {
   for (;;) {
+    const disk = diskFreeGB();
+    if (disk < 10) { log(`⚠ 磁盘只剩 ${disk.toFixed(1)} GB，等 5 分钟`); await sleep(300_000); continue; }
     const free = Number(execFileSync("memory_pressure").toString().match(/free percentage: (\d+)/)?.[1] ?? 100);
     if (free >= 15) return;
     log(`内存只剩 ${free}%，等 2 分钟`);
