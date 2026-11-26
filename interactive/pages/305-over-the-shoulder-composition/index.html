@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>305 过肩构图 · OVER-THE-SHOULDER COMPOSITION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="wrap hero-wrap">
+    <!-- 顶部自示范电影暗室刊头：青柠「过肩」与暖米「构图」复刻原海报双色字标 -->
+    <div class="masthead">
+      <div class="brand">
+        <div class="brand-meta">
+          <span class="badge-no mono">NO. 305</span>
+          <span class="cat-tag">影视画面构图 · 视角与镜头覆盖</span>
+        </div>
+        <h1 class="hero-title" aria-label="过肩构图">
+          <span class="title-ots">过肩</span><span class="title-comp">构图</span>
+        </h1>
+        <p class="hero-en" lang="en">OVER-THE-SHOULDER COMPOSITION</p>
+      </div>
+
+      <div class="masthead-right">
+        <p class="hero-summary desktop-only">
+          用前景肩部框定画面，增强关系与代入感。
+          <span class="summary-en" lang="en">Frame with the shoulder, connect with the story.</span>
+        </p>
+        <div class="masthead-actions">
+          <div class="scene-tabs" role="group" aria-label="切换拍摄场景">
+            <button type="button" class="pill-btn is-active" data-scene="cafe">百叶窗咖啡馆</button>
+            <button type="button" class="pill-btn" data-scene="interrogation">审讯室</button>
+            <button type="button" class="pill-btn" data-scene="rooftop">暮色天台</button>
+          </div>
+          <div class="cut-cluster">
+            <button type="button" class="cut-btn" id="btn-cut" aria-label="切换正打机位 A 与反打机位 B">
+              <span class="cut-dot" aria-hidden="true"></span>
+              <span id="cut-label">正打 A ⇄ 反打 B</span>
+              <kbd class="mono">Space</kbd>
+            </button>
+            <span class="tally-badge is-bad" id="hero-tally" aria-live="polite">0/4 · 肩部遮脸</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主舞台：左 64% 百叶窗过肩取景画布 × 右 36% 齐底场记诊单与镜头环 -->
+    <div class="hero-grid">
+      <div class="viewfinder-col">
+        <div class="viewfinder-frame">
+          <canvas id="hero-canvas" data-perf-drag aria-label="过肩构图交互取景器：左右横拖移动机位调前景肩占比，上下纵拖升降高低机位"></canvas>
+          <div class="vf-hint-bar">
+            <span class="vf-hint-left">横拖画布挪开前景肩 · 纵拖调高低机位 · 方向键微调 · 空格切镜</span>
+            <span class="vf-hint-right mono" id="vf-cam-readout">CAM A · 50MM · f/11.0</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="slate-col" aria-label="单真源导演场记诊断与镜头控制">
+        <div class="verdict-card is-bad" id="verdict-card">
+          <div class="verdict-head">
+            <span class="verdict-tag mono" id="verdict-tag">0/4 · 肩部遮脸</span>
+            <span class="verdict-source mono">SINGLE-SOURCE OPTICS</span>
+          </div>
+          <h2 class="verdict-title" id="verdict-title">前景肩部切进了对方脸部，关键表情被挡死</h2>
+          <p class="verdict-reason" id="verdict-reason"></p>
+          <p class="verdict-action" id="verdict-action"></p>
+
+          <div class="verdict-btns">
+            <button type="button" class="btn-primary" id="btn-fix">一键摆正标准过肩</button>
+            <button type="button" class="btn-ghost" id="btn-cut-inline">切到反打 B 验轴</button>
+            <button type="button" class="btn-ghost" id="btn-reset">复原错态</button>
+          </div>
+
+          <dl class="telemetry-grid">
+            <div class="tele-cell">
+              <dt>前景肩实绘</dt>
+              <dd class="mono" id="val-shoulder">40%</dd>
+            </div>
+            <div class="tele-cell">
+              <dt>主体面部遮挡</dt>
+              <dd class="mono" id="val-overlap">30%</dd>
+            </div>
+            <div class="tele-cell">
+              <dt>前景光学虚化</dt>
+              <dd class="mono" id="val-blur">f/11 · 过锐</dd>
+            </div>
+            <div class="tele-cell">
+              <dt>正反打轴线</dt>
+              <dd class="mono" id="val-axis">已越轴</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="rig-card">
+          <div class="rig-row">
+            <label for="sl-offset">
+              <span>机位横移（切肩量）</span>
+              <strong class="mono" id="lbl-offset">遮挡区</strong>
+            </label>
+            <input type="range" id="sl-offset" min="-0.22" max="0.94" step="0.01" value="-0.14">
+          </div>
+
+          <div class="rig-row">
+            <label for="sl-elev">
+              <span>机位俯仰（低位 / 平视 / 高位）</span>
+              <strong class="mono" id="lbl-elev">平视</strong>
+            </label>
+            <input type="range" id="sl-elev" min="-0.44" max="0.48" step="0.01" value="0.02">
+          </div>
+
+          <div class="rig-dual">
+            <div class="rig-row">
+              <label for="sl-fstop">
+                <span>光圈景深</span>
+                <strong class="mono" id="lbl-fstop">f/11.0</strong>
+              </label>
+              <input type="range" id="sl-fstop" min="1.4" max="16" step="0.2" value="11">
+            </div>
+            <div class="rig-row">
+              <label for="sl-focal">
+                <span>镜头焦段</span>
+                <strong class="mono" id="lbl-focal">50mm</strong>
+              </label>
+              <input type="range" id="sl-focal" min="26" max="96" step="1" value="50">
+            </div>
+          </div>
+
+          <div class="rig-foot">
+            <div class="axis-switch" role="group" aria-label="反打机位 180° 轴线开关">
+              <span class="axis-switch-lbl">反打 B 机位：</span>
+              <button type="button" class="mini-btn" id="btn-axis-ok">守 180° 轴线</button>
+              <button type="button" class="mini-btn is-bad-on" id="btn-axis-cross">越轴反侧</button>
+            </div>
+            <div class="bad-tests" role="group" aria-label="双向试错对照">
+              <button type="button" class="mini-btn" data-test="missing">试错：肩脱框</button>
+              <button type="button" class="mini-btn" data-test="sharp">试错：前景过锐</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- 原海报标志性 6 格胶片条：过肩角度参考（实时渲染 6 组均达 4/4 的合法解） -->
+    <div class="contact-strip" aria-label="过肩角度参考胶片条">
+      <div class="strip-head">
+        <span class="strip-title">过肩角度参考</span>
+        <span class="strip-en" lang="en">OVER-THE-SHOULDER ANGLES · 点选任意一格即可推进机位（六组均为 4/4 经典解）</span>
+      </div>
+      <div class="strip-grid" id="angle-strip"></div>
+    </div>
+
+    <!-- 手机端后置总述 + 原海报 5 枚荧光青柠圆环原则探针条 -->
+    <p class="hero-summary mobile-only">
+      用前景肩部框定画面，增强关系与代入感。
+      <span class="summary-en" lang="en">Frame with the shoulder, connect with the story.</span>
+    </p>
+    <div class="probes-strip" id="probes-strip" aria-label="原海报五项核心原则实时探针"></div>
+  </div>
+</header>
+
+<main>
+  <!-- 01 · 前景肩部如何框住一场戏（暖米纸 + 横向对比刮板） -->
+  <section class="sec sec-paper" id="sec-01">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" data-display-en>01</span>
+        <div>
+          <h2>肩部如何框住一场戏</h2>
+          <p class="sec-en" lang="en">FOREGROUND FRAME · DEPTH · GAZE</p>
+        </div>
+      </div>
+
+      <div class="split-wipe-layout">
+        <div class="wipe-stage-wrap">
+          <div class="wipe-mode-bar" role="group" aria-label="切换对照模式">
+            <button type="button" class="paper-tab is-active" data-wipe="single-vs-ots">净单人（无肩） ⇄ 标准过肩</button>
+            <button type="button" class="paper-tab" data-wipe="ots-vs-blocked">标准过肩 ⇄ 肩部遮脸（错态）</button>
+          </div>
+          <div class="wipe-canvas-box">
+            <canvas id="wipe-canvas" aria-label="左右拖动对比刮板查看净单人、标准过肩与遮脸错态的差异"></canvas>
+          </div>
+          <div class="wipe-slider-row">
+            <label for="sl-wipe" class="mono">左右拉动对比刮板</label>
+            <input type="range" id="sl-wipe" min="10" max="90" step="1" value="50">
+            <span class="mono" id="lbl-wipe">50%</span>
+          </div>
+          <p class="wipe-caption" id="wipe-caption">
+            同样一张咖啡馆人物特写，加上左侧虚化肩影后，观众不再是真空里的旁观者，而是立刻站进听话者身后的真实空间；如果彻底去掉前景肩，则属于 <a href="https://layout.xiaoxiaodong.ai/308/play/">308 净单人镜头</a> 的孤立表达。
+          </p>
+        </div>
+
+        <div class="points-column">
+          <div class="callout-note">
+            <span class="callout-pill">补一句实战边界</span>
+            <p>原海报概括为「利用肩部、后脑等作为前景遮挡，自然框住主体」。在实际片场里，前景肩不是越多越好：<strong>经验上让前景占画幅 1/6 到 1/3（约 12%–34%）</strong>最易稳住空间锚点；一旦越过对方视线或贴到 40% 以上，前景就会从画框变成挡路的黑墙。</p>
+          </div>
+
+          <ul class="poster-points-list">
+            <li>
+              <strong>前景框定 <span class="en-inline" lang="en">FOREGROUND FRAME</span></strong>
+              <p>「利用肩部、后脑等作为前景遮挡，自然框住主体。」——用深暗肩线在画面一侧收住杂乱边缘，替眼睛搭出一扇天然画框。</p>
+            </li>
+            <li>
+              <strong>景深关系 <span class="en-inline" lang="en">DEPTH</span></strong>
+              <p>「前景虚化，主体清晰，强化空间层次。」——靠大光圈或中长焦拉开前后清晰度差，前景只留柔和体块，绝不跟远端表情抢锐度。</p>
+            </li>
+            <li>
+              <strong>对话引导 <span class="en-inline" lang="en">CONVERSATION</span></strong>
+              <p>「通过前景人物与主体的关系，暗示交流或互动。」——哪怕前景人物背对镜头一言不发，他在画面里的存在本身就在提醒观众：这句话是说给谁听的。</p>
+            </li>
+            <li>
+              <strong>视线方向 <span class="en-inline" lang="en">GAZE DIRECTION</span></strong>
+              <p>「引导观者视线从前景越过肩部，聚焦主体。」——肩部斜线天然像一座坡道，把目光顺着听话者的朝向滑到说话者脸上。</p>
+            </li>
+            <li>
+              <strong>代入感 <span class="en-inline" lang="en">IMMERSION</span></strong>
+              <p>「让观者仿佛置身现场，增强情绪共鸣。」——它把镜头架在听话者肩后半步，既带入这一方的立场，又保留一点观察距离。</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · 从默片正反打到今天（暖沙纸 + 四时代节点卡 + 同小类分界链接） -->
+  <section class="sec sec-sand" id="sec-02">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" data-display-en>02</span>
+        <div>
+          <h2>从默片正反打到今天</h2>
+          <p class="sec-en" lang="en">ORIGIN &amp; EVOLUTION OF SHOT / REVERSE SHOT</p>
+        </div>
+      </div>
+
+      <div class="era-tabs" role="tablist" aria-label="过肩构图历史演进四阶段">
+        <button type="button" class="era-tab is-active" role="tab" aria-selected="true" data-era="0">
+          <span class="mono">1911–1917</span>
+          <strong>默片连贯剪辑成型</strong>
+        </button>
+        <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="1">
+          <span class="mono">1930s–1950s</span>
+          <strong>有声片双人景深调度</strong>
+        </button>
+        <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="2">
+          <span class="mono">1991–1998</span>
+          <strong>片场机位文法化</strong>
+        </button>
+        <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="3">
+          <span class="mono">2010 至今</span>
+          <strong>焦段距离与破格</strong>
+        </button>
+      </div>
+
+      <div class="era-panel" id="era-panel">
+        <div class="era-text">
+          <p class="era-kicker mono" id="era-kicker">1911–1917 · CONTINUITY SYSTEM</p>
+          <h3 id="era-heading">从「舞台正面拍全员」走向「180° 轴线与正反打」</h3>
+          <p id="era-body">电影史学者 Barry Salt 在 1983 年的《Film Style and Technology》中，以及 David Bordwell、Janet Staiger 与 Kristin Thompson 在 1985 年的《The Classical Hollywood Cinema》里共同考证：1911 年的西部短片《The Loafer》等早期默片开始用双视线匹配与反打拆分对话；到约 1917 年，包括过肩取景与 180° 轴线在内的经典好莱坞连贯剪辑体系已在主流叙事片中固定下来。</p>
+          <p class="era-cite" id="era-cite">出处核实：Barry Salt (1983)《Film Style and Technology》；David Bordwell, Janet Staiger &amp; Kristin Thompson (1985)《The Classical Hollywood Cinema》。</p>
+        </div>
+        <div class="era-diagram" id="era-diagram" aria-hidden="true"></div>
+      </div>
+
+      <div class="siblings-bar">
+        <h3 class="siblings-title">同小类「视角与镜头覆盖」五页怎么分界</h3>
+        <div class="siblings-grid">
+          <div class="sib-card is-current">
+            <span class="mono">305 · 本页</span>
+            <strong>过肩构图</strong>
+            <p>保留前景人物完整肩廓与后脑，把二人绑在同一对话空间里。</p>
+          </div>
+          <a class="sib-card" href="https://layout.xiaoxiaodong.ai/306/play/">
+            <span class="mono">306 ↗</span>
+            <strong>主观视角构图</strong>
+            <p>镜头直接替角色睁眼，不再隔着肩头旁观，而是完全第一人称体验。</p>
+          </a>
+          <a class="sib-card" href="https://layout.xiaoxiaodong.ai/307/play/">
+            <span class="mono">307 ↗</span>
+            <strong>客观视角构图</strong>
+            <p>摄影机退到中立第三者位置冷静观察，不站进任何一方的肩后。</p>
+          </a>
+          <a class="sib-card" href="https://layout.xiaoxiaodong.ai/308/play/">
+            <span class="mono">308 ↗</span>
+            <strong>净单人镜头</strong>
+            <p>画面彻底拿掉对手肩影，只留单人独处，常用于孤立、决裂或内心独白。</p>
+          </a>
+          <a class="sib-card" href="https://layout.xiaoxiaodong.ai/309/play/">
+            <span class="mono">309 ↗</span>
+            <strong>脏单人镜头</strong>
+            <p>主体仍是单人特写，只在画框极边缘轻轻擦过一点前景虚影，不像过肩那样交代完整肩形。</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · 轴线与焦段心理距离（暗室炭黑 + 俯拍片场机位图 × 实时双镜对切） -->
+  <section class="sec sec-dark" id="sec-03">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" data-display-en>03</span>
+        <div>
+          <h2>轴线与焦段心理距离</h2>
+          <p class="sec-en" lang="en">180° AXIS OF ACTION &amp; LENS PROXIMITY</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">
+        过肩镜头从来不是孤立的一张剧照，而是成对剪接的对话语法。下方切换机位 B 的摆位与镜头焦段，同时观察俯拍片场图和正反打双帧画面如何联动。
+      </p>
+
+      <div class="axis-lab-controls">
+        <div class="ctrl-group" role="group" aria-label="选择反打机位 B 摆位">
+          <span class="ctrl-lbl">机位 B 摆位：</span>
+          <button type="button" class="dark-tab is-active" data-camb="matched">对称守轴（标准）</button>
+          <button type="button" class="dark-tab" data-camb="tight">内切贴近（紧逼）</button>
+          <button type="button" class="dark-tab" data-camb="wide">拉宽中景（松弛）</button>
+          <button type="button" class="dark-tab is-danger-tab" data-camb="crossed">跨线越轴（错误）</button>
+        </div>
+        <div class="ctrl-group" role="group" aria-label="选择双机焦段">
+          <span class="ctrl-lbl">镜头焦段：</span>
+          <button type="button" class="dark-tab" data-lens="28">28mm 广角疏离</button>
+          <button type="button" class="dark-tab is-active" data-lens="50">50mm 正常交谈</button>
+          <button type="button" class="dark-tab" data-lens="85">85mm 长焦贴耳</button>
+        </div>
+      </div>
+
+      <div class="axis-lab-grid">
+        <div class="floorplan-box">
+          <div class="box-label mono">OVERHEAD SET FLOORPLAN · 俯拍片场机位图</div>
+          <canvas id="floorplan-canvas" aria-label="双人对话 180 度轴线与 A/B 摄影机俯拍图"></canvas>
+          <p class="lab-note" id="axis-lab-note"></p>
+        </div>
+
+        <div class="twin-cuts-box">
+          <div class="box-label mono">SHOT A → REVERSE SHOT B · 成对切镜实拍预览</div>
+          <div class="twin-cuts-grid">
+            <figure class="cut-still">
+              <canvas id="pair-a-canvas" aria-label="正打机位 A 画面"></canvas>
+              <figcaption class="mono" id="pair-a-cap">SHOT A · 左肩看右（角色 B 朝左看）</figcaption>
+            </figure>
+            <figure class="cut-still">
+              <canvas id="pair-b-canvas" aria-label="反打机位 B 画面"></canvas>
+              <figcaption class="mono" id="pair-b-cap">SHOT B · 右肩看左（角色 A 朝右看 · 视线接通）</figcaption>
+            </figure>
+          </div>
+          <div class="axis-verdict-strip" id="axis-verdict-strip"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · 高低机位与景别权力（暖米纸 + 3×2 权力矩阵 + 原海报实用建议） -->
+  <section class="sec sec-paper" id="sec-04">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" data-display-en>04</span>
+        <div>
+          <h2>高低机位与景别权力</h2>
+          <p class="sec-en" lang="en">ANGLE POWER GRADIENT &amp; PRACTICAL TIPS</p>
+        </div>
+      </div>
+
+      <div class="matrix-layout">
+        <div class="matrix-panel">
+          <p class="matrix-intro">点选「机位高度 × 景别距离」任意组合，观察同一张咖啡桌上的两个人，如何仅凭机位微调就反转话语权与亲疏感：</p>
+          <div class="matrix-grid" role="group" aria-label="高度与景别情绪矩阵">
+            <div class="matrix-corner mono">高度 \ 景别</div>
+            <div class="matrix-col-hdr">近景 · 紧贴情绪</div>
+            <div class="matrix-col-hdr">中景 · 交代关系</div>
+
+            <div class="matrix-row-hdr">高位俯看</div>
+            <button type="button" class="matrix-cell" data-mat="high-close">
+              <strong>压迫审视</strong>
+              <span>高位近景 · 逼近弱势方</span>
+            </button>
+            <button type="button" class="matrix-cell" data-mat="high-med">
+              <strong>居高施压</strong>
+              <span>高位过肩 · 凸显桌距孤立</span>
+            </button>
+
+            <div class="matrix-row-hdr">平视对等</div>
+            <button type="button" class="matrix-cell is-active" data-mat="eye-close">
+              <strong>私密耳语</strong>
+              <span>左肩近景 · 亲密直视</span>
+            </button>
+            <button type="button" class="matrix-cell" data-mat="eye-med">
+              <strong>理性谈判</strong>
+              <span>左肩中景 · 势均力敌</span>
+            </button>
+
+            <div class="matrix-row-hdr">低位仰看</div>
+            <button type="button" class="matrix-cell" data-mat="low-close">
+              <strong>威严逼视</strong>
+              <span>低位近景 · 放大对方压场</span>
+            </button>
+            <button type="button" class="matrix-cell" data-mat="low-med">
+              <strong>仰望敬畏</strong>
+              <span>低位过肩 · 烘托人物体量</span>
+            </button>
+          </div>
+
+          <div class="practical-tips-box">
+            <h3>原海报 · 实用建议 <span lang="en">PRACTICAL TIPS</span></h3>
+            <ol>
+              <li>前景与主体保持适当距离，避免遮挡关键信息。</li>
+              <li>根据叙事需要选择景别与角度，控制观者情绪。</li>
+              <li>注意背景简洁，避免分散注意力。</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="matrix-preview-col">
+          <div class="matrix-canvas-frame">
+            <canvas id="matrix-canvas" aria-label="所选高度与景别对应的过肩画面预览"></canvas>
+          </div>
+          <div class="matrix-readout">
+            <div class="matrix-tags mono" id="matrix-tags">平视对等 · 近景 72mm · f/2.0</div>
+            <h3 id="matrix-title">私密耳语：平等视线加长焦压缩</h3>
+            <p id="matrix-desc">摄影机与双方视线齐平，不偏袒任何一方的地位；中长焦让前景虚化肩头紧靠在说话者脸侧，适合吐露秘密、表白或轻声试探。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · 什么时候别用过肩（暖沙纸 + 四组反例对切卡） -->
+  <section class="sec sec-sand" id="sec-05">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" data-display-en>05</span>
+        <div>
+          <h2>什么时候别用过肩</h2>
+          <p class="sec-en" lang="en">WHEN NOT TO USE OVER-THE-SHOULDER</p>
+        </div>
+      </div>
+
+      <p class="sec-lead">
+        过肩构图太顺手，反而是新手最容易从头用到尾的「默认懒人机位」。遇到下面四种戏，硬套过肩只会削弱真正要传达的情绪。
+      </p>
+
+      <div class="avoid-grid">
+        <article class="avoid-card">
+          <div class="avoid-top">
+            <span class="avoid-idx mono">CASE 01</span>
+            <span class="avoid-alt">改用 <a href="https://layout.xiaoxiaodong.ai/308/play/">308 净单人镜头</a></span>
+          </div>
+          <h3>要表现彻底决裂或心理孤立时</h3>
+          <p>过肩镜头里的暗色肩影一直在默默强调「对方还在场、两人仍有联系」。分手摊牌、内心崩塌或彻底拒人千里时，把对手肩部留在画面里反而泄了孤立感——此时果断切进干净无遮挡的单人画面，情绪才真正落空。</p>
+        </article>
+
+        <article class="avoid-card">
+          <div class="avoid-top">
+            <span class="avoid-idx mono">CASE 02</span>
+            <span class="avoid-alt">改用 <a href="https://layout.xiaoxiaodong.ai/306/play/">306 主观视角构图</a></span>
+          </div>
+          <h3>要让观众完全化身角色本人时</h3>
+          <p>过肩构图把观众放在角色肩后半步，本质仍是「紧贴角色身旁的半客观视角」。如果是惊悚片里猛然回头、或者让对方直盯镜头逼问观众，留着一块肩影会提醒你「那不是我」，应当直接切换第一人称主观镜头。</p>
+        </article>
+
+        <article class="avoid-card">
+          <div class="avoid-top">
+            <span class="avoid-idx mono">CASE 03</span>
+            <span class="avoid-alt">改用 <a href="https://layout.xiaoxiaodong.ai/307/play/">307 客观视角构图</a></span>
+          </div>
+          <h3>多人圆桌辩论或快速群戏走位时</h3>
+          <p>当三四个人同时插话、来回转身，过肩镜头里的前景肩部和后脑会不断左右晃动盖住后排发言者。与其死守过肩，不如退到中立的客观机位交代空间与群像调度。</p>
+        </article>
+
+        <article class="avoid-card">
+          <div class="avoid-top">
+            <span class="avoid-idx mono">CASE 04</span>
+            <span class="avoid-alt">改用 <a href="https://layout.xiaoxiaodong.ai/309/play/">309 脏单人镜头</a></span>
+          </div>
+          <h3>只需要一丝在场感，不想让大块黑肩吃画幅时</h3>
+          <p>如果说话者的肢体道具或背景线索占据整幅宽度，标准过肩 15%–30% 的大块肩影会切掉关键叙事信息；这时只让前景极轻地擦过画框边缘即可，不必强撑完整肩部轮廓。</p>
+        </article>
+      </div>
+
+      <div class="avoid-demo-bar">
+        <div class="avoid-demo-copy">
+          <span class="callout-pill">现场对照</span>
+          <h3 id="avoid-demo-title">决裂时刻：拿掉前景肩，孤立感立刻拉满</h3>
+          <p id="avoid-demo-desc">同一句台词、同一个演员位置——点右侧开关在「残留过肩」与「撤掉肩影的孤立单人」间切换，体会前景肩部带来的心理粘连有多强。</p>
+          <div class="avoid-toggle-group" role="group" aria-label="切换反例对照画面">
+            <button type="button" class="paper-tab is-active" data-avoid="ots">残留过肩（仍有牵绊）</button>
+            <button type="button" class="paper-tab" data-avoid="clean">撤掉前景肩（彻底孤立）</button>
+          </div>
+        </div>
+        <div class="avoid-canvas-wrap">
+          <canvas id="avoid-canvas" aria-label="反例对照实时画布"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · 导演试镜：挑出好过肩（暗室炭黑 + 两轮四选一单变量实景小练习） -->
+  <section class="sec sec-dark" id="sec-06">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" data-display-en>06</span>
+        <div>
+          <h2>导演试镜：挑出好过肩</h2>
+          <p class="sec-en" lang="en">DIRECTOR’S SCREENING PRACTICE</p>
+        </div>
+      </div>
+
+      <div class="quiz-bar">
+        <div class="quiz-rounds" role="group" aria-label="选择练习题目">
+          <button type="button" class="dark-tab is-active" data-qround="0">第 1 题 · 前景切入量</button>
+          <button type="button" class="dark-tab" data-qround="1">第 2 题 · 景深与反打轴线</button>
+        </div>
+        <p class="quiz-prompt" id="quiz-prompt">
+          同一场百叶窗咖啡馆对谈，机位高度、焦段（50mm）与光圈（f/2.0）完全相同，四个方案<strong>仅改变机位横向移位量</strong>。选出最成立的标准过肩构图：
+        </p>
+      </div>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四个候选方案"></div>
+
+      <div class="quiz-feedback" id="quiz-feedback" aria-live="polite">
+        <span class="mono">等待试镜选择</span>
+        <p>点选上方方案 A / B / C / D 任意一帧，这里会结合实绘占比与几何净空拆解为什么成立或不成立。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · 原海报与角度词表（暖米纸 + 原海报点击放大拖动 + 关键词索引） -->
+  <section class="sec sec-paper" id="sec-07">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" data-display-en>07</span>
+        <div>
+          <h2>原海报与角度词表</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER &amp; ANGLE GLOSSARY</p>
+        </div>
+      </div>
+
+      <div class="poster-section-grid">
+        <div class="poster-card">
+          <button type="button" class="poster-trigger" id="poster-open" aria-label="点击放大查看 305 过肩构图原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="305 过肩构图原海报" draggable="false">
+            <span class="poster-zoom-hint mono">点击放大查看 · 支持滚轮缩放与拖动</span>
+          </button>
+        </div>
+
+        <div class="poster-meta-col">
+          <div class="poster-motto-card">
+            <!-- 复刻 305 原海报底部的同心椭圆焦点徽标 -->
+            <svg class="emblem-svg" viewBox="0 0 180 80" width="180" height="80" aria-hidden="true">
+              <ellipse cx="90" cy="40" rx="84" ry="34" fill="none" stroke="#474337" stroke-width="1.2"/>
+              <ellipse cx="90" cy="40" rx="60" ry="24" fill="none" stroke="#474337" stroke-width="1.2"/>
+              <ellipse cx="90" cy="40" rx="36" ry="14" fill="none" stroke="#474337" stroke-width="1.2"/>
+              <circle cx="90" cy="40" r="8" fill="#3D5200"/>
+              <polygon points="90,34 94,40 90,46 86,40" fill="#F5EFE1"/>
+            </svg>
+            <p class="motto-zh">从前景 越过肩部 聚焦主体</p>
+            <p class="motto-en" lang="en">From foreground, over the shoulder, focus on the subject.</p>
+            <p class="motto-en" lang="en">Frame with the shoulder, connect with the story.</p>
+          </div>
+
+          <h3 class="kw-heading">原海报六组过肩角度关键词</h3>
+          <div class="kw-grid">
+            <div class="kw-item"><strong>左肩近景</strong><span class="mono" lang="en">LEFT CLOSE</span></div>
+            <div class="kw-item"><strong>右肩近景</strong><span class="mono" lang="en">RIGHT CLOSE</span></div>
+            <div class="kw-item"><strong>左肩中景</strong><span class="mono" lang="en">LEFT MEDIUM</span></div>
+            <div class="kw-item"><strong>右肩中景</strong><span class="mono" lang="en">RIGHT MEDIUM</span></div>
+            <div class="kw-item"><strong>高位过肩</strong><span class="mono" lang="en">HIGH ANGLE</span></div>
+            <div class="kw-item"><strong>低位过肩</strong><span class="mono" lang="en">LOW ANGLE</span></div>
+          </div>
+
+          <p class="back-top-row">
+            <a class="back-top-link" href="#top">↑ 回到顶部过肩取景台继续演练</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <span>在线版：<a href="https://layout.xiaoxiaodong.ai/305/play/">305 过肩构图</a> · 全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/">layout.xiaoxiaodong.ai</a></span>
+    <span>海报 <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · 源文件 <a href="https://github.com/xxd-ai/350-layout-interactive">GitHub</a></span>
+  </div>
+</footer>
+
+<!-- 原海报放大查看灯箱（复用 #poster.src，不重复内联图片，支持缩放、拖动与 Esc 关闭） -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="原海报放大预览" hidden>
+  <div class="lightbox-bar">
+    <span class="mono">NO. 305 · 原海报检视（拖动平移 / 滚轮缩放 / Esc 关闭）</span>
+    <div class="lightbox-tools">
+      <button type="button" class="lb-btn mono" id="lb-out" aria-label="缩小">－</button>
+      <span class="mono lb-scale" id="lb-scale">100%</span>
+      <button type="button" class="lb-btn mono" id="lb-in" aria-label="放大">＋</button>
+      <button type="button" class="lb-btn" id="lb-reset">重置</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭原海报预览">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lightbox-stage" id="lb-stage">
+    <img id="lb-img" alt="305 过肩构图原海报放大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
