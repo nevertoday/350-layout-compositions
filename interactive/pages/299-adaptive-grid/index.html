@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>299 自适应网格 · ADAPTIVE GRID</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <!-- 顶眉：左粗黑大标 + 活体自示范列尺 + 总述；右无框 5 项原海报关键词实时标尺 -->
+    <div class="hero-masthead">
+      <div class="hero-brand">
+        <div class="hero-meta-row">
+          <span class="badge-no">NO. 299</span>
+          <span class="meta-cat">网页与 UI / 响应式重排模式</span>
+          <span class="status-pill" id="hero-status-pill" data-state="err">4 处失衡</span>
+        </div>
+        <h1 class="hero-title">自适应网格</h1>
+        <div class="hero-en-row">
+          <span class="hero-title-en">ADAPTIVE GRID</span>
+          <span class="title-grid-demo" id="title-grid-demo" aria-hidden="true"></span>
+        </div>
+        <div class="hero-bar" aria-hidden="true"></div>
+      </div>
+      <p class="hero-summary">随空间变化而调整，保持结构清晰与布局平衡。</p>
+
+      <!-- 1:1 承袭原海报右上 5 行图标关键词，注入实时单真源读数 -->
+      <ul class="hero-keywords" id="hero-keywords" aria-label="自适应网格五项实时指标">
+        <li data-kw="columns">
+          <svg class="kw-ico" viewBox="0 0 24 16" aria-hidden="true"><path d="M2 8h20M6 4l-4 4 4 4M18 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg>
+          <span class="kw-zh">列宽变化</span>
+          <span class="kw-en">COLUMNS</span>
+          <span class="kw-live" id="kw-val-columns">—</span>
+        </li>
+        <li data-kw="span">
+          <svg class="kw-ico" viewBox="0 0 24 16" aria-hidden="true"><circle cx="4" cy="8" r="2.2" fill="currentColor"/><circle cx="12" cy="8" r="2.2" fill="currentColor"/><circle cx="20" cy="8" r="2.2" fill="currentColor"/><path d="M6.5 8h3M14.5 8h3" stroke="currentColor" stroke-width="1.6"/></svg>
+          <span class="kw-zh">模块跨列</span>
+          <span class="kw-en">SPAN</span>
+          <span class="kw-live" id="kw-val-span">—</span>
+        </li>
+        <li data-kw="gutter">
+          <svg class="kw-ico" viewBox="0 0 24 16" aria-hidden="true"><path d="M5 2v12M12 2v12M19 2v12" stroke="currentColor" stroke-width="1.9"/></svg>
+          <span class="kw-zh">间隙节奏</span>
+          <span class="kw-en">GUTTER</span>
+          <span class="kw-live" id="kw-val-gutter">—</span>
+        </li>
+        <li data-kw="autofill">
+          <svg class="kw-ico" viewBox="0 0 24 16" aria-hidden="true"><rect x="3" y="3" width="4" height="4" fill="currentColor"/><rect x="10" y="3" width="4" height="4" fill="currentColor"/><rect x="17" y="3" width="4" height="4" fill="currentColor"/><rect x="3" y="9" width="4" height="4" fill="currentColor"/><rect x="10" y="9" width="4" height="4" fill="currentColor"/><rect x="17" y="9" width="4" height="4" fill="currentColor"/></svg>
+          <span class="kw-zh">自动填充</span>
+          <span class="kw-en">AUTO-FILL</span>
+          <span class="kw-live" id="kw-val-autofill">—</span>
+        </li>
+        <li data-kw="balance">
+          <svg class="kw-ico" viewBox="0 0 24 16" aria-hidden="true"><rect x="3" y="3.5" width="18" height="3.2" fill="currentColor"/><rect x="3" y="9.5" width="18" height="3.2" fill="currentColor"/></svg>
+          <span class="kw-zh">平衡布局</span>
+          <span class="kw-en">BALANCE</span>
+          <span class="kw-live" id="kw-val-balance">—</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 主舞台区：左 71% 虚线容器活体网格画布 × 右 29% 原海报黑点实线四引注与精控阀 -->
+    <div class="hero-workspace">
+      <div class="stage-column">
+        <div class="stage-top-bar">
+          <div class="theme-tabs" role="tablist" aria-label="网格题材切换">
+            <button type="button" class="tab-btn is-active" data-theme="poster" role="tab" aria-selected="true">原海报 8 卡</button>
+            <button type="button" class="tab-btn" data-theme="gallery" role="tab" aria-selected="false">组件画廊</button>
+            <button type="button" class="tab-btn" data-theme="editorial" role="tab" aria-selected="false">新闻编辑台</button>
+          </div>
+          <div class="stage-hint" id="stage-hint">横拖虚线容器调宽 · 点卡片改 SPAN · 方向键微调</div>
+        </div>
+
+        <div class="canvas-wrap">
+          <canvas id="hero-canvas" data-perf-drag tabindex="0" aria-label="自适应网格活体画布：左右拖动或按左右方向键改变容器宽度，点击卡片或按上下方向键修改模块跨列数"></canvas>
+        </div>
+
+        <!-- 紧凑单行快调轨：手机首屏直见宽窄滑块与快捷方案 -->
+        <div class="stage-quickbar">
+          <label class="quick-slider" for="ctrl-width">
+            <span class="qs-label">容器宽</span>
+            <input type="range" id="ctrl-width" min="320" max="1240" step="1" value="860">
+            <output id="out-width" for="ctrl-width">860px</output>
+          </label>
+          <div class="quick-presets" aria-label="解法与试错快切">
+            <button type="button" class="chip-btn" data-preset="poster8">8 列原海报解</button>
+            <button type="button" class="chip-btn" data-preset="tablet4">4 列平板解</button>
+            <button type="button" class="chip-btn" data-preset="wide6">6 列画廊解</button>
+            <button type="button" class="chip-btn is-warn" data-preset="errWideGutter">试错：宽隙割裂</button>
+            <button type="button" class="chip-btn is-warn" data-preset="errFlat">试错：平权单调</button>
+            <button type="button" class="chip-btn is-reset" data-preset="broken">复原开场错态</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1:1 承袭原海报右侧 4 条实心黑点牵引注记，直接印在电光明黄展墙上并附紧致微控 -->
+      <aside class="hero-callouts" aria-label="网格规则精控阀">
+        <div class="callout-item" id="callout-span">
+          <div class="callout-head">
+            <span class="callout-leader" aria-hidden="true"></span>
+            <strong class="callout-title">模块跨列</strong>
+            <span class="callout-meta" id="sel-card-badge">M2 · SPAN 6</span>
+          </div>
+          <p class="callout-desc">通过 span 控制模块占据的列数。</p>
+          <div class="callout-ctrl-row">
+            <div class="span-stepper" role="group" aria-label="当前选中卡片跨列数">
+              <button type="button" class="mini-btn" id="btn-span-dec" aria-label="减少跨列">−1</button>
+              <button type="button" class="mini-btn" data-set-span="1">1</button>
+              <button type="button" class="mini-btn" data-set-span="2">2</button>
+              <button type="button" class="mini-btn" data-set-span="3">3</button>
+              <button type="button" class="mini-btn" data-set-span="4">4</button>
+              <button type="button" class="mini-btn" id="btn-span-inc" aria-label="增加跨列">+1</button>
+            </div>
+            <button type="button" class="toggle-btn" id="btn-clamp" aria-pressed="false">窄屏钳制：关</button>
+          </div>
+        </div>
+
+        <div class="callout-item" id="callout-gutter">
+          <div class="callout-head">
+            <span class="callout-leader" aria-hidden="true"></span>
+            <strong class="callout-title">间隙节奏</strong>
+            <output class="callout-meta" id="out-gutter" for="ctrl-gutter">4px</output>
+          </div>
+          <p class="callout-desc">统一的 gutter 保持呼吸感与秩序。</p>
+          <label class="callout-range" for="ctrl-gutter">
+            <span class="sr-only">统一间隙像素</span>
+            <input type="range" id="ctrl-gutter" min="0" max="48" step="2" value="4">
+          </label>
+        </div>
+
+        <div class="callout-item" id="callout-autofill">
+          <div class="callout-head">
+            <span class="callout-leader" aria-hidden="true"></span>
+            <strong class="callout-title">自动填充</strong>
+            <output class="callout-meta" id="out-mincol" for="ctrl-mincol">最小 86px</output>
+          </div>
+          <p class="callout-desc">根据可用空间自动填充列数，模块位置智能重排。</p>
+          <label class="callout-range" for="ctrl-mincol">
+            <span class="sr-only">最小列宽像素</span>
+            <input type="range" id="ctrl-mincol" min="72" max="240" step="2" value="86">
+          </label>
+          <div class="seg-row" role="group" aria-label="轨道填充与装箱策略">
+            <button type="button" class="seg-btn is-active" data-fill="auto-fill">auto-fill</button>
+            <button type="button" class="seg-btn" data-fill="auto-fit">auto-fit</button>
+            <button type="button" class="seg-btn is-active" data-flow="row">顺序 row</button>
+            <button type="button" class="seg-btn" data-flow="dense">密排 dense</button>
+          </div>
+        </div>
+
+        <div class="callout-item callout-verdict" id="callout-balance">
+          <div class="callout-head">
+            <span class="callout-leader" aria-hidden="true"></span>
+            <strong class="callout-title">平衡布局 · 实时研判</strong>
+            <span class="callout-meta" id="verdict-tag">4 处失衡</span>
+          </div>
+          <p class="verdict-title" id="verdict-title">—</p>
+          <p class="verdict-why" id="verdict-why">—</p>
+          <p class="verdict-action" id="verdict-action">—</p>
+          <div class="verdict-btns">
+            <button type="button" class="fix-btn" id="btn-smart-fix">按当前诊断修一步</button>
+            <button type="button" class="css-btn" id="btn-toggle-css" aria-expanded="false">看实时 CSS</button>
+          </div>
+          <pre class="live-css-box" id="live-css-box" hidden><code id="live-css-code"></code></pre>
+        </div>
+      </aside>
+    </div>
+
+    <!-- 细黑横线下原海报双栏区：左「核心规则」实时体检单 × 1px 竖线 × 右「响应式示例 360/640/768/1200+」活体四屏同步预览 -->
+    <div class="hero-lower">
+      <section class="rules-panel" aria-label="核心规则实时体检">
+        <div class="lower-head">
+          <h2 class="lower-title">核心规则</h2>
+          <span class="lower-sub">CORE RULES · 单真源逐条验算</span>
+        </div>
+        <ul class="rules-list" id="rules-list">
+          <li data-rule="min-col">
+            <svg class="rule-ico" viewBox="0 0 20 16" aria-hidden="true"><rect x="2" y="2" width="4" height="12" fill="currentColor"/><rect x="8" y="2" width="4" height="12" fill="currentColor"/><rect x="14" y="2" width="4" height="12" fill="currentColor"/></svg>
+            <div class="rule-body">
+              <strong>最小列宽</strong>
+              <span>≥ 120px，保证易读性</span>
+            </div>
+            <span class="rule-badge" id="rule-val-min-col">—</span>
+          </li>
+          <li data-rule="gutter">
+            <svg class="rule-ico" viewBox="0 0 20 16" aria-hidden="true"><rect x="2" y="2" width="16" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.5 2"/></svg>
+            <div class="rule-body">
+              <strong>间隙一致</strong>
+              <span>统一 gutter，节奏稳定</span>
+            </div>
+            <span class="rule-badge" id="rule-val-gutter">—</span>
+          </li>
+          <li data-rule="fluid">
+            <svg class="rule-ico" viewBox="0 0 20 16" aria-hidden="true"><path d="M2 8h16M5.5 4.5L2 8l3.5 3.5M14.5 4.5L18 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+            <div class="rule-body">
+              <strong>弹性伸缩</strong>
+              <span>列宽 fluid，随容器变化</span>
+            </div>
+            <span class="rule-badge" id="rule-val-fluid">—</span>
+          </li>
+          <li data-rule="span">
+            <svg class="rule-ico" viewBox="0 0 20 16" aria-hidden="true"><rect x="2" y="2" width="10" height="5" fill="currentColor"/><rect x="14" y="2" width="4" height="5" fill="currentColor"/><rect x="2" y="9" width="5" height="5" fill="currentColor"/><rect x="9" y="9" width="9" height="5" fill="currentColor"/></svg>
+            <div class="rule-body">
+              <strong>按需跨列</strong>
+              <span>使用 span 构建层级</span>
+            </div>
+            <span class="rule-badge" id="rule-val-span">—</span>
+          </li>
+          <li data-rule="balance">
+            <svg class="rule-ico" viewBox="0 0 20 16" aria-hidden="true"><path d="M3 13L9 3M11 13l6-10" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg>
+            <div class="rule-body">
+              <strong>视觉平衡</strong>
+              <span>内容分布均衡，重点突出</span>
+            </div>
+            <span class="rule-badge" id="rule-val-balance">—</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="responsive-panel" aria-label="响应式四屏同步示例">
+        <div class="lower-head">
+          <h2 class="lower-title">响应式示例</h2>
+          <span class="lower-sub">同一内容，不同宽度下的实时网格表现 · 点任意屏幕直跳</span>
+        </div>
+        <div class="device-strip" id="device-strip"></div>
+        <div class="tagline-arrow" aria-hidden="true">
+          <span class="arrow-line"></span>
+          <span class="arrow-text">自动适应，内容不变，布局更优</span>
+          <span class="arrow-line"></span>
+        </div>
+      </section>
+    </div>
+
+    <!-- 最底沿：1:1 复刻原海报奶油淡黄圆角大横条「自适应逻辑流程」 -->
+    <section class="logic-strip" aria-label="自适应逻辑流程实时管线">
+      <div class="logic-title">自适应逻辑流程</div>
+      <ol class="logic-steps" id="logic-steps">
+        <li data-step="1">
+          <svg class="step-ico" viewBox="0 0 28 24" aria-hidden="true"><rect x="3" y="6" width="22" height="14" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 2h22M3 0v4M25 0v4" stroke="currentColor" stroke-width="1.6"/></svg>
+          <strong>测量容器宽度</strong>
+          <span id="pipe-val-1">—</span>
+        </li>
+        <li class="step-arrow" aria-hidden="true">→</li>
+        <li data-step="2">
+          <svg class="step-ico" viewBox="0 0 28 24" aria-hidden="true"><rect x="4" y="3" width="4.5" height="4.5" fill="currentColor"/><rect x="11.7" y="3" width="4.5" height="4.5" fill="currentColor"/><rect x="19.5" y="3" width="4.5" height="4.5" fill="currentColor"/><rect x="4" y="10" width="4.5" height="4.5" fill="currentColor"/><rect x="11.7" y="10" width="4.5" height="4.5" fill="currentColor"/><rect x="19.5" y="10" width="4.5" height="4.5" fill="currentColor"/><rect x="4" y="17" width="4.5" height="4.5" fill="currentColor"/><rect x="11.7" y="17" width="4.5" height="4.5" fill="currentColor"/><rect x="19.5" y="17" width="4.5" height="4.5" fill="currentColor"/></svg>
+          <strong>计算列数</strong>
+          <span id="pipe-val-2">—</span>
+        </li>
+        <li class="step-arrow" aria-hidden="true">→</li>
+        <li data-step="3">
+          <svg class="step-ico" viewBox="0 0 28 24" aria-hidden="true"><rect x="3" y="3" width="22" height="8" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="14" width="10" height="7" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="15" y="14" width="10" height="7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+          <strong>放置模块</strong>
+          <span id="pipe-val-3">—</span>
+        </li>
+        <li class="step-arrow" aria-hidden="true">→</li>
+        <li data-step="4">
+          <svg class="step-ico" viewBox="0 0 28 24" aria-hidden="true"><path d="M5 18l4-10h10l4 10H5zM14 4v4M8 21h12" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+          <strong>重新平衡</strong>
+          <span id="pipe-val-4">—</span>
+        </li>
+        <li class="step-arrow" aria-hidden="true">→</li>
+        <li data-step="5">
+          <svg class="step-ico" viewBox="0 0 28 24" aria-hidden="true"><circle cx="14" cy="12" r="9.5" fill="currentColor"/><path d="M9.5 12.2l3 3.2 6.2-6.5" fill="none" stroke="#FFFCCA" stroke-width="2.2" stroke-linecap="square"/></svg>
+          <strong>输出布局</strong>
+          <span id="pipe-val-5">—</span>
+        </li>
+      </ol>
+    </section>
+  </div>
+</header>
+
+<main>
+  <!-- 01 极净白纸：列数自己算的秘密（真实 DOM CSS Grid auto-fill vs auto-fit & min(M, 100%) 轨道透视） -->
+  <section class="sec sec-white" id="sec-01">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">01</span>
+        <div>
+          <p class="sec-en">AUTO-FILL &amp; AUTO-FIT</p>
+          <h2>列数自己算的秘密</h2>
+        </div>
+      </div>
+
+      <div class="sec-lead-grid">
+        <p class="lead-p">原海报把自适应网格拆成两句核心：「列宽 fluid，随容器变化」和「根据可用空间自动填充列数」。真正让它告别写满七八套媒体查询的，是浏览器每当容器改宽就重跑一次的朴素算式：<strong>列数 = floor((容器宽 + 间隙) ÷ (最小列宽 + 间隙))</strong>（向下取整），算完列数再把剩下的余宽按 <code>1fr</code> 均分给每一列。</p>
+        <aside class="note-box">
+          <span class="note-tag">补充一笔</span>
+          <p>原海报给出「最小列宽 ≥ 120px，保证易读性」。这对应紧凑图标卡或 8–12 列基础轨的经验底线；若是带配图与两行摘要的完整卡片，经验上常把最小轨设为 <strong>220–280px</strong>。更关键的是写成 <code>minmax(min(220px, 100%), 1fr)</code>——万一容器窄到只有 190px，轨道才会顺从容器，不会自己撑出横向滚动条。</p>
+        </aside>
+      </div>
+
+      <div class="lab-card" id="lab-autofill">
+        <div class="lab-toolbar">
+          <div class="tool-group">
+            <span class="tool-label">卡片数量</span>
+            <div class="btn-group" role="group" aria-label="设置实验卡片数">
+              <button type="button" class="lab-btn" data-af-count="1">1 张</button>
+              <button type="button" class="lab-btn is-active" data-af-count="2">2 张</button>
+              <button type="button" class="lab-btn" data-af-count="3">3 张</button>
+              <button type="button" class="lab-btn" data-af-count="5">5 张</button>
+            </div>
+          </div>
+
+          <div class="tool-group">
+            <span class="tool-label">轨道关键字</span>
+            <div class="btn-group" role="group" aria-label="切换 auto-fill 与 auto-fit">
+              <button type="button" class="lab-btn is-active" data-af-mode="auto-fill">auto-fill 保留空轨</button>
+              <button type="button" class="lab-btn" data-af-mode="auto-fit">auto-fit 折叠撑满</button>
+            </div>
+          </div>
+
+          <div class="tool-group">
+            <span class="tool-label">模拟容器宽</span>
+            <div class="btn-group" role="group" aria-label="切换模拟容器宽度">
+              <button type="button" class="lab-btn" data-af-width="190">190px 极窄</button>
+              <button type="button" class="lab-btn" data-af-width="520">520px</button>
+              <button type="button" class="lab-btn is-active" data-af-width="820">820px 宽容器</button>
+            </div>
+          </div>
+
+          <div class="tool-group">
+            <button type="button" class="lab-btn" id="af-guard-btn" aria-pressed="false">min(220px, 100%) 护盾：关</button>
+          </div>
+        </div>
+
+        <div class="af-stage-shell">
+          <div class="af-viewport" id="af-viewport">
+            <div class="af-ghost-tracks" id="af-ghost-tracks" aria-hidden="true"></div>
+            <div class="af-real-grid" id="af-real-grid"></div>
+          </div>
+        </div>
+
+        <div class="lab-readout" id="af-readout"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 淡奶油黄纸：跨列层级与填洞代价（可播放 Tab 焦点循迹演练台） -->
+  <section class="sec sec-cream" id="sec-02">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">02</span>
+        <div>
+          <p class="sec-en">SPAN &amp; DENSE FLOW</p>
+          <h2>跨列层级与填洞代价</h2>
+        </div>
+      </div>
+
+      <p class="lead-p">全是 <code>span 1</code> 的网格像一排均质货架，眼睛找不到落脚点；于是原海报专门列了「按需跨列：使用 span 构建层级」。可一旦卡片有了宽窄之分，新矛盾立刻冒出来：宽卡塞不进当前行尾就会换行留下空白缺口。打开 CSS 的 <code>grid-auto-flow: dense</code> 确实能自动把后面的小卡搬来填平空洞，却会悄悄拆散视觉顺序与代码顺序——如果模块有严格的阅读先后，应当改用 <a href="https://layout.xiaoxiaodong.ai/297/play/" target="_blank" rel="noopener">顺序重排（297）</a> 或 <a href="https://layout.xiaoxiaodong.ai/296/play/" target="_blank" rel="noopener">堆叠重排（296）</a>，而不要盲目填洞。</p>
+
+      <div class="lab-card lab-card-cream" id="lab-dense">
+        <div class="lab-toolbar">
+          <div class="tool-group">
+            <span class="tool-label">装箱策略</span>
+            <div class="btn-group" role="group" aria-label="切换装箱策略">
+              <button type="button" class="lab-btn is-active" data-dn-mode="row">稀疏 row（留洞保序）</button>
+              <button type="button" class="lab-btn" data-dn-mode="dense">密排 dense（填洞跳序）</button>
+              <button type="button" class="lab-btn" data-dn-mode="balanced">跨列配平（无洞保序）</button>
+            </div>
+          </div>
+          <div class="tool-group">
+            <button type="button" class="lab-btn lab-btn-dark" id="dn-step-btn">走下一步 Tab 焦点（1 / 6）</button>
+            <button type="button" class="lab-btn" id="dn-play-btn">自动走完焦点轨</button>
+          </div>
+        </div>
+
+        <div class="dn-board-wrap">
+          <div class="dn-board" id="dn-board"></div>
+          <svg class="dn-overlay" id="dn-overlay" aria-hidden="true"></svg>
+        </div>
+
+        <div class="lab-readout" id="dn-readout"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 深墨黑暗室：间隙撑起呼吸与归属（gutter × padding 格式塔比例实验室） -->
+  <section class="sec sec-dark" id="sec-03">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">03</span>
+        <div>
+          <p class="sec-en">GUTTER RHYTHM</p>
+          <h2>间隙撑起呼吸与归属</h2>
+        </div>
+      </div>
+
+      <p class="lead-p">原海报把「统一的 gutter 保持呼吸感与秩序」列在第二条。间隙绝不只是留白装饰，而是格式塔接近性原则的标尺：眼睛会自动把彼此更近的元素归成一组。如果卡片之间的 <strong>外间隙 gutter</strong> 小于卡片内部的 <strong>内边距 padding</strong>，隔壁卡片里的标题反而离你的图标更近，版面立刻串行失序；反过来，若间隙膨胀超过单列宽的三成，原本成套的模块就被撕成了孤岛。</p>
+
+      <div class="dark-lab" id="lab-gutter">
+        <div class="dark-controls">
+          <label class="dark-slider" for="gl-gutter">
+            <span class="ds-top"><span>外间隙 gutter（卡与卡之间）</span><output id="gl-out-gutter" for="gl-gutter">6px</output></span>
+            <input type="range" id="gl-gutter" min="2" max="44" step="2" value="6">
+          </label>
+          <label class="dark-slider" for="gl-padding">
+            <span class="ds-top"><span>内边距 padding（卡内文字到边框）</span><output id="gl-out-padding" for="gl-padding">22px</output></span>
+            <input type="range" id="gl-padding" min="8" max="28" step="2" value="22">
+          </label>
+          <div class="dark-quick">
+            <button type="button" class="dark-btn is-active" data-gl-preset="tight">误分组：隙 6 / 内 22</button>
+            <button type="button" class="dark-btn" data-gl-preset="sweet">清晰归属：隙 18 / 内 16</button>
+            <button type="button" class="dark-btn" data-gl-preset="island">孤岛散架：隙 42 / 内 12</button>
+          </div>
+        </div>
+
+        <div class="dark-preview-box">
+          <div class="gl-grid" id="gl-grid">
+            <article class="gl-card">
+              <div class="gl-card-top"><span class="gl-dot"></span><strong>模块 A · 轨道标尺</strong></div>
+              <p>内边距决定卡内要素的亲疏，外间隙划清模块之间的界线。</p>
+            </article>
+            <article class="gl-card">
+              <div class="gl-card-top"><span class="gl-sq"></span><strong>模块 B · 跨列层级</strong></div>
+              <p>当外间隙小于内边距，两张卡片的内容在余光里会互相串门。</p>
+            </article>
+            <article class="gl-card">
+              <div class="gl-card-top"><span class="gl-tri"></span><strong>模块 C · 呼吸节拍</strong></div>
+              <p>经验上令外间隙大于等于内边距（约 1.0–1.5 倍），归属最干脆。</p>
+            </article>
+          </div>
+          <div class="gl-meter-bar" id="gl-meter-bar"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 暖灰制图纸：从瑞士网格到浏览器（五年代可点标尺卡组） -->
+  <section class="sec sec-paper" id="sec-04">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">04</span>
+        <div>
+          <p class="sec-en">ORIGIN · 1981—2018</p>
+          <h2>从瑞士网格到浏览器</h2>
+        </div>
+      </div>
+
+      <p class="lead-p">自适应网格不是某个 CSS 属性一夜冒出来的，而是平面印刷的模块网格与多终端网页碰撞了近四十年的结果——纸面有固定裁切尺寸，屏幕却从 320px 延伸到 2560px，于是「按尺画栏」一步步进化成「把算列公式交给浏览器」。</p>
+
+      <div class="timeline-shell" id="lab-timeline">
+        <div class="timeline-rail" role="tablist" aria-label="自适应网格演化里程碑">
+          <button type="button" class="tl-tab is-active" data-era="1981" role="tab" aria-selected="true">
+            <span class="tl-year">1981</span>
+            <span class="tl-name">瑞士印刷网格</span>
+          </button>
+          <button type="button" class="tl-tab" data-era="2010" role="tab" aria-selected="false">
+            <span class="tl-year">2010</span>
+            <span class="tl-name">响应式网页诞生</span>
+          </button>
+          <button type="button" class="tl-tab" data-era="2011" role="tab" aria-selected="false">
+            <span class="tl-year">2011</span>
+            <span class="tl-name">CSS Grid 首批草案</span>
+          </button>
+          <button type="button" class="tl-tab" data-era="2017" role="tab" aria-selected="false">
+            <span class="tl-year">2016–17</span>
+            <span class="tl-name">Level 1 全面落地</span>
+          </button>
+          <button type="button" class="tl-tab" data-era="2018" role="tab" aria-selected="false">
+            <span class="tl-year">2018</span>
+            <span class="tl-name">内在网页设计</span>
+          </button>
+        </div>
+
+        <div class="tl-detail" id="tl-detail"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 极净白纸：什么时候用，什么时候别用（场景分诊卡 + 同类 291–300 兄弟页链接） -->
+  <section class="sec sec-white" id="sec-05">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">05</span>
+        <div>
+          <p class="sec-en">WHEN TO USE &amp; AVOID</p>
+          <h2>什么时候用，什么时候别用</h2>
+        </div>
+      </div>
+
+      <p class="lead-p">自适应网格最擅长「同批模块化内容跨多端重排」，但它不是万能药。遇到长文阅读、强步骤先后、主副结构突变或只随父容器走的孤立卡片时，强套自适应网格反而适得其反。点开下方六种真实页面需求，逐一判断该留还是该换。</p>
+
+      <div class="triage-grid" id="lab-triage">
+        <article class="triage-card is-open" data-triage="use">
+          <button type="button" class="triage-btn" aria-expanded="true">
+            <span class="triage-kind">场景 01</span>
+            <strong>商品货架、设计图库、作品集墙</strong>
+            <span class="triage-verdict is-yes">正合自适应网格</span>
+          </button>
+          <div class="triage-body">
+            <p>模块结构同质且彼此独立，宽屏需要一眼扫完 4–6 列，手机竖屏自然折成 1–2 列，重点款给 <code>span 2</code> 提亮即可，几乎无需维护多套断点模板。</p>
+          </div>
+        </article>
+
+        <article class="triage-card" data-triage="use">
+          <button type="button" class="triage-btn" aria-expanded="false">
+            <span class="triage-kind">场景 02</span>
+            <strong>多端数据看板与运营摘要卡</strong>
+            <span class="triage-verdict is-yes">正合自适应网格</span>
+          </button>
+          <div class="triage-body">
+            <p>小指标卡占 1–2 列、主折线图占 3–4 列，只要加上最小列宽护盾与窄屏跨列钳制，就能一套布局通吃笔记本、平板与手机巡检。</p>
+          </div>
+        </article>
+
+        <article class="triage-card is-open" data-triage="avoid">
+          <button type="button" class="triage-btn" aria-expanded="true">
+            <span class="triage-kind">场景 03</span>
+            <strong>长篇专栏、深度报道与文档正文</strong>
+            <span class="triage-verdict is-no">别硬套多列网格</span>
+          </button>
+          <div class="triage-body">
+            <p>连续长文追求舒适的每行字数测度（经验上中文约 28–42 字/行），拆成多列自适应格反而打断视线。更适合整体柔顺伸缩的 <a href="https://layout.xiaoxiaodong.ai/291/play/" target="_blank" rel="noopener">大体流动模式（291）</a>，或在固定大框里轻调字号留白的 <a href="https://layout.xiaoxiaodong.ai/294/play/" target="_blank" rel="noopener">微调模式（294）</a>。</p>
+          </div>
+        </article>
+
+        <article class="triage-card" data-triage="avoid">
+          <button type="button" class="triage-btn" aria-expanded="false">
+            <span class="triage-kind">场景 04</span>
+            <strong>主导航、筛选栏与主副对照工作台</strong>
+            <span class="triage-verdict is-no">换结构重排模式</span>
+          </button>
+          <div class="triage-body">
+            <p>当侧边栏和主内容在角色上截然不同，需要窄屏藏进抽屉、整栏下落、换骨架或可折合双窗时，应直接采用 <a href="https://layout.xiaoxiaodong.ai/292/play/" target="_blank" rel="noopener">列下落模式（292）</a>、<a href="https://layout.xiaoxiaodong.ai/293/play/" target="_blank" rel="noopener">布局切换模式（293）</a>、<a href="https://layout.xiaoxiaodong.ai/295/play/" target="_blank" rel="noopener">画布外模式（295）</a> 或 <a href="https://layout.xiaoxiaodong.ai/298/play/" target="_blank" rel="noopener">折叠双窗格（298）</a>。</p>
+          </div>
+        </article>
+
+        <article class="triage-card" data-triage="avoid">
+          <button type="button" class="triage-btn" aria-expanded="false">
+            <span class="triage-kind">场景 05</span>
+            <strong>强先后步骤向导与审批表单</strong>
+            <span class="triage-verdict is-no">慎用跨列与 dense</span>
+          </button>
+          <div class="triage-body">
+            <p>阅读与填写顺序一旦不能打乱，千万别开 <code>dense</code> 填洞，也别让宽窄混排导致视线跳格；若只为小屏调整先后优先级，请看 <a href="https://layout.xiaoxiaodong.ai/296/play/" target="_blank" rel="noopener">堆叠重排（296）</a> 与 <a href="https://layout.xiaoxiaodong.ai/297/play/" target="_blank" rel="noopener">顺序重排（297）</a>。</p>
+          </div>
+        </article>
+
+        <article class="triage-card" data-triage="avoid">
+          <button type="button" class="triage-btn" aria-expanded="false">
+            <span class="triage-kind">场景 06</span>
+            <strong>会被放进窄侧栏又放进主区的复用卡</strong>
+            <span class="triage-verdict is-no">需配合组件级响应</span>
+          </button>
+          <div class="triage-body">
+            <p>页面级自适应网格能管好卡片占几列，却管不了“卡片自己变窄后内部图文从左右排切回上下排”。这种按父容器独立变形的卡片，要交给基于容器查询的 <a href="https://layout.xiaoxiaodong.ai/300/play/" target="_blank" rel="noopener">组件级响应布局（300）</a>。</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 深墨黑考场：小练习：挑出平衡解（四选一单变量精准算式小练习） -->
+  <section class="sec sec-dark" id="sec-06">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">06</span>
+        <div>
+          <p class="sec-en">PRACTICE · VISUAL QUIZ</p>
+          <h2>小练习：挑出平衡解</h2>
+        </div>
+      </div>
+
+      <div class="quiz-prompt">
+        <p class="lead-p"><strong>小练习：</strong>同一组 6 张带图标与两行标题的知识卡片（卡内边距固定 <code>16px</code>），放进 <code>720px</code> 宽的容器里。要求单列实宽至少保留 <strong>150px</strong> 以上易读空间、模块间归属清晰、且不能横向溢出。下面四套网格参数中（只差单个参数），哪一套最合理？</p>
+      </div>
+
+      <div class="quiz-grid" id="quiz-grid" role="group" aria-label="自适应网格四选一小练习"></div>
+      <div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- 07 淡明黄展墙：原海报与关键词（点击放大、拖动、Esc 关闭） -->
+  <section class="sec sec-poster" id="sec-07">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <span class="sec-num">07</span>
+        <div>
+          <p class="sec-en">ORIGINAL POSTER</p>
+          <h2>原海报与关键词</h2>
+        </div>
+      </div>
+
+      <div class="poster-layout">
+        <figure class="poster-frame">
+          <button type="button" class="poster-zoom-trigger" id="poster-open" aria-label="放大查看 299 自适应网格原海报">
+            <img id="poster" src="poster.webp" alt="299 自适应网格原海报" draggable="false">
+            <span class="poster-zoom-hint">点开原图 · 支持缩放与拖动</span>
+          </button>
+        </figure>
+
+        <div class="poster-notes">
+          <div class="poster-quote">
+            <span class="pq-tag">海报总述</span>
+            <p class="pq-main">「随空间变化而调整，保持结构清晰与布局平衡。」</p>
+            <p class="pq-sub">自动适应，内容不变，布局更优</p>
+          </div>
+
+          <h3 class="poster-subhead">五组原海报关键词</h3>
+          <dl class="poster-kw-grid">
+            <div><dt>列宽变化</dt><dd>COLUMNS · 列宽按容器弹性伸缩</dd></div>
+            <div><dt>模块跨列</dt><dd>SPAN · 按权重跨占多列建层级</dd></div>
+            <div><dt>间隙节奏</dt><dd>GUTTER · 统一槽宽稳住归属秩序</dd></div>
+            <div><dt>自动填充</dt><dd>AUTO-FILL · 按可用空间自动算列重排</dd></div>
+            <div><dt>平衡布局</dt><dd>BALANCE · 不同组合仍保持视觉平衡</dd></div>
+          </dl>
+
+          <div class="poster-back">
+            <a class="back-top-btn" href="#top">回到顶部网格工作台 ↑</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span><a href="https://layout.xiaoxiaodong.ai/299/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a></span>
+    <span class="footer-dot" aria-hidden="true">·</span>
+    <span>海报 CC BY 4.0</span>
+    <span class="footer-dot" aria-hidden="true">·</span>
+    <span><a href="https://github.com/xiaoxiaodong/350-layout" target="_blank" rel="noopener">源文件 GitHub</a></span>
+  </div>
+</footer>
+
+<!-- 原海报放大查看器：复用 #poster.src，支持拖动、缩放与 Esc 关闭 -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报放大查看">
+  <div class="lb-bar">
+    <span class="lb-title">299 自适应网格 · 原海报</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-zoom-out">缩小 −</button>
+      <button type="button" class="lb-btn" id="lb-zoom-reset">100%</button>
+      <button type="button" class="lb-btn" id="lb-zoom-in">放大 +</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-viewport" id="lb-viewport">
+    <img id="lb-img" alt="299 自适应网格原海报大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
