@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>216 横直混排 · MIXED HORIZONTAL-VERTICAL LAYOUT</title>
+  <meta name="description" content="互动式学习 216 横直混排：亲手翻转每个出版模块的横竖方向、拖动正交分界轴、检验交界过渡与视线折转，理解横直有序与节奏对比。">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#hero-canvas">跳到正交拼排实验台</a>
+
+  <!-- ===================== HERO：忠实转译 216 原海报素白暖宣十字轴骨架 ===================== -->
+  <header class="hero" id="top">
+    <div class="wrap">
+      <!-- 顶层刊头：左双色自示范大标+真竖排导语+朱红孤点 × 右绿字标语+总述+标本切换 -->
+      <div class="hero-mast">
+        <div class="mast-left">
+          <div class="mast-bar-row">
+            <span class="green-bar" aria-hidden="true"></span>
+            <span class="no-tag">NO. 216 · 字体、网格与东亚文字 / 东亚文字与混排</span>
+            <span class="status-pill is-err only-mobile" id="hero-status-mobile" aria-live="polite">0/5 · 贴脸撞车</span>
+          </div>
+
+          <div class="mast-title-lockup">
+            <h1 class="poster-h1">
+              <span class="h1-black">横直</span>
+              <span class="h1-green">混排</span>
+            </h1>
+
+            <div class="vert-motto" aria-label="让信息更有秩序，也更有节奏。">
+              <div class="vert-motto-cols">
+                <p>让信息更有秩序，</p>
+                <p>也更有节奏。</p>
+              </div>
+              <span class="vermilion-dot" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <p class="poster-h1-en">MIXED HORIZONTAL-VERTICAL LAYOUT</p>
+          <div class="dual-rule" aria-hidden="true"><span class="dual-rule-g"></span><span class="dual-rule-k"></span></div>
+        </div>
+
+        <div class="mast-right">
+          <div class="mast-top-actions">
+            <div class="specimen-tabs" role="group" aria-label="切换版面标本">
+              <button type="button" class="tab-btn is-active" data-specimen="city" aria-pressed="true">城市更新</button>
+              <button type="button" class="tab-btn" data-specimen="exhibit" aria-pressed="false">器物与光</button>
+              <button type="button" class="tab-btn" data-specimen="arch" aria-pressed="false">留白之城</button>
+            </div>
+            <span class="status-pill is-err only-desktop" id="hero-status-pill" aria-live="polite">0/5 · 贴脸撞车</span>
+          </div>
+
+          <p class="mast-tagline">横向阅读 × 纵向阅读<br>信息并行，重点突出</p>
+          <div class="green-thin-rule" aria-hidden="true"></div>
+          <p class="mast-summary">横直混排通过方向的组织与对比，建立清晰的信息层次与视觉引导，让版面更具节奏感与表现力。</p>
+          <p class="mast-summary-en">HORIZONTAL AND VERTICAL SYSTEMS COEXIST TO CREATE CLARITY, EMPHASIS, AND VISUAL RHYTHM.</p>
+        </div>
+      </div>
+
+      <!-- 原海报标志性中腹：正交十字信息流坐标轴（随画布实时横纵占比联动） -->
+      <div class="cross-axis-band" aria-hidden="true">
+        <div class="axis-meta-left">
+          <span class="bars-h"><i></i><i></i><i></i></span>
+          <div>
+            <strong>横向信息流</strong>
+            <span>HORIZONTAL FLOW · <em id="axis-h-val">50%</em></span>
+          </div>
+        </div>
+
+        <div class="axis-track">
+          <div class="axis-hline"></div>
+          <div class="axis-arrow-r"></div>
+          <div class="axis-node is-err" id="cross-axis-node" style="left: 50%">
+            <span class="axis-ring-outer"></span>
+            <span class="axis-ring-mid"></span>
+            <span class="axis-core"></span>
+            <span class="axis-vline"></span>
+          </div>
+        </div>
+
+        <div class="axis-meta-right">
+          <span class="bars-v"><i></i><i></i><i></i></span>
+          <div>
+            <strong>纵向信息流</strong>
+            <span>VERTICAL FLOW · <em id="axis-v-val">50%</em></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主舞台双翼：左深松绿竖旗五项原则探针+单真源诊单 × 右正交拼排画布+精控轨 -->
+      <div class="hero-stage">
+        <!-- 拼排画布与精控轨（移动端借 order 置顶稳占首屏 ≥46%） -->
+        <div class="stage-canvas-col">
+          <div class="canvas-wrap">
+            <canvas
+              id="hero-canvas"
+              class="hero-canvas"
+              data-perf-drag
+              tabindex="0"
+              role="application"
+              aria-label="正交版面拼排桌：点击任意排版块翻转横竖方向，左右拖动分界轴调整横纵占比，方向键与回车可操作"
+            ></canvas>
+          </div>
+
+          <div class="controls-dock" aria-label="正交拼排控制栏">
+            <div class="ctrl-row ctrl-ratio-row">
+              <label for="ctrl-ratio" class="ctrl-label">横流主区占比</label>
+              <input id="ctrl-ratio" type="range" min="24" max="84" step="1" value="50">
+              <span class="ctrl-val" id="ctrl-ratio-val">50% : 50%</span>
+            </div>
+
+            <div class="ctrl-row ctrl-blocks-row">
+              <span class="ctrl-label">逐块翻向</span>
+              <div class="btn-group">
+                <button type="button" class="chip-btn" data-dir-block="title" aria-pressed="false">主标 <em>横 H</em></button>
+                <button type="button" class="chip-btn" data-dir-block="kicker" aria-pressed="false">导语 <em>横 H</em></button>
+                <button type="button" class="chip-btn is-vert" data-dir-block="body" aria-pressed="true">正文 <em>竖 V</em></button>
+                <button type="button" class="chip-btn" data-dir-block="rail" aria-pressed="false">导视 <em>横 H</em></button>
+                <button type="button" class="chip-btn" data-dir-block="footer" aria-pressed="false">要点 <em>横 H</em></button>
+              </div>
+            </div>
+
+            <div class="ctrl-row ctrl-split-row">
+              <div class="ctrl-sub">
+                <span class="ctrl-label">交界过渡</span>
+                <div class="btn-group">
+                  <button type="button" class="chip-btn is-active" data-trans="none" aria-pressed="true">无过渡</button>
+                  <button type="button" class="chip-btn" data-trans="rule" aria-pressed="false">细界线</button>
+                  <button type="button" class="chip-btn" data-trans="hatch" aria-pressed="false">斜线带</button>
+                  <button type="button" class="chip-btn" data-trans="space" aria-pressed="false">宽留白</button>
+                </div>
+              </div>
+              <div class="ctrl-sub">
+                <span class="ctrl-label">层级反差</span>
+                <div class="btn-group">
+                  <button type="button" class="chip-btn is-active" data-hier="flat" aria-pressed="true">拉平</button>
+                  <button type="button" class="chip-btn" data-hier="clear" aria-pressed="false">清晰分层</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ctrl-row ctrl-presets-row">
+              <div class="btn-group">
+                <button type="button" class="preset-btn is-sol" data-solution="classic">原海报解</button>
+                <button type="button" class="preset-btn is-sol" data-solution="vertTitle">竖标领衔解</button>
+                <button type="button" class="preset-btn is-sol" data-solution="wideMinimal">宽境留白解</button>
+                <button type="button" class="preset-btn is-sol" data-solution="kickerAnchor">双竖立脊解</button>
+              </div>
+              <div class="btn-group">
+                <button type="button" class="preset-btn is-trap" data-trap="allHoriz">试错：全横</button>
+                <button type="button" class="preset-btn is-trap" data-trap="split50">试错：五五</button>
+                <button type="button" class="preset-btn is-trap" data-trap="collide">试错：撞车</button>
+                <button type="button" class="preset-btn is-trap" data-trap="zigzag">试错：乱切</button>
+                <button type="button" class="preset-btn" id="ctrl-guides" aria-pressed="true">标尺：开</button>
+                <button type="button" class="preset-btn" id="ctrl-scan">演练视线</button>
+                <button type="button" class="preset-btn is-dark" id="ctrl-reset">复原错态</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 左翼：单真源白话诊单 + 1:1 复刻原海报深松绿竖旗『设计要点』五项实时探针 -->
+        <aside class="stage-audit-col" aria-label="实时诊断与设计要点">
+          <div class="diag-box is-err" id="diag-box" aria-live="polite">
+            <div class="diag-head">
+              <span class="diag-tag" id="diag-tag">0/5 · 贴脸撞车</span>
+              <span class="diag-src">SINGLE-SOURCE AUDIT</span>
+            </div>
+            <h2 class="diag-headline" id="diag-headline">交界净空只有 4px，横排尾巴直接撞进竖列</h2>
+            <p class="diag-reason" id="diag-reason"></p>
+            <div class="diag-action-row">
+              <p class="diag-hint" id="diag-hint"></p>
+              <button type="button" class="btn-primary" id="diag-fix-btn">加上原海报斜线过渡带</button>
+            </div>
+            <div class="diag-metrics" id="diag-metrics"></div>
+            <pre class="diag-css"><code id="diag-css"></code></pre>
+          </div>
+
+          <div class="principles-board">
+            <div class="green-flag" aria-hidden="true">
+              <span class="flag-zh">设计要点</span>
+              <span class="flag-en">DESIGN PRINCIPLES</span>
+            </div>
+            <ul class="principles-list">
+              <li class="p-row is-err" data-principle="mix">
+                <svg class="p-ico" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                  <path d="M12 3 A9 9 0 0 1 12 21 Z" fill="#01542E"/>
+                </svg>
+                <div class="p-text">
+                  <div class="p-top"><strong>混合</strong><span>MIX</span><em class="p-badge" data-p-badge>待检</em></div>
+                  <p>横向与纵向并存，互补共生。</p>
+                </div>
+              </li>
+              <li class="p-row is-err" data-principle="contrast">
+                <svg class="p-ico" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                  <path d="M5.6 18.4 L18.4 5.6 A9 9 0 0 0 5.6 18.4 Z" fill="currentColor"/>
+                </svg>
+                <div class="p-text">
+                  <div class="p-top"><strong>对比</strong><span>CONTRAST</span><em class="p-badge" data-p-badge>待检</em></div>
+                  <p>方向、大小、粗细对比，突出重点。</p>
+                </div>
+              </li>
+              <li class="p-row is-err" data-principle="hierarchy">
+                <svg class="p-ico" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="3.2" fill="currentColor"/>
+                  <rect x="3" y="9.5" width="18" height="2.4" fill="currentColor"/>
+                  <rect x="3" y="14.2" width="14" height="1.8" fill="currentColor"/>
+                  <rect x="3" y="18.2" width="10" height="1.4" fill="currentColor"/>
+                </svg>
+                <div class="p-text">
+                  <div class="p-top"><strong>层级</strong><span>HIERARCHY</span><em class="p-badge" data-p-badge>待检</em></div>
+                  <p>建立主次关系，信息有先后。</p>
+                </div>
+              </li>
+              <li class="p-row is-err" data-principle="rhythm">
+                <svg class="p-ico" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="5" cy="6" r="1.5" fill="currentColor"/><circle cx="10" cy="6" r="1.5" fill="currentColor"/><circle cx="15" cy="6" r="1.5" fill="currentColor"/><circle cx="20" cy="6" r="1.5" fill="currentColor"/>
+                  <circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="10" cy="12" r="1.5" fill="currentColor"/><circle cx="15" cy="12" r="1.5" fill="currentColor"/><circle cx="20" cy="12" r="1.5" fill="currentColor"/>
+                  <circle cx="5" cy="18" r="1.5" fill="currentColor"/><circle cx="10" cy="18" r="1.5" fill="currentColor"/><circle cx="15" cy="18" r="1.5" fill="currentColor"/><circle cx="20" cy="18" r="1.5" fill="currentColor"/>
+                </svg>
+                <div class="p-text">
+                  <div class="p-top"><strong>节奏</strong><span>RHYTHM</span><em class="p-badge" data-p-badge>待检</em></div>
+                  <p>方向交替形成韵律，版面更流畅。</p>
+                </div>
+              </li>
+              <li class="p-row is-err" data-principle="transition">
+                <svg class="p-ico" viewBox="0 0 24 24" aria-hidden="true">
+                  <line x1="3" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="1.8"/>
+                  <polyline points="14,7 19.5,12 14,17" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                </svg>
+                <div class="p-text">
+                  <div class="p-top"><strong>过渡</strong><span>TRANSITION</span><em class="p-badge" data-p-badge>待检</em></div>
+                  <p>用留白、线条、图形自然连接。</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+
+      <!-- 原海报底沿结语与标志性 → ● ● ○ 印记 -->
+      <div class="hero-coda">
+        <div>
+          <strong>横直有序，信息有形，设计有力。</strong>
+          <span>ORDER IN MIX, SHAPE IN INFORMATION, POWER IN DESIGN.</span>
+        </div>
+        <div class="coda-marks" aria-hidden="true">
+          <span class="coda-arrow">→</span>
+          <span class="coda-dot is-green"></span>
+          <span class="coda-dot is-black"></span>
+          <span class="coda-dot is-ring"></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===================== 01 横纵分工怎么立 ===================== -->
+    <section class="band band-ivory" id="sec-01">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div>
+            <h2>横纵分工怎么立</h2>
+            <p class="sec-en">DIRECTIONAL DIVISION · HORIZONTAL FOR READING, VERTICAL FOR GUIDING</p>
+          </div>
+        </div>
+
+        <div class="two-col-intro">
+          <div class="prose">
+            <p>原海报把两种方向的功能一语道破：<strong>横向排版「快速获取信息，适合标题、段落、说明性文字，建立清晰的阅读路径」</strong>；<strong>纵向排版「适合强调、导航、标签、引导视线，增强版面的层次」</strong>。</p>
+            <p>把两种方向放进同一版面时，第一件事不是炫技，而是先定「谁坐主位、谁做锚点」。如果只需要单一方向的纯净秩序，可以分别参考同小类的 <a href="https://layout.xiaoxiaodong.ai/212/play/" target="_blank" rel="noopener">212 横排左起</a>、<a href="https://layout.xiaoxiaodong.ai/213/play/" target="_blank" rel="noopener">213 横排右起</a>、<a href="https://layout.xiaoxiaodong.ai/214/play/" target="_blank" rel="noopener">214 直排右起</a> 与 <a href="https://layout.xiaoxiaodong.ai/215/play/" target="_blank" rel="noopener">215 直排左起</a>；而到了横直混排里，两套方向必须分工互补——通常由其中一条轴占据六成半到八成面积承载主信息，另一条轴用少量短词制造停顿与视觉抓手。</p>
+          </div>
+          <div class="quote-slab">
+            <div class="slab-row">
+              <span class="bars-h"><i></i><i></i><i></i></span>
+              <div>
+                <strong>横向排版 · 载文</strong>
+                <p>水平扫视天然贴合现代说明文、数字与中西混读，行宽稳定就不累眼。</p>
+              </div>
+            </div>
+            <div class="slab-row">
+              <span class="bars-v"><i></i><i></i><i></i></span>
+              <div>
+                <strong>纵向排版 · 领路</strong>
+                <p>垂直字列像一根插进横流里的路标，三到八个字就能瞬间截停视线。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 01 专属交互：信息角色双轴分拣台 -->
+        <div class="lab-box" id="role-sorter">
+          <div class="lab-head">
+            <div>
+              <h3>信息角色双轴分拣台</h3>
+              <p>把下面 6 类出版元素逐一归进「横流」或「纵流」，看实时样页怎么反应。</p>
+            </div>
+            <div class="btn-group">
+              <button type="button" class="chip-btn" data-role-ideal>套用推荐分工</button>
+              <button type="button" class="chip-btn" data-role-reset>恢复混乱初态</button>
+            </div>
+          </div>
+
+          <div class="role-layout">
+            <div class="role-list" data-role-list></div>
+            <div class="role-right">
+              <div data-role-preview></div>
+              <div class="role-verdict" data-role-verdict aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 02 交界处怎么过渡 ===================== -->
+    <section class="band band-sage" id="sec-02">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div>
+            <h2>交界处怎么过渡</h2>
+            <p class="sec-en">SEAM &amp; TRANSITION · PREVENTING CROSS-AXIS COLLISION</p>
+          </div>
+        </div>
+
+        <div class="prose wide-prose">
+          <p>横直混排最容易翻车的地方不在字本身，而在<strong>横排与竖排碰面的「十字路口」</strong>。当横排行尾的最后一字距离竖列侧腰不到一个汉字宽时，格式塔邻近性会把两股垂直文字吸成一团，眼睛读完横行一滑就串进竖列。原海报专门留出第五条原则——<strong>「过渡 TRANSITION：用留白、线条、图形自然连接」</strong>，并且亲身在右下示例卡里画了一排细斜线充当减速带。</p>
+          <p>这里讲的是<strong>块级区域</strong>的横直交界；如果是单行文字内部把两位数字横塞进竖列，或者处理竖排里的英文、双向语言与注音，则属于更微观的字内混排，详见同小类的 <a href="https://layout.xiaoxiaodong.ai/217/play/" target="_blank" rel="noopener">217 纵中横排</a>、<a href="https://layout.xiaoxiaodong.ai/218/play/" target="_blank" rel="noopener">218 直排中西文转向</a>、<a href="https://layout.xiaoxiaodong.ai/219/play/" target="_blank" rel="noopener">219 直排中西文直立</a>、<a href="https://layout.xiaoxiaodong.ai/220/play/" target="_blank" rel="noopener">220 双向文字排版</a> 与 <a href="https://layout.xiaoxiaodong.ai/221/play/" target="_blank" rel="noopener">221 旁注（Ruby）排版</a>。</p>
+        </div>
+
+        <!-- 02 专属交互：交界缝显微镜 -->
+        <div class="lab-box" id="seam-lab">
+          <div class="lab-head">
+            <div>
+              <h3>交界缝显微镜</h3>
+              <p>切换四种过渡媒介，拖动净空标尺，观察横排行尾与竖列侧腰何时串行撞车。</p>
+            </div>
+            <div class="btn-group" role="group" aria-label="选择交界过渡媒介">
+              <button type="button" class="chip-btn is-active" data-seam-mode="none" aria-pressed="true">无媒介</button>
+              <button type="button" class="chip-btn" data-seam-mode="rule" aria-pressed="false">1px 细界线</button>
+              <button type="button" class="chip-btn" data-seam-mode="hatch" aria-pressed="false">斜线纹理带</button>
+              <button type="button" class="chip-btn" data-seam-mode="space" aria-pressed="false">宽留白通道</button>
+            </div>
+          </div>
+
+          <div class="seam-stage">
+            <svg class="seam-svg" data-seam-svg viewBox="0 0 560 220" role="img" aria-label="横排与竖排交界净空剖面示意图"></svg>
+          </div>
+
+          <div class="seam-ctrl-bar">
+            <label for="seam-range" class="ctrl-label">交界净空（经验安全区 1.2–2.6em）</label>
+            <input id="seam-range" type="range" min="0.2" max="3.6" step="0.05" value="0.35" data-seam-range>
+            <span class="ctrl-val" data-seam-val>0.35 em</span>
+          </div>
+          <div class="seam-readout" data-seam-readout aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 03 它从哪来（深松绿暗室） ===================== -->
+    <section class="band band-dark" id="sec-03">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">03</span>
+          <div>
+            <h2>它从哪来</h2>
+            <p class="sec-en">FROM PHOTOTYPESETTING TO W3C WRITING MODES</p>
+          </div>
+        </div>
+
+        <div class="prose wide-prose">
+          <p>东亚汉字本身是近似正方形的方块字，天然既能纵走、也能横排。但真正让「同一页里自由横直混排」从罕见工艺变成日常设计语言的，是近百年间四次关键的技术与规范转折——每一项都可追溯到明确文献与年份。</p>
+        </div>
+
+        <!-- 03 专属交互：年代版式演进检视器 -->
+        <div class="history-lab" id="history-lab">
+          <div class="history-tabs" role="group" aria-label="选择历史里程碑">
+            <button type="button" class="hist-tab is-active" data-year-idx="0" aria-pressed="true"><b>1924</b><span>邦文写植机专利</span></button>
+            <button type="button" class="hist-tab" data-year-idx="1" aria-pressed="false"><b>1955</b><span>报刊横排改革</span></button>
+            <button type="button" class="hist-tab" data-year-idx="2" aria-pressed="false"><b>1964</b><span>写植书刊纵横混组</span></button>
+            <button type="button" class="hist-tab" data-year-idx="3" aria-pressed="false"><b>2019</b><span>CSS Writing Modes</span></button>
+          </div>
+
+          <div class="history-panel">
+            <div class="hist-copy">
+              <h3 data-hist-title>1924 · 邦文写真植字机申请专利</h3>
+              <p class="hist-who" data-hist-who></p>
+              <p class="hist-body" data-hist-body></p>
+              <pre class="hist-css"><code data-hist-css></code></pre>
+            </div>
+            <div class="hist-diagram">
+              <svg viewBox="0 0 280 188" data-hist-svg role="img" aria-label="年代版式结构解剖图"></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 04 什么时候用 ===================== -->
+    <section class="band band-paper" id="sec-04">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div>
+            <h2>什么时候用</h2>
+            <p class="sec-en">WHEN MIXED AXES ELEVATE THE PAGE</p>
+          </div>
+        </div>
+
+        <div class="two-col-intro">
+          <div class="prose">
+            <p>只要版面里天然同时存在<strong>「需要安静读完的说明文字」</strong>和<strong>「需要一眼抓住的期号、展期、章名或口号」</strong>，横直混排就能在不增加颜色与装饰的前提下，仅凭 90° 的方向反差把两层信息干净劈开——杂志专题跨页、美术馆与建筑展海报、品牌画册、食品茶饮包装、以及大屏文化网页首屏，都是它的主场。</p>
+            <div class="gentle-note">
+              <span class="gentle-pill">说多了一点</span>
+              <p>原海报写着「让版面更具节奏感与表现力」。补一句前提：<strong>这只在容器足够宽、信息天生分主次时成立</strong>。给本来只有一层文字的短卡片硬掰出竖排，不会平白多出表现力，反而只会增加读者的扫视折返成本。</p>
+            </div>
+          </div>
+
+          <div class="rule-cards">
+            <div class="rule-card">
+              <strong>主次经验比 7 : 3 到 8 : 2</strong>
+              <p>经验值：主阅读方向占 65%–82%，辅助引导方向占 18%–35%，最不容易五五分裂。</p>
+            </div>
+            <div class="rule-card">
+              <strong>单页转向控制在 1–2 次</strong>
+              <p>经验值：大块面正交最出气势；把同一段文案切碎来回横竖折腾，节奏会立刻塌成噪音。</p>
+            </div>
+            <div class="rule-card">
+              <strong>窄屏先保正文，收起竖栏</strong>
+              <p>在响应式网页里，容器窄于约 420–480px 时应把侧边竖排折叠成顶沿横眉。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 04 专属交互：三媒介与响应式退化实验箱 -->
+        <div class="lab-box" id="media-lab">
+          <div class="lab-head">
+            <div>
+              <h3>三媒介与窄屏退化实验箱</h3>
+              <p>切换三种真实媒介，再拖动容器宽度滑杆，看竖排导视栏何时该果断折叠成横眉。</p>
+            </div>
+            <div class="btn-group" role="group" aria-label="选择媒介场景">
+              <button type="button" class="chip-btn" data-media-scene="magazine" aria-pressed="false">杂志跨页</button>
+              <button type="button" class="chip-btn" data-media-scene="poster" aria-pressed="false">展览海报</button>
+              <button type="button" class="chip-btn is-active" data-media-scene="web" aria-pressed="true">网页专题首屏</button>
+            </div>
+          </div>
+
+          <div class="seam-ctrl-bar">
+            <label for="media-width" class="ctrl-label">模拟版面 / 视口宽度</label>
+            <input id="media-width" type="range" min="320" max="960" step="10" value="760" data-media-width>
+            <span class="ctrl-val" data-media-width-label>760px</span>
+          </div>
+
+          <div class="media-stage" data-media-frame></div>
+          <div class="media-note" data-media-note aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 05 什么时候别用 ===================== -->
+    <section class="band band-sand" id="sec-05">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div>
+            <h2>什么时候别用</h2>
+            <p class="sec-en">WHEN MIXED DIRECTIONS HURT USABILITY</p>
+          </div>
+        </div>
+
+        <p class="prose wide-prose">横直混排是强节奏工具，不是万能装饰。遇到下面四类场景时，请果断退回纯横排或纯竖排——点每张卡片里的开关，直接看纠偏前后的可读性落差。</p>
+
+        <!-- 05 专属交互：4 组反例一键止损对照卡 -->
+        <div class="avoid-grid" id="avoid-grid">
+          <article class="avoid-card">
+            <div class="avoid-top">
+              <h3>1. 表单与长篇说明条款</h3>
+              <button type="button" class="chip-btn" data-fix-toggle aria-pressed="false">看止损纠偏</button>
+            </div>
+            <div class="avoid-demo">
+              <div class="demo-bad">
+                <span class="demo-tag is-bad">踩坑</span>
+                <div class="bad-form">
+                  <span class="bad-vlabel">收件人姓名</span>
+                  <div class="bad-fields">
+                    <div>输入框被挤窄</div>
+                    <div>阅读顺序断裂</div>
+                  </div>
+                </div>
+              </div>
+              <div class="demo-good">
+                <span class="demo-tag is-good">纠偏</span>
+                <div class="good-form">
+                  <span>收件人姓名</span>
+                  <div class="good-input">统一左起横排，视线一路直落填完</div>
+                </div>
+              </div>
+            </div>
+            <p class="avoid-why">需要快速扫读核对的表单、说明书与协议条款，任何方向跳转都会抬高误填率，直接用 <a href="https://layout.xiaoxiaodong.ai/212/play/" target="_blank" rel="noopener">212 横排左起</a>。</p>
+          </article>
+
+          <article class="avoid-card">
+            <div class="avoid-top">
+              <h3>2. 高密数据表与工具栏</h3>
+              <button type="button" class="chip-btn" data-fix-toggle aria-pressed="false">看止损纠偏</button>
+            </div>
+            <div class="avoid-demo">
+              <div class="demo-bad">
+                <span class="demo-tag is-bad">踩坑</span>
+                <div class="bad-dash">
+                  <span>月活增长</span><span>留存率</span><span>转化比</span>
+                </div>
+              </div>
+              <div class="demo-good">
+                <span class="demo-tag is-good">纠偏</span>
+                <div class="good-dash">
+                  <div><b>月活增长</b><em>+18%</em></div>
+                  <div><b>留存率</b><em>64%</em></div>
+                </div>
+              </div>
+            </div>
+            <p class="avoid-why">数据卡片靠水平对齐数字来比较大小；把标签竖过来后，列高忽长忽短，还压缩了手指点击区。</p>
+          </article>
+
+          <article class="avoid-card">
+            <div class="avoid-top">
+              <h3>3. 长段西文与代码路径</h3>
+              <button type="button" class="chip-btn" data-fix-toggle aria-pressed="false">看止损纠偏</button>
+            </div>
+            <div class="avoid-demo">
+              <div class="demo-bad">
+                <span class="demo-tag is-bad">踩坑</span>
+                <div class="bad-latin">
+                  <p class="rot-en">HORIZONTAL AND VERTICAL MIXED PARAGRAPH</p>
+                  <span>读者不得不歪头 90° 读完整串长英文</span>
+                </div>
+              </div>
+              <div class="demo-good">
+                <span class="demo-tag is-good">纠偏</span>
+                <div class="good-latin">
+                  <strong>CITY FUTURE</strong>
+                  <span>竖排只放 1–2 个极短大写单词，长英文一律放横排</span>
+                </div>
+              </div>
+            </div>
+            <p class="avoid-why">短大写标识（如原海报里的 CITY FUTURE）可以作视觉图形竖置，但整句外文或网址放进竖列会极难辨认。</p>
+          </article>
+
+          <article class="avoid-card">
+            <div class="avoid-top">
+              <h3>4. 窄屏小卡片硬切竖栏</h3>
+              <button type="button" class="chip-btn" data-fix-toggle aria-pressed="false">看止损纠偏</button>
+            </div>
+            <div class="avoid-demo">
+              <div class="demo-bad">
+                <span class="demo-tag is-bad">踩坑</span>
+                <div class="bad-narrow">
+                  <div>每行被挤得只剩五个汉字碎成一柱</div>
+                  <span>强行保留的竖排边签</span>
+                </div>
+              </div>
+              <div class="demo-good">
+                <span class="demo-tag is-good">纠偏</span>
+                <div class="good-narrow">
+                  <em>顶部横眉 · 专题导视</em>
+                  <p>把全宽还给横排正文，每行稳稳排下十余字，手机读着不喘。</p>
+                </div>
+              </div>
+            </div>
+            <p class="avoid-why">小于 360px 的窄卡片空间本就吃紧，宁可用字号与底色拉层次，也不要为混排而混排。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 06 小练习（深松绿考场） ===================== -->
+    <section class="band band-dark" id="sec-06">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div>
+            <h2>小练习：哪张读得顺</h2>
+            <p class="sec-en">SINGLE-VARIABLE CHECK · PICK THE BALANCED SPREAD</p>
+          </div>
+        </div>
+
+        <p class="prose wide-prose">下面四张《城南茶事展》海报文案一字不差，每次只改了一个排版变量（角色分工、主次占比与过渡、或层级反差）。选出真正读得顺的一版。</p>
+
+        <div class="quiz-box" id="quiz-box">
+          <div class="quiz-grid" data-quiz-grid></div>
+          <div class="quiz-result" data-quiz-result aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 07 原海报与关键词 ===================== -->
+    <section class="band band-paper" id="sec-07">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div>
+            <h2>原海报与关键词</h2>
+            <p class="sec-en">ORIGINAL POSTER · KEYWORDS &amp; RELATED LAYOUTS</p>
+          </div>
+        </div>
+
+        <div class="poster-grid">
+          <div class="poster-figure">
+            <img
+              id="poster"
+              src="poster.webp"
+              alt="编号 216 横直混排原海报：素白底面配黑绿双色大标横直混排、竖排导语与朱红圆点、十字信息流交点圆、左侧深松绿竖旗设计要点与右下城市的更新与未来示例卡片"
+              draggable="false"
+            >
+            <div class="poster-actions">
+              <span>点击海报可全屏放大、拖拽细看细节</span>
+              <button type="button" class="btn-primary" id="poster-zoom-btn">放大原海报</button>
+            </div>
+          </div>
+
+          <div class="poster-info">
+            <div class="info-block">
+              <h3>海报总述</h3>
+              <p class="poster-quote">「横直混排通过方向的组织与对比，建立清晰的信息层次与视觉引导，让版面更具节奏感与表现力。」</p>
+              <p class="poster-coda-line">结语：横直有序，信息有形，设计有力。</p>
+            </div>
+
+            <div class="info-block">
+              <h3>海报关键词</h3>
+              <ul class="kw-list">
+                <li><strong>生态</strong><span>ECOLOGY · 绿色空间 / 低碳发展</span></li>
+                <li><strong>人本</strong><span>PEOPLE · 公共参与 / 社区活力</span></li>
+                <li><strong>创新</strong><span>INNOVATION · 智慧技术 / 未来交通</span></li>
+              </ul>
+            </div>
+
+            <div class="info-block">
+              <h3>原海报视觉色票</h3>
+              <ul class="swatch-list">
+                <li><i style="background:#F3F1ED;border:1px solid #C6CCC7"></i><b>暖宣纸</b><span>#F3F1ED</span></li>
+                <li><i style="background:#01542E"></i><b>深松绿</b><span>#01542E</span></li>
+                <li><i style="background:#93B2A0"></i><b>豆青圆</b><span>#93B2A0</span></li>
+                <li><i style="background:#0B0E0C"></i><b>炭墨黑</b><span>#0B0E0C</span></li>
+                <li><i style="background:#E95218"></i><b>点睛朱</b><span>#E95218</span></li>
+              </ul>
+            </div>
+
+            <div class="info-block">
+              <h3>同小类其他 9 篇</h3>
+              <ul class="sibling-links">
+                <li><a href="https://layout.xiaoxiaodong.ai/212/play/" target="_blank" rel="noopener">212 横排左起</a><span>标准现代水平阅读主轴</span></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/213/play/" target="_blank" rel="noopener">213 横排右起</a><span>右起横幅与历史牌匾读序</span></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/214/play/" target="_blank" rel="noopener">214 直排右起</a><span>东亚传统古籍竖排理序</span></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/215/play/" target="_blank" rel="noopener">215 直排左起</a><span>展墙画册的左起纵列网格</span></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/217/play/" target="_blank" rel="noopener">217 纵中横排</a><span>竖列内短数字与缩写横置</span></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/218/play/" target="_blank" rel="noopener">218 直排中西文转向</a><span>直排里拉丁长词顺转 90°</span></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/219/play/" target="_blank" rel="noopener">219 直排中西文直立</a><span>单字母与短标识竖排直立</span></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/220/play/" target="_blank" rel="noopener">220 双向文字排版</a><span>LTR 与 RTL 混排逻辑序</span></li>
+                <li><a href="https://layout.xiaoxiaodong.ai/221/play/" target="_blank" rel="noopener">221 旁注（Ruby）排版</a><span>拼音与振假名的行侧注释</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <span>在线版：<a href="https://layout.xiaoxiaodong.ai/216/play/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai/216/play/</a> · 全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai</a></span>
+      <span>海报 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> · 源文件 <a href="https://github.com/xxd-ai/350-layout-interactive" target="_blank" rel="noopener">GitHub</a></span>
+    </div>
+  </footer>
+
+  <!-- 原海报全屏放大灯箱（拖拽放大、Esc 关） -->
+  <div class="lightbox" id="poster-lightbox" role="dialog" aria-modal="true" aria-label="216 横直混排原海报放大预览" hidden>
+    <div class="lb-toolbar">
+      <span>216 横直混排 · 原海报（可拖拽平移、滚轮缩放、Esc 关）</span>
+      <div class="btn-group">
+        <button type="button" class="btn-dark-ghost" data-lb-out>缩小 −</button>
+        <span class="lb-scale" data-lb-scale>100%</span>
+        <button type="button" class="btn-dark-ghost" data-lb-in>放大 +</button>
+        <button type="button" class="btn-dark-ghost" data-lb-reset>复位</button>
+        <button type="button" class="btn-dark-ghost is-close" data-lb-close>关闭 Esc</button>
+      </div>
+    </div>
+    <div class="lb-stage" data-lb-stage>
+      <img data-lb-img alt="216 横直混排原海报高清视图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
