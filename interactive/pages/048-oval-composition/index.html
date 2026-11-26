@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>048 椭圆构图 · OVAL COMPOSITION</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero" id="top">
+    <div class="shell hero-shell">
+      <!-- 顶部自示范椭圆星芒刊头（1:1 转译 048 原海报） -->
+      <div class="masthead">
+        <div class="masthead-left">
+          <div class="kicker-row">
+            <span class="kicker-no">NO. 048</span>
+            <span class="kicker-cat">构图逻辑 / 几何形与放射结构</span>
+            <span class="status-pill status-pill--mobile" id="hero-status-pill" data-tone="bad">0/4 · 切边</span>
+          </div>
+          <div class="title-oval-wrap">
+            <svg class="title-oval-svg" viewBox="0 0 500 152" aria-hidden="true">
+              <ellipse id="masthead-oval-ring" cx="250" cy="76" rx="236" ry="64" fill="none" stroke="#D8727B" stroke-width="1.8"/>
+              <path d="M358 14 L362 23 L371 27 L362 31 L358 40 L354 31 L345 27 L354 23 Z" fill="#D8727B"/>
+              <path d="M52 104 L56 113 L65 117 L56 121 L52 130 L48 121 L39 117 L48 113 Z" fill="#D8727B"/>
+            </svg>
+            <h1 class="hero-title">椭圆构图</h1>
+            <p class="hero-en">OVAL COMPOSITION</p>
+          </div>
+        </div>
+
+        <div class="masthead-right">
+          <p class="hero-summary">将视觉元素沿椭圆形路径组织，以柔和的曲线形成包裹与引导，营造优雅而流动的视觉体验。</p>
+          <p class="hero-summary-en">Organize visual elements along an oval path to create enclosure and guidance, delivering a soft, elegant, and fluent composition.</p>
+          <div class="scene-bar" role="group" aria-label="切换场景题材">
+            <button type="button" class="scene-btn is-active" data-scene="river" aria-pressed="true">原海报·烟波孤舟</button>
+            <button type="button" class="scene-btn" data-scene="cameo" aria-pressed="false">宫廷·浮雕侧影</button>
+            <button type="button" class="scene-btn" data-scene="vessel" aria-pressed="false">画册·青瓷静物</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 瓷宣画廊三栏齐底主舞台（左五徽探针 × 中斜椭窗画布 × 右折角手札诊单） -->
+      <div class="atelier-grid">
+        <!-- 主舞台：开放式 2D Canvas 椭窗造景台 -->
+        <div class="stage-col">
+          <div class="stage-frame">
+            <canvas
+              id="hero-canvas"
+              class="hero-canvas"
+              data-perf-drag
+              tabindex="0"
+              aria-label="椭圆构图交互画布：可直接拖动主体与标题，或横拖塑形椭圆比例与倾角，支持方向键微调与空格演播视线流"
+            ></canvas>
+          </div>
+          <p class="stage-hint">画布横拖塑形比例与倾角 · 直拖孤舟或标题找双焦 · 拖端柄改弧度 · 方向键微调 / 空格演播视线流</p>
+        </div>
+
+        <!-- 折角手札诊单与精控舱（复刻原海报右上折角卡片） -->
+        <aside class="folio-col" aria-label="单真源几何诊单与精控台">
+          <div class="folio-card">
+            <div class="folio-head">
+              <span class="status-pill" id="diag-score" data-tone="bad">0/4 · 切边</span>
+              <span class="folio-tag">SINGLE-SOURCE OVAL</span>
+            </div>
+            <h2 class="diag-headline" id="diag-headline">椭圆弧线被外框削平，包裹感瞬间泄气</h2>
+            <p class="diag-why" id="diag-why"></p>
+            <p class="diag-how" id="diag-how"></p>
+            <div class="diag-actions">
+              <button type="button" class="btn-primary" id="diag-fix-btn">收回尺度并恢复完整弧环</button>
+              <button type="button" class="btn-ghost" id="btn-flow">演播视线流</button>
+            </div>
+
+            <dl class="metric-grid">
+              <div class="metric-item"><dt>实绘轴比</dt><dd id="m-ratio">1.04 : 1</dd></div>
+              <div class="metric-item"><dt>偏心率</dt><dd id="m-ecc">e = 0.27</dd></div>
+              <div class="metric-item"><dt>弧缘净空</dt><dd id="m-margin">切边 −16px</dd></div>
+              <div class="metric-item"><dt>视觉态势</dt><dd id="m-posture">四重失序（示意）</dd></div>
+            </dl>
+
+            <div class="controls-box">
+              <label class="ctrl-row">
+                <span class="ctrl-label"><span>长短轴比</span><strong id="val-ratio">1.04 : 1</strong></span>
+                <input id="sl-ratio" type="range" min="1.00" max="2.70" step="0.02" value="1.04">
+              </label>
+              <label class="ctrl-row">
+                <span class="ctrl-label"><span>主轴倾角</span><strong id="val-tilt">12°</strong></span>
+                <input id="sl-tilt" type="range" min="-45" max="90" step="1" value="12">
+              </label>
+              <label class="ctrl-row">
+                <span class="ctrl-label"><span>椭圆尺度</span><strong id="val-scale">124%</strong></span>
+                <input id="sl-scale" type="range" min="50" max="128" step="1" value="124">
+              </label>
+
+              <div class="toggle-row">
+                <button type="button" class="chip-btn is-alert" id="btn-margin-mode" aria-pressed="false">外围留白：硬角切框</button>
+                <button type="button" class="chip-btn" id="btn-guides" aria-pressed="true">双焦辅助：开</button>
+              </div>
+
+              <div class="preset-group">
+                <span class="preset-label">多组合法解</span>
+                <div class="preset-row">
+                  <button type="button" class="chip-btn chip-btn--good" data-preset="poster">原海报斜势解</button>
+                  <button type="button" class="chip-btn chip-btn--good" data-preset="wide">横卧舒展解</button>
+                  <button type="button" class="chip-btn chip-btn--good" data-preset="tall">竖立修长解</button>
+                </div>
+              </div>
+              <div class="preset-group">
+                <span class="preset-label">双向试错对照</span>
+                <div class="preset-row">
+                  <button type="button" class="chip-btn chip-btn--err" data-preset="errRound">近圆</button>
+                  <button type="button" class="chip-btn chip-btn--err" data-preset="errNeedle">窄缝</button>
+                  <button type="button" class="chip-btn chip-btn--err" data-preset="errClip">切边</button>
+                  <button type="button" class="chip-btn chip-btn--err" data-preset="errCenter">死居中</button>
+                  <button type="button" class="chip-btn" id="btn-reset">复原开场</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- 左栏（桌面居左、手机顺排在舞台与诊单之后）：原海报五枚关键词圆徽实时探针 -->
+        <div class="probes-col" aria-label="原海报五项关键词实况探针">
+          <div class="mobile-summary-box">
+            <p class="hero-summary">将视觉元素沿椭圆形路径组织，以柔和的曲线形成包裹与引导，营造优雅而流动的视觉体验。</p>
+            <p class="hero-summary-en">Organize visual elements along an oval path to create enclosure and guidance, delivering a soft, elegant, and fluent composition.</p>
+          </div>
+          <div class="probes-title-row">
+            <span class="probes-title">关键词探针</span>
+            <span class="probes-sub">点徽高亮对应几何层</span>
+          </div>
+          <div class="probes-list">
+            <button type="button" class="probe-card" data-badge-key="softness" data-layer="contour" data-ok="false">
+              <span class="badge-dot badge-dot--teal" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4 13 Q8 7 12 12 T20 11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+              </span>
+              <span class="probe-body">
+                <span class="probe-head"><strong>柔和</strong><em>SOFTNESS</em><span class="probe-chip" data-ok="false">硬角冲突</span></span>
+                <span class="probe-desc">曲线过渡，减少视觉冲突，舒适自然。</span>
+              </span>
+            </button>
+
+            <button type="button" class="probe-card" data-badge-key="enclosure" data-layer="margin" data-ok="false">
+              <span class="badge-dot badge-dot--coral" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3.5 2.5"/></svg>
+              </span>
+              <span class="probe-body">
+                <span class="probe-head"><strong>包裹</strong><em>ENCLOSURE</em><span class="probe-chip" data-ok="false">切边</span></span>
+                <span class="probe-desc">形成视觉容器，突出主体，增强聚焦。</span>
+              </span>
+            </button>
+
+            <button type="button" class="probe-card" data-badge-key="guidance" data-layer="foci" data-ok="false">
+              <span class="badge-dot badge-dot--plum" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M5 12 H18 M13 7 L18 12 L13 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="probe-body">
+                <span class="probe-head"><strong>引导</strong><em>GUIDANCE</em><span class="probe-chip" data-ok="false">死居中</span></span>
+                <span class="probe-desc">顺应椭圆的方向，自然引导视线流动。</span>
+              </span>
+            </button>
+
+            <button type="button" class="probe-card" data-badge-key="elegance" data-layer="axes" data-ok="false">
+              <span class="badge-dot badge-dot--teal" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 4 L14.5 9.5 L20 12 L14.5 14.5 L12 20 L9.5 14.5 L4 12 L9.5 9.5 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="probe-body">
+                <span class="probe-head"><strong>优雅</strong><em>ELEGANCE</em><span class="probe-chip" data-ok="false">1.04:1</span></span>
+                <span class="probe-desc">比例修长，节奏舒缓，传达高级与平衡之美。</span>
+              </span>
+            </button>
+
+            <button type="button" class="probe-card" data-badge-key="flow" data-layer="flow" data-ok="false">
+              <span class="badge-dot badge-dot--coral" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M7 18 C7 10 12 6 18 6 C18 12 14 17 7 18 Z M7 18 L14 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="probe-body">
+                <span class="probe-head"><strong>流动</strong><em>FLOW</em><span class="probe-chip" data-ok="false">切口断流</span></span>
+                <span class="probe-desc">连续的曲线节奏，带来动态与生命力。</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底沿四角星横线 + 原海报「如何运用」四步活体演化微缩条 -->
+      <div class="hero-divider" aria-hidden="true">
+        <span class="divider-line"></span>
+        <svg class="divider-star-svg" viewBox="0 0 18 18" width="14" height="14"><path d="M9 1 L11.2 6.8 L17 9 L11.2 11.2 L9 17 L6.8 11.2 L1 9 L6.8 6.8 Z" fill="currentColor"/></svg>
+      </div>
+      <div class="steps-strip" aria-label="原海报如何运用四步演化演示">
+        <div class="steps-lead">
+          <strong class="steps-heading">如何运用</strong>
+          <p>利用椭圆形态组织元素，建立主从关系，形成流畅而统一的画面。</p>
+        </div>
+        <div class="steps-grid">
+          <button type="button" class="step-card" data-step-id="1" data-done="true" data-active="true">
+            <svg class="step-mini" viewBox="0 0 64 64" aria-hidden="true">
+              <ellipse cx="32" cy="32" rx="22" ry="26" fill="none" stroke="#8A6E7D" stroke-dasharray="2.5 2.5"/>
+              <rect x="18" y="24" width="10" height="10" fill="#8A6E7D"/>
+              <circle cx="40" cy="22" r="5" fill="#8A6E7D"/>
+              <circle cx="28" cy="44" r="5.5" fill="#8A6E7D"/>
+              <polygon points="44,36 50,47 38,47" fill="#8A6E7D"/>
+            </svg>
+            <span class="step-name">1. 元素散乱无序</span>
+            <span class="step-state">正在调校</span>
+          </button>
+
+          <button type="button" class="step-card" data-step-id="2" data-done="false" data-active="false">
+            <svg class="step-mini" viewBox="0 0 64 64" aria-hidden="true">
+              <ellipse cx="32" cy="32" rx="22" ry="26" fill="none" stroke="#8A6E7D"/>
+              <ellipse cx="32" cy="32" rx="15" ry="19" fill="none" stroke="#D8727B" stroke-dasharray="3 2.5"/>
+              <circle cx="20" cy="22" r="4" fill="#8A6E7D"/>
+              <rect x="38" y="16" width="8" height="8" transform="rotate(20 42 20)" fill="#8A6E7D"/>
+              <circle cx="22" cy="44" r="4" fill="#8A6E7D"/>
+              <rect x="40" y="38" width="8" height="8" transform="rotate(-18 44 42)" fill="#8A6E7D"/>
+            </svg>
+            <span class="step-name">2. 确定椭圆路径</span>
+            <span class="step-state">待完成</span>
+          </button>
+
+          <button type="button" class="step-card" data-step-id="3" data-done="false" data-active="false">
+            <svg class="step-mini" viewBox="0 0 64 64" aria-hidden="true">
+              <ellipse cx="32" cy="32" rx="22" ry="26" fill="none" stroke="#8A6E7D"/>
+              <ellipse cx="32" cy="32" rx="16" ry="20" fill="none" stroke="#D8727B" stroke-dasharray="3 2.5"/>
+              <circle cx="32" cy="32" r="9" fill="#2D6F6A"/>
+              <circle cx="20" cy="20" r="3.5" fill="#8A6E7D"/>
+              <circle cx="44" cy="20" r="3.5" fill="#8A6E7D"/>
+              <circle cx="19" cy="41" r="3.5" fill="#8A6E7D"/>
+              <circle cx="46" cy="40" r="3.5" fill="#8A6E7D"/>
+            </svg>
+            <span class="step-name">3. 突出主体 焦点明确</span>
+            <span class="step-state">待完成</span>
+          </button>
+
+          <button type="button" class="step-card" data-step-id="4" data-done="false" data-active="false">
+            <svg class="step-mini" viewBox="0 0 64 64" aria-hidden="true">
+              <ellipse cx="32" cy="32" rx="22" ry="26" fill="#DCE9E5" stroke="#2D6F6A" stroke-width="1.6"/>
+              <path d="M12 42 Q26 28 40 36 Q48 32 52 42 Q44 57 32 57 Q20 57 12 42 Z" fill="#5D8C86"/>
+              <circle cx="38" cy="22" r="5" fill="#FCEFE8"/>
+              <ellipse cx="30" cy="46" rx="10" ry="2.5" fill="#183232"/>
+            </svg>
+            <span class="step-name">4. 完成 优雅统一</span>
+            <span class="step-state">待完成</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 01 双焦点的秘密 -->
+    <section class="sec sec--ivory" id="sec-01">
+      <div class="shell">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div class="sec-titles">
+            <h2>双焦点的秘密</h2>
+            <p class="sec-en">Why Two Foci Break Circular Stasis</p>
+          </div>
+        </div>
+
+        <div class="split-2">
+          <div class="prose">
+            <p>把一枚正圆沿一条轴轻轻拉长，画面里发生的远远不只是「变扁了一点」。<a href="https://layout.xiaoxiaodong.ai/047/play/" target="_blank" rel="noopener">047 圆形构图</a>靠等半径把视觉重心锁在唯一的圆心上，四面八方完全等权；<a href="https://layout.xiaoxiaodong.ai/046/play/" target="_blank" rel="noopener">046 矩形构图</a>靠直边和四个 90° 转角建立清晰的分区边界；而椭圆在拉长的瞬间，把单一圆心分裂成沿长轴对望的<strong>两枚焦点 F1 与 F2</strong>。</p>
+            <p>这两个隐形磁极，正是 048 椭圆构图既稳定又不死板的秘密：孤舟坐在下焦区稳住分量，标题文字悬在上焦区轻声呼应，眼睛无需生硬折转，就能在柔和的闭环曲线里自然往复。</p>
+
+            <div class="nuance-box">
+              <div class="nuance-top">
+                <span class="nuance-badge">温和校正 · 原海报 TIPS 1</span>
+              </div>
+              <p class="nuance-quote">原海报说：「椭圆越扁平，画面越舒展；越修长，越具动感。」</p>
+              <p>前半句点破了长短轴比例对气质的决定作用，但「越……越……」在实际排版里有明确边界：长短轴比小于约 1.2:1 时，会退化成画歪的正圆；超过约 2.2:1 后，短轴内腔被压成窄缝，舒展和动感都会变成拥挤窒息。拖动一旁的钉绳图钉，就能亲眼看到这段甜点区。</p>
+            </div>
+          </div>
+
+          <div class="lab-card">
+            <div class="lab-top">
+              <strong>钉绳画椭圆 · 离心率实验台</strong>
+              <button type="button" class="chip-btn" id="string-pause">暂停笔尖绕行</button>
+            </div>
+            <canvas id="string-canvas" class="string-canvas" aria-label="双钉绳画椭圆交互画布：可拖动 F1、F2 图钉或笔尖观察离心率变化"></canvas>
+            <label class="ctrl-row ctrl-row--compact">
+              <span class="ctrl-label"><span>拉远两枚图钉（离心率 e）</span><strong id="string-ecc-val">0.70</strong></span>
+              <input id="string-ecc" type="range" min="0.05" max="0.94" step="0.01" value="0.70">
+            </label>
+            <dl class="mini-stats">
+              <div><dt>长短轴比</dt><dd id="string-ratio">1.40 : 1</dd></div>
+              <div><dt>焦点外移</dt><dd id="string-foci">70% 半长轴</dd></div>
+              <div><dt>绳长定律</dt><dd id="string-sum">d1 + d2 = 2a</dd></div>
+            </dl>
+            <div class="regime-box">
+              <span class="regime-pill" id="string-regime-pill" data-tone="good">优雅舒展区（经验优选）</span>
+              <h3 id="string-regime-title">双焦清晰分开，弧线柔和且内腔宽裕</h3>
+              <p id="string-regime-body"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 五重视觉语言 -->
+    <section class="sec sec--mist" id="sec-02">
+      <div class="shell">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div class="sec-titles">
+            <h2>五重视觉语言</h2>
+            <p class="sec-en">Five Qualities of the Curved Container</p>
+          </div>
+        </div>
+
+        <p class="sec-intro">原海报在左侧用五枚交替着色的圆形图标，把椭圆的视觉效果拆成了「柔和、包裹、引导、优雅、流动」五个层次。点选下面任意一枚圆徽，再左右拉动中间的对照竖帘，对比硬直角框与椭圆路径在同一组画面上的差别。</p>
+
+        <div class="quality-tabs" role="group" aria-label="切换五项视觉语言剖析">
+          <button type="button" class="q-tab is-active" data-quality="softness" aria-pressed="true"><span class="q-dot q-dot--teal"></span>柔和 SOFTNESS</button>
+          <button type="button" class="q-tab" data-quality="enclosure" aria-pressed="false"><span class="q-dot q-dot--coral"></span>包裹 ENCLOSURE</button>
+          <button type="button" class="q-tab" data-quality="guidance" aria-pressed="false"><span class="q-dot q-dot--plum"></span>引导 GUIDANCE</button>
+          <button type="button" class="q-tab" data-quality="elegance" aria-pressed="false"><span class="q-dot q-dot--teal"></span>优雅 ELEGANCE</button>
+          <button type="button" class="q-tab" data-quality="flow" aria-pressed="false"><span class="q-dot q-dot--coral"></span>流动 FLOW</button>
+        </div>
+
+        <div class="curtain-layout">
+          <div class="curtain-stage" id="curtain-stage" data-lens="softness">
+            <!-- 左底：硬直角矩形版 -->
+            <div class="curtain-layer curtain-before" aria-hidden="true">
+              <svg viewBox="0 0 640 380" preserveAspectRatio="xMidYMid meet">
+                <rect width="640" height="380" fill="#F8ECE6"/>
+                <rect x="64" y="42" width="512" height="296" fill="#E3ECE9" stroke="#3B2136" stroke-width="2.5"/>
+                <path d="M64 236 L174 156 L284 218 L404 166 L576 236 L576 338 L64 338 Z" fill="#6D8C86"/>
+                <path d="M64 236 L576 236" stroke="#3B2136" stroke-width="1.2" opacity="0.3"/>
+                <rect x="148" y="256" width="96" height="16" fill="#1E3838"/>
+                <rect x="356" y="76" width="166" height="84" fill="#FFF8F4" stroke="#3B2136" stroke-width="1.5"/>
+                <text x="374" y="106" fill="#3B2136" font-size="18" font-weight="700" font-family="Noto Serif SC, serif">硬直角分块</text>
+                <text x="374" y="130" fill="#5A4254" font-size="12" font-family="LXGW WenKai, Noto Serif SC, serif">视线撞角急停，缺柔和过渡</text>
+                <!-- 硬角碰撞折线 -->
+                <path d="M84 62 L556 62 L556 318 L84 318 Z" fill="none" stroke="#B02A3E" stroke-width="1.6" stroke-dasharray="6 5"/>
+                <circle cx="84" cy="62" r="5" fill="#B02A3E"/><circle cx="556" cy="62" r="5" fill="#B02A3E"/>
+                <circle cx="556" cy="318" r="5" fill="#B02A3E"/><circle cx="84" cy="318" r="5" fill="#B02A3E"/>
+              </svg>
+              <span class="curtain-badge curtain-badge--left">硬直角框</span>
+            </div>
+
+            <!-- 右顶：048 椭圆包裹版 -->
+            <div class="curtain-layer curtain-after" id="curtain-after" aria-hidden="true">
+              <svg viewBox="0 0 640 380" preserveAspectRatio="xMidYMid meet">
+                <rect width="640" height="380" fill="#FCEFE8"/>
+                <g transform="rotate(-16 320 190)">
+                  <ellipse cx="336" cy="194" rx="224" ry="138" fill="#F5CBC8"/>
+                  <ellipse cx="324" cy="192" rx="224" ry="138" fill="#4E2B43"/>
+                  <defs><clipPath id="curtain-oval-clip"><ellipse cx="320" cy="190" rx="220" ry="134"/></clipPath></defs>
+                  <g clip-path="url(#curtain-oval-clip)">
+                    <rect x="60" y="20" width="520" height="340" fill="#EFE4DB"/>
+                    <path d="M60 226 Q190 120 310 196 Q430 144 580 226 L580 360 L60 360 Z" fill="#63857E"/>
+                    <path d="M60 226 L580 226 L580 360 L60 360 Z" fill="rgba(45,111,106,0.34)"/>
+                  </g>
+                  <ellipse cx="320" cy="190" rx="228" ry="142" fill="none" stroke="#D8727B" stroke-width="1.8"/>
+                  <path d="M108 118 A238 152 0 0 1 356 42" fill="none" stroke="#D8727B" stroke-width="1.6" stroke-dasharray="6 5"/>
+                  <path d="M524 268 A238 152 0 0 1 286 340" fill="none" stroke="#D8727B" stroke-width="1.6" stroke-dasharray="6 5"/>
+                </g>
+                <ellipse cx="222" cy="236" rx="34" ry="7" fill="#183232"/>
+                <path d="M226 232 L232 214 L238 232 Z" fill="#183232"/>
+                <rect x="348" y="102" width="152" height="74" rx="10" fill="rgba(253,246,241,0.88)" stroke="#D8727B" stroke-width="1.2"/>
+                <text x="364" y="130" fill="#3B2136" font-size="18" font-weight="700" font-family="Noto Serif SC, serif">椭圆柔弧</text>
+                <text x="364" y="154" fill="#5A4254" font-size="12" font-family="LXGW WenKai, Noto Serif SC, serif">双焦呼应，曲线顺流包裹</text>
+              </svg>
+              <span class="curtain-badge curtain-badge--right">椭圆路径</span>
+            </div>
+
+            <div class="curtain-handle" id="curtain-handle" aria-hidden="true">
+              <span class="curtain-knob"><svg viewBox="0 0 20 20" width="16" height="16"><path d="M6 10 H14 M8.5 7 L5.5 10 L8.5 13 M11.5 7 L14.5 10 L11.5 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </div>
+
+          <div class="curtain-readout">
+            <label class="ctrl-row ctrl-row--compact">
+              <span class="ctrl-label"><span>拖动对照帘</span><strong id="curtain-pct">椭圆覆盖 46%</strong></span>
+              <input id="curtain-range" type="range" min="8" max="92" step="1" value="54">
+            </label>
+            <blockquote class="poster-quote" id="curtain-quote">「曲线过渡，减少视觉冲突，舒适自然。」</blockquote>
+            <ul class="compare-list">
+              <li id="curtain-left-note"></li>
+              <li id="curtain-right-note"></li>
+            </ul>
+            <p class="compare-takeaway" id="curtain-takeaway"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 从宫廷徽章到广场（深紫梅暗室） -->
+    <section class="sec sec--dark" id="sec-03">
+      <div class="shell">
+        <div class="sec-head">
+          <span class="sec-num">03</span>
+          <div class="sec-titles">
+            <h2>从宫廷徽章到广场</h2>
+            <p class="sec-en">Five Centuries of Elliptical Craft</p>
+          </div>
+        </div>
+
+        <p class="sec-intro">椭圆并不是平面软件里的一个圆角滤镜。从 16 世纪工匠的圆规四心作图、都铎宫廷的随身肖像盒，到罗马巴洛克教堂与城市广场，人们一次次借椭圆打破正圆的静止与方格的僵硬。</p>
+
+        <div class="era-tabs" role="group" aria-label="选择历史阶段蓝图">
+          <button type="button" class="era-btn is-active" data-era="serlio" aria-pressed="true"><span>1545</span> 塞利奥作图</button>
+          <button type="button" class="era-btn" data-era="hilliard" aria-pressed="false"><span>1570s</span> 希利亚德肖像盒</button>
+          <button type="button" class="era-btn" data-era="borromini" aria-pressed="false"><span>1638</span> 圣卡洛穹顶</button>
+          <button type="button" class="era-btn" data-era="bernini" aria-pressed="false"><span>1656</span> 圣彼得广场</button>
+          <button type="button" class="era-btn" data-era="arnheim" aria-pressed="false"><span>1982</span> 中心的力量</button>
+        </div>
+
+        <div class="era-stage">
+          <div class="era-blueprint" id="era-svg"></div>
+          <div class="era-copy">
+            <div class="era-meta">
+              <span class="era-year" id="era-year">1545</span>
+              <span class="era-ratio" id="era-ratio">四心圆规作图</span>
+            </div>
+            <h3 id="era-title">塞利奥《建筑全书》第一卷</h3>
+            <p class="era-place" id="era-place"></p>
+            <p class="era-desc" id="era-desc"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 五类场景与留白 -->
+    <section class="sec sec--ivory" id="sec-04">
+      <div class="shell">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div class="sec-titles">
+            <h2>五类场景与留白</h2>
+            <p class="sec-en">Five Applications &amp; Contour-Following Margins</p>
+          </div>
+        </div>
+
+        <div class="split-2">
+          <div class="prose">
+            <p>原海报底部列出了椭圆构图最常落地的五类场景：<strong>摄影构图、海报设计、杂志排版、界面设计、包装设计</strong>。场景横跨镜头与纸面，但成败往往系在原海报 TIPS 里的两条实操铁律上：</p>
+            <ul class="tips-list">
+              <li><strong>顺形留白（TIPS 3）：</strong>「留白应顺应椭圆外形，避免切割曲线的完整性。」无论是杂志文字绕排还是瓶贴外圈，四周空隙要沿着弧线走，绝不拿硬角或裁切线把弧顶削平。</li>
+              <li><strong>双焦落位（TIPS 2 补充）：</strong>「主体偏向椭圆焦点位置，增强稳定与吸引力。」要注意：当椭圆很修长时，数学焦点会贴近弧尖，实用中应把主体放在<strong>偏心约 30%–50% 半长轴的视觉焦区</strong>（经验值），并在对面焦区配标题或呼吸留白。</li>
+            </ul>
+            <p class="sibling-note">如果画面不需要完整闭合的椭圆容器，曲线家族还有三种近亲可选：只借一段开放弧线而不封口的 <a href="https://layout.xiaoxiaodong.ai/049/play/" target="_blank" rel="noopener">049 弧形构图</a>、在中心留出空环轨道的 <a href="https://layout.xiaoxiaodong.ai/050/play/" target="_blank" rel="noopener">050 环形构图</a>，以及逐圈盘旋加速的 <a href="https://layout.xiaoxiaodong.ai/051/play/" target="_blank" rel="noopener">051 螺旋构图</a>。</p>
+          </div>
+
+          <div class="lab-card">
+            <div class="domain-tabs" role="group" aria-label="选择五类应用场景">
+              <button type="button" class="chip-btn is-active" data-domain="photo" aria-pressed="true">摄影构图</button>
+              <button type="button" class="chip-btn" data-domain="poster" aria-pressed="false">海报设计</button>
+              <button type="button" class="chip-btn" data-domain="magazine" aria-pressed="false">杂志排版</button>
+              <button type="button" class="chip-btn" data-domain="ui" aria-pressed="false">界面设计</button>
+              <button type="button" class="chip-btn" data-domain="package" aria-pressed="false">包装设计</button>
+            </div>
+            <div class="domain-mode-row" role="group" aria-label="切换顺形留白与硬切反例">
+              <button type="button" class="chip-btn chip-btn--good is-active" data-margin-demo="good" aria-pressed="true">顺形留白（成立）</button>
+              <button type="button" class="chip-btn chip-btn--err" data-margin-demo="bad" aria-pressed="false">硬切/挤死（失格）</button>
+            </div>
+            <div class="domain-svg-box" id="domain-svg"></div>
+            <div class="domain-caption">
+              <span class="regime-pill" id="domain-status" data-tone="good">摄影构图 · 顺形留白成立</span>
+              <p id="domain-note"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 什么时候别用 -->
+    <section class="sec sec--mist" id="sec-05">
+      <div class="shell">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div class="sec-titles">
+            <h2>什么时候别用</h2>
+            <p class="sec-en">When an Oval Hurts More Than It Helps</p>
+          </div>
+        </div>
+
+        <p class="sec-intro">椭圆最擅长柔和包裹与优雅叙事，但它天生牺牲了四个直角空间，也自带柔和减速的气质。遇到下面四种任务，硬套椭圆只会适得其反——点开每张卡片的开关，对照「误用」与「换对构图」的区别。</p>
+
+        <div class="avoid-grid">
+          <article class="avoid-card" data-avoid-card data-state="bad">
+            <div class="avoid-visual">
+              <svg class="avoid-svg avoid-svg--bad" viewBox="0 0 260 132" aria-label="表格塞进椭圆的反例">
+                <rect width="260" height="132" fill="#FFF8F4"/>
+                <ellipse cx="130" cy="56" rx="102" ry="42" fill="rgba(176,42,62,0.08)" stroke="#B02A3E" stroke-width="1.8"/>
+                <line x1="38" y1="38" x2="222" y2="38" stroke="#B02A3E" stroke-dasharray="3 2"/>
+                <line x1="32" y1="56" x2="228" y2="56" stroke="#B02A3E" stroke-dasharray="3 2"/>
+                <line x1="38" y1="74" x2="222" y2="74" stroke="#B02A3E" stroke-dasharray="3 2"/>
+                <line x1="94" y1="18" x2="94" y2="94" stroke="#B02A3E" stroke-dasharray="3 2"/>
+                <line x1="166" y1="18" x2="166" y2="94" stroke="#B02A3E" stroke-dasharray="3 2"/>
+                <text x="130" y="120" fill="#B02A3E" font-size="10.5" font-weight="700" text-anchor="middle" font-family="Chivo, Noto Serif SC, sans-serif">弧线切碎行列基线，数字对不齐</text>
+              </svg>
+              <svg class="avoid-svg avoid-svg--fix" viewBox="0 0 260 132" aria-label="改用矩形或四象限对照">
+                <rect width="260" height="132" fill="#FFF8F4"/>
+                <rect x="26" y="18" width="208" height="86" fill="#E9F2EF" stroke="#1E5954" stroke-width="1.8"/>
+                <line x1="26" y1="44" x2="234" y2="44" stroke="#1E5954"/>
+                <line x1="26" y1="74" x2="234" y2="74" stroke="#1E5954" opacity="0.5"/>
+                <line x1="130" y1="18" x2="130" y2="104" stroke="#1E5954"/>
+                <text x="130" y="124" fill="#1E5954" font-size="10.5" font-weight="700" text-anchor="middle" font-family="Chivo, Noto Serif SC, sans-serif">改用矩形/四象限：行列一目了然</text>
+              </svg>
+            </div>
+            <h3>高密度表格与数据对照</h3>
+            <p class="avoid-copy">弧边会不断缩窄首尾行宽，让数字无法垂直扫读。高密度数据与多维对照应交给 <a href="https://layout.xiaoxiaodong.ai/046/play/" target="_blank" rel="noopener">046 矩形构图</a> 或 <a href="https://layout.xiaoxiaodong.ai/056/play/" target="_blank" rel="noopener">056 四象限构图</a>。</p>
+            <button type="button" class="chip-btn" data-avoid-flip aria-pressed="false">看换对构图后的样子</button>
+          </article>
+
+          <article class="avoid-card" data-avoid-card data-state="bad">
+            <div class="avoid-visual">
+              <svg class="avoid-svg avoid-svg--bad" viewBox="0 0 260 132" aria-label="庄严徽章误用扁椭圆">
+                <rect width="260" height="132" fill="#FFF8F4"/>
+                <ellipse cx="130" cy="64" rx="92" ry="42" fill="rgba(176,42,62,0.08)" stroke="#B02A3E" stroke-width="1.8"/>
+                <polygon points="130,36 138,56 158,56 142,68 148,88 130,76 112,88 118,68 102,56 122,56" fill="#B02A3E" opacity="0.72"/>
+                <text x="130" y="124" fill="#B02A3E" font-size="10.5" font-weight="700" text-anchor="middle" font-family="Chivo, Noto Serif SC, sans-serif">左右被拉扁，像比例失调的印章</text>
+              </svg>
+              <svg class="avoid-svg avoid-svg--fix" viewBox="0 0 260 132" aria-label="改用正圆或方形印徽">
+                <rect width="260" height="132" fill="#FFF8F4"/>
+                <circle cx="130" cy="60" r="44" fill="#E9F2EF" stroke="#1E5954" stroke-width="2"/>
+                <circle cx="130" cy="60" r="36" fill="none" stroke="#1E5954" stroke-dasharray="3 3"/>
+                <polygon points="130,34 137,52 156,52 141,63 146,81 130,70 114,81 119,63 104,52 123,52" fill="#1E5954"/>
+                <text x="130" y="124" fill="#1E5954" font-size="10.5" font-weight="700" text-anchor="middle" font-family="Chivo, Noto Serif SC, sans-serif">改用正圆/方形：四方等权庄严</text>
+              </svg>
+            </div>
+            <h3>需要绝对等权的庄严徽章</h3>
+            <p class="avoid-copy">椭圆自带主轴方向偏重；如果你的目标是不偏不倚的向心仪式感与对称稳固，应直接选用 <a href="https://layout.xiaoxiaodong.ai/047/play/" target="_blank" rel="noopener">047 圆形构图</a> 或 <a href="https://layout.xiaoxiaodong.ai/045/play/" target="_blank" rel="noopener">045 方形构图</a>。</p>
+            <button type="button" class="chip-btn" data-avoid-flip aria-pressed="false">看换对构图后的样子</button>
+          </article>
+
+          <article class="avoid-card" data-avoid-card data-state="bad">
+            <div class="avoid-visual">
+              <svg class="avoid-svg avoid-svg--bad" viewBox="0 0 260 132" aria-label="紧迫告警误用柔和椭圆">
+                <rect width="260" height="132" fill="#FFF8F4"/>
+                <ellipse cx="130" cy="62" rx="84" ry="44" fill="rgba(176,42,62,0.08)" stroke="#B02A3E" stroke-width="2"/>
+                <text x="130" y="68" fill="#B02A3E" font-size="22" font-weight="900" text-anchor="middle" font-family="Noto Serif SC, serif">限时冲刺</text>
+                <text x="130" y="124" fill="#B02A3E" font-size="10.5" font-weight="700" text-anchor="middle" font-family="Chivo, Noto Serif SC, sans-serif">柔弧把锋芒与紧迫感全卸掉了</text>
+              </svg>
+              <svg class="avoid-svg avoid-svg--fix" viewBox="0 0 260 132" aria-label="改用三角或倒三角制造张力">
+                <rect width="260" height="132" fill="#FFF8F4"/>
+                <polygon points="130,14 218,104 42,104" fill="#E9F2EF" stroke="#1E5954" stroke-width="2.2"/>
+                <text x="130" y="84" fill="#1E5954" font-size="18" font-weight="900" text-anchor="middle" font-family="Noto Serif SC, serif">锐利聚焦</text>
+                <text x="130" y="124" fill="#1E5954" font-size="10.5" font-weight="700" text-anchor="middle" font-family="Chivo, Noto Serif SC, sans-serif">改用三角/倒三角：尖角立出冲击力</text>
+              </svg>
+            </div>
+            <h3>强调冲突与锋芒的竞技/告警</h3>
+            <p class="avoid-copy">椭圆的温和曲率会天然柔化冲突感。需要爆发力、速度或紧迫感的海报，更适合用尖角撑起张力的 <a href="https://layout.xiaoxiaodong.ai/041/play/" target="_blank" rel="noopener">041 三角构图</a> 或 <a href="https://layout.xiaoxiaodong.ai/043/play/" target="_blank" rel="noopener">043 倒三角构图</a>。</p>
+            <button type="button" class="chip-btn" data-avoid-flip aria-pressed="false">看换对构图后的样子</button>
+          </article>
+
+          <article class="avoid-card" data-avoid-card data-state="bad">
+            <div class="avoid-visual">
+              <svg class="avoid-svg avoid-svg--bad" viewBox="0 0 260 132" aria-label="极矮横幅硬塞椭圆">
+                <rect width="260" height="132" fill="#FFF8F4"/>
+                <rect x="16" y="42" width="228" height="44" fill="#FCEFE8" stroke="#B02A3E" stroke-width="1.6"/>
+                <ellipse cx="130" cy="64" rx="108" ry="18" fill="rgba(176,42,62,0.12)" stroke="#B02A3E" stroke-width="1.6"/>
+                <text x="130" y="68" fill="#B02A3E" font-size="10.5" font-weight="700" text-anchor="middle" font-family="Chivo, Noto Serif SC, sans-serif">极矮横条硬塞椭圆只剩一条缝</text>
+                <text x="130" y="124" fill="#B02A3E" font-size="10.5" font-weight="700" text-anchor="middle" font-family="Chivo, Noto Serif SC, sans-serif">上下挤爆，既无包裹又读不清字</text>
+              </svg>
+              <svg class="avoid-svg avoid-svg--fix" viewBox="0 0 260 132" aria-label="改用开放弧形导流">
+                <rect width="260" height="132" fill="#FFF8F4"/>
+                <rect x="16" y="42" width="228" height="44" fill="#E9F2EF" stroke="#1E5954" stroke-width="1.6"/>
+                <path d="M24 76 Q130 42 236 76" fill="none" stroke="#1E5954" stroke-width="2.2"/>
+                <circle cx="130" cy="58" r="6" fill="#1E5954"/>
+                <text x="130" y="124" fill="#1E5954" font-size="10.5" font-weight="700" text-anchor="middle" font-family="Chivo, Noto Serif SC, sans-serif">改用开放弧形：借势导流而不硬闭环</text>
+              </svg>
+            </div>
+            <h3>极矮横幅或极窄竖条广告</h3>
+            <p class="avoid-copy">画幅长宽比超过 3:1 时，硬画完整闭合椭圆要么被上下裁断、要么被压成细缝。此时不如只取一段开放的 <a href="https://layout.xiaoxiaodong.ai/049/play/" target="_blank" rel="noopener">049 弧形构图</a> 顺势牵引视线。</p>
+            <button type="button" class="chip-btn" data-avoid-flip aria-pressed="false">看换对构图后的样子</button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 眼力小练习（深紫梅暗室） -->
+    <section class="sec sec--dark" id="sec-06">
+      <div class="shell">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div class="sec-titles">
+            <h2>眼力小练习</h2>
+            <p class="sec-en">Single-Variable Composition Check</p>
+          </div>
+        </div>
+
+        <div class="quiz-top">
+          <div class="quiz-rounds" role="group" aria-label="切换测验题目">
+            <button type="button" class="era-btn is-active" data-quiz-round="0" aria-pressed="true">第 1 题 · 双焦落位</button>
+            <button type="button" class="era-btn" data-quiz-round="1" aria-pressed="false">第 2 题 · 轴比与弧缘</button>
+          </div>
+        </div>
+        <p class="quiz-prompt" id="quiz-prompt"></p>
+        <div class="quiz-grid" id="quiz-grid"></div>
+        <div class="quiz-feedback" id="quiz-feedback" data-state="idle"></div>
+      </div>
+    </section>
+
+    <!-- 07 原海报与关键词 -->
+    <section class="sec sec--blush" id="sec-07">
+      <div class="shell">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div class="sec-titles">
+            <h2>原海报与关键词</h2>
+            <p class="sec-en">Original Poster &amp; Key Takeaways</p>
+          </div>
+        </div>
+
+        <div class="poster-spread">
+          <div class="poster-col">
+            <button type="button" class="poster-trigger" id="poster-open" aria-label="点击放大查看 048 椭圆构图原海报">
+              <img id="poster" src="poster.webp" width="1086" height="1448" alt="048 椭圆构图原海报">
+              <span class="poster-zoom-hint">点击放大 · 支持滚轮缩放与拖拽</span>
+            </button>
+          </div>
+
+          <div class="poster-notes">
+            <div class="tips-folio">
+              <span class="tips-pill">TIPS</span>
+              <ul class="tips-original">
+                <li>椭圆越扁平，画面越舒展；越修长，越具动感。</li>
+                <li>主体偏向椭圆焦点位置，增强稳定与吸引力。</li>
+                <li>留白应顺应椭圆外形，避免切割曲线的完整性。</li>
+              </ul>
+            </div>
+
+            <div class="kw-panel">
+              <h3>海报关键词</h3>
+              <div class="kw-pills">
+                <span class="kw-pill kw-pill--teal">柔和 · SOFTNESS</span>
+                <span class="kw-pill kw-pill--coral">包裹 · ENCLOSURE</span>
+                <span class="kw-pill kw-pill--plum">引导 · GUIDANCE</span>
+                <span class="kw-pill kw-pill--teal">优雅 · ELEGANCE</span>
+                <span class="kw-pill kw-pill--coral">流动 · FLOW</span>
+              </div>
+            </div>
+
+            <div class="sibling-panel">
+              <h3>几何形与放射结构 · 同类导览</h3>
+              <p>本小类共 16 张海报，各讲一种几何骨架。如果想顺着曲线或直线继续对照，可以直接打开相邻页面的互动版：</p>
+              <div class="sibling-links">
+                <a href="https://layout.xiaoxiaodong.ai/046/play/" target="_blank" rel="noopener">046 矩形构图</a>
+                <a href="https://layout.xiaoxiaodong.ai/047/play/" target="_blank" rel="noopener">047 圆形构图</a>
+                <a href="https://layout.xiaoxiaodong.ai/049/play/" target="_blank" rel="noopener">049 弧形构图</a>
+                <a href="https://layout.xiaoxiaodong.ai/050/play/" target="_blank" rel="noopener">050 环形构图</a>
+                <a href="https://layout.xiaoxiaodong.ai/051/play/" target="_blank" rel="noopener">051 螺旋构图</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-row">
+      <a href="https://layout.xiaoxiaodong.ai/048/play/" target="_blank" rel="noopener">在线版</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span aria-hidden="true">·</span>
+      <span>海报 CC BY 4.0</span>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/xiaoxiaodong-ai/350-layout-interactive" target="_blank" rel="noopener">源文件 GitHub</a>
+    </div>
+  </footer>
+
+  <!-- 原海报看图灯箱 -->
+  <div class="lightbox" id="poster-lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报大图预览">
+    <div class="lb-bar">
+      <span>048 椭圆构图 · 拖动平移 / 滚轮缩放 / Esc 关闭</span>
+      <div class="lb-btns">
+        <button type="button" class="lb-btn" id="lb-zoom-out">缩小</button>
+        <button type="button" class="lb-btn" id="lb-reset">重置</button>
+        <button type="button" class="lb-btn" id="lb-zoom-in">放大</button>
+        <button type="button" class="lb-btn lb-btn--close" id="lb-close">关闭</button>
+      </div>
+    </div>
+    <div class="lb-stage" id="lb-stage">
+      <img id="lightbox-img" alt="048 椭圆构图原海报放大图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
