@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>132 单栏 版式 · SINGLE-COLUMN LAYOUT</title>
+<meta name="description" content="132 单栏版式互动排印讲义：拉动双虚线栏轨实测汉字行宽与回扫倾角，理解垂直阅读、单一视线与连续叙事。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#sec-01">跳至正文讲义</a>
+
+<!-- ===================== 开场：132 原海报转译 · 全宽单栏排印展卷 ===================== -->
+<header class="hero" id="top">
+  <div class="hero-rail-bg" aria-hidden="true"></div>
+  <div class="hero-inner">
+
+    <!-- 顶沿紧凑书眉（复刻原海报朱红圆锚 + 垂点黑箭 + 大标 + 三标本） -->
+    <div class="masthead">
+      <div class="masthead-brand">
+        <div class="poster-anchor" aria-hidden="true">
+          <span class="anchor-disc"></span>
+          <svg class="anchor-arrow" viewBox="0 0 12 22" width="12" height="22">
+            <circle cx="6" cy="2" r="1.2" fill="currentColor"/>
+            <circle cx="6" cy="6.5" r="1.2" fill="currentColor"/>
+            <circle cx="6" cy="11" r="1.2" fill="currentColor"/>
+            <polygon points="2.5,15.5 9.5,15.5 6,21" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="masthead-titles">
+          <div class="masthead-kicker">
+            <span class="mono-id">NO. 132</span>
+            <span class="kicker-sep" aria-hidden="true">·</span>
+            <span class="kicker-cat">平面、出版与广告 / 分栏、跨页与出血</span>
+          </div>
+          <div class="title-line">
+            <h1>单栏 版式</h1>
+            <span class="title-en" lang="en">SINGLE-COLUMN LAYOUT</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="masthead-actions">
+        <div class="specimen-tabs" role="tablist" aria-label="排印标本切换">
+          <button type="button" class="spec-tab is-active" role="tab" aria-selected="true" data-specimen="book">书刊特稿</button>
+          <button type="button" class="spec-tab" role="tab" aria-selected="false" data-specimen="mobile">移动专题</button>
+          <button type="button" class="spec-tab" role="tab" aria-selected="false" data-specimen="form">结账表单</button>
+        </div>
+        <div class="status-stamp is-warn" id="hero-status-stamp" aria-live="polite">0/3 · 侧栏抢焦</div>
+      </div>
+    </div>
+
+    <!-- 原海报标志性中点细线 -->
+    <div class="dot-rule hero-rule" aria-hidden="true"><span></span><i></i><span></span></div>
+
+    <!-- 中段主角：全宽双虚线栏轨排印舞台（100% 宽度呈现左右留白护城河） -->
+    <div class="galley-wrap" id="galley-wrap">
+      <canvas id="hero-canvas" class="galley-canvas" data-perf-drag tabindex="0" aria-label="单栏双虚线栏轨排印舞台：左右拖动虚线栏轨调整栏宽，方向键微调，空格键演播视线"></canvas>
+      <div class="galley-hint-bar">
+        <span>左右拖虚线轨或画布调栏宽 · 直点红卡清出侧栏 · 方向键 ←/→ 调宽、↑/↓ 调行距、空格演播视线</span>
+        <span class="mono-live" id="canvas-hud-line">栏宽 88% · 留白各 6% · 行距 1.20×</span>
+      </div>
+    </div>
+
+    <!-- 紧贴底沿：双栏编校纸带（左单真源诊单 / 右精简推拉控台） -->
+    <div class="proof-band">
+      <section class="verdict-sheet" id="verdict-sheet" aria-label="单真源实时诊断">
+        <div class="verdict-top">
+          <span class="verdict-tag is-warn" id="verdict-tag">0/3 待校</span>
+          <span class="verdict-source" lang="en">REAL-TIME MEASURE PROOF</span>
+        </div>
+        <h3 class="verdict-title" id="verdict-title">右侧浮卡扯断了单一视线</h3>
+        <p class="verdict-body" id="verdict-body">单栏的核心本是清空旁路，把注意力拢在一条走廊里。现在右边多出一块推荐浮卡，眼睛每读两行就会被侧方噪点勾走，单一视线名存实亡。</p>
+        <div class="verdict-action-row">
+          <p class="verdict-hint" id="verdict-hint">直接点击画布里的红色「抢焦侧栏」卡片把它清出去，或切换到「纯净单栏」。</p>
+          <button type="button" class="btn-primary" id="btn-step-fix">清出抢焦侧栏</button>
+        </div>
+        <dl class="metric-strip" aria-label="画布实测读数">
+          <div class="metric-cell">
+            <dt>实测行长</dt>
+            <dd id="m-chars">52 字/行</dd>
+          </div>
+          <div class="metric-cell">
+            <dt>单侧护城河</dt>
+            <dd id="m-margin">6%</dd>
+          </div>
+          <div class="metric-cell">
+            <dt>行距比</dt>
+            <dd id="m-leading">1.20×</dd>
+          </div>
+          <div class="metric-cell">
+            <dt>回扫评估</dt>
+            <dd id="m-sweep">视线分叉（示意）</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="control-sheet" aria-label="单栏排印控台">
+        <div class="ctrl-row ctrl-sliders">
+          <label class="slider-field" for="range-width">
+            <span class="field-head">
+              <span>栏宽占比</span>
+              <output id="out-width" for="range-width">88%</output>
+            </span>
+            <input type="range" id="range-width" min="24" max="92" step="1" value="88">
+          </label>
+          <label class="slider-field" for="range-leading">
+            <span class="field-head">
+              <span>正文行距</span>
+              <output id="out-leading" for="range-leading">1.20×</output>
+            </span>
+            <input type="range" id="range-leading" min="115" max="230" step="1" value="120">
+          </label>
+        </div>
+
+        <div class="ctrl-row ctrl-groups">
+          <div class="seg-box">
+            <span class="seg-label">通道纯净度</span>
+            <div class="seg-btns" role="group" aria-label="通道纯净度">
+              <button type="button" class="seg-btn" data-mode="clean">纯净单栏</button>
+              <button type="button" class="seg-btn is-active" data-mode="sidebar">侧栏抢焦</button>
+              <button type="button" class="seg-btn" data-mode="dual">硬拆双栏</button>
+            </div>
+          </div>
+          <div class="seg-box">
+            <span class="seg-label">叙事节拍</span>
+            <div class="seg-btns" role="group" aria-label="叙事节拍">
+              <button type="button" class="seg-btn is-active" data-rhythm="wall">文字墙</button>
+              <button type="button" class="seg-btn" data-rhythm="dots">圆点分节</button>
+              <button type="button" class="seg-btn" data-rhythm="breakout">配图破墙</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ctrl-row ctrl-presets">
+          <button type="button" class="btn-gaze" id="btn-gaze" aria-pressed="false">演播视线</button>
+          <button type="button" class="preset-btn is-good" data-preset="classic">书刊经典解</button>
+          <button type="button" class="preset-btn is-good" data-preset="editorial">长文破墙解</button>
+          <button type="button" class="preset-btn is-good" data-preset="compact">窄栏精读解</button>
+          <button type="button" class="preset-btn is-bad" data-preset="errWide">试错：满屏面条</button>
+          <button type="button" class="preset-btn is-bad" data-preset="errNarrow">试错：过窄拉锯</button>
+          <button type="button" class="preset-btn is-bad" data-preset="errSplit">试错：硬拆双栏</button>
+          <button type="button" class="preset-btn is-reset" id="btn-reset">复原错态</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- 底部横排：1:1 复刻原海报三枚朱红实心圆徽（黑符）实时体检带 -->
+    <div class="poster-pillars" aria-label="原海报三大核心特征实时状态">
+      <article class="pillar-item" id="pillar-vertical">
+        <div class="pillar-disc" aria-hidden="true">
+          <svg viewBox="0 0 40 40" width="38" height="38">
+            <line x1="20" y1="8" x2="20" y2="25" stroke="#0C0C0C" stroke-width="2" stroke-dasharray="3 3"/>
+            <polygon points="14,24 26,24 20,33" fill="#0C0C0C"/>
+          </svg>
+        </div>
+        <div class="pillar-copy">
+          <div class="pillar-head">
+            <strong>垂直阅读</strong>
+            <span class="pillar-state is-warn" id="state-vertical">超宽 52 字</span>
+          </div>
+          <span class="pillar-en" lang="en">VERTICAL READING</span>
+          <p>内容自上而下，符合阅读习惯。</p>
+        </div>
+      </article>
+
+      <article class="pillar-item" id="pillar-viewline">
+        <div class="pillar-disc" aria-hidden="true">
+          <svg viewBox="0 0 40 40" width="38" height="38">
+            <path d="M7,20 Q20,9 33,20 Q20,31 7,20 Z" fill="none" stroke="#0C0C0C" stroke-width="2.2"/>
+            <circle cx="20" cy="20" r="6" fill="#0C0C0C"/>
+            <circle cx="20" cy="20" r="2.2" fill="#E0381A"/>
+          </svg>
+        </div>
+        <div class="pillar-copy">
+          <div class="pillar-head">
+            <strong>单一视线</strong>
+            <span class="pillar-state is-warn" id="state-viewline">侧栏抢焦</span>
+          </div>
+          <span class="pillar-en" lang="en">SINGLE VIEWLINE</span>
+          <p>视觉焦点集中，信息清晰聚焦。</p>
+        </div>
+      </article>
+
+      <article class="pillar-item" id="pillar-narrative">
+        <div class="pillar-disc" aria-hidden="true">
+          <svg viewBox="0 0 40 40" width="38" height="38">
+            <line x1="20" y1="9" x2="20" y2="31" stroke="#0C0C0C" stroke-width="2.2"/>
+            <circle cx="20" cy="10" r="3" fill="#0C0C0C"/>
+            <circle cx="20" cy="20" r="3" fill="#0C0C0C"/>
+            <circle cx="20" cy="30" r="3" fill="#0C0C0C"/>
+          </svg>
+        </div>
+        <div class="pillar-copy">
+          <div class="pillar-head">
+            <strong>连续叙事</strong>
+            <span class="pillar-state is-warn" id="state-narrative">行距过紧 1.20×</span>
+          </div>
+          <span class="pillar-en" lang="en">CONTINUOUS NARRATIVE</span>
+          <p>信息有序衔接，形成流畅节奏。</p>
+        </div>
+      </article>
+    </div>
+
+    <!-- 原海报底沿 4×4 黑点朱红方印收脚 -->
+    <div class="hero-colophon" aria-hidden="true">
+      <div class="dot-rule"><span></span><i></i><span></span></div>
+      <div class="vermilion-stamp">
+        <svg viewBox="0 0 64 52" width="64" height="52">
+          <rect width="64" height="52" fill="#E0381A"/>
+          <g fill="#0C0C0C">
+            <circle cx="20" cy="14" r="1.7"/><circle cx="28" cy="14" r="1.7"/><circle cx="36" cy="14" r="1.7"/><circle cx="44" cy="14" r="1.7"/>
+            <circle cx="20" cy="22" r="1.7"/><circle cx="28" cy="22" r="1.7"/><circle cx="36" cy="22" r="1.7"/><circle cx="44" cy="22" r="1.7"/>
+            <circle cx="20" cy="30" r="1.7"/><circle cx="28" cy="30" r="1.7"/><circle cx="36" cy="30" r="1.7"/><circle cx="44" cy="30" r="1.7"/>
+            <circle cx="20" cy="38" r="1.7"/><circle cx="28" cy="38" r="1.7"/><circle cx="36" cy="38" r="1.7"/><circle cx="44" cy="38" r="1.7"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+</header>
+
+<main>
+
+  <!-- ===================== 01 一条路，省去视线分岔 ===================== -->
+  <section class="chapter surf-bright" id="sec-01">
+    <div class="chapter-inner">
+      <div class="sec-head">
+        <span class="sec-num" aria-hidden="true">01</span>
+        <div class="sec-title-block">
+          <h2>一条路，省去视线分岔</h2>
+          <p class="sec-en" lang="en">ONE CORRIDOR · ZERO VISUAL FORKS</p>
+        </div>
+      </div>
+
+      <div class="editorial-split">
+        <div class="prose-col">
+          <p class="lead-p">原海报用三条短句点破了单栏版式的全部底气：<strong>「垂直阅读：内容自上而下，符合阅读习惯」「单一视线：视觉焦点集中，信息清晰聚焦」「连续叙事：信息有序衔接，形成流畅节奏」</strong>。</p>
+          <p>每多加一栏，读者就要在心里多做一次判断：这段读完该往下翻，还是该跳去旁边那一列？单栏直接把这道选择题划掉了。整页只有一条垂直走廊，大脑省下寻路的注意力，全部留给理解内容本身。</p>
+          <aside class="gentle-note">
+            <span class="note-badge">补全半句前提</span>
+            <p>海报说「自上而下符合习惯」没错，但有一个隐藏条件：<strong>纸面或屏幕变宽之后，单栏绝不能跟着拉满全屏</strong>。小手机天生就是单栏；到了 1440px 的桌面显示器，如果不主动在左右留出大片空白护城河，单栏反而会变成最伤眼的超长文字面条。</p>
+          </aside>
+        </div>
+
+        <!-- 互动 01：三屏视口 × 铺满/限宽对照机 -->
+        <div class="widget-panel" id="w-viewport">
+          <div class="widget-head">
+            <span class="widget-kicker" lang="en">VIEWPORT MOAT SIMULATOR</span>
+            <h3>同一篇单栏文章，放进三种屏幕宽</h3>
+          </div>
+          <div class="vp-controls">
+            <div class="seg-btns" role="group" aria-label="选择屏幕宽度">
+              <button type="button" class="seg-btn" data-vp="phone">手机 390px</button>
+              <button type="button" class="seg-btn is-active" data-vp="laptop">笔电 1280px</button>
+              <button type="button" class="seg-btn" data-vp="wide">宽屏 1920px</button>
+            </div>
+            <div class="seg-btns" role="group" aria-label="栏宽策略">
+              <button type="button" class="seg-btn is-active" data-strategy="fluid">随屏铺满</button>
+              <button type="button" class="seg-btn" data-strategy="clamped">限宽 640px</button>
+            </div>
+          </div>
+
+          <div class="vp-stage" id="vp-stage" aria-live="polite">
+            <div class="vp-frame" id="vp-frame">
+              <div class="vp-moat vp-moat-l" id="vp-moat-l"><span>留白</span></div>
+              <div class="vp-col" id="vp-col">
+                <div class="vp-line vp-h"></div>
+                <div class="vp-line"></div>
+                <div class="vp-line"></div>
+                <div class="vp-line vp-short"></div>
+                <div class="vp-line"></div>
+                <div class="vp-line"></div>
+                <div class="vp-line vp-short"></div>
+              </div>
+              <div class="vp-moat vp-moat-r" id="vp-moat-r"><span>留白</span></div>
+            </div>
+            <div class="vp-readout">
+              <div class="vp-stat-row">
+                <span class="vp-chip" id="vp-measure">栏宽 1184px · 约 74 字/行</span>
+                <span class="vp-chip" id="vp-moat-pct">双侧护城河 8%</span>
+              </div>
+              <p class="vp-verdict" id="vp-verdict">笔电屏上不设最大宽度，16px 中文直接横拉 74 字一行，扫到行尾回找下一行开头极易跳行。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 02 每行几字，眼睛才不串行 ===================== -->
+  <section class="chapter surf-linen" id="sec-02">
+    <div class="chapter-inner">
+      <div class="sec-head">
+        <span class="sec-num" aria-hidden="true">02</span>
+        <div class="sec-title-block">
+          <h2>每行几字，眼睛才不串行</h2>
+          <p class="sec-en" lang="en">MEASURE · SACCADES · EMPIRICAL EVIDENCE</p>
+        </div>
+      </div>
+
+      <p class="chapter-intro">人眼读文字不是平滑扫描，而是跳动（眼跳）加停顿（注视）。每读完一行，眼球必须向左下方做一次大幅「回扫」去抓下一行开头。行宽一旦越界，这记回扫就会失准；行宽缩过头，来回折腾的次数又会翻倍。</p>
+
+      <!-- 权威基准三联卡 -->
+      <div class="bench-grid">
+        <article class="bench-card">
+          <span class="bench-tag" lang="en">PRINT CANON · 1967 / 1992</span>
+          <h3>西文 45–75 字符，66 字符居中</h3>
+          <p>瑞士排印大师埃米尔·鲁德在 1967 年《排印设计》里给出 50–60 字符经验区；罗伯特·布林赫斯特在 1992 年《排印风格要素》第 2.1.2 节写下经典经验值：单栏衬线正文 45–75 字符都舒适，66 字符（含空格）最匀称。</p>
+        </article>
+        <article class="bench-card">
+          <span class="bench-tag" lang="en">W3C WCAG 2.1 · SC 1.4.8 (AAA)</span>
+          <h3>中文每行不超 40 字，行距至少 1.5×</h3>
+          <p>每个方块汉字承载的信息密度远高于单个拉丁字母。W3C 无障碍指南 1.4.8 明确将文本块行宽上限设为西文 80 字符、中日韩方块字 40 字，并要求段内行距不低于 1.5 倍、段距至少为行距的 1.5 倍。</p>
+        </article>
+        <article class="bench-card">
+          <span class="bench-tag" lang="en">DYSON (2004) · SCREEN READING</span>
+          <h3>速度与体感并不总一致</h3>
+          <p>雷丁大学玛丽·戴森 2004 年综述了屏幕阅读实证：在电脑屏幕上，约 100 字符的长行反而可能比 25 字符极短行扫得更快，但详细理解率在约 55 字符的中等行长下更稳，且读者主观上普遍抗拒百字长墙，偏好 50–70 字符。</p>
+        </article>
+      </div>
+
+      <!-- 互动 02：真实 DOM 活字测度标尺 -->
+      <div class="measure-lab" id="w-measure">
+        <div class="lab-toolbar">
+          <div class="seg-btns" role="group" aria-label="切换测度语种">
+            <button type="button" class="seg-btn is-active" data-script="zh">中文书刊</button>
+            <button type="button" class="seg-btn" data-script="en">英文散文</button>
+            <button type="button" class="seg-btn" data-script="mix">中英混排</button>
+          </div>
+          <div class="lab-sliders">
+            <label class="inline-slider" for="m-width">
+              <span>栏宽 <output id="m-width-out">560px</output></span>
+              <input type="range" id="m-width" min="220" max="860" step="10" value="560">
+            </label>
+            <label class="inline-slider" for="m-size">
+              <span>字号 <output id="m-size-out">17px</output></span>
+              <input type="range" id="m-size" min="14" max="22" step="1" value="17">
+            </label>
+            <label class="inline-slider" for="m-lh">
+              <span>行距 <output id="m-lh-out">1.70×</output></span>
+              <input type="range" id="m-lh" min="120" max="220" step="5" value="170">
+            </label>
+          </div>
+        </div>
+
+        <div class="ruler-bar" aria-hidden="true">
+          <div class="ruler-track">
+            <div class="ruler-zone" id="ruler-zone"></div>
+            <div class="ruler-needle" id="ruler-needle"></div>
+          </div>
+          <div class="ruler-ticks" id="ruler-ticks">
+            <span>10 字</span><span>20 字</span><span>30 字（舒适中位）</span><span>40 字（WCAG 上限）</span><span>55+ 字</span>
+          </div>
+        </div>
+
+        <div class="live-specimen-wrap">
+          <div class="live-specimen" id="live-specimen">
+            <p id="live-specimen-text">单栏排版把纸面两侧空出来，并不是为了留白而留白。文字宽度一旦收住，视线读完一行往回找下一行开头时，落点离眼角很近，不需要左右试探。字号放大时，栏宽也应该同步放宽，才能维持住每行最顺手的字数节奏。</p>
+          </div>
+        </div>
+
+        <div class="lab-footer" aria-live="polite">
+          <strong class="lab-badge" id="lab-badge">实测约 32 字/行 · 舒适精读区</strong>
+          <p id="lab-explain">当前栏宽 560px 配 17px 正文、1.70× 行距，落在中文 25–38 字经验舒适区及 WCAG 40 字红线以内，回扫轻快、段感稳固。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 03 从口袋书到手机屏的演化（浓墨暗室） ===================== -->
+  <section class="chapter surf-dark" id="sec-03">
+    <div class="chapter-inner">
+      <div class="sec-head">
+        <span class="sec-num" aria-hidden="true">03</span>
+        <div class="sec-title-block">
+          <h2>从口袋书到手机屏的演化</h2>
+          <p class="sec-en" lang="en">LINEAGE · FROM 1501 OCTAVO TO RESPONSIVE FLOW</p>
+        </div>
+      </div>
+
+      <div class="era-layout">
+        <div class="era-nav" role="tablist" aria-label="单栏演变四时代">
+          <button type="button" class="era-tab is-active" role="tab" aria-selected="true" data-era="aldus">
+            <span class="era-year">1501 · 威尼斯</span>
+            <strong>奥尔德斯八开口袋书</strong>
+            <span class="era-sub">把书从教堂讲台装进衣袋</span>
+          </button>
+          <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="canon">
+            <span class="era-year">古典传统 · 1975 整理</span>
+            <strong>奇肖尔德 2:3:4:6 版心</strong>
+            <span class="era-sub">手稿时代传承的几何单栏</span>
+          </button>
+          <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="swiss">
+            <span class="era-year">1967 · 巴塞尔</span>
+            <strong>鲁德的现代单栏克制</strong>
+            <span class="era-sub">非对称留白与行宽秩序</span>
+          </button>
+          <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="mobile">
+            <span class="era-year">2010s 至今</span>
+            <strong>竖屏折叠与单栏回归</strong>
+            <span class="era-sub">手机物理宽度重塑长文网页</span>
+          </button>
+        </div>
+
+        <!-- 互动 03：SVG 历史几何版心透视板 + 对角构造线显影 -->
+        <div class="era-stage">
+          <div class="era-plate-wrap">
+            <svg id="era-svg" class="era-svg" viewBox="0 0 520 340" role="img" aria-label="单栏历史版心比例几何示意图"></svg>
+            <div class="era-plate-bar">
+              <span class="era-spec-code" id="era-spec-code">OCTAVO · 1501 · 便携单栏</span>
+              <button type="button" class="btn-outline-dark" id="btn-era-canon" aria-pressed="true">隐藏几何构造线</button>
+            </div>
+          </div>
+          <article class="era-story" id="era-story" aria-live="polite">
+            <h3 id="era-title">1501 年 4 月：单栏让古典文学走出教堂</h3>
+            <p id="era-p1">早期印刷大书多为沉重的对开本，版面太宽，必须拆成双栏才读得动，只能摊在讲台上翻看。1501 年 4 月，威尼斯出版人奥尔德斯·马努提乌斯推出八开本《维吉尔》，委托刻字师弗朗切斯科·格里福刻制史上首套全书使用的斜体活字，把紧凑优美的单栏装进了旅人衣袋。</p>
+            <p id="era-p2">这一转身定下了此后五百年文学书的基本模样：纸幅收小后，单栏不再超宽，读者得以单手持书，沿着一条连续不中断的竖流沉浸阅读。</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 04 连续叙事，靠节奏不靠塞满 ===================== -->
+  <section class="chapter surf-bright" id="sec-04">
+    <div class="chapter-inner">
+      <div class="sec-head">
+        <span class="sec-num" aria-hidden="true">04</span>
+        <div class="sec-title-block">
+          <h2>连续叙事，靠节奏不靠塞满</h2>
+          <p class="sec-en" lang="en">PACING · BREAKING THE GRAY WALL OF TEXT</p>
+        </div>
+      </div>
+
+      <p class="chapter-intro">单栏最大的陷阱，是把「连续」误解成「一口气堆满三千字不换气」。因为少了侧栏和多列的视觉变化，单栏全靠纵向的停顿、标点与尺度反差制造呼吸。试着逐一拨开四枚排版开关，看同一段正文如何从令人窒息的文字墙变成耐读专栏。</p>
+
+      <!-- 互动 04：文字墙 4 开关破墙器 -->
+      <div class="wall-composer" id="w-pacing">
+        <div class="wall-switches" role="group" aria-label="破墙节奏四项开关">
+          <button type="button" class="pace-switch" data-pace="para" aria-pressed="false">
+            <span class="sw-idx">01</span>
+            <span class="sw-text">
+              <strong>拆短段落与段距</strong>
+              <small>每段控在 3–4 行，段间留出空白带</small>
+            </span>
+            <span class="sw-pill">关</span>
+          </button>
+          <button type="button" class="pace-switch" data-pace="subhead" aria-pressed="false">
+            <span class="sw-idx">02</span>
+            <span class="sw-text">
+              <strong>置入小标题路标</strong>
+              <small>扫读时先抓骨架，决定从哪停下精读</small>
+            </span>
+            <span class="sw-pill">关</span>
+          </button>
+          <button type="button" class="pace-switch" data-pace="dots" aria-pressed="false">
+            <span class="sw-idx">03</span>
+            <span class="sw-text">
+              <strong>插入原海报圆点节拍器</strong>
+              <small>用 ——— • ——— 与朱红起笔标出转场</small>
+            </span>
+            <span class="sw-pill">关</span>
+          </button>
+          <button type="button" class="pace-switch" data-pace="breakout" aria-pressed="false">
+            <span class="sw-idx">04</span>
+            <span class="sw-text">
+              <strong>破栏引语与宽幅图窗</strong>
+              <small>偶尔跳出虚线栏轨，制造纵向高潮</small>
+            </span>
+            <span class="sw-pill">关</span>
+          </button>
+
+          <div class="breath-meter" aria-live="polite">
+            <div class="breath-head">
+              <span>当前呼吸密度</span>
+              <strong id="pace-level">0 / 4 · 密闭文字墙</strong>
+            </div>
+            <div class="breath-bar"><span id="pace-fill" style="width: 12%"></span></div>
+            <p id="pace-note">整段没有换气口，眼睛往下滑 5 秒就会觉得发闷，读者很容易直接关掉页面。</p>
+          </div>
+        </div>
+
+        <div class="wall-preview" id="wall-preview">
+          <div class="wp-paper">
+            <div class="wp-rail wp-rail-l" aria-hidden="true"></div>
+            <div class="wp-rail wp-rail-r" aria-hidden="true"></div>
+            <article class="wp-article" id="wp-article">
+              <!-- 由 main.js 根据 4 开关实时渲染真实文章结构 -->
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 05 何时用它，何时果断放弃 ===================== -->
+  <section class="chapter surf-linen" id="sec-05">
+    <div class="chapter-inner">
+      <div class="sec-head">
+        <span class="sec-num" aria-hidden="true">05</span>
+        <div class="sec-title-block">
+          <h2>何时用它，何时果断放弃</h2>
+          <p class="sec-en" lang="en">WHEN SINGLE-COLUMN SHINES · AND WHEN TO WALK AWAY</p>
+        </div>
+      </div>
+
+      <div class="use-avoid-grid">
+        <article class="ua-box ua-good">
+          <div class="ua-head">
+            <span class="ua-dot"></span>
+            <h3>什么时候放心用单栏</h3>
+          </div>
+          <ul>
+            <li><strong>深度长文与文学出版</strong>：小说、专访、长篇报道与博客，读者的目标是按顺序沉进去读完。</li>
+            <li><strong>结账与注册表单</strong>：Baymard 研究所的电商结账可用性测试表明，单栏表单可避免用户遗漏右栏字段或搞错填写次序；只有「省/市/邮编」或「有效期/安全码」这类同属一体的短字段适合同行并排。</li>
+            <li><strong>移动端竖屏体验</strong>：单手持握的 360–430px 屏幕天然只容一栏，把信息排直最省拇指。</li>
+          </ul>
+        </article>
+
+        <article class="ua-box ua-bad">
+          <div class="ua-head">
+            <span class="ua-dot"></span>
+            <h3>什么时候别硬用单栏</h3>
+          </div>
+          <ul>
+            <li><strong>需要左右对照比对</strong>：双语译本、套餐价格对比或新旧代码差异，单栏只能上下翻找；请改用 <a href="https://layout.xiaoxiaodong.ai/133/play/">133 双栏版式</a> 或 <a href="https://layout.xiaoxiaodong.ai/134/play/">134 多栏版式</a>。</li>
+            <li><strong>大屏仪表盘与高密目录</strong>：监控台、图库与新闻门户需要一屏扫完多路状态，硬排单栏会浪费大半横向屏幕。</li>
+            <li><strong>画册跨页与满幅视觉冲击</strong>：需要借中缝营造展开气势请看 <a href="https://layout.xiaoxiaodong.ai/135/play/">135 对称跨页</a>、<a href="https://layout.xiaoxiaodong.ai/136/play/">136 非对称跨页</a> 与 <a href="https://layout.xiaoxiaodong.ai/137/play/">137 通版跨页</a>；边缘出血取舍见 <a href="https://layout.xiaoxiaodong.ai/138/play/">138 满出血版式</a> 与 <a href="https://layout.xiaoxiaodong.ai/139/play/">139 无出血版式</a>。</li>
+          </ul>
+        </article>
+      </div>
+
+      <!-- 互动 05：6 场景速判翻牌桌 -->
+      <div class="scenario-deck" id="w-scenarios">
+        <div class="deck-head">
+          <h3>点开 6 个真实需求，判断是否该用单栏</h3>
+          <span class="deck-progress" id="deck-progress">已翻看 0 / 6</span>
+        </div>
+        <div class="deck-grid" id="deck-grid">
+          <!-- 由 main.js 注入 6 张交互卡片 -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 06 两道审图小练习（浓墨暗室考场） ===================== -->
+  <section class="chapter surf-dark" id="sec-06">
+    <div class="chapter-inner">
+      <div class="sec-head">
+        <span class="sec-num" aria-hidden="true">06</span>
+        <div class="sec-title-block">
+          <h2>两道审图小练习</h2>
+          <p class="sec-en" lang="en">PRACTICE · PICK THE SOUND SINGLE-COLUMN PAGE</p>
+        </div>
+      </div>
+
+      <p class="chapter-intro">每题四个方案只改一个版式变量，标签只给客观规格。先按你在排印台里验证过的道理选一版，再看逐项拆解。</p>
+
+      <div class="quiz-stack" id="quiz-stack">
+        <!-- 题 1 与 题 2 由 main.js 渲染含真实 SVG 版式简图的 4 选项卡片 -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 07 原海报与视觉词典 ===================== -->
+  <section class="chapter surf-paper" id="sec-07">
+    <div class="chapter-inner">
+      <div class="sec-head">
+        <span class="sec-num" aria-hidden="true">07</span>
+        <div class="sec-title-block">
+          <h2>原海报与视觉词典</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER · VISUAL GRAMMAR &amp; SIBLINGS</p>
+        </div>
+      </div>
+
+      <div class="poster-showcase">
+        <div class="poster-frame-col">
+          <button type="button" class="poster-trigger" id="poster-trigger" aria-label="点击放大查看 132 单栏版式原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" alt="单栏 版式海报">
+            <span class="poster-zoom-hint">点击放大查看 · 支持拖拽与 Esc 关闭</span>
+          </button>
+        </div>
+
+        <div class="poster-meta-col">
+          <h3>原海报自己就是一次单栏示范</h3>
+          <p>细看这张 132 号原海报：整张暖米纸面上，两条铅笔灰虚线从天头一直贯通到地脚，把所有视觉元素死死锁在中间约 41% 的走廊里，左右各自留下近 30% 的安静空白。</p>
+
+          <dl class="motif-list">
+            <div>
+              <dt><span class="motif-swatch sw-red"></span>顶部朱红圆锚与四点垂箭</dt>
+              <dd>一进画面先抓住眼睛，紧接着四枚黑点与倒三角把视线垂直推入标题，省去任何横向扫视。</dd>
+            </div>
+            <div>
+              <dt><span class="motif-swatch sw-dash"></span>贯通全高的双垂直虚线</dt>
+              <dd>直接把看不见的「版心边界」画出来——也就是你在开场排印台里亲手拉动的那两条轨。</dd>
+            </div>
+            <div>
+              <dt><span class="motif-swatch sw-dot"></span>中点极细横线与三枚红圆徽</dt>
+              <dd>上下两道带中黑点的细线隔开标题、三要点与底印；垂箭、眼睛、三连点三枚黑符各指一条法则。</dd>
+            </div>
+            <div>
+              <dt><span class="motif-swatch sw-sq"></span>底沿 4×4 墨点朱红方印</dt>
+              <dd>贴底收住整条垂直走廊的视觉重心，让视线读到底部有一个干脆利落的落锚。</dd>
+            </div>
+          </dl>
+
+          <div class="kw-block">
+            <span class="kw-label" lang="en">KEYWORDS · 关键词</span>
+            <ul class="kw-list">
+              <li>单栏版式</li>
+              <li>垂直阅读</li>
+              <li>单一视线</li>
+              <li>连续叙事</li>
+              <li>版心宽度</li>
+              <li>留白护城河</li>
+              <li>长文阅读</li>
+            </ul>
+          </div>
+
+          <div class="sibling-block">
+            <span class="kw-label" lang="en">SAME SUBCATEGORY · 分栏、跨页与出血</span>
+            <div class="sibling-links">
+              <span class="sib-current">132 单栏版式</span>
+              <a href="https://layout.xiaoxiaodong.ai/133/play/">133 双栏版式</a>
+              <a href="https://layout.xiaoxiaodong.ai/134/play/">134 多栏版式</a>
+              <a href="https://layout.xiaoxiaodong.ai/135/play/">135 对称跨页</a>
+              <a href="https://layout.xiaoxiaodong.ai/136/play/">136 非对称跨页</a>
+              <a href="https://layout.xiaoxiaodong.ai/137/play/">137 通版跨页</a>
+              <a href="https://layout.xiaoxiaodong.ai/138/play/">138 满出血版式</a>
+              <a href="https://layout.xiaoxiaodong.ai/139/play/">139 无出血版式</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===================== 页脚 ===================== -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-line">
+      <a href="https://layout.xiaoxiaodong.ai/132/play/">在线版</a>
+      <span aria-hidden="true"> / </span>
+      <a href="https://layout.xiaoxiaodong.ai/">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span aria-hidden="true"> · </span>
+      <span>海报 CC BY 4.0</span>
+      <span aria-hidden="true"> · </span>
+      <a href="https://github.com/xiaoxiaodong-ai/350-layout-interactive">源文件 GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<!-- ===================== 原海报灯箱（可缩放、拖动、Esc 关闭） ===================== -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报大图预览">
+  <div class="lb-bar">
+    <span class="lb-title">NO. 132 单栏版式原海报 · 拖拽平移，点击按钮缩放</span>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn" id="lb-out" aria-label="缩小">−</button>
+      <span class="lb-zoom-val" id="lb-zoom-val">100%</span>
+      <button type="button" class="lb-btn" id="lb-in" aria-label="放大">+</button>
+      <button type="button" class="lb-btn" id="lb-reset">重置</button>
+      <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭预览">关闭 Esc</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" alt="单栏 版式原海报放大图" draggable="false">
+  </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
