@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>183 矩形绕排 · RECTANGULAR WRAP</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ========== 开场主舞台：1:1 转译 183 原海报深松绿双区建筑蓝图展板 ========== -->
+  <header class="hero" id="top">
+    <div class="hero-inner">
+      <!-- 顶部单行微眉 -->
+      <div class="hero-bar">
+        <div class="hero-bar-left">
+          <span class="no-stamp">NO. 183</span>
+          <span class="cat-label">字体、网格与东亚文字 · 对齐、缩进与文字造型</span>
+        </div>
+        <nav class="quick-nav" aria-label="章节跳转">
+          <a href="#s01">01 秩序</a>
+          <a href="#s02">02 避让</a>
+          <a href="#s03">03 分栏</a>
+          <a href="#s04">04 源流</a>
+          <a href="#s05">05 边界</a>
+          <a href="#s06">06 练习</a>
+          <a href="#s07">07 海报</a>
+        </nav>
+        <div class="hero-bar-right">
+          <span class="status-pill is-err" id="top-status-badge" aria-live="polite">0/4 · 居中劈栏跳槽</span>
+          <button type="button" class="top-scan-btn" id="btn-top-scan">视线验真 <kbd>Space</kbd></button>
+        </div>
+      </div>
+
+      <!-- 1:1 复刻原海报顶部双栏刊头：左大标 | 细竖线 | 右三行导语短横杠 + 语境切换 -->
+      <div class="masthead">
+        <div class="masthead-left">
+          <h1 class="hero-title">
+            <span class="title-chars">矩形绕排</span>
+            <span class="title-demo-block" id="title-demo-block" aria-hidden="true"></span>
+          </h1>
+          <p class="hero-en">RECTANGULAR WRAP</p>
+        </div>
+        <div class="masthead-right">
+          <p class="hero-tagline">以矩形图块为核心，正文围绕其外边界排布，形成清晰的模块秩序。</p>
+          <span class="tagline-bar" aria-hidden="true"></span>
+          <div class="ctx-tabs" role="group" aria-label="切换排印语境">
+            <button type="button" class="ctx-btn is-active" data-ctx="poster" aria-pressed="true">原海报 · 金色块</button>
+            <button type="button" class="ctx-btn" data-ctx="magazine" aria-pressed="false">杂志 · 摄影图</button>
+            <button type="button" class="ctx-btn" data-ctx="courseware" aria-pressed="false">课件 · 要点盒</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1:1 复刻原海报中部 68% : 细竖虚点线 : 32% 蓝图舞台 -->
+      <div class="stage-split">
+        <!-- 左翼：活体蓝图排印画布 + 紧底单面排印精控尺 -->
+        <div class="stage-main">
+          <div class="canvas-frame">
+            <canvas
+              id="hero-canvas"
+              data-perf-drag
+              role="application"
+              aria-label="矩形绕排活体排印台：拖动黄金矩形改停靠位置，拖边改宽窄，拖外圈虚线改避让距"
+            ></canvas>
+          </div>
+          <p class="ctx-caption" id="ctx-caption">1:1 承袭 183 原海报深松绿展底、暖金矩形块与完整正文。</p>
+
+          <!-- 精控排印尺 -->
+          <div class="draft-rail">
+            <div class="rail-modes" role="group" aria-label="绕排几何模式">
+              <span class="rail-lbl">绕排方式</span>
+              <button type="button" class="mode-btn is-active" data-mode="both" aria-pressed="true">跨栏单流</button>
+              <button type="button" class="mode-btn" data-mode="single" aria-pressed="false">贴边单侧</button>
+              <button type="button" class="mode-btn" data-mode="twocol" aria-pressed="false">双栏夹图</button>
+              <button type="button" class="mode-btn" data-mode="jump" aria-pressed="false">跳行排布</button>
+            </div>
+
+            <div class="rail-sliders">
+              <label class="slider-item">
+                <span class="sl-head"><span>图块宽幅</span><strong id="val-bw">50%</strong></span>
+                <input id="rng-bw" type="range" min="20" max="80" step="2" value="50">
+              </label>
+              <label class="slider-item">
+                <span class="sl-head"><span>横向避让</span><strong id="val-sx">2px</strong></span>
+                <input id="rng-sx" type="range" min="0" max="44" step="2" value="2">
+              </label>
+              <label class="slider-item">
+                <span class="sl-head"><span>纵向避让</span><strong id="val-sy">2px</strong></span>
+                <input id="rng-sy" type="range" min="0" max="40" step="2" value="2">
+              </label>
+            </div>
+
+            <div class="rail-footer">
+              <div class="rail-toggles">
+                <button type="button" class="toggle-btn" id="btn-align" aria-pressed="false">对齐：左齐 176</button>
+                <button type="button" class="toggle-btn is-warn" id="btn-baseline" aria-pressed="false">基线网锁：关</button>
+              </div>
+              <div class="rail-presets">
+                <span class="preset-tag">多解</span>
+                <button type="button" class="sol-btn" data-sol="rightFlush">贴右直缘</button>
+                <button type="button" class="sol-btn" data-sol="leftFlush">贴左稳排</button>
+                <button type="button" class="sol-btn" data-sol="twoCol">双栏夹图</button>
+                <button type="button" class="sol-btn" data-sol="jumpWide">大图跳行</button>
+                <span class="preset-tag is-fault">试错</span>
+                <button type="button" class="fault-btn" data-fault="collision">零距啃边</button>
+                <button type="button" class="fault-btn" data-fault="toothpick">牙签窄行</button>
+                <button type="button" class="fault-btn" data-fault="overGap">留白漏气</button>
+                <button type="button" class="fault-btn" data-fault="river">窄栏白河</button>
+                <button type="button" class="fault-btn" data-fault="microStamp">邮票失核</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1:1 复刻原海报右侧：绕排示意顺时针虚线蓝图 + 三行图例 + 单真源诊单卡 -->
+        <aside class="stage-side" aria-label="绕排示意与实时诊断">
+          <div class="schematic-panel">
+            <div class="schematic-head">
+              <h2 class="schematic-title">绕排示意</h2>
+              <span class="schematic-sub">WRAP SCHEMATIC</span>
+            </div>
+            <svg class="schematic-svg" viewBox="0 0 180 156" role="img" aria-label="矩形绕排四向流向示意蓝图">
+              <!-- 版心点线区域 -->
+              <rect x="28" y="24" width="124" height="108" fill="none" stroke="rgba(233,218,185,0.34)" stroke-width="1" stroke-dasharray="2 3"/>
+              <!-- 动态避让区虚线框 -->
+              <rect id="schem-zone" x="56" y="48" width="68" height="58" fill="none" stroke="#FF6B57" stroke-width="1" stroke-dasharray="3 3"/>
+              <!-- 动态核心金框 -->
+              <rect id="schem-rect" x="59" y="51" width="62" height="52" fill="rgba(254,196,62,0.14)" stroke="#FEC43E" stroke-width="2"/>
+              <!-- 原海报同款：四条顺时针虚线箭头 -->
+              <g id="schem-arrow-top" stroke="#5CE0A8" stroke-width="1.4" fill="none">
+                <line x1="34" y1="12" x2="144" y2="12" stroke-dasharray="4 3"/>
+                <polyline points="138,7 145,12 138,17"/>
+              </g>
+              <g id="schem-arrow-right" stroke="#FF6B57" stroke-width="1.4" fill="none">
+                <line x1="166" y1="24" x2="166" y2="132" stroke-dasharray="4 3"/>
+                <polyline points="161,126 166,133 171,126"/>
+              </g>
+              <g id="schem-arrow-bottom" stroke="#FF6B57" stroke-width="1.4" fill="none">
+                <line x1="146" y1="144" x2="36" y2="144" stroke-dasharray="4 3"/>
+                <polyline points="42,139 35,144 42,149"/>
+              </g>
+              <g id="schem-arrow-left" stroke="#FF6B57" stroke-width="1.4" fill="none">
+                <line x1="14" y1="132" x2="14" y2="24" stroke-dasharray="4 3"/>
+                <polyline points="9,30 14,23 19,30"/>
+              </g>
+            </svg>
+            <!-- 原海报同款三行图例（绑定实时单真源读数） -->
+            <ul class="schematic-legend">
+              <li>
+                <span class="leg-mark leg-swatch" aria-hidden="true"></span>
+                <span class="leg-name">矩形图块（核心）</span>
+                <span class="leg-val" id="leg-block">占比 25%</span>
+              </li>
+              <li>
+                <span class="leg-mark leg-arrow" aria-hidden="true">--&gt;</span>
+                <span class="leg-name">文字绕排方向</span>
+                <span class="leg-val" id="leg-flow">跨栏单流</span>
+              </li>
+              <li>
+                <span class="leg-mark leg-dots" aria-hidden="true">····</span>
+                <span class="leg-name">文字排布区域</span>
+                <span class="leg-val" id="leg-zone">侧行 6字</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- 单真源白话诊单卡 -->
+          <div class="diag-card" id="diag-card" aria-live="polite">
+            <div class="diag-top">
+              <span class="diag-badge is-err" id="diag-badge">0/4 · 居中劈栏跳槽</span>
+              <span class="diag-tier" id="diag-tier">秩序档位：严重破序（示意）</span>
+            </div>
+            <h3 class="diag-title" id="diag-title">单段正文被矩形拦腰劈成左右两截</h3>
+            <p class="diag-why" id="diag-why"></p>
+            <p class="diag-fix" id="diag-fix"></p>
+            <div class="diag-actions">
+              <button type="button" class="act-primary" id="btn-calibrate">校准贴右稳解</button>
+              <button type="button" class="act-secondary" id="btn-scan">视线验真</button>
+              <button type="button" class="act-ghost" id="btn-reset-fault">复原错态</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- 1:1 复刻原海报底部细横线 + 五枚斜杠关键词实时状态带 -->
+      <div class="hero-kw-strip">
+        <div class="hero-kw-bar" id="hero-kw-bar" aria-label="原海报五关键词实时状态"></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ========== 01 为什么矩形最耐看（亮宣米纸） ========== -->
+    <section class="chapter surf-cream" id="s01">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div>
+            <h2>为什么矩形最耐看</h2>
+            <p class="sec-en">MODULAR VISUAL ORDER</p>
+          </div>
+        </div>
+
+        <div class="split-2">
+          <div class="prose">
+            <blockquote class="poster-quote">
+              “矩形绕排是一种以矩形图块为核心的版式方法，文字根据图块的边界进行环绕排布，使内容与图形形成稳定的视觉关系，同时提升信息的阅读效率与层次感。”
+              <cite>— 183 原海报总述</cite>
+            </blockquote>
+            <p>
+              文字天生是按水平基线排成的矩形阵列，图片、摄影与图表也大多装着方形画框。当你用<strong>直线矩形</strong>把图文隔开，眼睛每读完一行向左回扫时，落脚点始终钉在一条笔直的竖线上——这是不规则曲线很难同时给到的阅读安定感。
+            </p>
+            <p>
+              在实际项目中，正如原海报所述，矩形图块既可以是摄影照片，也可以是纯色块、数据图或摘要信息容器。它与 <a href="https://layout.xiaoxiaodong.ai/182/play/" target="_blank" rel="noopener">182 轮廓绕排</a> 最大的分野在于：轮廓绕排追求画面表情与有机趣味，而矩形绕排优先服务于长文效率与网格秩序。
+            </p>
+            <div class="gentle-note">
+              <span class="note-tag">海报图示简化了一点</span>
+              <p>
+                细看本页底部 183 原海报的中央示范：那块黄金矩形居中夹在左右两段正文之间，每侧每行只有 5–6 个汉字。它之所以能读通，是因为左右本来放了<strong>两段独立短文</strong>而不是一句话跨图跳读；作为教学概念海报非常直观，但在真实杂志或网页长文里，5–6 字的窄条会让换行过于急促——实战中要么<strong>贴齐一侧栏边</strong>，要么像开场台的「双栏夹图解」那样给足每栏行宽。
+              </p>
+            </div>
+          </div>
+
+          <div class="widget-panel" id="s01-comp">
+            <div class="widget-head">
+              <h3>直缘 vs 阶梯：左缘回扫对比仪</h3>
+              <p>切换四种绕排边缘，观察左侧彩色竖轨（眼球每次换行回扫的落点）是否抖动。</p>
+            </div>
+            <div class="seg-row" role="group" aria-label="选择回扫对比形态">
+              <button type="button" class="seg-btn is-active" data-comp="rightFlush" aria-pressed="true">贴右矩形 183</button>
+              <button type="button" class="seg-btn" data-comp="leftFlush" aria-pressed="false">贴左矩形 183</button>
+              <button type="button" class="seg-btn" data-comp="centerSplit" aria-pressed="false">居中劈栏</button>
+              <button type="button" class="seg-btn" data-comp="contour" aria-pressed="false">有机轮廓 182</button>
+            </div>
+            <div class="s01-svg-box">
+              <svg id="s01-svg" viewBox="0 0 400 246" role="img" aria-label="左缘回扫轨迹对比图"></svg>
+            </div>
+            <div class="s01-verdict" id="s01-verdict" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 02 四边避让与基线锁（柔和暖雾纸） ========== -->
+    <section class="chapter surf-parchment" id="s02">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div>
+            <h2>四边避让与基线锁</h2>
+            <p class="sec-en">STANDOFF &amp; BASELINE LOCK</p>
+          </div>
+        </div>
+
+        <div class="split-2 is-reverse-mobile">
+          <div class="widget-panel" id="s02-loupe">
+            <div class="widget-head">
+              <h3>排印显微四边游标尺</h3>
+              <p>分别调整贴右图块的四边避让距（px），观察外缘齐栏、文字气口与 CSS 映射。</p>
+            </div>
+            <div class="s02-presets" role="group" aria-label="四边避让预设">
+              <button type="button" class="mini-chip" data-off-preset="ideal">出版推荐</button>
+              <button type="button" class="mini-chip" data-off-preset="uniform">四边同距</button>
+              <button type="button" class="mini-chip" data-off-preset="zero">零距啃边</button>
+              <button type="button" class="mini-chip" data-off-preset="wide">过宽孤岛</button>
+            </div>
+            <div class="s02-svg-box">
+              <svg id="s02-svg" viewBox="0 0 480 252" role="img" aria-label="四边避让与基线显微图"></svg>
+            </div>
+            <div class="s02-sliders">
+              <label><span>上避让 Top <strong id="val-top">0px</strong></span><input id="off-top" type="range" min="0" max="36" step="2" value="0"></label>
+              <label><span>右外缘 Right <strong id="val-right">0px</strong></span><input id="off-right" type="range" min="0" max="32" step="2" value="0"></label>
+              <label><span>下避让 Bottom <strong id="val-bottom">16px</strong></span><input id="off-bottom" type="range" min="0" max="40" step="2" value="16"></label>
+              <label><span>左避让 Left <strong id="val-left">20px</strong></span><input id="off-left" type="range" min="0" max="44" step="2" value="20"></label>
+            </div>
+            <pre class="s02-code" id="s02-code"></pre>
+            <div class="s02-audit" id="s02-audit" aria-live="polite"></div>
+          </div>
+
+          <div class="prose">
+            <blockquote class="poster-quote">
+              “在排版时，需注意图块与文字之间的间距、行长控制以及对齐方式，以保持版面的统一性与专业感。合理的留白与环绕节奏，是实现高质量矩形绕排的关键。”
+              <cite>— 183 原海报细则</cite>
+            </blockquote>
+            <ul class="rule-list">
+              <li>
+                <strong>1. 四边不等距，外缘归零：</strong>新手常给图块四边设同一个避让值，结果把贴边图块往版心里面推了一截。正确做法是「接触文字的面留 0.75em–1.5em（16px 正文下约 12–24px 经验值），贴齐页边或栏边的外缘设为 0px」。
+              </li>
+              <li>
+                <strong>2. 顶齐帽高，底落基线：</strong>图块上缘对准旁边首行文字的方块顶（拉丁字母的帽高），而非行距顶部的空白；图块高度加上底部避让距凑成整倍行距，下方恢复通栏时就能丝滑落回 <a href="https://layout.xiaoxiaodong.ai/188/play/" target="_blank" rel="noopener">188 基线对齐</a> 网格。
+              </li>
+              <li>
+                <strong>3. 行长守底线（经验值）：</strong>西文长文舒适行长通常为 45–75 字符（Ellen Lupton 与 Robert Bringhurst 均作类似建议）；中文横排侧边绕排时，经验上至少守住 <strong>12 字/行</strong>，跌破 9–10 字时就应缩图或改用跳行排布。
+              </li>
+              <li>
+                <strong>4. 窄绕用左齐，宽绕才两端：</strong>被图块挤窄的文字区优先配 <a href="https://layout.xiaoxiaodong.ai/176/play/" target="_blank" rel="noopener">176 左对齐右参差</a>（右贴文字时亦可用 <a href="https://layout.xiaoxiaodong.ai/177/play/" target="_blank" rel="noopener">177 右对齐左参差</a> 作短注）；若强开 <a href="https://layout.xiaoxiaodong.ai/179/play/" target="_blank" rel="noopener">179 两端对齐</a>，窄行里极易撕出「白河」，更绝不可套用 <a href="https://layout.xiaoxiaodong.ai/180/play/" target="_blank" rel="noopener">180 强制两端对齐</a>。
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 03 单栏、双栏与中缝（深松绿暗室） ========== -->
+    <section class="chapter surf-dark" id="s03">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">03</span>
+          <div>
+            <h2>单栏、双栏与中缝</h2>
+            <p class="sec-en">COLUMNS &amp; GUTTER WRAP</p>
+          </div>
+        </div>
+
+        <p class="dark-lead">
+          原海报点名了矩形绕排最常见的三大战场：<strong>杂志内页、信息图表与课件内容页</strong>。真正的编辑排版很少在孤立单栏里硬塞居中图——随着栏数从 1 栏升到 2 栏、3 栏，矩形图块开始跨栏沟（gutter）借势，长出截然不同的空间呼吸。
+        </p>
+
+        <div class="s03-wrap" id="s03-board">
+          <div class="s03-toolbar">
+            <div class="col-switch" role="group" aria-label="选择版面栏数">
+              <button type="button" class="col-btn" data-cols="1" aria-pressed="false">1 栏 · 文章/网页</button>
+              <button type="button" class="col-btn" data-cols="2" aria-pressed="false">2 栏 · 杂志专访</button>
+              <button type="button" class="col-btn is-active" data-cols="3" aria-pressed="true">3 栏 · 瑞士画册</button>
+            </div>
+            <span class="s03-tip">点击下方不同落位，查看矩形图块如何借栏线与中缝成立</span>
+          </div>
+
+          <div id="s03-grid"></div>
+          <div class="s03-readout" id="s03-readout" aria-live="polite"></div>
+        </div>
+
+        <div class="card-trio">
+          <article class="dark-card">
+            <h3>杂志内页 · 跨中缝引语</h3>
+            <p>在双栏正中跨过栏沟放一枚矩形引语块或竖图：左栏文字只避让左侧，右栏文字只避让右侧，绝无单句跨图跳读的风险。</p>
+          </article>
+          <article class="dark-card">
+            <h3>信息图表 · 模块对齐栏沟</h3>
+            <p>数据卡片与注释文字共享同一套矩形网格宽窄，图块外缘与栏线完全咬合，读者一眼分清「图示区」与「解读区」。</p>
+          </article>
+          <article class="dark-card">
+            <h3>课件内容页 · 要点信息盒</h3>
+            <p>把核心定义或公式装进高对比矩形色块并贴齐页面一侧，正文沿直线展开推导，投影远看层次依然清楚。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 04 从铅活字到 CSS（亮宣米纸） ========== -->
+    <section class="chapter surf-cream" id="s04">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div>
+            <h2>从铅活字到 CSS</h2>
+            <p class="sec-en">WHERE IT COMES FROM</p>
+          </div>
+        </div>
+
+        <p class="sec-intro">
+          矩形绕排不是某个设计师拍脑袋发明的「风格」，而是从 15 世纪金属活字锁版、20 世纪瑞士网格，一路走到桌面出版与 W3C 网页标准的底层版式机制。点击下方四个节点，看同一条几何逻辑如何跨越五百年。
+        </p>
+
+        <div class="s04-rail" id="s04-rail">
+          <div class="era-tabs" role="tablist" aria-label="矩形绕排演进年代">
+            <button type="button" role="tab" class="era-tab is-active" data-era="1499" aria-selected="true"><strong>1493–1499</strong><span>木刻锁版</span></button>
+            <button type="button" role="tab" class="era-tab" data-era="1981" aria-selected="false"><strong>1981</strong><span>瑞士网格</span></button>
+            <button type="button" role="tab" class="era-tab" data-era="1988" aria-selected="false"><strong>1988</strong><span>PageMaker 3.0</span></button>
+            <button type="button" role="tab" class="era-tab" data-era="1996" aria-selected="false"><strong>1996–今</strong><span>W3C CSS1 float</span></button>
+          </div>
+          <div class="s04-stage" id="s04-stage" role="tabpanel"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 05 什么时候别用它（柔和暖雾纸） ========== -->
+    <section class="chapter surf-parchment" id="s05">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div>
+            <h2>什么时候别用它</h2>
+            <p class="sec-en">WHEN NOT TO USE IT</p>
+          </div>
+        </div>
+
+        <div class="split-2">
+          <div class="prose">
+            <p>
+              矩形绕排再稳妥，也有明确的失效边界。凡是碰到下面五种情况，硬用矩形绕排只会帮倒忙：
+            </p>
+            <ul class="stop-list">
+              <li>
+                <strong>1. 手机窄屏强行侧绕：</strong>当容器窄于约 480px（经验阈值）时，图块旁的正文会立刻塌缩成 5–7 字碎行。网页设计应在窄屏断点主动取消 <code>float</code>，改回上下全宽堆叠。
+              </li>
+              <li>
+                <strong>2. 多张小图左右交替排成「拉链」：</strong>读者刚适应左缘缩进，隔两行又突然右缘缩进，版面碎裂不堪；不如把小图合并成整块图组。
+              </li>
+              <li>
+                <strong>3. 主体轮廓斜长且四角大块发空：</strong>遇到斜伸花枝、器物剪影或人物侧影，矩形外框会围出大片空三角，应改用 <a href="https://layout.xiaoxiaodong.ai/182/play/" target="_blank" rel="noopener">182 轮廓绕排</a>。
+              </li>
+              <li>
+                <strong>4. 编号列表、表格与公式块：</strong>依赖统一缩进对齐的条目（见 <a href="https://layout.xiaoxiaodong.ai/185/play/" target="_blank" rel="noopener">185 悬挂缩进</a> 与 <a href="https://layout.xiaoxiaodong.ai/186/play/" target="_blank" rel="noopener">186 首行缩进</a>）被侧边图块挤压后极易错行，应避开侧绕。
+              </li>
+              <li>
+                <strong>5. 跨栏主标题或装饰造字：</strong>多栏统领标题交给 <a href="https://layout.xiaoxiaodong.ai/184/play/" target="_blank" rel="noopener">184 跨栏标题</a>，视觉张力交给 <a href="https://layout.xiaoxiaodong.ai/181/play/" target="_blank" rel="noopener">181 非对称字体排版</a>，造型字归 <a href="https://layout.xiaoxiaodong.ai/189/play/" target="_blank" rel="noopener">189 形状文字</a>、<a href="https://layout.xiaoxiaodong.ai/190/play/" target="_blank" rel="noopener">190 图形诗排版</a> 或 <a href="https://layout.xiaoxiaodong.ai/191/play/" target="_blank" rel="noopener">191 路径文字</a>；东亚文稿的竖横流向与行末标点细节，可另见 <a href="https://layout.xiaoxiaodong.ai/192/play/" target="_blank" rel="noopener">192 垂直文字排版</a>、<a href="https://layout.xiaoxiaodong.ai/193/play/" target="_blank" rel="noopener">193 水平文字排版</a>、<a href="https://layout.xiaoxiaodong.ai/187/play/" target="_blank" rel="noopener">187 凸排标点</a> 与 <a href="https://layout.xiaoxiaodong.ai/178/play/" target="_blank" rel="noopener">178 居中排版</a>。
+              </li>
+            </ul>
+          </div>
+
+          <div class="widget-panel">
+            <div class="widget-head">
+              <h3>栏宽挤压压力测试仪</h3>
+              <p>把容器从桌面 720px 一路挤到手机 320px，亲眼看侧边绕排在哪一瞬间崩塌。</p>
+            </div>
+            <div class="s05-controls">
+              <label class="s05-slider-lbl">
+                <span>容器宽度 <strong id="s05-width-val">620px</strong></span>
+                <input id="s05-width" type="range" min="320" max="720" step="10" value="620">
+              </label>
+              <button type="button" class="s05-toggle" id="s05-resp-toggle" aria-pressed="false">断点自动堆叠：关（硬撑绕排）</button>
+            </div>
+            <div class="s05-arena">
+              <div class="s05-preview" id="s05-preview"></div>
+            </div>
+            <div class="s05-msg" id="s05-msg" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 06 四选一：哪一版最稳（深松绿暗室考场） ========== -->
+    <section class="chapter surf-dark" id="s06">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div>
+            <h2>四选一：哪一版最稳</h2>
+            <p class="sec-en">PRACTICE · SPOT THE WRAP</p>
+          </div>
+        </div>
+
+        <div class="quiz-box" id="s06-quiz">
+          <div class="quiz-tabs" role="tablist" aria-label="选择练习题">
+            <button type="button" role="tab" class="quiz-tab is-active" data-q="0" aria-selected="true">题 1/3 · 图块停靠</button>
+            <button type="button" role="tab" class="quiz-tab" data-q="1" aria-selected="false">题 2/3 · 四边避让</button>
+            <button type="button" role="tab" class="quiz-tab" data-q="2" aria-selected="false">题 3/3 · 宽图策略</button>
+          </div>
+          <p class="quiz-prompt" id="s06-prompt"></p>
+          <div class="quiz-grid" id="s06-options"></div>
+          <div class="q-feedback" id="s06-feedback" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 07 原海报与关键词（原海报深松绿展墙） ========== -->
+    <section class="chapter surf-poster" id="s07">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div>
+            <h2>原海报与关键词</h2>
+            <p class="sec-en">ORIGINAL POSTER &amp; KEYWORDS</p>
+          </div>
+        </div>
+
+        <div class="poster-layout">
+          <div class="poster-frame-wrap">
+            <button type="button" class="poster-btn" id="poster-open" aria-label="放大查看 183 矩形绕排原海报">
+              <img id="poster" src="poster.webp" alt="183 矩形绕排原海报：深松绿底、暖金矩形块、正文环绕与右侧绕排示意" draggable="false">
+              <span class="poster-zoom-hint">点击放大 · 支持滚轮缩放与拖动</span>
+            </button>
+          </div>
+
+          <div class="poster-info">
+            <h3>海报五词拆解</h3>
+            <p class="poster-lead">183 原海报底沿用斜杠串起五个关键词——它们恰好对应矩形绕排从选块到落版的完整检查链：</p>
+            <dl class="kw-glossary">
+              <div><dt>区块</dt><dd>先把图片、色块或信息盒定为视觉核心，体量足够撑住层级但不吞没正文。</dd></div>
+              <div><dt>模块</dt><dd>让矩形四边与栏线、中缝、基线网格对齐，成为版面结构的一部分。</dd></div>
+              <div><dt>留白</dt><dd>面向文字的一侧留 12–24px 缓冲气口，外侧贴齐栏边归零不塌陷。</dd></div>
+              <div><dt>环绕</dt><dd>优先贴边单侧或双栏独立绕排，杜绝单句跨图劈栏与过窄牙签行。</dd></div>
+              <div><dt>秩序</dt><dd>最终回报是清晰的阅读路径、稳定的回扫左缘与克制专业的信息层次。</dd></div>
+            </dl>
+
+            <div class="checklist-box">
+              <h4>落版前四步快检</h4>
+              <ul>
+                <li>图块是否贴齐栏边或跨中缝，避免单段正文跨图跳句？</li>
+                <li>贴边外缘是否归零、面向正文一侧留足 12–24px（经验值）？</li>
+                <li>最窄一侧正文是否守住 12 字/行以上，否则改用跳行？</li>
+                <li>窄屏（&lt; 480px）是否设置了断点自动取消浮动？</li>
+              </ul>
+            </div>
+
+            <div class="sibling-box">
+              <h4>同小类关联排版（对齐、缩进与文字造型）</h4>
+              <p class="sibling-links">
+                <a href="https://layout.xiaoxiaodong.ai/176/play/" target="_blank" rel="noopener">176 左对齐右参差</a> ·
+                <a href="https://layout.xiaoxiaodong.ai/179/play/" target="_blank" rel="noopener">179 两端对齐</a> ·
+                <a href="https://layout.xiaoxiaodong.ai/182/play/" target="_blank" rel="noopener">182 轮廓绕排</a> ·
+                <a href="https://layout.xiaoxiaodong.ai/184/play/" target="_blank" rel="noopener">184 跨栏标题</a> ·
+                <a href="https://layout.xiaoxiaodong.ai/188/play/" target="_blank" rel="noopener">188 基线对齐</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 规范页脚 -->
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <span>183 矩形绕排 · <a href="https://layout.xiaoxiaodong.ai/183/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a></span>
+      <span>海报 CC BY 4.0 · <a href="https://github.com/xiaoxiaodong-ai/350-layout-interactive" target="_blank" rel="noopener">源文件 GitHub</a></span>
+    </div>
+  </footer>
+
+  <!-- 原海报放大灯箱 -->
+  <div class="poster-modal" id="poster-modal" role="dialog" aria-modal="true" aria-label="183 原海报放大预览" hidden>
+    <div class="modal-bar">
+      <span>183 矩形绕排 · 原海报（拖动平移 · 滚轮缩放 · Esc 关闭）</span>
+      <div class="modal-ctrls">
+        <button type="button" id="zoom-out">缩小 −</button>
+        <button type="button" id="zoom-reset">100%</button>
+        <button type="button" id="zoom-in">放大 +</button>
+        <button type="button" id="modal-close" class="is-close">关闭 Esc</button>
+      </div>
+    </div>
+    <div class="modal-stage" id="modal-stage">
+      <img id="modal-poster-img" alt="183 矩形绕排原海报大图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
