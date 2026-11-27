@@ -1,5 +1,5 @@
 // 批量做互动页：node tools/batch.mjs [起 止] —— 默认 016 到 350。
-//   - 队列切成 WORKERS 段连续编号，每段一个作者从头往后做：相邻编号先后完成，选字体时前一页已经在了。
+//   - WORKERS 个作者共用一个队列，谁空了谁取下一个编号。
 //   - 每页交给 agy（Gemini，MODEL），说明在 BRIEF.md；超过 90 分钟连同它起的进程（含无头 Chrome）一起杀掉。
 //   - 作者说做完了不算数：这里自己 build + check 过了才提交这一页；不过就把失败的输出交给下一个作者接着做，最多 ATTEMPTS 次。
 //   - 已经提交过的编号跳过，所以随时可以停、再从头跑。停：touch .build/batch/STOP（做完手上这页就停）。
@@ -17,6 +17,7 @@ mkdirSync(OUT, { recursive: true });
 
 const MODEL = process.env.MODEL || "gemini-4-neon-xhigh";
 const WORKERS = Number(process.env.WORKERS || 8);
+const DISK_MIN_GB = Number(process.env.DISK_MIN_GB || 10);
 const ATTEMPTS = 4;
 const REVIEWS = 2;
 // Claude 审方案、审成品：用户说省算力，默认关掉；REVIEW=1 再打开。自动检查（build / check / gate）照常
@@ -101,7 +102,7 @@ const diskFreeGB = () => Number(execFileSync("df", ["-k", ROOT]).toString().trim
 async function roomToRun() {
   for (;;) {
     const disk = diskFreeGB();
-    if (disk < 10) { log(`⚠ 磁盘只剩 ${disk.toFixed(1)} GB，等 5 分钟`); await sleep(300_000); continue; }
+    if (disk < DISK_MIN_GB) { log(`⚠ 磁盘只剩 ${disk.toFixed(1)} GB，等 5 分钟`); await sleep(300_000); continue; }
     const free = Number(execFileSync("memory_pressure").toString().match(/free percentage: (\d+)/)?.[1] ?? 100);
     if (free >= 15) return;
     log(`内存只剩 ${free}%，等 2 分钟`);
@@ -284,9 +285,10 @@ async function commitPage(id, { minutes, timedOut, reviews, notes, revisit }) {
 // ---------- 分段，开跑 ----------
 rmSync(LOCKS, { recursive: true, force: true });
 mkdirSync(LOCKS, { recursive: true });
-const segments = Array.from({ length: WORKERS }, (_, k) => ids.slice(Math.round((k * ids.length) / WORKERS), Math.round(((k + 1) * ids.length) / WORKERS)));
-log(`开跑 ${MODEL}：${ids.length} 个编号，${WORKERS} 段 ${segments.map((s) => `${s[0]}–${s.at(-1)}`).join(" ")}，每 ${DEPLOY_EVERY} 页上线一次`);
-await Promise.all(segments.map(async (seg) => { for (const id of seg) { if (stopped()) break; await page(id); } }));
+// 剩下的页放进一个队列，谁空了谁取下一个（按段分的话，剩的页挤在几段里，别的作者闲着）
+const queue = [...ids];
+log(`开跑 ${MODEL}：${ids.length} 个编号（还没提交的 ${ids.filter((id) => !committed(id)).length} 个），${WORKERS} 个作者共用一个队列，磁盘少于 ${DISK_MIN_GB} GB 就等，每 ${DEPLOY_EVERY} 页上线一次`);
+await Promise.all(Array.from({ length: WORKERS }, async () => { while (queue.length && !stopped()) await page(queue.shift()); }));
 await releasing;
 if (sinceDeploy) await maybeRelease(true);
 const all = readFileSync(join(OUT, "results.jsonl"), "utf8").trim().split("\n").map((l) => JSON.parse(l));
