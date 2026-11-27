@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>180 强制两端对齐 · FORCED JUSTIFICATION</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ==================== HERO：1:1 原海报瑞士单轴校样展页 ==================== -->
+  <header class="hero" id="top">
+    <div class="wrap">
+      <!-- 顶部极细刊眉 -->
+      <nav class="topbar" aria-label="页内导航与状态">
+        <div class="topbar-left">
+          <span class="num-pill">NO. 180</span>
+          <span class="crumb">字体、网格与东亚文字 / 对齐、缩进与文字造型</span>
+          <span class="status-chip" id="top-status">0/4 · 孤岛撕裂</span>
+        </div>
+        <div class="topbar-right">
+          <div class="jump-links" aria-label="章节快捷跳转">
+            <a href="#s01">01 机制</a>
+            <a href="#s02">02 中西</a>
+            <a href="#s03">03 阈值</a>
+            <a href="#s04">04 源流</a>
+            <a href="#s05">05 边界</a>
+            <a href="#s06">06 练习</a>
+            <a href="#s07">07 海报</a>
+          </div>
+          <button type="button" class="btn-scan-top" id="btn-scan-top">
+            <span class="dot-live" aria-hidden="true"></span>张力透视 <kbd>Space</kbd>
+          </button>
+        </div>
+      </nav>
+
+      <!-- 主体网格：桌面为全幅单轴校样，横屏手机自动切左右并行 -->
+      <div class="hero-shell">
+        <!-- 刊头：自示范拉伸巨标 + 招牌右上蓝圆 -->
+        <div class="masthead">
+          <div class="masthead-main">
+            <div class="title-row">
+              <h1 class="hero-title" id="hero-title" aria-label="强制两端对齐">
+                <span>强</span><span>制</span><span>两</span><span>端</span><span>对</span><span>齐</span>
+              </h1>
+              <span class="hero-orb" id="hero-orb" aria-hidden="true"></span>
+            </div>
+            <div class="en-sub-row">
+              <p class="hero-en" id="hero-en">FORCED JUSTIFICATION</p>
+              <div class="specimen-tabs" role="tablist" aria-label="切换校样语境">
+                <button type="button" class="tab-btn is-active" role="tab" aria-selected="true" data-specimen="poster">原海报·双行宣言</button>
+                <button type="button" class="tab-btn" role="tab" aria-selected="false" data-specimen="exhibition">展墙·极简标题</button>
+                <button type="button" class="tab-btn" role="tab" aria-selected="false" data-specimen="bilingual">双语·全大写封面</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 原海报领读语 + 横向三枚电光蓝圆竖线实时探针（手机端自动后置至画布下） -->
+          <div class="masthead-meta">
+            <div class="lead-block">
+              <span class="black-dash" aria-hidden="true"></span>
+              <p class="lead-zh">通过拉伸字间距，使每一行文本的左右两端严格对齐，形成强烈的张力与节奏感。</p>
+              <p class="lead-en">BY STRETCHING THE SPACE BETWEEN CHARACTERS, EACH LINE IS FORCED TO ALIGN WITH BOTH EDGES, CREATING TENSION AND RHYTHM.</p>
+            </div>
+            <div class="probe-strip" id="probe-strip" aria-live="polite">
+              <!-- 由 main.js 单真源同步渲染 3 枚海报原款蓝圆竖线徽标 -->
+            </div>
+          </div>
+        </div>
+
+        <hr class="poster-rule" aria-hidden="true">
+
+        <!-- 主角玩具：100% 全宽 2D Canvas 张力牵引校样机 -->
+        <div class="stage-zone">
+          <div class="canvas-frame">
+            <canvas id="hero-canvas" data-perf-drag aria-label="张力牵引校样机：左右拖动蓝钳调整框宽，点击第 1 行字符间隙改变断行，按空格键扫描张力"></canvas>
+          </div>
+          <p class="stage-hint" id="stage-caption">横拖画布蓝钳调框宽 · 点行内字缝移断行 · 方向键微调 · Space 发射张力透视</p>
+        </div>
+
+        <!-- 紧底精控条 + 单真源白话诊单条 -->
+        <div class="dock-zone">
+          <!-- 单真源白话诊单（手机首屏折线内直接可见） -->
+          <div class="diag-bar" id="diag-bar" aria-live="polite">
+            <div class="diag-head">
+              <span class="diag-badge" id="diag-badge">0/4 · 孤岛撕裂</span>
+              <span class="diag-tier" id="diag-tier">张力档位：孤岛撕裂（示意）</span>
+            </div>
+            <h2 class="diag-title" id="diag-title">最疏一行字距飙到 3.64em，文字拆散成孤立圆点</h2>
+            <p class="diag-body" id="diag-body"></p>
+            <p class="diag-action" id="diag-action"></p>
+            <div class="diag-btns">
+              <button type="button" class="btn-primary" id="btn-fix">一键校准原海报解</button>
+              <button type="button" class="btn-ghost" id="btn-scan">张力透视</button>
+              <button type="button" class="btn-ghost" id="btn-reset">复原开场错态</button>
+            </div>
+          </div>
+
+          <!-- 精控操轨坞 -->
+          <div class="controls-dock">
+            <div class="sliders-row">
+              <label class="slider-item" for="ctrl-measure">
+                <span class="slider-top"><span>框宽（Measure）</span><strong id="val-measure">88%</strong></span>
+                <input id="ctrl-measure" type="range" min="42" max="100" step="1" value="88">
+              </label>
+              <label class="slider-item" for="ctrl-split">
+                <span class="slider-top"><span>首行字数（断行点）</span><strong id="val-split">22 字</strong></span>
+                <input id="ctrl-split" type="range" min="4" max="24" step="1" value="22">
+              </label>
+            </div>
+
+            <div class="toggles-row">
+              <div class="toggle-group" role="group" aria-label="对齐机制">
+                <span class="tg-label">对齐机制</span>
+                <button type="button" class="seg-btn" data-mode="natural">未对齐</button>
+                <button type="button" class="seg-btn" data-mode="normal">普通两端 179</button>
+                <button type="button" class="seg-btn is-active" data-mode="forced">强制两端 180</button>
+              </div>
+              <div class="toggle-group" role="group" aria-label="间距与行数">
+                <span class="tg-label">拉伸方式</span>
+                <button type="button" class="seg-btn is-active" data-space="char">按字均分</button>
+                <button type="button" class="seg-btn" data-space="word">仅拉词空</button>
+                <button type="button" class="seg-btn" id="btn-lines" data-lines="2">2 行排布</button>
+                <button type="button" class="seg-btn" id="btn-punct" aria-pressed="false">标点挂边：关</button>
+              </div>
+            </div>
+
+            <div class="presets-row">
+              <div class="preset-group">
+                <span class="tg-label">合法多解</span>
+                <div id="valid-presets" class="chip-row"></div>
+              </div>
+              <div class="preset-group">
+                <span class="tg-label">双向试错</span>
+                <div class="chip-row">
+                  <button type="button" class="err-chip" data-err="rupture">末行撕裂</button>
+                  <button type="button" class="err-chip" data-err="normal179">末行塌缩</button>
+                  <button type="button" class="err-chip" data-err="collision">过窄撞字</button>
+                  <button type="button" class="err-chip" data-err="toowide">过宽孤岛</button>
+                  <button type="button" class="err-chip" data-err="wordfail">仅拉词空</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== 01 机制：字距一撑，块就立住 ==================== -->
+    <section class="band band-bright" id="s01">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div class="sec-titles">
+            <h2>字距一撑，块就立住</h2>
+            <p class="sec-en">THE MECHANISM OF TENSION &amp; TEXT SHAPE</p>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="prose-col">
+            <blockquote class="poster-quote">
+              <span class="quote-tag">原海报总述</span>
+              “通过拉伸字间距，使每一行文本的左右两端严格对齐，形成强烈的张力与节奏感。”
+            </blockquote>
+            <p>普通排版把文字当成一条顺着读的河：写到哪算哪，右边缘参差起伏，视线轻松但没有压迫力（见同小类的 <a href="https://layout.xiaoxiaodong.ai/176/play/" target="_blank" rel="noopener">176 左对齐右参差</a>）。常规的 <a href="https://layout.xiaoxiaodong.ai/179/play/" target="_blank" rel="noopener">179 两端对齐</a> 会把前几行拉齐，却刻意放过最后一行，让段落自然收尾。</p>
+            <p><strong>180 强制两端对齐</strong>则把最后那道闸门也锁死——连末行和短短几个字的标题，也必须靠拉伸字距顶到左右两条边界线上。一旦左右两侧同时受力，文字便从“说话的句子”硬化成一根绷紧的几何横梁，呈现出原海报点名的三种特质：<strong>张力（TENSION）</strong>、<strong>铺满（FULL WIDTH）</strong>与<strong>形态化（TEXT SHAPE）</strong>。</p>
+            <aside class="gentle-note">
+              <span class="note-pill">对照原海报 · 细看一处</span>
+              <p>原海报示范框中，“未对齐”和“强制两端对齐”上下两句同为 15 字加 13 字，因为原图把上面那句也加了较宽的基础字距，视觉反差偏温和。在真实排印里，只要末行字数少上三五个，普通对齐与强制齐行的落差会立刻放大数倍。</p>
+            </aside>
+          </div>
+
+          <div class="lab-card" id="lab-01">
+            <div class="lab-top">
+              <span class="lab-kicker">四态剥离对照台</span>
+              <div class="mode-pills" role="tablist" aria-label="对比四种排版形态">
+                <button type="button" class="pill-btn" data-s1="left">176 自然左齐</button>
+                <button type="button" class="pill-btn" data-s1="justify">179 普通两端</button>
+                <button type="button" class="pill-btn is-active" data-s1="forced">180 强制两端</button>
+                <button type="button" class="pill-btn" data-s1="blur">眯眼看形态</button>
+              </div>
+            </div>
+            <div class="s1-stage" id="s1-stage">
+              <div class="s1-rail-l" aria-hidden="true"></div>
+              <div class="s1-rail-r" aria-hidden="true"></div>
+              <div class="s1-lines" id="s1-lines"></div>
+            </div>
+            <div class="s1-foot">
+              <span class="s1-metric" id="s1-metric">右缘锁死 3/3 行 · 块状闭合完整</span>
+              <p class="s1-explain" id="s1-explain"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 02 中西文种：方块字与单词的脾气 ==================== -->
+    <section class="band band-mist" id="s02">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div class="sec-titles">
+            <h2>中西文字，脾气大不同</h2>
+            <p class="sec-en">CJK SQUARE GLYPHS VS. PROPORTIONAL LATIN</p>
+          </div>
+        </div>
+
+        <p class="sec-intro">同是「强制两端对齐」，中文方块字与拉丁字母的底层物理结构截然相反。W3C《中文排版需求》（CLReq）与《日文排版需求》（JLReq）明确指出：汉字与全角标点天然自带方格，均分空白只能放进汉字之间或中西文交界，绝不随意拆开西文单词内部；而在西文传统中，罗伯特·布林赫斯特（Robert Bringhurst）援引弗雷德里克·高迪的名言警示——随意拉散小写字母的字距会直接摧毁单词轮廓，只有<strong>全大写标题</strong>才经得起大字距拉伸。</p>
+
+        <div class="dissector-box" id="lab-02">
+          <div class="dissector-controls">
+            <div class="ctrl-cluster">
+              <span class="tg-label">切换文种样本</span>
+              <div class="chip-row" role="tablist" aria-label="文种样本">
+                <button type="button" class="seg-btn is-active" data-s2-script="cjk">纯中文方块字</button>
+                <button type="button" class="seg-btn" data-s2-script="mixed">中西混排展签</button>
+                <button type="button" class="seg-btn" data-s2-script="caps">全大写英文海报</button>
+                <button type="button" class="seg-btn" data-s2-script="lower">小写英文正文（反例）</button>
+              </div>
+            </div>
+            <div class="ctrl-cluster">
+              <span class="tg-label">CSS 引擎策略</span>
+              <div class="chip-row">
+                <button type="button" class="seg-btn is-active" data-s2-algo="inter-character">inter-character 按字均分</button>
+                <button type="button" class="seg-btn" data-s2-algo="inter-word">inter-word 仅拉词空</button>
+                <button type="button" class="seg-btn is-active" id="s2-punct-btn" aria-pressed="true">标点光学挂边：开</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="s2-canvas-wrap">
+            <div class="s2-specimen-box" id="s2-specimen-box"></div>
+            <div class="s2-gap-bars" id="s2-gap-bars" aria-label="逐缝空白分布条"></div>
+          </div>
+
+          <div class="s2-verdict" id="s2-verdict"></div>
+        </div>
+
+        <p class="cross-ref">当中文行尾落着全角句号、逗号或书名号时，由于标点右半格天生留白，机械齐边反而会让人觉得右缘凹进一截——精细的边沿处理详见 <a href="https://layout.xiaoxiaodong.ai/187/play/" target="_blank" rel="noopener">187 凸排标点</a>。</p>
+      </div>
+    </section>
+
+    <!-- ==================== 03 暗室：字数差一截，立马裂白河 ==================== -->
+    <section class="band band-dark" id="s03">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">03</span>
+          <div class="sec-titles">
+            <h2>字数差一截，立马裂白河</h2>
+            <p class="sec-en">THE 1 / (N − 1) RUPTURE CLIFF</p>
+          </div>
+        </div>
+
+        <div class="dark-grid">
+          <div class="dark-copy">
+            <p>为什么强制两端对齐在海报上既迷人又危险？秘密藏在一条极简的算式里：把 <strong>n</strong> 个方块字强行撑满 <strong>W</strong> 格宽的文本框，每一道字缝分配到的空白等于 <strong>(W − n) ÷ (n − 1)</strong>。</p>
+            <p>分母 <strong>(n − 1)</strong> 决定了它不是平滑滑坡，而是一道<strong>双曲线悬崖</strong>：同样 18 格框宽，一行有 11 个字时字距仅 0.70 em，紧绷漂亮；一旦末行只掉剩 4 个字，分母骤降到 3，每道字缝瞬间暴涨到 <strong>4.67 em</strong>——远超完形接近律的连贯极限（排印经验里中文大字一般不宜超过约 1.15 em），一句话当场炸成互不认识的孤岛。</p>
+
+            <div class="stepper-panel">
+              <div class="stepper-head">
+                <span>实时调整末行字数（固定 18 格框宽）</span>
+                <strong id="s3-readout">4 字 · 4.67em</strong>
+              </div>
+              <div class="stepper-controls">
+                <button type="button" class="step-btn" id="s3-minus" aria-label="减少 1 个字">− 减 1 字</button>
+                <div class="step-dots" id="s3-quick" role="group" aria-label="快捷选字数">
+                  <button type="button" class="mini-num" data-n="2">2字</button>
+                  <button type="button" class="mini-num is-active" data-n="4">4字</button>
+                  <button type="button" class="mini-num" data-n="6">6字</button>
+                  <button type="button" class="mini-num" data-n="9">9字</button>
+                  <button type="button" class="mini-num" data-n="11">11字</button>
+                  <button type="button" class="mini-num" data-n="13">13字</button>
+                </div>
+                <button type="button" class="step-btn" id="s3-plus" aria-label="增加 1 个字">+ 加 1 字</button>
+              </div>
+            </div>
+
+            <div class="s3-live-strip" id="s3-live-strip" aria-live="polite"></div>
+            <p class="s3-diag" id="s3-diag"></p>
+          </div>
+
+          <div class="dark-chart-box">
+            <canvas id="rupture-canvas" aria-label="末行字数与字距的双曲线关系图"></canvas>
+            <div class="chart-legend">
+              <span><i class="lg-swatch lg-safe"></i> 经验安全张力带（0.16–1.15 em）</span>
+              <span><i class="lg-swatch lg-bad"></i> 孤岛撕裂区（&gt; 1.15 em）</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 04 从哪来：从铅字齐行到现代海报 ==================== -->
+    <section class="band band-bright" id="s04">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div class="sec-titles">
+            <h2>从铅字齐行到现代海报</h2>
+            <p class="sec-en">HISTORICAL LINEAGE · 1455 TO W3C CSS</p>
+          </div>
+        </div>
+
+        <p class="sec-intro">把每一行强迫成同一宽度，并非电脑软件的发明。从 15 世纪金属活字模仿手抄本双栏，到 20 世纪瑞士国际主义把字距当成建筑尺度，再到东亚名录「均等割り付け」与 W3C 标准，五代排印工坊一直在「齐边秩序」与「字距尊严」之间走钢丝。</p>
+
+        <div class="era-tabs" role="tablist" aria-label="排印史五个关键节点">
+          <button type="button" class="era-btn is-active" role="tab" aria-selected="true" data-era="0">
+            <span class="era-year">1455</span>
+            <span class="era-name">古腾堡 · 活字变宽</span>
+          </button>
+          <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="1">
+            <span class="era-year">1967</span>
+            <span class="era-name">鲁德 · 视觉白量</span>
+          </button>
+          <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="2">
+            <span class="era-year">1981</span>
+            <span class="era-name">克努特 · 胶水算法</span>
+          </button>
+          <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="3">
+            <span class="era-year">1992</span>
+            <span class="era-name">布林赫斯特 · 词距戒律</span>
+          </button>
+          <button type="button" class="era-btn" role="tab" aria-selected="false" data-era="4">
+            <span class="era-year">W3C</span>
+            <span class="era-name">均等排列与 CSS</span>
+          </button>
+        </div>
+
+        <div class="era-panel" id="era-panel" aria-live="polite">
+          <!-- 由 main.js 渲染五代工坊详情与微型排印图解 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 05 边界：什么时候用，什么时候别用 ==================== -->
+    <section class="band band-mist" id="s05">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div class="sec-titles">
+            <h2>什么时候用，什么时候别用</h2>
+            <p class="sec-en">WHEN TO DEPLOY &amp; WHEN TO STAY AWAY</p>
+          </div>
+        </div>
+
+        <div class="use-summary-grid">
+          <div class="use-col use-yes">
+            <h3>适合用的场合</h3>
+            <ul>
+              <li><strong>海报大标题与 2–3 行宣言</strong>：字数可控、设计师能手动均分断行，拉出强烈视觉横梁感。</li>
+              <li><strong>东亚表格短字段名与名录</strong>：如「姓　名 / 电　话 / 电子邮箱」等宽齐列（JLReq 称均等割り付け），让冒号排成一根笔直垂线。</li>
+              <li><strong>书籍封面、包装铭牌与展墙导视</strong>：用文字本身构成矩形色块，强化几何秩序与品牌力量。</li>
+            </ul>
+          </div>
+          <div class="use-col use-no">
+            <h3>什么时候别用（四大禁区）</h3>
+            <ul>
+              <li><strong>长篇正文与多段文章</strong>：末行孤词会被扯出跨栏破洞，极度消耗眼力——长文请改用 <a href="https://layout.xiaoxiaodong.ai/176/play/" target="_blank" rel="noopener">176 左对齐右参差</a> 或 <a href="https://layout.xiaoxiaodong.ai/179/play/" target="_blank" rel="noopener">179 两端对齐</a>。</li>
+              <li><strong>窄栏移动端卡片</strong>：手机屏每行只容 10–14 字，轻微字数差就会制造剧烈白河。</li>
+              <li><strong>英文小写长句与代码数字</strong>：破坏单词识别轮廓，也不利于扫描数据（右对齐数字见 <a href="https://layout.xiaoxiaodong.ai/177/play/" target="_blank" rel="noopener">177 右对齐左参差</a>）。</li>
+              <li><strong>多语言动态翻译界面</strong>：中文 4 字译成德文或英文长度翻倍，强行铺满直接撞字或撕裂；仪式感短标可改用 <a href="https://layout.xiaoxiaodong.ai/178/play/" target="_blank" rel="noopener">178 居中排版</a> 或 <a href="https://layout.xiaoxiaodong.ai/181/play/" target="_blank" rel="noopener">181 非对称字体排版</a>。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="stress-header">
+          <span class="lab-kicker">6 组真实场景压测卡 · 点按开关对比「自然排版」与「强制两端对齐」</span>
+          <button type="button" class="btn-ghost-sm" id="s5-toggle-all">全部切到强制两端对齐</button>
+        </div>
+
+        <div class="scenario-grid" id="scenario-grid">
+          <!-- 由 main.js 渲染 6 张交互式压测卡片 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 06 暗室考场：小练习 ==================== -->
+    <section class="band band-dark" id="s06">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div class="sec-titles">
+            <h2>小练习：挑出站得住的一版</h2>
+            <p class="sec-en">BLIND TYPOGRAPHY CRITIQUE</p>
+          </div>
+        </div>
+
+        <div class="quiz-bar">
+          <div class="quiz-tabs" role="tablist" aria-label="切换练习题">
+            <button type="button" class="qtab-btn is-active" data-q="0">第 1 题 · 展墙双行副标</button>
+            <button type="button" class="qtab-btn" data-q="1">第 2 题 · 表单标签与说明</button>
+          </div>
+          <span class="quiz-progress" id="quiz-progress">已作答 0 / 2 题</span>
+        </div>
+
+        <p class="quiz-prompt" id="quiz-prompt"></p>
+
+        <div class="quiz-grid" id="quiz-grid">
+          <!-- 4 个中性标签选项 A / B / C / D，单变量对照 -->
+        </div>
+
+        <div class="quiz-feedback" id="quiz-feedback" hidden aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- ==================== 07 原海报与关键词 ==================== -->
+    <section class="band band-poster" id="s07">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div class="sec-titles">
+            <h2>原海报与关键词</h2>
+            <p class="sec-en">ORIGINAL POSTER · NO. 180</p>
+          </div>
+        </div>
+
+        <div class="poster-layout">
+          <div class="poster-frame">
+            <button type="button" class="poster-trigger" id="poster-open" aria-label="点击放大查看 180 原海报">
+              <img id="poster" src="poster.webp" alt="180 强制两端对齐原海报" draggable="false">
+              <span class="poster-zoom-chip">点击放大 · 支持滚轮缩放与拖动</span>
+            </button>
+          </div>
+
+          <div class="poster-meta">
+            <div class="kw-list">
+              <div class="kw-card">
+                <span class="kw-orb" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M5 12h14M9 8l-4 4 4 4M15 8l4 4-4 4"/></svg>
+                </span>
+                <div class="kw-line" aria-hidden="true"></div>
+                <div>
+                  <h3>张力 <span>TENSION</span></h3>
+                  <p>字缝被精确绷开，在字符与留白之间制造向前向外的机械拉力，远看如紧绷弦线。</p>
+                </div>
+              </div>
+              <div class="kw-card">
+                <span class="kw-orb" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><rect x="4" y="4" width="16" height="16"/></svg>
+                </span>
+                <div class="kw-line" aria-hidden="true"></div>
+                <div>
+                  <h3>铺满 <span>FULL WIDTH</span></h3>
+                  <p>取消末行豁免权，所有行齐刷刷顶住左右双边，让每一条水平通道占据满格存在感。</p>
+                </div>
+              </div>
+              <div class="kw-card">
+                <span class="kw-orb" aria-hidden="true">T</span>
+                <div class="kw-line" aria-hidden="true"></div>
+                <div>
+                  <h3>形态化 <span>TEXT SHAPE</span></h3>
+                  <p>当上下行密度均衡时，文字整体从“阅读流”转化为一块清晰的几何矩形图形元素。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="poster-takeaway">
+              <span class="tg-label">原海报示范对照 · 随手核对清单</span>
+              <p>海报下半张将同一句 28 字话分别排作「未对齐（自然排版）」与「强制两端对齐」，并用右侧黑点蓝虚线直观标出字符步距，底部再以 11 道蓝筋撑起「铺 ══●══ 满」。实战中只要同时守住<strong>每行字数接近</strong>、<strong>字距落在约 0.16–1.15 em</strong>、<strong>行尾标点光学挂边</strong>三条，强制两端对齐就能稳如横梁。</p>
+            </div>
+
+            <div class="siblings-box">
+              <span class="tg-label">同小类「对齐、缩进与文字造型」其他页面</span>
+              <div class="sibling-links">
+                <a href="https://layout.xiaoxiaodong.ai/176/play/" target="_blank" rel="noopener">176 左对齐右参差</a>
+                <a href="https://layout.xiaoxiaodong.ai/177/play/" target="_blank" rel="noopener">177 右对齐左参差</a>
+                <a href="https://layout.xiaoxiaodong.ai/178/play/" target="_blank" rel="noopener">178 居中排版</a>
+                <a href="https://layout.xiaoxiaodong.ai/179/play/" target="_blank" rel="noopener">179 两端对齐</a>
+                <a href="https://layout.xiaoxiaodong.ai/181/play/" target="_blank" rel="noopener">181 非对称字体排版</a>
+                <a href="https://layout.xiaoxiaodong.ai/182/play/" target="_blank" rel="noopener">182 轮廓绕排</a>
+                <a href="https://layout.xiaoxiaodong.ai/183/play/" target="_blank" rel="noopener">183 矩形绕排</a>
+                <a href="https://layout.xiaoxiaodong.ai/184/play/" target="_blank" rel="noopener">184 跨栏标题</a>
+                <a href="https://layout.xiaoxiaodong.ai/185/play/" target="_blank" rel="noopener">185 悬挂缩进</a>
+                <a href="https://layout.xiaoxiaodong.ai/186/play/" target="_blank" rel="noopener">186 首行缩进</a>
+                <a href="https://layout.xiaoxiaodong.ai/187/play/" target="_blank" rel="noopener">187 凸排标点</a>
+                <a href="https://layout.xiaoxiaodong.ai/188/play/" target="_blank" rel="noopener">188 基线对齐</a>
+                <a href="https://layout.xiaoxiaodong.ai/189/play/" target="_blank" rel="noopener">189 形状文字</a>
+                <a href="https://layout.xiaoxiaodong.ai/190/play/" target="_blank" rel="noopener">190 图形诗排版</a>
+                <a href="https://layout.xiaoxiaodong.ai/191/play/" target="_blank" rel="noopener">191 路径文字</a>
+                <a href="https://layout.xiaoxiaodong.ai/192/play/" target="_blank" rel="noopener">192 垂直文字排版</a>
+                <a href="https://layout.xiaoxiaodong.ai/193/play/" target="_blank" rel="noopener">193 水平文字排版</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <span>在线版：<a href="https://layout.xiaoxiaodong.ai/180/play/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai/180/play/</a></span>
+      <span class="f-sep" aria-hidden="true">·</span>
+      <span>全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai</a></span>
+      <span class="f-sep" aria-hidden="true">·</span>
+      <span>海报 CC BY 4.0</span>
+      <span class="f-sep" aria-hidden="true">·</span>
+      <a href="https://github.com/xxd-ai/350-layout-redesign" target="_blank" rel="noopener">源文件 GitHub</a>
+    </div>
+  </footer>
+
+  <!-- 原海报放大拖动灯箱 -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="180 强制两端对齐原海报放大查看">
+    <div class="lb-bar">
+      <span class="lb-title">NO. 180 强制两端对齐 · 原海报（拖动平移 / 滚轮缩放 / Esc 关闭）</span>
+      <div class="lb-actions">
+        <button type="button" class="lb-btn" id="lb-zoom-out" aria-label="缩小">−</button>
+        <span class="lb-pct" id="lb-pct">100%</span>
+        <button type="button" class="lb-btn" id="lb-zoom-in" aria-label="放大">+</button>
+        <button type="button" class="lb-btn" id="lb-reset">重置</button>
+        <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="关闭灯箱">关闭 Esc</button>
+      </div>
+    </div>
+    <div class="lb-viewport" id="lb-viewport">
+      <img id="lb-img" alt="180 原海报高清放大图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
