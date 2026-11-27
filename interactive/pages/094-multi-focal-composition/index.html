@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>094 多重焦点构图 · MULTI-FOCAL COMPOSITION</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- =========================================================
+       HERO：1:1 承袭 094 原海报深空星图与底栏紫卡四探针架构
+       ========================================================= -->
+  <header class="hero" id="top">
+    <!-- 装饰星阵（完全来自 094 原海报右上 6×3 紫点与左下紫行星弧，绝不溢出） -->
+    <div class="hero-ornaments" aria-hidden="true">
+      <div class="dot-matrix-tr"></div>
+      <div class="planet-arc-bl"></div>
+    </div>
+
+    <div class="wrap hero-inner">
+      <!-- 顶部非对称跨轨自示范刊头 -->
+      <div class="masthead">
+        <div class="mast-left">
+          <div class="series-line">
+            <svg class="brand-glyph" viewBox="0 0 38 22" aria-hidden="true">
+              <circle cx="11" cy="11" r="8.5" fill="#7f4cf8" />
+              <circle cx="25" cy="11" r="8" fill="none" stroke="#d8d2f8" stroke-width="1.5" />
+              <circle cx="25" cy="11" r="2.6" fill="#d8d2f8" />
+            </svg>
+            <span class="badge-no">NO. 094</span>
+            <span class="series-text">版式原理 · 视觉平衡 | 设计思维与应用</span>
+            <span class="status-pill" id="hero-status-pill" aria-live="polite">0/4 · 四王均权</span>
+          </div>
+          <div class="title-row">
+            <h1 class="hero-title">
+              <span class="t-accent">多</span>重<span class="t-dot">焦</span>点构图
+            </h1>
+            <p class="hero-en">MULTI-FOCAL COMPOSITION</p>
+          </div>
+        </div>
+
+        <div class="mast-right">
+          <div class="scenario-tabs" role="tablist" aria-label="切换应用语境">
+            <button type="button" class="tab-btn is-active" data-scenario="poster">原海报 · 四星</button>
+            <button type="button" class="tab-btn" data-scenario="infographic">信息图 · 星图</button>
+            <button type="button" class="tab-btn" data-scenario="magazine">杂志 · 跨页</button>
+          </div>
+          <button type="button" class="scan-btn" data-scan-btn>
+            <span class="scan-dot" aria-hidden="true"></span>
+            放飞视线巡航 <kbd>Space</kbd>
+          </button>
+        </div>
+      </div>
+
+      <!-- 主舞台：开放全幅深空星图画布 + 移动端折线内快速诊单 -->
+      <div class="hero-workspace">
+        <div class="stage-shell">
+          <canvas
+            id="hero-canvas"
+            class="hero-canvas"
+            data-perf-drag
+            tabindex="0"
+            aria-label="多重焦点星图巡航编排画布：可拖拽焦点调重心配衡，方向键微调，空格放飞视线巡航"
+          ></canvas>
+          <p class="stage-caption" id="hero-scenario-caption">
+            1:1 转译 094 原海报：A 雪山高反差起点 → B 夜空灯塔转向 → C 六角城影节奏 → D 紫纹细节落脚。
+          </p>
+        </div>
+
+        <!-- 手机竖屏/横屏折线内紧凑紫卡诊单（桌面端隐藏，桌面端直接看下方完整紫卡） -->
+        <div class="mob-quick-dock" aria-label="移动端快速诊断与操控">
+          <p class="mob-diag-title" id="mob-diag-title">四个焦点几乎等重，视线找不到入口</p>
+          <p class="mob-diag-action" id="mob-diag-action">选中焦点 A 拉大尺寸，再切回顺轨路径。</p>
+          <div class="mob-slider-row">
+            <label for="mob-size-slider" id="mob-size-val">A 权重 26%</label>
+            <input type="range" id="mob-size-slider" min="0" max="100" value="52">
+          </div>
+          <div class="mob-btn-row">
+            <button type="button" class="btn-solid-light" data-preset="posterSolution">校准原海报解</button>
+            <button type="button" class="btn-outline-light" data-scan-btn>放飞视线</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 紧底单行调焦操轨条（选节点 / 尺寸 / 对比 / 形状 / 焦点数 / 路径 / 多解与试错） -->
+      <div class="control-strip" aria-label="焦点与路径精控栏">
+        <div class="ctrl-group">
+          <span class="ctrl-label">选中焦点</span>
+          <div class="btn-cluster" id="ctrl-node-picks"></div>
+        </div>
+
+        <div class="ctrl-group ctrl-slider-grp">
+          <div class="slider-head">
+            <label for="ctrl-size">面积权重</label>
+            <span class="num-val" id="ctrl-size-val">A · 26%</span>
+          </div>
+          <input type="range" id="ctrl-size" min="0" max="100" value="52">
+        </div>
+
+        <div class="ctrl-group ctrl-slider-grp">
+          <div class="slider-head">
+            <label for="ctrl-contrast">明暗对比</label>
+            <span class="num-val" id="ctrl-contrast-val">62%</span>
+          </div>
+          <input type="range" id="ctrl-contrast" min="35" max="100" value="62">
+        </div>
+
+        <div class="ctrl-group">
+          <span class="ctrl-label">形态对比</span>
+          <div class="btn-cluster">
+            <button type="button" class="mini-btn" data-shape="circle">圆</button>
+            <button type="button" class="mini-btn" data-shape="hex">六边</button>
+            <button type="button" class="mini-btn" data-shape="square">方</button>
+            <button type="button" class="mini-btn" data-shape="diamond">菱</button>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <span class="ctrl-label">视线路径</span>
+          <div class="btn-cluster">
+            <button type="button" class="mini-btn" data-path-mode="broken">断链</button>
+            <button type="button" class="mini-btn" data-path-mode="ordered">顺轨</button>
+            <button type="button" class="mini-btn" data-path-mode="loop">回环</button>
+            <button type="button" class="mini-btn" data-path-mode="crossed">死结</button>
+          </div>
+        </div>
+
+        <div class="ctrl-group ctrl-count-grp">
+          <div class="slider-head">
+            <label for="ctrl-count">焦点数</label>
+            <span class="num-val" id="ctrl-count-val">4 枚</span>
+          </div>
+          <input type="range" id="ctrl-count" min="2" max="6" step="1" value="4">
+        </div>
+      </div>
+
+      <!-- 多解与双向试错一行条 -->
+      <div class="preset-bar">
+        <div class="preset-group">
+          <span class="preset-k">合法多解</span>
+          <button type="button" class="chip-ok" data-preset="posterSolution">原海报四星解</button>
+          <button type="button" class="chip-ok" data-preset="triangleSolution">三角主从解</button>
+          <button type="button" class="chip-ok" data-preset="scrollSolution">长卷五焦解</button>
+        </div>
+        <div class="preset-group">
+          <span class="preset-k">双向试错</span>
+          <button type="button" class="chip-err" data-preset="errEqual">四王均权</button>
+          <button type="button" class="chip-err" data-preset="errSingle">退回单焦</button>
+          <button type="button" class="chip-err" data-preset="errTilt">左偏塌方</button>
+          <button type="button" class="chip-err" data-preset="errCross">路径死结</button>
+          <button type="button" class="chip-err" data-preset="errOverload">六焦过载</button>
+        </div>
+        <button type="button" class="chip-ghost" id="ctrl-guides" aria-pressed="true">支点轨线：开</button>
+      </div>
+
+      <!-- 1:1 复刻原海报底段：左 29% 紫罗兰渐变核心要点诊单卡 | 右 71% 四列细线实时图标探针槽 -->
+      <div class="poster-deck">
+        <aside class="violet-card" aria-live="polite">
+          <div class="violet-card-top">
+            <span class="violet-heading">
+              <svg class="dual-ring-ico" viewBox="0 0 32 18" aria-hidden="true">
+                <circle cx="9" cy="9" r="7" fill="none" stroke="#e9e4ff" stroke-width="1.3" />
+                <circle cx="17" cy="9" r="7" fill="none" stroke="#e9e4ff" stroke-width="1.3" />
+                <circle cx="24" cy="9" r="3" fill="#e9e4ff" />
+              </svg>
+              核心要点 · 实时诊断
+            </span>
+            <span class="diag-badge" id="diag-badge">0/4 · 四王均权</span>
+          </div>
+          <p class="diag-tier" id="diag-tier">张力档位：秩序瓦解（示意）</p>
+          <h2 class="diag-title" id="diag-title">四个焦点几乎等重，观众不知从哪看起</h2>
+          <p class="diag-reason" id="diag-reason"></p>
+          <p class="diag-action" id="diag-action"></p>
+          <div class="violet-actions">
+            <button type="button" class="btn-solid-light" data-preset="posterSolution">一键校准原海报解</button>
+            <button type="button" class="btn-outline-light" data-preset="brokenStart">复原开场错态</button>
+          </div>
+        </aside>
+
+        <div class="probe-deck" aria-label="多重焦点四项实时探针">
+          <article class="probe-col" data-probe="distribution">
+            <div class="probe-head">
+              <h3>分布注意力</h3>
+              <span class="probe-badge" data-probe-badge="distribution">均权</span>
+            </div>
+            <svg class="probe-ico" viewBox="0 0 64 52" aria-hidden="true">
+              <circle cx="32" cy="26" r="14" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.55" />
+              <circle cx="32" cy="26" r="5" fill="none" stroke="currentColor" stroke-width="1.5" />
+              <circle cx="32" cy="9" r="4" fill="#c7b2ff" />
+              <circle cx="48" cy="18" r="3" fill="#9d84f8" />
+              <circle cx="45" cy="36" r="3.6" fill="#c7b2ff" />
+              <circle cx="19" cy="38" r="2.8" fill="#9d84f8" />
+              <circle cx="16" cy="20" r="3.4" fill="#c7b2ff" />
+            </svg>
+            <p>多个焦点分散注意力，避免单一焦点造成的视觉压迫。</p>
+          </article>
+
+          <article class="probe-col" data-probe="pathway">
+            <div class="probe-head">
+              <h3>节奏与路径</h3>
+              <span class="probe-badge" data-probe-badge="pathway">交叉</span>
+            </div>
+            <svg class="probe-ico" viewBox="0 0 64 52" aria-hidden="true">
+              <path d="M 6 24 C 16 10, 24 38, 34 24 C 44 10, 50 38, 58 22" fill="none" stroke="#c7b2ff" stroke-width="2" />
+              <path d="M 6 32 C 16 18, 24 46, 34 32 C 44 18, 50 46, 58 30" fill="none" stroke="currentColor" stroke-width="1.3" opacity="0.65" />
+            </svg>
+            <p>通过线条、方向与疏密变化，引导视线有节奏地流动。</p>
+          </article>
+
+          <article class="probe-col" data-probe="contrast">
+            <div class="probe-head">
+              <h3>对比与变化</h3>
+              <span class="probe-badge" data-probe-badge="contrast">扁平</span>
+            </div>
+            <svg class="probe-ico" viewBox="0 0 64 52" aria-hidden="true">
+              <circle cx="18" cy="34" r="9.5" fill="none" stroke="#c7b2ff" stroke-width="1.8" />
+              <rect x="20" y="10" width="11" height="11" fill="#8b62fa" />
+              <polygon points="44,14 58,28 44,42 30,28" fill="#a468fa" />
+            </svg>
+            <p>运用大小、色彩、形状与明暗对比，突出焦点的独特性。</p>
+          </article>
+
+          <article class="probe-col" data-probe="balance">
+            <div class="probe-head">
+              <h3>平衡与统一</h3>
+              <span class="probe-badge" data-probe-badge="balance">偏塌</span>
+            </div>
+            <svg class="probe-ico" viewBox="0 0 64 52" aria-hidden="true">
+              <line x1="32" y1="8" x2="32" y2="42" stroke="#c7b2ff" stroke-width="1.6" />
+              <line x1="20" y1="42" x2="44" y2="42" stroke="#c7b2ff" stroke-width="1.8" />
+              <line x1="14" y1="15" x2="50" y2="15" stroke="#c7b2ff" stroke-width="1.6" />
+              <path d="M 14 15 L 8 31 L 20 31 Z" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <path d="M 50 15 L 44 31 L 56 31 Z" fill="none" stroke="currentColor" stroke-width="1.3" />
+            </svg>
+            <p>在多重焦点间保持视觉重量的平衡，确保画面和谐统一。</p>
+          </article>
+        </div>
+      </div>
+
+      <!-- 1:1 复刻原海报底沿胶囊应用场景带（内联八芒星矢量图标，零缺字） -->
+      <div class="usage-capsule">
+        <svg class="usage-star-ico" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M10 2v16M2 10h16M4.3 4.3l11.4 11.4M15.7 4.3L4.3 15.7" stroke="#b59cff" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <span class="usage-title">应用场景</span>
+        <ul class="usage-list">
+          <li>信息图表</li>
+          <li>产品展示</li>
+          <li>杂志版式</li>
+          <li>海报设计</li>
+          <li>数据可视化</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- =========================================================
+         01 为什么多焦点不等于散乱（亮星雾白纸 · 权重梯阶混音台）
+         ========================================================= -->
+    <section class="sec sec-light" id="sec-01">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div class="sec-title-wrap">
+            <h2>为什么多焦点不等于散乱</h2>
+            <p class="sec-en">Hierarchy Before Dispersal</p>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="prose-col">
+            <blockquote class="poster-quote">
+              <span class="quote-tag">海报原话</span>
+              「在同一画面中设置两个或多个视觉焦点，通过大小、对比、位置与路径的协调，引导视线在不同焦点间有序流动，传递丰富信息，增强视觉张力。」
+            </blockquote>
+            <p>
+              新手最容易把「多重焦点」理解成把三四块重要信息全都放大、加粗、涂亮。海报要点里写「多个焦点分散注意力，避免单一焦点造成的视觉压迫」——这里可以温和补上一句：<span class="gentle-note">说得略理想了一点</span>。如果几个焦点的视觉重量不相上下，注意力并不是被温柔分散，而是被扯进左右互搏的「跳视疲劳」。
+            </p>
+            <p>
+              真正成立的多重焦点必须先建好<strong>主次梯阶</strong>：第一眼让面积最大、明暗反差最强的头号焦点稳稳接住，再让次焦、承焦与细读节点按面积和对比逐级退让。按设计实战的经验值，头号与次号视觉重量比落在 <strong>1.35× 至 2.4×</strong>、且主焦不独吞过半总重时，观者既不会感到单点压迫，也绝不会迷路。
+            </p>
+            <div class="rule-callout">
+              <strong>记住这条反差守则：</strong>多焦点不怕「多」，怕的是「平」。只要四个点都在喊「先看我」，结果就是谁也没被看进去。
+            </div>
+          </div>
+
+          <div class="lab-card" id="sec1-mixer">
+            <div class="lab-top">
+              <span class="lab-kicker">实验 01 · 视觉权重梯阶混音台</span>
+              <div class="preset-inline">
+                <button type="button" class="sm-btn" data-mix-preset="equal">四王平权</button>
+                <button type="button" class="sm-btn is-active" data-mix-preset="ladder">主次梯阶</button>
+                <button type="button" class="sm-btn" data-mix-preset="single">单焦垄断</button>
+              </div>
+            </div>
+
+            <div class="mixer-layout">
+              <svg id="sec1-svg" class="lab-svg" viewBox="0 0 380 310" role="img" aria-label="四焦点权重比例实时预览图"></svg>
+
+              <div class="fader-stack">
+                <div class="fader-row">
+                  <label for="mix-0">焦点 A · 雪山</label>
+                  <input id="mix-0" type="range" min="12" max="100" value="92" data-mix="0">
+                  <span class="fader-val" data-mix-val="0">40%</span>
+                </div>
+                <div class="fader-row">
+                  <label for="mix-1">焦点 B · 灯塔</label>
+                  <input id="mix-1" type="range" min="12" max="100" value="60" data-mix="1">
+                  <span class="fader-val" data-mix-val="1">26%</span>
+                </div>
+                <div class="fader-row">
+                  <label for="mix-2">焦点 C · 城影</label>
+                  <input id="mix-2" type="range" min="12" max="100" value="46" data-mix="2">
+                  <span class="fader-val" data-mix-val="2">20%</span>
+                </div>
+                <div class="fader-row">
+                  <label for="mix-3">焦点 D · 紫纹</label>
+                  <input id="mix-3" type="range" min="12" max="100" value="30" data-mix="3">
+                  <span class="fader-val" data-mix-val="3">14%</span>
+                </div>
+                <p class="order-line" id="sec1-order"></p>
+              </div>
+            </div>
+
+            <div class="lab-verdict">
+              <span class="pill-tag is-ok" id="sec1-badge">梯阶成立</span>
+              <h3 id="sec1-title"></h3>
+              <p id="sec1-body"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         02 四种路径，织出阅读节拍（柔薰衣雾纸 · 拓扑切换与故障拨片）
+         ========================================================= -->
+    <section class="sec sec-mist" id="sec-02">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div class="sec-title-wrap">
+            <h2>四种路径，织出阅读节拍</h2>
+            <p class="sec-en">Pathways, Shapes &amp; Visual Rhythm</p>
+          </div>
+        </div>
+
+        <div class="sec2-grid" id="sec2-pathways">
+          <div class="topo-panel">
+            <div class="topo-cards" role="tablist" aria-label="选择四种多焦点路径骨架">
+              <button type="button" class="topo-btn is-active" data-topo="zflow">
+                <span class="topo-code">01</span>
+                <strong>Z 形四星导读</strong>
+                <small>海报同源 · 折返闭环</small>
+              </button>
+              <button type="button" class="topo-btn" data-topo="triangle">
+                <span class="topo-code">02</span>
+                <strong>三角主从闭环</strong>
+                <small>三焦互锁 · 最稳结构</small>
+              </button>
+              <button type="button" class="topo-btn" data-topo="diagonal">
+                <span class="topo-code">03</span>
+                <strong>对角回声呼应</strong>
+                <small>两端配重 · 斜势张力</small>
+              </button>
+              <button type="button" class="topo-btn" data-topo="scroll">
+                <span class="topo-code">04</span>
+                <strong>长卷起伏游览</strong>
+                <small>散点波浪 · 叙事长图</small>
+              </button>
+            </div>
+
+            <div class="topo-actions">
+              <button type="button" class="btn-fault" id="sec2-fault-btn" aria-pressed="false">拧成交叉死结对比</button>
+              <button type="button" class="btn-play" id="sec2-play-btn">演播视线走线</button>
+            </div>
+
+            <div class="topo-copy">
+              <h3 id="sec2-title"></h3>
+              <p id="sec2-desc"></p>
+              <div class="topo-metrics" id="sec2-metrics"></div>
+            </div>
+          </div>
+
+          <div class="topo-stage-col">
+            <svg id="sec2-svg" class="lab-svg" viewBox="0 0 420 310" role="img" aria-label="四种多焦点路径拓扑对比图"></svg>
+            <p class="side-note">
+              <strong>留心 094 原海报的一个巧思：</strong>A、B、D 都是圆形，偏偏在右下角的焦点 C 换成了一个平顶六边形。三圆一六角的形态对比，让视线在滑到下半幅时遇到一次清脆的「视觉顿挫」，既打破单调，又给城市建筑增添稳定感。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         03 从长卷到眼动扫描路径（深空暗室 · 历史溯源与雅布斯任务模拟）
+         ========================================================= -->
+    <section class="sec sec-dark" id="sec-03">
+      <div class="wrap" id="sec3-history">
+        <div class="sec-head">
+          <span class="sec-num">03</span>
+          <div class="sec-title-wrap">
+            <h2>从长卷到眼动扫描路径</h2>
+            <p class="sec-en">Historical Origins &amp; Eye-Tracking Science</p>
+          </div>
+        </div>
+
+        <div class="era-tabs" role="tablist" aria-label="多重焦点发展脉络">
+          <button type="button" class="era-btn is-active" data-era="qingming">北宋 · 清明上河图</button>
+          <button type="button" class="era-btn" data-era="bruegel">1559 · 尼德兰箴言</button>
+          <button type="button" class="era-btn" data-era="arnheim">1954 · 阿恩海姆平衡场</button>
+          <button type="button" class="era-btn" data-era="yarbus">1967–1990 · 扫描路径与信息图</button>
+        </div>
+
+        <div class="dark-split">
+          <article class="era-card">
+            <span class="era-year" id="sec3-era-year"></span>
+            <h3 id="sec3-era-title"></h3>
+            <p class="era-meta" id="sec3-era-meta"></p>
+            <p class="era-body" id="sec3-era-body"></p>
+            <div class="era-takeaway">
+              <strong>跨时代共同规律：</strong>无论宋代绢本长卷、文艺复兴群像油画，还是当代信息可视化大屏，只要单一画面想承载超过一层叙事，设计师都必须在「让视线自由探索」与「不让画面散架」之间建立平衡支点与路径节奏。
+            </div>
+            <p class="era-footnote">
+              上述年份、尺寸与馆藏编号均已核对故宫博物院、柏林国立博物馆画廊（SMB）、加州大学出版社及 Springer / Science 原始文献。
+            </p>
+          </article>
+
+          <div class="yarbus-box">
+            <div class="yarbus-head">
+              <div>
+                <span class="lab-kicker-dark">致敬雅布斯（1967）· 同一画面，不同任务</span>
+                <p class="yarbus-sub">切换读者的观看意图，观察注视点与跳视路径如何在同一张多焦点版面上重写顺序：</p>
+              </div>
+            </div>
+            <div class="task-row" role="tablist" aria-label="切换阅读任务">
+              <button type="button" class="task-btn is-active" data-task="free">任务一：自由漫游</button>
+              <button type="button" class="task-btn" data-task="data">任务二：速查指标</button>
+              <button type="button" class="task-btn" data-task="detail">任务三：核对日期</button>
+            </div>
+            <svg id="sec3-yarbus-svg" class="lab-svg" viewBox="0 0 400 270" role="img" aria-label="阅读任务对多焦点扫描路径影响的示意图"></svg>
+            <p class="yarbus-desc" id="sec3-yarbus-desc"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         04 五个场景，落地怎么摆（亮星雾白纸 · X-Ray 透视滑门）
+         ========================================================= -->
+    <section class="sec sec-light" id="sec-04">
+      <div class="wrap" id="sec4-xray">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div class="sec-title-wrap">
+            <h2>五个场景，落地怎么摆</h2>
+            <p class="sec-en">Five Applications Under X-Ray</p>
+          </div>
+        </div>
+
+        <p class="sec-lead">
+          094 原海报在底栏点出了多重焦点最常用的五个落地领域。切换下方场景，左右拖动透视幕布，掀开成品版面看背后的 A/B/C/D 焦点骨架与中央平衡支点。
+        </p>
+
+        <div class="app-tabs" role="tablist" aria-label="五个应用场景">
+          <button type="button" class="app-btn is-active" data-app="infographic">信息图表</button>
+          <button type="button" class="app-btn" data-app="product">产品展示</button>
+          <button type="button" class="app-btn" data-app="magazine">杂志版式</button>
+          <button type="button" class="app-btn" data-app="poster">海报设计</button>
+          <button type="button" class="app-btn" data-app="dataviz">数据可视化</button>
+        </div>
+
+        <div class="xray-workspace">
+          <div class="xray-frame" id="sec4-frame">
+            <svg id="sec4-design-svg" class="xray-svg" viewBox="0 0 480 300" role="img" aria-label="应用场景成品版面"></svg>
+            <div class="xray-overlay" id="sec4-xray-layer">
+              <svg id="sec4-xray-svg" class="xray-svg" viewBox="0 0 480 300" aria-hidden="true"></svg>
+            </div>
+            <div class="xray-divider" id="sec4-divider" aria-hidden="true">
+              <span class="xray-handle">
+                <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+                  <path d="M6.5 6L2.5 10l4 4M13.5 6l4 4-4 4M3.5 10h13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </div>
+            <span class="xray-tag xray-tag-l">成品版面</span>
+            <span class="xray-tag xray-tag-r">焦点星图骨架</span>
+          </div>
+
+          <div class="xray-controls">
+            <div class="slider-head-light">
+              <label for="sec4-range">拖动透视幕布对比成品与焦点骨架</label>
+              <span class="num-val-light" id="sec4-pct">透视揭开 48%</span>
+            </div>
+            <input type="range" id="sec4-range" min="5" max="95" value="52">
+            <p class="xray-note" id="sec4-note"></p>
+            <ul class="xray-legend">
+              <li><strong>A · 头号起点</strong><span>最大面积或最高对比，先收拢第一眼</span></li>
+              <li><strong>B · 转向承接</strong><span>靠线条或斜势把视线带入中段</span></li>
+              <li><strong>C · 异形节拍</strong><span>六边形或结构矩阵打破单调重复</span></li>
+              <li><strong>D · 细节配重</strong><span>轻量收束，替主焦稳住对角力矩</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         05 什么时候别用多重焦点（柔薰衣雾纸 · 三问诊断树 + 同小类兄弟链接）
+         ========================================================= -->
+    <section class="sec sec-mist" id="sec-05">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div class="sec-title-wrap">
+            <h2>什么时候别用多重焦点</h2>
+            <p class="sec-en">Boundaries &amp; When to Switch</p>
+          </div>
+        </div>
+
+        <div class="sec5-grid">
+          <div class="tree-box" id="sec5-tree">
+            <p class="tree-intro">做版面前先答这三个问题，判断你的项目该用多重焦点，还是该立刻换一种构图：</p>
+
+            <div class="q-group">
+              <span class="q-label">1. 观众大概会停留多久？</span>
+              <div class="q-opts">
+                <button type="button" class="q-btn is-active" data-q="time" data-val="short">≤ 3 秒一瞥</button>
+                <button type="button" class="q-btn" data-q="time" data-val="medium">10–30 秒浏览</button>
+                <button type="button" class="q-btn" data-q="time" data-val="long">1 分钟以上深读</button>
+              </div>
+            </div>
+
+            <div class="q-group">
+              <span class="q-label">2. 同一屏需要传递几个独立信息点？</span>
+              <div class="q-opts">
+                <button type="button" class="q-btn is-active" data-q="items" data-val="one">1 个核心主张</button>
+                <button type="button" class="q-btn" data-q="items" data-val="mid">2–4 个互补要点</button>
+                <button type="button" class="q-btn" data-q="items" data-val="many">5 个以上信息模块</button>
+              </div>
+            </div>
+
+            <div class="q-group">
+              <span class="q-label">3. 展示载体尺寸与阅读距离？</span>
+              <div class="q-opts">
+                <button type="button" class="q-btn is-active" data-q="size" data-val="small">弹窗 / 路牌远看</button>
+                <button type="button" class="q-btn" data-q="size" data-val="medium">海报 / 网页首屏</button>
+                <button type="button" class="q-btn" data-q="size" data-val="large">杂志跨页 / 展墙大屏</button>
+              </div>
+            </div>
+
+            <div class="tree-verdict">
+              <span class="pill-tag is-err" id="sec5-tag">建议改用单一焦点</span>
+              <h3 id="sec5-title"></h3>
+              <p id="sec5-desc"></p>
+            </div>
+          </div>
+
+          <aside class="siblings-box">
+            <h3>同小类构图怎么选？</h3>
+            <p class="sib-lead">「平衡、动势与焦点」小类里共有八种构图，各司其职：</p>
+            <ul class="sib-list">
+              <li>只要一锤定音的唯一主角，绝不分心 → <a href="https://layout.xiaoxiaodong.ai/093/play/" target="_blank" rel="noopener">093 单一焦点构图</a></li>
+              <li>想让元素破框而出、暗示画外世界 → <a href="https://layout.xiaoxiaodong.ai/091/play/" target="_blank" rel="noopener">091 开放式构图</a></li>
+              <li>想用边界牢牢收拢视线与安全感 → <a href="https://layout.xiaoxiaodong.ai/092/play/" target="_blank" rel="noopener">092 封闭式构图</a></li>
+              <li>追求水平垂直的端庄沉稳与零倾角 → <a href="https://layout.xiaoxiaodong.ai/089/play/" target="_blank" rel="noopener">089 静态构图</a></li>
+              <li>追求强烈斜势冲刺与单向能量爆发 → <a href="https://layout.xiaoxiaodong.ai/090/play/" target="_blank" rel="noopener">090 动态构图</a></li>
+              <li>需要从圆心均匀四射的向心/离心秩序 → <a href="https://layout.xiaoxiaodong.ai/087/play/" target="_blank" rel="noopener">087 放射平衡原则</a></li>
+              <li>需要满版均质编织、无中心点的平铺纹理 → <a href="https://layout.xiaoxiaodong.ai/088/play/" target="_blank" rel="noopener">088 晶体式平衡原则</a></li>
+            </ul>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         06 小练习：挑出好构图（深空考场 · 3 题单变量盲测）
+         ========================================================= -->
+    <section class="sec sec-dark" id="sec-06">
+      <div class="wrap" id="sec6-quiz">
+        <div class="sec-head">
+          <span class="sec-num">06</span>
+          <div class="sec-title-wrap">
+            <h2>小练习：挑出好构图</h2>
+            <p class="sec-en">Practice Lab · Controlled Single-Variable Check</p>
+          </div>
+        </div>
+
+        <div class="quiz-bar">
+          <div class="quiz-tabs" role="tablist" aria-label="选择练习题">
+            <button type="button" class="era-btn is-active" data-qtab="0">第 1 题 · 主次梯阶</button>
+            <button type="button" class="era-btn" data-qtab="1">第 2 题 · 重心平衡</button>
+            <button type="button" class="era-btn" data-qtab="2">第 3 题 · 路径与节奏</button>
+          </div>
+          <span class="quiz-score" id="sec6-score">进度 0/3 · 答对 0 题</span>
+        </div>
+
+        <p class="quiz-prompt" id="sec6-prompt"></p>
+
+        <div class="quiz-grid" id="sec6-grid"></div>
+
+        <div class="quiz-feedback" id="sec6-feedback" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         07 原海报与核心关键词（亮星雾白展墙 + 灯箱放大）
+         ========================================================= -->
+    <section class="sec sec-light" id="sec-07">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div class="sec-title-wrap">
+            <h2>原海报与核心关键词</h2>
+            <p class="sec-en">Original Poster &amp; Key Terms</p>
+          </div>
+        </div>
+
+        <div class="poster-showcase">
+          <div class="poster-frame-col">
+            <button type="button" class="poster-trigger" id="poster-open" aria-label="点击放大查看 094 原海报">
+              <img
+                id="poster"
+                src="poster.webp"
+                width="1086"
+                height="1448"
+                draggable="false"
+                alt="094 多重焦点构图原海报"
+              >
+              <span class="poster-zoom-hint">点击放大查看原图 · 支持滚轮缩放与拖动</span>
+            </button>
+          </div>
+
+          <div class="poster-meta-col">
+            <div class="poster-core-quote">
+              <span class="quote-tag">原海报 · 核心要点</span>
+              <p>
+                多重焦点构图通过分布式的视觉吸引点，建立视线的探索路径。焦点之间既各自独立，又相互关联，共同构成有序而不杂乱的整体画面。
+              </p>
+            </div>
+
+            <div class="kw-block">
+              <h3>海报关键词</h3>
+              <ul class="kw-grid">
+                <li><strong>分布注意力</strong><span>先立梯阶，再谈分散</span></li>
+                <li><strong>节奏与路径</strong><span>弯弧顺轨，杜绝交叉</span></li>
+                <li><strong>对比与变化</strong><span>三圆一六角，拉开明暗</span></li>
+                <li><strong>平衡与统一</strong><span>绕支点配重，彼此透气</span></li>
+              </ul>
+            </div>
+
+            <div class="kw-block">
+              <h3>海报列出的五大应用场景</h3>
+              <p class="usage-inline">信息图表 · 产品展示 · 杂志版式 · 海报设计 · 数据可视化</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>
+        <a href="https://layout.xiaoxiaodong.ai/094/play/" target="_blank" rel="noopener">在线版</a> /
+        <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+        · 海报 CC BY 4.0 ·
+        <a href="https://github.com/xxd-dev/350-layout-interactive" target="_blank" rel="noopener">源文件 GitHub</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- 原海报全屏放大灯箱 -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="094 原海报放大查看">
+    <div class="lightbox-bar">
+      <span>094 多重焦点构图 · 原海报（滚轮或按钮缩放，放大后可拖动，Esc 关闭）</span>
+      <div class="lightbox-btns">
+        <button type="button" id="lightbox-zoom-out">缩小 −</button>
+        <button type="button" id="lightbox-reset">100%</button>
+        <button type="button" id="lightbox-zoom-in">放大 +</button>
+        <button type="button" id="lightbox-close" class="lb-close">关闭 Esc</button>
+      </div>
+    </div>
+    <div class="lightbox-stage" id="lightbox-stage">
+      <img id="lightbox-img" draggable="false" alt="094 多重焦点构图原海报放大图">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
