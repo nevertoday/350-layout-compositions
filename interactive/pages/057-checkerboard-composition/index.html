@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>057 棋盘构图 · CHECKERBOARD COMPOSITION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero" aria-label="棋盘构图交互排演台">
+  <div class="hero-shell">
+
+    <!-- 顶沿单行棋盘方格刊头（标题本身即四格交替 + 单枚琥珀金焦示范） -->
+    <div class="masthead">
+      <div class="mast-brand">
+        <span class="id-tile" lang="en">NO. 057</span>
+        <div class="title-block">
+          <h1 class="checker-h1" aria-label="棋盘构图">
+            <span class="ch-cell is-dark">棋</span><span class="ch-cell is-light">盘</span><span class="ch-cell is-dark">构</span><span class="ch-cell is-amber">图</span>
+          </h1>
+          <div class="title-sub">
+            <span class="title-en" lang="en">CHECKERBOARD COMPOSITION</span>
+            <span class="title-cat">构图逻辑 · 阵列、层叠与组群</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mast-actions">
+        <div class="script-tabs" role="group" aria-label="切换实景剧本">
+          <button type="button" class="tab-btn" data-script="poster" aria-pressed="true">原海报 · 几何</button>
+          <button type="button" class="tab-btn" data-script="editorial" aria-pressed="false">画册 · 图文</button>
+          <button type="button" class="tab-btn" data-script="exhibition" aria-pressed="false">展墙 · 陈列</button>
+        </div>
+        <div class="mast-right-pair">
+          <span id="hero-score-badge" class="score-tile" aria-live="polite">0/4 · 错缝 +24%</span>
+          <button type="button" id="btn-scan" class="scan-btn">节拍演播 <kbd lang="en">Space</kbd></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主舞台：左 53% 4×5 活体棋盘画布 × 右 47% 齐底诊单 + 2×2 探针 + 编排控制阵 -->
+    <div class="hero-grid">
+      <div class="stage-col">
+        <div class="canvas-frame">
+          <canvas
+            id="hero-canvas"
+            data-perf-drag
+            tabindex="0"
+            aria-label="棋盘构图交互画布：点击方格切换深绿、留白或琥珀金焦点，左右横拖调节偶数行错缝相位，按空格演播视线节拍"
+          ></canvas>
+        </div>
+
+        <!-- 手机竖屏首屏直露快控条（大屏自动隐藏，避免重复） -->
+        <div id="mob-diag-box" class="mob-fold-bar">
+          <div class="mob-diag-head">
+            <p id="mob-diag-title" class="mob-diag-title">偶数行错位 +24%，垂直网格轴线已经断裂</p>
+            <div class="mob-btn-row">
+              <button type="button" class="btn-solid" data-preset="classic">一键校准</button>
+              <button type="button" id="mob-btn-scan" class="btn-outline">节拍演播</button>
+            </div>
+          </div>
+          <label class="mob-phase-row">
+            <span>错缝相位</span>
+            <input id="mob-phase-slider" type="range" min="-50" max="50" step="1" value="24" aria-label="移动端偶数行错缝相位">
+            <output id="mob-phase-val" lang="en">+24%</output>
+          </label>
+        </div>
+      </div>
+
+      <aside class="panel-col" aria-label="单真源诊断与棋盘编排控制">
+        <!-- 单真源白话诊单匣 -->
+        <div id="diag-box" class="diag-box">
+          <div class="diag-top">
+            <span id="diag-badge" class="diag-badge">0/4 · 错缝 +24%</span>
+            <span id="diag-meta" class="diag-meta" lang="en">交替 50% · 实格 67% · 错缝 +24% · 金焦 2</span>
+          </div>
+          <h2 id="diag-title" class="diag-title">偶数行错位 +24%，垂直网格轴线已经断裂</h2>
+          <p id="diag-body" class="diag-body">上下相邻方格的竖边不再咬合，画面边缘出现不稳定的错牙，观众一眼感到模块松动，失去棋盘特有的建筑稳固感。</p>
+          <p id="diag-action" class="diag-action">在画布上向左/右横拖（或把「偶数行错缝相位」拉回 0%），把竖向网格轴重新咔哒锁正。</p>
+          <div class="diag-cta-row">
+            <button type="button" class="btn-solid" data-preset="classic">一键校准原海报解</button>
+            <button type="button" class="btn-outline" data-preset="opening">复原开场错态</button>
+            <button type="button" id="btn-axes" class="btn-outline" aria-pressed="true">纵轴线：开</button>
+          </div>
+        </div>
+
+        <!-- 2×2 原海报四要点交替探针矩阵 -->
+        <div class="probe-matrix" aria-label="原海报四条要点实时检测">
+          <div id="probe-rhythm" class="probe-cell is-tone-a">
+            <div class="probe-head">
+              <strong>以交替布局</strong>
+              <span id="probe-rhythm-tag" class="probe-tag">粘连 10 边</span>
+            </div>
+            <p>创造节奏与平衡</p>
+            <span class="probe-en" lang="en">Rhythm &amp; balance</span>
+          </div>
+          <div id="probe-order" class="probe-cell is-tone-b">
+            <div class="probe-head">
+              <strong>交替分布</strong>
+              <span id="probe-order-tag" class="probe-tag">错缝 +24%</span>
+            </div>
+            <p>强化画面秩序感</p>
+            <span class="probe-en" lang="en">Visual order</span>
+          </div>
+          <div id="probe-contrast" class="probe-cell is-tone-b">
+            <div class="probe-head">
+              <strong>疏密对比</strong>
+              <span id="probe-contrast-tag" class="probe-tag">2 焦互抢</span>
+            </div>
+            <p>引导视觉停留</p>
+            <span class="probe-en" lang="en">Contrast in density</span>
+          </div>
+          <div id="probe-module" class="probe-cell is-tone-a">
+            <div class="probe-head">
+              <strong>模块清晰</strong>
+              <span id="probe-module-tag" class="probe-tag">纵轴失齐</span>
+            </div>
+            <p>组合灵活多变</p>
+            <span class="probe-en" lang="en">Clear modules</span>
+          </div>
+        </div>
+
+        <!-- 落子笔刷 + 双滑轨 + 合法多解与双向试错 -->
+        <div class="ctrl-box">
+          <div class="ctrl-row">
+            <span class="ctrl-label">落子笔刷</span>
+            <div class="pill-group" role="group" aria-label="选择点击方格时的笔刷模式">
+              <button type="button" class="pill-btn" data-brush="cycle" aria-pressed="true">循环点格</button>
+              <button type="button" class="pill-btn" data-brush="dark" aria-pressed="false">落绿实</button>
+              <button type="button" class="pill-btn" data-brush="amber" aria-pressed="false">设金焦</button>
+              <button type="button" class="pill-btn" data-brush="light" aria-pressed="false">留空格</button>
+            </div>
+          </div>
+
+          <div class="sliders-pair">
+            <label class="slider-item">
+              <span class="slider-head"><span>偶数行错缝相位</span><output id="phase-val" lang="en">+24%</output></span>
+              <input id="phase-slider" type="range" min="-50" max="50" step="1" value="24">
+            </label>
+            <label class="slider-item">
+              <span class="slider-head"><span>模块缝宽</span><output id="gutter-val" lang="en">2px</output></span>
+              <input id="gutter-slider" type="range" min="0" max="14" step="1" value="2">
+            </label>
+          </div>
+
+          <div class="presets-wrap">
+            <div class="preset-group">
+              <span class="ctrl-label">多组合法解</span>
+              <div class="pill-group">
+                <button type="button" class="pill-btn is-good" data-preset="classic">原海报解</button>
+                <button type="button" class="pill-btn is-good" data-preset="inverted">反相解</button>
+                <button type="button" class="pill-btn is-good" data-preset="airy">疏棋解</button>
+              </div>
+            </div>
+            <div class="preset-group">
+              <span class="ctrl-label">双向试错</span>
+              <div class="pill-group">
+                <button type="button" class="pill-btn is-bad" data-preset="errNoFocal">纯棋眩晕</button>
+                <button type="button" class="pill-btn is-bad" data-preset="errMultiFocal">多焦互抢</button>
+                <button type="button" class="pill-btn is-bad" data-preset="errClump">同色结块</button>
+                <button type="button" class="pill-btn is-bad" data-preset="errBrick">砖墙错缝</button>
+                <button type="button" class="pill-btn is-bad" data-preset="errSparse">过空散架</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- 1:1 承袭 057 原海报底部条：「棋盘构图的核心」 + 四枚定制几何关键词实时标尺 -->
+    <div class="poster-foot-strip">
+      <div class="core-note">
+        <div class="core-title-row">
+          <span class="core-sq" aria-hidden="true"></span>
+          <strong>棋盘构图的核心</strong>
+        </div>
+        <p>将画面划分为交替的方形模块，像棋盘一样安排元素的重与轻、有与无、动与静，从而在对比中建立稳定的秩序，增强画面的韵律与焦点。</p>
+      </div>
+      <div class="kw-rail" aria-label="原海报四枚核心关键词实时指标">
+        <div class="kw-cell">
+          <svg class="kw-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" fill="#075031"/></svg>
+          <strong>模块</strong>
+          <span class="kw-en" lang="en">MODULE</span>
+          <span id="kw-module-val" class="kw-live">错缝 +24%</span>
+        </div>
+        <div class="kw-cell">
+          <svg class="kw-ico" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" fill="#F1EDDC" stroke="#141715" stroke-width="1"/>
+            <polygon points="3,3 21,3 3,21" fill="#141715"/>
+          </svg>
+          <strong>节奏</strong>
+          <span class="kw-en" lang="en">RHYTHM</span>
+          <span id="kw-rhythm-val" class="kw-live">交替 50%</span>
+        </div>
+        <div class="kw-cell">
+          <svg class="kw-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="#E49B04"/></svg>
+          <strong>对比</strong>
+          <span class="kw-en" lang="en">CONTRAST</span>
+          <span id="kw-contrast-val" class="kw-live">实格 67%</span>
+        </div>
+        <div class="kw-cell">
+          <svg class="kw-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" fill="none" stroke="#075031" stroke-width="1.6"/></svg>
+          <strong>秩序</strong>
+          <span class="kw-en" lang="en">ORDER</span>
+          <span id="kw-order-val" class="kw-live">2 枚金焦</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</header>
+
+<main>
+
+  <!-- 01 · 为什么棋盘能稳住视线（暖米宣纸） -->
+  <section id="sec-01" class="band band-paper">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">01</span>
+        <div>
+          <h2>交替为何能稳住视线</h2>
+          <p class="sec-en" lang="en">THE PERCEPTUAL ENGINE · LIGHTNESS &amp; ADJACENCY</p>
+        </div>
+      </div>
+
+      <div class="split-2">
+        <div class="prose">
+          <p class="lead">人眼从来不是孤立测量某一块元素的亮暗，而是拿它与紧挨着的四条邻边做实时比较。</p>
+          <p>当画面按方形模块正交切分，并让深色实块与浅色留白隔格出现时，每一块内容都被四面异色邻格托出清晰轮廓。视觉心理学中的格式塔接近律与相似律同时生效：相似的暗格连成稳定的宏观节拍，而中间穿插的亮格自动充当呼吸缓冲，使信息既不会粘成一片，也不会散落无依。</p>
+          <p>1995 年，麻省理工学院视觉科学教授爱德华·阿德尔森发表了著名的「棋盘阴影错觉」（Checker Shadow Illusion）：在交替棋盘与柔和阴影的共同作用下，亮处的深格 A 与阴影里的浅格 B 物理灰度完全相等，大脑却坚信 B 明显更亮。这说明棋盘的邻格对比规则极其牢固，只要交替结构完整，人眼就能在极短时间内完成分组定位。</p>
+          <p class="tip-box">试着点击旁边的验证开关：把两条同色灰桥搭在 A 与 B 之间，或直接抽走棋盘交替背景，看看失去邻格反差后，视觉边界会发生什么变化。</p>
+        </div>
+
+        <div id="sec01-lab" class="card-panel">
+          <div class="lab-toolbar">
+            <button type="button" id="s01-bridge" class="btn-solid" aria-pressed="false">拉出同色验证灰桥</button>
+            <button type="button" id="s01-pattern" class="btn-outline" aria-pressed="false">抽走交替棋盘背景</button>
+          </div>
+          <div class="svg-stage">
+            <svg viewBox="0 0 420 270" class="adelson-svg" role="img" aria-label="棋盘邻格明度恒常对照图：A 与 B 两个方格实际颜色完全相同">
+              <defs>
+                <linearGradient id="cylGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#053822"/>
+                  <stop offset="38%" stop-color="#0D6E45"/>
+                  <stop offset="100%" stop-color="#042617"/>
+                </linearGradient>
+                <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+                  <feGaussianBlur stdDeviation="7"/>
+                </filter>
+              </defs>
+
+              <!-- 抽走棋盘时的均质底板 -->
+              <rect id="s01-flat-backdrop" x="20" y="20" width="380" height="230" fill="#B5B2A8" opacity="0"/>
+
+              <!-- 棋盘交替方格层 -->
+              <g id="s01-checker-tiles">
+                <!-- 5x4 正交俯视棋盘，清晰呈现明暗交替与圆柱投影 -->
+                <rect x="30" y="30" width="72" height="52" fill="#E6E2D5"/>
+                <rect x="102" y="30" width="72" height="52" fill="#787878"/>
+                <rect x="174" y="30" width="72" height="52" fill="#E6E2D5"/>
+                <rect x="246" y="30" width="72" height="52" fill="#787878"/>
+                <rect x="318" y="30" width="72" height="52" fill="#E6E2D5"/>
+
+                <rect x="30" y="82" width="72" height="52" fill="#787878"/>
+                <rect x="102" y="82" width="72" height="52" fill="#E6E2D5"/>
+                <rect x="174" y="82" width="72" height="52" fill="#787878"/>
+                <rect x="246" y="82" width="72" height="52" fill="#E6E2D5"/>
+                <rect x="318" y="82" width="72" height="52" fill="#787878"/>
+
+                <rect x="30" y="134" width="72" height="52" fill="#E6E2D5"/>
+                <rect x="102" y="134" width="72" height="52" fill="#787878"/>
+                <rect x="174" y="134" width="72" height="52" fill="#E6E2D5"/>
+                <rect x="246" y="134" width="72" height="52" fill="#787878"/>
+                <rect x="318" y="134" width="72" height="52" fill="#E6E2D5"/>
+
+                <rect x="30" y="186" width="72" height="52" fill="#787878"/>
+                <rect x="102" y="186" width="72" height="52" fill="#E6E2D5"/>
+                <rect x="174" y="186" width="72" height="52" fill="#787878"/>
+                <rect x="246" y="186" width="72" height="52" fill="#E6E2D5"/>
+                <rect x="318" y="186" width="72" height="52" fill="#787878"/>
+
+                <!-- 阴影覆盖右下半区：把阴影里的“暗格”压到 #3B3B3B，把“亮格”压到 #787878 -->
+                <polygon points="168,124 390,94 390,238 142,238" fill="rgba(16,24,18,0.48)" filter="url(#softShadow)"/>
+                <!-- 精确覆盖阴影中的深格，使 B 格周围都是明显更深的暗格 -->
+                <rect x="174" y="186" width="72" height="52" fill="#3D3D3D"/>
+                <rect x="246" y="134" width="72" height="52" fill="#3D3D3D"/>
+                <rect x="318" y="186" width="72" height="52" fill="#3D3D3D"/>
+                <rect x="174" y="134" width="72" height="52" fill="#787878"/>
+                <rect x="246" y="186" width="72" height="52" fill="#787878"/>
+
+                <!-- 投下阴影的深绿圆柱 -->
+                <rect x="284" y="18" width="66" height="106" fill="url(#cylGrad)"/>
+                <ellipse cx="317" cy="18" rx="33" ry="10" fill="#188354"/>
+                <ellipse cx="317" cy="124" rx="33" ry="10" fill="#053822"/>
+              </g>
+
+              <!-- 真正的主角：A 格与 B 格永远同为 #787878 -->
+              <rect x="102" y="30" width="72" height="52" fill="#787878"/>
+              <rect x="174" y="134" width="72" height="52" fill="#787878"/>
+
+              <!-- 验证灰桥（完全同色 #787878，零接缝连通 A 与 B） -->
+              <g id="s01-bridge-bars" opacity="0">
+                <polygon points="118,56 154,56 226,160 190,160" fill="#787878"/>
+                <line x1="118" y1="56" x2="190" y2="160" stroke="#E49B04" stroke-width="1.5" stroke-dasharray="4 3"/>
+                <line x1="154" y1="56" x2="226" y2="160" stroke="#E49B04" stroke-width="1.5" stroke-dasharray="4 3"/>
+              </g>
+
+              <!-- A / B 标注 -->
+              <text x="138" y="61" text-anchor="middle" fill="#F8F3E7" font-family="IBM Plex Mono, monospace" font-size="16" font-weight="600">A</text>
+              <text x="210" y="165" text-anchor="middle" fill="#F8F3E7" font-family="IBM Plex Mono, monospace" font-size="16" font-weight="600">B</text>
+              <text x="30" y="256" fill="#47524B" font-family="IBM Plex Mono, monospace" font-size="11">A = #787878 · B = #787878（示意图，原理源自 Adelson 1995）</text>
+            </svg>
+          </div>
+          <p id="s01-readout" class="lab-readout" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · 原海报四条结构铁律（暖米雾纸） -->
+  <section id="sec-02" class="band band-cream">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">02</span>
+        <div>
+          <h2>原海报的四条结构铁律</h2>
+          <p class="sec-en" lang="en">ANATOMY OF POSTER 057 · FOUR PILLARS</p>
+        </div>
+      </div>
+
+      <div class="split-2">
+        <div class="pillar-list">
+          <button type="button" class="pillar-card" data-pillar="rhythm" aria-pressed="false">
+            <span class="p-idx" lang="en">01</span>
+            <div>
+              <strong>以交替布局 · 创造节奏与平衡</strong>
+              <p class="p-en" lang="en">Create rhythm and balance through alternating layout.</p>
+              <p class="p-exp">实块与留白像节拍器的重拍与弱拍交替出现，避免整版重色沉底或整版发飘。</p>
+            </div>
+          </button>
+          <button type="button" class="pillar-card" data-pillar="order" aria-pressed="false">
+            <span class="p-idx" lang="en">02</span>
+            <div>
+              <strong>交替分布 · 强化画面秩序感</strong>
+              <p class="p-en" lang="en">Alternate distribution enhances the sense of visual order.</p>
+              <p class="p-exp">所有方格严守同一组横竖基准线，即使信息跨两格合并，外缘也绝不跑偏半毫米。</p>
+            </div>
+          </button>
+          <button type="button" class="pillar-card" data-pillar="contrast" aria-pressed="true">
+            <span class="p-idx" lang="en">03</span>
+            <div>
+              <strong>疏密对比 · 引导视觉停留</strong>
+              <p class="p-en" lang="en">Contrast in density guides visual pause and focus.</p>
+              <p class="p-exp">实色绿块（密）、点阵斜线（中）、宣纸短句（疏）拉出三档节奏，再由唯一一枚琥珀金格完成最后一击。</p>
+            </div>
+          </button>
+          <button type="button" class="pillar-card" data-pillar="module" aria-pressed="false">
+            <span class="p-idx" lang="en">04</span>
+            <div>
+              <strong>模块清晰 · 组合灵活多变</strong>
+              <p class="p-en" lang="en">Clear modules, flexible and versatile combinations.</p>
+              <p class="p-exp">每个方格都是可替换的独立容器，增删一条展讯或换一张图版都不必推翻整张版式。</p>
+            </div>
+          </button>
+          <div class="nuance-box">
+            <span class="nuance-tag">说多了一点</span>
+            <p>原海报说把画面划成交替方格就能「增强画面的韵律与焦点」。严格来说，<strong>纯 1:1 均等棋盘自带的是韵律，并不自带焦点</strong>——如果所有格子的大小和颜色完全平均，眼睛反而无处落脚。真正造出焦点的，是原海报自己悄悄用的两招破格：<strong>第 2 行的 2×1 跨格主标</strong>，以及<strong>第 4 行第 3 列那块唯一的琥珀金圆洞格</strong>。</p>
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <div class="lab-toolbar">
+            <span class="toolbar-hint">点击旁边四条铁律透视原海报结构层</span>
+            <button type="button" class="btn-outline" data-pillar="all" aria-pressed="false">显示全部图层</button>
+          </div>
+          <div class="svg-stage">
+            <svg viewBox="0 0 360 440" class="blueprint-svg" role="img" aria-label="057 原海报 4×5 网格结构解剖蓝图">
+              <rect width="360" height="440" fill="#F8F3E7"/>
+
+              <!-- 模块清晰层（底层全部 20 格容器与标签） -->
+              <g data-blueprint-layer="module">
+                <rect x="20" y="20" width="320" height="400" fill="#F1EDDC"/>
+                <rect x="100" y="20" width="80" height="80" fill="#F1EDDC" stroke="#075031" stroke-width="0.6"/>
+                <rect x="20" y="180" width="80" height="80" fill="#F1EDDC" stroke="#075031" stroke-width="0.6"/>
+                <rect x="100" y="260" width="80" height="80" fill="#F1EDDC" stroke="#075031" stroke-width="0.6"/>
+                <rect x="260" y="260" width="80" height="80" fill="#F1EDDC" stroke="#075031" stroke-width="0.6"/>
+                <text x="32" y="54" fill="#141715" font-size="11" font-weight="700" transform="translate(80,0)">以交替布局</text>
+                <text x="32" y="214" fill="#141715" font-size="11" font-weight="700">交替分布</text>
+                <text x="112" y="294" fill="#141715" font-size="11" font-weight="700">疏密对比</text>
+                <text x="272" y="294" fill="#141715" font-size="11" font-weight="700">模块清晰</text>
+              </g>
+
+              <!-- 以交替布局层（原海报深森林绿实块阵） -->
+              <g data-blueprint-layer="rhythm">
+                <rect x="20" y="20" width="80" height="80" fill="#075031"/>
+                <rect x="180" y="20" width="80" height="80" fill="#075031"/>
+                <rect x="260" y="100" width="80" height="80" fill="#075031"/>
+                <rect x="100" y="180" width="80" height="80" fill="#075031"/>
+                <rect x="20" y="340" width="80" height="80" fill="#075031"/>
+                <rect x="180" y="340" width="80" height="80" fill="#075031"/>
+              </g>
+
+              <!-- 疏密对比层（点阵、斜线、迷你棋盘、嵌套方框 + 唯一琥珀金焦块） -->
+              <g data-blueprint-layer="contrast">
+                <!-- R0C2 白色 5×5 点阵 -->
+                <g fill="#F8F3E7">
+                  <circle cx="196" cy="36" r="1.8"/><circle cx="208" cy="36" r="1.8"/><circle cx="220" cy="36" r="1.8"/><circle cx="232" cy="36" r="1.8"/><circle cx="244" cy="36" r="1.8"/>
+                  <circle cx="196" cy="48" r="1.8"/><circle cx="208" cy="48" r="1.8"/><circle cx="220" cy="48" r="1.8"/><circle cx="232" cy="48" r="1.8"/><circle cx="244" cy="48" r="1.8"/>
+                  <circle cx="196" cy="60" r="1.8"/><circle cx="208" cy="60" r="1.8"/><circle cx="220" cy="60" r="1.8"/><circle cx="232" cy="60" r="1.8"/><circle cx="244" cy="60" r="1.8"/>
+                  <circle cx="196" cy="72" r="1.8"/><circle cx="208" cy="72" r="1.8"/><circle cx="220" cy="72" r="1.8"/><circle cx="232" cy="72" r="1.8"/><circle cx="244" cy="72" r="1.8"/>
+                  <circle cx="196" cy="84" r="1.8"/><circle cx="208" cy="84" r="1.8"/><circle cx="220" cy="84" r="1.8"/><circle cx="232" cy="84" r="1.8"/><circle cx="244" cy="84" r="1.8"/>
+                </g>
+                <!-- R0C3 虚线绿圆 -->
+                <rect x="278" y="38" width="44" height="44" fill="none" stroke="#075031" stroke-width="1.3" stroke-dasharray="4 3"/>
+                <circle cx="300" cy="60" r="11" fill="#075031"/>
+                <!-- R1C0 菱形 -->
+                <rect x="38" y="118" width="44" height="44" fill="none" stroke="#075031" stroke-width="1.2"/>
+                <polygon points="60,126 74,140 60,154 46,140" fill="#141715"/>
+                <!-- R2C2 迷你棋盘 -->
+                <rect x="198" y="198" width="44" height="44" fill="#F8F3E7" stroke="#141715" stroke-width="1.2"/>
+                <rect x="198" y="198" width="14.6" height="14.6" fill="#141715"/>
+                <rect x="227.3" y="198" width="14.7" height="14.6" fill="#141715"/>
+                <rect x="212.6" y="212.6" width="14.7" height="14.7" fill="#141715"/>
+                <rect x="198" y="227.3" width="14.6" height="14.7" fill="#141715"/>
+                <rect x="227.3" y="227.3" width="14.7" height="14.7" fill="#141715"/>
+                <!-- R2C3 45度斜线 -->
+                <g stroke="#075031" stroke-width="1">
+                  <line x1="264" y1="202" x2="282" y2="184"/><line x1="264" y1="224" x2="304" y2="184"/>
+                  <line x1="264" y1="246" x2="326" y2="184"/><line x1="278" y1="256" x2="336" y2="198"/>
+                  <line x1="300" y1="256" x2="336" y2="220"/><line x1="322" y1="256" x2="336" y2="242"/>
+                </g>
+                <!-- R3C0 巨黑圆 -->
+                <circle cx="60" cy="300" r="22" fill="#141715"/>
+                <!-- R3C2 唯一琥珀金破格焦点格 -->
+                <rect x="180" y="260" width="80" height="80" fill="#E49B04"/>
+                <circle cx="220" cy="300" r="18" fill="#F8F3E7"/>
+                <!-- R4C1 同心嵌套方 -->
+                <rect x="116" y="356" width="48" height="48" fill="none" stroke="#075031" stroke-width="1.2"/>
+                <rect x="124" y="364" width="32" height="32" fill="none" stroke="#075031" stroke-width="1.2"/>
+                <rect x="134" y="374" width="12" height="12" fill="#075031"/>
+                <!-- R4C3 黑色 4×4 点阵 -->
+                <g fill="#141715">
+                  <circle cx="279" cy="359" r="2"/><circle cx="293" cy="359" r="2"/><circle cx="307" cy="359" r="2"/><circle cx="321" cy="359" r="2"/>
+                  <circle cx="279" cy="373" r="2"/><circle cx="293" cy="373" r="2"/><circle cx="307" cy="373" r="2"/><circle cx="321" cy="373" r="2"/>
+                  <circle cx="279" cy="387" r="2"/><circle cx="293" cy="387" r="2"/><circle cx="307" cy="387" r="2"/><circle cx="321" cy="387" r="2"/>
+                  <circle cx="279" cy="401" r="2"/><circle cx="293" cy="401" r="2"/><circle cx="307" cy="401" r="2"/><circle cx="321" cy="401" r="2"/>
+                </g>
+              </g>
+
+              <!-- 交替分布与正交轴线层（2×1 跨格主标 + 纵横精准网格线） -->
+              <g data-blueprint-layer="order">
+                <rect x="100" y="100" width="160" height="80" fill="#F8F3E7" stroke="#075031" stroke-width="1.4"/>
+                <text x="118" y="144" fill="#141715" font-size="24" font-weight="900">棋盘构图</text>
+                <rect x="118" y="156" width="28" height="3.5" fill="#075031"/>
+                <g stroke="#B92B1C" stroke-width="1.1" stroke-dasharray="4 3">
+                  <line x1="20" y1="12" x2="20" y2="428"/>
+                  <line x1="100" y1="12" x2="100" y2="428"/>
+                  <line x1="180" y1="12" x2="180" y2="428"/>
+                  <line x1="260" y1="12" x2="260" y2="428"/>
+                  <line x1="340" y1="12" x2="340" y2="428"/>
+                  <line x1="12" y1="20" x2="348" y2="20"/>
+                  <line x1="12" y1="100" x2="348" y2="100"/>
+                  <line x1="12" y1="180" x2="348" y2="180"/>
+                  <line x1="12" y1="260" x2="348" y2="260"/>
+                  <line x1="12" y1="340" x2="348" y2="340"/>
+                  <line x1="12" y1="420" x2="348" y2="420"/>
+                </g>
+              </g>
+            </svg>
+          </div>
+          <p id="s02-caption" class="lab-readout" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · 从浮世绘到瑞士网格（深森林绿暗室） -->
+  <section id="sec-03" class="band band-dark">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">03</span>
+        <div>
+          <h2>从浮世绘到瑞士网格</h2>
+          <p class="sec-en" lang="en">HISTORICAL LINEAGE · 1741 TO 1995</p>
+        </div>
+      </div>
+
+      <div class="era-tabs" role="group" aria-label="选择历史年代档案">
+        <button type="button" class="era-tab" data-era="1741" aria-pressed="true">
+          <span class="era-yr" lang="en">1741</span>
+          <span class="era-nm">江户 · 市松模様</span>
+        </button>
+        <button type="button" class="era-tab" data-era="1919" aria-pressed="false">
+          <span class="era-yr" lang="en">1919</span>
+          <span class="era-nm">蒙德里安 · 棋盘画</span>
+        </button>
+        <button type="button" class="era-tab" data-era="1981" aria-pressed="false">
+          <span class="era-yr" lang="en">1981</span>
+          <span class="era-nm">瑞士 · 网格系统</span>
+        </button>
+        <button type="button" class="era-tab" data-era="1995" aria-pressed="false">
+          <span class="era-yr" lang="en">1995</span>
+          <span class="era-nm">麻省理工 · 阴影错觉</span>
+        </button>
+      </div>
+
+      <div class="split-2 era-stage">
+        <div class="era-canvas-wrap">
+          <canvas id="sec03-canvas" aria-label="对应历史年代的棋盘结构示意图"></canvas>
+        </div>
+        <div class="era-detail">
+          <p id="s03-en" class="era-sub" lang="en">ICHIMATSU MOYO · EDO</p>
+          <h3 id="s03-title" class="era-title">1741 · 佐野川市松与市松模様</h3>
+          <p id="s03-body" class="era-body"></p>
+          <p id="s03-note" class="era-note"></p>
+          <p class="era-cite">历史脉络说明：棋盘构图从古代石砖与织物纹样出发，经 1919 年现代主义绘画摆脱机械均等，再到 1981 年瑞士模块化网格确立「跨格合并 + 缝宽纪律」，最终成为当代海报、画册与网页网格的基础骨架。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · 三招跳出瓷砖墙纸感（亮宣纸 + 真实 DOM CSS Grid 活体跨页实验） -->
+  <section id="sec-04" class="band band-bright">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">04</span>
+        <div>
+          <h2>三招跳出瓷砖墙纸感</h2>
+          <p class="sec-en" lang="en">CRAFT MOVES · REAL CSS GRID SPECIMEN</p>
+        </div>
+      </div>
+
+      <div class="s04-controls">
+        <button type="button" id="s04-toggle-span" class="move-btn" aria-pressed="false">招式一 · 2×1 跨格主标</button>
+        <button type="button" id="s04-toggle-focal" class="move-btn" aria-pressed="false">招式二 · 单格琥珀焦点</button>
+        <button type="button" id="s04-toggle-texture" class="move-btn" aria-pressed="false">招式三 · 中间肌理过渡</button>
+        <button type="button" id="s04-toggle-mobile" class="move-btn is-alt" aria-pressed="false">检验 · 2 列窄屏重排坑</button>
+      </div>
+
+      <p id="s04-status" class="s04-status" aria-live="polite"></p>
+
+      <!-- 真正运行中的 CSS Grid 微型展讯跨页（不是画布复读机） -->
+      <div class="s04-stage-shell">
+        <div id="s04-demo" class="css-checker-demo">
+          <article class="demo-tile is-solid">
+            <span class="dt-k" lang="en">01</span>
+            <strong>秋季建筑双年展</strong>
+            <span>10.18 — 12.20</span>
+          </article>
+          <article class="demo-tile is-light dt-span-target">
+            <span class="dt-k" lang="en">02</span>
+            <strong>秩序与节奏</strong>
+            <span>主展厅 · 东翼模块空间</span>
+          </article>
+          <article class="demo-tile is-solid dt-tex-dots">
+            <span class="dt-k" lang="en">03</span>
+            <strong>点阵图版</strong>
+            <span>32 组模块化海报原件</span>
+          </article>
+          <article class="demo-tile is-light">
+            <span class="dt-k" lang="en">04</span>
+            <strong>导览时间</strong>
+            <span>周二至周日 10:00</span>
+          </article>
+          <article class="demo-tile is-light dt-tex-hatch">
+            <span class="dt-k" lang="en">05</span>
+            <strong>工作坊</strong>
+            <span>网格手稿与活字校样</span>
+          </article>
+          <article class="demo-tile is-solid dt-focal-target">
+            <span class="dt-k" lang="en">06</span>
+            <strong>预约开幕票</strong>
+            <span>唯一主行动入口 →</span>
+          </article>
+          <article class="demo-tile is-light">
+            <span class="dt-k" lang="en">07</span>
+            <strong>策展手记</strong>
+            <span>格律之内留出呼吸</span>
+          </article>
+          <article class="demo-tile is-solid">
+            <span class="dt-k" lang="en">08</span>
+            <strong>展馆地址</strong>
+            <span>美术馆三层北廊</span>
+          </article>
+        </div>
+      </div>
+
+      <!-- 同一小类 057–064 齐整 4×2 棋盘式分工地图 -->
+      <div class="sibling-box">
+        <h3>同一小类的分工：棋盘之外，何时换招？</h3>
+        <div class="sibling-grid">
+          <div class="sibling-current"><strong>057 棋盘构图（本页）</strong><span>正交方格实空交替 + 唯一破格焦点</span></div>
+          <a href="https://layout.xiaoxiaodong.ai/058/play/" target="_blank" rel="noopener"><strong>058 阶梯构图</strong><span>需要由低到高逐级攀升的方向阶感时换它</span></a>
+          <a href="https://layout.xiaoxiaodong.ai/059/play/" target="_blank" rel="noopener"><strong>059 层叠构图</strong><span>需要前后压边遮挡、制造纵深景深时换它</span></a>
+          <a href="https://layout.xiaoxiaodong.ai/060/play/" target="_blank" rel="noopener"><strong>060 级联构图</strong><span>需要自上而下顺势倾泻的连续叙事流时换它</span></a>
+          <a href="https://layout.xiaoxiaodong.ai/061/play/" target="_blank" rel="noopener"><strong>061 聚类构图</strong><span>需要按属性聚堆成团、而非均匀铺格时换它</span></a>
+          <a href="https://layout.xiaoxiaodong.ai/062/play/" target="_blank" rel="noopener"><strong>062 分散构图</strong><span>需要彻底打破格子追求松散随机呼吸时换它</span></a>
+          <a href="https://layout.xiaoxiaodong.ai/063/play/" target="_blank" rel="noopener"><strong>063 分支构图</strong><span>需要呈现因果分叉与树状层级关系时换它</span></a>
+          <a href="https://layout.xiaoxiaodong.ai/064/play/" target="_blank" rel="noopener"><strong>064 网络构图</strong><span>需要表达多节点彼此互联的网状拓扑时换它</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · 什么时候别用棋盘（浅鼠尾草纸 + 双面翻卡） -->
+  <section id="sec-05" class="band band-sage">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">05</span>
+        <div>
+          <h2>什么时候别用棋盘</h2>
+          <p class="sec-en" lang="en">WHEN NOT TO USE CHECKERBOARD</p>
+        </div>
+      </div>
+
+      <div class="avoid-grid">
+        <article class="avoid-card">
+          <div class="avoid-visual">
+            <svg viewBox="0 0 220 120" class="avoid-svg bad-svg" aria-hidden="true">
+              <rect width="220" height="120" fill="#F8F3E7"/>
+              <rect x="14" y="14" width="46" height="44" fill="#075031"/>
+              <rect x="64" y="14" width="46" height="44" fill="#F1EDDC"/>
+              <rect x="114" y="14" width="46" height="44" fill="#075031"/>
+              <rect x="164" y="14" width="42" height="44" fill="#F1EDDC"/>
+              <rect x="14" y="62" width="46" height="44" fill="#F1EDDC"/>
+              <rect x="64" y="62" width="46" height="44" fill="#075031"/>
+              <rect x="114" y="62" width="46" height="44" fill="#F1EDDC"/>
+              <rect x="164" y="62" width="42" height="44" fill="#075031"/>
+              <path d="M22,36 L194,36 L22,84 L194,84" fill="none" stroke="#B92B1C" stroke-width="2" stroke-dasharray="4 3"/>
+            </svg>
+            <svg viewBox="0 0 220 120" class="avoid-svg good-svg" aria-hidden="true">
+              <rect width="220" height="120" fill="#F8F3E7"/>
+              <rect x="44" y="14" width="132" height="92" fill="#F1EDDC" stroke="#075031" stroke-width="1.2"/>
+              <line x1="56" y1="30" x2="156" y2="30" stroke="#075031" stroke-width="4"/>
+              <line x1="56" y1="46" x2="164" y2="46" stroke="#47524B" stroke-width="2"/>
+              <line x1="56" y1="58" x2="160" y2="58" stroke="#47524B" stroke-width="2"/>
+              <line x1="56" y1="70" x2="164" y2="70" stroke="#47524B" stroke-width="2"/>
+              <line x1="56" y1="82" x2="140" y2="82" stroke="#47524B" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="avoid-body">
+            <h3>长篇连续正文阅读</h3>
+            <p class="bad-txt">把 2000 字长文切进深浅交替的小方格，视线每读四五个字就要跨缝跳转，沉浸感彻底破碎。</p>
+            <p class="good-txt">对症改版：改用单栏通流或舒朗双栏杂志网格，把方格交替留给章节扉页与目录索引。</p>
+            <button type="button" class="btn-outline" data-flip-card aria-pressed="false">看对症改版解法</button>
+          </div>
+        </article>
+
+        <article class="avoid-card">
+          <div class="avoid-visual">
+            <svg viewBox="0 0 220 120" class="avoid-svg bad-svg" aria-hidden="true">
+              <rect width="220" height="120" fill="#F8F3E7"/>
+              <rect x="26" y="16" width="52" height="40" fill="#075031"/><text x="52" y="40" text-anchor="middle" fill="#F8F3E7" font-size="11">步 1</text>
+              <rect x="84" y="16" width="52" height="40" fill="#F1EDDC"/><text x="110" y="40" text-anchor="middle" fill="#141715" font-size="11">步 2</text>
+              <rect x="142" y="16" width="52" height="40" fill="#075031"/><text x="168" y="40" text-anchor="middle" fill="#F8F3E7" font-size="11">步 3</text>
+              <rect x="26" y="62" width="52" height="40" fill="#F1EDDC"/><text x="52" y="86" text-anchor="middle" fill="#141715" font-size="11">步 4</text>
+              <rect x="84" y="62" width="52" height="40" fill="#075031"/><text x="110" y="86" text-anchor="middle" fill="#F8F3E7" font-size="11">步 5</text>
+              <rect x="142" y="62" width="52" height="40" fill="#F1EDDC"/><text x="168" y="86" text-anchor="middle" fill="#141715" font-size="11">步 6</text>
+              <path d="M52,51 Q110,72 168,51" fill="none" stroke="#B92B1C" stroke-width="2" stroke-dasharray="4 2"/>
+              <circle cx="52" cy="51" r="2.6" fill="#B92B1C"/>
+              <circle cx="168" cy="51" r="2.6" fill="#B92B1C"/>
+            </svg>
+            <svg viewBox="0 0 220 120" class="avoid-svg good-svg" aria-hidden="true">
+              <rect width="220" height="120" fill="#F8F3E7"/>
+              <rect x="20" y="74" width="40" height="28" fill="#F1EDDC" stroke="#075031"/>
+              <rect x="66" y="54" width="40" height="48" fill="#0D6A43"/>
+              <rect x="112" y="34" width="40" height="68" fill="#075031"/>
+              <rect x="158" y="16" width="40" height="86" fill="#E49B04"/>
+            </svg>
+          </div>
+          <div class="avoid-body">
+            <h3>强顺序步骤与时间轴</h3>
+            <p class="bad-txt">棋盘天然诱导观众先扫同类色格（1→3→5），极易跳读漏步，不适合严格线性流程。</p>
+            <p class="good-txt">对症改版：改用有明确单向推进势能的 <a href="https://layout.xiaoxiaodong.ai/058/play/" target="_blank" rel="noopener">058 阶梯构图</a> 或 <a href="https://layout.xiaoxiaodong.ai/060/play/" target="_blank" rel="noopener">060 级联构图</a>。</p>
+            <button type="button" class="btn-outline" data-flip-card aria-pressed="false">看对症改版解法</button>
+          </div>
+        </article>
+
+        <article class="avoid-card">
+          <div class="avoid-visual">
+            <svg viewBox="0 0 220 120" class="avoid-svg bad-svg" aria-hidden="true">
+              <rect width="220" height="120" fill="#F8F3E7"/>
+              <g>
+                <rect x="20" y="14" width="180" height="92" fill="#075031"/>
+                <polygon points="20,106 88,36 142,84 176,54 200,106" fill="#E49B04" opacity="0.72"/>
+                <line x1="65" y1="14" x2="65" y2="106" stroke="#F8F3E7" stroke-width="5"/>
+                <line x1="110" y1="14" x2="110" y2="106" stroke="#F8F3E7" stroke-width="5"/>
+                <line x1="155" y1="14" x2="155" y2="106" stroke="#F8F3E7" stroke-width="5"/>
+                <line x1="20" y1="60" x2="200" y2="60" stroke="#F8F3E7" stroke-width="5"/>
+              </g>
+            </svg>
+            <svg viewBox="0 0 220 120" class="avoid-svg good-svg" aria-hidden="true">
+              <rect width="220" height="120" fill="#F8F3E7"/>
+              <rect x="16" y="14" width="188" height="92" fill="#075031"/>
+              <polygon points="16,106 88,32 142,82 178,50 204,106" fill="#E49B04" opacity="0.85"/>
+              <circle cx="164" cy="34" r="9" fill="#F8F3E7"/>
+            </svg>
+          </div>
+          <div class="avoid-body">
+            <h3>完整大场景情绪大片</h3>
+            <p class="bad-txt">宏伟建筑或开阔风光一旦硬切进交替棋盘，地平线和空间气势会被纵横格线剁得七零八落。</p>
+            <p class="good-txt">对症改版：保持主图整幅完整出血（可参考图片主导版式），仅在局部角落点缀模块信息。</p>
+            <button type="button" class="btn-outline" data-flip-card aria-pressed="false">看对症改版解法</button>
+          </div>
+        </article>
+
+        <article class="avoid-card">
+          <div class="avoid-visual">
+            <svg viewBox="0 0 220 120" class="avoid-svg bad-svg" aria-hidden="true">
+              <rect width="220" height="120" fill="#F8F3E7"/>
+              <g>
+                <rect x="26" y="14" width="168" height="92" fill="#141715"/>
+                <g fill="#F8F3E7">
+                  <rect x="26" y="14" width="14" height="15"/><rect x="54" y="14" width="14" height="15"/><rect x="82" y="14" width="14" height="15"/><rect x="110" y="14" width="14" height="15"/><rect x="138" y="14" width="14" height="15"/><rect x="166" y="14" width="14" height="15"/>
+                  <rect x="40" y="29" width="14" height="15"/><rect x="68" y="29" width="14" height="15"/><rect x="96" y="29" width="14" height="15"/><rect x="124" y="29" width="14" height="15"/><rect x="152" y="29" width="14" height="15"/><rect x="180" y="29" width="14" height="15"/>
+                  <rect x="26" y="44" width="14" height="15"/><rect x="54" y="44" width="14" height="15"/><rect x="82" y="44" width="14" height="15"/><rect x="110" y="44" width="14" height="15"/><rect x="138" y="44" width="14" height="15"/><rect x="166" y="44" width="14" height="15"/>
+                  <rect x="40" y="59" width="14" height="15"/><rect x="68" y="59" width="14" height="15"/><rect x="96" y="59" width="14" height="15"/><rect x="124" y="59" width="14" height="15"/><rect x="152" y="59" width="14" height="15"/><rect x="180" y="59" width="14" height="15"/>
+                  <rect x="26" y="74" width="14" height="15"/><rect x="54" y="74" width="14" height="15"/><rect x="82" y="74" width="14" height="15"/><rect x="110" y="74" width="14" height="15"/><rect x="138" y="74" width="14" height="15"/><rect x="166" y="74" width="14" height="15"/>
+                  <rect x="40" y="89" width="14" height="17"/><rect x="68" y="89" width="14" height="17"/><rect x="96" y="89" width="14" height="17"/><rect x="124" y="89" width="14" height="17"/><rect x="152" y="89" width="14" height="17"/><rect x="180" y="89" width="14" height="17"/>
+                </g>
+              </g>
+            </svg>
+            <svg viewBox="0 0 220 120" class="avoid-svg good-svg" aria-hidden="true">
+              <rect width="220" height="120" fill="#F8F3E7"/>
+              <rect x="26" y="14" width="56" height="46" fill="#075031"/>
+              <rect x="82" y="14" width="56" height="46" fill="#F1EDDC"/>
+              <rect x="138" y="14" width="56" height="46" fill="#075031"/>
+              <rect x="26" y="60" width="56" height="46" fill="#F1EDDC"/>
+              <rect x="82" y="60" width="56" height="46" fill="#E49B04"/>
+              <rect x="138" y="60" width="56" height="46" fill="#F1EDDC"/>
+            </svg>
+          </div>
+          <div class="avoid-body">
+            <h3>高频细密黑白满铺</h3>
+            <p class="bad-txt">单屏塞进超过 8×8 高反差黑白小方格时，强空间频率会诱发眼睛震颤与光学眩晕，无法静心读字。</p>
+            <p class="good-txt">对症改版：放大单格尺度（常用 3×4 至 5×5，经验值），并用暖米底取代刺眼纯白降低眩光。</p>
+            <button type="button" class="btn-outline" data-flip-card aria-pressed="false">看对症改版解法</button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · 实战眼力小练习（深森林绿考场） -->
+  <section id="sec-06" class="band band-dark">
+    <div class="wrap">
+      <div class="sec-head sec-head-between">
+        <div class="sec-head-left">
+          <span class="sec-num" lang="en">06</span>
+          <div>
+            <h2>实战眼力小练习</h2>
+            <p class="sec-en" lang="en">VISUAL PRACTICE LAB · SINGLE-VARIABLE BLIND TEST</p>
+          </div>
+        </div>
+        <span id="s06-score" class="quiz-score-pill" aria-live="polite">尚未作答 · 共 2 题</span>
+      </div>
+
+      <div id="s06-quiz" class="quiz-wrap"></div>
+    </div>
+  </section>
+
+  <!-- 07 · 原海报典藏与关键词（暖米宣纸） -->
+  <section id="sec-07" class="band band-paper">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" lang="en">07</span>
+        <div>
+          <h2>原海报典藏与关键词</h2>
+          <p class="sec-en" lang="en">ORIGINAL POSTER 057 · ARCHIVE &amp; KEYWORDS</p>
+        </div>
+      </div>
+
+      <div class="archive-grid">
+        <div class="poster-card">
+          <button type="button" id="poster-open" class="poster-btn" aria-label="点击放大查看 057 棋盘构图原海报">
+            <img id="poster" src="poster.webp" width="1086" height="1448" draggable="false" alt="057 棋盘构图原海报">
+            <span class="poster-zoom-hint">点击放大原海报 · 支持拖动与缩放</span>
+          </button>
+        </div>
+
+        <div class="archive-info">
+          <div class="archive-block">
+            <span class="archive-kicker" lang="en">POSTER 057 · CORE STATEMENT</span>
+            <h3>棋盘构图的核心</h3>
+            <p>将画面划分为交替的方形模块，像棋盘一样安排元素的重与轻、有与无、动与静，从而在对比中建立稳定的秩序，增强画面的韵律与焦点。</p>
+            <p class="archive-en" lang="en">Divide the canvas into alternating square modules, arranging elements in a pattern of presence and absence, activity and stillness, to build stable order, rhythm, and a clear focal point.</p>
+          </div>
+
+          <div class="archive-kw-grid">
+            <div class="akw">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" fill="#075031"/></svg>
+              <strong>模块</strong><span lang="en">MODULE</span>
+            </div>
+            <div class="akw">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" fill="#F1EDDC" stroke="#141715"/><polygon points="3,3 21,3 3,21" fill="#141715"/></svg>
+              <strong>节奏</strong><span lang="en">RHYTHM</span>
+            </div>
+            <div class="akw">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="#E49B04"/></svg>
+              <strong>对比</strong><span lang="en">CONTRAST</span>
+            </div>
+            <div class="akw">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" fill="none" stroke="#075031" stroke-width="1.6"/></svg>
+              <strong>秩序</strong><span lang="en">ORDER</span>
+            </div>
+          </div>
+
+          <div class="archive-note">
+            <p>配色实采自本张原海报：暖米宣纸 <code>#F8F3E7</code> / 交替米白 <code>#F1EDDC</code> / 深森林绿 <code>#075031</code> / 琥珀金焦点 <code>#E49B04</code> / 纯粹墨黑 <code>#141715</code>。</p>
+            <p>本页核实参考：海牙市立美术馆（Kunstmuseum Den Haag）1919 年蒙德里安《网格构图 8 / 9 号》藏品档案；Niggli Verlag 1981 年版 Josef Müller-Brockmann《平面设计中的网格系统》（176 页）；麻省理工学院 Edward H. Adelson 1995 年棋盘阴影错觉研究。</p>
+            <p>同属「构图逻辑 / 阵列、层叠与组群」小类的其他互动页：
+              <a href="https://layout.xiaoxiaodong.ai/058/play/" target="_blank" rel="noopener">058 阶梯构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/059/play/" target="_blank" rel="noopener">059 层叠构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/060/play/" target="_blank" rel="noopener">060 级联构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/061/play/" target="_blank" rel="noopener">061 聚类构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/062/play/" target="_blank" rel="noopener">062 分散构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/063/play/" target="_blank" rel="noopener">063 分支构图</a> ·
+              <a href="https://layout.xiaoxiaodong.ai/064/play/" target="_blank" rel="noopener">064 网络构图</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <span><a href="https://layout.xiaoxiaodong.ai/057/play/" target="_blank" rel="noopener">在线版</a> / 全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai</a></span>
+    <span aria-hidden="true">·</span>
+    <span>海报 CC BY 4.0</span>
+    <span aria-hidden="true">·</span>
+    <a href="https://github.com/xxd-ai/350-layout" target="_blank" rel="noopener">源文件 GitHub</a>
+  </div>
+</footer>
+
+<!-- 原海报放大灯箱（支持拖动、滚轮缩放、Esc 关闭） -->
+<dialog id="poster-modal" class="poster-modal" aria-label="057 原海报高清查看器">
+  <div class="modal-bar">
+    <span>057 棋盘构图 · 拖动画布平移，滚轮或按钮缩放，Esc 关闭</span>
+    <div class="modal-actions">
+      <button type="button" id="poster-zoom-out" class="modal-btn">缩小</button>
+      <button type="button" id="poster-zoom-reset" class="modal-btn">复原</button>
+      <button type="button" id="poster-zoom-in" class="modal-btn">放大</button>
+      <button type="button" id="poster-close" class="modal-btn is-close">关闭 Esc</button>
+    </div>
+  </div>
+  <div id="poster-modal-stage" class="modal-stage">
+    <img id="poster-modal-img" src="" draggable="false" alt="057 棋盘构图高清原海报">
+  </div>
+</dialog>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
