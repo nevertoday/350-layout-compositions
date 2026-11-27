@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fcf6e6">
+<title>动态构图 · DYNAMIC COMPOSITION</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main>
+  <!-- ==================== HERO：忠实转译 090 原海报斜势构图展板 ==================== -->
+  <section class="hero" aria-labelledby="page-title">
+    <div class="hero-inner">
+
+      <!-- 顶部刊头：左上原海报箭头徽 + 自示范前倾双色大标「动态构图」 + 右侧场景切签与五连橙点 -->
+      <header class="masthead">
+        <div class="mast-left">
+          <div class="mast-meta">
+            <svg class="mast-chevron" viewBox="0 0 36 20" width="32" height="18" aria-hidden="true">
+              <path d="M2 10H28M18 3L29 10L18 17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square"/>
+              <path d="M8 5L16 10L8 15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/>
+            </svg>
+            <span class="issue-chip" lang="en">NO. 090</span>
+            <span class="series-text">版式原理 · 视觉平衡 | 设计思维与应用</span>
+            <span class="status-pill is-err mobile-only-pill" id="mobile-status-pill">0/4 · 水平锁死 0°</span>
+          </div>
+
+          <div class="title-lockup">
+            <h1 id="page-title" class="kinetic-h1">
+              <span class="h1-orange">动态</span><span class="h1-teal">构图</span>
+            </h1>
+            <div class="title-slash" aria-hidden="true">
+              <span class="title-en" lang="en">DYNAMIC COMPOSITION</span>
+              <span class="brush-bar"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mast-right">
+          <div class="mast-actions">
+            <div class="scene-tabs" role="group" aria-label="切换场景标本">
+              <button type="button" class="scene-btn is-active" data-scene="poster" aria-pressed="true">原海报·动势</button>
+              <button type="button" class="scene-btn" data-scene="sprint" aria-pressed="false">运动·冲刺海报</button>
+              <button type="button" class="scene-btn" data-scene="festival" aria-pressed="false">音乐节·声浪</button>
+            </div>
+            <div class="mast-status-row">
+              <span class="status-pill is-err" id="hero-status-pill">0/4 · 水平锁死 0°</span>
+              <button type="button" class="pulse-btn" id="btn-pulse">
+                <span class="pulse-dot" aria-hidden="true"></span>
+                <span>脉冲放流</span>
+                <kbd lang="en">Space</kbd>
+              </button>
+            </div>
+          </div>
+          <!-- 1:1 复刻原海报右上角 5 枚竖排亮橙圆点 -->
+          <div class="poster-dots" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i>
+          </div>
+        </div>
+      </header>
+
+      <!-- 主舞台：左 66% 开放式斜势编排画布 + 操轨坞 ｜ 右 34% 原海报五枚圆徽折引探针 -->
+      <div class="hero-stage-grid">
+        <div class="stage-col">
+          <div class="canvas-shell">
+            <i class="tick tl" aria-hidden="true"></i>
+            <i class="tick tr" aria-hidden="true"></i>
+            <i class="tick bl" aria-hidden="true"></i>
+            <i class="tick br" aria-hidden="true"></i>
+            <canvas id="hero-canvas" data-perf-drag aria-label="动态构图斜势弹道编排台：横拖画布改变主轴倾角，点击标红的逆冲闪电或尖镖将其扳顺，点击圆球切换体量差"></canvas>
+          </div>
+          <p class="stage-hint">横拖画布掰动斜轴倾角 · 直点标红「逆冲」图形扳顺方向 · 点击圆球拉大体量差 · 方向键微调 · <span lang="en">Space</span> 脉冲验真</p>
+
+          <!-- 手机首屏紧致摘要栏（大屏隐藏，确保 390×844 折线内直接看到白话诊单 + 倾角轨 + 双键） -->
+          <div class="mobile-fold-dock" id="mobile-fold-dock">
+            <p class="mobile-verdict" id="mobile-verdict">主轴贴在 0° 水平基准上，画面彻底卡在静态格局</p>
+            <div class="mobile-slider-row">
+              <label for="mobile-angle">动势倾角</label>
+              <input type="range" id="mobile-angle" min="-55" max="75" step="1" value="0">
+              <output id="mobile-angle-val" lang="en">0°</output>
+            </div>
+            <div class="mobile-btn-row">
+              <button type="button" class="cta-orange" id="mobile-fix-btn">激发原势 54°</button>
+              <button type="button" class="cta-outline" id="mobile-pulse-btn">脉冲放流</button>
+            </div>
+          </div>
+
+          <!-- 操轨坞：三项连续精控 + 开关 + 合法多解/双向试错 -->
+          <div class="control-dock" aria-label="斜势参数精控">
+            <div class="sliders-row">
+              <label class="slider-item mobile-hide-dup">
+                <span class="sl-head">
+                  <span>动势倾角</span>
+                  <output id="val-angle" lang="en">0°</output>
+                </span>
+                <input type="range" id="ctrl-angle" min="-55" max="75" step="1" value="0">
+              </label>
+              <label class="slider-item">
+                <span class="sl-head">
+                  <span>体量对比</span>
+                  <output id="val-contrast" lang="en">1.1×</output>
+                </span>
+                <input type="range" id="ctrl-contrast" min="1.0" max="5.8" step="0.1" value="1.1">
+              </label>
+              <label class="slider-item">
+                <span class="sl-head">
+                  <span>节拍加速</span>
+                  <output id="val-rhythm" lang="en">0%</output>
+                </span>
+                <input type="range" id="ctrl-rhythm" min="0" max="100" step="1" value="0">
+              </label>
+            </div>
+
+            <div class="toggles-presets-row">
+              <div class="toggle-group">
+                <button type="button" class="toggle-pill is-warn" id="btn-fix-conflicts" aria-pressed="true">逆冲冲突：2 处</button>
+                <button type="button" class="toggle-pill" id="btn-speed-cue" aria-pressed="false">速度尾迹：关</button>
+              </div>
+              <div class="preset-group">
+                <span class="preset-label">合法多解</span>
+                <button type="button" class="chip-valid" data-preset="poster">海报上扬 54°</button>
+                <button type="button" class="chip-valid" data-preset="dive">极速俯冲 -34°</button>
+                <button type="button" class="chip-valid" data-preset="surge">蓄势爆发 38°</button>
+              </div>
+              <div class="preset-group">
+                <span class="preset-label">双向试错</span>
+                <button type="button" class="chip-err" data-preset="errFlat">0° 僵死</button>
+                <button type="button" class="chip-err" data-preset="errCollision">逆势对冲</button>
+                <button type="button" class="chip-err" data-preset="errBloat">巨块窒息</button>
+                <button type="button" class="chip-err" data-preset="errCram">挤角乱拍</button>
+                <button type="button" class="chip-err" data-preset="errVertical">74° 近垂</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右翼：1:1 复刻 090 原海报「副标总述 + 五枚交替深青/亮橙实心圆徽虚线折引实时探针」 -->
+        <aside class="probes-col" aria-label="原海报五维实时探针">
+          <div class="poster-intro">
+            <p class="poster-tagline">让画面动起来，引导视线，激发感受。</p>
+            <p class="poster-summary">动态构图通过方向、对比、节奏与张力，打破静止与对称的束缚，创造视觉流动，使信息更具冲击力与感染力。</p>
+            <span class="teal-dash" aria-hidden="true"></span>
+          </div>
+
+          <ul class="probe-list" id="probe-list">
+            <li class="probe-item" data-probe="direction">
+              <button type="button" class="probe-btn" data-probe-btn="direction" aria-pressed="false">
+                <span class="probe-icon tone-teal" aria-hidden="true">
+                  <svg viewBox="0 0 28 28"><path d="M8 20L20 8M11 8H20V17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square"/></svg>
+                </span>
+                <span class="probe-copy">
+                  <span class="probe-head">
+                    <strong>方向引导</strong>
+                    <span class="probe-stat is-err" data-probe-stat="direction">锁死 0°</span>
+                  </span>
+                  <span class="probe-desc">利用斜线、箭头、视线走向等元素，引导观者的视线自然流动。</span>
+                </span>
+              </button>
+              <span class="probe-rail" aria-hidden="true"><i class="rail-dot"></i><i class="rail-line"></i></span>
+            </li>
+
+            <li class="probe-item" data-probe="tension">
+              <button type="button" class="probe-btn" data-probe-btn="tension" aria-pressed="false">
+                <span class="probe-icon tone-orange" aria-hidden="true">
+                  <svg viewBox="0 0 28 28"><path d="M16 4L7 15H14L12 24L21 13H14Z" fill="currentColor"/></svg>
+                </span>
+                <span class="probe-copy">
+                  <span class="probe-head">
+                    <strong>视觉张力</strong>
+                    <span class="probe-stat is-err" data-probe-stat="tension">平铺 1.1×</span>
+                  </span>
+                  <span class="probe-desc">通过大小对比、形状冲突与空间压缩，制造紧张感与吸引力。</span>
+                </span>
+              </button>
+              <span class="probe-rail" aria-hidden="true"><i class="rail-dot"></i><i class="rail-line"></i></span>
+            </li>
+
+            <li class="probe-item" data-probe="rhythm">
+              <button type="button" class="probe-btn" data-probe-btn="rhythm" aria-pressed="false">
+                <span class="probe-icon tone-teal" aria-hidden="true">
+                  <svg viewBox="0 0 28 28"><path d="M5 10Q9 6 14 10T23 10M5 15Q9 11 14 15T23 15M5 20Q9 16 14 20T23 20" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>
+                </span>
+                <span class="probe-copy">
+                  <span class="probe-head">
+                    <strong>动感节奏</strong>
+                    <span class="probe-stat is-err" data-probe-stat="rhythm">等拍 1.0×</span>
+                  </span>
+                  <span class="probe-desc">重复、渐变与疏密变化形成节奏，产生韵律与连续的视觉推动力。</span>
+                </span>
+              </button>
+              <span class="probe-rail" aria-hidden="true"><i class="rail-dot"></i><i class="rail-line"></i></span>
+            </li>
+
+            <li class="probe-item" data-probe="speed">
+              <button type="button" class="probe-btn" data-probe-btn="speed" aria-pressed="false">
+                <span class="probe-icon tone-orange" aria-hidden="true">
+                  <svg viewBox="0 0 28 28"><path d="M6 19A9 9 0 1 1 22 19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M14 17L19 11" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="14" cy="17" r="2" fill="currentColor"/></svg>
+                </span>
+                <span class="probe-copy">
+                  <span class="probe-head">
+                    <strong>速度感知</strong>
+                    <span class="probe-stat is-err" data-probe-stat="speed">尾迹关闭</span>
+                  </span>
+                  <span class="probe-desc">模糊、拖影、放射等效果增强运动感，让画面传达速度与时间流动。</span>
+                </span>
+              </button>
+              <span class="probe-rail" aria-hidden="true"><i class="rail-dot"></i><i class="rail-line"></i></span>
+            </li>
+
+            <li class="probe-item" data-probe="energy">
+              <button type="button" class="probe-btn" data-probe-btn="energy" aria-pressed="false">
+                <span class="probe-icon tone-teal" aria-hidden="true">
+                  <svg viewBox="0 0 28 28"><path d="M15 4C15 9 19 11 19 16A5 5 0 1 1 9 16C9 13 11 11 12 9C12 11 13.5 12 13.5 12C13 9 14 6 15 4Z" fill="currentColor"/></svg>
+                </span>
+                <span class="probe-copy">
+                  <span class="probe-head">
+                    <strong>能量爆发</strong>
+                    <span class="probe-stat is-err" data-probe-stat="energy">僵死静止（示意）</span>
+                  </span>
+                  <span class="probe-desc">大面积色块、强对比与集中焦点，释放能量，传递情绪与力量。</span>
+                </span>
+              </button>
+              <span class="probe-rail" aria-hidden="true"><i class="rail-dot"></i><i class="rail-line"></i></span>
+            </li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+
+    <!-- 底沿：1:1 复刻原海报标志性深石油青斜切大楔形 + 亮橙速度斜边 -->
+    <div class="hero-wedge-wrap">
+      <svg class="wedge-crest" viewBox="0 0 1440 58" preserveAspectRatio="none" aria-hidden="true">
+        <polygon points="0,58 760,10 1440,58" fill="#00373B"/>
+        <polygon points="1180,58 1440,22 1440,58" fill="#FB5700"/>
+        <line x1="1152" y1="58" x2="1440" y2="14" stroke="#FB5700" stroke-width="5"/>
+      </svg>
+      <div class="hero-wedge-body">
+        <div class="wedge-grid">
+          <div class="diag-pane" id="diag-pane" aria-live="polite">
+            <div class="diag-top">
+              <span class="diag-badge is-err" id="diag-badge">0/4 · 水平锁死 0°</span>
+              <span class="diag-metrics" id="diag-metrics" lang="en">AXIS 0° · SCALE 1.1× · BEAT 1.0× · 逆冲 2 处</span>
+            </div>
+            <h2 class="diag-headline" id="diag-headline">主轴贴在 0° 水平基准上，画面彻底卡在静态格局</h2>
+            <p class="diag-why" id="diag-why">人眼对 0° 水平线和 90° 竖线有天然的重力基准感（斜线效应），整组图形横平排开时视线只觉得安稳呆板——这是相邻页 089 静态构图的领地，还谈不上流动。</p>
+            <p class="diag-action" id="diag-action">直接向右横拖画布（或拖动「动势倾角」），把主轴掰到 24°–60° 上扬斜势或 -20° 至 -48° 俯冲斜势。</p>
+            <div class="diag-btns">
+              <button type="button" class="cta-orange" id="btn-apply-poster">一键激发原海报动势</button>
+              <button type="button" class="cta-ghost" id="btn-reset-broken">复原僵死开场</button>
+            </div>
+          </div>
+
+          <div class="takeaway-pane">
+            <p class="takeaway-label">核心要点 <span lang="en">CORE PRINCIPLE</span></p>
+            <blockquote class="takeaway-quote">“动态构图的目标不是‘平衡’，而是‘流动’。让画面有方向、有节奏、有张力，才能真正打动观者。”</blockquote>
+            <ul class="wedge-icons" id="wedge-icons" aria-label="五个核心动势图标">
+              <li data-wicon="direction">
+                <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 22L22 6M11 6H22V17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/></svg>
+                <span>方向</span><small lang="en">DIRECTION</small>
+              </li>
+              <li data-wicon="tension">
+                <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M16 4L7 15H14L12 24L21 13H14Z" fill="currentColor"/></svg>
+                <span>张力</span><small lang="en">TENSION</small>
+              </li>
+              <li data-wicon="rhythm">
+                <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 9Q9 5 14 9T24 9M4 15Q9 11 14 15T24 15M4 21Q9 17 14 21T24 21" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>
+                <span>运动</span><small lang="en">MOVEMENT</small>
+              </li>
+              <li data-wicon="speed">
+                <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M5 19A9.5 9.5 0 1 1 23 19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M14 17L19.5 10.5" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/><circle cx="14" cy="17" r="2" fill="currentColor"/></svg>
+                <span>速度</span><small lang="en">SPEED</small>
+              </li>
+              <li data-wicon="energy">
+                <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M15 4C15 9 19 11 19 16A5 5 0 1 1 9 16C9 13 11 11 12 9C12 11 13.5 12 13.5 12C13 9 14 6 15 4Z" fill="currentColor"/></svg>
+                <span>能量</span><small lang="en">ENERGY</small>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 正文七节（明暗交替构成主义画报节奏） ==================== -->
+  <article class="essay">
+
+    <!-- 01 亮象牙宣：五股推力，拧出流动（五维剥离器交互） -->
+    <section class="sec sec-ivory" id="sec-01" aria-labelledby="h-01">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">01</p>
+          <div class="sec-title-group">
+            <h2 id="h-01">五股推力，拧出流动</h2>
+            <p class="sec-en" lang="en">THE FIVE KINETIC FORCES</p>
+          </div>
+        </header>
+
+        <p class="sec-lead">一张纸不会自己跑起来。动态构图之所以让静止的平面产生速度与冲击，是因为它把<strong>方向、张力、节奏、速度线索与聚焦能量</strong>拧成了一股合力。试试在旁侧逐个关掉其中某一项，看画面会怎样立刻泄气。</p>
+
+        <div class="dissector-grid">
+          <div class="dissector-stage">
+            <svg id="dissector-svg" viewBox="0 0 560 360" role="img" aria-label="动态构图五股推力拆解图"></svg>
+            <p class="dissector-caption" id="dissector-readout" aria-live="polite">五股推力全开：斜势箭头领路，大橙球与深青小圆形成约 3 倍体量落差，渐密步距与速度切线把视线一路送上右上焦点。</p>
+          </div>
+
+          <div class="dissector-controls" role="group" aria-label="开关五项动势要素">
+            <button type="button" class="force-card is-on" data-force="direction" aria-pressed="true">
+              <span class="fc-top"><strong>01 方向引导</strong><span class="fc-pill">已开启</span></span>
+              <span class="fc-quote">“利用斜线、箭头、视线走向等元素，引导观者的视线自然流动。”</span>
+              <span class="fc-note">关掉后，整条路径退回 0° 水平排布，立刻失去前进箭头。</span>
+            </button>
+            <button type="button" class="force-card is-on" data-force="tension" aria-pressed="true">
+              <span class="fc-top"><strong>02 视觉张力</strong><span class="fc-pill">已开启</span></span>
+              <span class="fc-quote">“通过大小对比、形状冲突与空间压缩，制造紧张感与吸引力。”</span>
+              <span class="fc-note">关掉后，圆球缩回差不多大、小青圆退远，高潮落点消失。</span>
+            </button>
+            <button type="button" class="force-card is-on" data-force="rhythm" aria-pressed="true">
+              <span class="fc-top"><strong>03 动感节奏</strong><span class="fc-pill">已开启</span></span>
+              <span class="fc-quote">“重复、渐变与疏密变化形成节奏，产生韵律与连续的视觉推动力。”</span>
+              <span class="fc-note">关掉后，所有元素退成均匀等拍，像表格行距而非加速冲刺。</span>
+            </button>
+            <button type="button" class="force-card is-on" data-force="speed" aria-pressed="true">
+              <span class="fc-top"><strong>04 速度感知</strong><span class="fc-pill">已开启</span></span>
+              <span class="fc-quote">“模糊、拖影、放射等效果增强运动感，让画面传达速度与时间流动。”</span>
+              <span class="fc-note">关掉后，白切速线与半调喷点清空，图形显得沉重滞缓。</span>
+            </button>
+            <button type="button" class="force-card is-on" data-force="energy" aria-pressed="true">
+              <span class="fc-top"><strong>05 能量爆发</strong><span class="fc-pill">已开启</span></span>
+              <span class="fc-quote">“大面积色块、强对比与集中焦点，释放能量，传递情绪与力量。”</span>
+              <span class="fc-note">关掉后，深石油青与亮橙撞色压暗成平灰，冲击力瞬间冷却。</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 暖砂米纸：斜线为何天生带冲力（6 档角度重力坡道交互） -->
+    <section class="sec sec-sand" id="sec-02" aria-labelledby="h-02">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">02</p>
+          <div class="sec-title-group">
+            <h2 id="h-02">斜线为何天生带冲力</h2>
+            <p class="sec-en" lang="en">WHY DIAGONALS FEEL UNSTABLE</p>
+          </div>
+        </header>
+
+        <div class="two-col-prose">
+          <p>人类生活在重力场里，地平线是横的、树干和建筑是竖的。视觉心理学里把人眼对水平（0°）和垂直（90°）方向更敏锐、更容易判稳的现象称为<strong>「斜线效应」（Oblique Effect）</strong>——水平与垂直等于“落定”，而倾斜等于“还没停稳”。</p>
+          <p>因此，同一组图形只要从 0° 抬起一定角度，大脑就会自动补出一条“正在爬升或俯冲”的运动想象。但设计实践里的<strong>经验值</strong>显示，并不是越陡越动感：通常在 <strong>25°–60°</strong> 之间横向推进与上升合力最均衡；一旦超过 70° 逼近垂线，眼睛又会把它看回静止的柱子（想把画面彻底放平稳住，请看相邻页 <a href="https://layout.xiaoxiaodong.ai/089/play/" target="_blank" rel="noopener">089 静态构图</a>）。</p>
+        </div>
+
+        <div class="slope-lab">
+          <div class="slope-stops" role="group" aria-label="选择坡道倾角">
+            <button type="button" class="stop-btn" data-slope="0" aria-pressed="false">0° 水平落定</button>
+            <button type="button" class="stop-btn" data-slope="18" aria-pressed="false">18° 轻斜试探</button>
+            <button type="button" class="stop-btn" data-slope="36" aria-pressed="false">36° 轻快推进</button>
+            <button type="button" class="stop-btn is-active" data-slope="54" aria-pressed="true">54° 海报强冲</button>
+            <button type="button" class="stop-btn" data-slope="76" aria-pressed="false">76° 逼近垂柱</button>
+            <button type="button" class="stop-btn" data-slope="90" aria-pressed="false">90° 竖直静止</button>
+          </div>
+
+          <div class="slope-stage-row">
+            <svg id="slope-svg" viewBox="0 0 540 280" role="img" aria-label="不同倾角下的斜线视觉张力与水平垂直分量示意图"></svg>
+            <div class="slope-info" id="slope-info" aria-live="polite">
+              <p class="slope-tag" id="slope-tag">54° · 经验强动势区（原海报同款斜势）</p>
+              <h3 id="slope-title">横向位移与向上跃升势均力敌</h3>
+              <p id="slope-desc">54° 既远离 0° 地平线、也远离 90° 垂线，对角线穿过画面时把视线从左下入口一口气甩向右上高点，是 090 原海报主箭与文字采用的强能量斜角。</p>
+              <dl class="slope-bars">
+                <div>
+                  <dt>偏离正交基准（示意）</dt>
+                  <dd><span class="bar-track"><i id="bar-oblique" style="width:80%"></i></span><strong id="txt-oblique">强</strong></dd>
+                </div>
+                <div>
+                  <dt>横向推进势能（示意）</dt>
+                  <dd><span class="bar-track"><i id="bar-horiz" style="width:59%"></i></span><strong id="txt-horiz">中高</strong></dd>
+                </div>
+                <div>
+                  <dt>纵向抬升势能（示意）</dt>
+                  <dd><span class="bar-track"><i id="bar-vert" style="width:81%"></i></span><strong id="txt-vert">强</strong></dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 深石油青暗室：动感不是满屏乱飞（左右拉帘对照台交互） -->
+    <section class="sec sec-dark" id="sec-03" aria-labelledby="h-03">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">03</p>
+          <div class="sec-title-group">
+            <h2 id="h-03">动感不是满屏乱飞</h2>
+            <p class="sec-en" lang="en">CONTROLLED FLOW VS VISUAL NOISE</p>
+          </div>
+        </header>
+
+        <p class="sec-lead">新手做动态海报最常踩的坑，是把每个字块都歪成不同角度、再塞满贴纸与爆炸星。结果视线四面撞墙，只剩焦躁。拖动下方拉帘，对照同一张音乐节海报的<strong>「多向乱撞」</strong>与<strong>「单轴受控动势」</strong>。</p>
+
+        <div class="curtain-box">
+          <div class="curtain-stage" id="curtain-stage">
+            <!-- 底层：右侧「受控动势」好版 -->
+            <div class="curtain-layer layer-good" aria-hidden="true">
+              <svg viewBox="0 0 880 420" preserveAspectRatio="xMidYMid meet">
+                <rect width="880" height="420" fill="#FCF6E6"/>
+                <!-- 统一 48° 斜切动能带 -->
+                <polygon points="180,420 560,0 710,0 330,420" fill="#FB5700"/>
+                <polygon points="560,420 880,150 880,420" fill="#00373B"/>
+                <line x1="140" y1="420" x2="520" y2="0" stroke="#00373B" stroke-width="4" stroke-dasharray="10 8"/>
+                <line x1="360" y1="420" x2="740" y2="0" stroke="#FCF6E6" stroke-width="5"/>
+                <!-- 渐密递增节奏三圆（大中小落差清晰） -->
+                <circle cx="290" cy="315" r="22" fill="#00373B"/>
+                <circle cx="425" cy="200" r="34" fill="#FCF6E6" stroke="#00373B" stroke-width="4"/>
+                <circle cx="595" cy="108" r="64" fill="#00373B"/>
+                <circle cx="645" cy="76" r="20" fill="#FB5700"/>
+                <!-- 清晰主标题沿着同一条斜轴 -->
+                <g transform="translate(88 150) rotate(-14)">
+                  <text x="0" y="0" font-family="Smiley Sans, Noto Sans SC, sans-serif" font-size="64" fill="#002E2F">声浪现场</text>
+                  <text x="4" y="34" font-family="Anton, sans-serif" font-size="22" fill="#B83B00" letter-spacing="3">PULSE SOUND FEST</text>
+                </g>
+                <!-- 静区落锚：保持 0° 水平可读的时间与地点 -->
+                <rect x="615" y="295" width="225" height="94" fill="#002427"/>
+                <text x="635" y="328" font-family="Space Grotesk, sans-serif" font-size="16" font-weight="700" fill="#FF7E33">OCT 18 · SHANGHAI</text>
+                <text x="635" y="356" font-family="Noto Sans SC, sans-serif" font-size="15" fill="#FCF6E6">单轴统一斜势 · 静区保可读</text>
+                <text x="635" y="376" font-family="Noto Sans SC, sans-serif" font-size="13" fill="#B9D6D4">主次落差 3.2× · 信息一眼读完</text>
+              </svg>
+              <span class="curtain-tag tag-good">受控动势 · 单轴统领</span>
+            </div>
+
+            <!-- 上层（按比例裁切）：左侧「满屏乱撞」坏版 -->
+            <div class="curtain-layer layer-bad" id="curtain-bad" aria-hidden="true">
+              <svg viewBox="0 0 880 420" preserveAspectRatio="xMidYMid meet">
+                <rect width="880" height="420" fill="#F4EBDA"/>
+                <!-- 互撞的多方向斜条 -->
+                <polygon points="0,80 880,290 880,350 0,140" fill="#FB5700" opacity="0.88"/>
+                <polygon points="80,420 520,0 595,0 155,420" fill="#00373B" opacity="0.82"/>
+                <polygon points="480,420 260,0 320,0 540,420" fill="#C4251C" opacity="0.72"/>
+                <!-- 大小雷同、四处乱飞的杂块 -->
+                <circle cx="150" cy="110" r="40" fill="#FB5700" stroke="#002E2F" stroke-width="3"/>
+                <circle cx="420" cy="220" r="42" fill="#00373B" stroke="#FCF6E6" stroke-width="3"/>
+                <circle cx="670" cy="120" r="39" fill="#C4251C"/>
+                <circle cx="710" cy="310" r="41" fill="#FB5700"/>
+                <circle cx="240" cy="330" r="38" fill="#006267"/>
+                <!-- 三个互相打架的斜字角度 -->
+                <g transform="translate(80 210) rotate(22)">
+                  <rect x="-12" y="-44" width="250" height="58" fill="#FCF6E6"/>
+                  <text x="0" y="0" font-family="Smiley Sans, Noto Sans SC, sans-serif" font-size="48" fill="#002E2F">声浪现场</text>
+                </g>
+                <g transform="translate(460 170) rotate(-32)">
+                  <rect x="-10" y="-34" width="230" height="44" fill="#002E2F"/>
+                  <text x="0" y="0" font-family="Anton, sans-serif" font-size="28" fill="#FF7E33">PULSE FEST!</text>
+                </g>
+                <g transform="translate(520 345) rotate(19)">
+                  <rect x="-10" y="-26" width="230" height="36" fill="#C4251C"/>
+                  <text x="0" y="0" font-family="Space Grotesk, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF">OCT 18 · SHANGHAI</text>
+                </g>
+              </svg>
+              <span class="curtain-tag tag-bad">满屏乱撞 · 4 角打架</span>
+            </div>
+
+            <div class="curtain-handle" id="curtain-handle" aria-hidden="true">
+              <span class="handle-knob"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M8 7L3 12L8 17M16 7L21 12L16 17M4 12H20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/></svg></span>
+            </div>
+          </div>
+
+          <div class="curtain-ctrl-bar">
+            <label for="curtain-range">拖拉对比位置</label>
+            <input type="range" id="curtain-range" min="8" max="92" step="1" value="50">
+            <output id="curtain-pct" lang="en">50%</output>
+          </div>
+
+          <div class="curtain-notes">
+            <div>
+              <h3>三条底线，把「动」锁在秩序里</h3>
+              <p>第一，<strong>一条主轴管全局</strong>：画面里只设一个主导方向，辅助线条要么顺势加速，要么以 0° 水平静区承托正文，绝不和主轴迎头对撞。</p>
+            </div>
+            <div>
+              <h3>给最关键的信息留一块稳地</h3>
+              <p>第二，<strong>动图形、稳读字</strong>：把斜势交给图形、主标与视觉流，把日期、价格、地点这类要读准的小字放回水平静区，既有冲力又不累眼。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 亮象牙宣：从哪来：百年的斜势脉络（四代构图图谱切换卡） -->
+    <section class="sec sec-ivory" id="sec-04" aria-labelledby="h-04">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">04</p>
+          <div class="sec-title-group">
+            <h2 id="h-04">从哪来：百年的斜势脉络</h2>
+            <p class="sec-en" lang="en">ORIGINS · FUTURISM TO PERCEPTUAL PSYCHOLOGY</p>
+          </div>
+        </header>
+
+        <p class="sec-lead">现代平面设计里的动态构图，不是软件特效催生的新花样。它一路从 20 世纪初的先锋雕塑、俄国构成主义海报、德国新排印，走到视知觉心理学实验，整整演进了半个多世纪。</p>
+
+        <div class="era-tabs" role="tablist" aria-label="动态构图四个历史节点">
+          <button type="button" class="era-tab is-active" role="tab" aria-selected="true" data-era="1913">1913 未来主义</button>
+          <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="1920">1919–1920 构成主义</button>
+          <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="1928">1928 新排印</button>
+          <button type="button" class="era-tab" role="tab" aria-selected="false" data-era="1954">1954–1974 视知觉</button>
+        </div>
+
+        <div class="era-panel" id="era-panel" aria-live="polite">
+          <svg id="era-svg" viewBox="0 0 420 280" role="img" aria-label="历史阶段动态构图原理图解"></svg>
+          <div class="era-copy">
+            <p class="era-meta" id="era-meta">1913 · 翁贝托·博乔尼（Umberto Boccioni）</p>
+            <h3 id="era-title">把速度和空气流动直接雕进形体</h3>
+            <p id="era-body">意大利未来主义雕塑家博乔尼于 1913 年创作《空间连续性的独特形态》（Unique Forms of Continuity in Space，石膏原作后铸青铜，藏于大都会艺术博物馆与纽约现代艺术博物馆）。他不再表现静止站立的雕像，而是用前倾斜轴与气流般的流线褶皱，让凝固的金属呈现疾步冲锋的连续动势。</p>
+            <p class="era-takeaway" id="era-takeaway">留给今天排版的启发：不要只画一个孤零零的对象，要把对象身后的气流、轨迹与位移余韵一起编进版面。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 暖砂米纸：什么时候用，什么时候别用（场景分诊卡 + 原海报勘误 + 7 页同小类链接） -->
+    <section class="sec sec-sand" id="sec-05" aria-labelledby="h-05">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">05</p>
+          <div class="sec-title-group">
+            <h2 id="h-05">什么时候用，什么时候别用</h2>
+            <p class="sec-en" lang="en">WHEN TO USE · WHEN TO AVOID</p>
+          </div>
+        </header>
+
+        <!-- 温和修正原海报说满的地方（遵 GUIDE.md） -->
+        <aside class="nuance-box" aria-label="对原海报一句原话的补充说明">
+          <div class="nuance-head">
+            <span class="nuance-pill">说满了一点</span>
+            <p class="nuance-quote">原海报核心要点：“动态构图的目标不是‘平衡’，而是‘流动’。”</p>
+          </div>
+          <p class="nuance-body">把“流动”放在第一位没错，但说“目标不是平衡”容易让人误以为可以把版面彻底推倒。动态构图打破的是<strong>左右镜像的静态对称</strong>，却依然需要<strong>动态平衡</strong>来兜住整张画——大斜块旁常配一块安静留白或对角小锚点，视线冲上去后接得住、不滑出画框，才是高级的动感。</p>
+        </aside>
+
+        <div class="triage-head">
+          <h3>按真实项目分诊：该不该用动态构图？</h3>
+          <div class="triage-filters" role="group" aria-label="按适用度筛选场景">
+            <button type="button" class="filter-btn is-active" data-filter="all" aria-pressed="true">全部 6 类</button>
+            <button type="button" class="filter-btn" data-filter="use" aria-pressed="false">推荐用动态</button>
+            <button type="button" class="filter-btn" data-filter="avoid" aria-pressed="false">尽量别用</button>
+          </div>
+        </div>
+
+        <div class="triage-grid" id="triage-grid">
+          <article class="triage-card is-use" data-cat="use">
+            <span class="tc-badge badge-use">适合使用</span>
+            <h4>运动新品与竞速赛事海报</h4>
+            <p>速度、起跑、突破本身就是内容主题。用单向大斜轴 + 渐密节奏点 + 速度切线，三秒内就能把“快”传给远处的路人。</p>
+          </article>
+          <article class="triage-card is-use" data-cat="use">
+            <span class="tc-badge badge-use">适合使用</span>
+            <h4>音乐节、潮流展演与快闪主视觉</h4>
+            <p>需要从信息流或街景里瞬间抓眼球。高反差色块与斜向引导能释放现场张力，只要记得把时间地点放进水平静区。</p>
+          </article>
+          <article class="triage-card is-use" data-cat="use">
+            <span class="tc-badge badge-use">适合使用</span>
+            <h4>短视频封面与活动倒计时首屏</h4>
+            <p>停留窗口只有一两秒。与其四平八稳排列表，不如用强体量对比和斜切引导把目光直接送进核心卖点。</p>
+          </article>
+          <article class="triage-card is-avoid" data-cat="avoid">
+            <span class="tc-badge badge-avoid">尽量别用</span>
+            <h4>长篇阅读正文与学术出版物</h4>
+            <p>超过三行以上的正文一旦倾斜或频繁跳动，读者眼球回扫会迅速疲劳。把动态留在章节扉页，正文交回稳健的横向栅格。</p>
+          </article>
+          <article class="triage-card is-avoid" data-cat="avoid">
+            <span class="tc-badge badge-avoid">尽量别用</span>
+            <h4>金融、医疗与精密监控界面</h4>
+            <p>用户需要冷静比对数字与状态。斜向张力会悄悄制造紧迫和不安感，反而干扰判断，这类场景更适合稳定秩序。</p>
+          </article>
+          <article class="triage-card is-avoid" data-cat="avoid">
+            <span class="tc-badge badge-avoid">尽量别用</span>
+            <h4>法律条款、证书与庄重纪念碑式设计</h4>
+            <p>权威、永久、克制依赖水平与垂直基准线建立信任。硬加斜切与速度线，会把庄重感削成促销传单。</p>
+          </article>
+        </div>
+
+        <!-- 同小类 7 个相邻编号一句话交叉链接（不重讲它们重点） -->
+        <div class="siblings-box">
+          <h3>同小类延伸：平衡、动势与焦点</h3>
+          <p class="siblings-sub">动态构图属于「视觉原则与阅读模式 / 平衡、动势与焦点」，本小类其余 7 页各自负责一种不同手法：</p>
+          <ul class="siblings-list">
+            <li><a href="https://layout.xiaoxiaodong.ai/087/play/" target="_blank" rel="noopener">087 放射平衡原则</a>：元素围绕同一中心点向外均衡散射，兼顾凝聚与张力。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/088/play/" target="_blank" rel="noopener">088 晶体式平衡原则</a>：用重复均布的网状节奏取代单一核心，形成通幅均衡质感。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/089/play/" target="_blank" rel="noopener">089 静态构图</a>：与本页正相反，用水平垂直与稳固对称营造沉静与庄重。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/091/play/" target="_blank" rel="noopener">091 开放式构图</a>：刻意让主体与线条越过画框边界，把视觉流动延续到画外。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/092/play/" target="_blank" rel="noopener">092 封闭式构图</a>：用完整边框与内收结构把全部视线稳稳关在画框里面。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/093/play/" target="_blank" rel="noopener">093 单一焦点构图</a>：全幅只设一个压倒性落点，把注意力毫不分散地锁在一处。</li>
+            <li><a href="https://layout.xiaoxiaodong.ai/094/play/" target="_blank" rel="noopener">094 多重焦点构图</a>：在版面安排主次呼应的多个落点，让视线分段跳读游历。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 深石油青考场：练一练：四张跑鞋海报，哪张真动起来了？（单变量中性选项小练习） -->
+    <section class="sec sec-quiz" id="sec-06" aria-labelledby="h-06">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">06</p>
+          <div class="sec-title-group">
+            <h2 id="h-06">练一练：哪张真动起来了</h2>
+            <p class="sec-en" lang="en">PRACTICE · PICK THE TRUE DYNAMIC LAYOUT</p>
+          </div>
+        </header>
+
+        <p class="sec-lead">同一款竞速跑鞋的新品预告海报，配色、字号范围和核心文案完全一致，四张方案只在<strong>一个构图变量</strong>上拉开了差距。先凭直觉选出一张，选完会在四张图上同时显出实测视线流向。</p>
+
+        <div class="quiz-grid" id="quiz-grid" role="group" aria-label="四张跑鞋海报方案">
+          <!-- 方案 A：0° 水平居中对称（无斜势） -->
+          <button type="button" class="quiz-card" data-opt="A" aria-pressed="false">
+            <svg viewBox="0 0 320 220" aria-hidden="true">
+              <rect width="320" height="220" fill="#FCF6E6"/>
+              <line x1="20" y1="110" x2="300" y2="110" stroke="#00373B" stroke-opacity="0.2" stroke-dasharray="5 5"/>
+              <rect x="28" y="34" width="264" height="28" fill="#00373B"/>
+              <text x="160" y="53" text-anchor="middle" font-family="Anton, sans-serif" font-size="16" fill="#FCF6E6" letter-spacing="2">AERO RUN 090</text>
+              <!-- 水平放置的跑鞋几何剪影 -->
+              <g transform="translate(160 116)">
+                <path d="M-66 14 L-52 -16 L-18 -14 L10 -2 L64 8 L60 22 L-64 22 Z" fill="#FB5700"/>
+                <path d="M-64 22 H60 V28 H-64 Z" fill="#00373B"/>
+              </g>
+              <!-- 三个等大水平点 -->
+              <circle cx="96" cy="176" r="10" fill="#00373B"/>
+              <circle cx="160" cy="176" r="10" fill="#FB5700"/>
+              <circle cx="224" cy="176" r="10" fill="#00373B"/>
+              <g class="quiz-overlay">
+                <line x1="40" y1="116" x2="280" y2="116" stroke="#C4251C" stroke-width="3" stroke-dasharray="6 4"/>
+                <rect x="78" y="84" width="164" height="24" fill="#C4251C"/>
+                <text x="160" y="100" text-anchor="middle" font-family="Noto Sans SC, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF">0° 水平对称 · 视线停滞</text>
+              </g>
+            </svg>
+            <span class="quiz-label">方案 A</span>
+          </button>
+
+          <!-- 方案 B（正确）：52° 统一上扬斜势 + 大小对比 + 递增步距 + 速度切线 -->
+          <button type="button" class="quiz-card" data-opt="B" aria-pressed="false">
+            <svg viewBox="0 0 320 220" aria-hidden="true">
+              <rect width="320" height="220" fill="#FCF6E6"/>
+              <polygon points="18,220 218,0 264,0 64,220" fill="#FB5700" opacity="0.16"/>
+              <polygon points="154,220 320,114 320,220" fill="#00373B"/>
+              <!-- 渐密递增三点 + 焦点大圆 -->
+              <circle cx="48" cy="186" r="9" fill="#00373B"/>
+              <circle cx="116" cy="134" r="14" fill="#006267"/>
+              <circle cx="238" cy="56" r="36" fill="#FB5700"/>
+              <!-- 沿 52° 斜势起飞的跑鞋 + 速度白切 -->
+              <g transform="translate(154 112) rotate(-32)">
+                <path d="M-74 14 L-58 -18 L-20 -15 L14 -2 L76 8 L70 24 L-72 24 Z" fill="#00373B"/>
+                <path d="M-72 24 H70 V31 H-72 Z" fill="#FB5700"/>
+                <line x1="-96" y1="8" x2="-46" y2="8" stroke="#FB5700" stroke-width="3"/>
+                <line x1="-88" y1="-6" x2="-38" y2="-6" stroke="#006267" stroke-width="2"/>
+              </g>
+              <!-- 顺势标题与水平静区标注 -->
+              <g transform="translate(26 60) rotate(-14)">
+                <text x="0" y="0" font-family="Anton, sans-serif" font-size="22" fill="#002E2F" letter-spacing="1.5">AERO RUN 090</text>
+              </g>
+              <text x="304" y="204" text-anchor="end" font-family="Space Grotesk, sans-serif" font-size="11" font-weight="700" fill="#FCF6E6">LAUNCH · 09.20</text>
+              <g class="quiz-overlay">
+                <path d="M40 192 L248 48" stroke="#0C6E58" stroke-width="3.5"/>
+                <polygon points="256,42 238,44 247,58" fill="#0C6E58"/>
+                <rect x="76" y="168" width="168" height="24" fill="#0C6E58"/>
+                <text x="160" y="184" text-anchor="middle" font-family="Noto Sans SC, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF">单轴斜势 + 大小与节奏齐备</text>
+              </g>
+            </svg>
+            <span class="quiz-label">方案 B</span>
+          </button>
+
+          <!-- 方案 C：有 52° 斜角，但大小雷同、等距均布（只有斜壳无张力与节奏） -->
+          <button type="button" class="quiz-card" data-opt="C" aria-pressed="false">
+            <svg viewBox="0 0 320 220" aria-hidden="true">
+              <rect width="320" height="220" fill="#FCF6E6"/>
+              <!-- 同样斜角，但四个块体量雷同、等距排布 -->
+              <line x1="44" y1="186" x2="276" y2="38" stroke="#00373B" stroke-opacity="0.25" stroke-dasharray="5 5"/>
+              <circle cx="62" cy="174" r="22" fill="#00373B"/>
+              <circle cx="128" cy="132" r="22" fill="#FB5700"/>
+              <circle cx="194" cy="90" r="22" fill="#00373B"/>
+              <circle cx="260" cy="48" r="22" fill="#FB5700"/>
+              <g transform="translate(158 112) rotate(-32) scale(0.68)">
+                <path d="M-74 14 L-58 -18 L-20 -15 L14 -2 L76 8 L70 24 L-72 24 Z" fill="#002E2F"/>
+                <path d="M-72 24 H70 V30 H-72 Z" fill="#FB5700"/>
+              </g>
+              <g transform="translate(26 50) rotate(-14)">
+                <text x="0" y="0" font-family="Anton, sans-serif" font-size="16" fill="#002E2F" letter-spacing="1.5">AERO RUN 090</text>
+              </g>
+              <g class="quiz-overlay">
+                <path d="M62 174 L128 132 L194 90 L260 48" stroke="#C4251C" stroke-width="2.5" stroke-dasharray="4 4"/>
+                <rect x="64" y="168" width="192" height="24" fill="#C4251C"/>
+                <text x="160" y="184" text-anchor="middle" font-family="Noto Sans SC, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF">虽斜但等大等拍 · 缺少落差高潮</text>
+              </g>
+            </svg>
+            <span class="quiz-label">方案 C</span>
+          </button>
+
+          <!-- 方案 D：有斜角和大小对比，但主箭与斜块方向逆冲撞车 -->
+          <button type="button" class="quiz-card" data-opt="D" aria-pressed="false">
+            <svg viewBox="0 0 320 220" aria-hidden="true">
+              <rect width="320" height="220" fill="#FCF6E6"/>
+              <!-- 两条互相交叉撞击的箭与斜带 -->
+              <polygon points="24,200 180,90 198,116 42,220" fill="#FB5700"/>
+              <polygon points="296,200 132,76 116,102 278,220" fill="#00373B"/>
+              <circle cx="80" cy="64" r="30" fill="#FB5700"/>
+              <circle cx="242" cy="64" r="28" fill="#00373B"/>
+              <!-- 跑鞋朝右冲，但大标题与箭头朝左砸来 -->
+              <g transform="translate(110 134) rotate(-26) scale(0.75)">
+                <path d="M-66 14 L-52 -16 L-18 -14 L10 -2 L64 8 L60 22 L-64 22 Z" fill="#002E2F"/>
+              </g>
+              <g transform="translate(154 64) rotate(28)">
+                <text x="0" y="0" font-family="Anton, sans-serif" font-size="20" fill="#B83B00">AERO RUN 090</text>
+              </g>
+              <g class="quiz-overlay">
+                <path d="M44 196 L152 114" stroke="#C4251C" stroke-width="3.5"/>
+                <path d="M276 196 L168 114" stroke="#C4251C" stroke-width="3.5"/>
+                <circle cx="160" cy="112" r="14" fill="none" stroke="#C4251C" stroke-width="3"/>
+                <rect x="64" y="168" width="192" height="24" fill="#C4251C"/>
+                <text x="160" y="184" text-anchor="middle" font-family="Noto Sans SC, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF">双斜轴迎头逆冲 · 动能原地抵消</text>
+              </g>
+            </svg>
+            <span class="quiz-label">方案 D</span>
+          </button>
+        </div>
+
+        <div class="quiz-verdict" id="quiz-verdict" aria-live="polite">
+          <p class="qv-title" id="qv-title">请先选出你认为真正成立动态构图的一张。</p>
+          <p class="qv-body" id="qv-body">提示：先看全图是否有一条不被打断的主导流向，再看大小体量与步距有没有拉出加速感。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 暖亮米纸：原海报与五个关键词 -->
+    <section class="sec sec-poster" id="sec-07" aria-labelledby="h-07">
+      <div class="wrap poster-grid">
+        <header class="sec-head">
+          <p class="sec-no" lang="en">07</p>
+          <div class="sec-title-group">
+            <h2 id="h-07">原海报与五个关键词</h2>
+            <p class="sec-en" lang="en">THE ORIGINAL POSTER &amp; KEYWORDS</p>
+          </div>
+        </header>
+
+        <figure class="poster-fig">
+          <button type="button" class="poster-trigger" id="poster-btn" aria-expanded="false" aria-label="点击放大查看 090 动态构图原海报">
+            <img id="poster" src="poster.webp" draggable="false" width="1086" height="1448" alt="090 动态构图原海报：暖米纸底上倾斜排布橙青双色大标动态构图，亮橙冲锋箭矢、深石油青闪电与大小对比圆球沿约 54 度对角线从左下冲向右上，右侧为五枚交替圆徽与要点，底部为深石油青斜切大楔形核心要点与五个白色关键词图标。">
+          </button>
+          <figcaption>点击海报放大查看细节，放大后可拖拽移动，按 <kbd lang="en">Esc</kbd> 或再点一次收起。</figcaption>
+        </figure>
+
+        <div class="keywords-col">
+          <h3 class="kw-heading">海报原关键词 <span lang="en">KEYWORDS</span></h3>
+          <ul class="kw-list">
+            <li>
+              <span class="kw-ico tone-teal" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M8 24L24 8M13 8H24V19" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square"/></svg></span>
+              <div><strong>方向</strong><span lang="en">DIRECTION</span></div>
+            </li>
+            <li>
+              <span class="kw-ico tone-orange" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M18 4L8 17H16L14 28L24 15H16Z" fill="currentColor"/></svg></span>
+              <div><strong>张力</strong><span lang="en">TENSION</span></div>
+            </li>
+            <li>
+              <span class="kw-ico tone-teal" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 11Q10.5 6 16 11T27 11M5 17Q10.5 12 16 17T27 17M5 23Q10.5 18 16 23T27 23" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+              <div><strong>运动</strong><span lang="en">MOVEMENT</span></div>
+            </li>
+            <li>
+              <span class="kw-ico tone-orange" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M6 22A11 11 0 1 1 26 22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 20L22 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="16" cy="20" r="2.2" fill="currentColor"/></svg></span>
+              <div><strong>速度</strong><span lang="en">SPEED</span></div>
+            </li>
+            <li>
+              <span class="kw-ico tone-teal" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M17 4C17 10 22 12.5 22 18.5A6 6 0 1 1 10 18.5C10 15 12.5 12.5 13.5 10C13.5 12.5 15.5 13.5 15.5 13.5C14.8 10 16 6.5 17 4Z" fill="currentColor"/></svg></span>
+              <div><strong>能量</strong><span lang="en">ENERGY</span></div>
+            </li>
+          </ul>
+          <p class="kw-note">色盘直接取自本张原海报：暖亮米纸 <code>#FCF6E6</code>、亮信号橙 <code>#FB5700</code> 与深石油青 <code>#00373B</code>。</p>
+        </div>
+      </div>
+    </section>
+
+  </article>
+</main>
+
+<!-- 全屏海报灯箱（放大、拖拽、Esc 关闭） -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="原海报大图预览">
+  <div class="lb-bar">
+    <span>拖拽移动画面 · 滚轮或按钮缩放 · 按 <kbd lang="en">Esc</kbd> 关闭</span>
+    <div class="lb-actions">
+      <button type="button" id="lb-zoom-out" aria-label="缩小">−</button>
+      <button type="button" id="lb-zoom-reset" aria-label="复位缩放">100%</button>
+      <button type="button" id="lb-zoom-in" aria-label="放大">+</button>
+      <button type="button" id="lb-close" aria-label="关闭大图">关闭</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" draggable="false" alt="090 动态构图原海报放大图">
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <div class="foot-brand">
+      <p><span class="foot-num" lang="en">NO. 090</span> 动态构图 · 350 种排版</p>
+      <p class="foot-slogan">打破水平静止，用方向、对比与节奏让画面真正流动起来。</p>
+    </div>
+    <p class="foot-meta">
+      <a href="https://layout.xiaoxiaodong.ai/090/play/" target="_blank" rel="noopener">在线版</a> / <a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">全部 350 种排版：layout.xiaoxiaodong.ai</a>
+      <span class="sep" aria-hidden="true">·</span>
+      海报 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh-hans" target="_blank" rel="noopener license">CC BY 4.0</a>
+      <span class="sep" aria-hidden="true">·</span>
+      源文件 <a href="https://github.com/nevertoday/350-layout-compositions" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
