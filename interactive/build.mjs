@@ -19,6 +19,34 @@ const PAGE_CACHE = join(ROOT, ".build/cache");
 const POSTERS = process.env.POSTER_DIR || join(ROOT, "../site/public/p"); // 网站构建时从 git 里生成（site: npm run images）
 const ZIP = "350-layout-interactive.zip";
 const FONTS = JSON.parse(readFileSync(join(ROOT, "fonts.json"), "utf8"));
+// 分享卡片（X、微信等抓 og:/twitter:）：图是网站构建时生成的 /og/<id>-play.jpg（site/scripts/build-og.mjs）
+const SITE_URL = "https://layout.xiaoxiaodong.ai";
+const POSTER_TEXT = (() => { try { return JSON.parse(readFileSync(join(ROOT, "../site/src/data/poster-text.json"), "utf8")); } catch { return {}; } })();
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+function socialTags(page, html) {
+  if (page.id === "000") return "";
+  const summary = POSTER_TEXT[page.id]?.summary;
+  const title = `${page.id} ${page.title} · 互动版 · 350 种排版`;
+  const description = `${summary ? `${summary}。` : ""}${page.title}（${page.title_en}）的互动网页：上手拖一拖、改一改，看懂这种排版为什么好用。`;
+  const image = `${SITE_URL}/og/${page.id}-play.jpg`;
+  const tags = [
+    ...(/<meta[^>]+name=["']description["']/i.test(html) ? [] : [`<meta name="description" content="${esc(description)}">`]),
+    `<meta property="og:type" content="website">`,
+    `<meta property="og:site_name" content="350 种排版">`,
+    `<meta property="og:title" content="${esc(title)}">`,
+    `<meta property="og:description" content="${esc(description)}">`,
+    `<meta property="og:url" content="${SITE_URL}/${page.id}/play/">`,
+    `<meta property="og:image" content="${image}">`,
+    `<meta property="og:image:width" content="1200">`,
+    `<meta property="og:image:height" content="630">`,
+    `<meta property="og:image:alt" content="${esc(`${page.title} 互动版的画面`)}">`,
+    `<meta name="twitter:card" content="summary_large_image">`,
+    `<meta name="twitter:title" content="${esc(title)}">`,
+    `<meta name="twitter:description" content="${esc(description)}">`,
+    `<meta name="twitter:image" content="${image}">`,
+  ];
+  return tags.join("\n");
+}
 
 const MIME = { ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".svg": "image/svg+xml", ".avif": "image/avif", ".ico": "image/x-icon" };
 const assetLoaders = Object.fromEntries(Object.keys(MIME).map((ext) => [ext, "dataurl"]));
@@ -179,7 +207,7 @@ function inputsKey(page) {
   const three = JSON.parse(readFileSync(join(ROOT, "node_modules/three/package.json"), "utf8")).version;
   const files = [...filesUnder(page.dir), ...(existsSync(join(ROOT, "lib")) ? filesUnder(join(ROOT, "lib")) : [])];
   const fonts = JSON.stringify(page.fonts.map((f) => FONTS[f.name]));
-  return sha(three, esbuild.version, fonts, ...["build.mjs", "subset.py"].map((f) => readFileSync(join(ROOT, f))), ...files.flatMap((f) => [relative(ROOT, f), readFileSync(f)]));
+  return sha(three, esbuild.version, fonts, JSON.stringify(POSTER_TEXT[page.id]?.summary ?? ""), ...["build.mjs", "subset.py"].map((f) => readFileSync(join(ROOT, f))), ...files.flatMap((f) => [relative(ROOT, f), readFileSync(f)]));
 }
 
 export async function buildPage(dirName, { force = false } = {}) {
@@ -227,7 +255,7 @@ export async function buildPage(dirName, { force = false } = {}) {
   const body = scripts.map((s) => `<script>${s.replace(/<\/script/gi, "<\\/script")}</script>`).join("");
   if (!/<\/head>/i.test(html) || !/<\/body>/i.test(html)) throw new Error(`pages/${dirName}/index.html 要有 </head> 和 </body>`);
   html = html
-    .replace(/<\/head>/i, () => `${head}</head>`)
+    .replace(/<\/head>/i, () => `${socialTags(page, html)}${head}</head>`)
     .replace(/<\/body>(?![\s\S]*<\/body>)/i, () => `${body}</body>`)
     .replace(/^(\s*<!doctype[^>]*>)?/i, (d) => `${d || "<!doctype html>"}\n<!-- 350 种排版 · ${page.id} ${page.title} · ${credits.join(" · ")} -->`);
   writeAtomic(out, html);
