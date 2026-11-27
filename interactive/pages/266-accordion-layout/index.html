@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>266 手风琴布局 · ACCORDION LAYOUT</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-brand">
+        <span class="badge-no">NO. 266</span>
+        <span class="topbar-cat">网页与 UI · 页面框架与导航</span>
+      </div>
+      <nav class="topbar-nav" aria-label="本页章节">
+        <a href="#sec-01">01 折叠代价</a>
+        <a href="#sec-02">02 折标气味</a>
+        <a href="#sec-03">03 机制暗室</a>
+        <a href="#sec-04">04 源流演进</a>
+        <a href="#sec-05">05 禁用边界</a>
+        <a href="#sec-06">06 小练习</a>
+        <a href="#sec-07">07 原海报</a>
+      </nav>
+      <div class="topbar-actions">
+        <span id="nav-status-badge" class="status-pill" data-status="fail">0/4 · 标题失明</span>
+        <button type="button" class="btn-scan-top" data-hero-scan>视线验读 <kbd>Space</kbd></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO：1:1 转译 266 原海报「暖骨宣纸垂直风箱展页」 -->
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="wrap hero-stack">
+        <div class="hero-masthead">
+          <div class="hero-title-block">
+            <h1 id="hero-title" class="hero-title">手风琴布局</h1>
+            <div class="hero-subrow">
+              <p class="hero-en">ACCORDION LAYOUT</p>
+              <span class="hero-short-rule" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="hero-ctx-wrap">
+            <div class="ctx-tabs" role="group" aria-label="切换内容场景">
+              <button type="button" class="ctx-tab is-active" data-hero-context="faq" aria-pressed="true">售后 FAQ</button>
+              <button type="button" class="ctx-tab" data-hero-context="docs" aria-pressed="false">产品说明</button>
+              <button type="button" class="ctx-tab" data-hero-context="settings" aria-pressed="false">偏好设置</button>
+            </div>
+            <button type="button" class="btn-scan-mobile" data-hero-scan>视线验读</button>
+          </div>
+        </div>
+
+        <!-- 导语（桌面端紧跟刊头，手机端借 CSS order 后置到舞台后方，让首屏 ≥50% 留给风箱与活体手风琴） -->
+        <div class="hero-quote-band">
+          <p class="hero-quote-zh">通过连续折叠的版面结构，形成有节奏的展开与收合，引导视线流动，增强信息层次与阅读体验。</p>
+          <p class="hero-quote-en">THROUGH CONTINUOUS FOLDED PANELS, CREATE A RHYTHMIC FLOW OF EXPANSION AND COMPRESSION TO GUIDE READING AND ENHANCE HIERARCHY.</p>
+        </div>
+
+        <!-- 主舞台 A：全宽 1:1 复刻原海报朱橙双色锯齿风箱画布（标 data-perf-drag） -->
+        <div class="bellows-stage">
+          <canvas
+            id="bellows-canvas"
+            class="bellows-canvas"
+            data-perf-drag
+            aria-label="手风琴物理风箱画布：左右横拖调节折页张开幅，单击折面展开或收合对应面板"
+          ></canvas>
+          <div class="bellows-rail">
+            <label class="rail-slider-wrap" for="span-slider">
+              <span class="rail-label">风箱张开幅</span>
+              <input id="span-slider" type="range" min="16" max="100" value="92" aria-label="风箱张开比例">
+              <span id="span-readout" class="rail-mono">92%</span>
+            </label>
+            <div class="rail-telemetry">
+              <span id="mode-readout" class="rail-chip">多开并行 · 展开 3/6</span>
+              <span id="saved-readout" class="rail-chip">省高 54%</span>
+              <span id="clicks-readout" class="rail-chip">点击 0 次</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 主舞台 B：齐底 62% : 38% 真实 WAI-ARIA 活体手风琴 × 单真源白话诊单与四杠杆台 -->
+        <div class="hero-bench">
+          <div class="bench-live-col">
+            <div class="bench-col-head">
+              <span class="bench-col-kicker">LIVE ACCORDION UI · 真键盘可达组件（↑↓ / Home / End / Enter）</span>
+              <span class="bench-col-hint">点下方任意标题真实开合</span>
+            </div>
+            <div id="hero-accordion" class="acc-list" role="presentation"></div>
+          </div>
+
+          <aside id="hero-diag" class="bench-diag-col" data-status="fail" aria-live="polite">
+            <div class="diag-top">
+              <span id="diag-badge" class="status-pill" data-status="fail">0/4 · 标题失明</span>
+              <span id="diag-grade" class="diag-grade">四重翻车（示意）</span>
+            </div>
+            <h2 id="diag-headline" class="diag-headline">标题写成了「模块一 / 更多说明」，读者只能逐条盲猜点开</h2>
+            <p id="diag-why" class="diag-why"></p>
+            <div id="diag-fault-list" class="diag-fault-list"></div>
+            <div class="diag-next-box">
+              <span class="diag-next-label">修复指引</span>
+              <p id="diag-next" class="diag-next-text"></p>
+            </div>
+
+            <!-- 四把真实设计杠杆 -->
+            <div class="lever-grid">
+              <div class="lever-row">
+                <span class="lever-name">展开策略</span>
+                <div class="lever-btns">
+                  <button type="button" class="lever-btn" data-hero-mode="exclusive" aria-pressed="false">互斥单开</button>
+                  <button type="button" class="lever-btn is-active" data-hero-mode="multi" aria-pressed="true">多开并行</button>
+                  <button type="button" class="lever-btn" data-hero-mode="all-open" aria-pressed="false">全摊锁死</button>
+                </div>
+              </div>
+              <div class="lever-row">
+                <span class="lever-name">标题气味</span>
+                <div class="lever-btns">
+                  <button type="button" class="lever-btn is-active" data-hero-label="vague" aria-pressed="true">模糊盲盒</button>
+                  <button type="button" class="lever-btn" data-hero-label="concrete" aria-pressed="false">具体标题</button>
+                </div>
+              </div>
+              <div class="lever-row">
+                <span class="lever-name">折标图标</span>
+                <div class="lever-btns">
+                  <button type="button" class="lever-btn is-active" data-hero-signifier="none" aria-pressed="true">无</button>
+                  <button type="button" class="lever-btn" data-hero-signifier="arrow" aria-pressed="false">→</button>
+                  <button type="button" class="lever-btn" data-hero-signifier="plus" aria-pressed="false">+/−</button>
+                  <button type="button" class="lever-btn" data-hero-signifier="caret" aria-pressed="false">▾/▴</button>
+                </div>
+              </div>
+              <div class="lever-row">
+                <span class="lever-name">嵌套深度</span>
+                <div class="lever-btns">
+                  <button type="button" class="lever-btn" data-hero-nested="false" aria-pressed="false">单层 1 级</button>
+                  <button type="button" class="lever-btn is-active" data-hero-nested="true" aria-pressed="true">2 级套娃</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 多解 & 双向试错快捷栏 -->
+            <div class="preset-bar">
+              <div class="preset-group">
+                <span class="preset-label">合法多解</span>
+                <button type="button" class="preset-btn is-good" data-hero-preset="exclusive">互斥单开解</button>
+                <button type="button" class="preset-btn is-good" data-hero-preset="compare">双项对照解</button>
+                <button type="button" class="preset-btn is-good" data-hero-preset="compact">全闭索引解</button>
+              </div>
+              <div class="preset-group">
+                <span class="preset-label">双向试错</span>
+                <button type="button" class="preset-btn is-bad" data-hero-preset="trap-reset">复原错态</button>
+                <button type="button" class="preset-btn is-bad" data-hero-preset="trap-all-open">全摊</button>
+                <button type="button" class="preset-btn is-bad" data-hero-preset="trap-blind">全闭盲盒</button>
+                <button type="button" class="preset-btn is-bad" data-hero-preset="trap-arrow">右箭</button>
+                <button type="button" class="preset-btn is-bad" data-hero-preset="trap-nested">套娃</button>
+                <button type="button" class="preset-btn is-bad" data-hero-preset="trap-squeeze">过挤</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <!-- 1:1 复刻原海报底部四栏竖细线要点探针带（折叠 / 节奏 / 层级 / 延展） -->
+        <div class="poster-pillars" aria-label="原海报四大原则实时状态">
+          <div id="pillar-fold" class="pillar-item" data-status="fail">
+            <svg class="pillar-icon" viewBox="0 0 48 48" aria-hidden="true">
+              <polygon points="4,8 20,17 20,31 4,40" fill="#F85822"/>
+              <polygon points="44,8 28,17 28,31 44,40" fill="#FA7747"/>
+              <polyline points="14,20 19,24 14,28" fill="none" stroke="#FFFDF9" stroke-width="2.2" stroke-linecap="square"/>
+              <polyline points="34,20 29,24 34,28" fill="none" stroke="#FFFDF9" stroke-width="2.2" stroke-linecap="square"/>
+            </svg>
+            <div class="pillar-copy">
+              <div class="pillar-title-row">
+                <strong>折叠</strong>
+                <span class="pillar-en">FOLD</span>
+              </div>
+              <span class="pillar-dash" aria-hidden="true"></span>
+              <p class="pillar-desc">褶叠转换 · 收合有序</p>
+              <span class="pillar-pill">展开 4/6 项</span>
+            </div>
+          </div>
+
+          <div id="pillar-rhythm" class="pillar-item" data-status="fail">
+            <svg class="pillar-icon" viewBox="0 0 48 48" aria-hidden="true">
+              <rect x="6" y="16" width="4" height="20" fill="#FA7747"/>
+              <rect x="13" y="9" width="4" height="31" fill="#F85822"/>
+              <rect x="20" y="19" width="4" height="19" fill="#FA7747"/>
+              <rect x="27" y="12" width="4" height="27" fill="#F85822"/>
+              <rect x="34" y="17" width="4" height="21" fill="#FA7747"/>
+              <rect x="41" y="10" width="4" height="29" fill="#F85822"/>
+            </svg>
+            <div class="pillar-copy">
+              <div class="pillar-title-row">
+                <strong>节奏</strong>
+                <span class="pillar-en">RHYTHM</span>
+              </div>
+              <span class="pillar-dash" aria-hidden="true"></span>
+              <p class="pillar-desc">韵律重复 · 视觉流动</p>
+              <span class="pillar-pill">无折标</span>
+            </div>
+          </div>
+
+          <div id="pillar-hierarchy" class="pillar-item" data-status="fail">
+            <svg class="pillar-icon" viewBox="0 0 48 48" aria-hidden="true">
+              <rect x="16" y="11" width="16" height="6" fill="#F85822"/>
+              <rect x="10" y="22" width="28" height="6" fill="#FA7747"/>
+              <rect x="4" y="33" width="40" height="6" fill="#F85822"/>
+            </svg>
+            <div class="pillar-copy">
+              <div class="pillar-title-row">
+                <strong>层级</strong>
+                <span class="pillar-en">HIERARCHY</span>
+              </div>
+              <span class="pillar-dash" aria-hidden="true"></span>
+              <p class="pillar-desc">信息分层 · 主次分明</p>
+              <span class="pillar-pill">2 级套娃</span>
+            </div>
+          </div>
+
+          <div id="pillar-expand" class="pillar-item" data-status="fail">
+            <svg class="pillar-icon" viewBox="0 0 48 48" aria-hidden="true">
+              <rect x="6" y="8" width="24" height="32" fill="none" stroke="#3D3C35" stroke-width="2" stroke-dasharray="3 3"/>
+              <line x1="18" y1="14" x2="18" y2="34" stroke="#3D3C35" stroke-width="1.6"/>
+              <line x1="12" y1="24" x2="40" y2="24" stroke="#F85822" stroke-width="4"/>
+              <polygon points="34,15 45,24 34,33" fill="#F85822"/>
+            </svg>
+            <div class="pillar-copy">
+              <div class="pillar-title-row">
+                <strong>延展</strong>
+                <span class="pillar-en">EXPAND</span>
+              </div>
+              <span class="pillar-dash" aria-hidden="true"></span>
+              <p class="pillar-desc">可延伸内容 · 引发探索</p>
+              <span class="pillar-pill">盲盒标题</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1:1 复刻原海报底沿通宽细线关键词条 -->
+        <div class="poster-kw-strip">
+          <p class="kw-zh">有序收放 <span>/</span> 逻辑清晰 <span>/</span> 信息延展 <span>/</span> 用户导向</p>
+          <p class="kw-en">ORDERED COMPRESSION &amp; EXPANSION &bull; CLEAR LOGIC &bull; INFORMATION EXTENSION &bull; USER GUIDED</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 01 折叠与代价 -->
+    <section class="band band--light" id="sec-01" aria-labelledby="h-sec-01">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">01</span>
+          <div>
+            <h2 id="h-sec-01">折叠与代价</h2>
+            <p class="sec-en">FOLDING &amp; INTERACTION COST</p>
+          </div>
+        </div>
+
+        <div class="sec-lead-grid">
+          <div class="prose-col">
+            <p class="lead-p">原海报把核心价值说得很透：<strong>「通过连续折叠的版面结构，形成有节奏的展开与收合，引导视线流动，增强信息层次与阅读体验。」</strong>当一个长页面里装着彼此独立的 6 到 10 个主题，把次要正文收进折页里，确实能瞬间压低首屏高度，让读者先看见完整目录。</p>
+            <div class="amend-box">
+              <span class="amend-tag">需要补一句</span>
+              <p>折叠从来不是免费午餐。尼尔森诺曼集团（NN/g）的 Hoa Loranger（2014）与 Huei-Hsin Wang（2023）反复提醒：手风琴缩短滚动距离的同时，<strong>一定会降低内容可见度并增加点击交互成本</strong>——把读者本来顺眼能读完的内容藏起来，反而会拖慢任务。</p>
+            </div>
+            <p>因此，判断该不该折叠只看一个问题：<strong>读者这次进页面，是只想挑出其中 1–2 项，还是要从头读到尾？</strong>切换下方三类真实任务，看看同一套折叠机制如何从「省时利器」变成「点击阻力」。</p>
+          </div>
+
+          <div class="lab-card">
+            <div class="lab-bar" role="group" aria-label="选择翻找任务">
+              <button type="button" class="tab-chip is-active" data-task-id="lookup" aria-pressed="true">A · 查 1 条售后运费</button>
+              <button type="button" class="tab-chip" data-task-id="contract" aria-pressed="false">B · 通读整份租房协议</button>
+              <button type="button" class="tab-chip" data-task-id="compare" aria-pressed="false">C · 横向对比 4 套方案</button>
+            </div>
+            <p id="task-goal" class="task-goal"></p>
+            <svg id="task-svg" class="task-svg" viewBox="0 0 460 248" role="img" aria-label="手风琴与单列平铺的高度及点击对比图"></svg>
+            <div class="task-compare-grid">
+              <div class="task-box">
+                <div class="task-box-head">
+                  <strong>266 手风琴</strong>
+                  <span id="task-acc-verdict" class="mini-verdict"></span>
+                </div>
+                <div id="task-acc-metrics" class="task-metrics"></div>
+                <p id="task-acc-explain"></p>
+              </div>
+              <div class="task-box">
+                <div class="task-box-head">
+                  <strong>开放平铺对照</strong>
+                  <span id="task-flat-verdict" class="mini-verdict"></span>
+                </div>
+                <div id="task-flat-metrics" class="task-metrics"></div>
+                <p id="task-flat-explain"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 折标与气味 -->
+    <section class="band band--oat" id="sec-02" aria-labelledby="h-sec-02">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">02</span>
+          <div>
+            <h2 id="h-sec-02">折标与气味</h2>
+            <p class="sec-en">SIGNIFIERS &amp; INFORMATION SCENT</p>
+          </div>
+        </div>
+
+        <div class="two-col-equal">
+          <div class="prose-col">
+            <p class="lead-p">正文折叠起来以后，留在表面替你说话的只有两样东西：<strong>标题里的「信息气味」</strong>，以及行尾那枚小小的<strong>折叠指示器（Signifier）</strong>。</p>
+            <p>2020 年 Page Laubheimer 与 Raluca Budiu 在 NN/g 发表《Accordion Icons: Which Signifiers Work Best?》，测试了四种常见做法对用户心理预期的影响：</p>
+            <ul class="editorial-list">
+              <li><strong>向下/向上角标（▾ / ▴）最清晰</strong>：读者最稳定地预期「会在原地展开」，不会跳走。</li>
+              <li><strong>加减号（+ / −）表现次佳</strong>：明确指向「展开更多细节」，在规格表与配置树里很可靠。</li>
+              <li><strong>右箭头（→）语义摇摆</strong>：用户常把它理解成「进入新详情页」（如 <a href="https://layout.xiaoxiaodong.ai/267/play/" target="_blank" rel="noopener">267 列表—详情布局</a>），容易犹豫。</li>
+              <li><strong>没有任何图标最危险</strong>：多数用户直接把它当成页面导航链接或死标题，根本不点。</li>
+            </ul>
+            <p>另一个高频失误是<strong>「裂开热区（Split Target）」</strong>：把标题文字做成跳转链接、只留行尾一个窄图标展开。切换热区模式开关亲手点点看，就知道它有多容易误触。</p>
+          </div>
+
+          <div class="lab-card lab-card--cream">
+            <div class="lab-bar lab-bar--between">
+              <span class="lab-kicker">亲手点按四类折标 · 实测热区</span>
+              <div class="seg-pair" role="group" aria-label="切换点击热区模式">
+                <button type="button" class="tab-chip is-active" data-hitbox-mode="full" aria-pressed="true">整行可点（推荐）</button>
+                <button type="button" class="tab-chip" data-hitbox-mode="split" aria-pressed="false">裂开热区（反模式）</button>
+              </div>
+            </div>
+            <div id="sig-lab-rows" class="sig-lab-rows"></div>
+            <p id="sig-lab-log" class="sig-log" data-tone="ok">点击任意一行试试折叠手感，或切到「裂开热区」体验文字区误跳。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 展开机制暗室 -->
+    <section class="band band--dark" id="sec-03" aria-labelledby="h-sec-03">
+      <div class="wrap">
+        <div class="sec-head sec-head--dark">
+          <span class="sec-num">03</span>
+          <div>
+            <h2 id="h-sec-03">展开机制暗室</h2>
+            <p class="sec-en">MOTION, SCROLL JUMP &amp; NATIVE DETAILS</p>
+          </div>
+        </div>
+
+        <p class="dark-lead">视觉折页只是表层，好用的手风琴离不开三件看不见的底层工程：<strong>恰当的展开节拍（经验值约 200–300ms）</strong>、<strong>收起上方长面板时的防跳屏锚定</strong>，以及符合 <strong>W3C WAI-ARIA APG</strong> 与现代原生 HTML <code>&lt;details name&gt;</code> 的可访问性契约。</p>
+
+        <div class="dark-lab-grid">
+          <div class="dark-pane">
+            <div class="dark-pane-head">
+              <strong>折叠运动学与防跳屏实测</strong>
+              <button type="button" id="motion-trigger-btn" class="dark-action-btn">点开下方 04（实测跳屏）</button>
+            </div>
+            <div class="dark-ctrl-row">
+              <div class="dark-ctrl-group" role="group" aria-label="过渡时长">
+                <span class="dark-ctrl-label">节拍</span>
+                <button type="button" class="dark-chip" data-motion-speed="0" aria-pressed="false">0ms 突变</button>
+                <button type="button" class="dark-chip is-active" data-motion-speed="240" aria-pressed="true">240ms 折返</button>
+                <button type="button" class="dark-chip" data-motion-speed="900" aria-pressed="false">900ms 拖沓</button>
+              </div>
+              <div class="dark-ctrl-group" role="group" aria-label="跳屏控制">
+                <span class="dark-ctrl-label">高面板收起</span>
+                <button type="button" class="dark-chip is-active" data-jump-mode="jump" aria-pressed="true">无锚定跳屏</button>
+                <button type="button" class="dark-chip" data-jump-mode="anchored" aria-pressed="false">滚动锚定稳态</button>
+              </div>
+            </div>
+            <canvas id="motion-canvas" class="motion-canvas" aria-label="折叠过渡速度与上方高面板收起跳屏对比画布"></canvas>
+            <p id="motion-note" class="dark-note"></p>
+          </div>
+
+          <div class="dark-pane">
+            <div class="dark-pane-head">
+              <strong>原生 HTML &lt;details name&gt; 活体标本</strong>
+              <div class="dark-ctrl-group" role="group" aria-label="切换原生手风琴互斥模式">
+                <button type="button" class="dark-chip is-active" data-native-mode="exclusive" aria-pressed="true">加 name（互斥）</button>
+                <button type="button" class="dark-chip" data-native-mode="multi" aria-pressed="false">去 name（多开）</button>
+              </div>
+            </div>
+
+            <div id="native-details-demo" class="native-acc">
+              <details name="xxd-266-exclusive" open>
+                <summary>01 · 为什么浏览器原生就能做互斥手风琴？</summary>
+                <p>2024 年起主流浏览器全部支持为多个 <code>&lt;details&gt;</code> 指定相同 <code>name</code> 属性，展开一项时浏览器自动收起同组其余项，零脚本依赖。</p>
+              </details>
+              <details name="xxd-266-exclusive">
+                <summary>02 · WAI-ARIA 要求哪些键盘与语义契约？</summary>
+                <p>自定义组件须用标题内的原生 <code>&lt;button&gt;</code> 承载 <code>aria-expanded</code> 与 <code>aria-controls</code>，支持 Enter / Space 切换，并建议配 ↑ / ↓ / Home / End 跳转标题。</p>
+              </details>
+              <details name="xxd-266-exclusive">
+                <summary>03 · 展开内容太长时，互斥和多开怎么选？</summary>
+                <p>面板内容很长时，强互斥收起上方区段容易把刚点中的标题拉出视口；优先采用多开并行，或在收起时同步锚定当前标题位置。</p>
+              </details>
+            </div>
+
+            <pre class="code-box"><code id="native-code-view"></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 从经折装到网页 -->
+    <section class="band band--paper" id="sec-04" aria-labelledby="h-sec-04">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">04</span>
+          <div>
+            <h2 id="h-sec-04">从经折装到网页</h2>
+            <p class="sec-en">FROM SUTRA FOLDS TO WEB UI</p>
+          </div>
+        </div>
+
+        <p class="sec-intro">「手风琴」听起来像现代前端组件，它的物理基因其实延续了上千年：人类一直在解决同一个矛盾——<strong>如何把很长的连续信息折进有限的手掌与屏幕，又随时能原地摊开其中一段？</strong>点击下方五道折页，逐代展开它的来路。</p>
+
+        <div id="lineage-strip" class="lineage-strip" aria-label="手风琴布局五代演进折页"></div>
+      </div>
+    </section>
+
+    <!-- 05 什么时候别用 -->
+    <section class="band band--light" id="sec-05" aria-labelledby="h-sec-05">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">05</span>
+          <div>
+            <h2 id="h-sec-05">什么时候别用</h2>
+            <p class="sec-en">WHEN NOT TO USE ACCORDIONS</p>
+          </div>
+        </div>
+
+        <div class="triage-layout">
+          <div class="triage-left">
+            <p class="lead-p">手风琴是页面框架家族里最容易被「滥用成垃圾抽屉」的布局。勾选下面符合你当前项目的条件，看看什么时候应该果断放弃 266，改用同小类的更优解法：</p>
+            <div class="triage-grid">
+              <button type="button" class="triage-card" data-triage-key="readAll" aria-pressed="false">
+                <span class="triage-q">用户需要通读 70% 以上正文</span>
+                <span class="triage-sub">如叙事长文、协议条款、新手指南</span>
+                <span class="triage-state">否</span>
+              </button>
+              <button type="button" class="triage-card" data-triage-key="shortPage" aria-pressed="false">
+                <span class="triage-q">页面内容本身不到一屏</span>
+                <span class="triage-sub">全摊开也只有 3–4 段短文字</span>
+                <span class="triage-state">否</span>
+              </button>
+              <button type="button" class="triage-card" data-triage-key="compareSide" aria-pressed="false">
+                <span class="triage-q">需要同时横向对比多组数据</span>
+                <span class="triage-sub">如价格套餐、机型参数、时间表</span>
+                <span class="triage-state">否</span>
+              </button>
+              <button type="button" class="triage-card" data-triage-key="deepTree" aria-pressed="false">
+                <span class="triage-q">信息层级超过 2 级树形嵌套</span>
+                <span class="triage-sub">大类下有子类、子类里还想再折叠</span>
+                <span class="triage-state">否</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="triage-right">
+            <div id="triage-verdict-box" class="verdict-panel" data-status="keep">
+              <span class="verdict-kicker">结构分诊处方</span>
+              <h3 id="triage-verdict-title">适合使用 266 手风琴布局</h3>
+              <p id="triage-verdict-body"></p>
+            </div>
+
+            <div class="sibling-map">
+              <p class="sibling-head">同小类替代路线（不重讲，点号直达在线互动页）</p>
+              <ul class="sibling-list">
+                <li><strong>顺畅通读长文</strong> → <a href="https://layout.xiaoxiaodong.ai/255/play/" target="_blank" rel="noopener">255 单列页面</a> 或配 <a href="https://layout.xiaoxiaodong.ai/258/play/" target="_blank" rel="noopener">258 侧边栏页面</a> 固定目录。</li>
+                <li><strong>平行同权大视图切换（3–5 组）</strong> → <a href="https://layout.xiaoxiaodong.ai/265/play/" target="_blank" rel="noopener">265 标签页布局</a>。</li>
+                <li><strong>高频逐条浏览大块详情</strong> → <a href="https://layout.xiaoxiaodong.ai/267/play/" target="_blank" rel="noopener">267 列表—详情布局</a>。</li>
+                <li><strong>全站多级应用导航</strong> → <a href="https://layout.xiaoxiaodong.ai/263/play/" target="_blank" rel="noopener">263 导航抽屉布局</a> 或 <a href="https://layout.xiaoxiaodong.ai/262/play/" target="_blank" rel="noopener">262 顶部导航布局</a>。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 小练习 -->
+    <section class="band band--dark" id="sec-06" aria-labelledby="h-sec-06">
+      <div class="wrap">
+        <div class="sec-head sec-head--dark">
+          <span class="sec-num">06</span>
+          <div>
+            <h2 id="h-sec-06">小练习</h2>
+            <p class="sec-en">SINGLE-VARIABLE DIAGNOSTIC</p>
+          </div>
+        </div>
+
+        <div class="quiz-shell">
+          <div class="quiz-head-bar">
+            <span id="quiz-badge" class="quiz-badge">题目 1 / 2</span>
+            <div class="dark-ctrl-group" role="group" aria-label="切换题目">
+              <button type="button" class="dark-chip is-active" data-quiz-tab="0" aria-pressed="true">第 1 题 · 售后 FAQ</button>
+              <button type="button" class="dark-chip" data-quiz-tab="1" aria-pressed="false">第 2 题 · 服务协议</button>
+            </div>
+          </div>
+          <p id="quiz-prompt" class="quiz-prompt"></p>
+          <div id="quiz-options" class="quiz-options"></div>
+          <div id="quiz-feedback" class="quiz-feedback" data-state="idle" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 原海报与关键词 -->
+    <section class="band band--paper" id="sec-07" aria-labelledby="h-sec-07">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-num">07</span>
+          <div>
+            <h2 id="h-sec-07">原海报与关键词</h2>
+            <p class="sec-en">ORIGINAL POSTER &amp; KEYWORDS</p>
+          </div>
+        </div>
+
+        <div class="poster-exhibit">
+          <figure class="poster-frame">
+            <img id="poster" src="poster.webp" alt="266 手风琴布局原版教学海报" draggable="false">
+            <figcaption class="poster-cap">
+              <span>点击海报放大、拖拽细看细节</span>
+              <button type="button" id="poster-zoom-btn" class="btn-outline-sm">放大检视</button>
+            </figcaption>
+          </figure>
+
+          <div class="poster-notes">
+            <h3>原海报视觉拆解</h3>
+            <p>整张海报铺在温润的暖骨宣纸底色（<code>#F6EDDD</code>）上，顶部用厚实纯黑无衬线大字压出「手风琴布局」与宽距 <code>ACCORDION LAYOUT</code>。画面正中以 7 道明暗交替的朱橙（<code>#F85822</code>）与珊瑚橙（<code>#FA7747</code>）锯齿折面塑造出立体风箱，左右以虚点与细黑箭头（<code>••••• →</code> / <code>→ •••••</code>）直接点明横向穿梭与折叠流动。</p>
+            <p>下部用三条细竖线等分出<strong>折叠、节奏、层级、延展</strong>四组要点与专属几何图标，最底沿再以通宽细线承接四组核心关键词——整张海报本身就是一次「展开即见骨架、收合不乱主次」的平面示范。</p>
+
+            <div class="kw-cards">
+              <div class="kw-card">
+                <strong>有序收放</strong>
+                <span>ORDERED COMPRESSION &amp; EXPANSION</span>
+              </div>
+              <div class="kw-card">
+                <strong>逻辑清晰</strong>
+                <span>CLEAR LOGIC</span>
+              </div>
+              <div class="kw-card">
+                <strong>信息延展</strong>
+                <span>INFORMATION EXTENSION</span>
+              </div>
+              <div class="kw-card">
+                <strong>用户导向</strong>
+                <span>USER GUIDED</span>
+              </div>
+            </div>
+
+            <div class="palette-strip" aria-label="原海报采样色卡">
+              <div class="swatch"><span class="swatch-chip" style="background:#F6EDDD"></span><code>#F6EDDD</code><em>暖骨宣纸</em></div>
+              <div class="swatch"><span class="swatch-chip" style="background:#F85822"></span><code>#F85822</code><em>朱橙暗折</em></div>
+              <div class="swatch"><span class="swatch-chip" style="background:#FA7747"></span><code>#FA7747</code><em>珊瑚亮折</em></div>
+              <div class="swatch"><span class="swatch-chip" style="background:#050504"></span><code>#050504</code><em>纯墨大标</em></div>
+            </div>
+
+            <div class="refs-box">
+              <h4>核实参考来源</h4>
+              <ul>
+                <li>W3C WAI-ARIA APG — <a href="https://www.w3.org/WAI/ARIA/apg/patterns/accordion/" target="_blank" rel="noopener">Accordion Pattern</a></li>
+                <li>Hoa Loranger (2014) / Huei-Hsin Wang (2023) — <a href="https://www.nngroup.com/articles/accordions-on-desktop/" target="_blank" rel="noopener">NN/g Accordions on Desktop</a></li>
+                <li>Page Laubheimer &amp; Raluca Budiu (2020) — <a href="https://www.nngroup.com/articles/accordion-icons/" target="_blank" rel="noopener">Accordion Icons Study</a></li>
+                <li>John M. Carroll &amp; Caroline Carrithers (1984) — <a href="https://doi.org/10.1145/358198.358218" target="_blank" rel="noopener">Training Wheels (CACM)</a></li>
+                <li>MDN Web Docs — <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/details" target="_blank" rel="noopener">HTML &lt;details&gt; &amp; Exclusive Accordions</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>
+        <a href="https://layout.xiaoxiaodong.ai/266/play/" target="_blank" rel="noopener">在线版</a>
+        / 全部 350 种排版：<a href="https://layout.xiaoxiaodong.ai/" target="_blank" rel="noopener">layout.xiaoxiaodong.ai</a>
+        <span class="f-sep">·</span>
+        海报 CC BY 4.0
+        <span class="f-sep">·</span>
+        <a href="https://github.com/xxd-dev/350-layout" target="_blank" rel="noopener">源文件 GitHub</a>
+      </p>
+      <p class="footer-id">NO. 266 · ACCORDION LAYOUT</p>
+    </div>
+  </footer>
+
+  <!-- 原海报放大灯箱（不重复内联图片，运行时复用 #poster.src） -->
+  <div id="poster-modal" class="poster-modal" role="dialog" aria-modal="true" aria-label="266 原海报放大视图" hidden>
+    <div class="modal-bar">
+      <span>266 手风琴布局 · 原海报检视（滚轮或按钮缩放，拖动画布移动，Esc 关闭）</span>
+      <div class="modal-btns">
+        <button type="button" id="poster-zoom-out" class="modal-btn">缩小 −</button>
+        <button type="button" id="poster-zoom-reset" class="modal-btn">100%</button>
+        <button type="button" id="poster-zoom-in" class="modal-btn">放大 +</button>
+        <button type="button" id="poster-modal-close" class="modal-btn is-close">关闭 Esc</button>
+      </div>
+    </div>
+    <div id="poster-modal-stage" class="modal-stage">
+      <img id="poster-modal-img" alt="266 手风琴布局原海报放大图" draggable="false">
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
